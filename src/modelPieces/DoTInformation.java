@@ -20,6 +20,7 @@ public class DoTInformation {
 	public static double Neuro_DmgPerTick = 10;  // ?
 	public static double Neuro_TicksPerSec = 2;  // ?
 	public static double Neuro_SecsDuration = 8;  // ?
+	public static double Neuro_DPS = Neuro_DmgPerTick * Neuro_TicksPerSec;
 	
 	/*
 		Electrocution
@@ -37,6 +38,7 @@ public class DoTInformation {
 	public static double Electro_DmgPerTick = 4;
 	public static double Electro_TicksPerSec = 4;
 	public static double Electro_SecsDuration = 3;
+	public static double Electro_DPS = Electro_DmgPerTick * Electro_TicksPerSec;
 	
 	/*
 		Fire
@@ -56,6 +58,7 @@ public class DoTInformation {
 	public static double Fire_DmgPerTick = 6;  // ?
 	public static double Fire_TicksPerSec = 2;  // ?
 	public static double Fire_SecsDuration = 6;  // ?
+	public static double Fire_DPS = Fire_DmgPerTick * Fire_TicksPerSec;
 	
 	/*
 		Radiation
@@ -67,6 +70,7 @@ public class DoTInformation {
 	*/
 	public static double Rad_DmgPerTick = 12;  // ?
 	public static double Rad_TicksPerSec = 2;  // ?
+	public static double Rad_DPS = Rad_DmgPerTick * Rad_TicksPerSec;
 	
 	// Cryo is another elemental damage type, but has no DoT associated. Instead, enemies who have their "cold" meter filled become frozen in place.
 }

@@ -8,7 +8,7 @@ package modelPieces;
 	SMG
 	Autocannon
 	BurstPistol
-	Minigun
+	Minigun?
 	Revolver
 	Boomstick
 	Classic_Hipfire
