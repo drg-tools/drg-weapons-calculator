@@ -3,7 +3,10 @@ package modelPieces;
 /*
 	This class will be a standardized location for all Damage Over Time mechanics that can be applied
 	by DRG weapons. Most of these numbers will be educated guesses based on personal testing, since the 
-	Wiki doesn't have very much information about these mechanics.
+	Wiki doesn't have very much information about these mechanics. For all of these DoTs, they cannot be 
+	stacked on themselves (e.g. 2 Electrocute DoTs and 3 Fire DoTs), but they do stack with each other.
+	If a second DoT of the same type would be applied before the DoT duration is done, its duration is refreshed 
+	instead.
 */
 public class DoTInformation {
 	/*
@@ -23,6 +26,7 @@ public class DoTInformation {
 		
 		Weapons that can apply this DoT:
 			Engineer - "Stubby" SMG (built into weapon, proc chance ranges from 5 - 30% depending on Mods and OC)
+			Engineer - Breach Cutter (Overclock, High Voltage Crossover, 100% chance to proc?)
 			Gunner - Burst Pistol (Overclock, Electro Minelets, 100% chance to proc)
 			Scout - Deepcore AR (Overclock, Electrifying Reload, 5% proc chance/bullet hit upon reload)
 			Scout - M1000 Classic (Overclock, Electrocuting Focus Shots, 100% chance to proc on focused shots)
@@ -44,6 +48,7 @@ public class DoTInformation {
 			Engineer - Grenade Launcher (Mod Tier 3, Incendiary Compound)
 			Engineer - Breach Cutter (Overclock, Inferno)
 			Gunner - Minigun (Mod Tier 5, Hot Bullets)
+			Gunner - Minigun (Mod Tier 5, Aggressive Overheat)
 			Gunner - Minigun (Overclock, Burning Hell)
 			Gunner - Incendiary Grenade
 			Scout - Boomstick (Mod Tier 5, White Phosphorous Shells)

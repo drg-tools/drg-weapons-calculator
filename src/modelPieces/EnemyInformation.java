@@ -84,24 +84,12 @@ public class EnemyInformation {
 		return sum == 1.0;
 	}
 	
-	private static double vectorDotProduct(double[] A, double[] B) {
-		if (A.length != B.length) {
-			return -1.0;
-		}
-		
-		double sum = 0.0;
-		for (int i = 0; i < A.length; i++) {
-			sum += A[i] * B[i];
-		}
-		return sum;
-	}
-	
 	public static double probabilityBulletWillHitWeakpoint() {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
 		}
 		
-		double toReturn = vectorDotProduct(spawnRates, probabilityBulletHitsWeakpointPerEnemyType);
+		double toReturn = MathUtils.vectorDotProduct(spawnRates, probabilityBulletHitsWeakpointPerEnemyType);
 		// System.out.println("Estimated percentage of bullets fired that will hit a weakpoint: " + toReturn);
 		return toReturn;
 	}
@@ -111,7 +99,7 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		double toReturn = vectorDotProduct(spawnRates, defaultWeakpointDamageBonusPerEnemyType);
+		double toReturn = MathUtils.vectorDotProduct(spawnRates, defaultWeakpointDamageBonusPerEnemyType);
 		// System.out.println("Average damage multiplier from hitting a weakpoint: " + toReturn);
 		return toReturn;
 	}

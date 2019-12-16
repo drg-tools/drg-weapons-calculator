@@ -2,12 +2,30 @@ package modelPieces;
 
 public class DamageTypeInformation {
 	/*
-		Direct Damage (Bullets, mostly)
+		Direct Damage
+		
+		Weapons that deal Direct Damage:
+			Every weapon that fires bullets
+			Driller - EPC's normal shots
+			Driller - Impact Axe
+			Engineer - Breach Cutter
 	*/
 	public static double Direct_Utility = 0;
 	
 	/*
-		Area Damage (Explosions, mostly)
+		Area Damage
+		
+		Weapons that deal Area Damage:
+			Driller - EPC's charged shots
+			Driller - Satchel Charge
+			Driller - Impact Axe
+			Driller - HE Grenade
+			Engineer - Grenade Launcher
+			Engineer - all throwables
+			Gunner - Autocannon
+			Gunner - Revolver (Mod Tier 3, Explosive Rounds)
+			Gunner - Sticky Grenade
+			Gunner - Cluster Grenade
 		
 		Enemies who resist Area Damage:
 			Glyphid Bulk Detonator; -50% damage taken
@@ -18,6 +36,21 @@ public class DamageTypeInformation {
 	
 	/*
 		Heat Damage
+		
+		As Heat Damage is dealt to an enemy, their Heat Meter increases. Once the Heat Meter is full, a Fire DoT is applied to them.
+		Continuing to deal Heat Damage will sustain the Fire DoT.
+		
+		The Heat Meter is reduced by Cold Damage, and conversely Heat Damage reduces the Cold Meter.
+		
+		Weapons that deal Heat Damage:
+			Driller - CRSPR Flamethrower
+			Engineer - Grenade Launcher (Mod Tier 3, Incendiary Compound)
+			Engineer - Breach Cutter (Overclock, Inferno)
+			Gunner - Minigun (Mod Tier 5, Hot Bullets)
+			Gunner - Minigun (Mod Tier 5, Aggressive Overheat)
+			Gunner - Minigun (Overclock, Burning Hell)
+			Gunner - Incendiary Grenade
+			Scout - Boomstick (Mod Tier 5, White Phosphorous Shells)
 		
 		Enemies who are weak to Heat Damage:
 			Glacial Strata - Glyphid Grunt, Grunt Guard, Grunt Slasher, and Praetorian
@@ -33,18 +66,32 @@ public class DamageTypeInformation {
 	/*
 		Cold Damage
 		
+		As Cold Damage is dealt to an enemy, their Cold Meter increases. Once the Cold Meter is full, the enemy is Frozen for a few seconds.
+		While Frozen, enemies cannot move or attack and take x3 damage from all sources. Additionally, Glyphid Exlpoders, Praetorians, and 
+		Bulk Detonators do not use their on-death mechanic if they die while Frozen.
+		
+		The Cold Meter is reduced by Heat Damage, and conversely Cold Damage reduces the Heat Meter.
+		
+		Weapons that deal Cold Damage:
+			Driller - Cryo Cannon
+			Scout - Zhukov (Overclock, Cryo Minelets)
+			Scout - Cryo Grenade
+		
 		Enemies who are weak to Cold Damage:
-			Q'ronar Shellback and Youngling: +70% damage taken
+			Q'ronar Shellback and Youngling: +70% damage taken, but cannot be Frozen
 			Nayaka Trawler: +100% damage taken
-			Naedocyte Breeder and all Mactera except Ice Bomber die instantly if frozen
+			Naedocyte Breeder and all normal Mactera die instantly if Frozen (Mactera Ice Bomber resists cold damage, though)
 		
 		Enemies who resist Cold Damage:
 			Glacial Strata - Glyphid Grunt, Grunt Guard, Grunt Slasher, and Praetorian
 	*/
-	public static double Cold_Utility = 1;
+	public static double Cold_Utility = 2;
 	
 	/*
 		Electric Damage
+		
+		Weapons that deal Electric Damage:
+			Engineer - "Stubby" SMG
 		
 		Enemies who are weak to Electric Damage:
 			Huuli Hoarder: +80% damage taken
@@ -87,6 +134,22 @@ public class DamageTypeInformation {
 	/*
 		Stun
 		
+		
+		One of the more simple mechanics in DRG, Stun quite simply stops an enemy from attacking and moving, making them an easy target for the Stun duration.
+		Once an enemy has been stunned, it cannot be re-stunned until it has recoved. As such, "stun-locking" an enemy is impossible. 
+		
+		Weapons that can Stun enemies:
+			Driller - Subata (Overclock, Tranquilizing Rounds)
+			Driller - Satchel Charge (Tier 4 upgrade "Stun")
+			Engineer - Shotgun (baseline, but can be improved by Mod Tier 4 "Stun Duration")
+			Engineer - Grenade Launcher (Mod Tier 4, Concussive Blast)
+			Gunner - Minigun (baseline, but can be improved by Mod Tier 3 "Stun Duration")
+			Gunner - Burst Pistol (Mod Tier 5, Burst Stun)
+			Gunner - Cluster Grenade
+			Scout - Deepcore AR (baseline, but can be improved by Mod Tier 5 "Stun")
+			Scout - M1000 Classic (Mod Tier 5, Hitting Where It Hurts)
+			Scout - Boomstick (baseline, but can be improved by Mod Tier 3 "Stun Duration")
+		
 		Enemies who resist Stun:
 			Glyphid Praetorian
 			Glyphid Grunt Guard
@@ -101,6 +164,31 @@ public class DamageTypeInformation {
 	
 	/*
 		Fear
+		
+		Fear makes enemies stop what they're doing, and move away from the Fear location for about 2 seconds. This provides temporary safety for the players.
+		
+		Weapons that can inflict Fear:
+			Driller - HE Grenade
+			Driller - Satchel Charge (Tier 4 upgrade "Big Bang")
+			Gunner - Minigun (Mod Tier 5, Aggressive Overheat)
+			Gunner - Autocannon (Mod Tier 5, Suppressive Fire)
+			Gunner - Sticky Grenade
+			Scout - M1000 Classic (Mod Tier 5, Precision Terror)
+			Scout - Boomstick (Mod Tier 5, Fear the Boomstick)
+			
+		Eneies immune to Fear:
+			Glyphid Bulk Detonator
+			Glyphid Dreadnaught
+			Glyphid Brood Nexus
+			BET-C
 	*/
-	public static double Fear_Utility = 1;
+	public static double Fear_Utility = 2;
+	
+	/*
+		Slow
+		
+		There are only a few ways to inflict a Slow on enemies. Both the Neurotoxin and Electrocute DoTs apply a slow to the enemy, and the Sticky Flames
+		from Driller's Flamethrower can slow enemies passing through with the use of Mod Tier 3 Sticky Flame Slowdown. Flying enemies and Dreadnaughts are immune to being slowed.
+	*/
+	public static double Slow_Utility = 0.5;
 }
