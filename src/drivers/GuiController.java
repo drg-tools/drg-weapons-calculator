@@ -20,16 +20,6 @@ import gunnerWeapons.Minigun;
 import gunnerWeapons.Revolver;
 import modelPieces.Weapon;
 
-/*
-	TODO list:
-	1. Create the remaining weapons
-	2. Verify numbers of all the weapons, since there have been some balance changes (Revolver and M1k, for example)
-	3. Refactor Observer/Observable into a non-deprecated paradigm ("Listener"?)
-	4. Finish implementing AccuracyEstimator; the work is done it just needs the 7 values for the 13 guns that will use it.
-	5. Finish implementing Weakpoint Bonus damage; the method is made, it just needs to be applied.
-	6. Add in some metrics to rate things like Time To Kill, Overkill ("wasted" damage), Accuracy, Utility (armor break, stun, fear, etc), Ideal DPS, Estimated DPS, and other stuff. 
-																									(Which should be used for the ideal/estimated metrics: burst or sustained DPS?) 
-*/
 
 public class GuiController implements ActionListener {
 	

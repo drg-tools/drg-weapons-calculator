@@ -51,9 +51,8 @@ public class SMG extends Weapon {
 		electrocutionDoTChance = 0.1;
 		electrocutionDoTTotalDamage = 48;
 		electrocutionDoTTicksPerSec = 4;
-		electrocutionDoTDuration = 3;  // seconds; this is a guess! TODO: find actual DoT duration.
+		electrocutionDoTDuration = 3;  // seconds
 		electrocutionDoTDamagePerTick = electrocutionDoTTotalDamage / (electrocutionDoTTicksPerSec * electrocutionDoTDuration);
-		// Electrocution DoT applies every 0.25 seconds, dealing a total of 48 damage. At 4 dmg/tick, that would take 3 seconds.
 		// Electrocution DoTs do not stack; it only refreshes the duration.
 		directDamage = 6;
 		electricDamage = 2; 
@@ -486,7 +485,7 @@ public class SMG extends Weapon {
 	private double calculateBurstElectrocutionDoTDPS() {
 		/*
 			When DoTs stack, like in BL2, the formula is PelletsPerSec * DoTDuration * DoTChance * DoTDmgPerSec.
-			However, in DRG, once a DoT is applied its duration can only be refreshed.
+			However, in DRG, once a DoT is applied it can only have its duration refreshed.
 		*/
 		double DoTChance = getElectrocutionDoTChance();
 		double meanBulletsFiredBeforeProc = Math.round(1.0 / DoTChance);
