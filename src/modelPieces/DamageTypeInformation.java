@@ -42,6 +42,9 @@ public class DamageTypeInformation {
 		
 		The Heat Meter is reduced by Cold Damage, and conversely Heat Damage reduces the Cold Meter.
 		
+		It seems that the Heat Meter can have 3 values: small, medium, or large. Each correspond approximately to enemy size, with small 
+		getting lit on Fire immediately, medium taking about a second to ignite, and large taking around four seconds to ignite. (10 Heat on Flamethrower for testing)
+		
 		Weapons that deal Heat Damage:
 			Driller - CRSPR Flamethrower
 			Engineer - Grenade Launcher (Mod Tier 3, Incendiary Compound)
@@ -71,6 +74,9 @@ public class DamageTypeInformation {
 		Bulk Detonators do not use their on-death mechanic if they die while Frozen.
 		
 		The Cold Meter is reduced by Heat Damage, and conversely Cold Damage reduces the Heat Meter.
+		
+		It seems that the Cold Meter can have 3 values: small, medium, or large. Each correspond approximately to enemy size, with small 
+		getting Frozen immediately, medium taking about a second to Freeze, and large taking around four seconds to Freeze. (5 Cold on Cryo Cannon for testing)
 		
 		Weapons that deal Cold Damage:
 			Driller - Cryo Cannon
@@ -168,6 +174,7 @@ public class DamageTypeInformation {
 		Fear makes enemies stop what they're doing, and move away from the Fear location for about 2 seconds. This provides temporary safety for the players.
 		
 		Weapons that can inflict Fear:
+			Driller - Flamethrower (Mod Tier 4, It Burns!)
 			Driller - HE Grenade
 			Driller - Satchel Charge (Tier 4 upgrade "Big Bang")
 			Gunner - Minigun (Mod Tier 5, Aggressive Overheat)
@@ -188,7 +195,7 @@ public class DamageTypeInformation {
 		Slow
 		
 		There are only a few ways to inflict a Slow on enemies. Both the Neurotoxin and Electrocute DoTs apply a slow to the enemy, and the Sticky Flames
-		from Driller's Flamethrower can slow enemies passing through with the use of Mod Tier 3 Sticky Flame Slowdown. Flying enemies and Dreadnaughts are immune to being slowed.
+		from Driller's Flamethrower can slow enemies passing through with the use of Mod Tier 3 "Sticky Flame Slowdown". Flying enemies and Dreadnaughts are immune to being slowed.
 	*/
 	public static double Slow_Utility = 0.5;
 }
