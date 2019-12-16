@@ -4,7 +4,7 @@ import utilities.MathUtils;
 
 public class EnemyInformation {
 	
-	// These are educated guesses about the enemies' spawn rates. Biome-specific enemies and "hatchling" enemy types not included.
+	// These are educated guesses about the enemies' spawn rates. Biome-specific enemies, "hatchling" enemy types, and Dreadnaughts not included.
 	// All of these numbers must sum up to exactly 1.0 for it to be a probability vector.
 	private static double[] spawnRates = {
 		0.17,  // Glyphid Swarmer
@@ -102,7 +102,7 @@ public class EnemyInformation {
 		}
 		
 		double toReturn = vectorDotProduct(spawnRates, probabilityBulletHitsWeakpointPerEnemyType);
-		System.out.println("Estimated percentage of bullets fired that will hit a weakpoint: " + toReturn);
+		// System.out.println("Estimated percentage of bullets fired that will hit a weakpoint: " + toReturn);
 		return toReturn;
 	}
 	
@@ -112,7 +112,7 @@ public class EnemyInformation {
 		}
 		
 		double toReturn = vectorDotProduct(spawnRates, defaultWeakpointDamageBonusPerEnemyType);
-		System.out.println("Average damage multiplier from hitting a weakpoint: " + toReturn);
+		// System.out.println("Average damage multiplier from hitting a weakpoint: " + toReturn);
 		return toReturn;
 	}
 	
