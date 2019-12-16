@@ -50,7 +50,7 @@ public class Revolver extends Weapon {
 		fullName = "\"Bulldog\" Heavy Revolver";
 		
 		// Base stats, before mods or overclocks alter them:
-		directDamage = 45.0;
+		directDamage = 50.0;
 		areaDamage = 0;
 		aoeRadius = 0.0;  // meters
 		carriedAmmo = 28;
@@ -60,7 +60,7 @@ public class Revolver extends Weapon {
 		stunChance = 0.5;
 		stunDuration = 1.5;  // seconds
 		maxPenetrations = 0;
-		weakpointBonus = 0.0;
+		weakpointBonus = 0.15;
 		baseSpread = 1.0;
 		spreadPerShot = 1.0;
 		recoil = 1.0;
@@ -108,7 +108,7 @@ public class Revolver extends Weapon {
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "More damage on average but it's a bit inconsistent.", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Lucky Bullets", "Missed shots have a chance to ricochet and hit nearby enemies, but there is a pissed-off one-legged rabbit out there somewhere looking for you.", 1);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a chnace to ricochet into a nearby enemy.", 1, false);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Feather Trigger", "Less weight means you can squeeze out more bullets faster than you can say \"Recoil\" but the stability of the weapon is reduced.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Five Shooter", "An updated casing profile lets you squeeze one more round into the cylinder and increases the maximum rate of fire, but all that filling and drilling has compromised the pure damage output of the weapon.", 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "Heavy tweaking has made it possible to use modified autocannon rounds in the revolver! The damage is crazy but so is the recoil and you can't carry very many rounds.", 4);
@@ -132,15 +132,15 @@ public class Revolver extends Weapon {
 				}
 			}
 			if (symbols[0] == 'C') {
-				System.out.println("Autocannon's fourth tier of mods only has two choices, so 'C' is an invalid choice.");
+				System.out.println("Revolver's first tier of mods only has two choices, so 'C' is an invalid choice.");
 				combinationIsValid = false;
 			}
 			if (symbols[3] == 'C') {
-				System.out.println("Autocannon's fourth tier of mods only has two choices, so 'C' is an invalid choice.");
+				System.out.println("Revolver's fourth tier of mods only has two choices, so 'C' is an invalid choice.");
 				combinationIsValid = false;
 			}
 			if (symbols[4] == 'C') {
-				System.out.println("Autocannon's fourth tier of mods only has two choices, so 'C' is an invalid choice.");
+				System.out.println("Revolver's fifth tier of mods only has two choices, so 'C' is an invalid choice.");
 				combinationIsValid = false;
 			}
 			List<Character> validOverclockSymbols = Arrays.asList(new Character[] {'1', '2', '3', '4', '5', '6', '-'});
@@ -285,15 +285,12 @@ public class Revolver extends Weapon {
 		double toReturn = directDamage;
 		// Start by adding flat damage bonuses
 		if (selectedTier2 == 0) {
-			toReturn += 10.0;
+			toReturn += 15.0;
 		}
 		if (selectedTier4 == 1) {
-			toReturn += 20.0;
+			toReturn += 15.0;
 		}
-		if (selectedOverclock == 3) {
-			toReturn -= 10.0;
-		}
-		else if (selectedOverclock == 5) {
+		if (selectedOverclock == 5) {
 			toReturn -= 20.0;
 		}
 			
@@ -311,7 +308,7 @@ public class Revolver extends Weapon {
 		return toReturn;
 	}
 	private int getAreaDamage() {
-		int toReturn =  areaDamage;
+		int toReturn = areaDamage;
 		if (selectedTier3 == 1) {
 			toReturn += 30;
 		}
@@ -327,12 +324,15 @@ public class Revolver extends Weapon {
 	private int getCarriedAmmo() {
 		int toReturn = carriedAmmo;
 		if (selectedTier2 == 2) {
-			toReturn += 8;
+			toReturn += 12;
 		}
 		if (selectedTier4 == 0) {
 			toReturn += 12;
 		}
-		if (selectedOverclock == 4) {
+		if (selectedOverclock == 3) {
+			toReturn += 5;
+		}
+		else if (selectedOverclock == 4) {
 			toReturn -= 12;
 		}
 		else if (selectedOverclock == 5) {
@@ -351,9 +351,6 @@ public class Revolver extends Weapon {
 		double toReturn = rateOfFire;
 		if (selectedOverclock == 2) {
 			toReturn += 4.0;
-		}
-		else if (selectedOverclock == 3) {
-			toReturn += 1.0;
 		}
 		return toReturn;
 	}
@@ -382,7 +379,7 @@ public class Revolver extends Weapon {
 	private double getWeakpointBonus() {
 		double toReturn = weakpointBonus;
 		if (selectedTier3 == 2) {
-			toReturn += 0.75;
+			toReturn += 0.5;
 		}
 		return toReturn;
 	}
@@ -390,6 +387,10 @@ public class Revolver extends Weapon {
 		double toReturn = baseSpread;
 		if (selectedTier1 == 1) {
 			toReturn -= 0.7;
+		}
+		
+		if (selectedOverclock == 3) {
+			toReturn += 0.15;
 		}
 		return toReturn;
 	}
@@ -427,10 +428,10 @@ public class Revolver extends Weapon {
 		
 		toReturn[3] = new StatsRow("Magazine Size:", "" + getMagazineSize(), selectedOverclock == 3);
 		
-		boolean carriedAmmoModified = selectedTier2 == 2 || selectedTier4 == 0 || selectedOverclock == 4 || selectedOverclock == 5;
+		boolean carriedAmmoModified = selectedTier2 == 2 || selectedTier4 == 0 || selectedOverclock > 2 && selectedOverclock < 6;
 		toReturn[4] = new StatsRow("Max Ammo:", "" + getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[5] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), selectedOverclock == 2 || selectedOverclock == 3);
+		toReturn[5] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), selectedOverclock == 2);
 		
 		toReturn[6] = new StatsRow("Reload Time:", "" + getReloadTime(), selectedTier1 == 0);
 		
