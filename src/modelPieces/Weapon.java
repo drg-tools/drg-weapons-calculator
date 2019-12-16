@@ -306,9 +306,8 @@ public abstract class Weapon extends Observable {
 			take damage from a projectile with the given radius of AoE damage.
 		*/
 		
-		// Measured using meters
-		double glyphidBodyRadius = 0.4;
-		double glyphidBodyAndLegsRadius = 0.9;
+		double glyphidBodyRadius = EnemyInformation.GlyphidGruntBodyRadius;
+		double glyphidBodyAndLegsRadius = EnemyInformation.GlyphidGruntBodyAndLegsRadius;
 		
 		double effectivePackingRadius = glyphidBodyRadius + 0.5 * (glyphidBodyAndLegsRadius - glyphidBodyRadius);
 		
@@ -370,157 +369,13 @@ public abstract class Weapon extends Observable {
 		}
 	}
 	
-	private double estimatedPercentageOfWeakpointHits() {
-		/*
-			This is a utility method that makes an educated guess at what % of shots fired at various enemies will hit their weakpoints,
-			and then weighs that % by the odds of that enemy being encountered. Sum up all the weighted percentages, and in theory it 
-			should be a halfway-decent estimate of what % of shots fired will hit a weakpoint. That estimate can then be used to 
-			estimate the "real" DPS of the guns since it can account for weakpoint bonus damage mods and OCs.
-		*/
-		
-		// Section 1: estimates of what % of all enemies fought is each type
-		double glyphidSwarmerRate = 0.17;
-		double glyphidGruntRate = 0.24;
-		double glyphidGruntGuardRate = 0.08;
-		double glyphidGruntSlasherRate = 0.08;
-		double glyphidPraetorianRate = 0.05;
-		double glyphidExploderRate = 0.08;
-		double glyphidBulkDetonatorRate = 0.01;
-		double glyphidWebspitterRate = 0.04;
-		double glyphidAcidspitterRate = 0.02;
-		double glyphidMenaceRate = 0.02;
-		double glyphidWardenRate = 0.02;
-		double qronarShellbackRate = 0.01;
-		double macteraSpawnRate = 0.08;
-		double macteraGrabberRate = 0.01;
-		double macteraBomberRate = 0.03;
-		double naedocyteBreederRate = 0.02;
-		double glyphidBroodNexusRate = 0.02;
-		double spitballInfectorRate = 0.01;
-		double caveLeechRate = 0.01;
-		
-		// Section 2: enemy weakpoint hit percentage estimates
-		double glyphidSwarmerWeakpointPercentage = 0.0;  // No weakpoint
-		double glyphidGruntWeakpointPercentage = 0.9;
-		double glyphidGruntGuardWeakpointPercentage = 0.5;
-		double glyphidGruntSlasherWeakpointPercentage = 0.9;
-		double glyphidPraetorianWeakpointPercentage = 0.2;
-		double glyphidExploderWeakpointPercentage = 0.1;
-		double glyphidBulkDetonatorWeakpointPercentage = 0.2;
-		double glyphidWebspitterWeakpointPercentage = 0.1;
-		double glyphidAcidspitterWeakpointPercentage = 0.4;
-		double glyphidMenaceWeakpointPercentage = 0.7;
-		double glyphidWardenWeakpointPercentage = 0.5;
-		double qronarShellbackWeakpointPercentage = 0.1;
-		double macteraSpawnWeakpointPercentage = 0.8;
-		double macteraGrabberWeakpointPercentage = 0.2;
-		double macteraBomberWeakpointPercentage = 0.9;
-		double naedocyteBreederWeakpointPercentage = 0.1;
-		double glyphidBroodNexusWeakpointPercentage = 0.9;
-		double spitballInfectorWeakpointPercentage = 0.4;
-		double caveLeechWeakpointPercentage = 0.0;  // No weakpoint
-		
-		// Section 3: weighted sum of those values
-		double weightedSum = 0.0;
-		weightedSum += glyphidSwarmerRate * glyphidSwarmerWeakpointPercentage;
-		weightedSum += glyphidGruntRate * glyphidGruntWeakpointPercentage;
-		weightedSum += glyphidGruntGuardRate * glyphidGruntGuardWeakpointPercentage;
-		weightedSum += glyphidGruntSlasherRate * glyphidGruntSlasherWeakpointPercentage;
-		weightedSum += glyphidPraetorianRate * glyphidPraetorianWeakpointPercentage;
-		weightedSum += glyphidExploderRate * glyphidExploderWeakpointPercentage;
-		weightedSum += glyphidBulkDetonatorRate * glyphidBulkDetonatorWeakpointPercentage;
-		weightedSum += glyphidWebspitterRate * glyphidWebspitterWeakpointPercentage;
-		weightedSum += glyphidAcidspitterRate * glyphidAcidspitterWeakpointPercentage;
-		weightedSum += glyphidMenaceRate * glyphidMenaceWeakpointPercentage;
-		weightedSum += glyphidWardenRate * glyphidWardenWeakpointPercentage;
-		weightedSum += qronarShellbackRate * qronarShellbackWeakpointPercentage;
-		weightedSum += macteraSpawnRate * macteraSpawnWeakpointPercentage;
-		weightedSum += macteraGrabberRate * macteraGrabberWeakpointPercentage;
-		weightedSum += macteraBomberRate * macteraBomberWeakpointPercentage;
-		weightedSum += naedocyteBreederRate * naedocyteBreederWeakpointPercentage;
-		weightedSum += glyphidBroodNexusRate * glyphidBroodNexusWeakpointPercentage;
-		weightedSum += spitballInfectorRate * spitballInfectorWeakpointPercentage;
-		weightedSum += caveLeechRate * caveLeechWeakpointPercentage;
-		
-		System.out.println("Estimated percentage of bullets fired that will hit a weakpoint: " + weightedSum);
-		return weightedSum;
-	}
-	private double estimatedWeakpointDamageIncrease() {
-		/*
-			This method uses the same spawn rate stats as above, but instead returns a damage multiplier for all bullets that can do weakpoint damage.
-		*/
-		
-		// Section 1: estimates of what % of all enemies fought is each type
-		double glyphidSwarmerRate = 0.17;
-		double glyphidGruntRate = 0.24;
-		double glyphidGruntGuardRate = 0.08;
-		double glyphidGruntSlasherRate = 0.08;
-		double glyphidPraetorianRate = 0.05;
-		double glyphidExploderRate = 0.08;
-		double glyphidBulkDetonatorRate = 0.01;
-		double glyphidWebspitterRate = 0.04;
-		double glyphidAcidspitterRate = 0.02;
-		double glyphidMenaceRate = 0.02;
-		double glyphidWardenRate = 0.02;
-		double qronarShellbackRate = 0.01;
-		double macteraSpawnRate = 0.08;
-		double macteraGrabberRate = 0.01;
-		double macteraBomberRate = 0.03;
-		double naedocyteBreederRate = 0.02;
-		double glyphidBroodNexusRate = 0.02;
-		double spitballInfectorRate = 0.01;
-		double caveLeechRate = 0.01;
-		
-		// Section 2: enemy weakpoint hit percentage estimates
-		double glyphidSwarmerWeakpointPercentage = 0.0;  // No weakpoint
-		double glyphidGruntWeakpointPercentage = 2.0;
-		double glyphidGruntGuardWeakpointPercentage = 2.0;
-		double glyphidGruntSlasherWeakpointPercentage = 2.0;
-		double glyphidPraetorianWeakpointPercentage = 1.0; // It has a weakpoint, but it only takes normal damage.
-		double glyphidExploderWeakpointPercentage = 2.0;
-		double glyphidBulkDetonatorWeakpointPercentage = 3.0;
-		double glyphidWebspitterWeakpointPercentage = 2.0;
-		double glyphidAcidspitterWeakpointPercentage = 2.0;
-		double glyphidMenaceWeakpointPercentage = 2.0;
-		double glyphidWardenWeakpointPercentage = 3.0;
-		double qronarShellbackWeakpointPercentage = 2.0;
-		double macteraSpawnWeakpointPercentage = 3.0;
-		double macteraGrabberWeakpointPercentage = 3.0;
-		double macteraBomberWeakpointPercentage = 3.0;
-		double naedocyteBreederWeakpointPercentage = 3.0;
-		double glyphidBroodNexusWeakpointPercentage = 2.0;
-		double spitballInfectorWeakpointPercentage = 2.0;
-		double caveLeechWeakpointPercentage = 0.0;  // No weakpoint
-		
-		// Section 3: weighted sum of those values
-		double weightedSum = 0.0;
-		weightedSum += glyphidSwarmerRate * glyphidSwarmerWeakpointPercentage;
-		weightedSum += glyphidGruntRate * glyphidGruntWeakpointPercentage;
-		weightedSum += glyphidGruntGuardRate * glyphidGruntGuardWeakpointPercentage;
-		weightedSum += glyphidGruntSlasherRate * glyphidGruntSlasherWeakpointPercentage;
-		weightedSum += glyphidPraetorianRate * glyphidPraetorianWeakpointPercentage;
-		weightedSum += glyphidExploderRate * glyphidExploderWeakpointPercentage;
-		weightedSum += glyphidBulkDetonatorRate * glyphidBulkDetonatorWeakpointPercentage;
-		weightedSum += glyphidWebspitterRate * glyphidWebspitterWeakpointPercentage;
-		weightedSum += glyphidAcidspitterRate * glyphidAcidspitterWeakpointPercentage;
-		weightedSum += glyphidMenaceRate * glyphidMenaceWeakpointPercentage;
-		weightedSum += glyphidWardenRate * glyphidWardenWeakpointPercentage;
-		weightedSum += qronarShellbackRate * qronarShellbackWeakpointPercentage;
-		weightedSum += macteraSpawnRate * macteraSpawnWeakpointPercentage;
-		weightedSum += macteraGrabberRate * macteraGrabberWeakpointPercentage;
-		weightedSum += macteraBomberRate * macteraBomberWeakpointPercentage;
-		weightedSum += naedocyteBreederRate * naedocyteBreederWeakpointPercentage;
-		weightedSum += glyphidBroodNexusRate * glyphidBroodNexusWeakpointPercentage;
-		weightedSum += spitballInfectorRate * spitballInfectorWeakpointPercentage;
-		weightedSum += caveLeechRate * caveLeechWeakpointPercentage;
-		
-		System.out.println("Estimated damage multiplier from hitting a weakpoint: " + weightedSum);
-		return weightedSum;
+	protected double increaseBulletDamageForWeakpoints(double preWeakpointBulletDamage) {
+		return increaseBulletDamageForWeakpoints(preWeakpointBulletDamage, 0.0);
 	}
 	protected double increaseBulletDamageForWeakpoints(double preWeakpointBulletDamage, double weakpointBonusModifier) {
-		// As a rule of thumb, the weakpointBonusModifier is roughly a (2/3 * bonus damage) increase per bullet. 30% bonus modifier => 20% dmg increase to DPS
-		double probabilityBulletHitsWeakpoint = estimatedPercentageOfWeakpointHits();
-		double estimatedDamageIncreaseWithoutModifier = estimatedWeakpointDamageIncrease();
+		// As a rule of thumb, the weakpointBonusModifier is roughly a (2/3 * bonus damage) increase per bullet. 30% bonus modifier => ~20% increase to DPS
+		double probabilityBulletHitsWeakpoint = EnemyInformation.probabilityBulletWillHitWeakpoint();
+		double estimatedDamageIncreaseWithoutModifier = EnemyInformation.averageWeakpointDamageIncrease();
 		
 		return ((1.0 - probabilityBulletHitsWeakpoint) + probabilityBulletHitsWeakpoint * estimatedDamageIncreaseWithoutModifier * (1.0 + weakpointBonusModifier)) * preWeakpointBulletDamage;
 	}

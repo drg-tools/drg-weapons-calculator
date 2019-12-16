@@ -453,7 +453,7 @@ public class Subata extends Weapon {
 		double foo = getDirectDamage();
 		double bar = getWeakpointBonus();
 		System.out.println("Damage per bullet pre-bonus: " + foo + ", +" + bar + "% weakpoint modifer");
-		System.out.println("Damage increased without modifier: " + increaseBulletDamageForWeakpoints(getDirectDamage(), 0.0));
+		System.out.println("Damage increased without modifier: " + increaseBulletDamageForWeakpoints(getDirectDamage()));
 		System.out.println("Damage increased with modifier: " + increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()));
 		
 		return toReturn;
