@@ -477,7 +477,7 @@ public class Minigun extends Weapon {
 		return false;
 	}
 	
-	private double calculateDamagePerBurst() {
+	private double calculateDamagePerBurst(boolean weakpointBonus) {
 		/* 
 			The length of the burst is determined by the heat accumulated. Each burst duration should stop just shy of 
 			overheating the minigun so that it doesn't have the overheat cooldown penalty imposed.
@@ -488,12 +488,18 @@ public class Minigun extends Weapon {
 			double pelletsFiredWhileNotStabilized = bulletsFiredTilMaxStability / 2.0;
 			damageMultiplier = (pelletsFiredWhileNotStabilized + 1.15*(numPelletsFiredBeforeOverheat - pelletsFiredWhileNotStabilized)) / numPelletsFiredBeforeOverheat;
 		}
-		return numPelletsFiredBeforeOverheat * (double) getDamagePerPellet() * damageMultiplier;
+		
+		if (weakpointBonus) {
+			return numPelletsFiredBeforeOverheat * increaseBulletDamageForWeakpoints((double) getDamagePerPellet()) * damageMultiplier;
+		}
+		else {
+			return numPelletsFiredBeforeOverheat * (double) getDamagePerPellet() * damageMultiplier;
+		}
 	}
 
 	@Override
 	public double calculateIdealBurstDPS() {
-		double damagePerBurst = calculateDamagePerBurst();
+		double damagePerBurst = calculateDamagePerBurst(false);
 		double numPelletsFiredBeforeOverheat = Math.floor(maxHeat / getHeatPerPellet());
 		double burstDuration = 2.0 * numPelletsFiredBeforeOverheat / ((double) getRateOfFire());
 		return damagePerBurst / burstDuration;
@@ -501,7 +507,7 @@ public class Minigun extends Weapon {
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		double damagePerBurst = calculateDamagePerBurst();
+		double damagePerBurst = calculateDamagePerBurst(false);
 		double numPelletsFiredBeforeOverheat = Math.floor(maxHeat / getHeatPerPellet());
 		double burstDuration = 2.0 * numPelletsFiredBeforeOverheat / ((double) getRateOfFire());
 		double coolOffDuration = maxHeat / getCoolingRate();
@@ -510,8 +516,11 @@ public class Minigun extends Weapon {
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		double damagePerBurst = calculateDamagePerBurst(true);
+		double numPelletsFiredBeforeOverheat = Math.floor(maxHeat / getHeatPerPellet());
+		double burstDuration = 2.0 * numPelletsFiredBeforeOverheat / ((double) getRateOfFire());
+		double coolOffDuration = maxHeat / getCoolingRate();
+		return damagePerBurst / (burstDuration + coolOffDuration);
 	}
 
 	@Override
@@ -534,7 +543,7 @@ public class Minigun extends Weapon {
 	private double calculateMaxSingleTargetDamage() {
 		double numPelletsFiredBeforeOverheat = Math.floor(maxHeat / getHeatPerPellet());
 		double numberOfBursts = (double) getMaxAmmo() / (2.0 * numPelletsFiredBeforeOverheat);
-		return numberOfBursts * calculateDamagePerBurst();
+		return numberOfBursts * calculateDamagePerBurst(false);
 	}
 
 	@Override

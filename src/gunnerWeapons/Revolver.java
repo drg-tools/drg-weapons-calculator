@@ -468,26 +468,31 @@ public class Revolver extends Weapon {
 		return selectedTier3 == 1;
 	}
 	
-	private double calculateDamagePerMagazine() {
-		return (getDirectDamage() + numberOfTargets * getAreaDamage()) * getMagazineSize();
+	private double calculateDamagePerMagazine(boolean weakpointBonus) {
+		if (weakpointBonus) {
+			return (increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) + numberOfTargets * getAreaDamage()) * getMagazineSize();
+		}
+		else {
+			return (getDirectDamage() + numberOfTargets * getAreaDamage()) * getMagazineSize();
+		}
 	}
 
 	@Override
 	public double calculateIdealBurstDPS() {
 		double timeToFireMagazine = (double) getMagazineSize() / getRateOfFire();
-		return calculateDamagePerMagazine() / timeToFireMagazine;
+		return calculateDamagePerMagazine(false) / timeToFireMagazine;
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine() / timeToFireMagazineAndReload;
+		return calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+		return calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
 	}
 
 	@Override
@@ -521,7 +526,7 @@ public class Revolver extends Weapon {
 		
 		// Set how many targets you expect will be hit per bullet here.
 		numberOfTargets = calculateMaxNumTargets();
-		double damagePerMagazine = calculateDamagePerMagazine();
+		double damagePerMagazine = calculateDamagePerMagazine(false);
 		// Don't forget to add the magazine that you start out with, in addition to the carried ammo
 		double numberOfMagazines = ((double) getCarriedAmmo()) / ((double) getMagazineSize()) + 1.0;
 		

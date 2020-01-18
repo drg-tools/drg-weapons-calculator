@@ -470,27 +470,32 @@ public class Subata extends Weapon {
 		return false;
 	}
 	
-	private double calculateDamagePerMagazine() {
+	private double calculateDamagePerMagazine(boolean weakpointBonus) {
 		// Somehow "Explosive Reload" will have to be modeled in here.
-		return (double) getDirectDamage() * getMagazineSize();
+		if (weakpointBonus) {
+			return (double) increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) * getMagazineSize();
+		}
+		else {
+			return (double) getDirectDamage() * getMagazineSize();
+		}
 	}
 
 	@Override
 	public double calculateIdealBurstDPS() {
 		double timeToFireMagazine = ((double) getMagazineSize()) / getRateOfFire();
-		return calculateDamagePerMagazine() / timeToFireMagazine;
+		return calculateDamagePerMagazine(false) / timeToFireMagazine;
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine() / timeToFireMagazineAndReload;
+		return calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+		return calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
 	}
 
 	@Override

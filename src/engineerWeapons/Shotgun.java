@@ -469,8 +469,13 @@ public class Shotgun extends Weapon {
 	* Other Methods
 	****************************************************************************************/
 	
-	private double calculateDamagePerMagazine() {
-		return (double) (getDamagePerPellet() * getNumberOfPellets() * getMagazineSize());
+	private double calculateDamagePerMagazine(boolean weakpointBonus) {
+		if (weakpointBonus) {
+			return (double) (increaseBulletDamageForWeakpoints(getDamagePerPellet()) * getNumberOfPellets() * getMagazineSize());
+		}
+		else {
+			return (double) (getDamagePerPellet() * getNumberOfPellets() * getMagazineSize());
+		}
 	}
 	
 	@Override
@@ -481,19 +486,19 @@ public class Shotgun extends Weapon {
 	@Override
 	public double calculateIdealBurstDPS() {
 		double timeToFireMagazine = ((double) getMagazineSize()) / getRateOfFire();
-		return calculateDamagePerMagazine() / timeToFireMagazine;
+		return calculateDamagePerMagazine(false) / timeToFireMagazine;
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine() / timeToFireMagazineAndReload;
+		return calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+		return calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
 	}
 
 	@Override

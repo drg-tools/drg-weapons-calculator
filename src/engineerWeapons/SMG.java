@@ -463,8 +463,8 @@ public class SMG extends Weapon {
 	* Other Methods
 	****************************************************************************************/
 	
-	private double calculateDamagePerBullet() {
-		double toReturn = getDirectDamage();
+	private double calculateDamagePerBullet(boolean weakpointBonus) {
+		double directDamage = getDirectDamage();
 		
 		if (selectedTier5 == 0) {
 			// To model a 30% physical damage increase to electrocuted targets, average out how many bullets/mag that would get the buff after a DoT proc, and then spread that bonus across every bullet.
@@ -472,14 +472,21 @@ public class SMG extends Weapon {
 			double meanBulletsFiredBeforeProc = Math.round(1.0 / DoTChance);
 			double numBulletsFiredAfterProc = getMagazineSize() - meanBulletsFiredBeforeProc;
 			
-			toReturn *= (meanBulletsFiredBeforeProc + numBulletsFiredAfterProc * 1.3) / getMagazineSize();
+			directDamage *= (meanBulletsFiredBeforeProc + numBulletsFiredAfterProc * 1.3) / getMagazineSize();
 		}
 		
-		return toReturn + getElectricDamage();
+		// According to the wiki, Electric damage gets bonus from Weakpoints too
+		double totalDamage = directDamage + getElectricDamage();
+		if (weakpointBonus) {
+			return increaseBulletDamageForWeakpoints(totalDamage, getWeakpointBonusDamage());
+		}
+		else {
+			return totalDamage;
+		}
 	}
 	
-	private double calculateDirectDamagePerMagazine() {
-		return calculateDamagePerBullet() * getMagazineSize();
+	private double calculateDirectDamagePerMagazine(boolean weakpointBonus) {
+		return calculateDamagePerBullet(weakpointBonus) * getMagazineSize();
 	}
 	
 	private double calculateBurstElectrocutionDoTDPS() {
@@ -507,7 +514,7 @@ public class SMG extends Weapon {
 	public double calculateIdealBurstDPS() {
 		// First calculate the direct damage DPS of the bullets, then add the DoT DPS on top.
 		double timeToFireMagazine = ((double) getMagazineSize()) / getRateOfFire();
-		double directDPS = calculateDirectDamagePerMagazine() / timeToFireMagazine;
+		double directDPS = calculateDirectDamagePerMagazine(false) / timeToFireMagazine;
 		
 		return directDPS + calculateBurstElectrocutionDoTDPS();
 	}
@@ -516,7 +523,7 @@ public class SMG extends Weapon {
 	public double calculateIdealSustainedDPS() {
 		// First calculate the direct damage DPS of the bullets, then add the DoT DPS on top.
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		double directDPS = calculateDirectDamagePerMagazine() / timeToFireMagazineAndReload;
+		double directDPS = calculateDirectDamagePerMagazine(false) / timeToFireMagazineAndReload;
 		
 		// Due to high fire rate of the gun, it can be modeled as always having an Electrocute DoT up for sustained DPS.
 		return directDPS + electrocutionDoTDamagePerTick * electrocutionDoTTicksPerSec;
@@ -524,8 +531,12 @@ public class SMG extends Weapon {
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		// First calculate the direct damage DPS of the bullets, then add the DoT DPS on top.
+		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+		double directDPS = calculateDirectDamagePerMagazine(true) / timeToFireMagazineAndReload;
+		
+		// Due to high fire rate of the gun, it can be modeled as always having an Electrocute DoT up for sustained DPS.
+		return directDPS + electrocutionDoTDamagePerTick * electrocutionDoTTicksPerSec;
 	}
 
 	@Override
@@ -550,7 +561,7 @@ public class SMG extends Weapon {
 	public double calculateMaxMultiTargetDamage() {
 		// First, how much direct damage can be dealt without DoT calculations. Second, add the DoTs on the primary targets. Third, if necessary, add the secondary target DoTs.
 		double totalDamage = 0;
-		totalDamage += calculateDamagePerBullet() * (getMagazineSize() + getCarriedAmmo());
+		totalDamage += calculateDamagePerBullet(false) * (getMagazineSize() + getCarriedAmmo());
 		
 		/* 
 			There's no good way to model RNG-based mechanics max damage, such as the Electrocute DoT. I'm choosing

@@ -455,15 +455,21 @@ public class Autocannon extends Weapon {
 		return true;
 	}
 	
-	private double calculateDamagePerMagazine() {
-		int damagePerBullet = getDirectDamage() + numberOfTargets * getAreaDamage();
+	private double calculateDamagePerMagazine(boolean weakpointBonus) {
+		double damagePerBullet;
+		if (weakpointBonus) {
+			damagePerBullet = increaseBulletDamageForWeakpoints(getDirectDamage()) + numberOfTargets * getAreaDamage();
+		}
+		else {
+			damagePerBullet = getDirectDamage() + numberOfTargets * getAreaDamage();
+		}
 		double magSize = (double) getMagazineSize();
 		double damageMultiplier = 1.0;
 		if (selectedTier5 == 0) {
 			double numBulletsRampup = (double) getNumBulletsRampup();
 			damageMultiplier = (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
 		}
-		return ((double) damagePerBullet) * magSize * damageMultiplier;
+		return damagePerBullet * magSize * damageMultiplier;
 	}
 
 	@Override
@@ -477,19 +483,19 @@ public class Autocannon extends Weapon {
 			I THINK that they're equivalent, but I'll do it the long way to be sure.
 		*/
 		double timeToFireMagazine = ((double) getMagazineSize()) / getAverageRateOfFire();
-		return calculateDamagePerMagazine() / timeToFireMagazine;
+		return calculateDamagePerMagazine(false) / timeToFireMagazine;
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getAverageRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine() / timeToFireMagazineAndReload;
+		return calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getAverageRateOfFire()) + getReloadTime();
+		return calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
 	}
 
 	@Override
@@ -516,7 +522,7 @@ public class Autocannon extends Weapon {
 		
 		// Set how many targets you expect will be hit per bullet here.
 		numberOfTargets = calculateMaxNumTargets();
-		double damagePerMagazine = calculateDamagePerMagazine();
+		double damagePerMagazine = calculateDamagePerMagazine(false);
 		// Don't forget to add the magazine that you start out with, in addition to the carried ammo
 		double numberOfMagazines = ((double) getCarriedAmmo()) / ((double) getMagazineSize()) + 1.0;
 		
