@@ -82,7 +82,7 @@ public class WeaponStatsGenerator {
 		
 		if (printStatsToConsole) {
 			System.out.printf("******** %s ********\n", weaponToTest.getFullName());
-			System.out.printf("%s\t\t%s\t%s\t%s\t%s\t%s\t\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", headers[0], headers[1], headers[2], headers[3], headers[4], 
+			System.out.printf("%s\t\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t\t%s\t%s\t%s\n", headers[0], headers[1], headers[2], headers[3], headers[4], 
 							  headers[5], headers[6], headers[7], headers[8], headers[9], headers[10], headers[11], headers[12]);
 		
 			// Section 1: baseline statistics
@@ -94,7 +94,7 @@ public class WeaponStatsGenerator {
 			weaponToTest.setSelectedOverclock(-1);
 			
 			calculateStatsAndPrint(printStatsToConsole, false);
-			System.out.println("---------------------------------------------------------------------------------------------------------------------------------------");
+			System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
 		
 			// Section 2: stat changes of individual mods
 			int i;
@@ -132,7 +132,7 @@ public class WeaponStatsGenerator {
 			}
 			// Unselect the mod at this tier so it doesn't affect the next tier
 			weaponToTest.setSelectedModAtTier(5, -1);
-			System.out.println("---------------------------------------------------------------------------------------------------------------------------------------");
+			System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
 		
 			// Section 3: stat changes of individual overclocks
 			for (i = 0; i < weaponToTest.getOverclocks().length; i++) {
@@ -141,7 +141,7 @@ public class WeaponStatsGenerator {
 			}
 			// Unselect the overclock so that weaponToTest will be at "baseline" before doing the 6 clone() calls
 			weaponToTest.setSelectedOverclock(-1);
-			System.out.println("---------------------------------------------------------------------------------------------------------------------------------------");
+			System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
 		}
 		
 		// Section 4: COMBINATORICS
@@ -240,8 +240,8 @@ public class WeaponStatsGenerator {
 			System.out.println("	Most number of targets hit per projectile: " + mostNumTargets.getCombination() + " at " + mostNumTargets.calculateMaxNumTargets() + " targets per projectile");
 			System.out.println("	Longest time to fire all projectiles: " + longestFiringDuration.getCombination() + " at " + longestFiringDuration.calculateFiringDuration() + " sec");
 			System.out.println("	Shortest average Time To Kill: " + fastestTTK.getCombination() + " at " + fastestTTK.averageTimeToKill() + " sec");
-			System.out.println("	Lowest average Overkill: " + lowestOverkill.getCombination() + " at " + lowestOverkill.averageOverkill() + " %");
-			System.out.println("	Most Accurate: " + bestAccuracy.getCombination() + " at " + bestAccuracy.estimatedAccuracy() + " %");
+			System.out.println("	Lowest average Overkill: " + lowestOverkill.getCombination() + " at " + lowestOverkill.averageOverkill() + "%");
+			System.out.println("	Most Accurate: " + bestAccuracy.getCombination() + " at " + bestAccuracy.estimatedAccuracy() + "%");
 			System.out.println("	Most Utility: " + bestUtility.getCombination() + " at " + bestUtility.utilityScore());
 		}
 		if (exportStatsToCSV) {
@@ -283,7 +283,7 @@ public class WeaponStatsGenerator {
 	}
 	
 	private void printStatsToConsole(String combination, double[] metrics) {
-		String format = "%s,\t\t%f,\t%f,\t%f,\t\t%f,\t\t%d,\t\t\t%f,\t\t%f,\t\t%f,\t\t%f,\t\t%f,\t\t%f,\t\t%f\n";
+		String format = "%s,\t\t%f,\t%f,\t\t%f,\t\t\t%f,\t\t\t\t%f,\t\t\t%f,\t\t%f,\t%f,\t%f,\t%f,\t%f,\t%f\n";
 		System.out.printf(format, combination, metrics[0], metrics[1], metrics[2], metrics[3], metrics[4], metrics[5], 
 						  metrics[6], metrics[7], metrics[8], metrics[9], metrics[10], metrics[11]);
 	}

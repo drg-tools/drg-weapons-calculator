@@ -41,7 +41,7 @@ public class View extends JFrame implements Observer {
 		scoutWeapons = sWeapons;
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("DRG Weapons DPS Calculator (DRG Update 26.6)");
+		setTitle("DRG Weapons DPS Calculator (DRG Update 27.3)");
 		setPreferredSize(new Dimension(1600, 760));
 		
 		constructMenu();

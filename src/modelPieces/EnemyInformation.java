@@ -11,13 +11,14 @@ public class EnemyInformation {
 		0.24,  // Glyphid Grunt
 		0.08,  // Glyphid Grunt Guard
 		0.08,  // Glyphid Grunt Slasher
-		0.05,  // Glyphid Praetorian
+		0.04,  // Glyphid Praetorian
 		0.08,  // Glyphid Exploder
 		0.01,  // Glyphid Bulk Detonator
 		0.04,  // Glyphid Webspitter
 		0.02,  // Glyphid Acidspitter
 		0.02,  // Glyphid Menace
 		0.02,  // Glyphid Warden
+		0.01,  // Glyphid Oppressor
 		0.01,  // Q'ronar Shellback
 		0.08,  // Mactera Spawn
 		0.01,  // Mactera Grabber
@@ -34,13 +35,14 @@ public class EnemyInformation {
 		0.9,  // Glyphid Grunt
 		0.5,  // Glyphid Grunt Guard
 		0.9,  // Glyphid Grunt Slasher
-		0.2,  // Glyphid Praetorian
+		0.4,  // Glyphid Praetorian
 		0.1,  // Glyphid Exploder
 		0.2,  // Glyphid Bulk Detonator
 		0.1,  // Glyphid Webspitter
 		0.4,  // Glyphid Acidspitter
 		0.7,  // Glyphid Menace
 		0.5,  // Glyphid Warden
+		1.0,  // Glyphid Oppressor
 		0.1,  // Q'ronar Shellback
 		0.8,  // Mactera Spawn
 		0.2,  // Mactera Grabber
@@ -64,6 +66,7 @@ public class EnemyInformation {
 		2.0,  // Glyphid Acidspitter
 		2.0,  // Glyphid Menace
 		3.0,  // Glyphid Warden
+		1.0,  // Glyphid Oppressor (has a weakpoint, but it only takes normal damage without mods/OCs)
 		2.0,  // Q'ronar Shellback
 		3.0,  // Mactera Spawn
 		3.0,  // Mactera Grabber
@@ -79,8 +82,8 @@ public class EnemyInformation {
 	private static double[] enemyHealthPools = {
 		12,    // Glyphid Swarmer
 		90,    // Glyphid Grunt
-		180,   // Glyphid Grunt Guard
-		150,   // Glyphid Grunt Slasher
+		270,   // Glyphid Grunt Guard
+		148,   // Glyphid Grunt Slasher
 		600,   // Glyphid Praetorian
 		20,    // Glyphid Exploder
 		4000,  // Glyphid Bulk Detonator
@@ -88,8 +91,9 @@ public class EnemyInformation {
 		120,   // Glyphid Acidspitter
 		700,   // Glyphid Menace
 		800,   // Glyphid Warden
+		900,   // Glyphid Oppressor
 		450,   // Q'ronar Shellback
-		230,   // Mactera Spawn
+		223,   // Mactera Spawn
 		500,   // Mactera Grabber
 		800,   // Mactera Bomber
 		1500,  // Naedocyte Breeder
