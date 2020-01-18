@@ -492,7 +492,7 @@ public class Minigun extends Weapon {
 	}
 
 	@Override
-	public double calculateBurstDPS() {
+	public double calculateIdealBurstDPS() {
 		double damagePerBurst = calculateDamagePerBurst();
 		double numPelletsFiredBeforeOverheat = Math.floor(maxHeat / getHeatPerPellet());
 		double burstDuration = 2.0 * numPelletsFiredBeforeOverheat / ((double) getRateOfFire());
@@ -500,19 +500,31 @@ public class Minigun extends Weapon {
 	}
 
 	@Override
-	public double calculateSustainedDPS() {
+	public double calculateIdealSustainedDPS() {
 		double damagePerBurst = calculateDamagePerBurst();
 		double numPelletsFiredBeforeOverheat = Math.floor(maxHeat / getHeatPerPellet());
 		double burstDuration = 2.0 * numPelletsFiredBeforeOverheat / ((double) getRateOfFire());
 		double coolOffDuration = maxHeat / getCoolingRate();
 		return damagePerBurst / (burstDuration + coolOffDuration);
 	}
+	
+	@Override
+	public double sustainedWeakpointDPS() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double sustainedWeakpointAccuracyDPS() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
 		if (selectedTier3 == 2 || selectedOverclock == 5) {
 			// This assumes that the penetrations don't have their damage reduced.
-			return calculateSustainedDPS();
+			return calculateIdealSustainedDPS();
 		}
 		else {
 			return 0;
@@ -541,6 +553,30 @@ public class Minigun extends Weapon {
 		double numberOfBursts = (double) getMaxAmmo() / (2.0 * numPelletsFiredBeforeOverheat);
 		double numberOfCooldowns = Math.floor(numberOfBursts) - 1.0;
 		return (numberOfBursts * 2.0 * numPelletsFiredBeforeOverheat / getRateOfFire()) + (numberOfCooldowns * maxHeat / getCoolingRate());
+	}
+
+	@Override
+	public double averageTimeToKill() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double averageOverkill() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double estimatedAccuracy() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double utilityScore() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

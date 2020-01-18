@@ -31,7 +31,6 @@ public class DoTInformation {
 			Gunner - Burst Pistol (Overclock, Electro Minelets, 100% chance to proc)
 			Scout - Deepcore AR (Overclock, Electrifying Reload, 5% proc chance/bullet hit upon reload)
 			Scout - M1000 Classic (Overclock, Electrocuting Focus Shots, 100% chance to proc on focused shots)
-			Scout - IFG Grenade (100% chance to proc)
 			All dwarves - Armor (Tier 4, Static Discharge, around 50% chance to proc?)
 			Bosco - Tier 5 upgrade, Overcharged Rounds, 30% chance to proc
 	*/

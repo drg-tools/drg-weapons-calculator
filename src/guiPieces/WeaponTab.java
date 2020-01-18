@@ -170,19 +170,28 @@ public class WeaponTab extends JPanel {
 		JPanel toReturn = new JPanel();
 		toReturn.setBackground(GuiConstants.drgBackgroundBrown);
 		toReturn.setBorder(GuiConstants.blackLine);
-		toReturn.setLayout(new GridLayout(2, 6));
+		toReturn.setLayout(new GridLayout(4, 6));
 		
 		String[] headers = new String[] {
-			"Burst DPS",
-			"Sustained DPS",
-			"Additional Target DPS",
-			"Max Multi-Target Damage",
-			"Max Number of Targets",
-			"Firing Duration (sec)"
+			"Ideal Burst DPS", 
+			"Ideal Sustained DPS", 
+			"Sustained DPS (+Weakpoints)", 
+			"Sustained DPS (+Weakpoints, +Accuracy)", 
+			"Ideal Additional Target DPS", 
+			"Max Multi-Target Dmg", 
+			"Max Num Targets", 
+			"Firing Duration (sec)", 
+			"Avg TTK (sec)", 
+			"Avg Overkill", 
+			"Accuracy", 
+			"Utility"
 		};
 		
+		int i;
 		JLabel header, value;
-		for (int i = 0; i < headers.length; i++) {
+		
+		// Row 1
+		for (i = 0; i < headers.length/2; i++) {
 			header = new JLabel(headers[i]);
 			header.setForeground(GuiConstants.drgRegularOrange);
 			toReturn.add(header);
@@ -190,12 +199,12 @@ public class WeaponTab extends JPanel {
 		
 		double[] originalStats = myWeapon.getBaselineStats();
 		
-		double burstDPS = myWeapon.calculateBurstDPS();
-		value = new JLabel("" + burstDPS);
-		if (burstDPS < originalStats[0]) {
+		double idealBurstDPS = myWeapon.calculateIdealBurstDPS();
+		value = new JLabel("" + idealBurstDPS);
+		if (idealBurstDPS < originalStats[0]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
-		else if (burstDPS > originalStats[0]) {
+		else if (idealBurstDPS > originalStats[0]) {
 			value.setForeground(GuiConstants.drgOverclockCleanGreen);
 		}
 		else {
@@ -204,12 +213,40 @@ public class WeaponTab extends JPanel {
 		}
 		toReturn.add(value);
 		
-		double sustainedDPS = myWeapon.calculateSustainedDPS();
-		value = new JLabel("" + sustainedDPS);
-		if (sustainedDPS < originalStats[1]) {
+		double idealSustainedDPS = myWeapon.calculateIdealSustainedDPS();
+		value = new JLabel("" + idealSustainedDPS);
+		if (idealSustainedDPS < originalStats[1]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
-		else if (sustainedDPS > originalStats[1]) {
+		else if (idealSustainedDPS > originalStats[1]) {
+			value.setForeground(GuiConstants.drgOverclockCleanGreen);
+		}
+		else {
+			// Implicitly means that they're equal
+			value.setForeground(GuiConstants.drgHighlightedYellow);
+		}
+		toReturn.add(value);
+		
+		double sustainedWeakpointDPS = myWeapon.sustainedWeakpointDPS();
+		value = new JLabel("" + sustainedWeakpointDPS);
+		if (sustainedWeakpointDPS < originalStats[2]) {
+			value.setForeground(GuiConstants.drgOverclockUnstableRed);
+		}
+		else if (sustainedWeakpointDPS > originalStats[2]) {
+			value.setForeground(GuiConstants.drgOverclockCleanGreen);
+		}
+		else {
+			// Implicitly means that they're equal
+			value.setForeground(GuiConstants.drgHighlightedYellow);
+		}
+		toReturn.add(value);
+		
+		double sustainedWeakpointAccuracyDPS = myWeapon.sustainedWeakpointAccuracyDPS();
+		value = new JLabel("" + sustainedWeakpointAccuracyDPS);
+		if (sustainedWeakpointAccuracyDPS < originalStats[3]) {
+			value.setForeground(GuiConstants.drgOverclockUnstableRed);
+		}
+		else if (sustainedWeakpointAccuracyDPS > originalStats[3]) {
 			value.setForeground(GuiConstants.drgOverclockCleanGreen);
 		}
 		else {
@@ -220,10 +257,10 @@ public class WeaponTab extends JPanel {
 		
 		double additionalTargetDPS = myWeapon.calculateAdditionalTargetDPS();
 		value = new JLabel("" + additionalTargetDPS);
-		if (additionalTargetDPS < originalStats[2]) {
+		if (additionalTargetDPS < originalStats[4]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
-		else if (additionalTargetDPS > originalStats[2]) {
+		else if (additionalTargetDPS > originalStats[4]) {
 			value.setForeground(GuiConstants.drgOverclockCleanGreen);
 		}
 		else {
@@ -234,10 +271,10 @@ public class WeaponTab extends JPanel {
 		
 		double maxMultiDmg = myWeapon.calculateMaxMultiTargetDamage();
 		value = new JLabel("" + maxMultiDmg);
-		if (maxMultiDmg < originalStats[3]) {
+		if (maxMultiDmg < originalStats[5]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
-		else if (maxMultiDmg > originalStats[3]) {
+		else if (maxMultiDmg > originalStats[5]) {
 			value.setForeground(GuiConstants.drgOverclockCleanGreen);
 		}
 		else {
@@ -246,8 +283,15 @@ public class WeaponTab extends JPanel {
 		}
 		toReturn.add(value);
 		
+		// Row 2
+		for (i = headers.length/2; i < headers.length; i++) {
+			header = new JLabel(headers[i]);
+			header.setForeground(GuiConstants.drgRegularOrange);
+			toReturn.add(header);
+		}
+		
 		int maxNumTargets = myWeapon.calculateMaxNumTargets();
-		int originalNumTargets = (int) originalStats[4];
+		int originalNumTargets = (int) originalStats[6];
 		if (myWeapon.currentlyDealsSplashDamage()) {
 			AoEVisualizerButton valButton = new AoEVisualizerButton("    " + maxNumTargets, myWeapon);
 			if (maxNumTargets < originalNumTargets) {
@@ -279,10 +323,67 @@ public class WeaponTab extends JPanel {
 		
 		double firingDuration = myWeapon.calculateFiringDuration();
 		value = new JLabel("" + firingDuration);
-		if (firingDuration < originalStats[5]) {
+		if (firingDuration < originalStats[7]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
-		else if (firingDuration > originalStats[5]) {
+		else if (firingDuration > originalStats[7]) {
+			value.setForeground(GuiConstants.drgOverclockCleanGreen);
+		}
+		else {
+			// Implicitly means that they're equal
+			value.setForeground(GuiConstants.drgHighlightedYellow);
+		}
+		toReturn.add(value);
+		
+		double timeToKill = myWeapon.averageTimeToKill();
+		value = new JLabel("" + timeToKill);
+		if (timeToKill > originalStats[8]) {
+			value.setForeground(GuiConstants.drgOverclockUnstableRed);
+		}
+		else if (timeToKill < originalStats[8]) {
+			value.setForeground(GuiConstants.drgOverclockCleanGreen);
+		}
+		else {
+			// Implicitly means that they're equal
+			value.setForeground(GuiConstants.drgHighlightedYellow);
+		}
+		toReturn.add(value);
+		
+		double overkill = myWeapon.averageOverkill();
+		value = new JLabel(overkill + "%");
+		if (overkill > originalStats[9]) {
+			value.setForeground(GuiConstants.drgOverclockUnstableRed);
+		}
+		else if (overkill < originalStats[9]) {
+			value.setForeground(GuiConstants.drgOverclockCleanGreen);
+		}
+		else {
+			// Implicitly means that they're equal
+			value.setForeground(GuiConstants.drgHighlightedYellow);
+		}
+		toReturn.add(value);
+		
+		// TODO: accuracy will need a special case for manual targeting
+		double accuracy = myWeapon.estimatedAccuracy();
+		value = new JLabel(accuracy + "%");
+		if (accuracy < originalStats[10]) {
+			value.setForeground(GuiConstants.drgOverclockUnstableRed);
+		}
+		else if (accuracy > originalStats[10]) {
+			value.setForeground(GuiConstants.drgOverclockCleanGreen);
+		}
+		else {
+			// Implicitly means that they're equal
+			value.setForeground(GuiConstants.drgHighlightedYellow);
+		}
+		toReturn.add(value);
+		
+		double utility = myWeapon.utilityScore();
+		value = new JLabel("" + utility);
+		if (utility < originalStats[11]) {
+			value.setForeground(GuiConstants.drgOverclockUnstableRed);
+		}
+		else if (utility > originalStats[11]) {
 			value.setForeground(GuiConstants.drgOverclockCleanGreen);
 		}
 		else {

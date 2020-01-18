@@ -74,6 +74,30 @@ public class EnemyInformation {
 		0.0   // Cave Leech (no weakpoint)
 	};
 	
+	// These values are just taken from the Wiki's default values; Hazard level and player count not factored in.
+	// Average health of an enemy: 282.53999999999996
+	private static double[] enemyHealthPools = {
+		12,    // Glyphid Swarmer
+		90,    // Glyphid Grunt
+		180,   // Glyphid Grunt Guard
+		150,   // Glyphid Grunt Slasher
+		600,   // Glyphid Praetorian
+		20,    // Glyphid Exploder
+		4000,  // Glyphid Bulk Detonator
+		40,    // Glyphid Webspitter
+		120,   // Glyphid Acidspitter
+		700,   // Glyphid Menace
+		800,   // Glyphid Warden
+		450,   // Q'ronar Shellback
+		230,   // Mactera Spawn
+		500,   // Mactera Grabber
+		800,   // Mactera Bomber
+		1500,  // Naedocyte Breeder
+		1800,  // Glyphid Brood Nexus
+		800,   // Spitball Infector
+		100    // Cave Leech
+	};
+	
 	private static boolean verifySpawnRatesTotalIsOne() {
 		double sum = 0.0;
 		for (int i = 0; i < spawnRates.length; i++) {
@@ -101,6 +125,16 @@ public class EnemyInformation {
 		
 		double toReturn = MathUtils.vectorDotProduct(spawnRates, defaultWeakpointDamageBonusPerEnemyType);
 		// System.out.println("Average damage multiplier from hitting a weakpoint: " + toReturn);
+		return toReturn;
+	}
+	
+	public static double averageHealthPool() {
+		if (!verifySpawnRatesTotalIsOne()) {
+			return -1.0;
+		}
+		
+		double toReturn = MathUtils.vectorDotProduct(spawnRates, enemyHealthPools);
+		// System.out.println("Average health of an enemy: " + toReturn);
 		return toReturn;
 	}
 	

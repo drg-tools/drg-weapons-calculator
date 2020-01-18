@@ -217,12 +217,18 @@ public abstract class Weapon extends Observable {
 		int oldT1 = selectedTier1, oldT2 = selectedTier2, oldT3 = selectedTier3, oldT4 = selectedTier4, oldT5 = selectedTier5, oldOC = selectedOverclock;
 		selectedTier1 = selectedTier2 = selectedTier3 = selectedTier4 = selectedTier5 = selectedOverclock = -1;
 		baselineCalculatedStats = new double[] {
-			calculateBurstDPS(),
-			calculateSustainedDPS(),
+			calculateIdealBurstDPS(),
+			calculateIdealSustainedDPS(),
+			sustainedWeakpointDPS(),
+			sustainedWeakpointAccuracyDPS(),
 			calculateAdditionalTargetDPS(),
 			calculateMaxMultiTargetDamage(),
 			(double) calculateMaxNumTargets(),
-			calculateFiringDuration()
+			calculateFiringDuration(),
+			averageTimeToKill(),
+			averageOverkill(),
+			estimatedAccuracy(),
+			utilityScore()
 		};
 		selectedTier1 = oldT1;
 		selectedTier2 = oldT2;
@@ -304,6 +310,9 @@ public abstract class Weapon extends Observable {
 				
 			Using those assumptions and some estimated measurements of in-game Glyphid models, this method should provide a reasonable estimate of how many Glyphid Grunts you can expect will 
 			take damage from a projectile with the given radius of AoE damage.
+			
+			Quadratic regression approximation: f(x) = 0.942x^2 + 3.81x + 1.02 
+			Approximation of the approximation: f(x) = x^2 + 4x + 1
 		*/
 		
 		double glyphidBodyRadius = EnemyInformation.GlyphidGruntBodyRadius;
@@ -373,22 +382,45 @@ public abstract class Weapon extends Observable {
 		return increaseBulletDamageForWeakpoints(preWeakpointBulletDamage, 0.0);
 	}
 	protected double increaseBulletDamageForWeakpoints(double preWeakpointBulletDamage, double weakpointBonusModifier) {
-		// As a rule of thumb, the weakpointBonusModifier is roughly a (2/3 * bonus damage) increase per bullet. 30% bonus modifier => ~20% increase to DPS
+		/*
+			Before weakpoint bonus modifier, weakpoint damage is roughly a 38% increase per bullet.
+			As a rule of thumb, the weakpointBonusModifier is roughly a (2/3 * bonus damage) additional increase per bullet. 
+			30% bonus modifier => ~20% increase to DPS
+		*/
 		double probabilityBulletHitsWeakpoint = EnemyInformation.probabilityBulletWillHitWeakpoint();
 		double estimatedDamageIncreaseWithoutModifier = EnemyInformation.averageWeakpointDamageIncrease();
 		
 		return ((1.0 - probabilityBulletHitsWeakpoint) + probabilityBulletHitsWeakpoint * estimatedDamageIncreaseWithoutModifier * (1.0 + weakpointBonusModifier)) * preWeakpointBulletDamage;
 	}
 	
-	// Single-target calculations
-	public abstract double calculateBurstDPS();
-	public abstract double calculateSustainedDPS();
+	/*
+		These methods feed into the output field at the bottom-left of the WeaponTab in the GUI
+	*/
 	
-	// Multi-target calculations
+	// Single-target calculations
+	public abstract double calculateIdealBurstDPS();
+	public abstract double calculateIdealSustainedDPS();
+	public abstract double sustainedWeakpointDPS();
+	public abstract double sustainedWeakpointAccuracyDPS();
+	
+	// Multi-target calculations (based on "ideal" DPS calculations)
 	public abstract double calculateAdditionalTargetDPS();
 	public abstract double calculateMaxMultiTargetDamage();
 	
 	// Non-damage calculations
 	public abstract int calculateMaxNumTargets();
 	public abstract double calculateFiringDuration();
+	public abstract double averageTimeToKill();
+	public abstract double averageOverkill();  // % of projectile total damage; 0.01 - 0.99
+	public abstract double estimatedAccuracy(); // -1 means manual or N/A; 0.00 - 1.00 otherwise
+	public abstract double utilityScore();
+	
+	// Shortcut method for WeaponStatsGenerator
+	public double[] getMetrics() {
+		return new double[]{
+			calculateIdealBurstDPS(), calculateIdealSustainedDPS(), sustainedWeakpointDPS(), sustainedWeakpointAccuracyDPS(),
+			calculateAdditionalTargetDPS(), calculateMaxMultiTargetDamage(), calculateMaxNumTargets(), calculateFiringDuration(),
+			averageTimeToKill(), averageOverkill(), estimatedAccuracy(), calculateIdealSustainedDPS()
+		};
+	}
 }

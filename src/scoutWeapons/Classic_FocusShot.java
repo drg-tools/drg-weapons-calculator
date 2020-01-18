@@ -139,13 +139,25 @@ public class Classic_FocusShot extends Weapon {
 	}
 
 	@Override
-	public double calculateBurstDPS() {
+	public double calculateIdealBurstDPS() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public double calculateSustainedDPS() {
+	public double calculateIdealSustainedDPS() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double sustainedWeakpointDPS() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double sustainedWeakpointAccuracyDPS() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -173,4 +185,30 @@ public class Classic_FocusShot extends Weapon {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+	@Override
+	public double averageTimeToKill() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double averageOverkill() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double estimatedAccuracy() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double utilityScore() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	
 }

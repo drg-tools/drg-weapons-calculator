@@ -463,7 +463,7 @@ public class Autocannon extends Weapon {
 	}
 
 	@Override
-	public double calculateBurstDPS() {
+	public double calculateIdealBurstDPS() {
 		/*
 			There are two ways to calculate this: 
 				(damage/bullet times bullets/mag) / (bullets/mag divided by bullets/sec) 
@@ -477,18 +477,31 @@ public class Autocannon extends Weapon {
 	}
 
 	@Override
-	public double calculateSustainedDPS() {
+	public double calculateIdealSustainedDPS() {
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getAverageRateOfFire()) + getReloadTime();
 		return calculateDamagePerMagazine() / timeToFireMagazineAndReload;
 	}
+	
+	@Override
+	public double sustainedWeakpointDPS() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double sustainedWeakpointAccuracyDPS() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
 		int oldNumTargets = numberOfTargets;
 		numberOfTargets = 3;
-		double threeTargetsDPS = calculateSustainedDPS();
+		double threeTargetsDPS = calculateIdealSustainedDPS();
 		numberOfTargets = 2;
-		double twoTargetsDPS = calculateSustainedDPS();
+		double twoTargetsDPS = calculateIdealSustainedDPS();
 		numberOfTargets = oldNumTargets;
 		return threeTargetsDPS - twoTargetsDPS;
 	}
@@ -520,6 +533,30 @@ public class Autocannon extends Weapon {
 		double timeToFireMagazine = magSize / getAverageRateOfFire();
 		// There are one fewer reloads than there are magazines to fire
 		return numberOfMagazines * timeToFireMagazine + (numberOfMagazines - 1.0) * getReloadTime();
+	}
+
+	@Override
+	public double averageTimeToKill() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double averageOverkill() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double estimatedAccuracy() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double utilityScore() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

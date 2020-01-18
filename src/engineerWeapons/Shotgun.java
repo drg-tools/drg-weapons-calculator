@@ -479,15 +479,27 @@ public class Shotgun extends Weapon {
 	}
 
 	@Override
-	public double calculateBurstDPS() {
+	public double calculateIdealBurstDPS() {
 		double timeToFireMagazine = ((double) getMagazineSize()) / getRateOfFire();
 		return calculateDamagePerMagazine() / timeToFireMagazine;
 	}
 
 	@Override
-	public double calculateSustainedDPS() {
+	public double calculateIdealSustainedDPS() {
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
 		return calculateDamagePerMagazine() / timeToFireMagazineAndReload;
+	}
+	
+	@Override
+	public double sustainedWeakpointDPS() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double sustainedWeakpointAccuracyDPS() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override
@@ -514,5 +526,29 @@ public class Shotgun extends Weapon {
 		double timeToFireMagazine = magSize / getRateOfFire();
 		// There are one fewer reloads than there are magazines to fire
 		return numberOfMagazines * timeToFireMagazine + (numberOfMagazines - 1.0) * getReloadTime();
+	}
+
+	@Override
+	public double averageTimeToKill() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double averageOverkill() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double estimatedAccuracy() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double utilityScore() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

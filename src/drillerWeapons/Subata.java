@@ -450,11 +450,13 @@ public class Subata extends Weapon {
 		
 		toReturn[11] = new StatsRow("Accuracy:", convertDoubleToPercentage(new AccuracyEstimator(getRateOfFire(), getMagazineSize(), getBaseSpread(), getSpreadPerShot(), 1.0, 1.0, getRecoil(), 1.0, getRecoil()).calculateAccuracy()), false);
 		
+		/*
 		double foo = getDirectDamage();
 		double bar = getWeakpointBonus();
 		System.out.println("Damage per bullet pre-bonus: " + foo + ", +" + bar + "% weakpoint modifer");
 		System.out.println("Damage increased without modifier: " + increaseBulletDamageForWeakpoints(getDirectDamage()));
 		System.out.println("Damage increased with modifier: " + increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()));
+		*/
 		
 		return toReturn;
 	}
@@ -474,15 +476,27 @@ public class Subata extends Weapon {
 	}
 
 	@Override
-	public double calculateBurstDPS() {
+	public double calculateIdealBurstDPS() {
 		double timeToFireMagazine = ((double) getMagazineSize()) / getRateOfFire();
 		return calculateDamagePerMagazine() / timeToFireMagazine;
 	}
 
 	@Override
-	public double calculateSustainedDPS() {
+	public double calculateIdealSustainedDPS() {
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
 		return calculateDamagePerMagazine() / timeToFireMagazineAndReload;
+	}
+	
+	@Override
+	public double sustainedWeakpointDPS() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double sustainedWeakpointAccuracyDPS() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override
@@ -510,5 +524,29 @@ public class Subata extends Weapon {
 		double timeToFireMagazine = magSize / getRateOfFire();
 		// There are one fewer reloads than there are magazines to fire
 		return numberOfMagazines * timeToFireMagazine + (numberOfMagazines - 1.0) * getReloadTime();
+	}
+
+	@Override
+	public double averageTimeToKill() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double averageOverkill() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double estimatedAccuracy() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double utilityScore() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

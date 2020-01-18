@@ -504,7 +504,7 @@ public class SMG extends Weapon {
 	}
 
 	@Override
-	public double calculateBurstDPS() {
+	public double calculateIdealBurstDPS() {
 		// First calculate the direct damage DPS of the bullets, then add the DoT DPS on top.
 		double timeToFireMagazine = ((double) getMagazineSize()) / getRateOfFire();
 		double directDPS = calculateDirectDamagePerMagazine() / timeToFireMagazine;
@@ -513,13 +513,25 @@ public class SMG extends Weapon {
 	}
 
 	@Override
-	public double calculateSustainedDPS() {
+	public double calculateIdealSustainedDPS() {
 		// First calculate the direct damage DPS of the bullets, then add the DoT DPS on top.
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
 		double directDPS = calculateDirectDamagePerMagazine() / timeToFireMagazineAndReload;
 		
 		// Due to high fire rate of the gun, it can be modeled as always having an Electrocute DoT up for sustained DPS.
 		return directDPS + electrocutionDoTDamagePerTick * electrocutionDoTTicksPerSec;
+	}
+	
+	@Override
+	public double sustainedWeakpointDPS() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double sustainedWeakpointAccuracyDPS() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override
@@ -572,5 +584,29 @@ public class SMG extends Weapon {
 		double timeToFireMagazine = magSize / getRateOfFire();
 		// There are one fewer reloads than there are magazines to fire
 		return numberOfMagazines * timeToFireMagazine + (numberOfMagazines - 1.0) * getReloadTime();
+	}
+
+	@Override
+	public double averageTimeToKill() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double averageOverkill() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double estimatedAccuracy() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double utilityScore() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

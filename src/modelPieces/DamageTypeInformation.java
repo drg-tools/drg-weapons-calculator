@@ -195,7 +195,8 @@ public class DamageTypeInformation {
 		Slow
 		
 		There are only a few ways to inflict a Slow on enemies. Both the Neurotoxin and Electrocute DoTs apply a slow to the enemy, and the Sticky Flames
-		from Driller's Flamethrower can slow enemies passing through with the use of Mod Tier 3 "Sticky Flame Slowdown". Flying enemies and Dreadnaughts are immune to being slowed.
+		from Driller's Flamethrower can slow enemies passing through with the use of Mod Tier 3 "Sticky Flame Slowdown". Scout's IFG grenades apply a slow, but 
+		do not apply an Electrocute DoT. Flying enemies and Dreadnaughts are immune to being slowed.
 	*/
 	public static double Slow_Utility = 0.5;
 }

@@ -451,16 +451,28 @@ public class GrenadeLauncher extends Weapon {
 	}
 
 	@Override
-	public double calculateBurstDPS() {
+	public double calculateIdealBurstDPS() {
 		// This method will only calculate single-target DPS, but the additional target DPS should reflect how well this scales.
 		double damagePerGrenade = getDirectDamage() + getAreaDamage();
 		return damagePerGrenade / reloadTime;
 	}
 
 	@Override
-	public double calculateSustainedDPS() {
+	public double calculateIdealSustainedDPS() {
 		// Because the mag size can only have the value of 1, Sustained DPS == Burst DPS
-		return calculateBurstDPS();
+		return calculateIdealBurstDPS();
+	}
+	
+	@Override
+	public double sustainedWeakpointDPS() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double sustainedWeakpointAccuracyDPS() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override
@@ -483,5 +495,29 @@ public class GrenadeLauncher extends Weapon {
 	public double calculateFiringDuration() {
 		// This is equivalent to counting how many times it has to reload, which is one less than the carried ammo + 1 in the chamber
 		return getCarriedAmmo() * reloadTime;
+	}
+
+	@Override
+	public double averageTimeToKill() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double averageOverkill() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double estimatedAccuracy() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double utilityScore() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }
