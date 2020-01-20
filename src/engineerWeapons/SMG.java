@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import modelPieces.AccuracyEstimator;
+import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
@@ -27,7 +28,7 @@ public class SMG extends Weapon {
 	private double rateOfFire;
 	private double reloadTime;
 	private double baseSpread;
-	private double weakpointBonusDamage;
+	private double weakpointBonus;
 	
 	/****************************************************************************************
 	* Constructors
@@ -63,7 +64,7 @@ public class SMG extends Weapon {
 		rateOfFire = 11.0;
 		reloadTime = 2.0;
 		baseSpread = 1.0;
-		weakpointBonusDamage = 0.0;
+		weakpointBonus = 0.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -412,8 +413,8 @@ public class SMG extends Weapon {
 		
 		return toReturn;
 	}
-	private double getWeakpointBonusDamage() {
-		double toReturn = weakpointBonusDamage;
+	private double getWeakpointBonus() {
+		double toReturn = weakpointBonus;
 		
 		if (selectedTier4 == 0) {
 			toReturn += 0.3;
@@ -452,7 +453,7 @@ public class SMG extends Weapon {
 		boolean baseSpreadModified = selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock == 2;
 		toReturn[11] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified);
 		
-		toReturn[12] = new StatsRow("Weakpoint Bonus Damage:", convertDoubleToPercentage(getWeakpointBonusDamage()), selectedTier4 == 0);
+		toReturn[12] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0);
 		
 		toReturn[13] = new StatsRow("Accuracy:", convertDoubleToPercentage(new AccuracyEstimator(getRateOfFire(), getMagazineSize(), getBaseSpread(), 1.0, 1.0, 1.0, 1.0, 1.0, 1.0).calculateAccuracy()), false);
 		
@@ -478,7 +479,7 @@ public class SMG extends Weapon {
 		// According to the wiki, Electric damage gets bonus from Weakpoints too
 		double totalDamage = directDamage + getElectricDamage();
 		if (weakpointBonus) {
-			return increaseBulletDamageForWeakpoints(totalDamage, getWeakpointBonusDamage());
+			return increaseBulletDamageForWeakpoints(totalDamage, getWeakpointBonus());
 		}
 		else {
 			return totalDamage;
@@ -599,14 +600,14 @@ public class SMG extends Weapon {
 
 	@Override
 	public double averageTimeToKill() {
-		// TODO Auto-generated method stub
-		return 0;
+		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
 	}
 
 	@Override
 	public double averageOverkill() {
-		// TODO Auto-generated method stub
-		return 0;
+		double dmgPerShot = calculateDamagePerBullet(true);
+		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
+		return overkill / dmgPerShot * 100.0;
 	}
 
 	@Override

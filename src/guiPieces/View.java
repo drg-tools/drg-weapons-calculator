@@ -90,9 +90,9 @@ public class View extends JFrame implements Observer {
 		menuBar = new JMenuBar();
 		
 		bestCombinationsMenu = new JMenu("Best Combinations");
-		bcmBurst = new JMenuItem("Best Burst DPS");
+		bcmBurst = new JMenuItem("Best Ideal Burst DPS");
 		bestCombinationsMenu.add(bcmBurst);
-		bcmSustained = new JMenuItem("Best Sustained DPS");
+		bcmSustained = new JMenuItem("Best Ideal Sustained DPS");
 		bestCombinationsMenu.add(bcmSustained);
 		bcmAdditional = new JMenuItem("Best Additional Target DPS");
 		bestCombinationsMenu.add(bcmAdditional);

@@ -3,6 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
@@ -562,14 +563,14 @@ public class Revolver extends Weapon {
 
 	@Override
 	public double averageTimeToKill() {
-		// TODO Auto-generated method stub
-		return 0;
+		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
 	}
 
 	@Override
 	public double averageOverkill() {
-		// TODO Auto-generated method stub
-		return 0;
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) + getAreaDamage();
+		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
+		return overkill / dmgPerShot * 100.0;
 	}
 
 	@Override

@@ -410,7 +410,7 @@ public abstract class Weapon extends Observable {
 	// Non-damage calculations
 	public abstract int calculateMaxNumTargets();
 	public abstract double calculateFiringDuration();
-	public abstract double averageTimeToKill();
+	public abstract double averageTimeToKill();  // Average health of an enemy divided by weakpoint sustained DPS
 	public abstract double averageOverkill();  // % of projectile total damage; 0.01 - 0.99
 	public abstract double estimatedAccuracy(); // -1 means manual or N/A; 0.00 - 1.00 otherwise
 	public abstract double utilityScore();
