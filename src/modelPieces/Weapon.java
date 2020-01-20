@@ -403,7 +403,7 @@ public abstract class Weapon extends Observable {
 	public abstract double sustainedWeakpointDPS();
 	public abstract double sustainedWeakpointAccuracyDPS();
 	
-	// Multi-target calculations (based on "ideal" DPS calculations)
+	// Multi-target calculations (based on "ideal" sustained DPS calculations)
 	public abstract double calculateAdditionalTargetDPS();
 	public abstract double calculateMaxMultiTargetDamage();
 	

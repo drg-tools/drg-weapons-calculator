@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import modelPieces.AccuracyEstimator;
+import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
@@ -99,7 +100,7 @@ public class Subata extends Weapon {
 		tier5[1] = new Mod("Mactera Neurotoxin Coating", "Bonus damage against Mactera", 5, 1, false);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a chance to ricochet into a nearby enemy.", 0, false);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a chance to ricochet into a nearby enemy.", 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "More damage on average but it's a bit inconsistent.", 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Oversized Magazine", "Custom magazine that can fit a lot more ammo but it's a bit unwieldy and takes longer to reload.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Automatic Fire", "Fully automatic action, watch out for the recoil.", 3);
@@ -450,14 +451,6 @@ public class Subata extends Weapon {
 		
 		toReturn[11] = new StatsRow("Accuracy:", convertDoubleToPercentage(new AccuracyEstimator(getRateOfFire(), getMagazineSize(), getBaseSpread(), getSpreadPerShot(), 1.0, 1.0, getRecoil(), 1.0, getRecoil()).calculateAccuracy()), false);
 		
-		/*
-		double foo = getDirectDamage();
-		double bar = getWeakpointBonus();
-		System.out.println("Damage per bullet pre-bonus: " + foo + ", +" + bar + "% weakpoint modifer");
-		System.out.println("Damage increased without modifier: " + increaseBulletDamageForWeakpoints(getDirectDamage()));
-		System.out.println("Damage increased with modifier: " + increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()));
-		*/
-		
 		return toReturn;
 	}
 	
@@ -470,6 +463,7 @@ public class Subata extends Weapon {
 		return false;
 	}
 	
+	// Single-target calculations
 	private double calculateDamagePerMagazine(boolean weakpointBonus) {
 		// Somehow "Explosive Reload" will have to be modeled in here.
 		if (weakpointBonus) {
@@ -504,21 +498,47 @@ public class Subata extends Weapon {
 		return 0;
 	}
 
+	// Multi-target calculations
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		// Until the Overclock "Chain Hit" gets implemented, the Subata can't hit a second target.
-		return 0.0;
+		// If "Chain Hit" is equipped, 50% of bullets that hit a weakpoint will ricochet to nearby enemies.
+		// Effectively 25% of ideal sustained DPS?
+		if (selectedOverclock == 0) {
+			// Making the assumption that the ricochet won't hit another weakpoint, and will just do normal damage.
+			double ricochetProbability = 0.5 * EnemyInformation.probabilityBulletWillHitWeakpoint();
+			double numBulletsRicochetPerMagazine = Math.round(ricochetProbability * getMagazineSize());
+			
+			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+			return numBulletsRicochetPerMagazine * getDirectDamage() / timeToFireMagazineAndReload;
+		}
+		else {
+			return 0.0;
+		}
 	}
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		return (getMagazineSize() + getCarriedAmmo()) * getDirectDamage();
+		if (selectedOverclock == 0) {
+			// Chain Hit
+			double ricochetProbability = 0.5 * EnemyInformation.probabilityBulletWillHitWeakpoint();
+			double totalNumRicochets = Math.round(ricochetProbability * (getMagazineSize() + getCarriedAmmo()));
+			
+			return (getMagazineSize() + getCarriedAmmo() + totalNumRicochets) * getDirectDamage();
+		}
+		else {
+			return (getMagazineSize() + getCarriedAmmo()) * getDirectDamage();
+		}
 	}
 
 	@Override
 	public int calculateMaxNumTargets() {
-		// Until the Overclock "Chain Hit" gets implemented, the Subata can't hit a second target.
-		return 1;
+		if (selectedOverclock == 0) {
+			// OC "Chain Hit"
+			return 2;
+		}
+		else {
+			return 1;
+		}
 	}
 
 	@Override
