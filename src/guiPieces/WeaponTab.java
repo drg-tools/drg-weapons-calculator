@@ -363,18 +363,23 @@ public class WeaponTab extends JPanel {
 		}
 		toReturn.add(value);
 		
-		// TODO: accuracy will need a special case for manual targeting
 		double accuracy = myWeapon.estimatedAccuracy();
-		value = new JLabel(accuracy + "%");
-		if (accuracy < originalStats[10]) {
-			value.setForeground(GuiConstants.drgOverclockUnstableRed);
-		}
-		else if (accuracy > originalStats[10]) {
-			value.setForeground(GuiConstants.drgOverclockCleanGreen);
+		if (accuracy < 0) {
+			value = new JLabel("Manually Aimed");
+			value.setForeground(GuiConstants.drgHighlightedYellow);
 		}
 		else {
-			// Implicitly means that they're equal
-			value.setForeground(GuiConstants.drgHighlightedYellow);
+			value = new JLabel(accuracy + "%");
+			if (accuracy < originalStats[10]) {
+				value.setForeground(GuiConstants.drgOverclockUnstableRed);
+			}
+			else if (accuracy > originalStats[10]) {
+				value.setForeground(GuiConstants.drgOverclockCleanGreen);
+			}
+			else {
+				// Implicitly means that they're equal
+				value.setForeground(GuiConstants.drgHighlightedYellow);
+			}
 		}
 		toReturn.add(value);
 		

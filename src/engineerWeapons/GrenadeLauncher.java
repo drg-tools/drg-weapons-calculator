@@ -3,6 +3,7 @@ package engineerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
@@ -465,14 +466,15 @@ public class GrenadeLauncher extends Weapon {
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		// This method will only calculate single-target DPS, but the additional target DPS should reflect how well this scales.
+		double damagePerGrenade = increaseBulletDamageForWeakpoints(getDirectDamage()) + getAreaDamage();
+		return damagePerGrenade / reloadTime;
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		// Because the Grenade Launcher has to be aimed manually, its Accuracy isn't applicable.
+		return sustainedWeakpointDPS();
 	}
 
 	@Override
@@ -499,20 +501,20 @@ public class GrenadeLauncher extends Weapon {
 
 	@Override
 	public double averageTimeToKill() {
-		// TODO Auto-generated method stub
-		return 0;
+		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
 	}
 
 	@Override
 	public double averageOverkill() {
-		// TODO Auto-generated method stub
-		return 0;
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage()) + getAreaDamage();
+		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
+		return overkill / dmgPerShot * 100.0;
 	}
 
 	@Override
 	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		return 0;
+		// Manually aimed; return -1
+		return -1.0;
 	}
 
 	@Override
