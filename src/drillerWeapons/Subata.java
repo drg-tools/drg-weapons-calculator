@@ -422,7 +422,7 @@ public class Subata extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[12];
+		StatsRow[] toReturn = new StatsRow[11];
 		
 		boolean directDamageModified = selectedTier2 == 1 || selectedTier3 == 0 || selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 4;
 		toReturn[0] = new StatsRow("Direct Damage:", "" + getDirectDamage(), directDamageModified);
@@ -448,8 +448,6 @@ public class Subata extends Weapon {
 		toReturn[9] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), selectedOverclock == 5);
 		
 		toReturn[10] = new StatsRow("Stun Duration:", "" + getStunDuration(), selectedOverclock == 5);
-		
-		toReturn[11] = new StatsRow("Accuracy:", convertDoubleToPercentage(new AccuracyEstimator(getRateOfFire(), getMagazineSize(), getBaseSpread(), getSpreadPerShot(), 1.0, 1.0, getRecoil(), 1.0, getRecoil()).calculateAccuracy()), false);
 		
 		return toReturn;
 	}
@@ -566,6 +564,7 @@ public class Subata extends Weapon {
 	@Override
 	public double estimatedAccuracy() {
 		// TODO Auto-generated method stub
+		// convertDoubleToPercentage(new AccuracyEstimator(getRateOfFire(), getMagazineSize(), getBaseSpread(), getSpreadPerShot(), 1.0, 1.0, getRecoil(), 1.0, getRecoil()).calculateAccuracy())
 		return 0;
 	}
 
