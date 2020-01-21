@@ -7,6 +7,8 @@ package modelPieces;
 	stacked on themselves (e.g. 2 Electrocute DoTs and 3 Fire DoTs), but they do stack with each other.
 	If a second DoT of the same type would be applied before the DoT duration is done, its duration is refreshed 
 	instead.
+	
+	Wiki page just added: https://deeprockgalactic.gamepedia.com/Status_Effects
 */
 public class DoTInformation {
 	/*
@@ -34,9 +36,9 @@ public class DoTInformation {
 			All dwarves - Armor (Tier 4, Static Discharge, around 50% chance to proc?)
 			Bosco - Tier 5 upgrade, Overcharged Rounds, 30% chance to proc
 	*/
-	public static double Electro_DmgPerTick = 4;
+	public static double Electro_DmgPerTick = 3;
 	public static double Electro_TicksPerSec = 4;
-	public static double Electro_SecsDuration = 3;
+	public static double Electro_SecsDuration = 4;
 	public static double Electro_DPS = Electro_DmgPerTick * Electro_TicksPerSec;
 	
 	/*

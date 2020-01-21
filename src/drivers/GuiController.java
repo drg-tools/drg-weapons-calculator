@@ -19,6 +19,8 @@ import gunnerWeapons.Autocannon;
 import gunnerWeapons.Minigun;
 import gunnerWeapons.Revolver;
 import modelPieces.Weapon;
+import scoutWeapons.Classic_FocusShot;
+import scoutWeapons.Classic_Hipfire;
 import scoutWeapons.Deepcore;
 
 
@@ -36,7 +38,7 @@ public class GuiController implements ActionListener {
 		Weapon[] drillerWeapons = new Weapon[] {new Subata()};
 		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new GrenadeLauncher()};
 		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new Revolver()};
-		Weapon[] scoutWeapons = new Weapon[] {new Deepcore()};
+		Weapon[] scoutWeapons = new Weapon[] {new Deepcore(), new Classic_Hipfire(), new Classic_FocusShot()};
 		View gui = new View(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons);
 		new GuiController(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons, gui);
 	}

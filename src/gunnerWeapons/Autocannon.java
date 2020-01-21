@@ -3,7 +3,6 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
-import modelPieces.AccuracyEstimator;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
