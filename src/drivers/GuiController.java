@@ -19,10 +19,17 @@ import gunnerWeapons.Autocannon;
 import gunnerWeapons.Minigun;
 import gunnerWeapons.Revolver;
 import modelPieces.Weapon;
+import scoutWeapons.Boomstick;
 import scoutWeapons.Classic_FocusShot;
 import scoutWeapons.Classic_Hipfire;
 import scoutWeapons.Deepcore;
 
+/*
+	Benchmarks: 
+		150 Ideal Burst DPS
+		100 Ideal Sustained DPS
+		8000 Total Damage
+*/
 
 public class GuiController implements ActionListener {
 	
@@ -38,7 +45,7 @@ public class GuiController implements ActionListener {
 		Weapon[] drillerWeapons = new Weapon[] {new Subata()};
 		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new GrenadeLauncher()};
 		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new Revolver()};
-		Weapon[] scoutWeapons = new Weapon[] {new Deepcore(), new Classic_Hipfire(), new Classic_FocusShot()};
+		Weapon[] scoutWeapons = new Weapon[] {new Deepcore(), new Classic_Hipfire(), new Classic_FocusShot(), new Boomstick()};
 		View gui = new View(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons);
 		new GuiController(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons, gui);
 	}

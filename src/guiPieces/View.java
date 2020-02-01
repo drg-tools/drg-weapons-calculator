@@ -42,7 +42,7 @@ public class View extends JFrame implements Observer {
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("DRG Weapons DPS Calculator (DRG Update 27.3)");
-		setPreferredSize(new Dimension(1600, 760));
+		setPreferredSize(new Dimension(1620, 780));
 		
 		constructMenu();
 		

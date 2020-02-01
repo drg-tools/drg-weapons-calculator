@@ -430,7 +430,7 @@ public class Minigun extends Weapon {
 		boolean damageModified = selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock > 3;
 		toReturn[0] = new StatsRow("Damage per Pellet:", "" + getDamagePerPellet(), damageModified);
 		
-		toReturn[1] = new StatsRow("Ammo Spend per Pellet:", "2", false);
+		toReturn[1] = new StatsRow("Ammo Spent per Pellet:", "2", false);
 		
 		toReturn[2] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(stunChancePerPellet), false);
 		
