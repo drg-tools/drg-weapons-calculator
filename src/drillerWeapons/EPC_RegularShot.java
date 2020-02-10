@@ -42,15 +42,15 @@ public class EPC_RegularShot extends Weapon {
 		Charged Shot (area damage)
 		Damage type is 50% Electric and 50% Explosive.
 		
-		Flying Nightmare  TODO
+		Flying Nightmare
 		Damage type is Fire.
 		Damage done is equal to the Charged Shot direct damage and is affected by mods, but is NOT affected by overclocks.
 		
-		Thin Containment Field  TODO
+		Thin Containment Field
 		Damage type is Fire.
 		Damage done is 240 and is not affected by mods or overclocks.
 		
-		Persistent Plasma  TODO
+		Persistent Plasma
 		Damage type is Electric.
 		The area last 6 seconds and deals 5 damage every 0.25 to 0.5 seconds. 
 	*/
@@ -595,8 +595,9 @@ public class EPC_RegularShot extends Weapon {
 	@Override
 	public double averageOverkill() {
 		double dmgPerShot = getDirectDamage();
-		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
-		return overkill / dmgPerShot * 100.0;
+		double enemyHP = EnemyInformation.averageHealthPool();
+		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
+		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
 	}
 
 	@Override

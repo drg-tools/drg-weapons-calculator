@@ -598,8 +598,9 @@ public class SMG extends Weapon {
 	@Override
 	public double averageOverkill() {
 		double dmgPerShot = calculateDamagePerBullet(true);
-		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
-		return overkill / dmgPerShot * 100.0;
+		double enemyHP = EnemyInformation.averageHealthPool();
+		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
+		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
 	}
 
 	@Override
