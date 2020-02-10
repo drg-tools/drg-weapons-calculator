@@ -109,7 +109,7 @@ public class Revolver extends Weapon {
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "More damage on average but it's a bit inconsistent.", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a chnace to ricochet into a nearby enemy.", 1, false);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a chance to ricochet into a nearby enemy.", 1, false);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Feather Trigger", "Less weight means you can squeeze out more bullets faster than you can say \"Recoil\" but the stability of the weapon is reduced.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Five Shooter", "An updated casing profile lets you squeeze one more round into the cylinder and increases the maximum rate of fire, but all that filling and drilling has compromised the pure damage output of the weapon.", 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "Heavy tweaking has made it possible to use modified autocannon rounds in the revolver! The damage is crazy but so is the recoil and you can't carry very many rounds.", 4);
@@ -434,7 +434,7 @@ public class Revolver extends Weapon {
 		
 		toReturn[3] = new StatsRow("Magazine Size:", "" + getMagazineSize(), selectedOverclock == 3);
 		
-		boolean carriedAmmoModified = selectedTier2 == 2 || selectedTier4 == 0 || selectedOverclock > 2 && selectedOverclock < 6;
+		boolean carriedAmmoModified = selectedTier2 == 2 || selectedTier4 == 0 || (selectedOverclock > 2 && selectedOverclock < 6);
 		toReturn[4] = new StatsRow("Max Ammo:", "" + getCarriedAmmo(), carriedAmmoModified);
 		
 		toReturn[5] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), selectedOverclock == 2);

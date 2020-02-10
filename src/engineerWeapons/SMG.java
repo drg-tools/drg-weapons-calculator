@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import modelPieces.AccuracyEstimator;
+import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
@@ -17,10 +18,6 @@ public class SMG extends Weapon {
 	****************************************************************************************/
 	
 	private double electrocutionDoTChance;
-	private double electrocutionDoTDamagePerTick;
-	private double electrocutionDoTTicksPerSec;
-	private double electrocutionDoTTotalDamage;
-	private double electrocutionDoTDuration;
 	private int directDamage;
 	private int electricDamage;
 	private int magazineSize;
@@ -50,10 +47,6 @@ public class SMG extends Weapon {
 		
 		// Base stats, before mods or overclocks alter them:
 		electrocutionDoTChance = 0.1;
-		electrocutionDoTTotalDamage = 48;
-		electrocutionDoTTicksPerSec = 4;
-		electrocutionDoTDuration = 3;  // seconds
-		electrocutionDoTDamagePerTick = electrocutionDoTTotalDamage / (electrocutionDoTTicksPerSec * electrocutionDoTDuration);
 		// Electrocution DoTs do not stack; it only refreshes the duration.
 		directDamage = 6;
 		electricDamage = 2; 
@@ -429,10 +422,11 @@ public class SMG extends Weapon {
 		
 		boolean DoTChanceModified = selectedTier1 == 1 || selectedTier4 == 1 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Electrocution DoT Chance:", convertDoubleToPercentage(getElectrocutionDoTChance()), DoTChanceModified);
-		toReturn[1] = new StatsRow("Electrocution DoT Dmg/Tick:", "" + electrocutionDoTDamagePerTick, false);
-		toReturn[2] = new StatsRow("Electrocution DoT Ticks/Sec:", "" + electrocutionDoTTicksPerSec, false);
-		toReturn[3] = new StatsRow("Electrocution DoT Duration:", "" + electrocutionDoTDuration, false);
-		toReturn[4] = new StatsRow("Electrocution DoT Total Dmg:", "" + electrocutionDoTTotalDamage, false);
+		toReturn[1] = new StatsRow("Electrocution DoT Dmg/Tick:", "" + DoTInformation.Electro_DmgPerTick, false);
+		toReturn[2] = new StatsRow("Electrocution DoT Ticks/Sec:", "" + DoTInformation.Electro_TicksPerSec, false);
+		toReturn[3] = new StatsRow("Electrocution DoT Duration:", "" + DoTInformation.Electro_SecsDuration, false);
+		double electrocuteTotalDamage = DoTInformation.Electro_DmgPerTick * DoTInformation.Electro_TicksPerSec * DoTInformation.Electro_SecsDuration;
+		toReturn[4] = new StatsRow("Electrocution DoT Total Dmg:", "" + electrocuteTotalDamage, false);
 		
 		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 0 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[5] = new StatsRow("Direct Damage:", "" + getDirectDamage(), directDamageModified);
@@ -501,9 +495,7 @@ public class SMG extends Weapon {
 		double secBeforeProc = meanBulletsFiredBeforeProc / getRateOfFire();
 		double secAfterProc = numBulletsFiredAfterProc / getRateOfFire();
 		
-		double electrocutionDoTDPS = electrocutionDoTDamagePerTick * electrocutionDoTTicksPerSec;
-		
-		return (electrocutionDoTDPS * secAfterProc) / (secBeforeProc + secAfterProc);
+		return (DoTInformation.Electro_DPS * secAfterProc) / (secBeforeProc + secAfterProc);
 	}
 
 	@Override
@@ -527,7 +519,7 @@ public class SMG extends Weapon {
 		double directDPS = calculateDirectDamagePerMagazine(false) / timeToFireMagazineAndReload;
 		
 		// Due to high fire rate of the gun, it can be modeled as always having an Electrocute DoT up for sustained DPS.
-		return directDPS + electrocutionDoTDamagePerTick * electrocutionDoTTicksPerSec;
+		return directDPS + DoTInformation.Electro_DPS;
 	}
 	
 	@Override
@@ -537,7 +529,7 @@ public class SMG extends Weapon {
 		double directDPS = calculateDirectDamagePerMagazine(true) / timeToFireMagazineAndReload;
 		
 		// Due to high fire rate of the gun, it can be modeled as always having an Electrocute DoT up for sustained DPS.
-		return directDPS + electrocutionDoTDamagePerTick * electrocutionDoTTicksPerSec;
+		return directDPS + DoTInformation.Electro_DPS;
 	}
 
 	@Override
@@ -551,7 +543,7 @@ public class SMG extends Weapon {
 		if (selectedTier5 == 2) {
 			// TODO: this formula is incorrect. With high RoF, this can exceed the normal DoT DPS.
 			// Average it out to bullets/sec number of chances to apply the primary dot every second times 25% chance to apply DoT to secondary target times the DoT DPS
-			return getRateOfFire() * getElectrocutionDoTChance() * 0.25 * electrocutionDoTDamagePerTick * electrocutionDoTTicksPerSec;
+			return getRateOfFire() * getElectrocutionDoTChance() * 0.25 * DoTInformation.Electro_DPS;
 		}
 		else {
 			return 0.0;

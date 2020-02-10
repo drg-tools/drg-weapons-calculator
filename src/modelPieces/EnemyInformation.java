@@ -6,6 +6,7 @@ public class EnemyInformation {
 	
 	// These are educated guesses about the enemies' spawn rates. Biome-specific enemies, "hatchling" enemy types, and Dreadnaughts not included.
 	// All of these numbers must sum up to exactly 1.0 for it to be a probability vector.
+	// TODO: verify these spawn rate numbers; I think there are more grunts and fewer swarmers.
 	private static double[] spawnRates = {
 		0.17,  // Glyphid Swarmer
 		0.24,  // Glyphid Grunt
