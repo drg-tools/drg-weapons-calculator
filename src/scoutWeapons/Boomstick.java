@@ -420,28 +420,28 @@ public class Boomstick extends Weapon {
 		StatsRow[] toReturn = new StatsRow[12];
 		
 		boolean damageModified = selectedTier1 == 1 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
-		toReturn[0] = new StatsRow("Damage Per Pellet:", "" + getDamagePerPellet(), damageModified);
+		toReturn[0] = new StatsRow("Damage Per Pellet:", getDamagePerPellet(), damageModified);
 		
 		boolean pelletsModified = selectedTier3 == 2 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 4;
-		toReturn[1] = new StatsRow("Number of Pellets/Shot:", "" + getNumberOfPelletsPerShot(), pelletsModified);
+		toReturn[1] = new StatsRow("Number of Pellets/Shot:", getNumberOfPelletsPerShot(), pelletsModified);
 		
-		toReturn[2] = new StatsRow("Blastwave Damage:", "" + getBlastwaveDamage(), selectedTier4 == 2);
+		toReturn[2] = new StatsRow("Blastwave Damage:", getBlastwaveDamage(), selectedTier4 == 2);
 		
-		toReturn[3] = new StatsRow("Magazine Size:", "" + getMagazineSize(), selectedOverclock == 1);
+		toReturn[3] = new StatsRow("Magazine Size:", getMagazineSize(), selectedOverclock == 1);
 		
 		boolean carriedAmmoModified = selectedTier1 == 0 || selectedTier3 == 1 || selectedOverclock == 0 || selectedOverclock == 1 || selectedOverclock == 5;
-		toReturn[4] = new StatsRow("Max Ammo:", "" + getCarriedAmmo(), carriedAmmoModified);
+		toReturn[4] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[5] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), selectedTier2 == 0);
+		toReturn[5] = new StatsRow("Rate of Fire:", getRateOfFire(), selectedTier2 == 0);
 		
 		boolean reloadTimeModified = selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock == 5;
-		toReturn[6] = new StatsRow("Reload Time:", "" + getReloadTime(), reloadTimeModified);
+		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), reloadTimeModified);
 		
 		toReturn[7] = new StatsRow("Stun Chance:", convertDoubleToPercentage(stunChance), false);
 		
-		toReturn[8] = new StatsRow("Stun Duration:", "" + getStunDuration(), selectedTier3 == 0);
+		toReturn[8] = new StatsRow("Stun Duration:", getStunDuration(), selectedTier3 == 0);
 		
-		toReturn[9] = new StatsRow("Max Penetrations:", "" + getMaxPenetrations(), selectedTier4 == 0);
+		toReturn[9] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0);
 		
 		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 1);
 		

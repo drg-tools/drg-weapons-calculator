@@ -413,31 +413,31 @@ public class GrenadeLauncher extends Weapon {
 		StatsRow[] toReturn = new StatsRow[12];
 		
 		boolean directDamageModified = selectedTier5 == 1 || selectedTier3 == 0 || selectedOverclock == 5;
-		toReturn[0] = new StatsRow("Direct Damage:", "" + getDirectDamage(), directDamageModified);
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
 		boolean areaDamageModified = selectedTier1 == 2 || selectedTier2 == 1 || selectedTier3 == 0 || selectedTier4 == 0 || selectedOverclock == 0 || (selectedOverclock > 1 && selectedOverclock < 5);
-		toReturn[1] = new StatsRow("Area Damage:", "" + getAreaDamage(), areaDamageModified);
+		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), areaDamageModified);
 		
 		boolean aoeRadiusModified = selectedTier1 == 0 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[2] = new StatsRow("AoE Radius:", "" + getAoERadius(), aoeRadiusModified);
+		toReturn[2] = new StatsRow("AoE Radius:", getAoERadius(), aoeRadiusModified);
 		
-		toReturn[3] = new StatsRow("Magazine Size:", "1", false);
+		toReturn[3] = new StatsRow("Magazine Size:", 1, false);
 		
 		boolean carriedAmmoModified = selectedTier1 == 1 || selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[4] = new StatsRow("Carried Ammo:", "" + getCarriedAmmo(), carriedAmmoModified);
+		toReturn[4] = new StatsRow("Carried Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[5] = new StatsRow("Rate of Fire:", "2", false);
-		toReturn[6] = new StatsRow("Reload Time:", "2", false);
+		toReturn[5] = new StatsRow("Rate of Fire:", 2, false);
+		toReturn[6] = new StatsRow("Reload Time:", 2, false);
 		
 		boolean velocityModified = selectedTier2 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[7] = new StatsRow("Projectile Velocity:", convertDoubleToPercentage(getProjectileVelocity()), velocityModified);
 		
-		toReturn[8] = new StatsRow("Fear Chance:", "100%", false);
+		toReturn[8] = new StatsRow("Fear Chance:", convertDoubleToPercentage(1.0), false);
 		
 		toReturn[9] = new StatsRow("Armor Break Chance:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier3 == 1);
 		
 		toReturn[10] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), selectedTier4 == 2);
-		toReturn[11] = new StatsRow("Stun Duration:", "" + getStunDuration(), selectedTier4 == 2);
+		toReturn[11] = new StatsRow("Stun Duration:", getStunDuration(), selectedTier4 == 2);
 		
 		return toReturn;
 	}

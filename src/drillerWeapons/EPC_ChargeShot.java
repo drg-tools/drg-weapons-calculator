@@ -523,40 +523,40 @@ public class EPC_ChargeShot extends Weapon {
 		
 		StatsRow[] toReturn = new StatsRow[15];
 		
-		toReturn[0] = new StatsRow("Regular Shot Direct Damage:", "" + getDirectDamage(), selectedTier1 == 0 || selectedOverclock == 3);
+		toReturn[0] = new StatsRow("Regular Shot Direct Damage:", getDirectDamage(), selectedTier1 == 0 || selectedOverclock == 3);
 		
 		toReturn[1] = new StatsRow("Regular Shot Velocity:", convertDoubleToPercentage(getRegularShotVelocity()), selectedTier2 == 1);
 		
-		toReturn[2] = new StatsRow("Heat/Regular Shot:", "" + getHeatPerRegularShot(), selectedOverclock == 3);
+		toReturn[2] = new StatsRow("Heat/Regular Shot:", getHeatPerRegularShot(), selectedOverclock == 3);
 		
-		toReturn[3] = new StatsRow("Regular Shots Fired Before Overheating:", "" + getNumRegularShotsBeforeOverheat(), coolingRateModified || selectedOverclock == 3);
+		toReturn[3] = new StatsRow("Regular Shots Fired Before Overheating:", getNumRegularShotsBeforeOverheat(), coolingRateModified || selectedOverclock == 3);
 		
 		boolean chargedDirectDamageModified = selectedTier1 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[4] = new StatsRow("Charged Shot Direct Damage:", "" + getChargedDirectDamage(), chargedDirectDamageModified);
+		toReturn[4] = new StatsRow("Charged Shot Direct Damage:", getChargedDirectDamage(), chargedDirectDamageModified);
 		
 		boolean chargedAreaDamageModified = selectedTier2 == 2 || selectedTier5 == 0 || selectedTier5 == 1 || selectedOverclock == 5;
-		toReturn[5] = new StatsRow("Charged Shot Area Damage:", "" + getChargedAreaDamage(), chargedAreaDamageModified);
+		toReturn[5] = new StatsRow("Charged Shot Area Damage:", getChargedAreaDamage(), chargedAreaDamageModified);
 		
-		toReturn[6] = new StatsRow("Charged Shot AoE Radius:", "" + getChargedAoERadius(), selectedTier2 == 0);
+		toReturn[6] = new StatsRow("Charged Shot AoE Radius:", getChargedAoERadius(), selectedTier2 == 0);
 		
 		boolean windupModified = selectedTier3 == 1 || selectedTier5 == 0 || selectedOverclock == 0 || selectedOverclock == 4;
-		toReturn[7] = new StatsRow("Charged Shot Windup:", "" + getChargedShotWindup(), windupModified);
+		toReturn[7] = new StatsRow("Charged Shot Windup:", getChargedShotWindup(), windupModified);
 		
-		toReturn[8] = new StatsRow("Heat/Sec While Charged:", "" + getHeatPerSecondWhileCharged(), selectedTier4 == 0 || selectedOverclock == 1);
+		toReturn[8] = new StatsRow("Heat/Sec While Charged:", getHeatPerSecondWhileCharged(), selectedTier4 == 0 || selectedOverclock == 1);
 		
-		toReturn[9] = new StatsRow("Seconds Charged Shot Can Be Held Before Overheating:", "" + getSecondsBeforeOverheatWhileCharged(), selectedTier4 == 0 || selectedOverclock == 1);
+		toReturn[9] = new StatsRow("Seconds Charged Shot Can Be Held Before Overheating:", getSecondsBeforeOverheatWhileCharged(), selectedTier4 == 0 || selectedOverclock == 1);
 		
-		toReturn[10] = new StatsRow("Ammo/Charged Shot:", "" + getAmmoPerChargedShot(), selectedTier3 == 0 || selectedTier5 == 1 || selectedOverclock == 2);
+		toReturn[10] = new StatsRow("Ammo/Charged Shot:", getAmmoPerChargedShot(), selectedTier3 == 0 || selectedTier5 == 1 || selectedOverclock == 2);
 		
 		boolean batterySizeModified = selectedTier1 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 3;
-		toReturn[11] = new StatsRow("Battery Size:", "" + getBatterySize(), batterySizeModified);
+		toReturn[11] = new StatsRow("Battery Size:", getBatterySize(), batterySizeModified);
 		
 		boolean RoFModified = selectedTier3 == 1 || selectedTier3 == 2 || selectedTier5 == 0 || (selectedOverclock > -1 && selectedOverclock < 3) || selectedOverclock == 4;
-		toReturn[12] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), RoFModified);
+		toReturn[12] = new StatsRow("Rate of Fire:", getRateOfFire(), RoFModified);
 		
 		toReturn[13] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), coolingRateModified);
 		
-		toReturn[14] = new StatsRow("Cooldown After Overheating:", "" + getCooldownDuration(), coolingRateModified);
+		toReturn[14] = new StatsRow("Cooldown After Overheating:", getCooldownDuration(), coolingRateModified);
 		
 		return toReturn;
 	}

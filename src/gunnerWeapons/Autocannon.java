@@ -416,28 +416,28 @@ public class Autocannon extends Weapon {
 		StatsRow[] toReturn = new StatsRow[11];
 		
 		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 2 || (selectedOverclock > 1 && selectedOverclock < 6);
-		toReturn[0] = new StatsRow("Damage:", "" + getDirectDamage(), directDamageModified);
+		toReturn[0] = new StatsRow("Damage:", getDirectDamage(), directDamageModified);
 		
 		boolean areaDamageModified = selectedTier3 == 1 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 5;
-		toReturn[1] = new StatsRow("Area Damage:", "" + getAreaDamage(), areaDamageModified);
+		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), areaDamageModified);
 		
 		boolean aoeRadiusModified = selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 2;
-		toReturn[2] = new StatsRow("Effect Radius:", "" + getAoERadius(), aoeRadiusModified);
+		toReturn[2] = new StatsRow("Effect Radius:", getAoERadius(), aoeRadiusModified);
 		
-		toReturn[3] = new StatsRow("Magazine Size:", "" + getMagazineSize(), selectedTier1 == 1 || selectedOverclock == 4);
+		toReturn[3] = new StatsRow("Magazine Size:", getMagazineSize(), selectedTier1 == 1 || selectedOverclock == 4);
 		
 		boolean carriedAmmoModified = selectedTier1 == 2 || selectedOverclock == 0 || selectedOverclock == 4;
-		toReturn[4] = new StatsRow("Max Ammo:", "" + getCarriedAmmo(), carriedAmmoModified);
+		toReturn[4] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
 		toReturn[5] = new StatsRow("Movement Speed While Using:", convertDoubleToPercentage(getMovespeedWhileFiring()), selectedOverclock == 3);
 		
-		toReturn[6] = new StatsRow("Number of Bullets Fired Before Max RoF:", "" + getNumBulletsRampup(), selectedTier2 == 2);
+		toReturn[6] = new StatsRow("Number of Bullets Fired Before Max RoF:", getNumBulletsRampup(), selectedTier2 == 2);
 		
 		// tier2 indexes 1 & 2 both increase RoF
 		boolean RoFModified = selectedTier2 > 0 || selectedTier3 == 0 || selectedOverclock == 4;
-		toReturn[7] = new StatsRow("Average Rate of Fire:", "" + getAverageRateOfFire(), RoFModified);
+		toReturn[7] = new StatsRow("Average Rate of Fire:", getAverageRateOfFire(), RoFModified);
 		
-		toReturn[8] = new StatsRow("Reload Time:", "" + getReloadTime(), selectedOverclock == 0);
+		toReturn[8] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 0);
 		
 		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier2 == 0);
 		

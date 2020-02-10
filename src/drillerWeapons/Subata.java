@@ -353,8 +353,7 @@ public class Subata extends Weapon {
 			toReturn += 0.5;
 		}
 		
-		// Just like Minigun's Spinup Time, this Reload Time has a rounding error.
-		return MathUtils.round(toReturn, 1);
+		return toReturn;
 	}
 	private double getWeakpointBonus() {
 		double toReturn = weakpointBonus;
@@ -424,17 +423,17 @@ public class Subata extends Weapon {
 		StatsRow[] toReturn = new StatsRow[11];
 		
 		boolean directDamageModified = selectedTier2 == 1 || selectedTier3 == 0 || selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 4;
-		toReturn[0] = new StatsRow("Direct Damage:", "" + getDirectDamage(), directDamageModified);
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
 		boolean magSizeModified = selectedTier1 == 1 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[1] = new StatsRow("Magazine Size:", "" + getMagazineSize(), magSizeModified);
+		toReturn[1] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier2 == 0 || selectedTier3 == 2 || selectedOverclock == 4;
-		toReturn[2] = new StatsRow("Max Ammo:", "" + getCarriedAmmo(), carriedAmmoModified);
+		toReturn[2] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[3] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), selectedOverclock == 3 || selectedOverclock == 5);
+		toReturn[3] = new StatsRow("Rate of Fire:", getRateOfFire(), selectedOverclock == 3 || selectedOverclock == 5);
 		
-		toReturn[4] = new StatsRow("Reload Time:", "" + getReloadTime(), selectedTier1 == 2 || selectedOverclock == 2);
+		toReturn[4] = new StatsRow("Reload Time:", getReloadTime(), selectedTier1 == 2 || selectedOverclock == 2);
 		
 		toReturn[5] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0);
 		
@@ -446,7 +445,7 @@ public class Subata extends Weapon {
 		
 		toReturn[9] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), selectedOverclock == 5);
 		
-		toReturn[10] = new StatsRow("Stun Duration:", "" + getStunDuration(), selectedOverclock == 5);
+		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), selectedOverclock == 5);
 		
 		return toReturn;
 	}

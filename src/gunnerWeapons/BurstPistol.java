@@ -459,21 +459,21 @@ public class BurstPistol extends Weapon {
 		StatsRow[] toReturn = new StatsRow[12];
 		
 		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 1 || (selectedOverclock > 0 && selectedOverclock < 7 && selectedOverclock != 3);
-		toReturn[0] = new StatsRow("Direct Damage:", "" + getDirectDamage(), directDamageModified);
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
-		toReturn[1] = new StatsRow("Burst Size:", "" + getBurstSize(), selectedTier5 == 2);
+		toReturn[1] = new StatsRow("Burst Size:", getBurstSize(), selectedTier5 == 2);
 		
 		boolean magSizeModified = selectedTier3 == 0 || (selectedOverclock > 3 && selectedOverclock < 7);
-		toReturn[2] = new StatsRow("Magazine Size:", "" + getMagazineSize(), magSizeModified);
+		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 3 || selectedOverclock == 4 || selectedOverclock == 6;
-		toReturn[3] = new StatsRow("Max Ammo:", "" + getCarriedAmmo(), carriedAmmoModified);
+		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
 		boolean RoFModified = selectedTier1 == 1 || selectedOverclock == 0 || selectedOverclock == 3;
-		toReturn[4] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), RoFModified);
+		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), RoFModified);
 		
 		boolean reloadModified = selectedTier2 == 2 || selectedOverclock == 1 || selectedOverclock == 3;
-		toReturn[5] = new StatsRow("Reload Time:", "" + getReloadTime(), reloadModified);
+		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), reloadModified);
 		
 		toReturn[6] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 2);
 		
@@ -483,9 +483,9 @@ public class BurstPistol extends Weapon {
 		
 		toReturn[9] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1 || selectedOverclock == 6);
 		
-		toReturn[10] = new StatsRow("Burst Bonus Damage:", "" + getBurstBonusDamage(), selectedTier5 == 0);
+		toReturn[10] = new StatsRow("Burst Bonus Damage:", getBurstBonusDamage(), selectedTier5 == 0);
 		
-		toReturn[11] = new StatsRow("Burst Stun Duration:", "" + getBurstStunDuration(), selectedTier5 == 1);
+		toReturn[11] = new StatsRow("Burst Stun Duration:", getBurstStunDuration(), selectedTier5 == 1);
 		
 		return toReturn;
 	}

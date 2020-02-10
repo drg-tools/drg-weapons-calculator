@@ -426,24 +426,24 @@ public class Revolver extends Weapon {
 		StatsRow[] toReturn = new StatsRow[15];
 		
 		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || (selectedOverclock > 2 && selectedOverclock < 6);
-		toReturn[0] = new StatsRow("Damage:", "" + getDirectDamage(), directDamageModified);
+		toReturn[0] = new StatsRow("Damage:", getDirectDamage(), directDamageModified);
 		
-		toReturn[1] = new StatsRow("Area Damage:", "" + getAreaDamage(), selectedTier3 == 1);
+		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), selectedTier3 == 1);
 		
-		toReturn[2] = new StatsRow("Effect Radius:", "" + getAoERadius(), selectedTier3 == 1);
+		toReturn[2] = new StatsRow("Effect Radius:", getAoERadius(), selectedTier3 == 1);
 		
-		toReturn[3] = new StatsRow("Magazine Size:", "" + getMagazineSize(), selectedOverclock == 3);
+		toReturn[3] = new StatsRow("Magazine Size:", getMagazineSize(), selectedOverclock == 3);
 		
 		boolean carriedAmmoModified = selectedTier2 == 2 || selectedTier4 == 0 || (selectedOverclock > 2 && selectedOverclock < 6);
-		toReturn[4] = new StatsRow("Max Ammo:", "" + getCarriedAmmo(), carriedAmmoModified);
+		toReturn[4] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[5] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), selectedOverclock == 2);
+		toReturn[5] = new StatsRow("Rate of Fire:", getRateOfFire(), selectedOverclock == 2);
 		
-		toReturn[6] = new StatsRow("Reload Time:", "" + getReloadTime(), selectedTier1 == 0);
+		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), selectedTier1 == 0);
 		
 		toReturn[7] = new StatsRow("Stun chance:", convertDoubleToPercentage(stunChance), false);
 		
-		toReturn[8] = new StatsRow("Stun duration:", "" + stunDuration, false);
+		toReturn[8] = new StatsRow("Stun duration:", stunDuration, false);
 		
 		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier1 == 1);
 		
@@ -453,9 +453,9 @@ public class Revolver extends Weapon {
 		
 		toReturn[12] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier3 == 2);
 		
-		toReturn[13] = new StatsRow("Max Penetrations:", "" + getMaxPenetrations(), selectedTier3 == 0);
+		toReturn[13] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier3 == 0);
 		
-		toReturn[14] = new StatsRow("Max Ricochets:", "" + getMaxRicochets(), selectedOverclock == 1 || selectedOverclock == 5);
+		toReturn[14] = new StatsRow("Max Ricochets:", getMaxRicochets(), selectedOverclock == 1 || selectedOverclock == 5);
 		
 		return toReturn;
 	}

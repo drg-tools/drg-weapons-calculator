@@ -418,38 +418,36 @@ public class SMG extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[14];
+		StatsRow[] toReturn = new StatsRow[13];
 		
 		boolean DoTChanceModified = selectedTier1 == 1 || selectedTier4 == 1 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Electrocution DoT Chance:", convertDoubleToPercentage(getElectrocutionDoTChance()), DoTChanceModified);
-		toReturn[1] = new StatsRow("Electrocution DoT Dmg/Tick:", "" + DoTInformation.Electro_DmgPerTick, false);
-		toReturn[2] = new StatsRow("Electrocution DoT Ticks/Sec:", "" + DoTInformation.Electro_TicksPerSec, false);
-		toReturn[3] = new StatsRow("Electrocution DoT Duration:", "" + DoTInformation.Electro_SecsDuration, false);
+		toReturn[1] = new StatsRow("Electrocution DoT Dmg/Tick:", DoTInformation.Electro_DmgPerTick, false);
+		toReturn[2] = new StatsRow("Electrocution DoT Ticks/Sec:", DoTInformation.Electro_TicksPerSec, false);
+		toReturn[3] = new StatsRow("Electrocution DoT Duration:", DoTInformation.Electro_SecsDuration, false);
 		double electrocuteTotalDamage = DoTInformation.Electro_DmgPerTick * DoTInformation.Electro_TicksPerSec * DoTInformation.Electro_SecsDuration;
-		toReturn[4] = new StatsRow("Electrocution DoT Total Dmg:", "" + electrocuteTotalDamage, false);
+		toReturn[4] = new StatsRow("Electrocution DoT Total Dmg:", electrocuteTotalDamage, false);
 		
 		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 0 || selectedOverclock == 3 || selectedOverclock == 5;
-		toReturn[5] = new StatsRow("Direct Damage:", "" + getDirectDamage(), directDamageModified);
+		toReturn[5] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
-		toReturn[6] = new StatsRow("Electric Damage:", "" + getElectricDamage(), selectedTier4 == 2 || selectedOverclock == 2);
+		toReturn[6] = new StatsRow("Electric Damage:", getElectricDamage(), selectedTier4 == 2 || selectedOverclock == 2);
 		
 		boolean magSizeModified = selectedTier2 == 0 || selectedTier5 == 1 || selectedOverclock == 0;
-		toReturn[7] = new StatsRow("Magazine Size:", "" + getMagazineSize(), magSizeModified);
+		toReturn[7] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier1 == 2 || selectedTier3 == 1 || selectedOverclock == 3 || selectedOverclock == 4;
-		toReturn[8] = new StatsRow("Max Ammo:", "" + getCarriedAmmo(), carriedAmmoModified);
+		toReturn[8] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
 		boolean RoFModified = selectedTier2 == 2 || (selectedOverclock > 0 && selectedOverclock < 5);
-		toReturn[9] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), RoFModified);
+		toReturn[9] = new StatsRow("Rate of Fire:", getRateOfFire(), RoFModified);
 		
-		toReturn[10] = new StatsRow("Reload Time:", "" + getReloadTime(), selectedOverclock == 1);
+		toReturn[10] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 1);
 		
 		boolean baseSpreadModified = selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock == 2;
 		toReturn[11] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified);
 		
 		toReturn[12] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0);
-		
-		toReturn[13] = new StatsRow("Accuracy:", convertDoubleToPercentage(new AccuracyEstimator(getRateOfFire(), getMagazineSize(), getBaseSpread(), 1.0, 1.0, 1.0, 1.0, 1.0, 1.0).calculateAccuracy()), false);
 		
 		return toReturn;
 	}

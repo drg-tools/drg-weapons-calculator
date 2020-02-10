@@ -363,9 +363,8 @@ public class Minigun extends Weapon {
 		if (selectedOverclock == 0) {
 			toReturn -= 0.2;
 		}
-		// This value is really annoying; the imprecise nature of double values make 0.7 - 0.4 != 0.3
-		// Round it to one decimal point to present the expected value.
-		return MathUtils.round(toReturn, 1);
+		
+		return toReturn;
 	}
 	private int getSpindownTime() {
 		int toReturn = spindownTime;
@@ -429,32 +428,32 @@ public class Minigun extends Weapon {
 		StatsRow[] toReturn = new StatsRow[18];
 		
 		boolean damageModified = selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock > 3;
-		toReturn[0] = new StatsRow("Damage per Pellet:", "" + getDamagePerPellet(), damageModified);
+		toReturn[0] = new StatsRow("Damage per Pellet:", getDamagePerPellet(), damageModified);
 		
-		toReturn[1] = new StatsRow("Ammo Spent per Pellet:", "2", false);
+		toReturn[1] = new StatsRow("Ammo Spent per Pellet:", 2, false);
 		
 		toReturn[2] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(stunChancePerPellet), false);
 		
-		toReturn[3] = new StatsRow("Stun Duration:", "" + getStunDuration(), selectedTier3 == 1);
+		toReturn[3] = new StatsRow("Stun Duration:", getStunDuration(), selectedTier3 == 1);
 		
 		boolean ammoModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 3;
-		toReturn[4] = new StatsRow("Max Ammo:", "" + getMaxAmmo(), ammoModified);
+		toReturn[4] = new StatsRow("Max Ammo:", getMaxAmmo(), ammoModified);
 		
-		toReturn[5] = new StatsRow("Max Heat:", maxHeat + " *", false);
+		toReturn[5] = new StatsRow("Max Heat:", maxHeat, false);
 		
-		toReturn[6] = new StatsRow("Heat Accumulated per Pellet:", getHeatPerPellet() + " *", selectedOverclock == 2);
+		toReturn[6] = new StatsRow("Heat Accumulated per Pellet:", getHeatPerPellet(), selectedOverclock == 2);
 		
-		toReturn[7] = new StatsRow("Cooling Rate (Heat Dissipated/Sec):", "" + getCoolingRate(), selectedTier1 == 0 || selectedOverclock == 1);
+		toReturn[7] = new StatsRow("Cooling Rate (Heat Dissipated/Sec):", getCoolingRate(), selectedTier1 == 0 || selectedOverclock == 1);
 		
-		toReturn[8] = new StatsRow("Cooldown After Overheat:", cooldownAfterOverheat + " *", false);
+		toReturn[8] = new StatsRow("Cooldown After Overheat:", cooldownAfterOverheat, false);
 		
-		toReturn[9] = new StatsRow("Rate of Fire (Ammo/Sec):", "" + getRateOfFire(), selectedTier1 == 1 || selectedOverclock == 3);
+		toReturn[9] = new StatsRow("Rate of Fire (Ammo/Sec):", getRateOfFire(), selectedTier1 == 1 || selectedOverclock == 3);
 		
-		toReturn[10] = new StatsRow("Ammo Spent Until Stabilized:", bulletsFiredTilMaxStability + " *", false);
+		toReturn[10] = new StatsRow("Ammo Spent Until Stabilized:", bulletsFiredTilMaxStability, false);
 		
-		toReturn[11] = new StatsRow("Spinup Time:", "" + getSpinupTime(), selectedTier4 == 1 || selectedOverclock == 0);
+		toReturn[11] = new StatsRow("Spinup Time:", getSpinupTime(), selectedTier4 == 1 || selectedOverclock == 0);
 		
-		toReturn[12] = new StatsRow("Spindown Time:", "" + getSpindownTime(), selectedTier4 == 2);
+		toReturn[12] = new StatsRow("Spindown Time:", getSpindownTime(), selectedTier4 == 2);
 		
 		boolean baseSpreadModified = selectedTier1 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[13] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified);
@@ -463,9 +462,9 @@ public class Minigun extends Weapon {
 		
 		toReturn[15] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier3 == 0);
 		
-		toReturn[16] = new StatsRow("Max Penetrations:", "" + getNumberOfPenetrations(), selectedTier3 == 2);
+		toReturn[16] = new StatsRow("Max Penetrations:", getNumberOfPenetrations(), selectedTier3 == 2);
 		
-		toReturn[17] = new StatsRow("Max Ricochets:", "" + getNumberOfRicochets(), selectedOverclock == 5);
+		toReturn[17] = new StatsRow("Max Ricochets:", getNumberOfRicochets(), selectedOverclock == 5);
 		
 		return toReturn;
 	}

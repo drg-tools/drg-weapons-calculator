@@ -434,25 +434,25 @@ public class Shotgun extends Weapon {
 		StatsRow[] toReturn = new StatsRow[12];
 		
 		boolean damageModified = selectedTier4 == 2 || selectedOverclock == 3 || selectedOverclock == 4;
-		toReturn[0] = new StatsRow("Damage Per Pellet:", "" + getDamagePerPellet(), damageModified);
+		toReturn[0] = new StatsRow("Damage Per Pellet:", getDamagePerPellet(), damageModified);
 		
-		toReturn[1] = new StatsRow("Number of Pellets/Shot:", "" + getNumberOfPellets(), selectedTier2 == 1);
+		toReturn[1] = new StatsRow("Number of Pellets/Shot:", getNumberOfPellets(), selectedTier2 == 1);
 		
 		boolean magSizeModified = selectedTier1 == 1 || selectedTier3 == 2 || selectedOverclock % 2 == 0; // OCs 0, 2, & 4 all modify mag size, but -1, 1, & 3 do not.
-		toReturn[2] = new StatsRow("Magazine Size:", "" + getMagazineSize(), magSizeModified);
+		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 4;
-		toReturn[3] = new StatsRow("Max Ammo:", "" + getCarriedAmmo(), carriedAmmoModified);
+		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
 		boolean RoFModified = selectedTier1 == 0 || selectedTier5 == 1 || selectedOverclock == 0 || selectedOverclock == 2 || selectedOverclock == 3;
-		toReturn[4] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), RoFModified);
+		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), RoFModified);
 		
 		boolean reloadModified = selectedTier3 == 1 || selectedOverclock == 1 || selectedOverclock == 3;
-		toReturn[5] = new StatsRow("Reload Time:", "" + getReloadTime(), reloadModified);
+		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), reloadModified);
 		
 		toReturn[6] = new StatsRow("Weakpoint Stun Chance:", convertDoubleToPercentage(getWeakpointStunChance()), selectedTier4 == 1);
 		
-		toReturn[7] = new StatsRow("Stun Duration:", "" + getStunDuration(), selectedTier4 == 1);
+		toReturn[7] = new StatsRow("Stun Duration:", getStunDuration(), selectedTier4 == 1);
 		
 		toReturn[8] = new StatsRow("Armor Break Chance:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 0);
 		

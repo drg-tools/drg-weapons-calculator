@@ -420,17 +420,17 @@ public class Deepcore extends Weapon {
 		StatsRow[] toReturn = new StatsRow[11];
 		
 		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 ||  selectedOverclock == 5 || selectedOverclock == 6;
-		toReturn[0] = new StatsRow("Direct Damage:", "" + getDirectDamage(), directDamageModified);
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
 		boolean magSizeModified = selectedTier3 == 2 || selectedOverclock == 0 || selectedOverclock == 4 || selectedOverclock == 6;
-		toReturn[1] = new StatsRow("Magazine Size:", "" + getMagazineSize(), magSizeModified);
+		toReturn[1] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
 		
-		toReturn[2] = new StatsRow("Max Ammo:", "" + getCarriedAmmo(), selectedTier2 == 1);
+		toReturn[2] = new StatsRow("Max Ammo:", getCarriedAmmo(), selectedTier2 == 1);
 		
 		boolean rofModified = selectedTier1 == 1 || selectedTier4 == 2 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
-		toReturn[3] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), rofModified);
+		toReturn[3] = new StatsRow("Rate of Fire:", getRateOfFire(), rofModified);
 		
-		toReturn[4] = new StatsRow("Reload Time:", "" + getReloadTime(), selectedOverclock == 1);
+		toReturn[4] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 1);
 		
 		toReturn[5] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0);
 		
@@ -443,7 +443,7 @@ public class Deepcore extends Weapon {
 		
 		toReturn[9] = new StatsRow("Weakpoint Stun Chance:", convertDoubleToPercentage(getWeakpointStunChance()), selectedTier5 == 2);
 		
-		toReturn[10] = new StatsRow("Stun Duration:", "" + stunDuration, false);
+		toReturn[10] = new StatsRow("Stun Duration:", stunDuration, false);
 		
 		return toReturn;
 	}

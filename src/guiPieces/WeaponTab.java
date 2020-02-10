@@ -16,6 +16,7 @@ import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.Weapon;
 import utilities.GuiConstants;
+import utilities.MathUtils;
 
 public class WeaponTab extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -189,6 +190,7 @@ public class WeaponTab extends JPanel {
 		
 		int i;
 		JLabel header, value;
+		String roundedNumber;
 		
 		// Row 1
 		for (i = 0; i < headers.length/2; i++) {
@@ -200,7 +202,8 @@ public class WeaponTab extends JPanel {
 		double[] originalStats = myWeapon.getBaselineStats();
 		
 		double idealBurstDPS = myWeapon.calculateIdealBurstDPS();
-		value = new JLabel("" + idealBurstDPS);
+		roundedNumber = "" + MathUtils.round(idealBurstDPS, GuiConstants.numDecimalPlaces);
+		value = new JLabel(roundedNumber);
 		if (idealBurstDPS < originalStats[0]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
@@ -214,7 +217,8 @@ public class WeaponTab extends JPanel {
 		toReturn.add(value);
 		
 		double idealSustainedDPS = myWeapon.calculateIdealSustainedDPS();
-		value = new JLabel("" + idealSustainedDPS);
+		roundedNumber = "" + MathUtils.round(idealSustainedDPS, GuiConstants.numDecimalPlaces);
+		value = new JLabel(roundedNumber);
 		if (idealSustainedDPS < originalStats[1]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
@@ -228,7 +232,8 @@ public class WeaponTab extends JPanel {
 		toReturn.add(value);
 		
 		double sustainedWeakpointDPS = myWeapon.sustainedWeakpointDPS();
-		value = new JLabel("" + sustainedWeakpointDPS);
+		roundedNumber = "" + MathUtils.round(sustainedWeakpointDPS, GuiConstants.numDecimalPlaces);
+		value = new JLabel(roundedNumber);
 		if (sustainedWeakpointDPS < originalStats[2]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
@@ -242,7 +247,8 @@ public class WeaponTab extends JPanel {
 		toReturn.add(value);
 		
 		double sustainedWeakpointAccuracyDPS = myWeapon.sustainedWeakpointAccuracyDPS();
-		value = new JLabel("" + sustainedWeakpointAccuracyDPS);
+		roundedNumber = "" + MathUtils.round(sustainedWeakpointAccuracyDPS, GuiConstants.numDecimalPlaces);
+		value = new JLabel(roundedNumber);
 		if (sustainedWeakpointAccuracyDPS < originalStats[3]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
@@ -256,7 +262,8 @@ public class WeaponTab extends JPanel {
 		toReturn.add(value);
 		
 		double additionalTargetDPS = myWeapon.calculateAdditionalTargetDPS();
-		value = new JLabel("" + additionalTargetDPS);
+		roundedNumber = "" + MathUtils.round(additionalTargetDPS, GuiConstants.numDecimalPlaces);
+		value = new JLabel(roundedNumber);
 		if (additionalTargetDPS < originalStats[4]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
@@ -270,7 +277,8 @@ public class WeaponTab extends JPanel {
 		toReturn.add(value);
 		
 		double maxMultiDmg = myWeapon.calculateMaxMultiTargetDamage();
-		value = new JLabel("" + maxMultiDmg);
+		roundedNumber = "" + MathUtils.round(maxMultiDmg, GuiConstants.numDecimalPlaces);
+		value = new JLabel(roundedNumber);
 		if (maxMultiDmg < originalStats[5]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
@@ -322,7 +330,8 @@ public class WeaponTab extends JPanel {
 		}
 		
 		double firingDuration = myWeapon.calculateFiringDuration();
-		value = new JLabel("" + firingDuration);
+		roundedNumber = "" + MathUtils.round(firingDuration, GuiConstants.numDecimalPlaces);
+		value = new JLabel(roundedNumber);
 		if (firingDuration < originalStats[7]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
@@ -336,7 +345,8 @@ public class WeaponTab extends JPanel {
 		toReturn.add(value);
 		
 		double timeToKill = myWeapon.averageTimeToKill();
-		value = new JLabel("" + timeToKill);
+		roundedNumber = "" + MathUtils.round(timeToKill, GuiConstants.numDecimalPlaces);
+		value = new JLabel(roundedNumber);
 		if (timeToKill > originalStats[8]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
@@ -350,7 +360,8 @@ public class WeaponTab extends JPanel {
 		toReturn.add(value);
 		
 		double overkill = myWeapon.averageOverkill();
-		value = new JLabel(overkill + "%");
+		roundedNumber = MathUtils.round(overkill, GuiConstants.numDecimalPlaces) + "%";
+		value = new JLabel(roundedNumber);
 		if (overkill > originalStats[9]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
@@ -369,7 +380,8 @@ public class WeaponTab extends JPanel {
 			value.setForeground(GuiConstants.drgHighlightedYellow);
 		}
 		else {
-			value = new JLabel(accuracy + "%");
+			roundedNumber = MathUtils.round(accuracy, GuiConstants.numDecimalPlaces) + "%";
+			value = new JLabel(roundedNumber);
 			if (accuracy < originalStats[10]) {
 				value.setForeground(GuiConstants.drgOverclockUnstableRed);
 			}
@@ -384,7 +396,8 @@ public class WeaponTab extends JPanel {
 		toReturn.add(value);
 		
 		double utility = myWeapon.utilityScore();
-		value = new JLabel("" + utility);
+		roundedNumber = "" + MathUtils.round(utility, GuiConstants.numDecimalPlaces);
+		value = new JLabel(roundedNumber);
 		if (utility < originalStats[11]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}

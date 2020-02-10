@@ -24,6 +24,8 @@ public class GuiConstants {
 	// Estimated
 	public static int fontHeight = 11; 
 	
+	public static int numDecimalPlaces = 4;
+	
 	// Black border gets used on all 4 panes of the WeaponTab, orange border is used on HoverText and AoEVisualizerButton
 	public static Border blackLine = BorderFactory.createLineBorder(Color.black);
 	public static Border orangeLine = BorderFactory.createLineBorder(drgRegularOrange);

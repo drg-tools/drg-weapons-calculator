@@ -395,17 +395,17 @@ public class Zhukov extends Weapon {
 		StatsRow[] toReturn = new StatsRow[9];
 		
 		boolean directDamageModified = selectedTier1 == 1 || selectedTier3 == 0 || (selectedOverclock > 0 && selectedOverclock < 5);
-		toReturn[0] = new StatsRow("Direct Damage:", "" + getDirectDamage(), directDamageModified);
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
 		boolean magSizeModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2;
-		toReturn[1] = new StatsRow("Magazine Size:", "" + getMagazineSize(), magSizeModified);
+		toReturn[1] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier1 == 0 || selectedTier4 == 2 || selectedOverclock == 3;
-		toReturn[2] = new StatsRow("Max Ammo:", "" + getCarriedAmmo(), carriedAmmoModified);
+		toReturn[2] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[3] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), selectedTier2 == 1 || selectedOverclock == 0);
+		toReturn[3] = new StatsRow("Rate of Fire:", getRateOfFire(), selectedTier2 == 1 || selectedOverclock == 0);
 		
-		toReturn[4] = new StatsRow("Reload Time:", "" + getReloadTime(), selectedTier2 == 2 || selectedOverclock == 0);
+		toReturn[4] = new StatsRow("Reload Time:", getReloadTime(), selectedTier2 == 2 || selectedOverclock == 0);
 		
 		String sign = "";
 		if (selectedOverclock != 4) {
@@ -416,7 +416,7 @@ public class Zhukov extends Weapon {
 		
 		toReturn[6] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier3 == 1 || selectedOverclock == 4);
 		
-		toReturn[7] = new StatsRow("Max Penetrations:", "" + getMaxPenetrations(), selectedTier4 == 0);
+		toReturn[7] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0);
 		
 		toReturn[8] = new StatsRow("Movespeed While Firing:", convertDoubleToPercentage(getMovespeedWhileFiring()), selectedOverclock == 4);
 		
