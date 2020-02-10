@@ -102,6 +102,32 @@ public class EnemyInformation {
 		100    // Cave Leech
 	};
 	
+	// Resistance/weakness values taken from wiki
+	// Positive number means that the creature resists that element; negative means it's weak to that element.
+	private static double[][] enemyResistances = {
+		{0, 0, 0, 0},  				// Glyphid Swarmer
+		{0, 0, 0, 0},  				// Glyphid Grunt
+		{0.3, 0.3, 0.3, 0.3},  		// Glyphid Grunt Guard
+		{-0.3, 0, 0, 0},  			// Glyphid Grunt Slasher
+		{0, 0, 0, 0},  				// Glyphid Praetorian
+		{0, 0, 0, 0},  				// Glyphid Exploder
+		{0.5, 0, -1, 0},  			// Glyphid Bulk Detonator
+		{0, 0, 0, 0},  				// Glyphid Webspitter
+		{0, 0, 0, 0},  				// Glyphid Acidspitter
+		{0, 0, 0, 0},  				// Glyphid Menace
+		{0, 0, -1, 0},  			// Glyphid Warden
+		{0.66, 0.66, 0.66, 0.3},  	// Glyphid Oppressor
+		// Weighted rolling state at 2/3 and non-rolling state at 1/3
+		{0.66*0.8, 0.66*0.3 + 0.34*-0.5, 0.66*0.3 + 0.34*-0.7, 0.66*1.0},  // Q'ronar Shellback
+		{-1, -1, 0, 0},  			// Mactera Spawn
+		{0, 0, 0, 0},  				// Mactera Grabber
+		{0, -0.2, 0, 0},  			// Mactera Bomber
+		{0, 0, 0, 0},  				// Naedocyte Breeder
+		{0, 0, 0, 0},  				// Glyphid Brood Nexus
+		{0, -1, 0, 0},  			// Spitball Infector
+		{0, 0, 0, 0}   				// Cave Leech
+	};
+	
 	private static boolean verifySpawnRatesTotalIsOne() {
 		double sum = 0.0;
 		for (int i = 0; i < spawnRates.length; i++) {
@@ -140,6 +166,34 @@ public class EnemyInformation {
 		double toReturn = MathUtils.vectorDotProduct(spawnRates, enemyHealthPools);
 		// System.out.println("Average health of an enemy: " + toReturn);
 		return toReturn;
+	}
+	
+	public static double averageResistanceCoefficient(int resistanceIndex) {
+		/*
+			0. Explosive
+			1. Fire
+			2. Frost
+			3. Electric
+		*/
+		if (!verifySpawnRatesTotalIsOne()) {
+			return -1.0;
+		}
+		
+		if (resistanceIndex < 0 || resistanceIndex > 3) {
+			return -1.0;
+		}
+		
+		int vectorLength = enemyResistances.length;
+		double[] weightedResistancesVector = new double[vectorLength];
+		for (int i = 0; i < vectorLength; i++) {
+			weightedResistancesVector[i] = enemyResistances[i][resistanceIndex];
+		}
+		
+		double toReturn = MathUtils.vectorDotProduct(spawnRates, weightedResistancesVector);
+		toReturn = MathUtils.round(toReturn, 3);
+		// System.out.println("Average resistance/weakness of an enemy to element #" + resistanceIndex + ": " + toReturn);
+		// Subtract the value from 1 so that this method returns a static coefficient to multiply damage taken by enemies
+		return 1.0 - toReturn;
 	}
 	
 	/* 

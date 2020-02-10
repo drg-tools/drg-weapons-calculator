@@ -334,7 +334,7 @@ public class Subata extends Weapon {
 		double toReturn = rateOfFire;
 		
 		if (selectedOverclock == 3) {
-			toReturn += 1.0;
+			toReturn += 2.0;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn -= 4.0;
@@ -545,6 +545,7 @@ public class Subata extends Weapon {
 		double numberOfMagazines = (((double) getCarriedAmmo()) / magSize) + 1.0;
 		double timeToFireMagazine = magSize / getRateOfFire();
 		// There are one fewer reloads than there are magazines to fire
+		// TODO: floor(numMagazines) - 1, make the change in all weapons
 		return numberOfMagazines * timeToFireMagazine + (numberOfMagazines - 1.0) * getReloadTime();
 	}
 

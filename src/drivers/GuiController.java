@@ -10,6 +10,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 import dataGenerator.WeaponStatsGenerator;
+import drillerWeapons.EPC_ChargeShot;
+import drillerWeapons.EPC_RegularShot;
 import drillerWeapons.Subata;
 import engineerWeapons.GrenadeLauncher;
 import engineerWeapons.SMG;
@@ -18,6 +20,7 @@ import guiPieces.View;
 import gunnerWeapons.Autocannon;
 import gunnerWeapons.Minigun;
 import gunnerWeapons.Revolver;
+import modelPieces.EnemyInformation;
 import modelPieces.Weapon;
 import scoutWeapons.Boomstick;
 import scoutWeapons.Classic_FocusShot;
@@ -42,7 +45,7 @@ public class GuiController implements ActionListener {
 	private JFileChooser folderChooser;
 	
 	public static void main(String[] args) {
-		Weapon[] drillerWeapons = new Weapon[] {new Subata()};
+		Weapon[] drillerWeapons = new Weapon[] {new Subata(), new EPC_RegularShot(), new EPC_ChargeShot()};
 		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new GrenadeLauncher()};
 		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new Revolver()};
 		Weapon[] scoutWeapons = new Weapon[] {new Deepcore(), new Classic_Hipfire(), new Classic_FocusShot(), new Boomstick()};

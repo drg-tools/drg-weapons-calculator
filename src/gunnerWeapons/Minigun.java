@@ -50,6 +50,7 @@ public class Minigun extends Weapon {
 	public Minigun(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "\"Lead Storm\" Powered Minigun";
 		
+		// TODO: redo these tests to verify. num bullets was 286 last time I tested.
 		// Base stats, before mods or overclocks alter them:
 		damagePerPellet = 10;
 		stunChancePerPellet = 0.3;  // 30%
