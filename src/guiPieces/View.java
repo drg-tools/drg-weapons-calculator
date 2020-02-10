@@ -17,7 +17,8 @@ public class View extends JFrame implements Observer {
 	
 	private JMenuBar menuBar;
 	private JMenu bestCombinationsMenu;
-	private JMenuItem bcmBurst, bcmSustained, bcmAdditional, bcmMaxDmg, bcmMaxNumTargets, bcmDuration;
+	private JMenuItem bcmIdealBurst, bcmIdealSustained, bcmSustainedWeakpoint, bcmSustainedWeakpointAccuracy, bcmIdealAdditional, bcmMaxDmg, 
+					bcmMaxNumTargets, bcmDuration, bcmTTK, bcmOverkill, bcmAccuracy, bcmUtility;
 	private JMenu exportMenu;
 	private JMenuItem exportCurrent, exportAll;
 	private JMenu miscMenu;	
@@ -90,18 +91,33 @@ public class View extends JFrame implements Observer {
 		menuBar = new JMenuBar();
 		
 		bestCombinationsMenu = new JMenu("Best Combinations");
-		bcmBurst = new JMenuItem("Best Ideal Burst DPS");
-		bestCombinationsMenu.add(bcmBurst);
-		bcmSustained = new JMenuItem("Best Ideal Sustained DPS");
-		bestCombinationsMenu.add(bcmSustained);
-		bcmAdditional = new JMenuItem("Best Additional Target DPS");
-		bestCombinationsMenu.add(bcmAdditional);
+		bcmIdealBurst = new JMenuItem("Best Ideal Burst DPS");
+		bestCombinationsMenu.add(bcmIdealBurst);
+		bcmIdealSustained = new JMenuItem("Best Ideal Sustained DPS");
+		bestCombinationsMenu.add(bcmIdealSustained);
+		bcmSustainedWeakpoint = new JMenuItem("Best Sustained + Weakpoint DPS");
+		bestCombinationsMenu.add(bcmSustainedWeakpoint);
+		bcmSustainedWeakpointAccuracy = new JMenuItem("Best Sustained + Weakpoint + Accuracy DPS");
+		bcmSustainedWeakpointAccuracy.setEnabled(false);  // TODO: Re-enable this once Accuracy is implemented.
+		bestCombinationsMenu.add(bcmSustainedWeakpointAccuracy);
+		bcmIdealAdditional = new JMenuItem("Best Additional Target DPS");
+		bestCombinationsMenu.add(bcmIdealAdditional);
 		bcmMaxDmg = new JMenuItem("Most Multi-Target Damage");
 		bestCombinationsMenu.add(bcmMaxDmg);
 		bcmMaxNumTargets = new JMenuItem("Most Number of Targets Hit");
 		bestCombinationsMenu.add(bcmMaxNumTargets);
 		bcmDuration = new JMenuItem("Longest Firing Duration");
 		bestCombinationsMenu.add(bcmDuration);
+		bcmTTK = new JMenuItem("Fastest Avg Time To Kill");
+		bestCombinationsMenu.add(bcmTTK);
+		bcmOverkill = new JMenuItem("Lowest Avg Overkill");
+		bestCombinationsMenu.add(bcmOverkill);
+		bcmAccuracy = new JMenuItem("Highest Accuracy");
+		bcmAccuracy.setEnabled(false);  // TODO: Re-enable this once Accuracy is implemented.
+		bestCombinationsMenu.add(bcmAccuracy);
+		bcmUtility = new JMenuItem("Most Utility");
+		bcmUtility.setEnabled(false);  // TODO: Re-enable this once Utility is implemented.
+		bestCombinationsMenu.add(bcmUtility);
 		menuBar.add(bestCombinationsMenu);
 		
 		exportMenu = new JMenu("Export Stats to CSV");
@@ -122,14 +138,20 @@ public class View extends JFrame implements Observer {
 	}
 	
 	// Getters used by GuiController
-	public JMenuItem getBcmBurst() {
-		return bcmBurst;
+	public JMenuItem getBcmIdealBurst() {
+		return bcmIdealBurst;
 	}
-	public JMenuItem getBcmSustained() {
-		return bcmSustained;
+	public JMenuItem getBcmIdealSustained() {
+		return bcmIdealSustained;
 	}
-	public JMenuItem getBcmAdditional() {
-		return bcmAdditional;
+	public JMenuItem getBcmSustainedWeakpoint() {
+		return bcmSustainedWeakpoint;
+	}
+	public JMenuItem getBcmSustainedWeakpointAccuracy() {
+		return bcmSustainedWeakpointAccuracy;
+	}
+	public JMenuItem getBcmIdealAdditional() {
+		return bcmIdealAdditional;
 	}
 	public JMenuItem getBcmMaxDmg() {
 		return bcmMaxDmg;
@@ -140,12 +162,26 @@ public class View extends JFrame implements Observer {
 	public JMenuItem getBcmDuration() {
 		return bcmDuration;
 	}
+	public JMenuItem getBcmTTK() {
+		return bcmTTK;
+	}
+	public JMenuItem getBcmOverkill() {
+		return bcmOverkill;
+	}
+	public JMenuItem getBcmAccuracy() {
+		return bcmAccuracy;
+	}
+	public JMenuItem getBcmUtility() {
+		return bcmUtility;
+	}
+	
 	public JMenuItem getExportCurrent() {
 		return exportCurrent;
 	}
 	public JMenuItem getExportAll() {
 		return exportAll;
 	}
+	
 	public JMenuItem getMiscExport() {
 		return miscExport;
 	}
@@ -178,14 +214,22 @@ public class View extends JFrame implements Observer {
 	
 	// This method gets called by GuiController; I use it to add it as an ActionListener to all buttons and menu items in the GUI
 	public void activateButtonsAndMenus(ActionListener parent) {
-		bcmBurst.addActionListener(parent);
-		bcmSustained.addActionListener(parent);
-		bcmAdditional.addActionListener(parent);
+		bcmIdealBurst.addActionListener(parent);
+		bcmIdealSustained.addActionListener(parent);
+		bcmSustainedWeakpoint.addActionListener(parent);
+		bcmSustainedWeakpointAccuracy.addActionListener(parent);
+		bcmIdealAdditional.addActionListener(parent);
 		bcmMaxDmg.addActionListener(parent);
 		bcmMaxNumTargets.addActionListener(parent);
 		bcmDuration.addActionListener(parent);
+		bcmTTK.addActionListener(parent);
+		bcmOverkill.addActionListener(parent);
+		bcmAccuracy.addActionListener(parent);
+		bcmUtility.addActionListener(parent);
+		
 		exportCurrent.addActionListener(parent);
 		exportAll.addActionListener(parent);
+		
 		miscExport.addActionListener(parent);
 		miscLoad.addActionListener(parent);
 	}

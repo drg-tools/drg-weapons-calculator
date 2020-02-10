@@ -118,13 +118,22 @@ public class GuiController implements ActionListener {
 		}
 		calculator.changeWeapon(currentlySelectedWeapon);
 		
-		if (e == gui.getBcmBurst()) {
+		if (e == gui.getBcmIdealBurst()) {
 			currentlySelectedWeapon.buildFromCombination(calculator.getBestBurstDPSCombination());
 		}
-		else if (e == gui.getBcmSustained()) {
+		else if (e == gui.getBcmIdealSustained()) {
 			currentlySelectedWeapon.buildFromCombination(calculator.getBestSustainedDPSCombination());
 		}
-		else if (e == gui.getBcmAdditional()) {
+		else if (e == gui.getBcmSustainedWeakpoint()) {
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestSustainedWeakpointDPSCombination());
+		}
+		/*
+		TODO: re-add this once Accuracy is implemented
+		else if (e == gui.getBcmSustainedWeakpointAccuracy()) {
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestSustainedWeakpointAccuracyDPSCombination());
+		}
+		*/
+		else if (e == gui.getBcmIdealAdditional()) {
 			currentlySelectedWeapon.buildFromCombination(calculator.getBestAdditionalTargetDPSCombination());
 		}
 		else if (e == gui.getBcmMaxDmg()) {
@@ -136,6 +145,26 @@ public class GuiController implements ActionListener {
 		else if (e == gui.getBcmDuration()) {
 			currentlySelectedWeapon.buildFromCombination(calculator.getLongestFiringDurationCombination());
 		}
+		else if (e == gui.getBcmTTK()) {
+			currentlySelectedWeapon.buildFromCombination(calculator.getShortestTimeToKillCombination());
+		}
+		else if (e == gui.getBcmOverkill()) {
+			currentlySelectedWeapon.buildFromCombination(calculator.getLowestOverkillCombination());
+		}
+		/*
+		TODO: re-add this once Accuracy is implemented
+		else if (e == gui.getBcmAccuracy()) {
+			currentlySelectedWeapon.buildFromCombination(calculator.getHighestAccuracyCombination());
+		}
+		*/
+		/*
+		TODO: re-add this once Utility is implemented
+		else if (e == gui.getBcmUtility()) {
+			currentlySelectedWeapon.buildFromCombination(calculator.getMostUtilityCombination());
+		}
+		*/
+		
+		
 		else if (e == gui.getExportCurrent()) {
 			chooseFolder();
 			calculator.runTest(false, true);
@@ -160,6 +189,8 @@ public class GuiController implements ActionListener {
 				calculator.runTest(false, true);
 			}
 		}
+		
+		
 		else if (e == gui.getMiscExport()) {
 			String combination = currentlySelectedWeapon.getCombination();
 			JTextField output = new JTextField(combination);
