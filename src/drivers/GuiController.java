@@ -10,25 +10,30 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 import dataGenerator.WeaponStatsGenerator;
+import drillerWeapons.EPC_ChargeShot;
+import drillerWeapons.EPC_RegularShot;
 import drillerWeapons.Subata;
 import engineerWeapons.GrenadeLauncher;
 import engineerWeapons.SMG;
 import engineerWeapons.Shotgun;
 import guiPieces.View;
 import gunnerWeapons.Autocannon;
+import gunnerWeapons.BurstPistol;
 import gunnerWeapons.Minigun;
 import gunnerWeapons.Revolver;
+import modelPieces.EnemyInformation;
 import modelPieces.Weapon;
+import scoutWeapons.Boomstick;
+import scoutWeapons.Classic_FocusShot;
+import scoutWeapons.Classic_Hipfire;
+import scoutWeapons.Deepcore;
+import scoutWeapons.Zhukov;
 
 /*
-	TODO list:
-	1. Create the remaining weapons
-	2. Verify numbers of all the weapons, since there have been some balance changes (Revolver and M1k, for example)
-	3. Refactor Observer/Observable into a non-deprecated paradigm ("Listener"?)
-	4. Finish implementing AccuracyEstimator; the work is done it just needs the 7 values for the 13 guns that will use it.
-	5. Finish implementing Weakpoint Bonus damage; the method is made, it just needs to be applied.
-	6. Add in some metrics to rate things like Time To Kill, Overkill ("wasted" damage), Accuracy, Utility (armor break, stun, fear, etc), Ideal DPS, Estimated DPS, and other stuff. 
-																									(Which should be used for the ideal/estimated metrics: burst or sustained DPS?) 
+	Benchmarks: 
+		150 Ideal Burst DPS
+		100 Ideal Sustained DPS
+		8000 Total Damage
 */
 
 public class GuiController implements ActionListener {
@@ -42,10 +47,10 @@ public class GuiController implements ActionListener {
 	private JFileChooser folderChooser;
 	
 	public static void main(String[] args) {
-		Weapon[] drillerWeapons = new Weapon[] {new Subata()};
+		Weapon[] drillerWeapons = new Weapon[] {new Subata(), new EPC_RegularShot(), new EPC_ChargeShot()};
 		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new GrenadeLauncher()};
-		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new Revolver()};
-		Weapon[] scoutWeapons = new Weapon[] {};
+		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new Revolver(), new BurstPistol()};
+		Weapon[] scoutWeapons = new Weapon[] {new Deepcore(), new Classic_Hipfire(), new Classic_FocusShot(), new Boomstick(), new Zhukov()};
 		View gui = new View(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons);
 		new GuiController(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons, gui);
 	}

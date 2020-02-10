@@ -3,6 +3,7 @@ package engineerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
@@ -451,16 +452,29 @@ public class GrenadeLauncher extends Weapon {
 	}
 
 	@Override
-	public double calculateBurstDPS() {
+	public double calculateIdealBurstDPS() {
 		// This method will only calculate single-target DPS, but the additional target DPS should reflect how well this scales.
 		double damagePerGrenade = getDirectDamage() + getAreaDamage();
 		return damagePerGrenade / reloadTime;
 	}
 
 	@Override
-	public double calculateSustainedDPS() {
+	public double calculateIdealSustainedDPS() {
 		// Because the mag size can only have the value of 1, Sustained DPS == Burst DPS
-		return calculateBurstDPS();
+		return calculateIdealBurstDPS();
+	}
+	
+	@Override
+	public double sustainedWeakpointDPS() {
+		// This method will only calculate single-target DPS, but the additional target DPS should reflect how well this scales.
+		double damagePerGrenade = increaseBulletDamageForWeakpoints(getDirectDamage()) + getAreaDamage();
+		return damagePerGrenade / reloadTime;
+	}
+
+	@Override
+	public double sustainedWeakpointAccuracyDPS() {
+		// Because the Grenade Launcher has to be aimed manually, its Accuracy isn't applicable.
+		return sustainedWeakpointDPS();
 	}
 
 	@Override
@@ -483,5 +497,29 @@ public class GrenadeLauncher extends Weapon {
 	public double calculateFiringDuration() {
 		// This is equivalent to counting how many times it has to reload, which is one less than the carried ammo + 1 in the chamber
 		return getCarriedAmmo() * reloadTime;
+	}
+
+	@Override
+	public double averageTimeToKill() {
+		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
+	}
+
+	@Override
+	public double averageOverkill() {
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage()) + getAreaDamage();
+		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
+		return overkill / dmgPerShot * 100.0;
+	}
+
+	@Override
+	public double estimatedAccuracy() {
+		// Manually aimed; return -1
+		return -1.0;
+	}
+
+	@Override
+	public double utilityScore() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

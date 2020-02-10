@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import modelPieces.AccuracyEstimator;
+import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
@@ -469,8 +470,13 @@ public class Shotgun extends Weapon {
 	* Other Methods
 	****************************************************************************************/
 	
-	private double calculateDamagePerMagazine() {
-		return (double) (getDamagePerPellet() * getNumberOfPellets() * getMagazineSize());
+	private double calculateDamagePerMagazine(boolean weakpointBonus) {
+		if (weakpointBonus) {
+			return (double) (increaseBulletDamageForWeakpoints(getDamagePerPellet()) * getNumberOfPellets() * getMagazineSize());
+		}
+		else {
+			return (double) (getDamagePerPellet() * getNumberOfPellets() * getMagazineSize());
+		}
 	}
 	
 	@Override
@@ -479,15 +485,27 @@ public class Shotgun extends Weapon {
 	}
 
 	@Override
-	public double calculateBurstDPS() {
+	public double calculateIdealBurstDPS() {
 		double timeToFireMagazine = ((double) getMagazineSize()) / getRateOfFire();
-		return calculateDamagePerMagazine() / timeToFireMagazine;
+		return calculateDamagePerMagazine(false) / timeToFireMagazine;
 	}
 
 	@Override
-	public double calculateSustainedDPS() {
+	public double calculateIdealSustainedDPS() {
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine() / timeToFireMagazineAndReload;
+		return calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
+	}
+	
+	@Override
+	public double sustainedWeakpointDPS() {
+		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+		return calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
+	}
+
+	@Override
+	public double sustainedWeakpointAccuracyDPS() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override
@@ -514,5 +532,29 @@ public class Shotgun extends Weapon {
 		double timeToFireMagazine = magSize / getRateOfFire();
 		// There are one fewer reloads than there are magazines to fire
 		return numberOfMagazines * timeToFireMagazine + (numberOfMagazines - 1.0) * getReloadTime();
+	}
+
+	@Override
+	public double averageTimeToKill() {
+		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
+	}
+
+	@Override
+	public double averageOverkill() {
+		double dmgPerShot = increaseBulletDamageForWeakpoints(increaseBulletDamageForWeakpoints(getDamagePerPellet()) * getNumberOfPellets());
+		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
+		return overkill / dmgPerShot * 100.0;
+	}
+
+	@Override
+	public double estimatedAccuracy() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double utilityScore() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

@@ -3,7 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
-import modelPieces.AccuracyEstimator;
+import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
@@ -56,7 +56,7 @@ public class Autocannon extends Weapon {
 		carriedAmmo = 440;
 		movespeedWhileFiring = 0.5;
 		minRateOfFire = 1.0;
-		maxRateOfFire = 5.25;
+		maxRateOfFire = 5.5;
 		numBulletsFiredDuringRampup = 10;
 		reloadTime = 5.0;  // seconds
 		baseSpread = 1.0;  // equivalent to its accuracy
@@ -83,7 +83,7 @@ public class Autocannon extends Weapon {
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
 		tier1[0] = new Mod("Increased Caliber Rounds", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 1, 0);
-		tier1[1] = new Mod("Quickfire Ejector", "Experience, training, and a couple of under-the-table design \"adjustments\" means your gun can be reloaded significantly faster.", 1, 1);
+		tier1[1] = new Mod("High Capacity Magazine", "The good thing about clips, magazines, ammo drums, fuel tanks ...you can always get bigger variants.", 1, 1);
 		tier1[2] = new Mod("Expanded Ammo Bags", "You had to give up some sandwich-space, but your total ammo capacity is increased!", 1, 2);
 		
 		tier2 = new Mod[3];
@@ -333,8 +333,12 @@ public class Autocannon extends Weapon {
 	}
 	private int getMagazineSize() {
 		int toReturn = magazineSize;
+		if (selectedTier1 == 1) {
+			toReturn *= 2.0;
+		}
+		
 		if (selectedOverclock == 4) {
-			toReturn -= 55;
+			toReturn *= 0.5;
 		}
 		return toReturn;
 	}
@@ -366,27 +370,27 @@ public class Autocannon extends Weapon {
 			return numBulletsFiredDuringRampup;
 		}
 	}
+	private double getMaxRateOfFire() {
+		double toReturn = maxRateOfFire;
+		if (selectedTier2 == 1) {
+			toReturn += 1;
+		}
+		if (selectedTier3 == 0) {
+			toReturn += 2;
+		}
+		if (selectedOverclock == 4) {
+			toReturn -= 1.5;
+		}
+		return toReturn;
+	}
 	private double getAverageRateOfFire() {
 		int numBulletsRampup = getNumBulletsRampup();
 		int magSize = getMagazineSize();
-		double averageRoF = ((minRateOfFire + maxRateOfFire) / 2.0 * numBulletsRampup + maxRateOfFire * (magSize - numBulletsRampup)) / magSize;
-		double modifier = 1.0;
-		if (selectedTier2 == 1) {
-			modifier += 0.15;
-		}
-		if (selectedTier3 == 0) {
-			modifier += 0.35;
-		}
-		if (selectedOverclock == 4) {
-			modifier -= 0.25;
-		}
-		return averageRoF * modifier;
+		double maxRoF = getMaxRateOfFire();
+		return ((minRateOfFire + maxRoF) / 2.0 * numBulletsRampup + maxRoF * (magSize - numBulletsRampup)) / magSize;
 	}
 	private double getReloadTime() {
 		double toReturn = reloadTime;
-		if (selectedTier1 == 1) {
-			toReturn -= 1.0;
-		}
 		if (selectedOverclock == 0) {
 			toReturn -= 0.5;
 		}
@@ -420,7 +424,7 @@ public class Autocannon extends Weapon {
 		boolean aoeRadiusModified = selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 2;
 		toReturn[2] = new StatsRow("Effect Radius:", "" + getAoERadius(), aoeRadiusModified);
 		
-		toReturn[3] = new StatsRow("Magazine Size:", "" + getMagazineSize(), selectedOverclock == 4);
+		toReturn[3] = new StatsRow("Magazine Size:", "" + getMagazineSize(), selectedTier1 == 1 || selectedOverclock == 4);
 		
 		boolean carriedAmmoModified = selectedTier1 == 2 || selectedOverclock == 0 || selectedOverclock == 4;
 		toReturn[4] = new StatsRow("Max Ammo:", "" + getCarriedAmmo(), carriedAmmoModified);
@@ -433,7 +437,7 @@ public class Autocannon extends Weapon {
 		boolean RoFModified = selectedTier2 > 0 || selectedTier3 == 0 || selectedOverclock == 4;
 		toReturn[7] = new StatsRow("Average Rate of Fire:", "" + getAverageRateOfFire(), RoFModified);
 		
-		toReturn[8] = new StatsRow("Reload Time:", "" + getReloadTime(), selectedTier1 == 1 || selectedOverclock == 0);
+		toReturn[8] = new StatsRow("Reload Time:", "" + getReloadTime(), selectedOverclock == 0);
 		
 		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier2 == 0);
 		
@@ -451,19 +455,25 @@ public class Autocannon extends Weapon {
 		return true;
 	}
 	
-	private double calculateDamagePerMagazine() {
-		int damagePerBullet = getDirectDamage() + numberOfTargets * getAreaDamage();
+	private double calculateDamagePerMagazine(boolean weakpointBonus) {
+		double damagePerBullet;
+		if (weakpointBonus) {
+			damagePerBullet = increaseBulletDamageForWeakpoints(getDirectDamage()) + numberOfTargets * getAreaDamage();
+		}
+		else {
+			damagePerBullet = getDirectDamage() + numberOfTargets * getAreaDamage();
+		}
 		double magSize = (double) getMagazineSize();
 		double damageMultiplier = 1.0;
 		if (selectedTier5 == 0) {
 			double numBulletsRampup = (double) getNumBulletsRampup();
 			damageMultiplier = (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
 		}
-		return ((double) damagePerBullet) * magSize * damageMultiplier;
+		return damagePerBullet * magSize * damageMultiplier;
 	}
 
 	@Override
-	public double calculateBurstDPS() {
+	public double calculateIdealBurstDPS() {
 		/*
 			There are two ways to calculate this: 
 				(damage/bullet times bullets/mag) / (bullets/mag divided by bullets/sec) 
@@ -473,22 +483,35 @@ public class Autocannon extends Weapon {
 			I THINK that they're equivalent, but I'll do it the long way to be sure.
 		*/
 		double timeToFireMagazine = ((double) getMagazineSize()) / getAverageRateOfFire();
-		return calculateDamagePerMagazine() / timeToFireMagazine;
+		return calculateDamagePerMagazine(false) / timeToFireMagazine;
 	}
 
 	@Override
-	public double calculateSustainedDPS() {
+	public double calculateIdealSustainedDPS() {
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getAverageRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine() / timeToFireMagazineAndReload;
+		return calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
 	}
+	
+	@Override
+	public double sustainedWeakpointDPS() {
+		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getAverageRateOfFire()) + getReloadTime();
+		return calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
+	}
+
+	@Override
+	public double sustainedWeakpointAccuracyDPS() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
 		int oldNumTargets = numberOfTargets;
 		numberOfTargets = 3;
-		double threeTargetsDPS = calculateSustainedDPS();
+		double threeTargetsDPS = calculateIdealSustainedDPS();
 		numberOfTargets = 2;
-		double twoTargetsDPS = calculateSustainedDPS();
+		double twoTargetsDPS = calculateIdealSustainedDPS();
 		numberOfTargets = oldNumTargets;
 		return threeTargetsDPS - twoTargetsDPS;
 	}
@@ -499,7 +522,7 @@ public class Autocannon extends Weapon {
 		
 		// Set how many targets you expect will be hit per bullet here.
 		numberOfTargets = calculateMaxNumTargets();
-		double damagePerMagazine = calculateDamagePerMagazine();
+		double damagePerMagazine = calculateDamagePerMagazine(false);
 		// Don't forget to add the magazine that you start out with, in addition to the carried ammo
 		double numberOfMagazines = ((double) getCarriedAmmo()) / ((double) getMagazineSize()) + 1.0;
 		
@@ -520,6 +543,30 @@ public class Autocannon extends Weapon {
 		double timeToFireMagazine = magSize / getAverageRateOfFire();
 		// There are one fewer reloads than there are magazines to fire
 		return numberOfMagazines * timeToFireMagazine + (numberOfMagazines - 1.0) * getReloadTime();
+	}
+
+	@Override
+	public double averageTimeToKill() {
+		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
+	}
+
+	@Override
+	public double averageOverkill() {
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage()) + getAreaDamage();
+		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
+		return overkill / dmgPerShot * 100.0;
+	}
+
+	@Override
+	public double estimatedAccuracy() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double utilityScore() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

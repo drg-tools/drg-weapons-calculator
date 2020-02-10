@@ -36,7 +36,7 @@ public class ModButton extends JButton implements ActionListener {
 		this.setContentAreaFilled(false);
 		this.setBorderPainted(false);
 		
-		// Have each ModButton listen to itself for when it gets clicked to simplify the Controller
+		// Have each ModButton listen to itself for when it gets clicked to simplify the GuiController
 		this.addActionListener(this);
 	}
 	

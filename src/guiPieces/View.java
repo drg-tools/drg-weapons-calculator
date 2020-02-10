@@ -41,8 +41,8 @@ public class View extends JFrame implements Observer {
 		scoutWeapons = sWeapons;
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("DRG Weapons DPS Calculator (DRG Update 26.6)");
-		setPreferredSize(new Dimension(1600, 760));
+		setTitle("MeatShield's DRG DPS Calculator (DRG Update 28.5)");
+		setPreferredSize(new Dimension(1620, 780));
 		
 		constructMenu();
 		
@@ -90,9 +90,9 @@ public class View extends JFrame implements Observer {
 		menuBar = new JMenuBar();
 		
 		bestCombinationsMenu = new JMenu("Best Combinations");
-		bcmBurst = new JMenuItem("Best Burst DPS");
+		bcmBurst = new JMenuItem("Best Ideal Burst DPS");
 		bestCombinationsMenu.add(bcmBurst);
-		bcmSustained = new JMenuItem("Best Sustained DPS");
+		bcmSustained = new JMenuItem("Best Ideal Sustained DPS");
 		bestCombinationsMenu.add(bcmSustained);
 		bcmAdditional = new JMenuItem("Best Additional Target DPS");
 		bestCombinationsMenu.add(bcmAdditional);

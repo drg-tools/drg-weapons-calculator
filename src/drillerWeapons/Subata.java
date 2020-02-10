@@ -3,7 +3,7 @@ package drillerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
-import modelPieces.AccuracyEstimator;
+import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
@@ -99,7 +99,7 @@ public class Subata extends Weapon {
 		tier5[1] = new Mod("Mactera Neurotoxin Coating", "Bonus damage against Mactera", 5, 1, false);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a chance to ricochet into a nearby enemy.", 0, false);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a chance to ricochet into a nearby enemy.", 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "More damage on average but it's a bit inconsistent.", 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Oversized Magazine", "Custom magazine that can fit a lot more ammo but it's a bit unwieldy and takes longer to reload.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Automatic Fire", "Fully automatic action, watch out for the recoil.", 3);
@@ -334,7 +334,7 @@ public class Subata extends Weapon {
 		double toReturn = rateOfFire;
 		
 		if (selectedOverclock == 3) {
-			toReturn += 1.0;
+			toReturn += 2.0;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn -= 4.0;
@@ -421,7 +421,7 @@ public class Subata extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[12];
+		StatsRow[] toReturn = new StatsRow[11];
 		
 		boolean directDamageModified = selectedTier2 == 1 || selectedTier3 == 0 || selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 4;
 		toReturn[0] = new StatsRow("Direct Damage:", "" + getDirectDamage(), directDamageModified);
@@ -448,14 +448,6 @@ public class Subata extends Weapon {
 		
 		toReturn[10] = new StatsRow("Stun Duration:", "" + getStunDuration(), selectedOverclock == 5);
 		
-		toReturn[11] = new StatsRow("Accuracy:", convertDoubleToPercentage(new AccuracyEstimator(getRateOfFire(), getMagazineSize(), getBaseSpread(), getSpreadPerShot(), 1.0, 1.0, getRecoil(), 1.0, getRecoil()).calculateAccuracy()), false);
-		
-		double foo = getDirectDamage();
-		double bar = getWeakpointBonus();
-		System.out.println("Damage per bullet pre-bonus: " + foo + ", +" + bar + "% weakpoint modifer");
-		System.out.println("Damage increased without modifier: " + increaseBulletDamageForWeakpoints(getDirectDamage(), 0.0));
-		System.out.println("Damage increased with modifier: " + increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()));
-		
 		return toReturn;
 	}
 	
@@ -468,38 +460,82 @@ public class Subata extends Weapon {
 		return false;
 	}
 	
-	private double calculateDamagePerMagazine() {
+	// Single-target calculations
+	private double calculateDamagePerMagazine(boolean weakpointBonus) {
 		// Somehow "Explosive Reload" will have to be modeled in here.
-		return (double) getDirectDamage() * getMagazineSize();
+		if (weakpointBonus) {
+			return (double) increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) * getMagazineSize();
+		}
+		else {
+			return (double) getDirectDamage() * getMagazineSize();
+		}
 	}
 
 	@Override
-	public double calculateBurstDPS() {
+	public double calculateIdealBurstDPS() {
 		double timeToFireMagazine = ((double) getMagazineSize()) / getRateOfFire();
-		return calculateDamagePerMagazine() / timeToFireMagazine;
+		return calculateDamagePerMagazine(false) / timeToFireMagazine;
 	}
 
 	@Override
-	public double calculateSustainedDPS() {
+	public double calculateIdealSustainedDPS() {
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine() / timeToFireMagazineAndReload;
+		return calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
+	}
+	
+	@Override
+	public double sustainedWeakpointDPS() {
+		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+		return calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
 	}
 
+	@Override
+	public double sustainedWeakpointAccuracyDPS() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	// Multi-target calculations
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		// Until the Overclock "Chain Hit" gets implemented, the Subata can't hit a second target.
-		return 0.0;
+		// If "Chain Hit" is equipped, 50% of bullets that hit a weakpoint will ricochet to nearby enemies.
+		// Effectively 25% of ideal sustained DPS?
+		if (selectedOverclock == 0) {
+			// Making the assumption that the ricochet won't hit another weakpoint, and will just do normal damage.
+			double ricochetProbability = 0.5 * EnemyInformation.probabilityBulletWillHitWeakpoint();
+			double numBulletsRicochetPerMagazine = Math.round(ricochetProbability * getMagazineSize());
+			
+			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+			return numBulletsRicochetPerMagazine * getDirectDamage() / timeToFireMagazineAndReload;
+		}
+		else {
+			return 0.0;
+		}
 	}
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		return (getMagazineSize() + getCarriedAmmo()) * getDirectDamage();
+		if (selectedOverclock == 0) {
+			// Chain Hit
+			double ricochetProbability = 0.5 * EnemyInformation.probabilityBulletWillHitWeakpoint();
+			double totalNumRicochets = Math.round(ricochetProbability * (getMagazineSize() + getCarriedAmmo()));
+			
+			return (getMagazineSize() + getCarriedAmmo() + totalNumRicochets) * getDirectDamage();
+		}
+		else {
+			return (getMagazineSize() + getCarriedAmmo()) * getDirectDamage();
+		}
 	}
 
 	@Override
 	public int calculateMaxNumTargets() {
-		// Until the Overclock "Chain Hit" gets implemented, the Subata can't hit a second target.
-		return 1;
+		if (selectedOverclock == 0) {
+			// OC "Chain Hit"
+			return 2;
+		}
+		else {
+			return 1;
+		}
 	}
 
 	@Override
@@ -509,6 +545,32 @@ public class Subata extends Weapon {
 		double numberOfMagazines = (((double) getCarriedAmmo()) / magSize) + 1.0;
 		double timeToFireMagazine = magSize / getRateOfFire();
 		// There are one fewer reloads than there are magazines to fire
+		// TODO: floor(numMagazines) - 1, make the change in all weapons
 		return numberOfMagazines * timeToFireMagazine + (numberOfMagazines - 1.0) * getReloadTime();
+	}
+
+	@Override
+	public double averageTimeToKill() {
+		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
+	}
+
+	@Override
+	public double averageOverkill() {
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus());
+		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
+		return overkill / dmgPerShot * 100.0;
+	}
+
+	@Override
+	public double estimatedAccuracy() {
+		// TODO Auto-generated method stub
+		// convertDoubleToPercentage(new AccuracyEstimator(getRateOfFire(), getMagazineSize(), getBaseSpread(), getSpreadPerShot(), 1.0, 1.0, getRecoil(), 1.0, getRecoil()).calculateAccuracy())
+		return 0;
+	}
+
+	@Override
+	public double utilityScore() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

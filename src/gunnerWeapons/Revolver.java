@@ -3,6 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
@@ -50,7 +51,7 @@ public class Revolver extends Weapon {
 		fullName = "\"Bulldog\" Heavy Revolver";
 		
 		// Base stats, before mods or overclocks alter them:
-		directDamage = 45.0;
+		directDamage = 50.0;
 		areaDamage = 0;
 		aoeRadius = 0.0;  // meters
 		carriedAmmo = 28;
@@ -60,7 +61,7 @@ public class Revolver extends Weapon {
 		stunChance = 0.5;
 		stunDuration = 1.5;  // seconds
 		maxPenetrations = 0;
-		weakpointBonus = 0.0;
+		weakpointBonus = 0.15;
 		baseSpread = 1.0;
 		spreadPerShot = 1.0;
 		recoil = 1.0;
@@ -104,11 +105,11 @@ public class Revolver extends Weapon {
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Dead-Eye", "No aim penalty while moving", 5, 0, false);
-		tier5[1] = new Mod("Glyphid Neurotoxin Coating", "Chance to poison your target. Affected creatures move slower and take damage over time.", 5, 1, false);
+		tier5[1] = new Mod("Glyphid Neurotoxin Coating", "Chance to poison your target. Affected creatures move slower and take damage over time.", 5, 1, false);  // It looks like whenever this procs for the main target, all splash targets get it too, instead of RNG/enemy.
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "More damage on average but it's a bit inconsistent.", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Lucky Bullets", "Missed shots have a chance to ricochet and hit nearby enemies, but there is a pissed-off one-legged rabbit out there somewhere looking for you.", 1);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a chance to ricochet into a nearby enemy.", 1, false);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Feather Trigger", "Less weight means you can squeeze out more bullets faster than you can say \"Recoil\" but the stability of the weapon is reduced.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Five Shooter", "An updated casing profile lets you squeeze one more round into the cylinder and increases the maximum rate of fire, but all that filling and drilling has compromised the pure damage output of the weapon.", 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "Heavy tweaking has made it possible to use modified autocannon rounds in the revolver! The damage is crazy but so is the recoil and you can't carry very many rounds.", 4);
@@ -132,15 +133,15 @@ public class Revolver extends Weapon {
 				}
 			}
 			if (symbols[0] == 'C') {
-				System.out.println("Autocannon's fourth tier of mods only has two choices, so 'C' is an invalid choice.");
+				System.out.println("Revolver's first tier of mods only has two choices, so 'C' is an invalid choice.");
 				combinationIsValid = false;
 			}
 			if (symbols[3] == 'C') {
-				System.out.println("Autocannon's fourth tier of mods only has two choices, so 'C' is an invalid choice.");
+				System.out.println("Revolver's fourth tier of mods only has two choices, so 'C' is an invalid choice.");
 				combinationIsValid = false;
 			}
 			if (symbols[4] == 'C') {
-				System.out.println("Autocannon's fourth tier of mods only has two choices, so 'C' is an invalid choice.");
+				System.out.println("Revolver's fifth tier of mods only has two choices, so 'C' is an invalid choice.");
 				combinationIsValid = false;
 			}
 			List<Character> validOverclockSymbols = Arrays.asList(new Character[] {'1', '2', '3', '4', '5', '6', '-'});
@@ -285,15 +286,12 @@ public class Revolver extends Weapon {
 		double toReturn = directDamage;
 		// Start by adding flat damage bonuses
 		if (selectedTier2 == 0) {
-			toReturn += 10.0;
+			toReturn += 15.0;
 		}
 		if (selectedTier4 == 1) {
-			toReturn += 20.0;
+			toReturn += 15.0;
 		}
-		if (selectedOverclock == 3) {
-			toReturn -= 10.0;
-		}
-		else if (selectedOverclock == 5) {
+		if (selectedOverclock == 5) {
 			toReturn -= 20.0;
 		}
 			
@@ -311,7 +309,7 @@ public class Revolver extends Weapon {
 		return toReturn;
 	}
 	private int getAreaDamage() {
-		int toReturn =  areaDamage;
+		int toReturn = areaDamage;
 		if (selectedTier3 == 1) {
 			toReturn += 30;
 		}
@@ -327,12 +325,15 @@ public class Revolver extends Weapon {
 	private int getCarriedAmmo() {
 		int toReturn = carriedAmmo;
 		if (selectedTier2 == 2) {
-			toReturn += 8;
+			toReturn += 12;
 		}
 		if (selectedTier4 == 0) {
 			toReturn += 12;
 		}
-		if (selectedOverclock == 4) {
+		if (selectedOverclock == 3) {
+			toReturn += 5;
+		}
+		else if (selectedOverclock == 4) {
 			toReturn -= 12;
 		}
 		else if (selectedOverclock == 5) {
@@ -351,9 +352,6 @@ public class Revolver extends Weapon {
 		double toReturn = rateOfFire;
 		if (selectedOverclock == 2) {
 			toReturn += 4.0;
-		}
-		else if (selectedOverclock == 3) {
-			toReturn += 1.0;
 		}
 		return toReturn;
 	}
@@ -382,7 +380,7 @@ public class Revolver extends Weapon {
 	private double getWeakpointBonus() {
 		double toReturn = weakpointBonus;
 		if (selectedTier3 == 2) {
-			toReturn += 0.75;
+			toReturn += 0.5;
 		}
 		return toReturn;
 	}
@@ -390,6 +388,10 @@ public class Revolver extends Weapon {
 		double toReturn = baseSpread;
 		if (selectedTier1 == 1) {
 			toReturn -= 0.7;
+		}
+		
+		if (selectedOverclock == 3) {
+			toReturn += 0.15;
 		}
 		return toReturn;
 	}
@@ -405,6 +407,11 @@ public class Revolver extends Weapon {
 	}
 	private double getRecoil() {
 		double toReturn = recoil;
+		
+		if (selectedTier2 == 1) {
+			toReturn -= 0.75;
+		}
+		
 		if (selectedOverclock == 2) {
 			toReturn += 1.5;
 		}
@@ -427,10 +434,10 @@ public class Revolver extends Weapon {
 		
 		toReturn[3] = new StatsRow("Magazine Size:", "" + getMagazineSize(), selectedOverclock == 3);
 		
-		boolean carriedAmmoModified = selectedTier2 == 2 || selectedTier4 == 0 || selectedOverclock == 4 || selectedOverclock == 5;
+		boolean carriedAmmoModified = selectedTier2 == 2 || selectedTier4 == 0 || (selectedOverclock > 2 && selectedOverclock < 6);
 		toReturn[4] = new StatsRow("Max Ammo:", "" + getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[5] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), selectedOverclock == 2 || selectedOverclock == 3);
+		toReturn[5] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), selectedOverclock == 2);
 		
 		toReturn[6] = new StatsRow("Reload Time:", "" + getReloadTime(), selectedTier1 == 0);
 		
@@ -442,7 +449,7 @@ public class Revolver extends Weapon {
 		
 		toReturn[10] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier2 == 1 || selectedOverclock == 4);
 		
-		toReturn[11] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedOverclock == 2 || selectedOverclock == 4);
+		toReturn[11] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 4);
 		
 		toReturn[12] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier3 == 2);
 		
@@ -462,33 +469,50 @@ public class Revolver extends Weapon {
 		return selectedTier3 == 1;
 	}
 	
-	private double calculateDamagePerMagazine() {
-		return (getDirectDamage() + numberOfTargets * getAreaDamage()) * getMagazineSize();
+	private double calculateDamagePerMagazine(boolean weakpointBonus) {
+		if (weakpointBonus) {
+			return (increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) + numberOfTargets * getAreaDamage()) * getMagazineSize();
+		}
+		else {
+			return (getDirectDamage() + numberOfTargets * getAreaDamage()) * getMagazineSize();
+		}
 	}
 
 	@Override
-	public double calculateBurstDPS() {
+	public double calculateIdealBurstDPS() {
 		double timeToFireMagazine = (double) getMagazineSize() / getRateOfFire();
-		return calculateDamagePerMagazine() / timeToFireMagazine;
+		return calculateDamagePerMagazine(false) / timeToFireMagazine;
 	}
 
 	@Override
-	public double calculateSustainedDPS() {
+	public double calculateIdealSustainedDPS() {
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine() / timeToFireMagazineAndReload;
+		return calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
+	}
+	
+	@Override
+	public double sustainedWeakpointDPS() {
+		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+		return calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
+	}
+
+	@Override
+	public double sustainedWeakpointAccuracyDPS() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
 		if (selectedTier3 == 0) {
-			return  calculateSustainedDPS();
+			return  calculateIdealSustainedDPS();
 		}
 		else if (selectedTier3 == 1) {
 			int oldNumTargets = numberOfTargets;
 			numberOfTargets = 3;
-			double threeTargetsDPS = calculateSustainedDPS();
+			double threeTargetsDPS = calculateIdealSustainedDPS();
 			numberOfTargets = 2;
-			double twoTargetsDPS = calculateSustainedDPS();
+			double twoTargetsDPS = calculateIdealSustainedDPS();
 			numberOfTargets = oldNumTargets;
 			return threeTargetsDPS - twoTargetsDPS;
 		}
@@ -503,7 +527,7 @@ public class Revolver extends Weapon {
 		
 		// Set how many targets you expect will be hit per bullet here.
 		numberOfTargets = calculateMaxNumTargets();
-		double damagePerMagazine = calculateDamagePerMagazine();
+		double damagePerMagazine = calculateDamagePerMagazine(false);
 		// Don't forget to add the magazine that you start out with, in addition to the carried ammo
 		double numberOfMagazines = ((double) getCarriedAmmo()) / ((double) getMagazineSize()) + 1.0;
 		
@@ -535,5 +559,29 @@ public class Revolver extends Weapon {
 		double timeToFireMagazine = magSize / getRateOfFire();
 		// There are one fewer reloads than there are magazines to fire
 		return numberOfMagazines * timeToFireMagazine + (numberOfMagazines - 1.0) * getReloadTime();
+	}
+
+	@Override
+	public double averageTimeToKill() {
+		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
+	}
+
+	@Override
+	public double averageOverkill() {
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) + getAreaDamage();
+		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
+		return overkill / dmgPerShot * 100.0;
+	}
+
+	@Override
+	public double estimatedAccuracy() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double utilityScore() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

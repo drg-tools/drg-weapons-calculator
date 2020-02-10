@@ -1,5 +1,10 @@
 package gunnerWeapons;
 
+import java.util.Arrays;
+import java.util.List;
+
+import drillerWeapons.Subata;
+import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
@@ -11,7 +16,7 @@ public class BurstPistol extends Weapon {
 	* Class Variables
 	****************************************************************************************/
 	
-	private int directDamage;
+	private double directDamage;
 	private int burstSize;
 	private double delayBetweenBulletsDuringBurst;
 	private int carriedAmmo;
@@ -21,7 +26,7 @@ public class BurstPistol extends Weapon {
 	private double armorBreakChance;
 	private double spreadPerShot;
 	private double recoil;
-	private double weakpointBonusDamage;
+	private double weakpointBonus;
 	private int burstBonusDamage;
 	private int burstStunDuration;
 	
@@ -46,7 +51,7 @@ public class BurstPistol extends Weapon {
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 14;
 		burstSize = 3;
-		delayBetweenBulletsDuringBurst = 0.15;  // TODO: Need to do more testing to confirm this.
+		delayBetweenBulletsDuringBurst = 0.05;
 		carriedAmmo = 144;
 		magazineSize = 18;
 		rateOfFire = 2.5;
@@ -54,7 +59,7 @@ public class BurstPistol extends Weapon {
 		armorBreakChance = 0.7;
 		spreadPerShot = 1.0;
 		recoil = 1.0;
-		weakpointBonusDamage = 0.0;
+		weakpointBonus = 0.0;
 		burstBonusDamage = 0;
 		burstStunDuration = 0;
 		
@@ -75,57 +80,414 @@ public class BurstPistol extends Weapon {
 	
 	@Override
 	protected void initializeModsAndOverclocks() {
-		tier1 = new Mod[3];
-		tier1[0] = new Mod("", "", 1, 0);
-		tier1[1] = new Mod("", "", 1, 1);
-		tier1[2] = new Mod("", "", 1, 2);
+		tier1 = new Mod[2];
+		tier1[0] = new Mod("High Velocity Rounds", "The good folk in R&D have been busy. The overall damage of your weapon is increased", 1, 0);
+		tier1[1] = new Mod("Disabled Safety", "Shorter Delay between bursts", 1, 1);
 		
-		tier2 = new Mod[2];
-		tier2[0] = new Mod("", "", 2, 0);
-		tier2[1] = new Mod("", "", 2, 1);
+		tier2 = new Mod[3];
+		tier2[0] = new Mod("Floating Barrel", "Sweet, sweet optimization. We called in a few friends and managed to significantly improve the stability of this gun.", 2, 0);
+		tier2[1] = new Mod("Recoil Dampener", "Quality engineering, the best laser cut parts, the tender loving care of a dedicated R&D Department. The recoil of your gun is drastically reduced.", 2, 1);
+		tier2[2] = new Mod("Quickfire Ejector", "Experience, training, and a couple of under-the-table design \"adjustments\" means your gun can be reloaded significantly faster.", 2, 2);
 		
-		tier3 = new Mod[3];
-		tier3[0] = new Mod("", "", 3, 0);
-		tier3[1] = new Mod("", "", 3, 1);
-		tier3[2] = new Mod("", "", 3, 2);
+		tier3 = new Mod[2];
+		tier3[0] = new Mod("High Capacity Magazine", "The good thing about clips, magazines, ammo drums, fuel tanks... You can always get bigger variants.", 3, 0);
+		tier3[1] = new Mod("Increased Caliber Rounds", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 3, 1);
 		
-		tier4 = new Mod[2];
-		tier4[0] = new Mod("", "", 4, 0);
-		tier4[1] = new Mod("", "", 4, 1);
+		tier4 = new Mod[3];
+		tier4[0] = new Mod("Penetrating Rounds", "We're proud of this one. Armor shredding. Tear through that high-impact plating of those big buggers like butter. What could be finer?", 4, 0);
+		tier4[1] = new Mod("Expanded Ammo Bags", "You had to give up some sandwich-storage, but your total ammo capacity is increased!", 4, 1);
+		tier4[2] = new Mod("Hollow-Point Bullets", "Hit 'em where it hurts! Literally! We've upped the damage you'll be able to do to any creatures fleshy bits. You're welcome.", 4, 2);
 		
-		tier5 = new Mod[2];
-		tier5[0] = new Mod("", "", 5, 0, false);
-		tier5[1] = new Mod("", "", 5, 1, false);
+		tier5 = new Mod[3];
+		tier5[0] = new Mod("Burst Damage", "Damage bonus on last bullet if the first two hit", 5, 0);
+		tier5[1] = new Mod("Burst Stun", "Stun target if all shots in a burst hit", 5, 1);
+		tier5[2] = new Mod("Longer Burst", "Fire more rounds in each burst", 5, 2);
 		
-		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "", "", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "", "", 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "", "", 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "", "", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "", "", 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "", "", 5, false);
+		overclocks = new Overclock[7];
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Casings", "Lighter rounds that permit a shorter delay between bursts and you can carry a few more of them as well. What's not to like?", 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Full Chamber Seal", "Meticulous sealing lets you get a bit more power out of each round and the attention to detail improves how easily the magazine slots in.", 1);
+		overclocks[2] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "More damage on average but it's a bit inconsistent.", 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Compact Mags", "You can carry even more ammo but the rate of fire needs to be toned back to avoid a jam and please take more care while reloading.", 3);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Experimental Rounds", "A new shape to the bullet delivers a lot more damage but it's odd size means fewer rounds in the clip and a bit less ammo overall.", 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Electro Minelets", "After impacting terrain, these high-tech bullets convert in to electro-minelets that will electrocute anything unfortunate enough to come close. However they don't last forever and the rounds themselves take more space in the clip and deal less direct damage.", 5, false);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Micro Fletchettes", "Convert the BRT to fire small flechettes instead of slugs. Increases overall ammo and clip size as well as reducing recoil but at the cost of pure damage.", 6);
 	}
 	
 	@Override
 	public void buildFromCombination(String combination) {
-		// TODO Auto-generated method stub
+		boolean combinationIsValid = true;
+		char[] symbols = combination.toCharArray();
+		if (combination.length() != 6) {
+			System.out.println(combination + " does not have 6 characters, which makes it invalid");
+			combinationIsValid = false;
+		}
+		else {
+			List<Character> validModSymbols = Arrays.asList(new Character[] {'A', 'B', 'C', '-'});
+			for (int i = 0; i < 5; i ++) {
+				if (!validModSymbols.contains(symbols[i])) {
+					System.out.println("Symbol #" + (i+1) + ", " + symbols[i] + ", is not a capital letter between A-C or a hyphen");
+					combinationIsValid = false;
+				}
+			}
+			if (symbols[0] == 'C') {
+				System.out.println("BurstPistol's first tier of mods only has two choices, so 'C' is an invalid choice.");
+				combinationIsValid = false;
+			}
+			if (symbols[2] == 'C') {
+				System.out.println("BurstPistol's third tier of mods only has two choices, so 'C' is an invalid choice.");
+				combinationIsValid = false;
+			}
+			List<Character> validOverclockSymbols = Arrays.asList(new Character[] {'1', '2', '3', '4', '5', '6', '7', '-'});
+			if (!validOverclockSymbols.contains(symbols[5])) {
+				System.out.println("The sixth symbol, " + symbols[5] + ", is not a number between 1-7 or a hyphen");
+				combinationIsValid = false;
+			}
+		}
 		
+		if (combinationIsValid) {
+			switch (symbols[0]) {
+				case '-': {
+					selectedTier1 = -1;
+					break;
+				}
+				case 'A': {
+					selectedTier1 = 0;
+					break;
+				}
+				case 'B': {
+					selectedTier1 = 1;
+					break;
+				}
+			}
+			
+			switch (symbols[1]) {
+				case '-': {
+					selectedTier2 = -1;
+					break;
+				}
+				case 'A': {
+					selectedTier2 = 0;
+					break;
+				}
+				case 'B': {
+					selectedTier2 = 1;
+					break;
+				}
+				case 'C': {
+					selectedTier2 = 2;
+					break;
+				}
+			}
+			
+			switch (symbols[2]) {
+				case '-': {
+					selectedTier3 = -1;
+					break;
+				}
+				case 'A': {
+					selectedTier3 = 0;
+					break;
+				}
+				case 'B': {
+					selectedTier3 = 1;
+					break;
+				}
+			}
+			
+			switch (symbols[3]) {
+				case '-': {
+					selectedTier4 = -1;
+					break;
+				}
+				case 'A': {
+					selectedTier4 = 0;
+					break;
+				}
+				case 'B': {
+					selectedTier4 = 1;
+					break;
+				}
+				case 'C': {
+					selectedTier4 = 2;
+					break;
+				}
+			}
+			
+			switch (symbols[4]) {
+				case '-': {
+					selectedTier5 = -1;
+					break;
+				}
+				case 'A': {
+					selectedTier5 = 0;
+					break;
+				}
+				case 'B': {
+					selectedTier5 = 1;
+					break;
+				}
+				case 'C': {
+					selectedTier5 = 2;
+					break;
+				}
+			}
+			
+			switch (symbols[5]) {
+				case '-': {
+					selectedOverclock = -1;
+					break;
+				}
+				case '1': {
+					selectedOverclock = 0;
+					break;
+				}
+				case '2': {
+					selectedOverclock = 1;
+					break;
+				}
+				case '3': {
+					selectedOverclock = 2;
+					break;
+				}
+				case '4': {
+					selectedOverclock = 3;
+					break;
+				}
+				case '5': {
+					selectedOverclock = 4;
+					break;
+				}
+				case '6': {
+					selectedOverclock = 5;
+					break;
+				}
+				case '7': {
+					selectedOverclock = 6;
+					break;
+				}
+			}
+			
+			if (countObservers() > 0) {
+				setChanged();
+				notifyObservers();
+			}
+		}
 	}
 	
 	@Override
-	public Weapon clone() {
-		// TODO Auto-generated method stub
-		return null;
+	public BurstPistol clone() {
+		return new BurstPistol(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/
 	
+	private double getDirectDamage() {
+		double toReturn = directDamage;
+		
+		if (selectedTier1 == 0) {
+			toReturn += 2;
+		}
+		if (selectedTier3 == 1) {
+			toReturn += 3;
+		}
+		
+		if (selectedOverclock == 1) {
+			toReturn += 1;
+		}
+		else if (selectedOverclock == 2) {
+			// Since the randomized damage of "Homebrew Powder" averages out to 10% damage increase, I'm choosing to model it as a simple 10% multiplier.
+			toReturn *= 1.1;
+		}
+		else if (selectedOverclock == 4) {
+			toReturn += 5;
+		}
+		else if (selectedOverclock == 5) {
+			toReturn -= 3;
+		}
+		else if (selectedOverclock == 6) {
+			toReturn *= 0.5;
+		}
+		
+		return toReturn;
+	}
+	private int getBurstSize() {
+		int toReturn = burstSize;
+		
+		if (selectedTier5 == 2) {
+			toReturn += 3;
+		}
+		
+		return toReturn;
+	}
+	private int getCarriedAmmo() {
+		int toReturn = carriedAmmo;
+		
+		if (selectedTier4 == 1) {
+			toReturn += 72;
+		}
+		
+		if (selectedOverclock == 0) {
+			toReturn += 36;
+		}
+		else if (selectedOverclock == 3) {
+			toReturn += 72;
+		}
+		else if (selectedOverclock == 4) {
+			toReturn -= 36;
+		}
+		else if (selectedOverclock == 6) {
+			toReturn += 144;
+		}
+		
+		return toReturn;
+	}
+	private int getMagazineSize() {
+		int toReturn = magazineSize;
+		
+		if (selectedTier3 == 0) {
+			toReturn += 12;
+		}
+		
+		if (selectedOverclock == 4 || selectedOverclock == 5) {
+			toReturn -= 6;
+		}
+		else if (selectedOverclock == 6) {
+			toReturn += 24;
+		}
+		
+		return toReturn;
+	}
+	private double getRateOfFire() {
+		double toReturn = rateOfFire;
+		
+		if (selectedTier1 == 1) {
+			toReturn += 3.0;
+		}
+		
+		if (selectedOverclock == 0) {
+			toReturn += 1.0;
+		}
+		else if (selectedOverclock == 3) {
+			toReturn -= 1.0;
+		}
+		
+		return toReturn;
+	}
+	private double getReloadTime() {
+		double toReturn = reloadTime;
+		
+		if (selectedTier2 == 2) {
+			toReturn -= 0.5;
+		}
+		
+		if (selectedOverclock == 1) {
+			toReturn -= 0.2;
+		}
+		else if (selectedOverclock == 3) {
+			toReturn += 0.4;
+		}
+		
+		return toReturn;
+	}
+	private double getArmorBreakChance() {
+		double toReturn = armorBreakChance;
+		
+		if (selectedTier4 == 0) {
+			toReturn += 2.0;
+		}
+		
+		return toReturn;
+	}
+	private double getSpreadPerShot() {
+		double toReturn = spreadPerShot;
+		
+		if (selectedTier2 == 0) {
+			toReturn -= 0.42;
+		}
+		
+		if (selectedOverclock == 6) {
+			toReturn -= 0.2;
+		}
+		
+		return toReturn;
+	}
+	private double getRecoil() {
+		double toReturn = recoil;
+		
+		if (selectedTier2 == 1) {
+			toReturn *= 0.5;
+		}
+		
+		if (selectedOverclock == 6) {
+			toReturn *= 0.5;
+		}
+		
+		return toReturn;
+	}
+	private double getWeakpointBonus() {
+		double toReturn = weakpointBonus;
+		
+		if (selectedTier4 == 2) {
+			toReturn += 0.4;
+		}
+		
+		return toReturn;
+	}
+	private int getBurstBonusDamage() {
+		int toReturn = burstBonusDamage;
+		
+		if (selectedTier5 == 0) {
+			toReturn += 10;
+		}
+		
+		return toReturn;
+	}
+	private int getBurstStunDuration() {
+		int toReturn = burstStunDuration;
+		
+		if (selectedTier5 == 1) {
+			toReturn += 3;
+		}
+		
+		return toReturn;
+	}
+	
 	@Override
 	public StatsRow[] getStats() {
-		// TODO Auto-generated method stub
-		return null;
+		StatsRow[] toReturn = new StatsRow[12];
+		
+		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 1 || (selectedOverclock > 0 && selectedOverclock < 7 && selectedOverclock != 3);
+		toReturn[0] = new StatsRow("Direct Damage:", "" + getDirectDamage(), directDamageModified);
+		
+		toReturn[1] = new StatsRow("Burst Size:", "" + getBurstSize(), selectedTier5 == 2);
+		
+		boolean magSizeModified = selectedTier3 == 0 || (selectedOverclock > 3 && selectedOverclock < 7);
+		toReturn[2] = new StatsRow("Magazine Size:", "" + getMagazineSize(), magSizeModified);
+		
+		boolean carriedAmmoModified = selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 3 || selectedOverclock == 4 || selectedOverclock == 6;
+		toReturn[3] = new StatsRow("Max Ammo:", "" + getCarriedAmmo(), carriedAmmoModified);
+		
+		boolean RoFModified = selectedTier1 == 1 || selectedOverclock == 0 || selectedOverclock == 3;
+		toReturn[4] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), RoFModified);
+		
+		boolean reloadModified = selectedTier2 == 2 || selectedOverclock == 1 || selectedOverclock == 3;
+		toReturn[5] = new StatsRow("Reload Time:", "" + getReloadTime(), reloadModified);
+		
+		toReturn[6] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 2);
+		
+		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 0);
+		
+		toReturn[8] = new StatsRow("Spread Per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier2 == 0 || selectedOverclock == 6);
+		
+		toReturn[9] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1 || selectedOverclock == 6);
+		
+		toReturn[10] = new StatsRow("Burst Bonus Damage:", "" + getBurstBonusDamage(), selectedTier5 == 0);
+		
+		toReturn[11] = new StatsRow("Burst Stun Duration:", "" + getBurstStunDuration(), selectedTier5 == 1);
+		
+		return toReturn;
 	}
 	
 	/****************************************************************************************
@@ -134,42 +496,100 @@ public class BurstPistol extends Weapon {
 
 	@Override
 	public boolean currentlyDealsSplashDamage() {
-		// TODO Auto-generated method stub
+		// This weapon can't deal splash damage
 		return false;
 	}
-
-	@Override
-	public double calculateBurstDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+	
+	// Single-target calculations
+	private double calculateDamagePerBurst(boolean weakpointBonus) {
+		if (weakpointBonus) {
+			return increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) * getBurstSize() + getBurstBonusDamage();
+		}
+		else {
+			return getDirectDamage() * getBurstSize() + getBurstBonusDamage();
+		}
+	}
+	
+	private double calculateDamagePerMagazine(boolean weakpointBonus) {
+		double damagePerBurst = calculateDamagePerBurst(weakpointBonus);
+		int numBurstsPerMagazine = getMagazineSize() / getBurstSize();
+		
+		return damagePerBurst * numBurstsPerMagazine;
+	}
+	
+	private double calculateTimeToFireMagazine() {
+		double timeToFireBurst = (getBurstSize() - 1) * delayBetweenBulletsDuringBurst;
+		double delayBetweenBursts = 1.0 / getRateOfFire();
+		int numBurstsPerMagazine = getMagazineSize() / getBurstSize();
+		
+		return numBurstsPerMagazine * timeToFireBurst + (numBurstsPerMagazine - 1) * delayBetweenBursts;
 	}
 
 	@Override
-	public double calculateSustainedDPS() {
+	public double calculateIdealBurstDPS() {
+		return calculateDamagePerMagazine(false) / calculateTimeToFireMagazine();
+	}
+
+	@Override
+	public double calculateIdealSustainedDPS() {
+		return calculateDamagePerMagazine(false) / (calculateTimeToFireMagazine() + getReloadTime());
+	}
+	
+	@Override
+	public double sustainedWeakpointDPS() {
+		return calculateDamagePerMagazine(true) / (calculateTimeToFireMagazine() + getReloadTime());
+	}
+
+	@Override
+	public double sustainedWeakpointAccuracyDPS() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		// TODO Auto-generated method stub
+		// Until "Electro Minelets" gets implemented, this weapon can only hit one target at a time.
 		return 0;
 	}
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		// TODO Auto-generated method stub
-		return 0;
+		double numberOfMagazines = ((double) getCarriedAmmo() / (double) getMagazineSize()) + 1.0;
+		return numberOfMagazines * calculateDamagePerMagazine(false);
 	}
 
 	@Override
 	public int calculateMaxNumTargets() {
+		// Until "Electro Minelets" gets implemented, this weapon can only hit one target at a time.
+		return 1;
+	}
+
+	@Override
+	public double calculateFiringDuration() {
+		double numberOfMagazines = ((double) getCarriedAmmo() / (double) getMagazineSize()) + 1.0;
+		return numberOfMagazines * calculateTimeToFireMagazine() + (numberOfMagazines - 1.0) * getReloadTime();
+	}
+
+	@Override
+	public double averageTimeToKill() {
+		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
+	}
+
+	@Override
+	public double averageOverkill() {
+		double dmgPerShot = calculateDamagePerBurst(true);
+		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
+		return overkill / dmgPerShot * 100.0;
+	}
+
+	@Override
+	public double estimatedAccuracy() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public double calculateFiringDuration() {
+	public double utilityScore() {
 		// TODO Auto-generated method stub
 		return 0;
 	}

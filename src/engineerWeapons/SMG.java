@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import modelPieces.AccuracyEstimator;
+import modelPieces.DoTInformation;
+import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
@@ -16,10 +18,6 @@ public class SMG extends Weapon {
 	****************************************************************************************/
 	
 	private double electrocutionDoTChance;
-	private double electrocutionDoTDamagePerTick;
-	private double electrocutionDoTTicksPerSec;
-	private double electrocutionDoTTotalDamage;
-	private double electrocutionDoTDuration;
 	private int directDamage;
 	private int electricDamage;
 	private int magazineSize;
@@ -27,7 +25,7 @@ public class SMG extends Weapon {
 	private double rateOfFire;
 	private double reloadTime;
 	private double baseSpread;
-	private double weakpointBonusDamage;
+	private double weakpointBonus;
 	
 	/****************************************************************************************
 	* Constructors
@@ -49,11 +47,6 @@ public class SMG extends Weapon {
 		
 		// Base stats, before mods or overclocks alter them:
 		electrocutionDoTChance = 0.1;
-		electrocutionDoTTotalDamage = 48;
-		electrocutionDoTTicksPerSec = 4;
-		electrocutionDoTDuration = 3;  // seconds; this is a guess! TODO: find actual DoT duration.
-		electrocutionDoTDamagePerTick = electrocutionDoTTotalDamage / (electrocutionDoTTicksPerSec * electrocutionDoTDuration);
-		// Electrocution DoT applies every 0.25 seconds, dealing a total of 48 damage. At 4 dmg/tick, that would take 3 seconds.
 		// Electrocution DoTs do not stack; it only refreshes the duration.
 		directDamage = 6;
 		electricDamage = 2; 
@@ -64,7 +57,7 @@ public class SMG extends Weapon {
 		rateOfFire = 11.0;
 		reloadTime = 2.0;
 		baseSpread = 1.0;
-		weakpointBonusDamage = 0.0;
+		weakpointBonus = 0.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -413,8 +406,8 @@ public class SMG extends Weapon {
 		
 		return toReturn;
 	}
-	private double getWeakpointBonusDamage() {
-		double toReturn = weakpointBonusDamage;
+	private double getWeakpointBonus() {
+		double toReturn = weakpointBonus;
 		
 		if (selectedTier4 == 0) {
 			toReturn += 0.3;
@@ -429,10 +422,11 @@ public class SMG extends Weapon {
 		
 		boolean DoTChanceModified = selectedTier1 == 1 || selectedTier4 == 1 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Electrocution DoT Chance:", convertDoubleToPercentage(getElectrocutionDoTChance()), DoTChanceModified);
-		toReturn[1] = new StatsRow("Electrocution DoT Dmg/Tick:", "" + electrocutionDoTDamagePerTick, false);
-		toReturn[2] = new StatsRow("Electrocution DoT Ticks/Sec:", "" + electrocutionDoTTicksPerSec, false);
-		toReturn[3] = new StatsRow("Electrocution DoT Duration:", "" + electrocutionDoTDuration, false);
-		toReturn[4] = new StatsRow("Electrocution DoT Total Dmg:", "" + electrocutionDoTTotalDamage, false);
+		toReturn[1] = new StatsRow("Electrocution DoT Dmg/Tick:", "" + DoTInformation.Electro_DmgPerTick, false);
+		toReturn[2] = new StatsRow("Electrocution DoT Ticks/Sec:", "" + DoTInformation.Electro_TicksPerSec, false);
+		toReturn[3] = new StatsRow("Electrocution DoT Duration:", "" + DoTInformation.Electro_SecsDuration, false);
+		double electrocuteTotalDamage = DoTInformation.Electro_DmgPerTick * DoTInformation.Electro_TicksPerSec * DoTInformation.Electro_SecsDuration;
+		toReturn[4] = new StatsRow("Electrocution DoT Total Dmg:", "" + electrocuteTotalDamage, false);
 		
 		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 0 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[5] = new StatsRow("Direct Damage:", "" + getDirectDamage(), directDamageModified);
@@ -453,7 +447,7 @@ public class SMG extends Weapon {
 		boolean baseSpreadModified = selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock == 2;
 		toReturn[11] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified);
 		
-		toReturn[12] = new StatsRow("Weakpoint Bonus Damage:", convertDoubleToPercentage(getWeakpointBonusDamage()), selectedTier4 == 0);
+		toReturn[12] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0);
 		
 		toReturn[13] = new StatsRow("Accuracy:", convertDoubleToPercentage(new AccuracyEstimator(getRateOfFire(), getMagazineSize(), getBaseSpread(), 1.0, 1.0, 1.0, 1.0, 1.0, 1.0).calculateAccuracy()), false);
 		
@@ -464,8 +458,8 @@ public class SMG extends Weapon {
 	* Other Methods
 	****************************************************************************************/
 	
-	private double calculateDamagePerBullet() {
-		double toReturn = getDirectDamage();
+	private double calculateDamagePerBullet(boolean weakpointBonus) {
+		double directDamage = getDirectDamage();
 		
 		if (selectedTier5 == 0) {
 			// To model a 30% physical damage increase to electrocuted targets, average out how many bullets/mag that would get the buff after a DoT proc, and then spread that bonus across every bullet.
@@ -473,20 +467,27 @@ public class SMG extends Weapon {
 			double meanBulletsFiredBeforeProc = Math.round(1.0 / DoTChance);
 			double numBulletsFiredAfterProc = getMagazineSize() - meanBulletsFiredBeforeProc;
 			
-			toReturn *= (meanBulletsFiredBeforeProc + numBulletsFiredAfterProc * 1.3) / getMagazineSize();
+			directDamage *= (meanBulletsFiredBeforeProc + numBulletsFiredAfterProc * 1.3) / getMagazineSize();
 		}
 		
-		return toReturn + getElectricDamage();
+		// According to the wiki, Electric damage gets bonus from Weakpoints too
+		double totalDamage = directDamage + getElectricDamage();
+		if (weakpointBonus) {
+			return increaseBulletDamageForWeakpoints(totalDamage, getWeakpointBonus());
+		}
+		else {
+			return totalDamage;
+		}
 	}
 	
-	private double calculateDirectDamagePerMagazine() {
-		return calculateDamagePerBullet() * getMagazineSize();
+	private double calculateDirectDamagePerMagazine(boolean weakpointBonus) {
+		return calculateDamagePerBullet(weakpointBonus) * getMagazineSize();
 	}
 	
 	private double calculateBurstElectrocutionDoTDPS() {
 		/*
 			When DoTs stack, like in BL2, the formula is PelletsPerSec * DoTDuration * DoTChance * DoTDmgPerSec.
-			However, in DRG, once a DoT is applied its duration can only be refreshed.
+			However, in DRG, once a DoT is applied it can only have its duration refreshed.
 		*/
 		double DoTChance = getElectrocutionDoTChance();
 		double meanBulletsFiredBeforeProc = Math.round(1.0 / DoTChance);
@@ -494,9 +495,7 @@ public class SMG extends Weapon {
 		double secBeforeProc = meanBulletsFiredBeforeProc / getRateOfFire();
 		double secAfterProc = numBulletsFiredAfterProc / getRateOfFire();
 		
-		double electrocutionDoTDPS = electrocutionDoTDamagePerTick * electrocutionDoTTicksPerSec;
-		
-		return (electrocutionDoTDPS * secAfterProc) / (secBeforeProc + secAfterProc);
+		return (DoTInformation.Electro_DPS * secAfterProc) / (secBeforeProc + secAfterProc);
 	}
 
 	@Override
@@ -505,22 +504,38 @@ public class SMG extends Weapon {
 	}
 
 	@Override
-	public double calculateBurstDPS() {
+	public double calculateIdealBurstDPS() {
 		// First calculate the direct damage DPS of the bullets, then add the DoT DPS on top.
 		double timeToFireMagazine = ((double) getMagazineSize()) / getRateOfFire();
-		double directDPS = calculateDirectDamagePerMagazine() / timeToFireMagazine;
+		double directDPS = calculateDirectDamagePerMagazine(false) / timeToFireMagazine;
 		
 		return directDPS + calculateBurstElectrocutionDoTDPS();
 	}
 
 	@Override
-	public double calculateSustainedDPS() {
+	public double calculateIdealSustainedDPS() {
 		// First calculate the direct damage DPS of the bullets, then add the DoT DPS on top.
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		double directDPS = calculateDirectDamagePerMagazine() / timeToFireMagazineAndReload;
+		double directDPS = calculateDirectDamagePerMagazine(false) / timeToFireMagazineAndReload;
 		
 		// Due to high fire rate of the gun, it can be modeled as always having an Electrocute DoT up for sustained DPS.
-		return directDPS + electrocutionDoTDamagePerTick * electrocutionDoTTicksPerSec;
+		return directDPS + DoTInformation.Electro_DPS;
+	}
+	
+	@Override
+	public double sustainedWeakpointDPS() {
+		// First calculate the direct damage DPS of the bullets, then add the DoT DPS on top.
+		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+		double directDPS = calculateDirectDamagePerMagazine(true) / timeToFireMagazineAndReload;
+		
+		// Due to high fire rate of the gun, it can be modeled as always having an Electrocute DoT up for sustained DPS.
+		return directDPS + DoTInformation.Electro_DPS;
+	}
+
+	@Override
+	public double sustainedWeakpointAccuracyDPS() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override
@@ -528,7 +543,7 @@ public class SMG extends Weapon {
 		if (selectedTier5 == 2) {
 			// TODO: this formula is incorrect. With high RoF, this can exceed the normal DoT DPS.
 			// Average it out to bullets/sec number of chances to apply the primary dot every second times 25% chance to apply DoT to secondary target times the DoT DPS
-			return getRateOfFire() * getElectrocutionDoTChance() * 0.25 * electrocutionDoTDamagePerTick * electrocutionDoTTicksPerSec;
+			return getRateOfFire() * getElectrocutionDoTChance() * 0.25 * DoTInformation.Electro_DPS;
 		}
 		else {
 			return 0.0;
@@ -539,7 +554,7 @@ public class SMG extends Weapon {
 	public double calculateMaxMultiTargetDamage() {
 		// First, how much direct damage can be dealt without DoT calculations. Second, add the DoTs on the primary targets. Third, if necessary, add the secondary target DoTs.
 		double totalDamage = 0;
-		totalDamage += calculateDamagePerBullet() * (getMagazineSize() + getCarriedAmmo());
+		totalDamage += calculateDamagePerBullet(false) * (getMagazineSize() + getCarriedAmmo());
 		
 		/* 
 			There's no good way to model RNG-based mechanics max damage, such as the Electrocute DoT. I'm choosing
@@ -573,5 +588,29 @@ public class SMG extends Weapon {
 		double timeToFireMagazine = magSize / getRateOfFire();
 		// There are one fewer reloads than there are magazines to fire
 		return numberOfMagazines * timeToFireMagazine + (numberOfMagazines - 1.0) * getReloadTime();
+	}
+
+	@Override
+	public double averageTimeToKill() {
+		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
+	}
+
+	@Override
+	public double averageOverkill() {
+		double dmgPerShot = calculateDamagePerBullet(true);
+		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
+		return overkill / dmgPerShot * 100.0;
+	}
+
+	@Override
+	public double estimatedAccuracy() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double utilityScore() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }
