@@ -119,10 +119,10 @@ public class GuiController implements ActionListener {
 		calculator.changeWeapon(currentlySelectedWeapon);
 		
 		if (e == gui.getBcmIdealBurst()) {
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestBurstDPSCombination());
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestIdealBurstDPSCombination());
 		}
 		else if (e == gui.getBcmIdealSustained()) {
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestSustainedDPSCombination());
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestIdealSustainedDPSCombination());
 		}
 		else if (e == gui.getBcmSustainedWeakpoint()) {
 			currentlySelectedWeapon.buildFromCombination(calculator.getBestSustainedWeakpointDPSCombination());
@@ -134,7 +134,7 @@ public class GuiController implements ActionListener {
 		}
 		*/
 		else if (e == gui.getBcmIdealAdditional()) {
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestAdditionalTargetDPSCombination());
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestIdealAdditionalTargetDPSCombination());
 		}
 		else if (e == gui.getBcmMaxDmg()) {
 			currentlySelectedWeapon.buildFromCombination(calculator.getHighestMultiTargetDamageCombination());
