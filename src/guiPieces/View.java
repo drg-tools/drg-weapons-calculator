@@ -41,7 +41,7 @@ public class View extends JFrame implements Observer {
 		scoutWeapons = sWeapons;
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("DRG Weapons DPS Calculator (DRG Update 27.3)");
+		setTitle("MeatShield's DRG DPS Calculator (DRG Update 28.5)");
 		setPreferredSize(new Dimension(1620, 780));
 		
 		constructMenu();

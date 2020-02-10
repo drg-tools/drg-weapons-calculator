@@ -52,7 +52,7 @@ public class EPC_ChargeShot extends Weapon {
 		
 		Persistent Plasma
 		Damage type is Electric.
-		The area last 6 seconds and deals 5 damage every 0.25 to 0.5 seconds. 
+		The area last 6 seconds and deals 5 damage every 0.25 seconds. 
 	*/
 	
 	/****************************************************************************************
@@ -432,7 +432,7 @@ public class EPC_ChargeShot extends Weapon {
 		}
 		
 		if (selectedTier5 == 1) {
-			// Thin Containment Field costs 1 ammo to fire a regular shot to detonate the TFC projectile for the +240 AoE damage
+			// Thin Containment Field costs 1 additional ammo to fire a regular shot to detonate the TFC projectile for the +240 AoE damage
 			toReturn += 1;
 		}
 		
