@@ -549,7 +549,22 @@ public class Zhukov extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		// TODO Auto-generated method stub
-		return 0;
+		double totalUtility = 0;
+		
+		// Mod Tier 5 "Get In, Get Out" gives 100% movement speed increase after reloading empty clips
+		if (selectedTier5 == 1) {
+			// TODO: i have no idea how to model this
+		}
+		
+		// OC "Cryo Minelets" applies Cryo damage to missed bullets; (1.0 - Accuracy) again?
+		if (selectedOverclock == 2) {
+			// TODO: i have no idea how to model this.
+		}
+		
+		// OC "Gas Recycling" reduces Scout's movement speed
+		// TODO: multiply this by the Mobility Utility coefficient like RJ250 or Special Powder
+		totalUtility += getMovespeedWhileFiring() - MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2);
+		
+		return totalUtility;
 	}
 }

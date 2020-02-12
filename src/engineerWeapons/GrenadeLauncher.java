@@ -7,6 +7,7 @@ import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
+import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 
 public class GrenadeLauncher extends Weapon {
@@ -313,6 +314,7 @@ public class GrenadeLauncher extends Weapon {
 			toReturn = toReturn * 1.1;
 		}
 		
+		// TODO: Incendiary Compound's negative has been implemented, but not its DoT and resultant damage
 		if (selectedTier3 == 0) {
 			toReturn /= 2.0;
 		}
@@ -376,20 +378,22 @@ public class GrenadeLauncher extends Weapon {
 		return toReturn;
 	}
 	private double getStunChance() {
+		double toReturn = stunChance;
+		
 		if (selectedTier4 == 2) {
-			return 1.0;
+			toReturn += 1.0;
 		}
-		else {
-			return 0.0;
-		}
+		
+		return toReturn;
 	}
 	private int getStunDuration() {
+		int toReturn = stunDuration;
+		
 		if (selectedTier4 == 2) {
-			return 2;
+			toReturn += 2;
 		}
-		else {
-			return 0;
-		}
+
+		return toReturn;
 	}
 	private double getProjectileVelocity() {
 		double toReturn = projectileVelocity;
@@ -421,18 +425,18 @@ public class GrenadeLauncher extends Weapon {
 		boolean aoeRadiusModified = selectedTier1 == 0 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[2] = new StatsRow("AoE Radius:", getAoERadius(), aoeRadiusModified);
 		
-		toReturn[3] = new StatsRow("Magazine Size:", 1, false);
+		toReturn[3] = new StatsRow("Magazine Size:", magazineSize, false);
 		
 		boolean carriedAmmoModified = selectedTier1 == 1 || selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[4] = new StatsRow("Carried Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[5] = new StatsRow("Rate of Fire:", 2, false);
-		toReturn[6] = new StatsRow("Reload Time:", 2, false);
+		toReturn[5] = new StatsRow("Rate of Fire:", rateOfFire, false);
+		toReturn[6] = new StatsRow("Reload Time:", reloadTime, false);
 		
 		boolean velocityModified = selectedTier2 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[7] = new StatsRow("Projectile Velocity:", convertDoubleToPercentage(getProjectileVelocity()), velocityModified);
 		
-		toReturn[8] = new StatsRow("Fear Chance:", convertDoubleToPercentage(1.0), false);
+		toReturn[8] = new StatsRow("Fear Chance:", convertDoubleToPercentage(fearChance), false);
 		
 		toReturn[9] = new StatsRow("Armor Break Chance:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier3 == 1);
 		
@@ -520,7 +524,27 @@ public class GrenadeLauncher extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		// TODO Auto-generated method stub
-		return 0;
+		double totalUtility = 0;
+		
+		// Because the Stun from Concussive Blast keeps them immobolized while they're trying to run in Fear, I'm choosing to make the Stun/Fear Utility scores NOT additive.
+		if (selectedTier4 == 2) {
+			// Concussive Blast = 100% stun, 2 sec duration
+			totalUtility += getStunChance() * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
+		}
+		else {
+			// Built-in Fear is 100%, but it doesn't seem to work 100% of the time... 
+			totalUtility += fearChance * calculateMaxNumTargets() * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+		}
+		
+		// Armor Breaking bonuses too
+		totalUtility += (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
+		
+		// OC "RJ250 Compound" gives a ton of Mobility (8m vertical, 12m horizontal)
+		if (selectedOverclock == 3) {
+			// TODO: figure out how the Mobility gets factored in
+			totalUtility += 0;
+		}
+		
+		return totalUtility;
 	}
 }

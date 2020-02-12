@@ -3,11 +3,15 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.DoTInformation;
+import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
+import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
+import utilities.MathUtils;
 
 public class Deepcore extends Weapon {
 	
@@ -103,7 +107,7 @@ public class Deepcore extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Gas Rerouting", "Increases the weapon's rate of fire without affecting performance and helps with magazine ejection as well.", 1);
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "More damage on average but it's a bit inconsistent.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Overclocked Firing Mechanism", "More bullets faster and it kicks like a mule.", 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Bullets of Mercy", "Put suffering bugs out of their missery with a damage bonus against afflicted enemies.", 4, false);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Bullets of Mercy", "Put suffering bugs out of their misery with a damage bonus against afflicted enemies.", 4, false);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "AI Stability Engine", "It's like it knows what you are going to do before you do it, compensating for all recoil and bullet spread but the system requires a lower rate of fire and the modified firing chamber reduces overall damage.", 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Electrifying Reload", "Embedded capacitors have a chance to electrocute targets from the inside when you reload. Probability of electrocution increases with the number of hits. However all that tech reduces raw damage of the bullets and takes up some space in the magazines.", 6, false);
 	}
@@ -540,7 +544,25 @@ public class Deepcore extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		// TODO Auto-generated method stub
-		return 0;
+		double totalUtility = 0;
+		
+		// Innate Weakpoint stun = 10% chance for 1.5 sec stun (improved to 40% by Mod Tier 5 "Stun")
+		totalUtility += EnemyInformation.probabilityBulletWillHitWeakpoint() * getWeakpointStunChance() * stunDuration * UtilityInformation.Stun_Utility;
+		
+		// Armor Breaking
+		totalUtility += (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
+		
+		// Mod Tier 5 "Battle Frenzy" grants a 50% movespeed increase on kill
+		if (selectedTier5 == 0) {
+			// TODO: multiply this by the Mobility Utility coefficient like RJ250 or Special Powder
+			totalUtility += MathUtils.round(0.5 * DwarfInformation.walkSpeed, 2);
+		}
+		
+		// OC "Electrifying Reload" = 100% chance to electrocute on reload
+		if (selectedOverclock == 6) {
+			totalUtility += DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+		}
+		
+		return totalUtility;
 	}
 }

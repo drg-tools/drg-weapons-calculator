@@ -9,6 +9,7 @@ import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
+import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
@@ -601,7 +602,39 @@ public class Classic_FocusShot extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		// TODO Auto-generated method stub
-		return 0;
+		double totalUtility = 0;
+		
+		// Armor Breaking
+		totalUtility += (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
+		
+		// Mod Tier 5 "Hitting Where it Hurts" = 100% chance for 3 sec stun
+		if (selectedTier5 == 0) {
+			totalUtility += calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
+		}
+		
+		// Mod Tier 5 "Precision Terror" = ?% chance to Fear in small AoE (needs a LOT of testing)
+		if (selectedTier5 == 1) {
+			// TODO: 50% and 1m is a guess; need to verify.
+			int numGlphyidsFeared = 5;  // calculateNumGlyphidsInRadius(1.0);
+			// System.out.println(numGlphyidsFeared);
+			totalUtility += 0.5 * numGlphyidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+		}
+		
+		// OC "Active Stability System" removes the movespeed penalty while Focusing
+		// TODO: multiply this by the Mobility Utility coefficient like RJ250 or Special Powder
+		totalUtility += getMovespeedWhileFocusing() - MathUtils.round(movespeedWhileFocusing * DwarfInformation.walkSpeed, 2);
+		
+		// OC "Hoverclock" gives a 3 second cap to Scout's vertical movement speed
+		if (selectedOverclock == 0) {
+			// TODO: I have no idea how to implement this
+			totalUtility += 0;
+		}
+		
+		// OC "Electrocuting Focus Shots" = 100% chance to electrocute on focused shots
+		else if (selectedOverclock == 4) {
+			totalUtility += calculateMaxNumTargets() * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+		}
+		
+		return totalUtility;
 	}
 }

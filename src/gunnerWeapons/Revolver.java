@@ -3,10 +3,12 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
+import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 
 public class Revolver extends Weapon {
@@ -111,7 +113,7 @@ public class Revolver extends Weapon {
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "More damage on average but it's a bit inconsistent.", 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a chance to ricochet into a nearby enemy.", 1, false);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Feather Trigger", "Less weight means you can squeeze out more bullets faster than you can say \"Recoil\" but the stability of the weapon is reduced.", 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Five Shooter", "An updated casing profile lets you squeeze one more round into the cylinder and increases the maximum rate of fire, but all that filling and drilling has compromised the pure damage output of the weapon.", 3);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Five Shooter", "An updated casing profile lets you squeeze one more round into the cylinder and take a few more rounds with you, but all that filling and drilling has compromised the accuracy of the weapon.", 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "Heavy tweaking has made it possible to use modified autocannon rounds in the revolver! The damage is crazy but so is the recoil and you can't carry very many rounds.", 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Magic Bullets", "Smaller bouncy bullets ricochet off hard surfaces and hit nearby enemies like magic and you can carry a few more due to their compact size. However the overall damage of the weapon is reduced.", 5);
 	}
@@ -425,7 +427,7 @@ public class Revolver extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[15];
 		
-		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || (selectedOverclock > 2 && selectedOverclock < 6);
+		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Damage:", getDirectDamage(), directDamageModified);
 		
 		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), selectedTier3 == 1);
@@ -445,7 +447,7 @@ public class Revolver extends Weapon {
 		
 		toReturn[8] = new StatsRow("Stun duration:", stunDuration, false);
 		
-		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier1 == 1);
+		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier1 == 1 || selectedOverclock == 3);
 		
 		toReturn[10] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier2 == 1 || selectedOverclock == 4);
 		
@@ -582,7 +584,16 @@ public class Revolver extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		// TODO Auto-generated method stub
-		return 0;
+		double totalUtility = 0;
+		
+		// Innate stun; 50% chance for 1.5 sec duration
+		totalUtility += stunChance * calculateMaxNumTargets() * stunDuration * UtilityInformation.Stun_Utility;
+		
+		// Neurotoxin Slow; 50% chance
+		if (selectedTier5 == 1) {
+			totalUtility += 0.5 * calculateMaxNumTargets() * DoTInformation.Neuro_SecsDuration * UtilityInformation.Neuro_Slow_Utility;
+		}
+		
+		return totalUtility;
 	}
 }

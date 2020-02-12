@@ -3,11 +3,13 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.DoTInformation;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
+import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
@@ -568,8 +570,31 @@ public class Autocannon extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		// TODO Auto-generated method stub
-		return 0;
+		double totalUtility = 0;
+		
+		// Mod Tier 4 "Pentrating Rounds" armor breaking bonus
+		totalUtility += (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
+		
+		// Mod Tier 5 "Suppressive Fire" induces Fear (20-50% chance maybe?)
+		if (selectedTier5 == 1) {
+			totalUtility += 0.2 * calculateMaxNumTargets() * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+		}
+		
+		// Mod Tier 5 "Damage Resist" gives damage reduction
+		else if (selectedTier5 == 2) {
+			totalUtility += 1 / (1 - 0.3);
+		}
+		
+		// OC "Combat Mobility" increases Gunner's movespeed
+		// TODO: multiply this by the Mobility Utility coefficient like RJ250 or Special Powder
+		totalUtility += getMovespeedWhileFiring() - MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2);
+		
+		// OC "Neurotoxin Payload" can inflict a slow on poisoned enemies
+		if (selectedOverclock == 5) {
+			totalUtility += 0.2 * calculateMaxNumTargets() * DoTInformation.Neuro_SecsDuration * UtilityInformation.Neuro_Slow_Utility;
+		}
+		
+		return totalUtility;
 	}
 
 }

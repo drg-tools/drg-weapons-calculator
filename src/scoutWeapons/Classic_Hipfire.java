@@ -8,6 +8,7 @@ import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
+import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
@@ -575,7 +576,12 @@ public class Classic_Hipfire extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		// TODO Auto-generated method stub
-		return 0;
+		// Because almost all of M1k's Utility is based on Focused Shots, Hipfire is pretty meager as Utility goes...
+		double totalUtility = 0;
+		
+		// Armor Breaking
+		totalUtility += (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
+		
+		return totalUtility;
 	}
 }

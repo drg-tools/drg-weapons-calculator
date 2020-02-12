@@ -1,8 +1,8 @@
 package modelPieces;
 
-public class DamageTypeInformation {
+public class UtilityInformation {
 	/*
-		Direct Damage
+		Direct Damage (aka Kinetic Damage)
 		
 		Weapons that deal Direct Damage:
 			Every weapon that fires bullets
@@ -13,7 +13,7 @@ public class DamageTypeInformation {
 	public static double Direct_Utility = 0;
 	
 	/*
-		Area Damage
+		Area Damage (aka Explosive Damage)
 		
 		Weapons that deal Area Damage:
 			Driller - EPC's charged shots
@@ -91,7 +91,8 @@ public class DamageTypeInformation {
 		Enemies who resist Cold Damage:
 			Glacial Strata - Glyphid Grunt, Grunt Guard, Grunt Slasher, and Praetorian
 	*/
-	public static double Cold_Utility = 2;
+	public static double Cold_Utility = 0.5;  // This is a guess that chilled enemies move 50% slower; TODO: find this actual value
+	public static double Frozen_Utility = 2;  // Not only are Frozen enemies "stunned" but they also take increased damage (without getting Weakpoint Bonuses)
 	
 	/*
 		Electric Damage
@@ -135,14 +136,14 @@ public class DamageTypeInformation {
 		the enemy somewhere else, or use Area Damage to bypass it. The only two enemies that have UDI armor are Glyphid Dreadnaught and Glyphid Praetorian Oppressor.
 		For both of those enemies, their abdomen can be damaged while the rest of their body is immune.
 	*/
-	public static double ArmorBreak_Utility = 1;
+	public static double ArmorBreak_Utility = 0.5;
 	
 	/*
 		Stun
 		
 		
 		One of the more simple mechanics in DRG, Stun quite simply stops an enemy from attacking and moving, making them an easy target for the Stun duration.
-		Once an enemy has been stunned, it cannot be re-stunned until it has recoved. As such, "stun-locking" an enemy is impossible. 
+		Once an enemy has been stunned, it cannot be re-stunned until it has recovered. As such, "stun-locking" an enemy is impossible. 
 		
 		Weapons that can Stun enemies:
 			Driller - Subata (Overclock, Tranquilizing Rounds)
@@ -166,7 +167,7 @@ public class DamageTypeInformation {
 			Glyphid Brood Nexus
 			BET-C
 	*/
-	public static double Stun_Utility = 1;
+	public static double Stun_Utility = 1.5;
 	
 	/*
 		Fear
@@ -189,7 +190,8 @@ public class DamageTypeInformation {
 			Glyphid Brood Nexus
 			BET-C
 	*/
-	public static double Fear_Utility = 2;
+	public static double Fear_Utility = 0.75;
+	public static double Fear_Duration = 2;
 	
 	/*
 		Slow
@@ -197,6 +199,10 @@ public class DamageTypeInformation {
 		There are only a few ways to inflict a Slow on enemies. Both the Neurotoxin and Electrocute DoTs apply a slow to the enemy, and the Sticky Flames
 		from Driller's Flamethrower can slow enemies passing through with the use of Mod Tier 3 "Sticky Flame Slowdown". Scout's IFG grenades apply a slow, but 
 		do not apply an Electrocute DoT. Flying enemies and Dreadnaughts are immune to being slowed.
+		
+		Neurotoxin = 30% slow
+		Electrocute = 80% slow
 	*/
-	public static double Slow_Utility = 0.5;
+	public static double Neuro_Slow_Utility = 0.3;
+	public static double Electrocute_Slow_Utility = 0.8;
 }

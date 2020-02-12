@@ -3,6 +3,7 @@ package drillerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.UtilityInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
@@ -570,7 +571,13 @@ public class Subata extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		// TODO Auto-generated method stub
-		return 0;
+		double totalUtility = 0;
+		
+		// Tranq rounds = 50% chance to stun, 5 second stun
+		if (selectedOverclock == 5) {
+			totalUtility += getStunChance() * getStunDuration() * UtilityInformation.Stun_Utility;
+		}
+		
+		return totalUtility;
 	}
 }

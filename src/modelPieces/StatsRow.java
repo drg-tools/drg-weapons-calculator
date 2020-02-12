@@ -1,6 +1,6 @@
 package modelPieces;
 
-import utilities.GuiConstants;
+import guiPieces.GuiConstants;
 import utilities.MathUtils;
 
 public class StatsRow {

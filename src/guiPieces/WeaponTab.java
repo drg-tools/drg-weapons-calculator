@@ -15,7 +15,6 @@ import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.Weapon;
-import utilities.GuiConstants;
 import utilities.MathUtils;
 
 public class WeaponTab extends JPanel {

@@ -14,7 +14,6 @@ import javax.swing.JToolTip;
 
 import modelPieces.Overclock;
 import modelPieces.Weapon;
-import utilities.GuiConstants;
 
 public class OverclockButton extends JButton implements ActionListener {
 	private static final long serialVersionUID = 1L;

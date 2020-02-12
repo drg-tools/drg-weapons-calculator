@@ -3,13 +3,14 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.GuiConstants;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
+import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
-import utilities.GuiConstants;
 import utilities.MathUtils;
 
 public class Minigun extends Weapon {
@@ -28,7 +29,7 @@ public class Minigun extends Weapon {
 	private int rateOfFire;
 	private double spinupTime;
 	private int spindownTime;
-	private double moveSpeedWhileFiring;
+	private double movespeedWhileFiring;
 	private double baseSpread;
 	private double armorBreakChance;
 	private int bulletsFiredTilMaxStability;
@@ -64,7 +65,7 @@ public class Minigun extends Weapon {
 		rateOfFire = 30;  // equal to 15 pellets/sec
 		spinupTime = 0.7;  // seconds before minigun starts firing
 		spindownTime = 3;  // seconds for the stability to decay from fully stabilized to no stability at all
-		moveSpeedWhileFiring = 0.5;
+		movespeedWhileFiring = 0.5;
 		baseSpread = 1.0;  // effectively its accuracy
 		armorBreakChance = 1.0; // it is just as effective at breaking armor per pellet as any other gun
 		bulletsFiredTilMaxStability = 50;  // equals 25 pellets
@@ -376,7 +377,7 @@ public class Minigun extends Weapon {
 		return toReturn;
 	}
 	private double getMovespeedWhileFiring() {
-		double modifier = moveSpeedWhileFiring;
+		double modifier = movespeedWhileFiring;
 		if (selectedOverclock == 6) {
 			modifier *= 0;
 		}
@@ -588,8 +589,25 @@ public class Minigun extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		// TODO Auto-generated method stub
-		return 0;
+		double totalUtility = 0;
+		
+		// Innate stun = 10% chance, 1 sec duration (duration improved by Mod Tier 3 "Stun Duration")
+		totalUtility += stunChancePerPellet * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
+		
+		// Armor Breaking
+		totalUtility += (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
+		
+		// Mod Tier 5 "Aggressive Venting" induces Fear in a 3m radius (while also igniting)
+		if (selectedTier5 == 0) {
+			int numGlyphidsFeared = 20 ;  // this.calculateNumGlyphidsInRadius(3);
+			totalUtility += 1.0 * numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+		}
+		
+		// OC "Lead Storm" reduces Gunner's movement speed
+		// TODO: multiply this by the Mobility Utility coefficient like RJ250 or Special Powder
+		totalUtility += getMovespeedWhileFiring() - MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2);
+		
+		return totalUtility;
 	}
 
 }
