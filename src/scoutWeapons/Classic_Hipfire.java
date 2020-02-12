@@ -3,11 +3,13 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.Weapon;
+import utilities.MathUtils;
 
 public class Classic_Hipfire extends Weapon {
 	
@@ -108,7 +110,7 @@ public class Classic_Hipfire extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Minimal Clips", "Make space for more ammo and speed up reloads by getting rid of dead weight on the clips.", 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Active Stability System", "Focus without slowing down but the power drain from the coils lowers the power of the focused shots.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Hipster", "A rebalancing of weight distribution, enlarged vents and a reshaped grip result in a rifle that is more controllable when hip-firing in quick succession but at the cost of pure damage output.", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Electrocuting Focus Shots", "Embedded capacitors in a copper core carry the electric charge from the EM coils used for focus shots and will electrocute the target at the cost of a reduced focus shot damage bonus.", 4);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Electrocuting Focus Shots", "Embedded capacitors in a copper core carry the electric charge from the EM coils used for focus shots and will electrocute the target at the cost of a reduced focus shot damage bonus.", 4, false);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Supercooling Chamber", "Take the M1000'S focus mode to the extreme by supercooling the rounds before firing to improve their acceleration through the coils, but the extra coolant in the clips limits how much ammo you can bring.", 5);
 	}
 	
@@ -371,16 +373,16 @@ public class Classic_Hipfire extends Weapon {
 		return focusDuration / focusSpeedCoefficient;
 	}
 	private double getMovespeedWhileFocusing() {
-		double toReturn = movespeedWhileFocusing;
+		double modifier = movespeedWhileFocusing;
 		
 		if (selectedOverclock == 2) {
-			toReturn += 0.7;
+			modifier += 0.7;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn *= 0;
+			modifier *= 0;
 		}
 		
-		return toReturn;
+		return MathUtils.round(modifier * DwarfInformation.walkSpeed, 2);
 	}
 	private int getMaxPenetrations() {
 		int toReturn = maxPenetrations;
@@ -444,7 +446,7 @@ public class Classic_Hipfire extends Weapon {
 		
 		toReturn[3] = new StatsRow("Focus Shot Charge-up Duration:", getFocusDuration(), selectedTier2 == 0 || selectedOverclock == 5);
 		
-		toReturn[4] = new StatsRow("Movespeed While Focusing:", convertDoubleToPercentage(getMovespeedWhileFocusing()), selectedOverclock == 2 || selectedOverclock == 5);
+		toReturn[4] = new StatsRow("Movespeed While Focusing: (m/sec)", getMovespeedWhileFocusing(), selectedOverclock == 2 || selectedOverclock == 5);
 		
 		toReturn[5] = new StatsRow("Magazine Size:", getMagazineSize(), selectedTier3 == 1);
 		

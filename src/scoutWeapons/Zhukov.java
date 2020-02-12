@@ -4,11 +4,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import drillerWeapons.Subata;
+import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.Weapon;
+import utilities.MathUtils;
 
 public class Zhukov extends Weapon {
 	
@@ -381,13 +383,13 @@ public class Zhukov extends Weapon {
 		return toReturn;
 	}
 	private double getMovespeedWhileFiring() {
-		double toReturn = movespeedWhileFiring;
+		double modifier = movespeedWhileFiring;
 		
 		if (selectedOverclock == 4) {
-			toReturn -= 0.5;
+			modifier -= 0.5;
 		}
 		
-		return toReturn;
+		return MathUtils.round(modifier * DwarfInformation.walkSpeed, 2);
 	}
 	
 	@Override
@@ -418,7 +420,7 @@ public class Zhukov extends Weapon {
 		
 		toReturn[7] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0);
 		
-		toReturn[8] = new StatsRow("Movespeed While Firing:", convertDoubleToPercentage(getMovespeedWhileFiring()), selectedOverclock == 4);
+		toReturn[8] = new StatsRow("Movespeed While Firing: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 4);
 		
 		return toReturn;
 	}

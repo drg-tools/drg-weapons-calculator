@@ -3,11 +3,13 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.Weapon;
+import utilities.GuiConstants;
 import utilities.MathUtils;
 
 public class Minigun extends Weapon {
@@ -374,11 +376,11 @@ public class Minigun extends Weapon {
 		return toReturn;
 	}
 	private double getMovespeedWhileFiring() {
-		double toReturn = moveSpeedWhileFiring;
+		double modifier = moveSpeedWhileFiring;
 		if (selectedOverclock == 6) {
-			toReturn *= 0;
+			modifier *= 0;
 		}
-		return toReturn;
+		return MathUtils.round(modifier * DwarfInformation.walkSpeed, 2);
 	}
 	private double getBaseSpread() {
 		double toReturn = baseSpread;
@@ -458,7 +460,7 @@ public class Minigun extends Weapon {
 		boolean baseSpreadModified = selectedTier1 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[13] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified);
 		
-		toReturn[14] = new StatsRow("Movement Speed While Using:", convertDoubleToPercentage(getMovespeedWhileFiring()), selectedOverclock == 6);
+		toReturn[14] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 6);
 		
 		toReturn[15] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier3 == 0);
 		

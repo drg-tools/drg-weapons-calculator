@@ -3,11 +3,13 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.Weapon;
+import utilities.MathUtils;
 
 public class Autocannon extends Weapon {
 	
@@ -356,11 +358,11 @@ public class Autocannon extends Weapon {
 		return toReturn;
 	}
 	private double getMovespeedWhileFiring() {
-		double toReturn = movespeedWhileFiring;
+		double modifier = movespeedWhileFiring;
 		if (selectedOverclock == 3) {
-			toReturn += 0.15;
+			modifier += 0.15;
 		}
-		return toReturn;
+		return MathUtils.round(modifier * DwarfInformation.walkSpeed, 2);
 	}
 	private int getNumBulletsRampup() {
 		if (selectedTier2 == 2) {
@@ -429,7 +431,7 @@ public class Autocannon extends Weapon {
 		boolean carriedAmmoModified = selectedTier1 == 2 || selectedOverclock == 0 || selectedOverclock == 4;
 		toReturn[4] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[5] = new StatsRow("Movement Speed While Using:", convertDoubleToPercentage(getMovespeedWhileFiring()), selectedOverclock == 3);
+		toReturn[5] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 3);
 		
 		toReturn[6] = new StatsRow("Number of Bullets Fired Before Max RoF:", getNumBulletsRampup(), selectedTier2 == 2);
 		
