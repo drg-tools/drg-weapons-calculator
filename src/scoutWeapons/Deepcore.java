@@ -544,9 +544,10 @@ public class Deepcore extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		// Mod Tier 5 "Battle Frenzy" grants a 50% movespeed increase on kill
+		// Mod Tier 5 "Battle Frenzy" grants a 50% movespeed increase on kill for 3 seconds
 		if (selectedTier5 == 0) {
-			utilityScores[0] = MathUtils.round(0.5 * DwarfInformation.walkSpeed, 2) * UtilityInformation.Movespeed_Utility;
+			double uptimeCoefficient = Math.min(3.0 / averageTimeToKill(), 1);
+			utilityScores[0] = uptimeCoefficient * MathUtils.round(0.5 * DwarfInformation.walkSpeed, 2) * UtilityInformation.Movespeed_Utility;
 		}
 		else {
 			utilityScores[0] = 0;
@@ -557,7 +558,8 @@ public class Deepcore extends Weapon {
 		
 		// OC "Electrifying Reload" = 100% chance to electrocute on reload
 		if (selectedOverclock == 6) {
-			utilityScores[3] = DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+			int numEnemiesHitPerMagazine = 4;  // This is just a guess; not really tested.
+			utilityScores[3] = numEnemiesHitPerMagazine * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
 		}
 		else {
 			utilityScores[3] = 0;

@@ -550,7 +550,7 @@ public class BurstPistol extends Weapon {
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		// Until "Electro Minelets" gets implemented, this weapon can only hit one target at a time.
+		// TODO: Until "Electro Minelets" gets implemented, this weapon can only hit one target at a time.
 		return 0;
 	}
 
@@ -600,10 +600,10 @@ public class BurstPistol extends Weapon {
 		
 		// OC "Electro Minelets" = 100% Electrocute Chance, but only on bullets that miss... maybe (1.0 - Accuracy)?
 		if (selectedOverclock == 5) {
-			// TODO: measure minelet radius; this 1.2m is a guess
-			int numGlyphidsInMineletRadius = 5;  // calculateNumGlyphidsInRadius(1.2);
-			// System.out.println(numGlyphidsInMineletRadius);
-			utilityScores[3] = (1 - accuracy) * numGlyphidsInMineletRadius * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+			// Electro Minelets arm in 1 second, detonate on any enemies that come within ~1.5m, and then explode after 3 seconds. 100% chance to apply Electrocute for 2 sec.
+			// TODO: model the delay for the minelets to arm.
+			int numGlyphidsInMineletRadius = 8;  // calculateNumGlyphidsInRadius(1.5);
+			utilityScores[3] = (1 - accuracy) * numGlyphidsInMineletRadius * (0.5 * DoTInformation.Electro_SecsDuration) * UtilityInformation.Electrocute_Slow_Utility;
 		}
 		else {
 			utilityScores[3] = 0;

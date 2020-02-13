@@ -13,6 +13,9 @@ import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
+
+// Burning Hell looks like it burns everything within 4m in a 20 degree arc
+
 public class Minigun extends Weapon {
 
 	/****************************************************************************************

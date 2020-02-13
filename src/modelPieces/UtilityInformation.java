@@ -91,8 +91,8 @@ public class UtilityInformation {
 		Enemies who resist Cold Damage:
 			Glacial Strata - Glyphid Grunt, Grunt Guard, Grunt Slasher, and Praetorian
 	*/
-	public static double Cold_Utility = 0.5;  // This is a guess that chilled enemies move 50% slower; TODO: find this actual value
-	public static double Frozen_Utility = 2;  // Not only are Frozen enemies "stunned" but they also take increased damage (without getting Weakpoint Bonuses)
+	public static double Cold_Utility = 0.5;  // It appears that the slow from Cold damage increases as their Cold Meter fills up, from 0% slow at no Cold to 99% slowed right before frozen.
+	public static double Frozen_Utility = 2;  // Not only are Frozen enemies "stunned" but they also take x3 damage (without getting Weakpoint Bonuses)
 	
 	/*
 		Electric Damage

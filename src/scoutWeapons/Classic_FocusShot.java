@@ -605,13 +605,11 @@ public class Classic_FocusShot extends Weapon {
 		// OC "Active Stability System" removes the movespeed penalty while Focusing
 		utilityScores[0] = (getMovespeedWhileFocusing() - MathUtils.round(movespeedWhileFocusing * DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
 		
-		// OC "Hoverclock" gives a 3 second cap to Scout's vertical movement speed
+		// OC "Hoverclock" gives a 2 second cap to Scout's vertical movement speed (guess: 0.5 m/sec?), but after that 2sec ends original velocity is restored
 		if (selectedOverclock == 0) {
-			// TODO: I have no idea how to implement this
-			utilityScores[0] += 0;
-		}
-		else {
-			utilityScores[0] += 0;
+			// Because the vertical movespeed cap of +- 0.5 m/sec can be used to negate fall damage from infinite height, there's not really a 
+			// way to give this OC a numerical value. For now, I'm just gonna call it 10 and move on.
+			utilityScores[0] += 10;
 		}
 		
 		// Armor Breaking
@@ -625,12 +623,11 @@ public class Classic_FocusShot extends Weapon {
 			utilityScores[3] = 0;
 		}
 		
-		// Mod Tier 5 "Precision Terror" = ?% chance to Fear in small AoE (needs a LOT of testing)
+		// Mod Tier 5 "Precision Terror" = 100% chance to Fear in 2m AoE
 		if (selectedTier5 == 1) {
-			// TODO: 50% and 1m is a guess; need to verify.
-			int numGlphyidsFeared = 5;  // calculateNumGlyphidsInRadius(1.0);
-			// System.out.println(numGlphyidsFeared);
-			utilityScores[4] = 0.5 * numGlphyidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			double uptimeCoefficient = Math.min(UtilityInformation.Fear_Duration / averageTimeToKill(), 1);
+			int numGlyphidsFeared = 12;  // calculateNumGlyphidsInRadius(2);
+			utilityScores[4] = uptimeCoefficient * numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;

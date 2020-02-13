@@ -541,9 +541,8 @@ public class Boomstick extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		// The frontal blastwave is 4m in length, and probably about as wide as the crosshair. At a guess, it could probably hit 6 Glyphid Grunts stacked in a 1-2-1-2 four row formation.
-		// TODO: do the proper modeling of the blastwave after collecting Base Spread information
-		int gruntsHitByBlastwave = 6;
+		// The frontal blastwave is a 20 degree isosceles triangle, 4m height; 1.41m base. 4 grunts can be hit in a 1-2-1 stack.
+		int gruntsHitByBlastwave = 4;
 		int damagePerShot = getDamagePerPellet() * getNumberOfPelletsPerShot() + gruntsHitByBlastwave * getBlastwaveDamage();
 		return (getMagazineSize() + getCarriedAmmo()) * damagePerShot * calculateMaxNumTargets();
 	}
@@ -600,10 +599,10 @@ public class Boomstick extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		// OC "Special Powder" gives a lot of Mobility (7.5m vertical per shot, 10?m horizontal per shot)
+		// OC "Special Powder" gives a lot of Mobility (7.8m vertical per shot, 13m horizontal per shot)
 		if (selectedOverclock == 2) {
 			// Multiply by 2 for mobility per shot
-			utilityScores[0] = 2 * (0.5 * 7.5 + 0.5 * 10) * UtilityInformation.BlastJump_Utility;
+			utilityScores[0] = 2 * (0.5 * 7.8 + 0.5 * 13) * UtilityInformation.BlastJump_Utility;
 		}
 		else {
 			utilityScores[0] = 0;
@@ -614,8 +613,8 @@ public class Boomstick extends Weapon {
 		
 		// Mod Tier 5 "Fear the Boomstick" = 50% chance to Fear in same blast cone as the Blastwave damage
 		if (selectedTier5 == 1) {
-			// TODO: do the proper modeling of the blastwave after collecting Base Spread information
-			int gruntsHitByBlastwave = 6;
+			// 20 degree isosceles triangle, 4m height; 1.41m base. 4 grunts can be hit in a 1-2-1 stack.
+			int gruntsHitByBlastwave = 4;
 			utilityScores[4] = 0.5 * gruntsHitByBlastwave * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
 		}
 		else {

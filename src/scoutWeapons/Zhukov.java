@@ -553,15 +553,27 @@ public class Zhukov extends Weapon {
 		// OC "Gas Recycling" reduces Scout's movement speed
 		utilityScores[0] = (getMovespeedWhileFiring() - MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
 		
-		// Mod Tier 5 "Get In, Get Out" gives 100% movement speed increase after reloading empty clips
+		// Mod Tier 5 "Get In, Get Out" gives 100% movement speed increase for 2 sec after reloading empty clips
 		if (selectedTier5 == 1) {
-			// TODO: i have no idea how to model this
-			utilityScores[0] += 0 * UtilityInformation.Movespeed_Utility;
+			// Because this buff lasts 2 seconds, but I don't think it's possible to have 100% uptime. Use the uptime as a coefficient to reduce the value of the movespeed buff.
+			double effectiveMagazineSize = getMagazineSize() / 2.0;
+			double effectiveRoF = getRateOfFire() / 2.0;
+			double timeToFireMagazineAndReload = (effectiveMagazineSize / effectiveRoF) + getReloadTime();
+			
+			// Just because I don't think it's possible doesn't mean I'm not safeguarding against it.
+			double uptimeCoefficient = Math.min(2.0 / timeToFireMagazineAndReload, 1);
+			
+			utilityScores[0] += uptimeCoefficient * DwarfInformation.walkSpeed * UtilityInformation.Movespeed_Utility;
 		}
 		
 		// OC "Cryo Minelets" applies Cryo damage to missed bullets; (1.0 - Accuracy) again?
 		if (selectedOverclock == 2) {
 			// TODO: i have no idea how to model this.
+			// Cryo minelets: 1 placed per 2 ammo, minelets arm in 1 second, and detonate in 3 seconds if no enemy is around.
+			// 2m radius; it seems that the slow from Cold damage increases proportional to the Cold Meter on the enemy, from no slow to rooted while frozen. 
+			// 5 minelets was enough to freeze lootbugs and grunts, but needed more for praetorians
+			int numGlyphidsInMineletRadius = 12;  // calculateNumGlyphidsInRadius(2);
+			
 			utilityScores[3] = 0 * UtilityInformation.Cold_Utility;
 		}
 		
