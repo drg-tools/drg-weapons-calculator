@@ -679,5 +679,4 @@ public class EPC_ChargeShot extends Weapon {
 		// EPC doesn't have any utility
 		return 0;
 	}
-
 }

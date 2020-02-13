@@ -31,6 +31,10 @@ public abstract class Weapon extends Observable {
 	protected Overclock[] overclocks;
 	protected int selectedOverclock;
 	
+	// Mobility, Damage Resist, Armor Break, Slow, Fear, Stun
+	// Set them all to zero to start, then override values in child objects as necessary.
+	protected double[] utilityScores = {0,0,0,0,0,0};
+	
 	protected double[] baselineCalculatedStats;
 	private AoEVisualizer illustration = null;
 	
@@ -411,9 +415,23 @@ public abstract class Weapon extends Observable {
 	public abstract int calculateMaxNumTargets();
 	public abstract double calculateFiringDuration();
 	public abstract double averageTimeToKill();  // Average health of an enemy divided by weakpoint sustained DPS
-	public abstract double averageOverkill();  // % of projectile total damage; 0.01 - 0.99
-	public abstract double estimatedAccuracy(); // -1 means manual or N/A; 0.00 - 1.00 otherwise
+	public abstract double averageOverkill();  // (Total Damage done / Avg Health) - 1.0
+	public abstract double estimatedAccuracy(); // -1 means manual or N/A; [0.00, 1.00] otherwise
 	public abstract double utilityScore();
+	
+	// This method is used to explain how the Utility Scores are calculated for the UtilityBreakdownButton
+	public StatsRow[] utilityExplanation() {
+		StatsRow[] toReturn = new StatsRow[utilityScores.length];
+		
+		toReturn[0] = new StatsRow("Mobility:", utilityScores[0], false);
+		toReturn[1] = new StatsRow("Damage Resist:", utilityScores[1], false);
+		toReturn[2] = new StatsRow("Armor Break:", utilityScores[2], false);
+		toReturn[3] = new StatsRow("Slow:", utilityScores[3], false);
+		toReturn[4] = new StatsRow("Fear:", utilityScores[4], false);
+		toReturn[5] = new StatsRow("Stun:", utilityScores[5], false);
+		
+		return toReturn;
+	}
 	
 	// Shortcut method for WeaponStatsGenerator
 	public double[] getMetrics() {

@@ -611,5 +611,4 @@ public class EPC_RegularShot extends Weapon {
 		// EPC doesn't have any utility
 		return 0;
 	}
-
 }

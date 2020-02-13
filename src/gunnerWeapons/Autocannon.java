@@ -570,31 +570,37 @@ public class Autocannon extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		double totalUtility = 0;
+		// OC "Combat Mobility" increases Gunner's movespeed
+		utilityScores[0] = (getMovespeedWhileFiring() - MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
+		
+		// Mod Tier 5 "Damage Resist" gives 30% damage reduction
+		if (selectedTier5 == 2) {
+			utilityScores[1] = 1 / (1 - 0.3);
+		}
+		else {
+			utilityScores[1] = 0;
+		}
 		
 		// Mod Tier 4 "Pentrating Rounds" armor breaking bonus
-		totalUtility += (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
+		utilityScores[2] = (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
+		
+		// OC "Neurotoxin Payload" has a 20% chance to inflict a 30% slow by poisoning enemies
+		if (selectedOverclock == 5) {
+			utilityScores[3] = 0.2 * calculateMaxNumTargets() * DoTInformation.Neuro_SecsDuration * UtilityInformation.Neuro_Slow_Utility;
+		}
+		else {
+			utilityScores[3] = 0;
+		}
 		
 		// Mod Tier 5 "Suppressive Fire" induces Fear (20-50% chance maybe?)
 		if (selectedTier5 == 1) {
-			totalUtility += 0.2 * calculateMaxNumTargets() * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			utilityScores[4] = 0.2 * calculateMaxNumTargets() * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+		}
+		else {
+			utilityScores[4] = 0;
 		}
 		
-		// Mod Tier 5 "Damage Resist" gives damage reduction
-		else if (selectedTier5 == 2) {
-			totalUtility += 1 / (1 - 0.3);
-		}
-		
-		// OC "Combat Mobility" increases Gunner's movespeed
-		// TODO: multiply this by the Mobility Utility coefficient like RJ250 or Special Powder
-		totalUtility += getMovespeedWhileFiring() - MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2);
-		
-		// OC "Neurotoxin Payload" can inflict a slow on poisoned enemies
-		if (selectedOverclock == 5) {
-			totalUtility += 0.2 * calculateMaxNumTargets() * DoTInformation.Neuro_SecsDuration * UtilityInformation.Neuro_Slow_Utility;
-		}
-		
-		return totalUtility;
+		return MathUtils.sum(utilityScores);
 	}
 
 }

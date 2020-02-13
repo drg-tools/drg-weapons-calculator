@@ -589,25 +589,25 @@ public class Minigun extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		double totalUtility = 0;
-		
-		// Innate stun = 10% chance, 1 sec duration (duration improved by Mod Tier 3 "Stun Duration")
-		totalUtility += stunChancePerPellet * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
+		// OC "Lead Storm" reduces Gunner's movement speed
+		utilityScores[0] = (getMovespeedWhileFiring() - MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
 		
 		// Armor Breaking
-		totalUtility += (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
+		utilityScores[2] = (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
 		
 		// Mod Tier 5 "Aggressive Venting" induces Fear in a 3m radius (while also igniting)
 		if (selectedTier5 == 0) {
 			int numGlyphidsFeared = 20 ;  // this.calculateNumGlyphidsInRadius(3);
-			totalUtility += 1.0 * numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			utilityScores[4] = 1.0 * numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+		}
+		else {
+			utilityScores[4] = 0;
 		}
 		
-		// OC "Lead Storm" reduces Gunner's movement speed
-		// TODO: multiply this by the Mobility Utility coefficient like RJ250 or Special Powder
-		totalUtility += getMovespeedWhileFiring() - MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2);
+		// Innate stun = 30% chance, 1 sec duration (duration improved by Mod Tier 3 "Stun Duration")
+		utilityScores[5] = stunChancePerPellet * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
 		
-		return totalUtility;
+		return MathUtils.sum(utilityScores);
 	}
 
 }

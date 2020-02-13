@@ -9,6 +9,7 @@ import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
+import utilities.MathUtils;
 
 public class Boomstick extends Weapon {
 	
@@ -599,27 +600,31 @@ public class Boomstick extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		double totalUtility = 0;
-		
-		// Innate Stun = 30% chance for 2.5 sec (improved by Mod Tier 3 "Stun Duration")
-		totalUtility += stunChance * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
+		// OC "Special Powder" gives a lot of Mobility (7.5m vertical per shot, 10?m horizontal per shot)
+		if (selectedOverclock == 2) {
+			// Multiply by 2 for mobility per shot
+			utilityScores[0] = 2 * (0.5 * 7.5 + 0.5 * 10) * UtilityInformation.BlastJump_Utility;
+		}
+		else {
+			utilityScores[0] = 0;
+		}
 		
 		// Armor Breaking bonuses
-		totalUtility += (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
+		utilityScores[2] = (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
 		
 		// Mod Tier 5 "Fear the Boomstick" = 50% chance to Fear in same blast cone as the Blastwave damage
 		if (selectedTier5 == 1) {
 			// TODO: do the proper modeling of the blastwave after collecting Base Spread information
 			int gruntsHitByBlastwave = 6;
-			totalUtility += 0.5 * gruntsHitByBlastwave * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			utilityScores[4] = 0.5 * gruntsHitByBlastwave * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+		}
+		else {
+			utilityScores[4] = 0;
 		}
 		
-		// OC "Special Powder" gives a lot of Mobility (7.5m vertical per shot, ?m horizontal per shot)
-		if (selectedOverclock == 2) {
-			// TODO: figure out how the Mobility gets factored in
-			totalUtility += 0;
-		}
+		// Innate Stun = 30% chance for 2.5 sec (improved by Mod Tier 3 "Stun Duration")
+		utilityScores[5] = stunChance * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
 		
-		return totalUtility;
+		return MathUtils.sum(utilityScores);
 	}
 }

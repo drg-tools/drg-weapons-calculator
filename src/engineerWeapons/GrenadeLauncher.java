@@ -9,6 +9,7 @@ import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
+import utilities.MathUtils;
 
 public class GrenadeLauncher extends Weapon {
 	
@@ -524,27 +525,31 @@ public class GrenadeLauncher extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		double totalUtility = 0;
+		// OC "RJ250 Compound" gives a ton of Mobility (8m vertical, 12m horizontal)
+		if (selectedOverclock == 3) {
+			// For now, until I think of a better system, I'll just add the max vertical jump and max horizontal jump distances at 1/2 weight each.
+			// Ideally I would like to calculate the m/sec velocity of launch, but that could take a while to test and calculate.
+			utilityScores[0] = (0.5 * 8 + 0.5 * 12) * UtilityInformation.BlastJump_Utility;
+		}
+		else {
+			utilityScores[0] = 0;
+		}
+		
+		// Armor Breaking
+		utilityScores[2] = (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
 		
 		// Because the Stun from Concussive Blast keeps them immobolized while they're trying to run in Fear, I'm choosing to make the Stun/Fear Utility scores NOT additive.
 		if (selectedTier4 == 2) {
 			// Concussive Blast = 100% stun, 2 sec duration
-			totalUtility += getStunChance() * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
+			utilityScores[4] = 0;
+			utilityScores[5] = getStunChance() * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
 		}
 		else {
 			// Built-in Fear is 100%, but it doesn't seem to work 100% of the time... 
-			totalUtility += fearChance * calculateMaxNumTargets() * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			utilityScores[4] = fearChance * calculateMaxNumTargets() * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			utilityScores[5] = 0;
 		}
 		
-		// Armor Breaking bonuses too
-		totalUtility += (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
-		
-		// OC "RJ250 Compound" gives a ton of Mobility (8m vertical, 12m horizontal)
-		if (selectedOverclock == 3) {
-			// TODO: figure out how the Mobility gets factored in
-			totalUtility += 0;
-		}
-		
-		return totalUtility;
+		return MathUtils.sum(utilityScores);
 	}
 }

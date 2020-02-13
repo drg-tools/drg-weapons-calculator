@@ -544,25 +544,28 @@ public class Deepcore extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		double totalUtility = 0;
-		
-		// Innate Weakpoint stun = 10% chance for 1.5 sec stun (improved to 40% by Mod Tier 5 "Stun")
-		totalUtility += EnemyInformation.probabilityBulletWillHitWeakpoint() * getWeakpointStunChance() * stunDuration * UtilityInformation.Stun_Utility;
-		
-		// Armor Breaking
-		totalUtility += (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
-		
 		// Mod Tier 5 "Battle Frenzy" grants a 50% movespeed increase on kill
 		if (selectedTier5 == 0) {
-			// TODO: multiply this by the Mobility Utility coefficient like RJ250 or Special Powder
-			totalUtility += MathUtils.round(0.5 * DwarfInformation.walkSpeed, 2);
+			utilityScores[0] = MathUtils.round(0.5 * DwarfInformation.walkSpeed, 2) * UtilityInformation.Movespeed_Utility;
 		}
+		else {
+			utilityScores[0] = 0;
+		}
+		
+		// Armor Breaking
+		utilityScores[2] = (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
 		
 		// OC "Electrifying Reload" = 100% chance to electrocute on reload
 		if (selectedOverclock == 6) {
-			totalUtility += DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+			utilityScores[3] = DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+		}
+		else {
+			utilityScores[3] = 0;
 		}
 		
-		return totalUtility;
+		// Innate Weakpoint stun = 10% chance for 1.5 sec stun (improved to 40% by Mod Tier 5 "Stun")
+		utilityScores[5] = EnemyInformation.probabilityBulletWillHitWeakpoint() * getWeakpointStunChance() * stunDuration * UtilityInformation.Stun_Utility;
+		
+		return MathUtils.sum(utilityScores);
 	}
 }

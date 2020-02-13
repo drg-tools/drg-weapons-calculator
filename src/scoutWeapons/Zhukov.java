@@ -9,6 +9,7 @@ import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
+import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
@@ -549,22 +550,21 @@ public class Zhukov extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		double totalUtility = 0;
+		// OC "Gas Recycling" reduces Scout's movement speed
+		utilityScores[0] = (getMovespeedWhileFiring() - MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
 		
 		// Mod Tier 5 "Get In, Get Out" gives 100% movement speed increase after reloading empty clips
 		if (selectedTier5 == 1) {
 			// TODO: i have no idea how to model this
+			utilityScores[0] += 0 * UtilityInformation.Movespeed_Utility;
 		}
 		
 		// OC "Cryo Minelets" applies Cryo damage to missed bullets; (1.0 - Accuracy) again?
 		if (selectedOverclock == 2) {
 			// TODO: i have no idea how to model this.
+			utilityScores[3] = 0 * UtilityInformation.Cold_Utility;
 		}
 		
-		// OC "Gas Recycling" reduces Scout's movement speed
-		// TODO: multiply this by the Mobility Utility coefficient like RJ250 or Special Powder
-		totalUtility += getMovespeedWhileFiring() - MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2);
-		
-		return totalUtility;
+		return MathUtils.sum(utilityScores);
 	}
 }

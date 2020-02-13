@@ -10,6 +10,7 @@ import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
+import utilities.MathUtils;
 
 public class Revolver extends Weapon {
 	
@@ -584,16 +585,17 @@ public class Revolver extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		double totalUtility = 0;
-		
-		// Innate stun; 50% chance for 1.5 sec duration
-		totalUtility += stunChance * calculateMaxNumTargets() * stunDuration * UtilityInformation.Stun_Utility;
-		
 		// Neurotoxin Slow; 50% chance
 		if (selectedTier5 == 1) {
-			totalUtility += 0.5 * calculateMaxNumTargets() * DoTInformation.Neuro_SecsDuration * UtilityInformation.Neuro_Slow_Utility;
+			utilityScores[3] = 0.5 * calculateMaxNumTargets() * DoTInformation.Neuro_SecsDuration * UtilityInformation.Neuro_Slow_Utility;
+		}
+		else {
+			utilityScores[3] = 0;
 		}
 		
-		return totalUtility;
+		// Innate stun; 50% chance for 1.5 sec duration
+		utilityScores[5] = stunChance * calculateMaxNumTargets() * stunDuration * UtilityInformation.Stun_Utility;
+		
+		return MathUtils.sum(utilityScores);
 	}
 }

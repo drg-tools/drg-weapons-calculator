@@ -10,6 +10,7 @@ import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
+import utilities.MathUtils;
 
 public class BurstPistol extends Weapon {
 	
@@ -592,25 +593,30 @@ public class BurstPistol extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		double totalUtility = 0;
-		
 		// Armor Breaking
-		totalUtility += (getArmorBreakChance() - 1.0) * UtilityInformation.ArmorBreak_Utility;
+		utilityScores[2] = (getArmorBreakChance() - 1.0) * UtilityInformation.ArmorBreak_Utility;
 		
 		double accuracy = 0.95;  // TODO: estimatedAccuracy();
-		// Mod Tier 5 "Burst Stun" = 100% chance for 3 sec stun
-		if (selectedTier5 == 1) {
-			totalUtility += accuracy * getBurstStunDuration() * UtilityInformation.Stun_Utility;
-		}
 		
 		// OC "Electro Minelets" = 100% Electrocute Chance, but only on bullets that miss... maybe (1.0 - Accuracy)?
 		if (selectedOverclock == 5) {
 			// TODO: measure minelet radius; this 1.2m is a guess
 			int numGlyphidsInMineletRadius = 5;  // calculateNumGlyphidsInRadius(1.2);
 			// System.out.println(numGlyphidsInMineletRadius);
-			totalUtility += (1 - accuracy) * numGlyphidsInMineletRadius * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+			utilityScores[3] = (1 - accuracy) * numGlyphidsInMineletRadius * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+		}
+		else {
+			utilityScores[3] = 0;
 		}
 		
-		return totalUtility;
+		// Mod Tier 5 "Burst Stun" = 100% chance for 3 sec stun
+		if (selectedTier5 == 1) {
+			utilityScores[5] = accuracy * getBurstStunDuration() * UtilityInformation.Stun_Utility;
+		}
+		else {
+			utilityScores[5] = 0;
+		}
+		
+		return MathUtils.sum(utilityScores);
 	}
 }

@@ -205,4 +205,14 @@ public class UtilityInformation {
 	*/
 	public static double Neuro_Slow_Utility = 0.3;
 	public static double Electrocute_Slow_Utility = 0.8;
+	
+	/*
+ 		Mobility
+ 		
+ 		Technically neither damage type nor status effect, but still a category of Utility that needs to be covered. There are two main categories of Mobility:
+ 		buffs or debuffs to your dwarf's walking speed, or "blast jumping" which uses its own projectile physics and applies its own velocity to the dwarf independent 
+ 		of walking.
+	*/
+	public static double Movespeed_Utility = 1;
+	public static double BlastJump_Utility = 1;
 }

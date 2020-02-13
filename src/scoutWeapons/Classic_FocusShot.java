@@ -602,14 +602,27 @@ public class Classic_FocusShot extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		double totalUtility = 0;
+		// OC "Active Stability System" removes the movespeed penalty while Focusing
+		utilityScores[0] = (getMovespeedWhileFocusing() - MathUtils.round(movespeedWhileFocusing * DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
+		
+		// OC "Hoverclock" gives a 3 second cap to Scout's vertical movement speed
+		if (selectedOverclock == 0) {
+			// TODO: I have no idea how to implement this
+			utilityScores[0] += 0;
+		}
+		else {
+			utilityScores[0] += 0;
+		}
 		
 		// Armor Breaking
-		totalUtility += (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
+		utilityScores[2] = (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
 		
-		// Mod Tier 5 "Hitting Where it Hurts" = 100% chance for 3 sec stun
-		if (selectedTier5 == 0) {
-			totalUtility += calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
+		// OC "Electrocuting Focus Shots" = 100% chance to electrocute on focused shots
+		if (selectedOverclock == 4) {
+			utilityScores[3] = calculateMaxNumTargets() * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+		}
+		else {
+			utilityScores[3] = 0;
 		}
 		
 		// Mod Tier 5 "Precision Terror" = ?% chance to Fear in small AoE (needs a LOT of testing)
@@ -617,24 +630,20 @@ public class Classic_FocusShot extends Weapon {
 			// TODO: 50% and 1m is a guess; need to verify.
 			int numGlphyidsFeared = 5;  // calculateNumGlyphidsInRadius(1.0);
 			// System.out.println(numGlphyidsFeared);
-			totalUtility += 0.5 * numGlphyidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			utilityScores[4] = 0.5 * numGlphyidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+		}
+		else {
+			utilityScores[4] = 0;
 		}
 		
-		// OC "Active Stability System" removes the movespeed penalty while Focusing
-		// TODO: multiply this by the Mobility Utility coefficient like RJ250 or Special Powder
-		totalUtility += getMovespeedWhileFocusing() - MathUtils.round(movespeedWhileFocusing * DwarfInformation.walkSpeed, 2);
-		
-		// OC "Hoverclock" gives a 3 second cap to Scout's vertical movement speed
-		if (selectedOverclock == 0) {
-			// TODO: I have no idea how to implement this
-			totalUtility += 0;
+		// Mod Tier 5 "Hitting Where it Hurts" = 100% chance for 3 sec stun
+		if (selectedTier5 == 0) {
+			utilityScores[5] = calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
+		}
+		else {
+			utilityScores[5] = 0;
 		}
 		
-		// OC "Electrocuting Focus Shots" = 100% chance to electrocute on focused shots
-		else if (selectedOverclock == 4) {
-			totalUtility += calculateMaxNumTargets() * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
-		}
-		
-		return totalUtility;
+		return MathUtils.sum(utilityScores);
 	}
 }

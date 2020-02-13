@@ -571,13 +571,14 @@ public class Subata extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		double totalUtility = 0;
-		
 		// Tranq rounds = 50% chance to stun, 5 second stun
 		if (selectedOverclock == 5) {
-			totalUtility += getStunChance() * getStunDuration() * UtilityInformation.Stun_Utility;
+			utilityScores[5] = getStunChance() * getStunDuration() * UtilityInformation.Stun_Utility;
+		}
+		else {
+			utilityScores[5] = 0;
 		}
 		
-		return totalUtility;
+		return MathUtils.sum(utilityScores);
 	}
 }

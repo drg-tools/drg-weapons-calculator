@@ -577,11 +577,10 @@ public class Classic_Hipfire extends Weapon {
 	@Override
 	public double utilityScore() {
 		// Because almost all of M1k's Utility is based on Focused Shots, Hipfire is pretty meager as Utility goes...
-		double totalUtility = 0;
 		
 		// Armor Breaking
-		totalUtility += (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
+		utilityScores[2] = (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
 		
-		return totalUtility;
+		return MathUtils.sum(utilityScores);
 	}
 }

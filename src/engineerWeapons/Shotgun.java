@@ -10,6 +10,7 @@ import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
+import utilities.MathUtils;
 
 public class Shotgun extends Weapon {
 	
@@ -556,14 +557,12 @@ public class Shotgun extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		double totalUtility = 0;
+		// Armor Breaking
+		utilityScores[2] = (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
 		
 		// Weakpoint = 10% stun chance, 2 sec duration (upgraded with Mod Tier 3 "Stun Duration")
-		totalUtility += EnemyInformation.probabilityBulletWillHitWeakpoint() * weakpointStunChance * getStunDuration() * UtilityInformation.Stun_Utility;
+		utilityScores[5] = EnemyInformation.probabilityBulletWillHitWeakpoint() * weakpointStunChance * getStunDuration() * UtilityInformation.Stun_Utility;
 		
-		// Armor Breaking bonuses too
-		totalUtility += (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
-		
-		return totalUtility;
+		return MathUtils.sum(utilityScores);
 	}
 }

@@ -23,4 +23,16 @@ public class MathUtils {
 		}
 		return sum;
 	}
+	
+	public static double sum(double[] A) {
+		if (A.length == 0) {
+			return 0;
+		}
+		
+		double sum = 0.0;
+		for (int i = 0; i < A.length; i++) {
+			sum += A[i];
+		}
+		return sum;
+	}
 }

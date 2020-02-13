@@ -396,18 +396,18 @@ public class WeaponTab extends JPanel {
 		
 		double utility = myWeapon.utilityScore();
 		roundedNumber = "" + MathUtils.round(utility, GuiConstants.numDecimalPlaces);
-		value = new JLabel(roundedNumber);
+		UtilityBreakdownButton utilButton = new UtilityBreakdownButton("    " + roundedNumber, myWeapon);
 		if (utility < originalStats[11]) {
-			value.setForeground(GuiConstants.drgOverclockUnstableRed);
+			utilButton.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
 		else if (utility > originalStats[11]) {
-			value.setForeground(GuiConstants.drgOverclockCleanGreen);
+			utilButton.setForeground(GuiConstants.drgOverclockCleanGreen);
 		}
 		else {
 			// Implicitly means that they're equal
-			value.setForeground(GuiConstants.drgHighlightedYellow);
+			utilButton.setForeground(GuiConstants.drgHighlightedYellow);
 		}
-		toReturn.add(value);
+		toReturn.add(utilButton);
 		
 		return toReturn;
 	}
