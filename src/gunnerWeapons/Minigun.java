@@ -27,7 +27,7 @@ public class Minigun extends Weapon {
 	private int stunDuration;
 	private int maxAmmo;
 	private double maxHeat;
-	private double heatPerPellet;
+	private double heatPerSecond;
 	private double coolingRate;
 	private int rateOfFire;
 	private double spinupTime;
@@ -56,14 +56,13 @@ public class Minigun extends Weapon {
 	public Minigun(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "\"Lead Storm\" Powered Minigun";
 		
-		// TODO: redo these tests to verify. num bullets was 286 last time I tested.
 		// Base stats, before mods or overclocks alter them:
 		damagePerPellet = 10;
 		stunChancePerPellet = 0.3;  // 30%
 		stunDuration = 1;  // second
 		maxAmmo = 2400; // equal to 1200 pellets
-		maxHeat = 9.0;
-		heatPerPellet = maxHeat*2.0/258.0;  // max heat divided by 258 ammo times 2 to count pellets. This may need to change to 256? The testing was a little ambiguous...
+		maxHeat = 9.5;
+		heatPerSecond = 1.0;  // max heat divided by 258 ammo times 2 to count pellets. This may need to change to 256? The testing was a little ambiguous...
 		coolingRate = 1.5; // heat dissipated per second; translates to 6 seconds of cooling off from max heat (without overheating)
 		rateOfFire = 30;  // equal to 15 pellets/sec
 		spinupTime = 0.7;  // seconds before minigun starts firing
@@ -72,7 +71,7 @@ public class Minigun extends Weapon {
 		baseSpread = 1.0;  // effectively its accuracy
 		armorBreakChance = 1.0; // it is just as effective at breaking armor per pellet as any other gun
 		bulletsFiredTilMaxStability = 50;  // equals 25 pellets
-		cooldownAfterOverheat = 10;  // seconds
+		cooldownAfterOverheat = 11;  // seconds
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -334,10 +333,10 @@ public class Minigun extends Weapon {
 		}
 		return toReturn;
 	}
-	private double getHeatPerPellet() {
-		double toReturn = heatPerPellet;
+	private double getHeatPerSecond() {
+		double toReturn = heatPerSecond;
 		if (selectedOverclock == 2) {
-			toReturn *= 2.5;
+			toReturn += 0.5;
 		}
 		return toReturn;
 	}
@@ -429,9 +428,21 @@ public class Minigun extends Weapon {
 		}
 	}
 	
+	private double calculateFiringPeriod() {
+		return maxHeat / getHeatPerSecond();
+	}
+	private double calculateMaxNumPelletsFiredWithoutOverheating() {
+		// Strangely, the RoF does NOT affect the heat/sec gain?
+		return Math.floor(calculateFiringPeriod() * getRateOfFire() / 2.0);
+	}
+	private double calculateCooldownPeriod() {
+		// This equation took a while to figure out, and it's still just an approximation. A very close approximation, but an approximation nonetheless.
+		return 9.5 / getCoolingRate() + getCoolingRate() / 8;
+	}
+	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[18];
+		StatsRow[] toReturn = new StatsRow[20];
 		
 		boolean damageModified = selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock > 3;
 		toReturn[0] = new StatsRow("Damage per Pellet:", getDamagePerPellet(), damageModified);
@@ -447,30 +458,34 @@ public class Minigun extends Weapon {
 		
 		toReturn[5] = new StatsRow("Max Heat:", maxHeat, false);
 		
-		toReturn[6] = new StatsRow("Heat Accumulated per Pellet:", getHeatPerPellet(), selectedOverclock == 2);
+		toReturn[6] = new StatsRow("Heat Per Second While Firing:", getHeatPerSecond(), selectedOverclock == 2);
 		
-		toReturn[7] = new StatsRow("Cooling Rate (Heat Dissipated/Sec):", getCoolingRate(), selectedTier1 == 0 || selectedOverclock == 1);
+		toReturn[7] = new StatsRow("Max Num Pellets Fired Per Burst:", calculateMaxNumPelletsFiredWithoutOverheating(), selectedOverclock == 2 || selectedTier1 == 1 || selectedOverclock == 3);
 		
-		toReturn[8] = new StatsRow("Cooldown After Overheat:", cooldownAfterOverheat, false);
+		toReturn[8] = new StatsRow("Cooling Rate:", getCoolingRate(), selectedTier1 == 0 || selectedOverclock == 1);
 		
-		toReturn[9] = new StatsRow("Rate of Fire (Ammo/Sec):", getRateOfFire(), selectedTier1 == 1 || selectedOverclock == 3);
+		toReturn[9] = new StatsRow("Max Cooldown Without Overheating:", calculateCooldownPeriod(), selectedTier1 == 0 || selectedOverclock == 1);
 		
-		toReturn[10] = new StatsRow("Ammo Spent Until Stabilized:", bulletsFiredTilMaxStability, false);
+		toReturn[10] = new StatsRow("Cooldown After Overheat:", cooldownAfterOverheat, false);
 		
-		toReturn[11] = new StatsRow("Spinup Time:", getSpinupTime(), selectedTier4 == 1 || selectedOverclock == 0);
+		toReturn[11] = new StatsRow("Rate of Fire (Ammo/Sec):", getRateOfFire(), selectedTier1 == 1 || selectedOverclock == 3);
 		
-		toReturn[12] = new StatsRow("Spindown Time:", getSpindownTime(), selectedTier4 == 2);
+		toReturn[12] = new StatsRow("Ammo Spent Until Stabilized:", bulletsFiredTilMaxStability, false);
+		
+		toReturn[13] = new StatsRow("Spinup Time:", getSpinupTime(), selectedTier4 == 1 || selectedOverclock == 0);
+		
+		toReturn[14] = new StatsRow("Spindown Time:", getSpindownTime(), selectedTier4 == 2);
 		
 		boolean baseSpreadModified = selectedTier1 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[13] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified);
+		toReturn[15] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified);
 		
-		toReturn[14] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 6);
+		toReturn[16] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 6);
 		
-		toReturn[15] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier3 == 0);
+		toReturn[17] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier3 == 0);
 		
-		toReturn[16] = new StatsRow("Max Penetrations:", getNumberOfPenetrations(), selectedTier3 == 2);
+		toReturn[18] = new StatsRow("Max Penetrations:", getNumberOfPenetrations(), selectedTier3 == 2);
 		
-		toReturn[17] = new StatsRow("Max Ricochets:", getNumberOfRicochets(), selectedOverclock == 5);
+		toReturn[19] = new StatsRow("Max Ricochets:", getNumberOfRicochets(), selectedOverclock == 5);
 		
 		return toReturn;
 	}
@@ -489,7 +504,7 @@ public class Minigun extends Weapon {
 			The length of the burst is determined by the heat accumulated. Each burst duration should stop just shy of 
 			overheating the minigun so that it doesn't have the overheat cooldown penalty imposed.
 		*/
-		double numPelletsFiredBeforeOverheat = Math.floor(maxHeat / getHeatPerPellet());
+		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
 		double damageMultiplier = 1.0;
 		if (selectedTier4 == 0) {
 			double pelletsFiredWhileNotStabilized = bulletsFiredTilMaxStability / 2.0;
@@ -507,26 +522,23 @@ public class Minigun extends Weapon {
 	@Override
 	public double calculateIdealBurstDPS() {
 		double damagePerBurst = calculateDamagePerBurst(false);
-		double numPelletsFiredBeforeOverheat = Math.floor(maxHeat / getHeatPerPellet());
-		double burstDuration = 2.0 * numPelletsFiredBeforeOverheat / ((double) getRateOfFire());
+		double burstDuration = calculateFiringPeriod();
 		return damagePerBurst / burstDuration;
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
 		double damagePerBurst = calculateDamagePerBurst(false);
-		double numPelletsFiredBeforeOverheat = Math.floor(maxHeat / getHeatPerPellet());
-		double burstDuration = 2.0 * numPelletsFiredBeforeOverheat / ((double) getRateOfFire());
-		double coolOffDuration = maxHeat / getCoolingRate();
+		double burstDuration = calculateFiringPeriod();
+		double coolOffDuration = calculateCooldownPeriod();
 		return damagePerBurst / (burstDuration + coolOffDuration);
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
 		double damagePerBurst = calculateDamagePerBurst(true);
-		double numPelletsFiredBeforeOverheat = Math.floor(maxHeat / getHeatPerPellet());
-		double burstDuration = 2.0 * numPelletsFiredBeforeOverheat / ((double) getRateOfFire());
-		double coolOffDuration = maxHeat / getCoolingRate();
+		double burstDuration = calculateFiringPeriod();
+		double coolOffDuration = calculateCooldownPeriod();
 		return damagePerBurst / (burstDuration + coolOffDuration);
 	}
 
@@ -548,7 +560,7 @@ public class Minigun extends Weapon {
 	}
 	
 	private double calculateMaxSingleTargetDamage() {
-		double numPelletsFiredBeforeOverheat = Math.floor(maxHeat / getHeatPerPellet());
+		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
 		double numberOfBursts = (double) getMaxAmmo() / (2.0 * numPelletsFiredBeforeOverheat);
 		return numberOfBursts * calculateDamagePerBurst(false);
 	}
@@ -565,10 +577,10 @@ public class Minigun extends Weapon {
 
 	@Override
 	public double calculateFiringDuration() {
-		double numPelletsFiredBeforeOverheat = Math.floor(maxHeat / getHeatPerPellet());
+		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
 		double numberOfBursts = (double) getMaxAmmo() / (2.0 * numPelletsFiredBeforeOverheat);
 		double numberOfCooldowns = Math.floor(numberOfBursts) - 1.0;
-		return (numberOfBursts * 2.0 * numPelletsFiredBeforeOverheat / getRateOfFire()) + (numberOfCooldowns * maxHeat / getCoolingRate());
+		return (numberOfBursts * calculateFiringPeriod()) + (numberOfCooldowns * calculateCooldownPeriod());
 	}
 
 	@Override
