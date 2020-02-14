@@ -437,7 +437,7 @@ public class Minigun extends Weapon {
 	}
 	private double calculateCooldownPeriod() {
 		// This equation took a while to figure out, and it's still just an approximation. A very close approximation, but an approximation nonetheless.
-		return 9.5 / getCoolingRate() + getCoolingRate() / 8;
+		return 9.5 / getCoolingRate() + getCoolingRate() / 9;
 	}
 	
 	@Override
