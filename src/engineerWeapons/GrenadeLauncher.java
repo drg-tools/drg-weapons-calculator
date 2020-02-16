@@ -298,6 +298,7 @@ public class GrenadeLauncher extends Weapon {
 		if (selectedTier2 == 1) {
 			toReturn += 20;
 		}
+		
 		if (selectedOverclock == 0) {
 			toReturn += 10;
 		}
@@ -307,12 +308,13 @@ public class GrenadeLauncher extends Weapon {
 		else if (selectedOverclock == 3) {
 			toReturn -= 25;
 		}
-		else if (selectedOverclock == 4) {
-			toReturn += 330;
-		}
 
 		if (selectedTier4 == 0) {
 			toReturn = toReturn * 1.1;
+		}
+		
+		if (selectedOverclock == 4) {
+			toReturn *= 4;
 		}
 		
 		// TODO: Incendiary Compound's negative has been implemented, but not its DoT and resultant damage
