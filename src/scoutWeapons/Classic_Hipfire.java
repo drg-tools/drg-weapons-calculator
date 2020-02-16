@@ -579,6 +579,7 @@ public class Classic_Hipfire extends Weapon {
 		// Because almost all of M1k's Utility is based on Focused Shots, Hipfire is pretty meager as Utility goes...
 		
 		// Armor Breaking
+		// Because Blowthrough Rounds are on the same tier as Armor Break, this bonus isn't multiplied by max num targets.
 		utilityScores[2] = (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
 		
 		return MathUtils.sum(utilityScores);

@@ -594,6 +594,7 @@ public class BurstPistol extends Weapon {
 	@Override
 	public double utilityScore() {
 		// Armor Breaking
+		// Since only the bullets get the armor break bonus, this doesn't get multiplied by max num targets since the bullets don't have Blowthrough
 		utilityScores[2] = (getArmorBreakChance() - 1.0) * UtilityInformation.ArmorBreak_Utility;
 		
 		double accuracy = 0.95;  // TODO: estimatedAccuracy();

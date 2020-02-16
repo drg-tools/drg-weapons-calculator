@@ -582,7 +582,7 @@ public class Autocannon extends Weapon {
 		}
 		
 		// Mod Tier 4 "Pentrating Rounds" armor breaking bonus
-		utilityScores[2] = (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
+		utilityScores[2] = (getArmorBreakChance() - 1) * calculateMaxNumTargets() * UtilityInformation.ArmorBreak_Utility;
 		
 		// OC "Neurotoxin Payload" has a 20% chance to inflict a 30% slow by poisoning enemies
 		if (selectedOverclock == 5) {

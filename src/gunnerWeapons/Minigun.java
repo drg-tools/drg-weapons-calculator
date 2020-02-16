@@ -608,7 +608,7 @@ public class Minigun extends Weapon {
 		utilityScores[0] = (getMovespeedWhileFiring() - MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
 		
 		// Armor Breaking
-		utilityScores[2] = (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
+		utilityScores[2] = (getArmorBreakChance() - 1) * calculateMaxNumTargets() * UtilityInformation.ArmorBreak_Utility;
 		
 		// Mod Tier 5 "Aggressive Venting" induces Fear in a 3m radius (while also igniting)
 		if (selectedTier5 == 0) {

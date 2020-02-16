@@ -613,6 +613,7 @@ public class Classic_FocusShot extends Weapon {
 		}
 		
 		// Armor Breaking
+		// Because Blowthrough Rounds are on the same tier as Armor Break, this bonus isn't multiplied by max num targets.
 		utilityScores[2] = (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
 		
 		// OC "Electrocuting Focus Shots" = 100% chance to electrocute on focused shots
