@@ -433,7 +433,7 @@ public class Shotgun extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[12];
+		StatsRow[] toReturn = new StatsRow[11];
 		
 		boolean damageModified = selectedTier4 == 2 || selectedOverclock == 3 || selectedOverclock == 4;
 		toReturn[0] = new StatsRow("Damage Per Pellet:", getDamagePerPellet(), damageModified);
@@ -462,8 +462,6 @@ public class Shotgun extends Weapon {
 		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified);
 		
 		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier3 == 0 || selectedOverclock == 4);
-		
-		toReturn[11] = new StatsRow("Accuracy:", convertDoubleToPercentage(new AccuracyEstimator(getRateOfFire(), getMagazineSize(), getBaseSpread(), 1.0, 1.0, 1.0, getRecoil(), 1.0, getRecoil()).calculateAccuracy()), false);
 		
 		return toReturn;
 	}
@@ -551,7 +549,7 @@ public class Shotgun extends Weapon {
 
 	@Override
 	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
+		// new AccuracyEstimator(getRateOfFire(), getMagazineSize(), getBaseSpread(), 1.0, 1.0, 1.0, getRecoil(), 1.0, getRecoil()).calculateAccuracy()
 		return 0;
 	}
 
