@@ -2,6 +2,10 @@ package guiPieces;
 
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -10,6 +14,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
+
+import net.sf.image4j.codec.ico.ICODecoder;
 
 import modelPieces.Weapon;
 
@@ -44,6 +50,14 @@ public class View extends JFrame implements Observer {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("MeatShield's DRG DPS Calculator (DRG Update 28.5)");
 		setPreferredSize(new Dimension(1620, 780));
+		
+		// Add the icon
+		try {
+			List<BufferedImage> image = ICODecoder.read(new File("images/meatShield_composite.ico"));
+			setIconImages(image);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		constructMenu();
 		
