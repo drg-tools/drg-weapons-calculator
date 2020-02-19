@@ -557,7 +557,7 @@ public class SMG extends Weapon {
 		totalDamage += calculateDamagePerBullet(false) * (getMagazineSize() + getCarriedAmmo());
 		
 		/* 
-			There's no good way to model RNG-based mechanics max damage, such as the Electrocute DoT. I'm choosing
+			There's no good way to model RNG-based mechanics' max damage, such as the Electrocute DoT. I'm choosing
 			to model it as how much DPS it does per magazine times how many seconds it takes to fire every bullet. 
 			This value should always be less than the full DoT DPS times firing duration.
 		*/
@@ -582,12 +582,10 @@ public class SMG extends Weapon {
 
 	@Override
 	public double calculateFiringDuration() {
-		double magSize = (double) getMagazineSize();
-		// Don't forget to add the magazine that you start out with, in addition to the carried ammo
-		double numberOfMagazines = (((double) getCarriedAmmo()) / magSize) + 1.0;
-		double timeToFireMagazine = magSize / getRateOfFire();
-		// There are one fewer reloads than there are magazines to fire
-		return numberOfMagazines * timeToFireMagazine + (numberOfMagazines - 1.0) * getReloadTime();
+		int magSize = getMagazineSize();
+		int carriedAmmo = getCarriedAmmo();
+		double timeToFireMagazine = ((double) magSize) / getRateOfFire();
+		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
 
 	@Override

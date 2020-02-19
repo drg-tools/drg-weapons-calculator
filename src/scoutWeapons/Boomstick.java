@@ -566,11 +566,9 @@ public class Boomstick extends Weapon {
 		int magSize = getMagazineSize();
 		
 		if (magSize > 1) {
-			// Don't forget to add the magazine that you start out with, in addition to the carried ammo
-			double numberOfMagazines = (((double) getCarriedAmmo()) / magSize) + 1.0;
-			double timeToFireMagazine = magSize / getRateOfFire();
-			// There are one fewer reloads than there are magazines to fire
-			return numberOfMagazines * timeToFireMagazine + (numberOfMagazines - 1.0) * getReloadTime();
+			int carriedAmmo = getCarriedAmmo();
+			double timeToFireMagazine = ((double) magSize) / getRateOfFire();
+			return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 		}
 		else {
 			// Since each shot gets fired instantly and there's only one shot in the magazine, the rate of fire isn't applicable. Simply add up all the reload times.

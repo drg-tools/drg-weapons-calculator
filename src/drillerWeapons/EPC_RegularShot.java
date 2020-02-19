@@ -583,8 +583,9 @@ public class EPC_RegularShot extends Weapon {
 	public double calculateFiringDuration() {
 		int burstSize = getNumRegularShotsBeforeOverheat();
 		double timeToFireBurst = burstSize / rateOfFire;
+		// Choosing not to use Weapon.numMagazines since the "burst" size isn't adding to total ammo count like normal bullets in a mag do.
 		double numBursts = (double) getBatterySize() / (double) burstSize;
-		return numBursts * timeToFireBurst + (numBursts - 1.0) * getCooldownDuration();
+		return numBursts * timeToFireBurst + numReloads(getBatterySize(), burstSize) * getCooldownDuration();
 	}
 
 	@Override

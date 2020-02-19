@@ -568,8 +568,9 @@ public class BurstPistol extends Weapon {
 
 	@Override
 	public double calculateFiringDuration() {
-		double numberOfMagazines = ((double) getCarriedAmmo() / (double) getMagazineSize()) + 1.0;
-		return numberOfMagazines * calculateTimeToFireMagazine() + (numberOfMagazines - 1.0) * getReloadTime();
+		int magSize = getMagazineSize();
+		int carriedAmmo = getCarriedAmmo();
+		return numMagazines(carriedAmmo, magSize) * calculateTimeToFireMagazine() + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
 
 	@Override

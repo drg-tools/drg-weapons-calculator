@@ -577,9 +577,19 @@ public class Minigun extends Weapon {
 
 	@Override
 	public double calculateFiringDuration() {
-		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
-		double numberOfBursts = (double) getMaxAmmo() / (2.0 * numPelletsFiredBeforeOverheat);
-		double numberOfCooldowns = Math.floor(numberOfBursts) - 1.0;
+		int ammoSpentBeforeOverheat = (int) (2.0 * calculateMaxNumPelletsFiredWithoutOverheating());
+		int maxAmmo = getMaxAmmo();
+		
+		double numberOfBursts = ((double) maxAmmo) / ((double) ammoSpentBeforeOverheat);
+		
+		int numberOfCooldowns = 0;
+		if (maxAmmo % ammoSpentBeforeOverheat == 0) {
+			numberOfCooldowns = (int) (numberOfBursts - 1.0);
+		}
+		else {
+			numberOfCooldowns = Math.floorDiv(maxAmmo, ammoSpentBeforeOverheat);
+		}
+		
 		return (numberOfBursts * calculateFiringPeriod()) + (numberOfCooldowns * calculateCooldownPeriod());
 	}
 

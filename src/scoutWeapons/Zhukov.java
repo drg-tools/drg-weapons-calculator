@@ -509,16 +509,13 @@ public class Zhukov extends Weapon {
 	@Override
 	public double calculateFiringDuration() {
 		// Because of how this weapon works, all these numbers need to be halved to be accurate.
-		double effectiveMagazineSize = getMagazineSize() / 2.0;
+		int effectiveMagazineSize = getMagazineSize() / 2;
 		// If there's an odd number carried ammo, round up since you can fire the last "odd" ammo as a full-damage shot
-		double effectiveCarriedAmmo = Math.ceil(getCarriedAmmo() / 2.0);
+		int effectiveCarriedAmmo = (int) Math.ceil(((double) getCarriedAmmo()) / 2.0);
 		double effectiveRoF = getRateOfFire() / 2.0;
 		
-		// Don't forget to add the magazine that you start out with, in addition to the carried ammo
-		double numberOfMagazines = (effectiveCarriedAmmo / effectiveMagazineSize) + 1.0;
-		double timeToFireMagazine = effectiveMagazineSize / effectiveRoF;
-		// There are one fewer reloads than there are magazines to fire
-		return numberOfMagazines * timeToFireMagazine + (numberOfMagazines - 1.0) * getReloadTime();
+		double timeToFireMagazine = ((double) effectiveMagazineSize) / effectiveRoF;
+		return numMagazines(effectiveCarriedAmmo, effectiveMagazineSize) * timeToFireMagazine + numReloads(effectiveCarriedAmmo, effectiveMagazineSize) * getReloadTime();
 	}
 
 	@Override

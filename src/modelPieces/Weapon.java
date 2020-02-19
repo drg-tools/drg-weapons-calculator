@@ -413,6 +413,20 @@ public abstract class Weapon extends Observable {
 	
 	// Non-damage calculations
 	public abstract int calculateMaxNumTargets();
+	
+	protected double numMagazines(int carriedAmmo, int magazineSize) {
+		// Don't forget to add the magazine that you start out with, in addition to the carried ammo
+		return (((double) carriedAmmo) / ((double) magazineSize)) + 1.0;
+	}
+	protected int numReloads(int carriedAmmo, int magazineSize) {
+		if (carriedAmmo % magazineSize == 0) {
+			return (carriedAmmo / magazineSize) - 1;
+		}
+		else {
+			return (int) Math.floorDiv(carriedAmmo, magazineSize);
+		}
+	}
+	
 	public abstract double calculateFiringDuration();
 	public abstract double averageTimeToKill();  // Average health of an enemy divided by weakpoint sustained DPS
 	public abstract double averageOverkill();  // (Total Damage done / Avg Health) - 1.0
