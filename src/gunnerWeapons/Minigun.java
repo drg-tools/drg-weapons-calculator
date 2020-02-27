@@ -14,7 +14,10 @@ import modelPieces.Weapon;
 import utilities.MathUtils;
 
 
-// Burning Hell looks like it burns everything within 4m in a 20 degree arc
+// Burning Hell looks like it burns everything within 4m in a 20 degree arc at a rate of 40 heat/sec
+// It looks like Hot Bullets and Burning Hell both have -50% Burn DoT Durations?
+
+// Aggressive Venting does 75 Heat damage in a single burst on overheat, in addition to a 100% Fear chance.
 
 public class Minigun extends Weapon {
 
@@ -531,6 +534,23 @@ public class Minigun extends Weapon {
 		double damagePerBurst = calculateDamagePerBurst(false);
 		double burstDuration = calculateFiringPeriod();
 		double coolOffDuration = calculateCooldownPeriod();
+		
+		double heatPerSec = 0;
+		if (selectedTier5 == 2) {
+			// Hot Bullets
+			double heatPerPellet = ((double) getDamagePerPellet()) / 2.0;
+			double RoF = getRateOfFire() / 2.0;
+			heatPerSec += heatPerPellet * RoF;
+		}
+		if (selectedOverclock == 2) {
+			// Burning Hell
+			heatPerSec += 40;
+		}
+		
+		if (heatPerSec > 0) {
+			System.out.println("Minigun Ignition time: " + EnemyInformation.averageTimeToIgnite(heatPerSec));
+		}
+		
 		return damagePerBurst / (burstDuration + coolOffDuration);
 	}
 	

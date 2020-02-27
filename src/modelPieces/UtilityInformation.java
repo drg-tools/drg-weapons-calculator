@@ -141,7 +141,6 @@ public class UtilityInformation {
 	/*
 		Stun
 		
-		
 		One of the more simple mechanics in DRG, Stun quite simply stops an enemy from attacking and moving, making them an easy target for the Stun duration.
 		Once an enemy has been stunned, it cannot be re-stunned until it has recovered. As such, "stun-locking" an enemy is impossible. 
 		
@@ -213,6 +212,6 @@ public class UtilityInformation {
  		buffs or debuffs to your dwarf's walking speed, or "blast jumping" which uses its own projectile physics and applies its own velocity to the dwarf independent 
  		of walking.
 	*/
-	public static double Movespeed_Utility = 1;
+	public static double Movespeed_Utility = 2;
 	public static double BlastJump_Utility = 1;
 }

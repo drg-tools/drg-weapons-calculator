@@ -58,7 +58,8 @@ public class DoTInformation {
 	*/
 	public static double Fire_DmgPerTick = 5;
 	public static double Fire_TicksPerSec = 4;
-	public static double Fire_SecsDuration = 5;
+	// Burn DoT durations are specific per enemy, but it averages around 5 seconds.
+	public static double Fire_SecsDuration = EnemyInformation.averageBurnDuration();
 	public static double Fire_DPS = Fire_DmgPerTick * Fire_TicksPerSec;
 	
 	/*

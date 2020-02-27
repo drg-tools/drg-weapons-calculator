@@ -13,6 +13,8 @@ import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
+// Embedded Detonators does 5 damage per ammo (10/bullet) on reload
+
 public class Zhukov extends Weapon {
 	
 	/****************************************************************************************

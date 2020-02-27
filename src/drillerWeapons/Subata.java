@@ -104,7 +104,7 @@ public class Subata extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "More damage on average but it's a bit inconsistent.", 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Oversized Magazine", "Custom magazine that can fit a lot more ammo but it's a bit unwieldy and takes longer to reload.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Automatic Fire", "Fully automatic action, watch out for the recoil.", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Explosive Reload", "Micro-explosives that explode inside hit targets when you reload. However these fancy bullets come at the cost of raw damage, total ammo, and magazine capacity.", 4, false);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Explosive Reload", "Micro-explosives that explode inside hit targets when you reload. However these fancy bullets come at the cost of raw damage, total ammo, and magazine capacity.", 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Tranquilizer Rounds", "Part bullet, part syringe these rounds are very effective at stunning most enemies.", 5);
 	}
 	
@@ -296,6 +296,15 @@ public class Subata extends Weapon {
 		
 		return toReturn;
 	}
+	private int getAreaDamage() {
+		// Equipping the Overclock "Explosive Reload" leaves a detonator inside enemies that does 15 Area Damage per Bullet that dealt damage to an enemy upon reloading the Subata
+		if (selectedOverclock == 4) {
+			return 15;
+		}
+		else { 
+			return 0;
+		}
+	}
 	private int getCarriedAmmo() {
 		int toReturn = carriedAmmo;
 		
@@ -421,32 +430,36 @@ public class Subata extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[11];
+		StatsRow[] toReturn = new StatsRow[12];
 		
 		boolean directDamageModified = selectedTier2 == 1 || selectedTier3 == 0 || selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 4;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
+		// This stat only applies to OC "Explosive Reload"
+		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), selectedOverclock == 4);
+		
 		boolean magSizeModified = selectedTier1 == 1 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[1] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
+		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier2 == 0 || selectedTier3 == 2 || selectedOverclock == 4;
-		toReturn[2] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
+		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[3] = new StatsRow("Rate of Fire:", getRateOfFire(), selectedOverclock == 3 || selectedOverclock == 5);
+		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), selectedOverclock == 3 || selectedOverclock == 5);
 		
-		toReturn[4] = new StatsRow("Reload Time:", getReloadTime(), selectedTier1 == 2 || selectedOverclock == 2);
+		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), selectedTier1 == 2 || selectedOverclock == 2);
 		
-		toReturn[5] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0);
+		toReturn[6] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0);
 		
-		toReturn[6] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier1 == 0 || selectedOverclock == 3);
+		toReturn[7] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier1 == 0 || selectedOverclock == 3);
 		
-		toReturn[7] = new StatsRow("Spread Per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier3 == 1);
+		toReturn[8] = new StatsRow("Spread Per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier3 == 1);
 		
-		toReturn[8] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedOverclock == 3 || selectedTier3 == 1);
+		toReturn[9] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedOverclock == 3 || selectedTier3 == 1);
 		
-		toReturn[9] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), selectedOverclock == 5);
+		// These two stats only apply to OC "Tranquilizer Rounds"
+		toReturn[10] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), selectedOverclock == 5);
 		
-		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), selectedOverclock == 5);
+		toReturn[11] = new StatsRow("Stun Duration:", getStunDuration(), selectedOverclock == 5);
 		
 		return toReturn;
 	}
@@ -462,12 +475,11 @@ public class Subata extends Weapon {
 	
 	// Single-target calculations
 	private double calculateDamagePerMagazine(boolean weakpointBonus) {
-		// Somehow "Explosive Reload" will have to be modeled in here.
 		if (weakpointBonus) {
-			return (double) increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) * getMagazineSize();
+			return (double) (increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) + getAreaDamage()) * getMagazineSize();
 		}
 		else {
-			return (double) getDirectDamage() * getMagazineSize();
+			return (double) (getDirectDamage() + getAreaDamage()) * getMagazineSize();
 		}
 	}
 
@@ -523,7 +535,8 @@ public class Subata extends Weapon {
 			return (getMagazineSize() + getCarriedAmmo() + totalNumRicochets) * getDirectDamage();
 		}
 		else {
-			return (getMagazineSize() + getCarriedAmmo()) * getDirectDamage();
+			// Because the OCs Chain Hit and Explosive Reload are mutually exclusive, the Area Damage only needs to be called here.
+			return (getMagazineSize() + getCarriedAmmo()) * (getDirectDamage() + getAreaDamage());
 		}
 	}
 

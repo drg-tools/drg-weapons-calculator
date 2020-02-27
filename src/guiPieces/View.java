@@ -48,11 +48,12 @@ public class View extends JFrame implements Observer {
 		scoutWeapons = sWeapons;
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("MeatShield's DRG DPS Calculator (DRG Update 28.5)");
+		setTitle("MeatShield's DRG DPS Calculator (DRG Update 28.8)");
 		setPreferredSize(new Dimension(1620, 780));
 		
 		// Add the icon
 		try {
+			// Image sourced from http://www.zazzle.com/meat+shield+stickers
 			List<BufferedImage> image = ICODecoder.read(new File("images/meatShield_composite.ico"));
 			setIconImages(image);
 		} catch (IOException e) {

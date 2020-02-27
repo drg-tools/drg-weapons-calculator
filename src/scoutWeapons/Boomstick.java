@@ -11,6 +11,8 @@ import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
+// White Phosphorous Shells has the full Burn DoT duration
+
 public class Boomstick extends Weapon {
 	
 	/****************************************************************************************

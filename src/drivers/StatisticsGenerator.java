@@ -7,7 +7,7 @@ import modelPieces.Weapon;
 
 public class StatisticsGenerator {
 	public static void main(String[] args) {
-		
+		// TODO: either finish filling this out, or delete it since a lot of its functionality is covered in the Misc Actions menu.
 		Weapon[] weaponsToGenerateStatisticsAbout = new Weapon[] {
 			// Driller weapons
 			
