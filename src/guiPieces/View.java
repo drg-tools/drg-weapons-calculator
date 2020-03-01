@@ -11,7 +11,6 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JFrame;
-// import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -31,14 +30,12 @@ public class View extends JFrame implements Observer {
 	private JMenu exportMenu;
 	private JMenuItem exportCurrent, exportAll;
 	private JMenu miscMenu;	
-	private JMenuItem miscWeaponTabScreenshot, miscExportCombination, miscLoadCombination, miscSuggestion, miscFAQ, miscGlossary;
+	private JMenuItem miscWeaponTabScreenshot, miscExportCombination, miscLoadCombination, miscSuggestion;
 	
 	private Weapon[] drillerWeapons;
 	private Weapon[] engineerWeapons;
 	private Weapon[] gunnerWeapons;
 	private Weapon[] scoutWeapons;
-	
-	// private JLayeredPane foregroundSwitcher;
 	
 	private JTabbedPane classTabs;
 	private JTabbedPane drillerTabs;
@@ -69,16 +66,49 @@ public class View extends JFrame implements Observer {
 		
 		constructMenu();
 		
-		// foregroundSwitcher = new JLayeredPane();
+		classTabs = new JTabbedPane();
 		
-		constructWeaponTabs();
-		constructFAQ();
-		constructGlossary();
+		// Driller
+		drillerTabs = new JTabbedPane();
+		for (int i = 0; i < drillerWeapons.length; i++) {
+			drillerWeapons[i].addObserver(this);
+			drillerTabs.addTab(drillerWeapons[i].getFullName(), new WeaponTab(drillerWeapons[i]));
+		}
+		classTabs.addTab("Driller", drillerTabs);
 		
-		// foregroundSwitcher.moveToFront(classTabs);
+		// Engineer
+		engineerTabs = new JTabbedPane();
+		for (int i = 0; i < engineerWeapons.length; i++) {
+			engineerWeapons[i].addObserver(this);
+			engineerTabs.addTab(engineerWeapons[i].getFullName(), new WeaponTab(engineerWeapons[i]));
+		}
+		classTabs.addTab("Engineer", engineerTabs);
 		
-		// add(foregroundSwitcher);
-		// setContentPane(foregroundSwitcher);
+		// Gunner
+		gunnerTabs = new JTabbedPane();
+		for (int i = 0; i < gunnerWeapons.length; i++) {
+			gunnerWeapons[i].addObserver(this);
+			gunnerTabs.addTab(gunnerWeapons[i].getFullName(), new WeaponTab(gunnerWeapons[i]));
+		}
+		classTabs.addTab("Gunner", gunnerTabs);
+		
+		// Scout
+		scoutTabs = new JTabbedPane();
+		for (int i = 0; i < scoutWeapons.length; i++) {
+			scoutWeapons[i].addObserver(this);
+			scoutTabs.addTab(scoutWeapons[i].getFullName(), new WeaponTab(scoutWeapons[i]));
+		}
+		classTabs.addTab("Scout", scoutTabs);
+		
+		// FAQ
+		FAQ = GlossaryTextAndFAQText.getFAQText();
+		classTabs.addTab("F.A.Q.", FAQ);
+		
+		// Glossary
+		glossary = GlossaryTextAndFAQText.getGlossaryText();
+		classTabs.addTab("Glossary", glossary);
+		
+		add(classTabs);
 		setContentPane(classTabs);
 		pack();
 		setVisible(true);
@@ -132,67 +162,9 @@ public class View extends JFrame implements Observer {
 		miscMenu.add(miscLoadCombination);
 		miscSuggestion = new JMenuItem("Suggest a change for this program");
 		miscMenu.add(miscSuggestion);
-		miscFAQ = new JMenuItem("Frequently Asked Questions");
-		miscFAQ.setEnabled(false);  // TODO: Re-enable this once the FAQ is working 
-		miscMenu.add(miscFAQ);
-		miscGlossary = new JMenuItem("Glossary of Terms");
-		miscGlossary.setEnabled(false);  // TODO: Re-enable this once the Glossary is working
-		miscMenu.add(miscGlossary);
 		menuBar.add(miscMenu);
 		
 		setJMenuBar(menuBar);
-	}
-	
-	private void constructWeaponTabs() {
-		classTabs = new JTabbedPane();
-		
-		// Driller
-		drillerTabs = new JTabbedPane();
-		for (int i = 0; i < drillerWeapons.length; i++) {
-			drillerWeapons[i].addObserver(this);
-			drillerTabs.addTab(drillerWeapons[i].getFullName(), new WeaponTab(drillerWeapons[i]));
-		}
-		classTabs.addTab("Driller", drillerTabs);
-		
-		// Engineer
-		engineerTabs = new JTabbedPane();
-		for (int i = 0; i < engineerWeapons.length; i++) {
-			engineerWeapons[i].addObserver(this);
-			engineerTabs.addTab(engineerWeapons[i].getFullName(), new WeaponTab(engineerWeapons[i]));
-		}
-		classTabs.addTab("Engineer", engineerTabs);
-		
-		// Gunner
-		gunnerTabs = new JTabbedPane();
-		for (int i = 0; i < gunnerWeapons.length; i++) {
-			gunnerWeapons[i].addObserver(this);
-			gunnerTabs.addTab(gunnerWeapons[i].getFullName(), new WeaponTab(gunnerWeapons[i]));
-		}
-		classTabs.addTab("Gunner", gunnerTabs);
-		
-		// Scout
-		scoutTabs = new JTabbedPane();
-		for (int i = 0; i < scoutWeapons.length; i++) {
-			scoutWeapons[i].addObserver(this);
-			scoutTabs.addTab(scoutWeapons[i].getFullName(), new WeaponTab(scoutWeapons[i]));
-		}
-		classTabs.addTab("Scout", scoutTabs);
-		
-		// foregroundSwitcher.add(classTabs);
-		add(classTabs);
-	}
-	
-	// TODO: fill out these JPanels with scrollable content
-	private void constructFAQ() {
-		FAQ = new JPanel();
-		
-		//foregroundSwitcher.add(FAQ);
-	}
-	
-	private void constructGlossary() {
-		glossary = new JPanel();
-		
-		//foregroundSwitcher.add(glossary);
 	}
 	
 	// Getters used by GuiController
@@ -252,12 +224,6 @@ public class View extends JFrame implements Observer {
 	public JMenuItem getMiscSuggestion() {
 		return miscSuggestion;
 	}
-	public JMenuItem getMiscFAQ() {
-		return miscFAQ;
-	}
-	public JMenuItem getMiscGlossary() {
-		return miscGlossary;
-	}
 
 	public int getCurrentClassIndex() {
 		return classTabs.getSelectedIndex();
@@ -304,8 +270,6 @@ public class View extends JFrame implements Observer {
 		miscExportCombination.addActionListener(parent);
 		miscLoadCombination.addActionListener(parent);
 		miscSuggestion.addActionListener(parent);
-		miscFAQ.addActionListener(parent);
-		miscGlossary.addActionListener(parent);
 	}
 	
 	@Override
@@ -363,13 +327,5 @@ public class View extends JFrame implements Observer {
 		classTabs.printAll(g2d);
 		g2d.dispose();
 		return img;
-	}
-	
-	public void bringFAQtoForeground() {
-		
-	}
-	
-	public void bringGlossaryToForeground() {
-		
 	}
 }
