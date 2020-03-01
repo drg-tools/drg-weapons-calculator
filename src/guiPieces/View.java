@@ -131,7 +131,6 @@ public class View extends JFrame implements Observer {
 		bcmAccuracy.setEnabled(false);  // TODO: Re-enable this once Accuracy is implemented.
 		bestCombinationsMenu.add(bcmAccuracy);
 		bcmUtility = new JMenuItem("Most Utility");
-		bcmUtility.setEnabled(false);  // TODO: Re-enable this once Utility is implemented.
 		bestCombinationsMenu.add(bcmUtility);
 		menuBar.add(bestCombinationsMenu);
 		

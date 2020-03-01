@@ -104,11 +104,11 @@ public class Classic_FocusShot extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Hitting Where it Hurts", "Focused shots stagger the target", 5, 0);
-		tier5[1] = new Mod("Precision Terror", "Killing your target with a focused shot to the weakspot will send nearby creatures fleeing with terror!", 5, 1, false);
+		tier5[1] = new Mod("Precision Terror", "Killing your target with a focused shot to the weakspot will send nearby creatures fleeing with terror!", 5, 1);
 		tier5[2] = new Mod("Killing Machine", "You can perform a lightning-fast reload right after killing an enemy.", 5, 2, false);  // Supposedly reduces manual reload time by 0.75 sec after a kill?
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Hoverclock", "Your movement slows down for a few seconds while using focus mode in the air.", 0, false);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Hoverclock", "Your movement slows down for a few seconds while using focus mode in the air.", 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Minimal Clips", "Make space for more ammo and speed up reloads by getting rid of dead weight on the clips.", 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Active Stability System", "Focus without slowing down but the power drain from the coils lowers the power of the focused shots.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Hipster", "A rebalancing of weight distribution, enlarged vents and a reshaped grip result in a rifle that is more controllable when hip-firing in quick succession but at the cost of pure damage output.", 3);

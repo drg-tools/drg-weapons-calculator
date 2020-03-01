@@ -214,4 +214,12 @@ public class UtilityInformation {
 	*/
 	public static double Movespeed_Utility = 2;
 	public static double BlastJump_Utility = 1;
+	
+	/*
+		Damage Resistance
+		
+		This is a pretty rare effect in DRG right now. While active, it increases a Dwarf's Effective Health Pool (EHP) and makes them harder to kill. As it stands, 
+		a 30% Damage Resistance gives a score of 1.42857, which is a little too low in comparison to other Utililty scores.
+	*/
+	public static double DamageResist_Utility = 2;
 }

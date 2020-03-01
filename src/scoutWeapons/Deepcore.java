@@ -98,7 +98,7 @@ public class Deepcore extends Weapon {
 		tier4[2] = new Mod("Improved Gas System", "We overclocked your gun. It fires faster. Don't ask, just enjoy. Also probably don't tell Management, please.", 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Battle Frenzy", "Move faster for a short time after killing an enemy", 5, 0, false);
+		tier5[0] = new Mod("Battle Frenzy", "Move faster for a short time after killing an enemy", 5, 0);
 		tier5[1] = new Mod("Battle Cool", "Killing an enemy increases accuracy", 5, 1, false);  // According to wiki, sets spreadPerShot = 0 for 1.5 seconds after a kill?
 		tier5[2] = new Mod("Stun", "Increased chance to stun the target on a weakpoint hit", 5, 2);
 		

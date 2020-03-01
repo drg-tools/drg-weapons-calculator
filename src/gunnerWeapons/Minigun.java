@@ -3,7 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
-import guiPieces.GuiConstants;
+import modelPieces.DoTInformation;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
@@ -12,12 +12,6 @@ import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
-
-
-// Burning Hell looks like it burns everything within 4m in a 20 degree arc at a rate of 40 heat/sec
-// It looks like Hot Bullets and Burning Hell both have -50% Burn DoT Durations?
-
-// Aggressive Venting does 75 Heat damage in a single burst on overheat, in addition to a 100% Fear chance.
 
 public class Minigun extends Weapon {
 
@@ -522,11 +516,49 @@ public class Minigun extends Weapon {
 		}
 	}
 
+	private double calculateIgnitionTime() {
+		// It looks like Hot Bullets and Burning Hell both have -50% Burn DoT Durations?
+		// Hot Bullets only
+		if (selectedTier5 == 2 && selectedOverclock != 2) {
+			// Hot Bullets adds 50% of of each pellet's Direct Damage as Heat Damage while the Heat Meter on the Minigun is red.
+			// In practice, the meter turns red after 4 seconds of sustained firing, meaning that the last 5.5 seconds of the burst will have Hot Bullets.
+			double heatPerPellet = ((double) getDamagePerPellet()) / 2.0;
+			double RoF = getRateOfFire() / 2.0;
+			return 4 + EnemyInformation.averageTimeToIgnite(heatPerPellet, RoF);
+		}
+		// Burning Hell only
+		else if (selectedTier5 != 2 && selectedOverclock == 2) {
+			// Burning Hell looks like it burns everything within 4m in a 20 degree arc in front of you at a rate of 40 heat/sec
+			return EnemyInformation.averageTimeToIgnite(30);
+		}
+		// Both Hot Bullets AND Burning Hell
+		else if (selectedTier5 == 2 && selectedOverclock == 2) {
+			// Because Burning Hell reduces the Firing Period from 9.5 sec to 6.33 sec, this means that Hot Bullets gets activated after 2.66 seconds instead of 4.
+			double heatPerPellet = ((double) getDamagePerPellet()) / 2.0;
+			double RoF = getRateOfFire() / 2.0;
+			double avgHeatPerSec = (2.66 * 30 + 3.66 * (heatPerPellet * RoF + 30)) / 6.33;
+			return EnemyInformation.averageTimeToIgnite(avgHeatPerSec);
+		}
+		// Neither are equipped.
+		else {
+			return -1;
+		}
+	}
+	
 	@Override
 	public double calculateIdealBurstDPS() {
+		// damagePerBurst only accounts for damage dealt by pellets, not by any Burn DoTs applied.
 		double damagePerBurst = calculateDamagePerBurst(false);
 		double burstDuration = calculateFiringPeriod();
-		return damagePerBurst / burstDuration;
+		
+		double ignitionTime = calculateIgnitionTime();
+		if (ignitionTime > 0) {
+			double burnDoTUptime = (burstDuration - ignitionTime) / burstDuration;
+			return damagePerBurst / burstDuration + burnDoTUptime * DoTInformation.Fire_DPS;
+		}
+		else {
+			return damagePerBurst / burstDuration;
+		}
 	}
 
 	@Override
@@ -548,7 +580,7 @@ public class Minigun extends Weapon {
 		}
 		
 		if (heatPerSec > 0) {
-			System.out.println("Minigun Ignition time: " + EnemyInformation.averageTimeToIgnite(heatPerSec));
+			// TODO
 		}
 		
 		return damagePerBurst / (burstDuration + coolOffDuration);
@@ -640,7 +672,7 @@ public class Minigun extends Weapon {
 		// Armor Breaking
 		utilityScores[2] = (getArmorBreakChance() - 1) * calculateMaxNumTargets() * UtilityInformation.ArmorBreak_Utility;
 		
-		// Mod Tier 5 "Aggressive Venting" induces Fear in a 3m radius (while also igniting)
+		// Mod Tier 5 "Aggressive Venting" induces Fear in a 3m radius (while also dealing 75 Heat damage)
 		if (selectedTier5 == 0) {
 			int numGlyphidsFeared = 20 ;  // this.calculateNumGlyphidsInRadius(3);
 			utilityScores[4] = 1.0 * numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;

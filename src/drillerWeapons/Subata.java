@@ -297,7 +297,7 @@ public class Subata extends Weapon {
 		return toReturn;
 	}
 	private int getAreaDamage() {
-		// Equipping the Overclock "Explosive Reload" leaves a detonator inside enemies that does 15 Area Damage per Bullet that dealt damage to an enemy upon reloading the Subata
+		// Equipping the Overclock "Explosive Reload" leaves a detonator inside enemies that does 15 Area Damage per Bullet that deals damage to an enemy upon reloading the Subata
 		if (selectedOverclock == 4) {
 			return 15;
 		}

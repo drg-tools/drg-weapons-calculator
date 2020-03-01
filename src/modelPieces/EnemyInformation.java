@@ -244,17 +244,14 @@ public class EnemyInformation {
 		
 		int numEnemyTypes = spawnRates.length;
 		double[] igniteTemps = new double[numEnemyTypes];
-		double[] heatLossRates = new double[numEnemyTypes];
 		
 		for (int i = 0; i < numEnemyTypes; i++) {
 			igniteTemps[i] = enemyTemperatures[i][0];
-			heatLossRates[i] = enemyTemperatures[i][2];
 		}
 		
 		double avgIgniteTemp = MathUtils.vectorDotProduct(spawnRates, igniteTemps);
-		double avgHeatLossRate = MathUtils.vectorDotProduct(spawnRates, heatLossRates);
 		
-		return avgIgniteTemp / (heatPerSecond - avgHeatLossRate);
+		return avgIgniteTemp / heatPerSecond;
 	}
 	public static double averageBurnDuration() {
 		if (!verifySpawnRatesTotalIsOne()) {
@@ -293,24 +290,17 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		// Early exit: if Cold/Sec > 150, then all enemies get frozen instantly since the largest Freeze Temp is 150.
-		if (coldPerSecond <= -150) {
-			return 0;
-		}
-		
 		int numEnemyTypes = spawnRates.length;
 		double[] freezeTemps = new double[numEnemyTypes];
-		double[] heatGainRates = new double[numEnemyTypes];
 		
 		for (int i = 0; i < numEnemyTypes; i++) {
 			freezeTemps[i] = enemyTemperatures[i][3];
-			heatGainRates[i] = enemyTemperatures[i][5];
 		}
 		
 		double avgFreezeTemp = MathUtils.vectorDotProduct(spawnRates, freezeTemps);
-		double avgHeatGainRate = MathUtils.vectorDotProduct(spawnRates, heatGainRates);
 		
-		return avgFreezeTemp / (coldPerSecond + avgHeatGainRate);
+		// Negative Freeze temps divided by negative cold per seconds results in a positive number of seconds
+		return avgFreezeTemp / coldPerSecond;
 	}
 	public static double averageFreezeDuration() {
 		if (!verifySpawnRatesTotalIsOne()) {

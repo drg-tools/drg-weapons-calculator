@@ -9,6 +9,7 @@ import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.Weapon;
 
+// TODO: during a game I played, it looked like regular shots did do x2 damage to Grunts shot in the mouth, but it didn't seem to affect Mactera Spawn shot in the belly. Research how this is affected by weakpoints. 
 public class EPC_RegularShot extends Weapon {
 	
 	/****************************************************************************************
@@ -313,7 +314,7 @@ public class EPC_RegularShot extends Weapon {
 		}
 		
 		if (selectedOverclock == 3) {
-			toReturn += 5;
+			toReturn += 10;
 		}
 		
 		return toReturn;

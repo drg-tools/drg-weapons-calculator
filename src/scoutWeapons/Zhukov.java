@@ -97,13 +97,13 @@ public class Zhukov extends Weapon {
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Conductive Bullets", "More damage to targets that are in an electric field", 5, 0, false);
-		tier5[1] = new Mod("Get In, Get Out", "Temporary movement speed bonus after emptying clip", 5, 1, false);
+		tier5[1] = new Mod("Get In, Get Out", "Temporary movement speed bonus after emptying clip", 5, 1);
 		
 		overclocks = new Overclock[5];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Minimal Magazines", "By filling away unnecessary material from the magazines you've made them lighter, and that means they pop out faster when reloading. Also the rounds can move more freely increasing the max rate of fire slightly.", 0);
 		overclocks[1] = new Overclock(Overclock.classification.balanced, "Custom Casings", "Fit more of these custom rounds in each magazine but at small loss in raw damage.", 1);
 		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "After impacting terrain, these high-tech bullets convert into cryo-minelets that will super-cool anything that comes close. However they don't last forever and the rounds themselves take more space in the clip and deal less direct damage.", 2, false);
-		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Special bullets contain micro-explosives that detonate when you reload the weapon at the cost of total ammo and direct damage.", 3, false);
+		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Special bullets contain micro-explosives that detonate when you reload the weapon at the cost of total ammo and direct damage.", 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Gas Recycling", "Special hardened bullets combined with rerouting escaping gasses back into the chamber greatly increases the raw damage of the weapon but makes it more difficult to control and removes any bonus to weakpoint hits.", 4);
 	}
 	
@@ -291,6 +291,15 @@ public class Zhukov extends Weapon {
 		
 		return toReturn;
 	}
+	private int getAreaDamage() {
+		// Equipping the Overclock "Embedded Detonators" leaves a detonator inside enemies that does 5 Area Damage per Ammo (10/Bullet) that deals damage to an enemy upon reloading the Zhukovs
+		if (selectedOverclock == 3) {
+			return 10;
+		}
+		else { 
+			return 0;
+		}
+	}
 	private int getCarriedAmmo() {
 		int toReturn = carriedAmmo;
 		
@@ -397,33 +406,36 @@ public class Zhukov extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[9];
+		StatsRow[] toReturn = new StatsRow[10];
 		
 		boolean directDamageModified = selectedTier1 == 1 || selectedTier3 == 0 || (selectedOverclock > 0 && selectedOverclock < 5);
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
+		// This stat only applies to OC "Embedded Detonators"
+		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), selectedOverclock == 3);
+		
 		boolean magSizeModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2;
-		toReturn[1] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
+		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier1 == 0 || selectedTier4 == 2 || selectedOverclock == 3;
-		toReturn[2] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
+		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[3] = new StatsRow("Rate of Fire:", getRateOfFire(), selectedTier2 == 1 || selectedOverclock == 0);
+		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), selectedTier2 == 1 || selectedOverclock == 0);
 		
-		toReturn[4] = new StatsRow("Reload Time:", getReloadTime(), selectedTier2 == 2 || selectedOverclock == 0);
+		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), selectedTier2 == 2 || selectedOverclock == 0);
 		
 		String sign = "";
 		if (selectedOverclock != 4) {
 			sign = "+";
 		}
 		
-		toReturn[5] = new StatsRow("Weakpoint Bonus:", sign + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 1 || selectedOverclock == 4);
+		toReturn[6] = new StatsRow("Weakpoint Bonus:", sign + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 1 || selectedOverclock == 4);
 		
-		toReturn[6] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier3 == 1 || selectedOverclock == 4);
+		toReturn[7] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier3 == 1 || selectedOverclock == 4);
 		
-		toReturn[7] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0);
+		toReturn[8] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0);
 		
-		toReturn[8] = new StatsRow("Movespeed While Firing: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 4);
+		toReturn[9] = new StatsRow("Movespeed While Firing: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 4);
 		
 		return toReturn;
 	}
@@ -441,12 +453,12 @@ public class Zhukov extends Weapon {
 	// Single-target calculations
 	private double calculateDamagePerMagazine(boolean weakpointBonus) {
 		// Somehow "Embedded Detonators" will have to be modeled in here.
-		int effectiveMagazineSize = getMagazineSize() / 2;
+		double effectiveMagazineSize = getMagazineSize() / 2;
 		if (weakpointBonus) {
-			return (double) increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) * effectiveMagazineSize;
+			return (increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) + getAreaDamage()) * effectiveMagazineSize;
 		}
 		else {
-			return (double) getDirectDamage() * effectiveMagazineSize;
+			return (getDirectDamage() + getAreaDamage()) * effectiveMagazineSize;
 		}
 	}
 
@@ -500,7 +512,7 @@ public class Zhukov extends Weapon {
 		double effectiveMagazineSize = getMagazineSize() / 2.0;
 		// If there's an odd number carried ammo, round up since you can fire the last "odd" ammo as a full-damage shot
 		double effectiveCarriedAmmo = Math.ceil(getCarriedAmmo() / 2.0);
-		return (effectiveMagazineSize + effectiveCarriedAmmo) * getDirectDamage() * calculateMaxNumTargets();
+		return (effectiveMagazineSize + effectiveCarriedAmmo) * (getDirectDamage() + getAreaDamage()) * calculateMaxNumTargets();
 	}
 
 	@Override

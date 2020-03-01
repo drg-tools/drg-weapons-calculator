@@ -485,17 +485,7 @@ public class SMG extends Weapon {
 	}
 	
 	private double calculateBurstElectrocutionDoTDPS() {
-		/*
-			When DoTs stack, like in BL2, the formula is PelletsPerSec * DoTDuration * DoTChance * DoTDmgPerSec.
-			However, in DRG, once a DoT is applied it can only have its duration refreshed.
-		*/
-		double DoTChance = getElectrocutionDoTChance();
-		double meanBulletsFiredBeforeProc = Math.round(1.0 / DoTChance);
-		double numBulletsFiredAfterProc = getMagazineSize() - meanBulletsFiredBeforeProc;
-		double secBeforeProc = meanBulletsFiredBeforeProc / getRateOfFire();
-		double secAfterProc = numBulletsFiredAfterProc / getRateOfFire();
-		
-		return (DoTInformation.Electro_DPS * secAfterProc) / (secBeforeProc + secAfterProc);
+		return calculateRNGDoTDPSPerMagazine(getElectrocutionDoTChance(), DoTInformation.Electro_DPS, getMagazineSize());
 	}
 
 	@Override
@@ -541,9 +531,7 @@ public class SMG extends Weapon {
 	@Override
 	public double calculateAdditionalTargetDPS() {
 		if (selectedTier5 == 2) {
-			// TODO: this formula is incorrect. With high RoF, this can exceed the normal DoT DPS.
-			// Average it out to bullets/sec number of chances to apply the primary dot every second times 25% chance to apply DoT to secondary target times the DoT DPS
-			return getRateOfFire() * getElectrocutionDoTChance() * 0.25 * DoTInformation.Electro_DPS;
+			return 0.25 * calculateBurstElectrocutionDoTDPS();
 		}
 		else {
 			return 0.0;

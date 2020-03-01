@@ -12,6 +12,10 @@ public class MathUtils {
 	    return bd.doubleValue();
 	}
 	
+	public static double log2(double a) {
+		return Math.log(a) / Math.log(2);
+	}
+	
 	public static double vectorDotProduct(double[] A, double[] B) {
 		if (A.length != B.length) {
 			return -1.0;

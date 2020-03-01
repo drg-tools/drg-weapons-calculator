@@ -157,12 +157,9 @@ public class GuiController implements ActionListener {
 			currentlySelectedWeapon.buildFromCombination(calculator.getHighestAccuracyCombination());
 		}
 		*/
-		/*
-		TODO: re-add this once Utility is implemented
 		else if (e == gui.getBcmUtility()) {
 			currentlySelectedWeapon.buildFromCombination(calculator.getMostUtilityCombination());
 		}
-		*/
 		
 		
 		else if (e == gui.getExportCurrent()) {

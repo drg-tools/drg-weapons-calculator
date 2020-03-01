@@ -530,27 +530,14 @@ public class GrenadeLauncher extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		
-		/* 
-			I'm choosing to model the Burn DoT total damage as "how much damage does the Burn DoT do to the average enemy while it's still alive?"
-			times the number of targets per shot.
-		*/
 		double burnDoTTotalDamagePerEnemy = 0;
 		if (selectedTier3 == 0) {
 			
 			double heatPerGrenade = getDirectDamage() + getAreaDamage();
 			double RoF = 1 / reloadTime;
 			double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatPerGrenade, RoF);
-			double timeToKill = averageTimeToKill();
-			double timeWhileBurning = timeToKill - timeToIgnite;
-			double avgBurnDuration = EnemyInformation.averageBurnDuration();
 			
-			// Don't let this per-weapon math create a DoT that lasts longer than the default DoT duration.
-			if (timeWhileBurning > avgBurnDuration) {
-				timeWhileBurning = avgBurnDuration;
-			}
-			
-			burnDoTTotalDamagePerEnemy = timeWhileBurning * DoTInformation.Fire_DPS;
+			burnDoTTotalDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Fire_DPS);
 		}
 		
 		int numShots = 1 + getCarriedAmmo();

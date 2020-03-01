@@ -106,8 +106,8 @@ public class Autocannon extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Feedback Loop", "Increased damage when at max rate of fire", 5, 0);
-		tier5[1] = new Mod("Suppressive Fire", "Chance to scare enemies next to a bullet impact", 5, 1, false);
-		tier5[2] = new Mod("Damage Resistance At Full RoF", "Gain damage reduction when at max rate of fire", 5, 2, false);
+		tier5[1] = new Mod("Suppressive Fire", "Chance to scare enemies next to a bullet impact", 5, 1);
+		tier5[2] = new Mod("Damage Resistance At Full RoF", "Gain damage reduction when at max rate of fire", 5, 2);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Drums", "Lighter weight materials means you can carry even more ammo!", 0);
@@ -571,9 +571,19 @@ public class Autocannon extends Weapon {
 		// OC "Combat Mobility" increases Gunner's movespeed
 		utilityScores[0] = (getMovespeedWhileFiring() - MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
 		
-		// Mod Tier 5 "Damage Resist" gives 30% damage reduction
+		// Mod Tier 5 "Damage Resist" gives 30% damage reduction at max RoF
 		if (selectedTier5 == 2) {
-			utilityScores[1] = 1 / (1 - 0.3);
+			double EHPmultiplier = (1 / (1 - 0.3));
+			
+			int numBulletsRampup = getNumBulletsRampup();
+			int magSize = getMagazineSize();
+			double maxRoF = getMaxRateOfFire();
+			double timeRampingUp = numBulletsRampup / ((minRateOfFire + maxRoF) / 2.0); 
+			double timeAtMaxRoF = (magSize - numBulletsRampup) / maxRoF;
+			
+			double fullRoFUptime = timeAtMaxRoF / (timeRampingUp + timeAtMaxRoF);
+			
+			utilityScores[1] = fullRoFUptime * EHPmultiplier * UtilityInformation.DamageResist_Utility;
 		}
 		else {
 			utilityScores[1] = 0;

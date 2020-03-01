@@ -300,6 +300,47 @@ public abstract class Weapon extends Observable {
 	public abstract StatsRow[] getStats();
 	public abstract Weapon clone();
 	
+	protected double calculateRNGDoTDPSPerMagazine(double DoTProcChance, double DoTDPS, int magazineSize) {
+		/*
+		 	This method should be used whenever applying Electrocute or Neurotoxin DoTs, since they're RNG-based.
+		 	It estimates what percentage of the magazine has to be fired before a DoT gets applied, and then uses
+		 	that number to reduce the standard DPS of the DoT to effectively model what the DoT's average DPS is 
+		 	across the duration of firing the magazine.
+		 	
+			When DoTs stack, like in BL2, the formula is PelletsPerSec * DoTDuration * DoTChance * DoTDmgPerSec.
+			However, in DRG, once a DoT is applied it can only have its duration refreshed.
+			
+			Mean num bullets fired before proc = 1 / Probability
+			Median num bullets fired before proc = 1 - (1 / Log2[1 - Probability])
+			
+			Median <= Mean
+		*/
+		// double median = 1 - (1 / MathUtils.log2(1 - DoTProcChance));
+		double mean = 1.0 / DoTProcChance;
+		
+		double numBulletsFiredBeforeProc = Math.round(mean);
+		double numBulletsFiredAfterProc = magazineSize - numBulletsFiredBeforeProc;
+		double DoTUptime = numBulletsFiredAfterProc / (numBulletsFiredBeforeProc + numBulletsFiredAfterProc);
+		
+		return DoTDPS * DoTUptime;
+	}
+	
+	protected double calculateAverageDoTDamagePerEnemy(double timeBeforeProc, double averageDoTDuration, double DoTDPS) {
+		/*
+			I'm choosing to model the DoT total damage as "How much damage does the DoT do to the average enemy while it's still alive?"
+		*/
+		
+
+		double timeWhileAfflictedByDoT = averageTimeToKill() - timeBeforeProc;
+		
+		// Don't let this math create a DoT that lasts longer than the default DoT duration.
+		if (timeWhileAfflictedByDoT > averageDoTDuration) {
+			timeWhileAfflictedByDoT = averageDoTDuration;
+		}
+		
+		return timeWhileAfflictedByDoT * DoTDPS;
+	}
+	
 	protected int calculateNumGlyphidsInRadius(double radius) {
 		/*
 			This method should be used any time a projectile fired from this weapon has area-of-effect (AoE) damage in a radius.

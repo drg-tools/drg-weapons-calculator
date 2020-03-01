@@ -101,13 +101,13 @@ public class Boomstick extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Auto Reload", "Reloads automatically when unequipped for more than 5 seconds", 5, 0, false);
-		tier5[1] = new Mod("Fear The Boomstick", "Chance to scare nearby creatures whenever you shoot", 5, 1, false);
+		tier5[1] = new Mod("Fear The Boomstick", "Chance to scare nearby creatures whenever you shoot", 5, 1);
 		tier5[2] = new Mod("White Phosphorous Shells", "Convert some of the damage to fire damage", 5, 2, false);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Shells", "You can carry a few more of these compact shells in your pockets and they are a bit faster to reload with.", 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Double Barrel", "Unload both barrels at once, no regrets.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.clean, "Special Powder", "Less like gunpowder and more like rocketfuel, this mixture gives a hell of a kick that you can use to get places.", 2, false);
+		overclocks[2] = new Overclock(Overclock.classification.clean, "Special Powder", "Less like gunpowder and more like rocketfuel, this mixture gives a hell of a kick that you can use to get places.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.clean, "Stuffed Shells", "With a bit of patience and some luck you can get one more pellet and a few more grains of powder into each shell without affecting the gun's performance or losing an eye in the process.", 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "Specially shaped shells result in a tighter shot but the number of pellets is reduced.", 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Jumbo Shells", "These large shells pack a lot more charge for a big increase in damage but they also take up more space so total ammo is limited.", 5);
