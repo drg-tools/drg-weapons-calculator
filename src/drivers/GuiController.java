@@ -1,10 +1,18 @@
 package drivers;
 
+import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -21,7 +29,6 @@ import gunnerWeapons.Autocannon;
 import gunnerWeapons.BurstPistol;
 import gunnerWeapons.Minigun;
 import gunnerWeapons.Revolver;
-import modelPieces.EnemyInformation;
 import modelPieces.Weapon;
 import scoutWeapons.Boomstick;
 import scoutWeapons.Classic_FocusShot;
@@ -187,7 +194,20 @@ public class GuiController implements ActionListener {
 			}
 		}
 		
-		
+		else if (e == gui.getMiscScreenshot()) {
+			chooseFolder();
+			String weaponPackage = currentlySelectedWeapon.getClass().getPackageName();
+			String weaponClassName = currentlySelectedWeapon.getClass().getSimpleName();
+			String filePath = calculator.getCSVFolderPath() + "\\" + weaponPackage + "_" + weaponClassName + "_" + currentlySelectedWeapon.getCombination() +".png";
+			
+			// Sourced from https://stackoverflow.com/a/44019372
+			BufferedImage screenshot = gui.getScreenshot();
+			try {
+				ImageIO.write(screenshot, "png", new File(filePath));
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
 		else if (e == gui.getMiscExport()) {
 			String combination = currentlySelectedWeapon.getCombination();
 			JTextField output = new JTextField(combination);
@@ -197,6 +217,45 @@ public class GuiController implements ActionListener {
 		else if (e == gui.getMiscLoad()) {
 			String newCombination = JOptionPane.showInputDialog(null, "Enter the comination you want to load:");
 			currentlySelectedWeapon.buildFromCombination(newCombination);
+		}
+		else if (e == gui.getMiscSuggestion()) {
+			openWebpage("https://github.com/phg49389/drg-weapons-calculator/issues");
+		}
+		else if (e == gui.getMiscFAQ()) {
+			gui.bringFAQtoForeground();
+		}
+		else if (e == gui.getMiscGlossary()) {
+			gui.bringGlossaryToForeground();
+		}
+	}
+	
+	// These methods sourced from https://stackoverflow.com/a/10967469
+	private static boolean openWebpage(URI uri) {
+	    Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+	    if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+	        try {
+	            desktop.browse(uri);
+	            return true;
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	    }
+	    return false;
+	}
+	private static boolean openWebpage(URL url) {
+	    try {
+	        return openWebpage(url.toURI());
+	    } catch (URISyntaxException e) {
+	        e.printStackTrace();
+	    }
+	    return false;
+	}
+	private static boolean openWebpage(String url) {
+		try {
+			return openWebpage(new URL(url));
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			return false;
 		}
 	}
 }
