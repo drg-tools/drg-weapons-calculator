@@ -106,6 +106,12 @@ public class GuiController implements ActionListener {
 		
 		Weapon currentlySelectedWeapon;
 		int classIndex = gui.getCurrentClassIndex();
+		
+		// Because FAQ and Glossary have been added to the ClassTabs object, have these commands disabled when FAQ or Glossary is at the front.
+		if (classIndex > 3) {
+			return;
+		}
+		
 		int weaponIndex = gui.getCurrentWeaponIndex();
 		if (classIndex == 0) {
 			currentlySelectedWeapon = drillerWeapons[weaponIndex];
@@ -220,12 +226,6 @@ public class GuiController implements ActionListener {
 		}
 		else if (e == gui.getMiscSuggestion()) {
 			openWebpage("https://github.com/phg49389/drg-weapons-calculator/issues");
-		}
-		else if (e == gui.getMiscFAQ()) {
-			gui.bringFAQtoForeground();
-		}
-		else if (e == gui.getMiscGlossary()) {
-			gui.bringGlossaryToForeground();
 		}
 	}
 	

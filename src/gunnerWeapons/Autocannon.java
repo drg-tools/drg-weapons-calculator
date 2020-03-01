@@ -60,7 +60,7 @@ public class Autocannon extends Weapon {
 		carriedAmmo = 440;
 		movespeedWhileFiring = 0.5;
 		minRateOfFire = 1.0;
-		maxRateOfFire = 5.5;
+		maxRateOfFire = 5.5;  // Before 5.5 was listed in-game this was measured to be 5.25
 		numBulletsFiredDuringRampup = 10;
 		reloadTime = 5.0;  // seconds
 		baseSpread = 1.0;  // equivalent to its accuracy
@@ -377,13 +377,13 @@ public class Autocannon extends Weapon {
 	private double getMaxRateOfFire() {
 		double toReturn = maxRateOfFire;
 		if (selectedTier2 == 1) {
-			toReturn += 1;
+			toReturn += 1;  // Before being listed in-game, this used to be a +15% modifier
 		}
 		if (selectedTier3 == 0) {
-			toReturn += 2;
+			toReturn += 2;  // Before being listed in-game, this used to be a +35% modifier
 		}
 		if (selectedOverclock == 4) {
-			toReturn -= 1.5;
+			toReturn -= 1.5;  // Before being listed in-game, this used to be a -25% modifier
 		}
 		return toReturn;
 	}
