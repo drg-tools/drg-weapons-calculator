@@ -111,7 +111,7 @@ public class GrenadeLauncher extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Pack Rat", "You found a way to pack away two more rounds somewhere", 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Rounds", "Smaller and lighter rounds means more rounds in the pocket at the cost of the explosion's effective radius and damage", 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "RJ250 Compound", "Trade raw damage for the ability to use explosions to move yourself and your teammates. (~33% self-damage)", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Fat Boy", "Big and deadly and dirty. Too bad plutonium is so heavy that you can only take a few rounds with you. And remember to take care with the fallout.", 4, false);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Fat Boy", "Big and deadly and dirty. Too bad plutonium is so heavy that you can only take a few rounds with you. And remember to take care with the fallout.", 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Hyper Propellant", "New super-high velocity projectiles trade explosive range for raw damage in a tight area. The larger rounds also limit the total amount you can carry.", 5);
 	}
 	
@@ -321,7 +321,6 @@ public class GrenadeLauncher extends Weapon {
 			toReturn *= 4;
 		}
 		
-		// TODO: Incendiary Compound's negative has been implemented, but not its DoT and resultant damage
 		if (selectedTier3 == 0) {
 			toReturn /= 2.0;
 		}
@@ -466,7 +465,7 @@ public class GrenadeLauncher extends Weapon {
 	public double calculateIdealBurstDPS() {
 		// This method will only calculate single-target DPS, but the additional target DPS should reflect how well this scales.
 		double damagePerGrenade = getDirectDamage() + getAreaDamage();
-		double rawDPS = damagePerGrenade / reloadTime;
+		double totalDPS = damagePerGrenade / reloadTime;
 		
 		if (selectedTier3 == 0) {
 			// Incendiary Compound
@@ -475,41 +474,61 @@ public class GrenadeLauncher extends Weapon {
 			double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatPerGrenade, RoF);
 			double burnDoTUptime = (reloadTime - timeToIgnite) / reloadTime;
 			
-			return rawDPS + burnDoTUptime * DoTInformation.Fire_DPS;
+			totalDPS += burnDoTUptime * DoTInformation.Fire_DPS;
 		}
-		else {
-			return rawDPS;
+		if (selectedOverclock == 4) {
+			// Fat Boy OC
+			double FBdmgPerTick = 25;
+			double FBticksPerSec = 1/0.9;
+			double fatBoyDPS = FBdmgPerTick * FBticksPerSec;
+			// double FBduration = 15;
+			// double FBradius = 8.5;
+			totalDPS += fatBoyDPS;
 		}
+		
+		return totalDPS;
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
 		// This is virtually identical to Ideal Burst DPS, but instead of reducing the Burn DoT DPS it's just modeled as if the enemy is permanently on fire.
 		double damagePerGrenade = getDirectDamage() + getAreaDamage();
-		double rawDPS = damagePerGrenade / reloadTime;
+		double totalDPS = damagePerGrenade / reloadTime;
 		
 		if (selectedTier3 == 0) {
 			// Incendiary Compound
-			return rawDPS + DoTInformation.Fire_DPS;
+			totalDPS += DoTInformation.Fire_DPS;
 		}
-		else {
-			return rawDPS;
+		if (selectedOverclock == 4) {
+			// Fat Boy OC
+			double FBdmgPerTick = 25;
+			double FBticksPerSec = 1/0.9;
+			double fatBoyDPS = FBdmgPerTick * FBticksPerSec;
+			totalDPS += fatBoyDPS;
 		}
+		
+		return totalDPS;
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
 		// Again, virtually identical. The key difference is weakpoint increases.
 		double damagePerGrenade = increaseBulletDamageForWeakpoints(getDirectDamage()) + getAreaDamage();
-		double rawDPS = damagePerGrenade / reloadTime;
+		double totalDPS = damagePerGrenade / reloadTime;
 		
 		if (selectedTier3 == 0) {
 			// Incendiary Compound
-			return rawDPS + DoTInformation.Fire_DPS;
+			totalDPS += DoTInformation.Fire_DPS;
 		}
-		else {
-			return rawDPS;
+		if (selectedOverclock == 4) {
+			// Fat Boy OC
+			double FBdmgPerTick = 25;
+			double FBticksPerSec = 1/0.9;
+			double fatBoyDPS = FBdmgPerTick * FBticksPerSec;
+			totalDPS += fatBoyDPS;
 		}
+		
+		return totalDPS;
 	}
 
 	@Override
@@ -520,19 +539,24 @@ public class GrenadeLauncher extends Weapon {
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
+		double totalDPS = getAreaDamage() / reloadTime;
 		if (selectedTier3 == 0) {
-			return getAreaDamage() / reloadTime + DoTInformation.Fire_DPS;
+			totalDPS += DoTInformation.Fire_DPS;
 		}
-		else {
-			return getAreaDamage() / reloadTime;
+		if (selectedOverclock == 4) {
+			double FBdmgPerTick = 25;
+			double FBticksPerSec = 1/0.9;
+			double fatBoyDPS = FBdmgPerTick * FBticksPerSec;
+			totalDPS += fatBoyDPS;
 		}
+		return totalDPS;
 	}
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
 		double burnDoTTotalDamagePerEnemy = 0;
+		double radiationDoTTotalDamagePerEnemy = 0;
 		if (selectedTier3 == 0) {
-			
 			double heatPerGrenade = getDirectDamage() + getAreaDamage();
 			double RoF = 1 / reloadTime;
 			double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatPerGrenade, RoF);
@@ -540,8 +564,16 @@ public class GrenadeLauncher extends Weapon {
 			burnDoTTotalDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Fire_DPS);
 		}
 		
+		if (selectedOverclock == 4) {
+			double FBdmgPerTick = 25;
+			double FBticksPerSec = 1/0.9;
+			double fatBoyDPS = FBdmgPerTick * FBticksPerSec;
+			// I'm guessing that it takes about 4 seconds for enemies to move out of the 8.5m radius field
+			radiationDoTTotalDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, 4, fatBoyDPS);
+		}
+		
 		int numShots = 1 + getCarriedAmmo();
-		return numShots * (getDirectDamage() + (getAreaDamage() + burnDoTTotalDamagePerEnemy) * calculateMaxNumTargets());
+		return numShots * (getDirectDamage() + (getAreaDamage() + burnDoTTotalDamagePerEnemy + radiationDoTTotalDamagePerEnemy) * calculateMaxNumTargets());
 	}
 
 	@Override

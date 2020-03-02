@@ -605,8 +605,8 @@ public class EPC_ChargeShot extends Weapon {
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		// Because the Charged Shots have to be aimed manually, Accuracy isn't applicable.
+		return sustainedWeakpointDPS();
 	}
 
 	// Multi-target calculations
@@ -670,8 +670,8 @@ public class EPC_ChargeShot extends Weapon {
 
 	@Override
 	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		return 0;
+		// Manually aimed; return -1
+		return -1.0;
 	}
 
 	@Override
