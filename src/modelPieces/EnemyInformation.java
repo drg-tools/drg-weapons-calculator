@@ -195,6 +195,16 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
+		/*
+		double numerator = 25;
+		double predictedSpawnRate;
+		for (int i = 0; i < enemyHealthPools.length; i++) {
+			predictedSpawnRate = numerator / enemyHealthPools[i];
+			System.out.println("Health Pool: " + enemyHealthPools[i] + " Estimated Spawn Rate: " + spawnRates[i] + " Predicted Spawn Rate: " + predictedSpawnRate);
+		}
+ 		*/
+		
+		
 		double toReturn = MathUtils.vectorDotProduct(spawnRates, enemyHealthPools);
 		// System.out.println("Average health of an enemy: " + toReturn);
 		return toReturn;

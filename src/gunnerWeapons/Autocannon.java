@@ -32,8 +32,6 @@ public class Autocannon extends Weapon {
 	private double baseSpread;
 	private double armorBreakChance;
 	
-	private int numberOfTargets;
-	
 	/****************************************************************************************
 	* Constructors
 	****************************************************************************************/
@@ -65,8 +63,6 @@ public class Autocannon extends Weapon {
 		reloadTime = 5.0;  // seconds
 		baseSpread = 1.0;  // equivalent to its accuracy
 		armorBreakChance = 1.0;
-		
-		numberOfTargets = 1;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -115,7 +111,7 @@ public class Autocannon extends Weapon {
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Carpet Bomber", "A few tweaks here and there and the autocannon can now shoot HE rounds! Direct damage is lower but the increased splash damage and range lets you saturate and area like no other weapon can.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Combat Mobility", "A slight reduction in the power of the rounds permits using a smaller chamber and a light-weight backplate with in turn allows extensive weight redistribution. The end result is a weapon that still packs a punch but is easier to handle on the move.", 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Big Bertha", "Extensive tweaks give a huge bump in raw damage at the cost of ammo capacity and fire rate.", 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neurotoxin Payload", "Channel your inner war criminal by mixing some neurotoxin into the explosive compound. The rounds deal less direct damage and splash damage, but affected bugs move slower and take lots of damage over time.", 5, false);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neurotoxin Payload", "Channel your inner war criminal by mixing some neurotoxin into the explosive compound. The rounds deal less direct damage and splash damage, but affected bugs move slower and take lots of damage over time.", 5);
 	}
 	
 	@Override
@@ -459,13 +455,13 @@ public class Autocannon extends Weapon {
 		return true;
 	}
 	
-	private double calculateDamagePerMagazine(boolean weakpointBonus) {
+	private double calculateDamagePerMagazine(boolean weakpointBonus, int numTargets) {
 		double damagePerBullet;
 		if (weakpointBonus) {
-			damagePerBullet = increaseBulletDamageForWeakpoints(getDirectDamage()) + numberOfTargets * getAreaDamage();
+			damagePerBullet = increaseBulletDamageForWeakpoints(getDirectDamage()) + numTargets * getAreaDamage();
 		}
 		else {
-			damagePerBullet = getDirectDamage() + numberOfTargets * getAreaDamage();
+			damagePerBullet = getDirectDamage() + numTargets * getAreaDamage();
 		}
 		double magSize = (double) getMagazineSize();
 		double damageMultiplier = 1.0;
@@ -487,19 +483,38 @@ public class Autocannon extends Weapon {
 			I THINK that they're equivalent, but I'll do it the long way to be sure.
 		*/
 		double timeToFireMagazine = ((double) getMagazineSize()) / getAverageRateOfFire();
-		return calculateDamagePerMagazine(false) / timeToFireMagazine;
+		double burstDPS = calculateDamagePerMagazine(false, 1) / timeToFireMagazine;
+		
+		if (selectedOverclock == 5) {
+			// Neurotoxin Payload has a 20% chance to inflict the DoT
+			burstDPS += calculateRNGDoTDPSPerMagazine(0.2, DoTInformation.Neuro_DPS, getMagazineSize());
+		}
+		
+		return burstDPS;
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getAverageRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
+		double sustainedDPS = calculateDamagePerMagazine(false, 1) / timeToFireMagazineAndReload;
+		
+		if (selectedOverclock == 5) {
+			sustainedDPS += DoTInformation.Neuro_DPS;
+		}
+		
+		return sustainedDPS;
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getAverageRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
+		double sustainedWeakpointDPS = calculateDamagePerMagazine(true, 1) / timeToFireMagazineAndReload;
+		
+		if (selectedOverclock == 5) {
+			sustainedWeakpointDPS += DoTInformation.Neuro_DPS;
+		}
+		
+		return sustainedWeakpointDPS;
 	}
 
 	@Override
@@ -511,27 +526,41 @@ public class Autocannon extends Weapon {
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		int oldNumTargets = numberOfTargets;
-		numberOfTargets = 3;
-		double threeTargetsDPS = calculateIdealSustainedDPS();
-		numberOfTargets = 2;
-		double twoTargetsDPS = calculateIdealSustainedDPS();
-		numberOfTargets = oldNumTargets;
-		return threeTargetsDPS - twoTargetsDPS;
+		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getAverageRateOfFire()) + getReloadTime();
+		double magSize = (double) getMagazineSize();
+		double damageMultiplier = 1.0;
+		if (selectedTier5 == 0) {
+			double numBulletsRampup = (double) getNumBulletsRampup();
+			damageMultiplier = (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+		}
+		double areaDamagePerMag = getAreaDamage() * magSize * damageMultiplier;
+		
+		double sustainedAdditionalDPS = areaDamagePerMag / timeToFireMagazineAndReload;
+		
+		if (selectedOverclock == 5) {
+			sustainedAdditionalDPS += DoTInformation.Neuro_DPS;
+		}
+		
+		return sustainedAdditionalDPS;
 	}
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		int oldNumTargets = numberOfTargets;
+		int numTargets = calculateMaxNumTargets();
+		double damagePerMagazine = calculateDamagePerMagazine(false, numTargets);
+		double numberOfMagazines = numMagazines(getCarriedAmmo(), getMagazineSize());
 		
-		// Set how many targets you expect will be hit per bullet here.
-		numberOfTargets = calculateMaxNumTargets();
-		double damagePerMagazine = calculateDamagePerMagazine(false);
-		// Don't forget to add the magazine that you start out with, in addition to the carried ammo
-		double numberOfMagazines = ((double) getCarriedAmmo()) / ((double) getMagazineSize()) + 1.0;
+		double neurotoxinDoTTotalDamage = 0;
+		if (selectedOverclock == 5) {
+			double timeBeforeNeuroProc = Math.round(1.0 / 0.2) / getAverageRateOfFire();
+			double neurotoxinDoTTotalDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeNeuroProc, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
+			
+			double estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
+			
+			neurotoxinDoTTotalDamage = neurotoxinDoTTotalDamagePerEnemy * estimatedNumEnemiesKilled;
+		}
 		
-		numberOfTargets = oldNumTargets;
-		return damagePerMagazine * numberOfMagazines;
+		return damagePerMagazine * numberOfMagazines + neurotoxinDoTTotalDamage;
 	}
 
 	@Override

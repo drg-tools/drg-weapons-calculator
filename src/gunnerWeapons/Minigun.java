@@ -412,7 +412,7 @@ public class Minigun extends Weapon {
 	}
 	private int getNumberOfRicochets() {
 		if (selectedOverclock == 5) {
-			// I don't know if the penetration bullet will ricochet too. For now, I'll assume that it does.
+			// TODO: the riccochet uses up the pentration -- change this.
 			if (selectedTier3 == 2) {
 				return 2;
 			}

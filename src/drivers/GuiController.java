@@ -225,7 +225,7 @@ public class GuiController implements ActionListener {
 			currentlySelectedWeapon.buildFromCombination(newCombination);
 		}
 		else if (e == gui.getMiscSuggestion()) {
-			openWebpage("https://github.com/phg49389/drg-weapons-calculator/issues");
+			openWebpage("https://github.com/phg49389/drg-weapons-calculator/issues/new/choose");
 		}
 	}
 	
@@ -255,7 +255,7 @@ public class GuiController implements ActionListener {
 			return openWebpage(new URL(url));
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
-			return false;
 		}
+		return false;
 	}
 }
