@@ -16,6 +16,8 @@ package modelPieces;
 	Zhukov
 */
 
+// TODO: add a way to model Rectangular crosshairs, like Autocannon, Boomstick, and Zhukovs.
+
 public class AccuracyEstimator {
 	private double targetRadius;
 	private double targetDistance;
