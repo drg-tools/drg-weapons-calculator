@@ -105,7 +105,7 @@ public class Classic_FocusShot extends Weapon {
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Hitting Where it Hurts", "Focused shots stagger the target", 5, 0);
 		tier5[1] = new Mod("Precision Terror", "Killing your target with a focused shot to the weakspot will send nearby creatures fleeing with terror!", 5, 1);
-		tier5[2] = new Mod("Killing Machine", "You can perform a lightning-fast reload right after killing an enemy.", 5, 2, false);  // Supposedly reduces manual reload time by 0.75 sec after a kill?
+		tier5[2] = new Mod("Killing Machine", "You can perform a lightning-fast reload right after killing an enemy.", 5, 2);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Hoverclock", "Your movement slows down for a few seconds while using focus mode in the air.", 0);
@@ -352,11 +352,23 @@ public class Classic_FocusShot extends Weapon {
 	private double getReloadTime() {
 		double toReturn = reloadTime;
 		
+		if (selectedTier5 == 2) {
+			// "Killing Machine": if you manually reload within 1 second after a kill, the reload time is reduced by approximately 0.75 seconds.
+			// Because Sustained DPS uses this ReloadTime method, I'm choosing to use the Ideal Burst DPS as a quick-and-dirty estimate how often a kill gets scored 
+			// so that this doesn't infinitely loop.
+			double killingMachineManualReloadWindow = 1.0;
+			double killingMachineReloadReduction = 0.75;
+			double burstTTK = EnemyInformation.averageHealthPool() / calculateIdealBurstDPS();
+			// Don't let a high Burst DPS increase this beyond a 100% uptime
+			double killingMachineUptimeCoefficient = Math.min(killingMachineManualReloadWindow / burstTTK, 1.0);
+			double effectiveReloadReduction = killingMachineUptimeCoefficient * killingMachineReloadReduction;
+			
+			toReturn -= effectiveReloadReduction;
+		}
+		
 		if (selectedOverclock == 1) {
 			toReturn -= 0.2;
 		}
-		
-		// TODO: implement T5 "Killing Machine" reload time reduction
 		
 		return toReturn;
 	}
@@ -455,7 +467,7 @@ public class Classic_FocusShot extends Weapon {
 		
 		toReturn[7] = new StatsRow("Rate of Fire:", getRateOfFire(), selectedTier2 == 0 || selectedOverclock == 5);
 		
-		toReturn[8] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 1);
+		toReturn[8] = new StatsRow("Reload Time:", getReloadTime(), selectedTier5 == 2 || selectedOverclock == 1);
 		
 		toReturn[9] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 1);
 		

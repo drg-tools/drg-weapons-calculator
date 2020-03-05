@@ -170,6 +170,11 @@ public class EnemyInformation {
 		return sum == 1.0;
 	}
 	
+	// This gets used in Gunner/Minigun/Mod/5/Cold as the Grave
+	public static double dotProductWithSpawnRates(double[] A) {
+		return MathUtils.vectorDotProduct(A, spawnRates);
+	}
+	
 	public static double probabilityBulletWillHitWeakpoint() {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
@@ -246,7 +251,6 @@ public class EnemyInformation {
 		
 		return averageTimeToIgnite(heatPerShot * RoF);
 	}
-	
 	public static double averageTimeToIgnite(double heatPerSecond) {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
@@ -284,6 +288,23 @@ public class EnemyInformation {
 		double avgHeatLossRate = MathUtils.vectorDotProduct(spawnRates, heatLossRates);
 		
 		return (avgIgniteTemp - avgDouseTemp) / avgHeatLossRate;
+	}
+	
+	// This method is currently only used by Gunner/Minigun/Mod/5/Aggressive Venting in maxDamage()
+	// However, this might be able to be adapted to Engineer/GrenadeLauncher/Mod/3/Incendiary Compound, and for sure Scout's Cryo Grenade if it ever gets added.
+	public static double percentageEnemiesIgnitedBySingleBurstOfHeat(double heatPerBurst) {
+		if (!verifySpawnRatesTotalIsOne()) {
+			return -1.0;
+		}
+		
+		double sum = 0;
+		for (int i = 0; i < spawnRates.length; i++) {
+			if (enemyTemperatures[i][0] < heatPerBurst) {
+				sum += spawnRates[i];
+			}
+		}
+		
+		return sum;
 	}
 	
 	// Cold per shot should be a negative number to indicate that the enemy's temperature is being decreased

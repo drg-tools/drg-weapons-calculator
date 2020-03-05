@@ -55,20 +55,20 @@ public class Minigun extends Weapon {
 		
 		// Base stats, before mods or overclocks alter them:
 		damagePerPellet = 10;
-		stunChancePerPellet = 0.3;  // 30%
-		stunDuration = 1;  // second
+		stunChancePerPellet = 0.3;
+		stunDuration = 1;
 		maxAmmo = 2400; // equal to 1200 pellets
 		maxHeat = 9.5;
-		heatPerSecond = 1.0;  // max heat divided by 258 ammo times 2 to count pellets. This may need to change to 256? The testing was a little ambiguous...
-		coolingRate = 1.5; // heat dissipated per second; translates to 6 seconds of cooling off from max heat (without overheating)
+		heatPerSecond = 1.0;
+		coolingRate = 1.5;
 		rateOfFire = 30;  // equal to 15 pellets/sec
-		spinupTime = 0.7;  // seconds before minigun starts firing
+		spinupTime = 0.7;
 		spindownTime = 3;  // seconds for the stability to decay from fully stabilized to no stability at all
 		movespeedWhileFiring = 0.5;
-		baseSpread = 1.0;  // effectively its accuracy
-		armorBreakChance = 1.0; // it is just as effective at breaking armor per pellet as any other gun
+		baseSpread = 1.0;
+		armorBreakChance = 1.0;
 		bulletsFiredTilMaxStability = 50;  // equals 25 pellets
-		cooldownAfterOverheat = 11;  // seconds
+		cooldownAfterOverheat = 11;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -107,14 +107,14 @@ public class Minigun extends Weapon {
 		tier4[2] = new Mod("Magnetic Bearings", "Barrels keep spinning for a longer time after firing, keeping the gun stable for longer.", 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Aggressive Venting", "Burn everything in a radius when the minigun overheats", 5, 0, false);
-		tier5[1] = new Mod("Cold As The Grave", "Every kill cools the gun", 5, 1, false);
-		tier5[2] = new Mod("Hot Bullets", "Rounds fired when the heat meter is red will burn the target", 5, 2, false);
+		tier5[0] = new Mod("Aggressive Venting", "Burn everything in a radius when the minigun overheats", 5, 0);
+		tier5[1] = new Mod("Cold As The Grave", "Every kill cools the gun", 5, 1);
+		tier5[2] = new Mod("Hot Bullets", "Rounds fired when the heat meter is red will burn the target", 5, 2);
 		
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "A Little More Oomph!", "Get the most out of each shot without compromising any of the gun's systems.", 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Thinned Drum Walls", "Stuff more bullets into the ammo drum by thinning the material in non-critical areas.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Burning Hell", "Turn the area just infront of the minigun into an even worse place by venting all the combustion gasses forward. However, it does overheat rather quickly.", 2, false);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Burning Hell", "Turn the area just infront of the minigun into an even worse place by venting all the combustion gasses forward. However, it does overheat rather quickly.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Compact Feed Mechanism", "More space left for ammo at the cost of a reduced rate of fire.", 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Exhaust Vectoring", "Increases damage at a cost to accuracy.", 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Bullet Hell", "Special bullets that ricochet off all surfaces and even enemies going on to hit nearby targets. However they deal less damage and are less accurate overall.", 5);
@@ -412,13 +412,7 @@ public class Minigun extends Weapon {
 	}
 	private int getNumberOfRicochets() {
 		if (selectedOverclock == 5) {
-			// TODO: the riccochet uses up the pentration -- change this.
-			if (selectedTier3 == 2) {
-				return 2;
-			}
-			else {
-				return 1;
-			}
+			return 1;
 		}
 		else {
 			return 0;
@@ -426,7 +420,56 @@ public class Minigun extends Weapon {
 	}
 	
 	private double calculateFiringPeriod() {
-		return maxHeat / getHeatPerSecond();
+		double firingPeriod = maxHeat / getHeatPerSecond();
+		
+		// Cold as the Grave removes a set amount of Heat from the Minigun's meter every time that the Minigun gets the killing blow on an enemy.
+		// TODO: Although the way it's implemented avoids the infinite loop of methods calling each other, I'm not satisfied with how CATG is modeled currently.
+		if (selectedTier5 == 1) {
+			// Amount of Heat removed per kill, depending on enemy size.
+			double smallEnemy = 0.1;
+			double mediumEnemy = 0.5;
+			double largeEnemy = 1.0;
+			double [] heatRemovalVector = {
+				smallEnemy,  // Glyphid Swarmer
+				mediumEnemy,  // Glyphid Grunt
+				mediumEnemy,  // Glyphid Grunt Guard
+				mediumEnemy,  // Glyphid Grunt Slasher
+				largeEnemy,  // Glyphid Praetorian
+				smallEnemy,  // Glyphid Exploder
+				largeEnemy,  // Glyphid Bulk Detonator
+				mediumEnemy,  // Glyphid Webspitter
+				mediumEnemy,  // Glyphid Acidspitter
+				largeEnemy,  // Glyphid Menace
+				largeEnemy,  // Glyphid Warden
+				largeEnemy,  // Glyphid Oppressor
+				largeEnemy,  // Q'ronar Shellback
+				mediumEnemy,  // Mactera Spawn
+				mediumEnemy,  // Mactera Grabber
+				largeEnemy,  // Mactera Bomber
+				largeEnemy,  // Naedocyte Breeder
+				largeEnemy,  // Glyphid Brood Nexus
+				largeEnemy,  // Spitball Infector
+				smallEnemy   // Cave Leech
+			};
+			double averageHeatRemovedOnKill = EnemyInformation.dotProductWithSpawnRates(heatRemovalVector);
+			
+			// This is a quick-and-dirty way to guess what the Ideal Burst DPS will be when it's all said and done without calculating Firing Period and causing an infinite loop.
+			double estimatedBurstDPS = getDamagePerPellet() * getRateOfFire() / 2.0;
+			if (selectedTier4 == 0) {
+				// Slight overestimation
+				estimatedBurstDPS *= 1.15;
+			}
+			if (selectedOverclock == 2) {
+				// Minor overestimation
+				estimatedBurstDPS += DoTInformation.Fire_DPS;
+			}
+			double estimatedBurstTTK = EnemyInformation.averageHealthPool() / estimatedBurstDPS;
+			double estimatedNumKillsDuringDefaultPeriod = firingPeriod / estimatedBurstTTK;
+			
+			firingPeriod += estimatedNumKillsDuringDefaultPeriod * averageHeatRemovedOnKill;
+		}
+		
+		return firingPeriod;
 	}
 	private double calculateMaxNumPelletsFiredWithoutOverheating() {
 		// Strangely, the RoF does NOT affect the heat/sec gain?
@@ -457,7 +500,8 @@ public class Minigun extends Weapon {
 		
 		toReturn[6] = new StatsRow("Heat Per Second While Firing:", getHeatPerSecond(), selectedOverclock == 2);
 		
-		toReturn[7] = new StatsRow("Max Num Pellets Fired Per Burst:", calculateMaxNumPelletsFiredWithoutOverheating(), selectedOverclock == 2 || selectedTier1 == 1 || selectedOverclock == 3);
+		boolean pelletsPerBurstModified = selectedTier5 == 1 || selectedOverclock == 2 || selectedTier1 == 1 || selectedOverclock == 3;
+		toReturn[7] = new StatsRow("Max Num Pellets Fired Per Burst:", calculateMaxNumPelletsFiredWithoutOverheating(), pelletsPerBurstModified);
 		
 		toReturn[8] = new StatsRow("Cooling Rate:", getCoolingRate(), selectedTier1 == 0 || selectedOverclock == 1);
 		
@@ -528,7 +572,7 @@ public class Minigun extends Weapon {
 		}
 		// Burning Hell only
 		else if (selectedTier5 != 2 && selectedOverclock == 2) {
-			// Burning Hell looks like it burns everything within 4m in a 20 degree arc in front of you at a rate of 40 heat/sec
+			// Burning Hell looks like it burns everything within 4m in a 20 degree arc in front of you at a rate of 30 heat/sec
 			return EnemyInformation.averageTimeToIgnite(30);
 		}
 		// Both Hot Bullets AND Burning Hell
@@ -550,15 +594,16 @@ public class Minigun extends Weapon {
 		// damagePerBurst only accounts for damage dealt by pellets, not by any Burn DoTs applied.
 		double damagePerBurst = calculateDamagePerBurst(false);
 		double burstDuration = calculateFiringPeriod();
+		double burstDPS = damagePerBurst / burstDuration;
 		
-		double ignitionTime = calculateIgnitionTime();
-		if (ignitionTime > 0) {
+		double fireDoTBurstDPS = 0;
+		if (selectedTier5 == 2 || selectedOverclock == 2) {
+			double ignitionTime = calculateIgnitionTime();
 			double burnDoTUptime = (burstDuration - ignitionTime) / burstDuration;
-			return damagePerBurst / burstDuration + burnDoTUptime * DoTInformation.Fire_DPS;
+			fireDoTBurstDPS = burnDoTUptime * DoTInformation.Fire_DPS;
 		}
-		else {
-			return damagePerBurst / burstDuration;
-		}
+		
+		return burstDPS + fireDoTBurstDPS;
 	}
 
 	@Override
@@ -566,24 +611,13 @@ public class Minigun extends Weapon {
 		double damagePerBurst = calculateDamagePerBurst(false);
 		double burstDuration = calculateFiringPeriod();
 		double coolOffDuration = calculateCooldownPeriod();
+		double sustainedDPS = damagePerBurst / (burstDuration + coolOffDuration);
 		
-		double heatPerSec = 0;
-		if (selectedTier5 == 2) {
-			// Hot Bullets
-			double heatPerPellet = ((double) getDamagePerPellet()) / 2.0;
-			double RoF = getRateOfFire() / 2.0;
-			heatPerSec += heatPerPellet * RoF;
-		}
-		if (selectedOverclock == 2) {
-			// Burning Hell
-			heatPerSec += 40;
+		if (selectedTier5 == 2 || selectedOverclock == 2) {
+			sustainedDPS += DoTInformation.Fire_DPS;
 		}
 		
-		if (heatPerSec > 0) {
-			// TODO
-		}
-		
-		return damagePerBurst / (burstDuration + coolOffDuration);
+		return sustainedDPS;
 	}
 	
 	@Override
@@ -591,7 +625,13 @@ public class Minigun extends Weapon {
 		double damagePerBurst = calculateDamagePerBurst(true);
 		double burstDuration = calculateFiringPeriod();
 		double coolOffDuration = calculateCooldownPeriod();
-		return damagePerBurst / (burstDuration + coolOffDuration);
+		double sustainedWeakpointDPS = damagePerBurst / (burstDuration + coolOffDuration);
+		
+		if (selectedTier5 == 2 || selectedOverclock == 2) {
+			sustainedWeakpointDPS += DoTInformation.Fire_DPS;
+		}
+		
+		return sustainedWeakpointDPS;
 	}
 
 	@Override
@@ -603,28 +643,70 @@ public class Minigun extends Weapon {
 	@Override
 	public double calculateAdditionalTargetDPS() {
 		if (selectedTier3 == 2 || selectedOverclock == 5) {
-			// This assumes that the penetrations don't have their damage reduced.
+			// This assumes that the penetrations and ricochets don't have their damage reduced.
 			return calculateIdealSustainedDPS();
 		}
 		else {
 			return 0;
 		}
 	}
-	
-	private double calculateMaxSingleTargetDamage() {
-		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
-		double numberOfBursts = (double) getMaxAmmo() / (2.0 * numPelletsFiredBeforeOverheat);
-		return numberOfBursts * calculateDamagePerBurst(false);
-	}
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		return (double) calculateMaxNumTargets() * calculateMaxSingleTargetDamage();
+		int numTargets = calculateMaxNumTargets();
+		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
+		double numberOfBursts = (double) getMaxAmmo() / (2.0 * numPelletsFiredBeforeOverheat);
+		double totalDamage = numberOfBursts * calculateDamagePerBurst(false) * numTargets;
+		
+		double fireDoTTotalDamage = 0;
+		double timeBeforeFireProc, fireDoTDamagePerEnemy, estimatedNumEnemiesKilled;
+		// Both Hot Bullets and Burning Hell are penalized with -50% DoT duration
+		// Because of how Hot Bullets' ignition time is calculated, it returns (4 + the ignition time). As a result, it would end up subtracting from the total damage.
+		if (selectedTier5 == 2 && selectedOverclock != 2) {
+			timeBeforeFireProc = calculateIgnitionTime() - 4;
+			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, 0.5 * EnemyInformation.averageBurnDuration(), DoTInformation.Fire_DPS);
+			
+			// Because Hot Bullets only starts igniting enemies after 4 seconds, reduce this damage by the uptime coefficient.
+			fireDoTDamagePerEnemy *= (5.5/9.5);
+			
+			estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
+			
+			fireDoTTotalDamage += fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
+		}
+		// Burning Hell, on the other hand, works great with this. Even with Hot Bullets stacked on top of it, it doesn't do negative damage.
+		else if (selectedOverclock == 2) {
+			timeBeforeFireProc = calculateIgnitionTime();
+			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, 0.5 * EnemyInformation.averageBurnDuration(), DoTInformation.Fire_DPS);
+			
+			estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
+			
+			fireDoTTotalDamage += fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
+		}
+		
+		// Aggressive Venting does one burst of 75 Heat Damage in a 3m radius around the Gunner
+		if (selectedTier5 == 0) {
+			// I'm choosing to model Aggressive Venting as Fire DoT max damage without affecting DPS stats, since the 11 sec cooldown penalty would TANK all of those stats.
+			// Additionally, I'm choosing to not combine its burst of 75 Heat Damage with the Heat/sec dealt by Hot Bullets or Burning Hell. It gets its own section, all to itself.
+			double percentageOfEnemiesIgnitedByAV = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(75);
+			double numGlyphidsHitByHeatBurst = 20;  // this.calculateNumGlyphidsInRadius(3);
+			int numTimesAVcanTrigger = (int) Math.floor(numberOfBursts);
+			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, EnemyInformation.averageBurnDuration(), DoTInformation.Fire_DPS);
+			
+			fireDoTTotalDamage += numTimesAVcanTrigger * (percentageOfEnemiesIgnitedByAV * numGlyphidsHitByHeatBurst) * fireDoTDamagePerEnemy;
+		}
+		
+		return totalDamage + fireDoTTotalDamage;
 	}
 
 	@Override
 	public int calculateMaxNumTargets() {
-		return 1 + getNumberOfPenetrations() + getNumberOfRicochets();
+		// Because a ricochet from Bullet Hell consumes the penetration from Blowthrough Rounds, they don't stack together (unless BT Rounds gets buffed to do more than 1 penetration).
+		if (selectedTier3 == 2 || selectedOverclock == 5) {
+			return 2;
+		}
+		else {
+			return 1;
+		}
 	}
 
 	@Override
@@ -672,10 +754,10 @@ public class Minigun extends Weapon {
 		// Armor Breaking
 		utilityScores[2] = (getArmorBreakChance() - 1) * calculateMaxNumTargets() * UtilityInformation.ArmorBreak_Utility;
 		
-		// Mod Tier 5 "Aggressive Venting" induces Fear in a 3m radius (while also dealing 75 Heat damage)
+		// Mod Tier 5 "Aggressive Venting" induces Fear in a 3m radius (while also dealing 75 Heat Damage)
 		if (selectedTier5 == 0) {
-			int numGlyphidsFeared = 20 ;  // this.calculateNumGlyphidsInRadius(3);
-			utilityScores[4] = 1.0 * numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			int numGlyphidsFeared = 20;  // this.calculateNumGlyphidsInRadius(3);
+			utilityScores[4] = numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;
@@ -686,5 +768,4 @@ public class Minigun extends Weapon {
 		
 		return MathUtils.sum(utilityScores);
 	}
-
 }

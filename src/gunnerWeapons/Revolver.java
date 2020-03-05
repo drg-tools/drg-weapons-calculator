@@ -569,8 +569,14 @@ public class Revolver extends Weapon {
 		else if (selectedOverclock == 5 && selectedTier3 != 0 && selectedTier3 != 1) {
 			// "Magic Bullets" mean that any bullet that MISSES the primary target will try to automatically riccochet to a nearby enemy.
 			// This can be modeled by returning (1 - Accuracy) * Ideal Sustained DPS
-			// TODO: this reduces the Neurotoxin DPS too, maybe change it?
-			return (1.0 - estimatedAccuracy()) * calculateIdealSustainedDPS();
+			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+			sustainedAdditionalDPS = (1.0 - estimatedAccuracy()) * calculateDamagePerMagazine(false, 1) / timeToFireMagazineAndReload;
+			
+			if (selectedTier5 == 1) {
+				sustainedAdditionalDPS += DoTInformation.Neuro_DPS;
+			}
+			
+			return sustainedAdditionalDPS;
 		}
 		
 		// "Magic Bullets" + Explosive

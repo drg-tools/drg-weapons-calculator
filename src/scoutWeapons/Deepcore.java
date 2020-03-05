@@ -99,7 +99,7 @@ public class Deepcore extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Battle Frenzy", "Move faster for a short time after killing an enemy", 5, 0);
-		tier5[1] = new Mod("Battle Cool", "Killing an enemy increases accuracy", 5, 1, false);  // According to wiki, sets spreadPerShot = 0 for 1.5 seconds after a kill?
+		tier5[1] = new Mod("Battle Cool", "Killing an enemy increases accuracy", 5, 1);
 		tier5[2] = new Mod("Stun", "Increased chance to stun the target on a weakpoint hit", 5, 2);
 		
 		overclocks = new Overclock[7];
@@ -399,6 +399,33 @@ public class Deepcore extends Weapon {
 		
 		return toReturn;
 	}
+	private double getSpreadPerShot() {
+		if (selectedTier5 == 1) {
+			// According to the Wiki, Battle Cool sets spreadPerShot = 0 for 1.5 seconds after a kill. This effectively lets the Spread decrease during that period due to the constant Spread Recovery.
+			// I'm choosing to model this as an averaged reduction on Spread per Shot across the whole magazine instead of trying to model it as the On-Kill effect that it truly is. 
+			double battleCoolDuration = 1.5;
+			double avgTTK = averageTimeToKill();
+			double battleCoolUptimeCoefficient = battleCoolDuration / avgTTK;
+			
+			double magSize = getMagazineSize();
+			double numBulletsPerMagAffected = Math.round(magSize * battleCoolUptimeCoefficient);
+			double numBulletsUnaffected = magSize - numBulletsPerMagAffected;
+			
+			// This could be written simpler by not using the term multiplied by zero, but I'm choosing to write it explicitly to show how the averaging gets done.
+			return (0.0 * numBulletsPerMagAffected + 1.0 * numBulletsUnaffected) / magSize;
+		}
+		else {
+			return 1.0;
+		}
+	}
+	private double getSpreadRecoverySpeed() {
+		if (selectedOverclock == 5) {
+			return 9.0;
+		}
+		else {
+			return 1.0;
+		}
+	}
 	private double getRecoil() {
 		double toReturn = recoil;
 		
@@ -421,7 +448,7 @@ public class Deepcore extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[11];
+		StatsRow[] toReturn = new StatsRow[13];
 		
 		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 ||  selectedOverclock == 5 || selectedOverclock == 6;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
@@ -442,12 +469,16 @@ public class Deepcore extends Weapon {
 		
 		toReturn[7] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier1 == 0);
 		
+		toReturn[8] = new StatsRow("Spread Per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier5 == 1);
+		
+		toReturn[9] = new StatsRow("Spread Recovery:", convertDoubleToPercentage(getSpreadRecoverySpeed()), selectedOverclock == 5);
+		
 		boolean recoilModified = selectedTier3 == 0 || selectedOverclock == 0 || selectedOverclock == 3 || selectedOverclock == 5;
-		toReturn[8] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified);
+		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified);
 		
-		toReturn[9] = new StatsRow("Weakpoint Stun Chance:", convertDoubleToPercentage(getWeakpointStunChance()), selectedTier5 == 2);
+		toReturn[11] = new StatsRow("Weakpoint Stun Chance:", convertDoubleToPercentage(getWeakpointStunChance()), selectedTier5 == 2);
 		
-		toReturn[10] = new StatsRow("Stun Duration:", stunDuration, false);
+		toReturn[12] = new StatsRow("Stun Duration:", stunDuration, false);
 		
 		return toReturn;
 	}

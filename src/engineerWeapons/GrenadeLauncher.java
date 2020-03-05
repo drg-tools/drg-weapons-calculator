@@ -13,7 +13,6 @@ import modelPieces.Weapon;
 import utilities.MathUtils;
 
 // TODO: While Incendiary Compound has been modeled, I think it deserves to be refactored. It feels sloppy how it turned out.
-// TODO: Model OC "Fat Boy" Radiation DoT
 
 public class GrenadeLauncher extends Weapon {
 	

@@ -553,11 +553,11 @@ public class Autocannon extends Weapon {
 		double neurotoxinDoTTotalDamage = 0;
 		if (selectedOverclock == 5) {
 			double timeBeforeNeuroProc = Math.round(1.0 / 0.2) / getAverageRateOfFire();
-			double neurotoxinDoTTotalDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeNeuroProc, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
+			double neurotoxinDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeNeuroProc, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
 			
 			double estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
 			
-			neurotoxinDoTTotalDamage = neurotoxinDoTTotalDamagePerEnemy * estimatedNumEnemiesKilled;
+			neurotoxinDoTTotalDamage = neurotoxinDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		}
 		
 		return damagePerMagazine * numberOfMagazines + neurotoxinDoTTotalDamage;
