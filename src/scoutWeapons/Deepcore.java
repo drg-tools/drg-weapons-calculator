@@ -109,7 +109,7 @@ public class Deepcore extends Weapon {
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Overclocked Firing Mechanism", "More bullets faster and it kicks like a mule.", 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Bullets of Mercy", "Put suffering bugs out of their misery with a damage bonus against afflicted enemies.", 4, false);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "AI Stability Engine", "It's like it knows what you are going to do before you do it, compensating for all recoil and bullet spread but the system requires a lower rate of fire and the modified firing chamber reduces overall damage.", 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Electrifying Reload", "Embedded capacitors have a chance to electrocute targets from the inside when you reload. Probability of electrocution increases with the number of hits. However all that tech reduces raw damage of the bullets and takes up some space in the magazines.", 6, false);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Electrifying Reload", "Embedded capacitors have a chance to electrocute targets from the inside when you reload. Probability of electrocution increases with the number of hits. However all that tech reduces raw damage of the bullets and takes up some space in the magazines.", 6);
 	}
 	
 	@Override
@@ -475,19 +475,41 @@ public class Deepcore extends Weapon {
 	@Override
 	public double calculateIdealBurstDPS() {
 		double timeToFireMagazine = ((double) getMagazineSize()) / getRateOfFire();
-		return calculateDamagePerMagazine(false) / timeToFireMagazine;
+		double burstDPS = calculateDamagePerMagazine(false) / timeToFireMagazine;
+		
+		if (selectedOverclock == 6) {
+			// This is modeled as if the magazine has just finished reloading, so there's a few seconds of Electrocute DoT right at the beginning of firing the magazine.
+			double electroDoTUptimeCoefficient = Math.min((DoTInformation.Electro_SecsDuration - getReloadTime()) / timeToFireMagazine, 1);
+			burstDPS += electroDoTUptimeCoefficient * DoTInformation.Electro_DPS;
+		}
+		
+		return burstDPS;
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
+		double sustainedDPS = calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
+		
+		if (selectedOverclock == 6) {
+			double electroDoTUptimeCoefficient = Math.min(DoTInformation.Electro_SecsDuration / timeToFireMagazineAndReload, 1);
+			sustainedDPS += electroDoTUptimeCoefficient * DoTInformation.Electro_DPS;
+		}
+		
+		return sustainedDPS;
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
+		double sustainedWeakpointDPS = calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
+		
+		if (selectedOverclock == 6) {
+			double electroDoTUptimeCoefficient = Math.min(DoTInformation.Electro_SecsDuration / timeToFireMagazineAndReload, 1);
+			sustainedWeakpointDPS += electroDoTUptimeCoefficient * DoTInformation.Electro_DPS;
+		}
+		
+		return sustainedWeakpointDPS;
 	}
 
 	@Override
@@ -498,18 +520,28 @@ public class Deepcore extends Weapon {
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		// Deepcore can't hit any additional targets
+		// Deepcore can't hit any additional targets in a single shot
 		return 0;
 	}
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		return (getMagazineSize() + getCarriedAmmo()) * getDirectDamage();
+		double totalDamage = (getMagazineSize() + getCarriedAmmo()) * getDirectDamage();
+		
+		double electrocutionDoTTotalDamage = 0;
+		if (selectedOverclock == 6) {
+			double electrocuteDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Electro_SecsDuration, DoTInformation.Electro_DPS);
+			double estimatedNumEnemiesKilled = calculateFiringDuration() / averageTimeToKill();
+			
+			electrocutionDoTTotalDamage = electrocuteDoTDamagePerEnemy * estimatedNumEnemiesKilled;
+		}
+		
+		return (getMagazineSize() + getCarriedAmmo()) * getDirectDamage() + electrocutionDoTTotalDamage;
 	}
 
 	@Override
 	public int calculateMaxNumTargets() {
-		// Deepcore can't hit any additional targets
+		// Deepcore can't hit any additional targets in a single shot
 		return 1;
 	}
 
@@ -557,8 +589,9 @@ public class Deepcore extends Weapon {
 		
 		// OC "Electrifying Reload" = 100% chance to electrocute on reload
 		if (selectedOverclock == 6) {
-			int numEnemiesHitPerMagazine = 4;  // This is just a guess; not really tested.
-			utilityScores[3] = numEnemiesHitPerMagazine * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+			// This formula is entirely made up. It's designed to increase number electrocuted with Mag Size, and decrease it with Rate of Fire.
+			int numEnemiesElectrocutedPerMagazine = (int) Math.ceil(2.0 * getMagazineSize() / getRateOfFire());
+			utilityScores[3] = numEnemiesElectrocutedPerMagazine * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
 		}
 		else {
 			utilityScores[3] = 0;

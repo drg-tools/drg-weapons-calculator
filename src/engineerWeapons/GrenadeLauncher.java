@@ -396,7 +396,7 @@ public class GrenadeLauncher extends Weapon {
 		int toReturn = stunDuration;
 		
 		if (selectedTier4 == 2) {
-			toReturn += 2;
+			toReturn += 3;
 		}
 
 		return toReturn;
@@ -554,26 +554,32 @@ public class GrenadeLauncher extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		double burnDoTTotalDamagePerEnemy = 0;
-		double radiationDoTTotalDamagePerEnemy = 0;
+		int numTargets = calculateMaxNumTargets();
+		double estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
+		
+		// Now that I have Incendiary Compound modeled "correctly", I'm very dissatisfied with it. TODO: look over this math again later, see if something is messed up.
+		double burnDoTTotalDamage = 0;
 		if (selectedTier3 == 0) {
 			double heatPerGrenade = getDirectDamage() + getAreaDamage();
 			double RoF = 1 / reloadTime;
 			double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatPerGrenade, RoF);
 			
-			burnDoTTotalDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Fire_DPS);
+			double burnDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Fire_DPS);
+			burnDoTTotalDamage = burnDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		}
 		
+		double radiationDoTTotalDamage = 0;
 		if (selectedOverclock == 4) {
 			double FBdmgPerTick = 25;
 			double FBticksPerSec = 1/0.9;
 			double fatBoyDPS = FBdmgPerTick * FBticksPerSec;
 			// I'm guessing that it takes about 4 seconds for enemies to move out of the 8.5m radius field
-			radiationDoTTotalDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, 4, fatBoyDPS);
+			double radiationDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, 4, fatBoyDPS);
+			radiationDoTTotalDamage = radiationDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		}
 		
 		int numShots = 1 + getCarriedAmmo();
-		return numShots * (getDirectDamage() + (getAreaDamage() + burnDoTTotalDamagePerEnemy + radiationDoTTotalDamagePerEnemy) * calculateMaxNumTargets());
+		return numShots * (getDirectDamage() + (getAreaDamage()) * calculateMaxNumTargets()) + burnDoTTotalDamage + radiationDoTTotalDamage;
 	}
 
 	@Override

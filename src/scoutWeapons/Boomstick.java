@@ -3,6 +3,7 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
@@ -102,7 +103,7 @@ public class Boomstick extends Weapon {
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Auto Reload", "Reloads automatically when unequipped for more than 5 seconds", 5, 0, false);
 		tier5[1] = new Mod("Fear The Boomstick", "Chance to scare nearby creatures whenever you shoot", 5, 1);
-		tier5[2] = new Mod("White Phosphorous Shells", "Convert some of the damage to fire damage", 5, 2, false);
+		tier5[2] = new Mod("White Phosphorous Shells", "Convert some of the damage to fire damage", 5, 2);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Shells", "You can carry a few more of these compact shells in your pockets and they are a bit faster to reload with.", 0);
@@ -476,44 +477,92 @@ public class Boomstick extends Weapon {
 			return (double) damagePerShot * getMagazineSize();
 		}
 	}
+	
+	private double calculateHeatPerSec() {
+		// This method gets used by the Tier 5 Mod "White Phosphorous Shells"
+		// 50% of Direct Damage from the pellets gets added on as Heat Damage.
+		// TODO: this should be reduced by Accuracy eventually.
+		double heatDamagePerShot = (getDamagePerPellet() * getNumberOfPelletsPerShot()) * 0.5;
+		if (getMagazineSize() > 1) {
+			return heatDamagePerShot * getRateOfFire();
+		}
+		else {
+			return heatDamagePerShot / getReloadTime();
+		}
+	}
 
 	@Override
 	public double calculateIdealBurstDPS() {
 		int magSize = getMagazineSize();
 		
+		double burstDPS = 0;
 		if (magSize > 1) {
 			double timeToFireMagazine = ((double) getMagazineSize()) / getRateOfFire();
-			return calculateDamagePerMagazine(false) / timeToFireMagazine;
+			burstDPS = calculateDamagePerMagazine(false) / timeToFireMagazine;
+			
+			if (selectedTier5 == 2) {
+				double heatPerSec = calculateHeatPerSec();
+				double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatPerSec);
+				double fireDoTUptimeCoefficient = (timeToFireMagazine - timeToIgnite) / timeToFireMagazine;
+				
+				burstDPS += fireDoTUptimeCoefficient * DoTInformation.Fire_DPS;
+			}
 		}
 		else {
-			return calculateDamagePerMagazine(false) / getReloadTime();
+			burstDPS = calculateDamagePerMagazine(false) / getReloadTime();
+			
+			// They way it's currently modeled, any time the WPS mod and Double Barrel OC are equipped simultaneously, then the Reload Time doesn't affect the Fire DoT Uptime.
+			if (selectedTier5 == 2) {
+				double heatPerSec = calculateHeatPerSec();
+				double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatPerSec);
+				double reloadTime = getReloadTime();
+				double fireDoTUptimeCoefficient = (reloadTime - timeToIgnite) / reloadTime;
+				
+				burstDPS += fireDoTUptimeCoefficient * DoTInformation.Fire_DPS;
+			}
 		}
+		
+		return burstDPS;
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
 		int magSize = getMagazineSize();
+		double sustainedDPS = 0;
 		
 		if (magSize > 1) {
 			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-			return calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
+			sustainedDPS += calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
 		}
 		else {
-			return calculateDamagePerMagazine(false) / getReloadTime();
+			sustainedDPS += calculateDamagePerMagazine(false) / getReloadTime();
 		}
+		
+		if (selectedTier5 == 2) {
+			sustainedDPS += DoTInformation.Fire_DPS;
+		}
+		
+		return sustainedDPS;
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
 		int magSize = getMagazineSize();
+		double sustainedWeakpointDPS = 0;
 		
 		if (magSize > 1) {
 			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-			return calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
+			sustainedWeakpointDPS += calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
 		}
 		else {
-			return calculateDamagePerMagazine(true) / getReloadTime();
+			sustainedWeakpointDPS += calculateDamagePerMagazine(true) / getReloadTime();
 		}
+		
+		if (selectedTier5 == 2) {
+			sustainedWeakpointDPS += DoTInformation.Fire_DPS;
+		}
+		
+		return sustainedWeakpointDPS;
 	}
 
 	@Override
@@ -532,21 +581,52 @@ public class Boomstick extends Weapon {
 		else {
 			secondaryDamage = getBlastwaveDamage();
 		}
+		
+		double additionalDPS = 0;
 		if (magSize > 1) {
 			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-			return secondaryDamage / timeToFireMagazineAndReload;
+			additionalDPS += secondaryDamage / timeToFireMagazineAndReload;
 		}
 		else {
-			return secondaryDamage / getReloadTime();
+			additionalDPS += secondaryDamage / getReloadTime();
 		}
+		
+		// Penetrations can ignite, too
+		if (selectedTier4 == 0 && selectedTier5 == 2) {
+			additionalDPS += DoTInformation.Fire_DPS;
+		}
+		
+		return additionalDPS;
 	}
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
+		int gruntsHitByPellets;
+		if (selectedOverclock == 4) {
+			// Since the base spread gets reduced by 35%, assume that each shot's pellets can only hit one grunt without blowthrough.
+			gruntsHitByPellets = 1;
+		}
+		else {
+			// If Shaped Shells is not selected, then assume the pellets are wide enough to hit 2 grunts.
+			gruntsHitByPellets = 2;
+		}
+		int directDamagePerShot = getDamagePerPellet() * getNumberOfPelletsPerShot() * (calculateMaxNumTargets() / gruntsHitByPellets);
 		// The frontal blastwave is a 20 degree isosceles triangle, 4m height; 1.41m base. 4 grunts can be hit in a 1-2-1 stack.
 		int gruntsHitByBlastwave = 4;
-		int damagePerShot = getDamagePerPellet() * getNumberOfPelletsPerShot() + gruntsHitByBlastwave * getBlastwaveDamage();
-		return (getMagazineSize() + getCarriedAmmo()) * damagePerShot * calculateMaxNumTargets();
+		int blastwaveDamagePerShot = gruntsHitByBlastwave * getBlastwaveDamage();
+		double totalDamage = (getMagazineSize() + getCarriedAmmo()) * (directDamagePerShot + blastwaveDamagePerShot);
+		
+		double fireDoTTotalDamage = 0;
+		if (selectedTier5 == 2) {
+			double timeBeforeIgnite = EnemyInformation.averageTimeToIgnite(calculateHeatPerSec());
+			double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Fire_DPS);
+			
+			double estimatedNumEnemiesKilled = calculateMaxNumTargets() * (calculateFiringDuration() / averageTimeToKill());
+			
+			fireDoTTotalDamage = fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
+		}
+		
+		return totalDamage + fireDoTTotalDamage;
 	}
 
 	@Override

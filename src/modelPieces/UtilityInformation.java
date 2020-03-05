@@ -92,7 +92,8 @@ public class UtilityInformation {
 			Glacial Strata - Glyphid Grunt, Grunt Guard, Grunt Slasher, and Praetorian
 	*/
 	public static double Cold_Utility = 0.5;  // It appears that the slow from Cold damage increases as their Cold Meter fills up, from 0% slow at no Cold to 99% slowed right before frozen.
-	public static double Frozen_Utility = 2;  // Not only are Frozen enemies "stunned" but they also take x3 damage (without getting Weakpoint Bonuses)
+	public static double Frozen_Utility = 2.5;  // Not only are Frozen enemies "stunned" but they also take x3 damage (without getting Weakpoint Bonuses)
+	public static double Frozen_Damage_Multiplier = 3;
 	
 	/*
 		Electric Damage

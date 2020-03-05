@@ -111,7 +111,7 @@ public class BurstPistol extends Weapon {
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "More damage on average but it's a bit inconsistent.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Compact Mags", "You can carry even more ammo but the rate of fire needs to be toned back to avoid a jam and please take more care while reloading.", 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Experimental Rounds", "A new shape to the bullet delivers a lot more damage but it's odd size means fewer rounds in the clip and a bit less ammo overall.", 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Electro Minelets", "After impacting terrain, these high-tech bullets convert in to electro-minelets that will electrocute anything unfortunate enough to come close. However they don't last forever and the rounds themselves take more space in the clip and deal less direct damage.", 5, false);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Electro Minelets", "After impacting terrain, these high-tech bullets convert in to electro-minelets that will electrocute anything unfortunate enough to come close. However they don't last forever and the rounds themselves take more space in the clip and deal less direct damage.", 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Micro Fletchettes", "Convert the BRT to fire small flechettes instead of slugs. Increases overall ammo and clip size as well as reducing recoil but at the cost of pure damage.", 6);
 	}
 	
@@ -529,17 +529,35 @@ public class BurstPistol extends Weapon {
 
 	@Override
 	public double calculateIdealBurstDPS() {
-		return calculateDamagePerMagazine(false) / calculateTimeToFireMagazine();
+		double timetoFireMag = calculateTimeToFireMagazine();
+		double rawBurstDPS = calculateDamagePerMagazine(false) / timetoFireMag;
+		
+		double electroBurstDPS = 0;
+		if (selectedOverclock == 5) {
+			// Because the Electro Minelets don't arm for 1 second, the Burst DPS needs to be reduced by an uptime coefficient
+			double electroMinesUptimeCoefficient = (timetoFireMag - 1) / timetoFireMag;
+			electroBurstDPS = electroMinesUptimeCoefficient * DoTInformation.Electro_DPS;
+		}
+		
+		return rawBurstDPS + electroBurstDPS;
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		return calculateDamagePerMagazine(false) / (calculateTimeToFireMagazine() + getReloadTime());
+		double electroSustainedDPS = 0;
+		if (selectedOverclock == 5) {
+			electroSustainedDPS = DoTInformation.Electro_DPS;
+		}
+		return calculateDamagePerMagazine(false) / (calculateTimeToFireMagazine() + getReloadTime()) + electroSustainedDPS;
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		return calculateDamagePerMagazine(true) / (calculateTimeToFireMagazine() + getReloadTime());
+		double electroSustainedDPS = 0;
+		if (selectedOverclock == 5) {
+			electroSustainedDPS = DoTInformation.Electro_DPS;
+		}
+		return calculateDamagePerMagazine(true) / (calculateTimeToFireMagazine() + getReloadTime()) + electroSustainedDPS;
 	}
 
 	@Override
@@ -550,20 +568,37 @@ public class BurstPistol extends Weapon {
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		// TODO: Until "Electro Minelets" gets implemented, this weapon can only hit one target at a time.
-		return 0;
+		if (selectedOverclock == 5) {
+			return DoTInformation.Electro_DPS;
+		}
+		else {
+			return 0;
+		}
 	}
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		double numberOfMagazines = ((double) getCarriedAmmo() / (double) getMagazineSize()) + 1.0;
-		return numberOfMagazines * calculateDamagePerMagazine(false);
+		double numberOfMagazines = numMagazines(getCarriedAmmo(), getMagazineSize());
+		double totalDamage = numberOfMagazines * calculateDamagePerMagazine(false);
+		
+		if (selectedOverclock == 5) {
+			double accuracy = 0.85;  // TODO
+			int numBulletsThatMiss = (int) Math.ceil((1 - accuracy) * (getCarriedAmmo() + getMagazineSize()));
+			// Electro Minelets only apply a 2 second DoT, instead of the full 4 seconds like other mods/OCs.
+			totalDamage += numBulletsThatMiss * DoTInformation.Electro_DPS * (0.5 * DoTInformation.Electro_SecsDuration);
+		}
+		
+		return totalDamage;
 	}
 
 	@Override
 	public int calculateMaxNumTargets() {
-		// Until "Electro Minelets" gets implemented, this weapon can only hit one target at a time.
-		return 1;
+		if (selectedOverclock == 5) {
+			return 8;  // calculateNumGlyphidsInRadius(1.5);
+		}
+		else {
+			return 1;
+		}
 	}
 
 	@Override
@@ -598,14 +633,11 @@ public class BurstPistol extends Weapon {
 		// Since only the bullets get the armor break bonus, this doesn't get multiplied by max num targets since the bullets don't have Blowthrough
 		utilityScores[2] = (getArmorBreakChance() - 1.0) * UtilityInformation.ArmorBreak_Utility;
 		
-		double accuracy = 0.95;  // TODO: estimatedAccuracy();
-		
 		// OC "Electro Minelets" = 100% Electrocute Chance, but only on bullets that miss... maybe (1.0 - Accuracy)?
 		if (selectedOverclock == 5) {
 			// Electro Minelets arm in 1 second, detonate on any enemies that come within ~1.5m, and then explode after 3 seconds. 100% chance to apply Electrocute for 2 sec.
-			// TODO: model the delay for the minelets to arm.
 			int numGlyphidsInMineletRadius = 8;  // calculateNumGlyphidsInRadius(1.5);
-			utilityScores[3] = (1 - accuracy) * numGlyphidsInMineletRadius * (0.5 * DoTInformation.Electro_SecsDuration) * UtilityInformation.Electrocute_Slow_Utility;
+			utilityScores[3] = numGlyphidsInMineletRadius * (0.5 * DoTInformation.Electro_SecsDuration) * UtilityInformation.Electrocute_Slow_Utility;
 		}
 		else {
 			utilityScores[3] = 0;
@@ -613,7 +645,7 @@ public class BurstPistol extends Weapon {
 		
 		// Mod Tier 5 "Burst Stun" = 100% chance for 3 sec stun
 		if (selectedTier5 == 1) {
-			utilityScores[5] = accuracy * getBurstStunDuration() * UtilityInformation.Stun_Utility;
+			utilityScores[5] = getBurstStunDuration() * UtilityInformation.Stun_Utility;
 		}
 		else {
 			utilityScores[5] = 0;

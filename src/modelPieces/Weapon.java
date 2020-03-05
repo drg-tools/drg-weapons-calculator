@@ -31,9 +31,9 @@ public abstract class Weapon extends Observable {
 	protected Overclock[] overclocks;
 	protected int selectedOverclock;
 	
-	// Mobility, Damage Resist, Armor Break, Slow, Fear, Stun
+	// Mobility, Damage Resist, Armor Break, Slow, Fear, Stun, Freeze
 	// Set them all to zero to start, then override values in child objects as necessary.
-	protected double[] utilityScores = {0,0,0,0,0,0};
+	protected double[] utilityScores = {0,0,0,0,0,0,0};
 	
 	protected double[] baselineCalculatedStats;
 	private AoEVisualizer illustration = null;
@@ -484,6 +484,7 @@ public abstract class Weapon extends Observable {
 		toReturn[3] = new StatsRow("Slow:", utilityScores[3], false);
 		toReturn[4] = new StatsRow("Fear:", utilityScores[4], false);
 		toReturn[5] = new StatsRow("Stun:", utilityScores[5], false);
+		toReturn[6] = new StatsRow("Freeze:", utilityScores[6], false);
 		
 		return toReturn;
 	}

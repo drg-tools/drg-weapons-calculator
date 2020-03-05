@@ -112,7 +112,7 @@ public class Classic_FocusShot extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Minimal Clips", "Make space for more ammo and speed up reloads by getting rid of dead weight on the clips.", 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Active Stability System", "Focus without slowing down but the power drain from the coils lowers the power of the focused shots.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Hipster", "A rebalancing of weight distribution, enlarged vents and a reshaped grip result in a rifle that is more controllable when hip-firing in quick succession but at the cost of pure damage output.", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Electrocuting Focus Shots", "Embedded capacitors in a copper core carry the electric charge from the EM coils used for focus shots and will electrocute the target at the cost of a reduced focus shot damage bonus.", 4, false);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Electrocuting Focus Shots", "Embedded capacitors in a copper core carry the electric charge from the EM coils used for focus shots and will electrocute the target at the cost of a reduced focus shot damage bonus.", 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Supercooling Chamber", "Take the M1000'S focus mode to the extreme by supercooling the rounds before firing to improve their acceleration through the coils, but the extra coolant in the clips limits how much ammo you can bring.", 5);
 	}
 	
@@ -493,33 +493,38 @@ public class Classic_FocusShot extends Weapon {
 	@Override
 	public double calculateIdealBurstDPS() {
 		double timeToFireMagazine = ((double) getMagazineSize()) / getRateOfFire();
-		double dps = calculateDamagePerMagazine(false) / timeToFireMagazine;
+		double burstDPS = calculateDamagePerMagazine(false) / timeToFireMagazine;
 		
 		if (selectedOverclock == 4) {
-			return dps + DoTInformation.Electro_DPS;
+			// Because they get Electrocuted immediately, it has 100% uptime.
+			burstDPS += DoTInformation.Electro_DPS;
 		}
-		else {
-			return dps;
-		}
+		
+		return burstDPS;
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		double dps = calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
+		double sustainedDPS = calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
 		
 		if (selectedOverclock == 4) {
-			return dps + DoTInformation.Electro_DPS;
+			sustainedDPS += DoTInformation.Electro_DPS;
 		}
-		else {
-			return dps;
-		}
+		
+		return sustainedDPS;
 	}
 
 	@Override
 	public double sustainedWeakpointDPS() {
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
+		double sustainedWeakpointDPS = calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
+		
+		if (selectedOverclock == 4) {
+			sustainedWeakpointDPS += DoTInformation.Electro_DPS;
+		}
+		
+		return sustainedWeakpointDPS;
 	}
 
 	@Override
@@ -542,19 +547,18 @@ public class Classic_FocusShot extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		double directDamageDealt = calculateMaxNumTargets() * (getMagazineSize() + getCarriedAmmo()) * getDirectDamage() * getFocusedShotMultiplier();
+		double totalDamageDealt = calculateMaxNumTargets() * (getMagazineSize() + getCarriedAmmo()) * getDirectDamage() * getFocusedShotMultiplier();
 		
+		double electrocuteDoTTotalDamage = 0;
 		if (selectedOverclock == 4) {
-			// Because Electrocute DoT will be refreshed instead of stacked, this block of code will estimate how many shots of the whole ammo pool apply a new DoT.
-			// Functionally, this is basically asking how many enemies get DoTs on them, which is equivalent to how many enemies are expected to be killed with the carried ammo
-			double avgShotsToKillEnemy = Math.ceil(EnemyInformation.averageHealthPool() / (getDirectDamage() * getFocusedShotMultiplier()));
-			int avgNumEnemiesAfflictedWithDoT = (int) Math.ceil((getMagazineSize() + getCarriedAmmo()) / avgShotsToKillEnemy);
-			double electrocuteDoTDamageDealt = calculateMaxNumTargets() * avgNumEnemiesAfflictedWithDoT * DoTInformation.Electro_DPS * DoTInformation.Electro_SecsDuration;
-			return directDamageDealt + electrocuteDoTDamageDealt;
+			double electrocuteDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Electro_SecsDuration, DoTInformation.Electro_DPS);
+			
+			double estimatedNumEnemiesKilled = calculateMaxNumTargets() * (calculateFiringDuration() / averageTimeToKill());
+			
+			electrocuteDoTTotalDamage = electrocuteDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		}
-		else {
-			return directDamageDealt;
-		}
+		
+		return totalDamageDealt + electrocuteDoTTotalDamage;
 	}
 
 	@Override
@@ -572,16 +576,7 @@ public class Classic_FocusShot extends Weapon {
 
 	@Override
 	public double averageTimeToKill() {
-		double effectiveDPS;
-		
-		if (selectedOverclock == 4) {
-			effectiveDPS = sustainedWeakpointDPS() + DoTInformation.Electro_DPS;
-		}
-		else {
-			effectiveDPS = sustainedWeakpointDPS();
-		}
-		
-		return EnemyInformation.averageHealthPool() / effectiveDPS;
+		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
 	}
 
 	@Override

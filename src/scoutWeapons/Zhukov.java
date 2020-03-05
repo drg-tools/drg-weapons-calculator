@@ -102,7 +102,7 @@ public class Zhukov extends Weapon {
 		overclocks = new Overclock[5];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Minimal Magazines", "By filling away unnecessary material from the magazines you've made them lighter, and that means they pop out faster when reloading. Also the rounds can move more freely increasing the max rate of fire slightly.", 0);
 		overclocks[1] = new Overclock(Overclock.classification.balanced, "Custom Casings", "Fit more of these custom rounds in each magazine but at small loss in raw damage.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "After impacting terrain, these high-tech bullets convert into cryo-minelets that will super-cool anything that comes close. However they don't last forever and the rounds themselves take more space in the clip and deal less direct damage.", 2, false);
+		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "After impacting terrain, these high-tech bullets convert into cryo-minelets that will super-cool anything that comes close. However they don't last forever and the rounds themselves take more space in the clip and deal less direct damage.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Special bullets contain micro-explosives that detonate when you reload the weapon at the cost of total ammo and direct damage.", 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Gas Recycling", "Special hardened bullets combined with rerouting escaping gasses back into the chamber greatly increases the raw damage of the weapon but makes it more difficult to control and removes any bonus to weakpoint hits.", 4);
 	}
@@ -450,15 +450,31 @@ public class Zhukov extends Weapon {
 		return false;
 	}
 	
+	private double calculateAvgNumBulletsNeededToFreeze() {
+		// Minelets do 8 Cold Damage upon detonation, but they have to take 1 second to arm first.
+		// While Frozen, bullets do x3 Direct Damage.
+		double effectiveRoF = getRateOfFire() / 2.0;
+		double timeToFreeze = EnemyInformation.averageTimeToFreeze(-8, effectiveRoF);
+		return Math.ceil(timeToFreeze * effectiveRoF);
+	}
+	
 	// Single-target calculations
 	private double calculateDamagePerMagazine(boolean weakpointBonus) {
-		// Somehow "Embedded Detonators" will have to be modeled in here.
 		double effectiveMagazineSize = getMagazineSize() / 2;
-		if (weakpointBonus) {
-			return (increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) + getAreaDamage()) * effectiveMagazineSize;
+		
+		if (selectedOverclock == 2) {
+			// First, you have to intentionally miss bullets in order to convert them to Cryo Minelets, then wait 1 second, and unload the rest of the clip into
+			// the now-frozen enemy for x3 damage. Damage vs frozen enemies does NOT benefit from weakpoint damage on top of the frozen multiplier.
+			double numBulletsMissedToBecomeCryoMinelets = calculateAvgNumBulletsNeededToFreeze();
+			return (getDirectDamage() * UtilityInformation.Frozen_Damage_Multiplier) * (effectiveMagazineSize - numBulletsMissedToBecomeCryoMinelets);
 		}
 		else {
-			return (getDirectDamage() + getAreaDamage()) * effectiveMagazineSize;
+			if (weakpointBonus) {
+				return (increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) + getAreaDamage()) * effectiveMagazineSize;
+			}
+			else {
+				return (getDirectDamage() + getAreaDamage()) * effectiveMagazineSize;
+			}
 		}
 	}
 
@@ -466,7 +482,13 @@ public class Zhukov extends Weapon {
 	public double calculateIdealBurstDPS() {
 		double effectiveMagazineSize = getMagazineSize() / 2.0;
 		double effectiveRoF = getRateOfFire() / 2.0;
-		double timeToFireMagazine = effectiveMagazineSize / effectiveRoF;
+		
+		double delayBeforeCroyMineletsArm = 0;
+		if (selectedOverclock == 2) {
+			delayBeforeCroyMineletsArm = 1;
+		}
+		
+		double timeToFireMagazine = effectiveMagazineSize / effectiveRoF + delayBeforeCroyMineletsArm;
 		return calculateDamagePerMagazine(false) / timeToFireMagazine;
 	}
 
@@ -474,7 +496,13 @@ public class Zhukov extends Weapon {
 	public double calculateIdealSustainedDPS() {
 		double effectiveMagazineSize = getMagazineSize() / 2.0;
 		double effectiveRoF = getRateOfFire() / 2.0;
-		double timeToFireMagazineAndReload = (effectiveMagazineSize / effectiveRoF) + getReloadTime();
+		
+		double delayBeforeCroyMineletsArm = 0;
+		if (selectedOverclock == 2) {
+			delayBeforeCroyMineletsArm = 1;
+		}
+		
+		double timeToFireMagazineAndReload = (effectiveMagazineSize / effectiveRoF + delayBeforeCroyMineletsArm) + getReloadTime();
 		return calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
 	}
 	
@@ -482,7 +510,13 @@ public class Zhukov extends Weapon {
 	public double sustainedWeakpointDPS() {
 		double effectiveMagazineSize = getMagazineSize() / 2.0;
 		double effectiveRoF = getRateOfFire() / 2.0;
-		double timeToFireMagazineAndReload = (effectiveMagazineSize / effectiveRoF) + getReloadTime();
+		
+		double delayBeforeCroyMineletsArm = 0;
+		if (selectedOverclock == 2) {
+			delayBeforeCroyMineletsArm = 1;
+		}
+		
+		double timeToFireMagazineAndReload = (effectiveMagazineSize / effectiveRoF + delayBeforeCroyMineletsArm) + getReloadTime();
 		
 		// Because the Overclock "Gas Recycling" removes the ability to get any weakpoint bonus damage, that has to be modeled here.
 		boolean canGetWeakpointBonus = selectedOverclock != 4;
@@ -512,7 +546,18 @@ public class Zhukov extends Weapon {
 		double effectiveMagazineSize = getMagazineSize() / 2.0;
 		// If there's an odd number carried ammo, round up since you can fire the last "odd" ammo as a full-damage shot
 		double effectiveCarriedAmmo = Math.ceil(getCarriedAmmo() / 2.0);
-		return (effectiveMagazineSize + effectiveCarriedAmmo) * (getDirectDamage() + getAreaDamage()) * calculateMaxNumTargets();
+		
+		if (selectedOverclock == 2) {
+			double bulletsIntentionallyMissedPerMag = calculateAvgNumBulletsNeededToFreeze();
+			double numMags = numMagazines((int) effectiveCarriedAmmo, (int) effectiveMagazineSize);
+			double totalBulletsIntentionallyWasted = Math.round(bulletsIntentionallyMissedPerMag * numMags);
+			
+			return (effectiveMagazineSize + effectiveCarriedAmmo - totalBulletsIntentionallyWasted) * (getDirectDamage() * UtilityInformation.Frozen_Damage_Multiplier) * calculateMaxNumTargets();
+		}
+		else {
+			// Area Damage only applies when using OC "Embedded Detonators", so it doesn't need to be modeled for the Cryo Minelets' max damage.
+			return (effectiveMagazineSize + effectiveCarriedAmmo) * (getDirectDamage() + getAreaDamage()) * calculateMaxNumTargets();
+		}
 	}
 
 	@Override
@@ -577,15 +622,18 @@ public class Zhukov extends Weapon {
 			utilityScores[0] += uptimeCoefficient * DwarfInformation.walkSpeed * UtilityInformation.Movespeed_Utility;
 		}
 		
-		// OC "Cryo Minelets" applies Cryo damage to missed bullets; (1.0 - Accuracy) again?
+		// OC "Cryo Minelets" applies Cryo damage to missed bullets
 		if (selectedOverclock == 2) {
-			// TODO: i have no idea how to model this.
 			// Cryo minelets: 1 placed per 2 ammo, minelets arm in 1 second, and detonate in 3 seconds if no enemy is around.
-			// 2m radius; it seems that the slow from Cold damage increases proportional to the Cold Meter on the enemy, from no slow to rooted while frozen. 
-			// 5 minelets was enough to freeze lootbugs and grunts, but needed more for praetorians
-			int numGlyphidsInMineletRadius = 12;  // calculateNumGlyphidsInRadius(2);
+			// Minelets seem to do 8 Cold Damage each, and they don't explode in a radius -- instead it seems that they spurt off in a random direction for 2.5m.
+			int estimatedNumTargetsSlowedOrFrozen = 3;  // This is a pure, unadulterated guess.
 			
-			utilityScores[3] = 0 * UtilityInformation.Cold_Utility;
+			utilityScores[3] = estimatedNumTargetsSlowedOrFrozen * UtilityInformation.Cold_Utility;
+			utilityScores[6] = estimatedNumTargetsSlowedOrFrozen * UtilityInformation.Frozen_Utility;
+		}
+		else {
+			utilityScores[3] = 0;
+			utilityScores[6] = 0;
 		}
 		
 		return MathUtils.sum(utilityScores);
