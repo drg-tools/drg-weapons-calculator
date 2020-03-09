@@ -4,6 +4,19 @@ import utilities.MathUtils;
 
 public class EnemyInformation {
 	
+	private static int hazardLevel = 4;
+	private static int playerCount = 1;
+	public static void setHazardLevel(int newHazLevel) {
+		if (newHazLevel > 0 && newHazLevel < 6) {
+			hazardLevel = newHazLevel;
+		}
+	}
+	public static void setPlayerCount(int newPlayerCount) {
+		if (newPlayerCount > 0 && newPlayerCount < 5) {
+			playerCount = newPlayerCount;
+		}
+	}
+	
 	// These are educated guesses about the enemies' spawn rates. Biome-specific enemies, "hatchling" enemy types, and Dreadnaughts not included.
 	// All of these numbers must sum up to exactly 1.0 for it to be a probability vector.
 	// TODO: verify these spawn rate numbers; I think there are more grunts and fewer swarmers.
@@ -198,13 +211,8 @@ public class EnemyInformation {
 		return toReturn;
 	}
 	
-	public static double averageHealthPool(int hazardLevel, int playerCount) {
+	public static double averageHealthPool() {
 		if (!verifySpawnRatesTotalIsOne()) {
-			return -1.0;
-		}
-		
-		// Input sanitization
-		if (hazardLevel < 1 || hazardLevel > 5 || playerCount < 1 || playerCount > 4 ) {
 			return -1.0;
 		}
 		

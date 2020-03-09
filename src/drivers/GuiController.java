@@ -29,6 +29,7 @@ import gunnerWeapons.Autocannon;
 import gunnerWeapons.BurstPistol;
 import gunnerWeapons.Minigun;
 import gunnerWeapons.Revolver;
+import modelPieces.EnemyInformation;
 import modelPieces.Weapon;
 import scoutWeapons.Boomstick;
 import scoutWeapons.Classic_FocusShot;
@@ -174,6 +175,42 @@ public class GuiController implements ActionListener {
 			currentlySelectedWeapon.buildFromCombination(calculator.getMostUtilityCombination());
 		}
 		
+		else if (e == gui.getDSHaz1()) {
+			EnemyInformation.setHazardLevel(1);
+			gui.updateDifficultyScaling();
+		}
+		else if (e == gui.getDSHaz2()) {
+			EnemyInformation.setHazardLevel(2);
+			gui.updateDifficultyScaling();
+		}
+		else if (e == gui.getDSHaz3()) {
+			EnemyInformation.setHazardLevel(3);
+			gui.updateDifficultyScaling();
+		}
+		else if (e == gui.getDSHaz4()) {
+			EnemyInformation.setHazardLevel(4);
+			gui.updateDifficultyScaling();
+		}
+		else if (e == gui.getDSHaz5()) {
+			EnemyInformation.setHazardLevel(5);
+			gui.updateDifficultyScaling();
+		}
+		else if (e == gui.getDSPC1()) {
+			EnemyInformation.setPlayerCount(1);
+			gui.updateDifficultyScaling();
+		}
+		else if (e == gui.getDSPC2()) {
+			EnemyInformation.setPlayerCount(2);
+			gui.updateDifficultyScaling();
+		}
+		else if (e == gui.getDSPC3()) {
+			EnemyInformation.setPlayerCount(3);
+			gui.updateDifficultyScaling();
+		}
+		else if (e == gui.getDSPC4()) {
+			EnemyInformation.setPlayerCount(4);
+			gui.updateDifficultyScaling();
+		}
 		
 		else if (e == gui.getExportCurrent()) {
 			chooseFolder();

@@ -1,7 +1,9 @@
 package guiPieces;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -10,11 +12,14 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 
 import net.sf.image4j.codec.ico.ICODecoder;
@@ -27,6 +32,9 @@ public class View extends JFrame implements Observer {
 	private JMenu bestCombinationsMenu;
 	private JMenuItem bcmIdealBurst, bcmIdealSustained, bcmSustainedWeakpoint, bcmSustainedWeakpointAccuracy, bcmIdealAdditional, bcmMaxDmg, 
 					bcmMaxNumTargets, bcmDuration, bcmTTK, bcmOverkill, bcmAccuracy, bcmUtility;
+	private JMenu difficultyScalingMenu;
+	private ButtonGroup dsHazGroup, dsPCGroup;
+	private JRadioButton dsHaz1, dsHaz2, dsHaz3, dsHaz4, dsHaz5, dsPC1, dsPC2, dsPC3, dsPC4;
 	private JMenu exportMenu;
 	private JMenuItem exportCurrent, exportAll;
 	private JMenu miscMenu;	
@@ -117,6 +125,7 @@ public class View extends JFrame implements Observer {
 	private void constructMenu() {
 		menuBar = new JMenuBar();
 		
+		// Best Combinations menu
 		bestCombinationsMenu = new JMenu("Best Combinations");
 		bcmIdealBurst = new JMenuItem("Best Ideal Burst DPS");
 		bestCombinationsMenu.add(bcmIdealBurst);
@@ -146,6 +155,59 @@ public class View extends JFrame implements Observer {
 		bestCombinationsMenu.add(bcmUtility);
 		menuBar.add(bestCombinationsMenu);
 		
+		// Difficulty Scaling menu
+		difficultyScalingMenu = new JMenu("Difficulty Scaling");
+		
+		JPanel dsPanel = new JPanel();
+		dsPanel.setLayout(new BorderLayout());
+		
+		JPanel labelsPanel = new JPanel();
+		labelsPanel.setLayout(new GridLayout(2, 1));
+		JLabel hazLabel = new JLabel("Hazard Level:");
+		labelsPanel.add(hazLabel);
+		JLabel pcLabel = new JLabel("Player Count:");
+		labelsPanel.add(pcLabel);
+		dsPanel.add(labelsPanel, BorderLayout.WEST);
+		
+		JPanel radioButtonsPanel = new JPanel();
+		radioButtonsPanel.setLayout(new GridLayout(2, 5));
+		dsHazGroup = new ButtonGroup();
+		dsHaz1 = new JRadioButton("1");
+		dsHazGroup.add(dsHaz1);
+		radioButtonsPanel.add(dsHaz1);
+		dsHaz2 = new JRadioButton("2");
+		dsHazGroup.add(dsHaz2);
+		radioButtonsPanel.add(dsHaz2);
+		dsHaz3 = new JRadioButton("3");
+		dsHazGroup.add(dsHaz3);
+		radioButtonsPanel.add(dsHaz3);
+		dsHaz4 = new JRadioButton("4", true);
+		dsHazGroup.add(dsHaz4);
+		radioButtonsPanel.add(dsHaz4);
+		dsHaz5 = new JRadioButton("5");
+		dsHazGroup.add(dsHaz5);
+		radioButtonsPanel.add(dsHaz5);
+		
+		dsPCGroup = new ButtonGroup();
+		dsPC1 = new JRadioButton("1", true);
+		dsPCGroup.add(dsPC1);
+		radioButtonsPanel.add(dsPC1);
+		dsPC2 = new JRadioButton("2");
+		dsPCGroup.add(dsPC2);
+		radioButtonsPanel.add(dsPC2);
+		dsPC3 = new JRadioButton("3");
+		dsPCGroup.add(dsPC3);
+		radioButtonsPanel.add(dsPC3);
+		dsPC4 = new JRadioButton("4");
+		dsPCGroup.add(dsPC4);
+		radioButtonsPanel.add(dsPC4);
+		radioButtonsPanel.add(new JLabel());
+		dsPanel.add(radioButtonsPanel, BorderLayout.CENTER);
+		
+		difficultyScalingMenu.add(dsPanel);
+		menuBar.add(difficultyScalingMenu);
+		
+		// Export Stats to CSV menu
 		exportMenu = new JMenu("Export Stats to CSV");
 		exportCurrent = new JMenuItem("Export current weapon");
 		exportMenu.add(exportCurrent);
@@ -153,6 +215,7 @@ public class View extends JFrame implements Observer {
 		exportMenu.add(exportAll);
 		menuBar.add(exportMenu);
 		
+		// Miscellaneous Actions menu
 		miscMenu = new JMenu("Misc. Actions");
 		miscWeaponTabScreenshot = new JMenuItem("Save screenshot of current build");
 		miscMenu.add(miscWeaponTabScreenshot);
@@ -203,6 +266,34 @@ public class View extends JFrame implements Observer {
 	}
 	public JMenuItem getBcmUtility() {
 		return bcmUtility;
+	}
+	
+	public JRadioButton getDSHaz1() {
+		return dsHaz1;
+	}
+	public JRadioButton getDSHaz2() {
+		return dsHaz2;
+	}
+	public JRadioButton getDSHaz3() {
+		return dsHaz3;
+	}
+	public JRadioButton getDSHaz4() {
+		return dsHaz4;
+	}
+	public JRadioButton getDSHaz5() {
+		return dsHaz5;
+	}
+	public JRadioButton getDSPC1() {
+		return dsPC1;
+	}
+	public JRadioButton getDSPC2() {
+		return dsPC2;
+	}
+	public JRadioButton getDSPC3() {
+		return dsPC3;
+	}
+	public JRadioButton getDSPC4() {
+		return dsPC4;
 	}
 	
 	public JMenuItem getExportCurrent() {
@@ -263,6 +354,16 @@ public class View extends JFrame implements Observer {
 		bcmAccuracy.addActionListener(parent);
 		bcmUtility.addActionListener(parent);
 		
+		dsHaz1.addActionListener(parent);
+		dsHaz2.addActionListener(parent);
+		dsHaz3.addActionListener(parent);
+		dsHaz4.addActionListener(parent);
+		dsHaz5.addActionListener(parent);
+		dsPC1.addActionListener(parent);
+		dsPC2.addActionListener(parent);
+		dsPC3.addActionListener(parent);
+		dsPC4.addActionListener(parent);
+		
 		exportCurrent.addActionListener(parent);
 		exportAll.addActionListener(parent);
 		
@@ -270,6 +371,23 @@ public class View extends JFrame implements Observer {
 		miscExportCombination.addActionListener(parent);
 		miscLoadCombination.addActionListener(parent);
 		miscSuggestion.addActionListener(parent);
+	}
+	
+	public void updateDifficultyScaling() {
+		// TODO: this is a really sucky solution to update the Hazard Level/Player Count. I'd like to refactor this if possible.
+		int i;
+		for (i = 0; i < drillerWeapons.length; i++) {
+			drillerTabs.setComponentAt(i, new WeaponTab(drillerWeapons[i]));
+		}
+		for (i = 0; i < engineerWeapons.length; i++) {
+			engineerTabs.setComponentAt(i, new WeaponTab(engineerWeapons[i]));
+		}
+		for (i = 0; i < gunnerWeapons.length; i++) {
+			gunnerTabs.setComponentAt(i, new WeaponTab(gunnerWeapons[i]));
+		}
+		for (i = 0; i < scoutWeapons.length; i++) {
+			scoutTabs.setComponentAt(i, new WeaponTab(scoutWeapons[i]));
+		}
 	}
 	
 	@Override
