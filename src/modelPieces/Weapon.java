@@ -6,6 +6,7 @@ import java.util.Observable;
 import javax.swing.JPanel;
 
 import guiPieces.AoEVisualizer;
+import utilities.MathUtils;
 import utilities.Point2D;
 
 public abstract class Weapon extends Observable {
@@ -309,16 +310,8 @@ public abstract class Weapon extends Observable {
 		 	
 			When DoTs stack, like in BL2, the formula is PelletsPerSec * DoTDuration * DoTChance * DoTDmgPerSec.
 			However, in DRG, once a DoT is applied it can only have its duration refreshed.
-			
-			Mean num bullets fired before proc = 1 / Probability
-			Median num bullets fired before proc = 1 - (1 / Log2[1 - Probability])
-			
-			Median <= Mean
 		*/
-		// double median = 1 - (1 / MathUtils.log2(1 - DoTProcChance));
-		double mean = 1.0 / DoTProcChance;
-		
-		double numBulletsFiredBeforeProc = Math.round(mean);
+		double numBulletsFiredBeforeProc = Math.round(MathUtils.meanRolls(DoTProcChance));
 		double numBulletsFiredAfterProc = magazineSize - numBulletsFiredBeforeProc;
 		double DoTUptime = numBulletsFiredAfterProc / (numBulletsFiredBeforeProc + numBulletsFiredAfterProc);
 		

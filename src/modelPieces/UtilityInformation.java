@@ -93,7 +93,7 @@ public class UtilityInformation {
 	*/
 	public static double Cold_Utility = 0.5;  // It appears that the slow from Cold damage increases as their Cold Meter fills up, from 0% slow at no Cold to 99% slowed right before frozen.
 	public static double Frozen_Utility = 2.5;  // Not only are Frozen enemies "stunned" but they also take x3 damage (without getting Weakpoint Bonuses)
-	public static double Frozen_Damage_Multiplier = 3;
+	public static double Frozen_Damage_Multiplier = 3;  // Only applies to Direct Damage; not Area Damage or DoTs
 	
 	/*
 		Electric Damage
@@ -123,9 +123,7 @@ public class UtilityInformation {
 		Armor Break will multiplicatively increase that chance without increasing the actual damage dealt. The chance to break Damage-Reducing Armor
 		can be approximated by the formula:
 			
-			Math.Max(0, Math.Min(1, Math.log10(baseDamage * armorBreakMultiplier / DRArmorValue)))
-			
-		where DRArmorValue is 10 for Glyphid Webspitter and Acidspitter, and 15 for most other enemies like Glyphid Grunt, Grunt Slasher, Warden, etc.
+			Math.Min(ArmorBreakChance * DamagePerProjectile / 50, 1)
 		
 		Breakable Damage-Immune armor ("BDI armor"), as the name implies, reduces all damage dealt to 0 until the armor plate is broken off. These armor plates all have 
 		their own health bars, at 100 hp each. Any damage over that 100 will still be absorbed by the plate, so it's better to use low-damage bullets

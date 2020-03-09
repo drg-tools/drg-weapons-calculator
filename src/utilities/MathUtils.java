@@ -12,6 +12,19 @@ public class MathUtils {
 	    return bd.doubleValue();
 	}
 	
+	/*
+		Mean num bullets fired before proc = 1 / Probability
+		Median num bullets fired before proc = 1 - (1 / Log2[1 - Probability])
+		
+		If Probability < 50%, then Median <= Mean
+	*/
+	public static double meanRolls(double probability) {
+		return 1 / probability;
+	}
+	public static double medianRolls(double probability) {
+		return 1 - (1 / log2(1 - probability));
+	}
+	
 	public static double log2(double a) {
 		return Math.log(a) / Math.log(2);
 	}
