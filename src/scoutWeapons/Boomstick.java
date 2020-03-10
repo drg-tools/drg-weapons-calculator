@@ -446,7 +446,7 @@ public class Boomstick extends Weapon {
 		
 		toReturn[8] = new StatsRow("Stun Duration:", getStunDuration(), selectedTier3 == 0);
 		
-		toReturn[9] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0);
+		toReturn[9] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0, selectedTier4 == 0);
 		
 		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 1);
 		

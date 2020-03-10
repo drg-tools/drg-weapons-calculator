@@ -449,7 +449,7 @@ public class SMG extends Weapon {
 		boolean baseSpreadModified = selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock == 2;
 		toReturn[11] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified);
 		
-		toReturn[12] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0);
+		toReturn[12] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0, selectedTier4 == 0);
 		
 		return toReturn;
 	}

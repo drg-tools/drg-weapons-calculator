@@ -436,7 +436,8 @@ public class Subata extends Weapon {
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
 		// This stat only applies to OC "Explosive Reload"
-		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), selectedOverclock == 4);
+		boolean explosiveReloadEquipped = selectedOverclock == 4;
+		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), explosiveReloadEquipped, explosiveReloadEquipped);
 		
 		boolean magSizeModified = selectedTier1 == 1 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
@@ -457,9 +458,10 @@ public class Subata extends Weapon {
 		toReturn[9] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedOverclock == 3 || selectedTier3 == 1);
 		
 		// These two stats only apply to OC "Tranquilizer Rounds"
-		toReturn[10] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), selectedOverclock == 5);
+		boolean tranqRoundsEquipped = selectedOverclock == 5;
+		toReturn[10] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), tranqRoundsEquipped, tranqRoundsEquipped);
 		
-		toReturn[11] = new StatsRow("Stun Duration:", getStunDuration(), selectedOverclock == 5);
+		toReturn[11] = new StatsRow("Stun Duration:", getStunDuration(), tranqRoundsEquipped, tranqRoundsEquipped);
 		
 		return toReturn;
 	}

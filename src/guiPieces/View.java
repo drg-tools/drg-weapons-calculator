@@ -163,9 +163,9 @@ public class View extends JFrame implements Observer {
 		
 		JPanel labelsPanel = new JPanel();
 		labelsPanel.setLayout(new GridLayout(2, 1));
-		JLabel hazLabel = new JLabel("Hazard Level:");
+		JLabel hazLabel = new JLabel("  Hazard Level:");
 		labelsPanel.add(hazLabel);
-		JLabel pcLabel = new JLabel("Player Count:");
+		JLabel pcLabel = new JLabel("  Player Count:");
 		labelsPanel.add(pcLabel);
 		dsPanel.add(labelsPanel, BorderLayout.WEST);
 		

@@ -93,28 +93,30 @@ public class WeaponTab extends JPanel {
 		JLabel statLabel, statValue;
 		int paddingPixels = 2*GuiConstants.paddingPixels;
 		for (int i = 0; i < weaponStats.length; i++) {
-			row = new JPanel();
-			row.setOpaque(false);
-			row.setLayout(new BorderLayout());
-			
-			statLabel = new JLabel(weaponStats[i].getName());
-			statLabel.setForeground(Color.white);
-			// Left-pad the label text
-			statLabel.setBorder(new EmptyBorder(0, paddingPixels, 0, 0));
-			row.add(statLabel, BorderLayout.LINE_START);
-			
-			statValue = new JLabel(weaponStats[i].getValue());
-			if (weaponStats[i].shouldValueBeHighlighted()) {
-				statValue.setForeground(GuiConstants.drgHighlightedYellow);
+			if (weaponStats[i].shouldBeDisplayed()) {
+				row = new JPanel();
+				row.setOpaque(false);
+				row.setLayout(new BorderLayout());
+				
+				statLabel = new JLabel(weaponStats[i].getName());
+				statLabel.setForeground(Color.white);
+				// Left-pad the label text
+				statLabel.setBorder(new EmptyBorder(0, paddingPixels, 0, 0));
+				row.add(statLabel, BorderLayout.LINE_START);
+				
+				statValue = new JLabel(weaponStats[i].getValue());
+				if (weaponStats[i].shouldValueBeHighlighted()) {
+					statValue.setForeground(GuiConstants.drgHighlightedYellow);
+				}
+				else {
+					statValue.setForeground(GuiConstants.drgRegularOrange);
+				}
+				// Right-pad the value text
+				statValue.setBorder(new EmptyBorder(0, 0, 0, paddingPixels));
+				row.add(statValue, BorderLayout.LINE_END);
+				
+				toReturn.add(row);
 			}
-			else {
-				statValue.setForeground(GuiConstants.drgRegularOrange);
-			}
-			// Right-pad the value text
-			statValue.setBorder(new EmptyBorder(0, 0, 0, paddingPixels));
-			row.add(statValue, BorderLayout.LINE_END);
-			
-			toReturn.add(row);
 		}
 		
 		return toReturn;

@@ -477,7 +477,7 @@ public class BurstPistol extends Weapon {
 		boolean reloadModified = selectedTier2 == 2 || selectedOverclock == 1 || selectedOverclock == 3;
 		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), reloadModified);
 		
-		toReturn[6] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 2);
+		toReturn[6] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 2, selectedTier4 == 2);
 		
 		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 0);
 		
@@ -485,9 +485,9 @@ public class BurstPistol extends Weapon {
 		
 		toReturn[9] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1 || selectedOverclock == 6);
 		
-		toReturn[10] = new StatsRow("Burst Bonus Damage:", getBurstBonusDamage(), selectedTier5 == 0);
+		toReturn[10] = new StatsRow("Burst Bonus Damage:", getBurstBonusDamage(), selectedTier5 == 0, selectedTier5 == 0);
 		
-		toReturn[11] = new StatsRow("Burst Stun Duration:", getBurstStunDuration(), selectedTier5 == 1);
+		toReturn[11] = new StatsRow("Burst Stun Duration:", getBurstStunDuration(), selectedTier5 == 1, selectedTier5 == 1);
 		
 		return toReturn;
 	}

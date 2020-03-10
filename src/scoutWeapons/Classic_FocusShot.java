@@ -473,11 +473,11 @@ public class Classic_FocusShot extends Weapon {
 		
 		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 2);
 		
-		toReturn[11] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0);
+		toReturn[11] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1 || selectedOverclock == 3);
 		
-		toReturn[12] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1 || selectedOverclock == 3);
+		toReturn[12] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0, selectedTier4 == 0);
 		
-		toReturn[13] = new StatsRow("Stun Duration:", getStunDuration(), selectedTier5 == 0);
+		toReturn[13] = new StatsRow("Stun Duration:", getStunDuration(), selectedTier5 == 0, selectedTier5 == 0);
 		
 		return toReturn;
 	}

@@ -448,7 +448,7 @@ public class Classic_Hipfire extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[14];
+		StatsRow[] toReturn = new StatsRow[13];
 		
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), selectedOverclock == 3 || selectedTier1 == 1);
 		
@@ -474,11 +474,9 @@ public class Classic_Hipfire extends Weapon {
 		
 		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 2);
 		
-		toReturn[11] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0);
+		toReturn[11] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1 || selectedOverclock == 3);
 		
-		toReturn[12] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1 || selectedOverclock == 3);
-		
-		toReturn[13] = new StatsRow("Stun Duration:", getStunDuration(), selectedTier5 == 0);
+		toReturn[12] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0, selectedTier4 == 0);
 		
 		return toReturn;
 	}

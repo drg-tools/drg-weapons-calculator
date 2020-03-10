@@ -422,7 +422,7 @@ public class GrenadeLauncher extends Weapon {
 		StatsRow[] toReturn = new StatsRow[12];
 		
 		boolean directDamageModified = selectedTier5 == 1 || selectedTier3 == 0 || selectedOverclock == 5;
-		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified, selectedTier5 == 1 || selectedOverclock == 5);
 		
 		boolean areaDamageModified = selectedTier1 == 2 || selectedTier2 == 1 || selectedTier3 == 0 || selectedTier4 == 0 || selectedOverclock == 0 || (selectedOverclock > 1 && selectedOverclock < 5);
 		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), areaDamageModified);
@@ -445,8 +445,9 @@ public class GrenadeLauncher extends Weapon {
 		
 		toReturn[9] = new StatsRow("Armor Break Chance:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier3 == 1);
 		
-		toReturn[10] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), selectedTier4 == 2);
-		toReturn[11] = new StatsRow("Stun Duration:", getStunDuration(), selectedTier4 == 2);
+		boolean stunEquipped = selectedTier4 == 2;
+		toReturn[10] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), stunEquipped, stunEquipped);
+		toReturn[11] = new StatsRow("Stun Duration:", getStunDuration(), stunEquipped, stunEquipped);
 		
 		return toReturn;
 	}

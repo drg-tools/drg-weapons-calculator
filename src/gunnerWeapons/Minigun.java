@@ -425,7 +425,7 @@ public class Minigun extends Weapon {
 		// Cold as the Grave removes a set amount of Heat from the Minigun's meter every time that the Minigun gets the killing blow on an enemy.
 		// TODO: Although the way it's implemented avoids the infinite loop of methods calling each other, I'm not satisfied with how CATG is modeled currently.
 		if (selectedTier5 == 1) {
-			// Amount of Heat removed per kill, depending on enemy size.
+			// Amount of Heat removed per kill, depending on enemy size. (pure guesses)
 			double smallEnemy = 0.1;
 			double mediumEnemy = 0.5;
 			double largeEnemy = 1.0;
@@ -437,6 +437,7 @@ public class Minigun extends Weapon {
 				largeEnemy,  // Glyphid Praetorian
 				smallEnemy,  // Glyphid Exploder
 				largeEnemy,  // Glyphid Bulk Detonator
+				largeEnemy,  // Glyphid Crassus Detonator
 				mediumEnemy,  // Glyphid Webspitter
 				mediumEnemy,  // Glyphid Acidspitter
 				largeEnemy,  // Glyphid Menace
@@ -457,15 +458,15 @@ public class Minigun extends Weapon {
 			double estimatedBurstDPS = getDamagePerPellet() * getRateOfFire() / 2.0;
 			if (selectedTier4 == 0) {
 				// Slight overestimation
-				estimatedBurstDPS *= 1.15;
+				estimatedBurstDPS *= 1.13;
 			}
 			if (selectedOverclock == 2) {
-				// Minor overestimation
-				estimatedBurstDPS += DoTInformation.Fire_DPS;
+				// Slight overestimation
+				estimatedBurstDPS += 0.8 * DoTInformation.Fire_DPS;
 			}
+			
 			double estimatedBurstTTK = EnemyInformation.averageHealthPool() / estimatedBurstDPS;
 			double estimatedNumKillsDuringDefaultPeriod = firingPeriod / estimatedBurstTTK;
-			
 			firingPeriod += estimatedNumKillsDuringDefaultPeriod * averageHeatRemovedOnKill;
 		}
 		
@@ -524,9 +525,9 @@ public class Minigun extends Weapon {
 		
 		toReturn[17] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier3 == 0);
 		
-		toReturn[18] = new StatsRow("Max Penetrations:", getNumberOfPenetrations(), selectedTier3 == 2);
+		toReturn[18] = new StatsRow("Max Penetrations:", getNumberOfPenetrations(), selectedTier3 == 2, selectedTier3 == 2);
 		
-		toReturn[19] = new StatsRow("Max Ricochets:", getNumberOfRicochets(), selectedOverclock == 5);
+		toReturn[19] = new StatsRow("Max Ricochets:", getNumberOfRicochets(), selectedOverclock == 5, selectedOverclock == 5);
 		
 		return toReturn;
 	}

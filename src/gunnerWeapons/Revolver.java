@@ -427,9 +427,10 @@ public class Revolver extends Weapon {
 		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Damage:", getDirectDamage(), directDamageModified);
 		
-		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), selectedTier3 == 1);
+		boolean explosiveEquipped = selectedTier3 == 1;
+		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), explosiveEquipped, explosiveEquipped);
 		
-		toReturn[2] = new StatsRow("Effect Radius:", getAoERadius(), selectedTier3 == 1);
+		toReturn[2] = new StatsRow("Effect Radius:", getAoERadius(), explosiveEquipped, explosiveEquipped);
 		
 		toReturn[3] = new StatsRow("Magazine Size:", getMagazineSize(), selectedOverclock == 3);
 		
@@ -452,9 +453,10 @@ public class Revolver extends Weapon {
 		
 		toReturn[12] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier3 == 2);
 		
-		toReturn[13] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier3 == 0);
+		toReturn[13] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier3 == 0, selectedTier3 == 0);
 		
-		toReturn[14] = new StatsRow("Max Ricochets:", getMaxRicochets(), selectedOverclock == 1 || selectedOverclock == 5);
+		boolean canRicochet = selectedOverclock == 1 || selectedOverclock == 5;
+		toReturn[14] = new StatsRow("Max Ricochets:", getMaxRicochets(), canRicochet, canRicochet);
 		
 		return toReturn;
 	}
