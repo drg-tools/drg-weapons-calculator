@@ -505,7 +505,7 @@ public class Boomstick extends Weapon {
 				double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatPerSec);
 				double fireDoTUptimeCoefficient = (timeToFireMagazine - timeToIgnite) / timeToFireMagazine;
 				
-				burstDPS += fireDoTUptimeCoefficient * DoTInformation.Fire_DPS;
+				burstDPS += fireDoTUptimeCoefficient * DoTInformation.Burn_DPS;
 			}
 		}
 		else {
@@ -518,7 +518,7 @@ public class Boomstick extends Weapon {
 				double reloadTime = getReloadTime();
 				double fireDoTUptimeCoefficient = (reloadTime - timeToIgnite) / reloadTime;
 				
-				burstDPS += fireDoTUptimeCoefficient * DoTInformation.Fire_DPS;
+				burstDPS += fireDoTUptimeCoefficient * DoTInformation.Burn_DPS;
 			}
 		}
 		
@@ -539,7 +539,7 @@ public class Boomstick extends Weapon {
 		}
 		
 		if (selectedTier5 == 2) {
-			sustainedDPS += DoTInformation.Fire_DPS;
+			sustainedDPS += DoTInformation.Burn_DPS;
 		}
 		
 		return sustainedDPS;
@@ -559,7 +559,7 @@ public class Boomstick extends Weapon {
 		}
 		
 		if (selectedTier5 == 2) {
-			sustainedWeakpointDPS += DoTInformation.Fire_DPS;
+			sustainedWeakpointDPS += DoTInformation.Burn_DPS;
 		}
 		
 		return sustainedWeakpointDPS;
@@ -593,7 +593,7 @@ public class Boomstick extends Weapon {
 		
 		// Penetrations can ignite, too
 		if (selectedTier4 == 0 && selectedTier5 == 2) {
-			additionalDPS += DoTInformation.Fire_DPS;
+			additionalDPS += DoTInformation.Burn_DPS;
 		}
 		
 		return additionalDPS;
@@ -619,7 +619,7 @@ public class Boomstick extends Weapon {
 		double fireDoTTotalDamage = 0;
 		if (selectedTier5 == 2) {
 			double timeBeforeIgnite = EnemyInformation.averageTimeToIgnite(calculateHeatPerSec());
-			double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Fire_DPS);
+			double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
 			
 			double estimatedNumEnemiesKilled = calculateMaxNumTargets() * (calculateFiringDuration() / averageTimeToKill());
 			

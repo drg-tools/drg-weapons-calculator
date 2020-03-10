@@ -45,13 +45,12 @@ public class View extends JFrame implements Observer {
 	private Weapon[] gunnerWeapons;
 	private Weapon[] scoutWeapons;
 	
-	private JTabbedPane classTabs;
+	private JTabbedPane mainTabs;
 	private JTabbedPane drillerTabs;
 	private JTabbedPane engineerTabs;
 	private JTabbedPane gunnerTabs;
 	private JTabbedPane scoutTabs;
-	
-	private JPanel FAQ, glossary;
+	private JTabbedPane infoTabs;
 	
 	public View(Weapon[] dWeapons, Weapon[] eWeapons, Weapon[] gWeapons, Weapon[] sWeapons) {
 		drillerWeapons = dWeapons;
@@ -74,7 +73,7 @@ public class View extends JFrame implements Observer {
 		
 		constructMenu();
 		
-		classTabs = new JTabbedPane();
+		mainTabs = new JTabbedPane();
 		
 		// Driller
 		drillerTabs = new JTabbedPane();
@@ -82,7 +81,7 @@ public class View extends JFrame implements Observer {
 			drillerWeapons[i].addObserver(this);
 			drillerTabs.addTab(drillerWeapons[i].getFullName(), new WeaponTab(drillerWeapons[i]));
 		}
-		classTabs.addTab("Driller", drillerTabs);
+		mainTabs.addTab("Driller", drillerTabs);
 		
 		// Engineer
 		engineerTabs = new JTabbedPane();
@@ -90,7 +89,7 @@ public class View extends JFrame implements Observer {
 			engineerWeapons[i].addObserver(this);
 			engineerTabs.addTab(engineerWeapons[i].getFullName(), new WeaponTab(engineerWeapons[i]));
 		}
-		classTabs.addTab("Engineer", engineerTabs);
+		mainTabs.addTab("Engineer", engineerTabs);
 		
 		// Gunner
 		gunnerTabs = new JTabbedPane();
@@ -98,7 +97,7 @@ public class View extends JFrame implements Observer {
 			gunnerWeapons[i].addObserver(this);
 			gunnerTabs.addTab(gunnerWeapons[i].getFullName(), new WeaponTab(gunnerWeapons[i]));
 		}
-		classTabs.addTab("Gunner", gunnerTabs);
+		mainTabs.addTab("Gunner", gunnerTabs);
 		
 		// Scout
 		scoutTabs = new JTabbedPane();
@@ -106,18 +105,17 @@ public class View extends JFrame implements Observer {
 			scoutWeapons[i].addObserver(this);
 			scoutTabs.addTab(scoutWeapons[i].getFullName(), new WeaponTab(scoutWeapons[i]));
 		}
-		classTabs.addTab("Scout", scoutTabs);
+		mainTabs.addTab("Scout", scoutTabs);
 		
-		// FAQ
-		FAQ = GlossaryTextAndFAQText.getFAQText();
-		classTabs.addTab("F.A.Q.", FAQ);
+		// Information
+		infoTabs = new JTabbedPane();
+		infoTabs.addTab("F.A.Q.", InformationTabsText.getFAQText());
+		infoTabs.addTab("Glossary", InformationTabsText.getGlossaryText());
+		infoTabs.addTab("Acknowledgements", InformationTabsText.getAcknowledgementsText());
+		mainTabs.addTab("Information", infoTabs);
 		
-		// Glossary
-		glossary = GlossaryTextAndFAQText.getGlossaryText();
-		classTabs.addTab("Glossary", glossary);
-		
-		add(classTabs);
-		setContentPane(classTabs);
+		add(mainTabs);
+		setContentPane(mainTabs);
 		pack();
 		setVisible(true);
 	}
@@ -317,11 +315,11 @@ public class View extends JFrame implements Observer {
 	}
 
 	public int getCurrentClassIndex() {
-		return classTabs.getSelectedIndex();
+		return mainTabs.getSelectedIndex();
 	}
 	
 	public int getCurrentWeaponIndex() {
-		int classIndex = classTabs.getSelectedIndex();
+		int classIndex = mainTabs.getSelectedIndex();
 		if (classIndex == 0) {
 			return drillerTabs.getSelectedIndex();
 		}
@@ -440,9 +438,9 @@ public class View extends JFrame implements Observer {
 	
 	public BufferedImage getScreenshot() {
 		// Sourced from https://stackoverflow.com/a/44019372
-		BufferedImage img = new BufferedImage(classTabs.getWidth(), classTabs.getHeight(), BufferedImage.TYPE_INT_RGB);
+		BufferedImage img = new BufferedImage(mainTabs.getWidth(), mainTabs.getHeight(), BufferedImage.TYPE_INT_RGB);
 		Graphics2D g2d = img.createGraphics();
-		classTabs.printAll(g2d);
+		mainTabs.printAll(g2d);
 		g2d.dispose();
 		return img;
 	}

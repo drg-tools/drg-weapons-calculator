@@ -108,7 +108,7 @@ public class GuiController implements ActionListener {
 		Weapon currentlySelectedWeapon;
 		int classIndex = gui.getCurrentClassIndex();
 		
-		// Because FAQ and Glossary have been added to the ClassTabs object, have these commands disabled when FAQ or Glossary is at the front.
+		// Have these commands disabled when Information is at the front.
 		if (classIndex > 3) {
 			return;
 		}

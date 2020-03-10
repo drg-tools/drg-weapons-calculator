@@ -462,7 +462,7 @@ public class Minigun extends Weapon {
 			}
 			if (selectedOverclock == 2) {
 				// Slight overestimation
-				estimatedBurstDPS += 0.8 * DoTInformation.Fire_DPS;
+				estimatedBurstDPS += 0.8 * DoTInformation.Burn_DPS;
 			}
 			
 			double estimatedBurstTTK = EnemyInformation.averageHealthPool() / estimatedBurstDPS;
@@ -601,7 +601,7 @@ public class Minigun extends Weapon {
 		if (selectedTier5 == 2 || selectedOverclock == 2) {
 			double ignitionTime = calculateIgnitionTime();
 			double burnDoTUptime = (burstDuration - ignitionTime) / burstDuration;
-			fireDoTBurstDPS = burnDoTUptime * DoTInformation.Fire_DPS;
+			fireDoTBurstDPS = burnDoTUptime * DoTInformation.Burn_DPS;
 		}
 		
 		return burstDPS + fireDoTBurstDPS;
@@ -615,7 +615,7 @@ public class Minigun extends Weapon {
 		double sustainedDPS = damagePerBurst / (burstDuration + coolOffDuration);
 		
 		if (selectedTier5 == 2 || selectedOverclock == 2) {
-			sustainedDPS += DoTInformation.Fire_DPS;
+			sustainedDPS += DoTInformation.Burn_DPS;
 		}
 		
 		return sustainedDPS;
@@ -629,7 +629,7 @@ public class Minigun extends Weapon {
 		double sustainedWeakpointDPS = damagePerBurst / (burstDuration + coolOffDuration);
 		
 		if (selectedTier5 == 2 || selectedOverclock == 2) {
-			sustainedWeakpointDPS += DoTInformation.Fire_DPS;
+			sustainedWeakpointDPS += DoTInformation.Burn_DPS;
 		}
 		
 		return sustainedWeakpointDPS;
@@ -665,7 +665,7 @@ public class Minigun extends Weapon {
 		// Because of how Hot Bullets' ignition time is calculated, it returns (4 + the ignition time). As a result, it would end up subtracting from the total damage.
 		if (selectedTier5 == 2 && selectedOverclock != 2) {
 			timeBeforeFireProc = calculateIgnitionTime() - 4;
-			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, 0.5 * EnemyInformation.averageBurnDuration(), DoTInformation.Fire_DPS);
+			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, 0.5 * EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
 			
 			// Because Hot Bullets only starts igniting enemies after 4 seconds, reduce this damage by the uptime coefficient.
 			fireDoTDamagePerEnemy *= (5.5/9.5);
@@ -677,7 +677,7 @@ public class Minigun extends Weapon {
 		// Burning Hell, on the other hand, works great with this. Even with Hot Bullets stacked on top of it, it doesn't do negative damage.
 		else if (selectedOverclock == 2) {
 			timeBeforeFireProc = calculateIgnitionTime();
-			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, 0.5 * EnemyInformation.averageBurnDuration(), DoTInformation.Fire_DPS);
+			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, 0.5 * EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
 			
 			estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
 			
@@ -691,7 +691,7 @@ public class Minigun extends Weapon {
 			double percentageOfEnemiesIgnitedByAV = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(75);
 			double numGlyphidsHitByHeatBurst = 20;  // this.calculateNumGlyphidsInRadius(3);
 			int numTimesAVcanTrigger = (int) Math.floor(numberOfBursts);
-			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, EnemyInformation.averageBurnDuration(), DoTInformation.Fire_DPS);
+			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
 			
 			fireDoTTotalDamage += numTimesAVcanTrigger * (percentageOfEnemiesIgnitedByAV * numGlyphidsHitByHeatBurst) * fireDoTDamagePerEnemy;
 		}

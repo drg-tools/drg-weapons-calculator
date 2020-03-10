@@ -474,7 +474,7 @@ public class GrenadeLauncher extends Weapon {
 			double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatPerGrenade, RoF);
 			double burnDoTUptime = (reloadTime - timeToIgnite) / reloadTime;
 			
-			totalDPS += burnDoTUptime * DoTInformation.Fire_DPS;
+			totalDPS += burnDoTUptime * DoTInformation.Burn_DPS;
 		}
 		if (selectedOverclock == 4) {
 			// Fat Boy OC
@@ -482,7 +482,7 @@ public class GrenadeLauncher extends Weapon {
 			double FBticksPerSec = 1/0.9;
 			double fatBoyDPS = FBdmgPerTick * FBticksPerSec;
 			// double FBduration = 15;
-			// double FBradius = 8.5;
+			// double FBradius = 8;
 			totalDPS += fatBoyDPS;
 		}
 		
@@ -497,7 +497,7 @@ public class GrenadeLauncher extends Weapon {
 		
 		if (selectedTier3 == 0) {
 			// Incendiary Compound
-			totalDPS += DoTInformation.Fire_DPS;
+			totalDPS += DoTInformation.Burn_DPS;
 		}
 		if (selectedOverclock == 4) {
 			// Fat Boy OC
@@ -518,7 +518,7 @@ public class GrenadeLauncher extends Weapon {
 		
 		if (selectedTier3 == 0) {
 			// Incendiary Compound
-			totalDPS += DoTInformation.Fire_DPS;
+			totalDPS += DoTInformation.Burn_DPS;
 		}
 		if (selectedOverclock == 4) {
 			// Fat Boy OC
@@ -541,7 +541,7 @@ public class GrenadeLauncher extends Weapon {
 	public double calculateAdditionalTargetDPS() {
 		double totalDPS = getAreaDamage() / reloadTime;
 		if (selectedTier3 == 0) {
-			totalDPS += DoTInformation.Fire_DPS;
+			totalDPS += DoTInformation.Burn_DPS;
 		}
 		if (selectedOverclock == 4) {
 			double FBdmgPerTick = 25;
@@ -564,7 +564,7 @@ public class GrenadeLauncher extends Weapon {
 			double RoF = 1 / reloadTime;
 			double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatPerGrenade, RoF);
 			
-			double burnDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Fire_DPS);
+			double burnDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
 			burnDoTTotalDamage = burnDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		}
 		
@@ -573,7 +573,7 @@ public class GrenadeLauncher extends Weapon {
 			double FBdmgPerTick = 25;
 			double FBticksPerSec = 1/0.9;
 			double fatBoyDPS = FBdmgPerTick * FBticksPerSec;
-			// I'm guessing that it takes about 4 seconds for enemies to move out of the 8.5m radius field
+			// I'm guessing that it takes about 4 seconds for enemies to move out of the 8m radius field
 			double radiationDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, 4, fatBoyDPS);
 			radiationDoTTotalDamage = radiationDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		}

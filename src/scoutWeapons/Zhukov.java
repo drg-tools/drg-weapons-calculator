@@ -412,7 +412,7 @@ public class Zhukov extends Weapon {
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
 		// This stat only applies to OC "Embedded Detonators"
-		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), selectedOverclock == 3);
+		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), selectedOverclock == 3, selectedOverclock == 3);
 		
 		boolean magSizeModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2;
 		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);

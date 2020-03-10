@@ -15,12 +15,12 @@ public class DoTInformation {
 		Neurotoxin
 		
 		Weapons that can apply this DoT:
-			Driller - Neurotoxin Grenade (AoE gas cloud, 100% chance to proc. +15 sec duration, I think?)
+			Driller - Neurotoxin Grenade (AoE gas cloud, 100% chance to proc. +20 sec duration)
 			Gunner - "Bulldog" Revolver (Mod Tier 5, Glyphid Neurotoxin Coating, 50% chance to proc)
 			Gunner - "Thunderhead" Autocannon (Overclock, Neurotoxin Payload, 20% chance to proc)
 	*/
 	public static double Neuro_DmgPerTick = 12;
-	public static double Neuro_TicksPerSec = 1.5;  // 3 ticks over 2 seconds
+	public static double Neuro_TicksPerSec = 2 / (0.75 + 1.25);
 	public static double Neuro_SecsDuration = 10;
 	public static double Neuro_DPS = Neuro_DmgPerTick * Neuro_TicksPerSec;
 	
@@ -56,11 +56,11 @@ public class DoTInformation {
 			Gunner - Incendiary Grenade
 			Scout - Boomstick (Mod Tier 5, White Phosphorous Shells)
 	*/
-	public static double Fire_DmgPerTick = 5;
-	public static double Fire_TicksPerSec = 4;
+	public static double Burn_DmgPerTick = 5;
+	public static double Burn_TicksPerSec = 2 / (0.25 + 0.5);
 	// Burn DoT durations are specific per enemy, but it averages around 5 seconds.
-	public static double Fire_SecsDuration = EnemyInformation.averageBurnDuration();
-	public static double Fire_DPS = Fire_DmgPerTick * Fire_TicksPerSec;
+	public static double Burn_SecsDuration = EnemyInformation.averageBurnDuration();
+	public static double Burn_DPS = Burn_DmgPerTick * Burn_TicksPerSec;
 	
 	/*
 		Radiation
@@ -69,11 +69,14 @@ public class DoTInformation {
 		Radioactive Praetorians and Exploders leave behind Radioactive fields for 4-5 seconds on death.
 		
 		Weapons that can apply this DoT:
-			Engineer - Grenade Launcher (Overclock, Fat Boy, 10-12 sec field duration?)
+			Engineer - Grenade Launcher (Overclock, Fat Boy, 15 sec field duration)
 	*/
-	public static double Rad_DmgPerTick = 6;
-	public static double Rad_TicksPerSec = 1.5;  // 3 ticks over 2 seconds
-	public static double Rad_DPS = Rad_DmgPerTick * Rad_TicksPerSec;
+	public static double Rad_Env_DmgPerTick = 6;
+	public static double Rad_Env_TicksPerSec = 2 / (0.5 + 1.0);
+	public static double Rad_Env_DPS = Rad_Env_DmgPerTick * Rad_Env_TicksPerSec;
+	public static double Rad_FB_DmgPerTick = 25;
+	public static double Rad_FB_TicksPerSec = 2 / (0.75 + 1.25);
+	public static double Rad_FB_DPS = Rad_FB_DmgPerTick * Rad_FB_TicksPerSec;
 	
 	// Cryo is another elemental damage type, but has no DoT associated. Instead, enemies who have their "cold" meter filled become frozen in place.
 }

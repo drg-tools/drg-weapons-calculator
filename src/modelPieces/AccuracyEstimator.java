@@ -18,6 +18,8 @@ package modelPieces;
 
 // TODO: add a way to model Rectangular crosshairs, like Autocannon, Boomstick, and Zhukovs.
 
+// It might be possible that Base Spread percentage doesn't scale the RADIUS, but rather the AREA of the base spread. So 600% base spread -> SqRt(6)*radius, and 50% -> SqRt(0.5)*radius
+
 public class AccuracyEstimator {
 	private double targetRadius;
 	private double targetDistance;
