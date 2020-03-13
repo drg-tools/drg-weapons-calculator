@@ -2,6 +2,8 @@ package guiPieces;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -21,12 +23,14 @@ public class WeaponTab extends JPanel {
 	private static final long serialVersionUID = 1L;
 	
 	private Weapon myWeapon;
+	private Font customFont;
 	
 	public WeaponTab(Weapon inputWeapon) {
 		// Start by initializing the parent JPanel
 		super();
 		
 		myWeapon = inputWeapon;
+		customFont = GuiConstants.HKGrotesk();
 		
 		this.setOpaque(false);
 		
@@ -99,12 +103,14 @@ public class WeaponTab extends JPanel {
 				row.setLayout(new BorderLayout());
 				
 				statLabel = new JLabel(weaponStats[i].getName());
+				// statLabel.setFont(customFont);
 				statLabel.setForeground(Color.white);
 				// Left-pad the label text
 				statLabel.setBorder(new EmptyBorder(0, paddingPixels, 0, 0));
 				row.add(statLabel, BorderLayout.LINE_START);
 				
 				statValue = new JLabel(weaponStats[i].getValue());
+				// statValue.setFont(customFont);
 				if (weaponStats[i].shouldValueBeHighlighted()) {
 					statValue.setForeground(GuiConstants.drgHighlightedYellow);
 				}

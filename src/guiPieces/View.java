@@ -2,10 +2,14 @@ package guiPieces;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
@@ -21,7 +25,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 
 import modelPieces.Weapon;
-import utilities.ImageLoader;
+import utilities.ResourceLoader;
 
 public class View extends JFrame implements Observer {
 	
@@ -49,6 +53,11 @@ public class View extends JFrame implements Observer {
 	private JTabbedPane scoutTabs;
 	private JTabbedPane infoTabs;
 	
+	/*
+		It looks like they use the paid-for font "Aktiv Grotesk Cd". However, to keep this free, I'm choosing to use font "HK Grotesk" because it's an open-source font
+		https://www.myfonts.com/fonts/daltonmaag/aktiv-grotesk/cd/
+	*/
+	
 	public View(Weapon[] dWeapons, Weapon[] eWeapons, Weapon[] gWeapons, Weapon[] sWeapons) {
 		drillerWeapons = dWeapons;
 		engineerWeapons = eWeapons;
@@ -61,7 +70,7 @@ public class View extends JFrame implements Observer {
 		
 		// Add the icon
 		try {
-			setIconImages(ImageLoader.loadIcoFile("/images/meatShield_composite.ico"));
+			setIconImages(ResourceLoader.loadIcoFile("/images/meatShield_composite.ico"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

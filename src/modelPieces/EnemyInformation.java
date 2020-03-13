@@ -217,7 +217,7 @@ public class EnemyInformation {
 		}
 		
 		/*
-		// Seems like Acidspitters spawn in pairs, and Webspitters spawn in groups of 3-4? Swarmers seem like 6-10?
+		// Seems like Acidspitters spawn in pairs, and Webspitters spawn in groups of 2-4? Swarmers seem like 6-10? Exploders 4-6?
 		double numerator = 25;
 		double predictedSpawnRate;
 		for (int i = 0; i < enemyHealthPools.length; i++) {

@@ -1,11 +1,35 @@
 package guiPieces;
 
 import java.awt.Color;
-
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.GraphicsEnvironment;
+import java.io.IOException;
 import javax.swing.BorderFactory;
 import javax.swing.border.Border;
 
+import utilities.ResourceLoader;
+
 public class GuiConstants {
+	// Custom font
+	public static Font HKGrotesk() {
+		Font toReturn = null;
+		try {
+			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			// TODO: I really want to switch the lower-case 'g' to use g.ss01 (aka Latin Subtable 15) so that it looks more like DRG
+			toReturn = Font.createFont(Font.TRUETYPE_FONT, ResourceLoader.load("/fonts/HKGrotesk-Regular.ttf"));
+			ge.registerFont(toReturn);
+			toReturn = toReturn.deriveFont(14f);
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		catch (FontFormatException e) {
+			e.printStackTrace();
+		}
+		return toReturn;
+	}
+	
 	// Custom colors that the GUI uses
 	public static Color drgBackgroundBiege = new Color(83, 70, 51);
 	public static Color drgBackgroundBrown = new Color(73, 63, 41);

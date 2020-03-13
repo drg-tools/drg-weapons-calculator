@@ -9,14 +9,14 @@ import javax.imageio.ImageIO;
 
 import net.sf.image4j.codec.ico.ICODecoder;
 
-public class ImageLoader {
+public class ResourceLoader {
 	
-	// Generic method to load any resource, but used for images in this context. 
+	// Generic method to load any resource
 	// Sourced from https://www.youtube.com/watch?v=rCoed3MKpEA
 	public static InputStream load(String path) {
-		InputStream input = ImageLoader.class.getResourceAsStream(path);
+		InputStream input = ResourceLoader.class.getResourceAsStream(path);
 		if (input == null) {
-			input = ImageLoader.class.getResourceAsStream("/" + path);
+			input = ResourceLoader.class.getResourceAsStream("/" + path);
 		}
 		return input;
 	}
