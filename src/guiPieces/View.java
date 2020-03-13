@@ -59,6 +59,7 @@ public class View extends JFrame implements Observer {
 		setTitle("MeatShield's DRG DPS Calculator (DRG Update 28.8)");
 		setPreferredSize(new Dimension(1620, 780));
 		
+		/*
 		// Add the icon
 		ImageLoader imgL = new ImageLoader();
 		try {
@@ -66,6 +67,7 @@ public class View extends JFrame implements Observer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		*/
 		
 		constructMenu();
 		
