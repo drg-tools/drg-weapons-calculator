@@ -6,9 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -22,9 +20,8 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 
-import net.sf.image4j.codec.ico.ICODecoder;
-
 import modelPieces.Weapon;
+import utilities.ImageLoader;
 
 public class View extends JFrame implements Observer {
 	
@@ -63,10 +60,9 @@ public class View extends JFrame implements Observer {
 		setPreferredSize(new Dimension(1620, 780));
 		
 		// Add the icon
+		ImageLoader imgL = new ImageLoader();
 		try {
-			// Image sourced from http://www.zazzle.com/meat+shield+stickers
-			List<BufferedImage> image = ICODecoder.read(new File("images/meatShield_composite.ico"));
-			setIconImages(image);
+			setIconImages(imgL.loadIcoFile("/images/meatShield_composite.ico"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
