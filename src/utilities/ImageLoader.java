@@ -21,10 +21,12 @@ public class ImageLoader {
 		return input;
 	}
 	
+	// Use this method for .ico files specifically
 	public List<BufferedImage> loadIcoFile(String relativeFilepath) throws IOException {
 		return ICODecoder.read(load(relativeFilepath));
 	}
 	
+	// Use this method for virtually every other image type
 	public BufferedImage loadImage(String relativeFilepath) throws IOException {
 		return ImageIO.read(load(relativeFilepath));
 	}
