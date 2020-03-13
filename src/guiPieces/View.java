@@ -60,9 +60,8 @@ public class View extends JFrame implements Observer {
 		setPreferredSize(new Dimension(1620, 780));
 		
 		// Add the icon
-		ImageLoader imgL = new ImageLoader();
 		try {
-			setIconImages(imgL.loadIcoFile("/images/meatShield_composite.ico"));
+			setIconImages(ImageLoader.loadIcoFile("/images/meatShield_composite.ico"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
