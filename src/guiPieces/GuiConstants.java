@@ -11,13 +11,31 @@ import javax.swing.border.Border;
 import utilities.ResourceLoader;
 
 public class GuiConstants {
-	// Custom font
+	// Custom fonts
 	public static Font HKGrotesk() {
 		Font toReturn = null;
 		try {
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 			// TODO: I really want to switch the lower-case 'g' to use g.ss01 (aka Latin Subtable 15) so that it looks more like DRG
 			toReturn = Font.createFont(Font.TRUETYPE_FONT, ResourceLoader.load("/fonts/HKGrotesk-Regular.ttf"));
+			ge.registerFont(toReturn);
+			toReturn = toReturn.deriveFont(14f);
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		catch (FontFormatException e) {
+			e.printStackTrace();
+		}
+		return toReturn;
+	}
+	
+	public static Font HKGroteskBold() {
+		Font toReturn = null;
+		try {
+			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			// TODO: I really want to switch the lower-case 'g' to use g.ss01 (aka Latin Subtable 15) so that it looks more like DRG
+			toReturn = Font.createFont(Font.TRUETYPE_FONT, ResourceLoader.load("/fonts/HKGrotesk-Bold.ttf"));
 			ge.registerFont(toReturn);
 			toReturn = toReturn.deriveFont(14f);
 		} 

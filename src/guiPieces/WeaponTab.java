@@ -24,6 +24,7 @@ public class WeaponTab extends JPanel {
 	
 	private Weapon myWeapon;
 	private Font customFont;
+	private Font customFontBold;
 	
 	public WeaponTab(Weapon inputWeapon) {
 		// Start by initializing the parent JPanel
@@ -31,6 +32,7 @@ public class WeaponTab extends JPanel {
 		
 		myWeapon = inputWeapon;
 		customFont = GuiConstants.HKGrotesk();
+		customFontBold = GuiConstants.HKGroteskBold();
 		
 		this.setOpaque(false);
 		
@@ -110,7 +112,7 @@ public class WeaponTab extends JPanel {
 				row.add(statLabel, BorderLayout.LINE_START);
 				
 				statValue = new JLabel(weaponStats[i].getValue());
-				// statValue.setFont(customFont);
+				// statValue.setFont(customFontBold);
 				if (weaponStats[i].shouldValueBeHighlighted()) {
 					statValue.setForeground(GuiConstants.drgHighlightedYellow);
 				}

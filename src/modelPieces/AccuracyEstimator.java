@@ -42,24 +42,27 @@ public class AccuracyEstimator {
 		which are strictly less than 90 degrees.
 	*/
 	public AccuracyEstimator(double rateOfFire, int numBulletsPerMagazine, 
-							 double baseSpread, double spreadPerShot, double spreadRecovery, double maxSpread,
-							 double recoilPerShot, double recoilRecovery, double maxRecoil) {
-		targetRadius = 0.2; // meters
-		targetDistance = 2.0; // meters
+							 double baseSpread, double spreadPerShot, double maxSpread, double spreadRecovery,
+							 double recoilPerShot, double maxRecoil, double recoilRecovery) {
+		targetRadius = 0.4; // meters
+		targetDistance = 5.0; // meters
 		
 		RoF = rateOfFire;
 		magSize = numBulletsPerMagazine;
 		// The time that passes between each shot
 		deltaT = 1.0 / RoF;
 		
-		Sb = baseSpread;  		// 0.15m
-		Ss = spreadPerShot;  	// 0.03m per shot
-		Sr = spreadRecovery;  	// 0.01m per sec
-		Sm = maxSpread;  		// 0.30m
+		Sb = baseSpread;
+		Ss = spreadPerShot;
+		Sr = spreadRecovery;
+		Sm = maxSpread;
 		
-		Rs = recoilPerShot;  	// 0.05m per shot
-		Rr = recoilRecovery;  	// 0.01m per sec
-		Rm = maxRecoil;  		// 0.80m
+		// I'm applying a 0.5 multiplier to all of these recoil coefficients, to factor in the player counter-acting the recoil by 50%.
+		// Intentionally using 1 - Counter so that I can change the player's efficiency directly, rather than having to do indirect math every time I want to change the value.
+		double playerRecoilCorrectionCoefficient = (1 - 0.5);
+		Rs = recoilPerShot * playerRecoilCorrectionCoefficient;
+		Rr = recoilRecovery * playerRecoilCorrectionCoefficient;
+		Rm = maxRecoil * playerRecoilCorrectionCoefficient;
 	}
 	
 	public double calculateAccuracy() {
@@ -107,7 +110,7 @@ public class AccuracyEstimator {
 			timeElapsed += deltaT;
 		}
 		
-		return sumOfAllProbabilities / magSize;
+		return sumOfAllProbabilities / magSize * 100.0;
 	}
 	
 	// Both radius() and recoil() return degrees of deviation and need to have their outputs changed to meters before use.

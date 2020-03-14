@@ -558,8 +558,8 @@ public class EPC_RegularShot extends Weapon {
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		// EPC has no recoil and no spread per shot, so it can effectively be considered 100% accurate
+		return calculateIdealSustainedDPS();
 	}
 
 	// Multi-target calculations
@@ -604,8 +604,7 @@ public class EPC_RegularShot extends Weapon {
 
 	@Override
 	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		return 0;
+		return -1.0;
 	}
 
 	@Override

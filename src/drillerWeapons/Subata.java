@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import modelPieces.UtilityInformation;
+import modelPieces.AccuracyEstimator;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
@@ -377,12 +378,14 @@ public class Subata extends Weapon {
 	private double getBaseSpread() {
 		double toReturn = baseSpread;
 		
-		if (selectedTier1 == 0) {
-			toReturn -= 1.0;
-		}
-		
+		// Additive bonuses first
 		if (selectedOverclock == 3) {
 			toReturn += 1.0;
+		}
+		
+		// Multiplicative bonuses last
+		if (selectedTier1 == 0) {
+			toReturn *= 0.0;
 		}
 		
 		return toReturn;
@@ -399,12 +402,12 @@ public class Subata extends Weapon {
 	private double getRecoil() {
 		double toReturn = recoil;
 		
-		if (selectedOverclock == 3) {
-			toReturn += 0.5;
+		if (selectedTier3 == 1) {
+			toReturn *= 0.75;
 		}
 		
-		if (selectedTier3 == 1) {
-			toReturn *= 0.5;
+		if (selectedOverclock == 3) {
+			toReturn *= 2.25;
 		}
 		
 		return toReturn;
@@ -576,9 +579,17 @@ public class Subata extends Weapon {
 
 	@Override
 	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		// convertDoubleToPercentage(new AccuracyEstimator(getRateOfFire(), getMagazineSize(), getBaseSpread(), getSpreadPerShot(), 1.0, 1.0, getRecoil(), 1.0, getRecoil()).calculateAccuracy())
-		return 0;
+		// Baseline stats before mods/OCs alter them (measured as degrees of deviation from the central axis)
+		// When Base Spread is 0%, it's really making the cone 2/5 the size. Likewise, when Base Spread is 200% it's making the cone 8/5 the size.
+		double baseSpread = 3.192929616;
+		double spreadPerShot = 0.6392212689;
+		double maxSpread = 6.366150134;
+		double spreadRecoverySpeed = 4.783215341;
+		double recoilPerShot = 1.718358002;
+		double maxRecoil = 5.142764558;
+		double recoilRecoverySpeed = 7.68844777;
+		
+		return new AccuracyEstimator(getRateOfFire(), getMagazineSize(), (0.4 * baseSpread + 0.6 * baseSpread * getBaseSpread()), spreadPerShot * getSpreadPerShot(), maxSpread, spreadRecoverySpeed, recoilPerShot * getRecoil(), maxRecoil * getRecoil(), recoilRecoverySpeed * getRecoil()).calculateAccuracy();
 	}
 
 	@Override
