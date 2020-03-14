@@ -59,7 +59,7 @@ public class AccuracyEstimator {
 		
 		// I'm applying a 0.5 multiplier to all of these recoil coefficients, to factor in the player counter-acting the recoil by 50%.
 		// Intentionally using 1 - Counter so that I can change the player's efficiency directly, rather than having to do indirect math every time I want to change the value.
-		double playerRecoilCorrectionCoefficient = (1 - 0.5);
+		double playerRecoilCorrectionCoefficient = (1.0 - 0.5);
 		Rs = recoilPerShot * playerRecoilCorrectionCoefficient;
 		Rr = recoilRecovery * playerRecoilCorrectionCoefficient;
 		Rm = maxRecoil * playerRecoilCorrectionCoefficient;

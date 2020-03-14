@@ -404,28 +404,36 @@ public class Shotgun extends Weapon {
 	private double getBaseSpread() {
 		double toReturn = baseSpread;
 		
+		// Although DRG has these stats multiply together as 25% Base Spread, it's more precise to represent them as additive bonuses in this model.
 		if (selectedTier2 == 2) {
-			toReturn *= 0.5;
+			toReturn -= 0.5;
 		}
 		
 		if (selectedOverclock == 2) {
-			toReturn *= 0.5;
+			toReturn -= 0.5;
 		}
-		else if (selectedOverclock == 3) {
-			toReturn *= 2.0;
-		}
+		// The listed stat 200% Base Spread on Cycle Overload is actually 150% Recoil
 		
 		return toReturn;
 	}
 	private double getRecoil() {
 		double toReturn = recoil;
 		
+		// Choke has a hidden 120% recoil stat
+		if (selectedTier2 == 2) {
+			toReturn *= 1.2;
+		}
 		if (selectedTier3 == 0) {
 			toReturn *= 0.4;
 		}
 		
-		if (selectedOverclock == 4) {
+		// Magnetic Pellet Alignment has a hidden 50% recoil stat
+		if (selectedOverclock == 2 || selectedOverclock == 4) {
 			toReturn *= 0.5;
+		}
+		// Cycle Overload actually has 150% recoil, instead of 200% Base Spread
+		else if (selectedOverclock == 3) {
+			toReturn *= 1.5;
 		}
 		
 		return toReturn;
@@ -547,8 +555,21 @@ public class Shotgun extends Weapon {
 
 	@Override
 	public double estimatedAccuracy() {
-		// TODO new AccuracyEstimator(getRateOfFire(), getMagazineSize(), getBaseSpread(), 1.0, 1.0, 1.0, getRecoil(), 1.0, getRecoil()).calculateAccuracy()
-		return 0;
+		// Baseline stats before mods/OCs alter them (measured as degrees of deviation from the central axis)
+		// When Base Spread is 0%, it's really making the cone 53% the size. Likewise, when Base Spread is 50% it's making the cone 77% the size.
+		// 108 + 94 * Base Spread
+		double unchangingBaseSpread = 108.0/202.0;
+		double changingBaseSpread = 94.0/202.0;
+		
+		double baseSpread = 6.429281185;
+		double modifiedBaseSpread = unchangingBaseSpread * baseSpread + changingBaseSpread * baseSpread * getBaseSpread();
+		// Engie's Shotgun's spread doesn't change per shot, and therefore doesn't have to recover afterwards.
+		
+		double recoilPerShot = 5.937416099;
+		double maxRecoil = 9.313598909;
+		double recoilRecoverySpeed = 12.33453059;
+		
+		return new AccuracyEstimator(getRateOfFire(), getMagazineSize(), modifiedBaseSpread, 0, modifiedBaseSpread, 0, recoilPerShot * getRecoil(), maxRecoil * getRecoil(), recoilRecoverySpeed * getRecoil()).calculateAccuracy();
 	}
 
 	@Override
