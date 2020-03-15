@@ -602,7 +602,9 @@ public class Subata extends Weapon {
 		double maxRecoil = 5.142764558;
 		double recoilRecoverySpeed = 7.68844777;
 		
-		return new AccuracyEstimator(getRateOfFire(), getMagazineSize(), modifiedBaseSpread, spreadPerShot * getSpreadPerShot(), maxSpread, spreadRecoverySpeed, recoilPerShot * getRecoil(), maxRecoil * getRecoil(), recoilRecoverySpeed * getRecoil()).calculateAccuracy();
+		return AccuracyEstimator.calculateAccuracy(getRateOfFire(), getMagazineSize(), 
+				modifiedBaseSpread, spreadPerShot * getSpreadPerShot(), maxSpread, spreadRecoverySpeed, 
+				recoilPerShot * getRecoil(), maxRecoil * getRecoil(), recoilRecoverySpeed * getRecoil());
 	}
 
 	@Override

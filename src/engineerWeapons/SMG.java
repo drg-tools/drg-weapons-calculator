@@ -617,7 +617,9 @@ public class SMG extends Weapon {
 		double maxRecoil = 7.406912128;
 		double recoilRecoverySpeed = 14.5742162;
 		
-		return new AccuracyEstimator(getRateOfFire(), getMagazineSize(), modifiedBaseSpread, spreadPerShot, maxSpread, spreadRecoverySpeed, recoilPerShot * getRecoil(), maxRecoil * getRecoil(), recoilRecoverySpeed * getRecoil()).calculateAccuracy();
+		return AccuracyEstimator.calculateAccuracy(getRateOfFire(), getMagazineSize(), 
+				modifiedBaseSpread, spreadPerShot, maxSpread, spreadRecoverySpeed, 
+				recoilPerShot * getRecoil(), maxRecoil * getRecoil(), recoilRecoverySpeed * getRecoil());
 	}
 
 	@Override

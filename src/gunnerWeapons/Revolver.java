@@ -709,7 +709,9 @@ public class Revolver extends Weapon {
 		double maxRecoil = 9.648045316;
 		double recoilRecoverySpeed = 18.77803322;
 		
-		return new AccuracyEstimator(getRateOfFire(), getMagazineSize(), modifiedBaseSpread, spreadPerShot * getSpreadPerShot(), maxSpread, spreadRecoverySpeed, recoilPerShot * getRecoil(), maxRecoil * getRecoil(), recoilRecoverySpeed * getRecoil()).calculateAccuracy();
+		return AccuracyEstimator.calculateAccuracy(getRateOfFire(), getMagazineSize(), 
+				modifiedBaseSpread, spreadPerShot * getSpreadPerShot(), maxSpread, spreadRecoverySpeed, 
+				recoilPerShot * getRecoil(), maxRecoil * getRecoil(), recoilRecoverySpeed * getRecoil());
 	}
 
 	@Override

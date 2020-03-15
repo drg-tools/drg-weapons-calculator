@@ -568,7 +568,9 @@ public class Shotgun extends Weapon {
 		double maxRecoil = 9.313598909;
 		double recoilRecoverySpeed = 12.33453059;
 		
-		return new AccuracyEstimator(getRateOfFire(), getMagazineSize(), modifiedBaseSpread, 0, modifiedBaseSpread, 0, recoilPerShot * getRecoil(), maxRecoil * getRecoil(), recoilRecoverySpeed * getRecoil()).calculateAccuracy();
+		return AccuracyEstimator.calculateAccuracy(getRateOfFire(), getMagazineSize(), 
+				modifiedBaseSpread, 0, modifiedBaseSpread, 0, 
+				recoilPerShot * getRecoil(), maxRecoil * getRecoil(), recoilRecoverySpeed * getRecoil());
 	}
 
 	@Override

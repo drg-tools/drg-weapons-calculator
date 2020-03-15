@@ -4,56 +4,41 @@ public class AccuracyEstimator {
 	public static double targetRadius = 0.4; // meters
 	public static double targetDistance = 5.0; // meters
 	
-	private double RoF;
-	private int magSize;
-	private double deltaT;
-	
-	private double Sb;
-	private double Ss;
-	private double Sr;
-	private double Sm;
-	
-	private double Rs;
-	private double Rr;
-	private double Rm;
-	
 	/*
 		Except for RoF and magSize, all of these parameters should be passed in as degrees of deviation from a central axis 
 		which are strictly less than 90 degrees.
 	*/
-	public AccuracyEstimator(double rateOfFire, int numBulletsPerMagazine, 
-							 double baseSpread, double spreadPerShot, double maxSpread, double spreadRecovery,
-							 double recoilPerShot, double maxRecoil, double recoilRecovery) {
+	public static double calculateAccuracy(double rateOfFire, int numBulletsPerMagazine, 
+			 double baseSpread, double spreadPerShot, double maxSpread, double spreadRecovery,
+			 double recoilPerShot, double maxRecoil, double recoilRecovery) {
 		
-		RoF = rateOfFire;
-		magSize = numBulletsPerMagazine;
+		
+		double RoF = rateOfFire;
+		int magSize = numBulletsPerMagazine;
 		// The time that passes between each shot
-		deltaT = 1.0 / RoF;
+		double deltaT = 1.0 / RoF;
 		
-		Sb = baseSpread;
-		Ss = spreadPerShot;
-		Sr = spreadRecovery;
+		double Sb = baseSpread;
+		double Ss = spreadPerShot;
+		double Sr = spreadRecovery;
 		// TODO: For most guns, the max spread is calculated by adding the base spread + max spread -- thus base and max spread are tied together and grow/shrink by the same value (not same multiplier)
 		// This should be refactored to represent that.
-		Sm = maxSpread;
+		double Sm = maxSpread;
 		
 		// I'm applying a 0.5 multiplier to all of these recoil coefficients, to factor in the player counter-acting the recoil by 50%.
 		// Intentionally using 1 - Counter so that I can change the player's efficiency directly, rather than having to do indirect math every time I want to change the value.
 		double playerRecoilCorrectionCoefficient = (1.0 - 0.5);
-		Rs = recoilPerShot * playerRecoilCorrectionCoefficient;
-		Rr = recoilRecovery * playerRecoilCorrectionCoefficient;
-		Rm = maxRecoil * playerRecoilCorrectionCoefficient;
-	}
-	
-	public double calculateAccuracy() {
+		double Rs = recoilPerShot * playerRecoilCorrectionCoefficient;
+		double Rr = recoilRecovery * playerRecoilCorrectionCoefficient;
+		double Rm = maxRecoil * playerRecoilCorrectionCoefficient;
 		
 		double sumOfAllProbabilities = 0.0;
 		double timeElapsed = 0.0;
 		
 		double reticleRadius, recoil, P; 
 		for (int i = 0; i < magSize; i++) {
-			reticleRadius = convertDegreesToMeters(radius(i, timeElapsed));
-			recoil = convertDegreesToMeters(recoil(i, timeElapsed));
+			reticleRadius = convertDegreesToMeters(radius(i, timeElapsed, Sb, Ss, Sr, Sm));
+			recoil = convertDegreesToMeters(recoil(i, timeElapsed, Rs, Rr, Rm));
 			
 			if (targetRadius >= reticleRadius) {
 				if (recoil <= targetRadius - reticleRadius) {
@@ -94,15 +79,15 @@ public class AccuracyEstimator {
 	}
 	
 	// Both radius() and recoil() return degrees of deviation and need to have their outputs changed to meters before use.
-	private double radius(int numBulletsFired, double timeElapsed) {
+	private static double radius(int numBulletsFired, double timeElapsed, double Sb, double Ss, double Sr, double Sm) {
 		return Sb + Math.min(Math.max(numBulletsFired * Ss - timeElapsed * Sr, 0), Sm - Sb);
 	}
 	
-	private double recoil(int numBulletsFired, double timeElapsed) {
+	private static double recoil(int numBulletsFired, double timeElapsed, double Rs, double Rr, double Rm) {
 		return Math.min(Math.max(numBulletsFired * Rs - timeElapsed * Rr, 0), Rm);
 	}
 	
-	private double areaOfLens(double R, double r, double d) {
+	private static double areaOfLens(double R, double r, double d) {
 		// Sourced from https://en.wikipedia.org/wiki/Lens_(geometry)
 		double firstThird = Math.pow(r, 2) * Math.acos((Math.pow(d, 2) + Math.pow(r, 2) - Math.pow(R, 2)) / (2 * d * r));
 		double secondThird = Math.pow(R, 2) * Math.acos((Math.pow(d, 2) + Math.pow(R, 2) - Math.pow(r, 2)) / (2 * d * R));
@@ -111,7 +96,7 @@ public class AccuracyEstimator {
 		return firstThird + secondThird - finalThird;
 	}
 	
-	private double convertDegreesToMeters(double degrees) {
+	private static double convertDegreesToMeters(double degrees) {
 		double radians = degrees * Math.PI / 180.0;
 		return targetDistance * Math.tan(radians);
 	}
