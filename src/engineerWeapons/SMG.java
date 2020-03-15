@@ -408,6 +408,16 @@ public class SMG extends Weapon {
 		
 		return toReturn;
 	}
+	private double getRecoil() {
+		double toReturn = 1.0;
+		
+		// EM Refire Booster has a hidden 125% recoil penalty
+		if (selectedOverclock == 2) {
+			toReturn *= 1.25;
+		}
+		
+		return toReturn;
+	}
 	private double getWeakpointBonus() {
 		double toReturn = weakpointBonus;
 		
@@ -420,7 +430,7 @@ public class SMG extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[13];
+		StatsRow[] toReturn = new StatsRow[14];
 		
 		boolean DoTChanceModified = selectedTier1 == 1 || selectedTier4 == 1 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Electrocution DoT Chance:", convertDoubleToPercentage(getElectrocutionDoTChance()), DoTChanceModified);
@@ -449,7 +459,9 @@ public class SMG extends Weapon {
 		boolean baseSpreadModified = selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock == 2;
 		toReturn[11] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified);
 		
-		toReturn[12] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[12] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedOverclock == 2);
+		
+		toReturn[13] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0, selectedTier4 == 0);
 		
 		return toReturn;
 	}
@@ -591,8 +603,21 @@ public class SMG extends Weapon {
 
 	@Override
 	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		return 0;
+		// Baseline stats before mods/OCs alter them (measured as degrees of deviation from the central axis)
+		// 64 + 42 * Base Spread
+		double unchangingBaseSpread = 64.0/106.0;
+		double changingBaseSpread = 42.0/106.0;
+		
+		double baseSpread = 3.384072723;
+		double modifiedBaseSpread = unchangingBaseSpread * baseSpread + changingBaseSpread * baseSpread * getBaseSpread();
+		double spreadPerShot = 0.5433443342;
+		double maxSpread = 7.217049469;
+		double spreadRecoverySpeed = 3.861591501;
+		double recoilPerShot = 2.290610043;
+		double maxRecoil = 7.406912128;
+		double recoilRecoverySpeed = 14.5742162;
+		
+		return new AccuracyEstimator(getRateOfFire(), getMagazineSize(), modifiedBaseSpread, spreadPerShot, maxSpread, spreadRecoverySpeed, recoilPerShot * getRecoil(), maxRecoil * getRecoil(), recoilRecoverySpeed * getRecoil()).calculateAccuracy();
 	}
 
 	@Override

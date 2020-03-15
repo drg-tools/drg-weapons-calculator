@@ -3,6 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
@@ -695,8 +696,21 @@ public class Revolver extends Weapon {
 
 	@Override
 	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		return 0;
+		// Baseline stats before mods/OCs alter them (measured as degrees of deviation from the central axis)
+		// 20 + 30 * Base Spread
+		double unchangingBaseSpread = 3.0/33.0;
+		double changingBaseSpread = 30.0/33.0;
+		
+		double baseSpread = 1.05463973;
+		double modifiedBaseSpread = unchangingBaseSpread * baseSpread + changingBaseSpread * baseSpread * getBaseSpread();
+		double spreadPerShot = 3.829772889;
+		double maxSpread = 5.544087639;
+		double spreadRecoverySpeed = 3.75021605;
+		double recoilPerShot = 7.744710546;
+		double maxRecoil = 9.648045316;
+		double recoilRecoverySpeed = 18.77803322;
+		
+		return new AccuracyEstimator(getRateOfFire(), getMagazineSize(), modifiedBaseSpread, spreadPerShot * getSpreadPerShot(), maxSpread, spreadRecoverySpeed, recoilPerShot * getRecoil(), maxRecoil * getRecoil(), recoilRecoverySpeed * getRecoil()).calculateAccuracy();
 	}
 
 	@Override

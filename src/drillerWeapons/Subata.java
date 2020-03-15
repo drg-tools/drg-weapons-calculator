@@ -580,16 +580,29 @@ public class Subata extends Weapon {
 	@Override
 	public double estimatedAccuracy() {
 		// Baseline stats before mods/OCs alter them (measured as degrees of deviation from the central axis)
-		// When Base Spread is 0%, it's really making the cone 2/5 the size. Likewise, when Base Spread is 200% it's making the cone 8/5 the size.
-		double baseSpread = 3.192929616;  // 1.597705231;
-		double spreadPerShot = 0.6392212689;  // 0.3196205801;
-		double maxSpread = 6.366150134;  // 3.192929616;
-		double spreadRecoverySpeed = 4.783215341;  // 2.39578195;
+		// 20 + 30 * Base Spread
+		double unchangingBaseSpread = 20.0/50.0;
+		double changingBaseSpread = 30.0/50.0;
+		
+		/*
+		Technically these are the correct values, but using the artificially doubled values makes the Accuracy estimate seem more accurate
+		double baseSpread = 1.597705231;
+		double modifiedBaseSpread = unchangingBaseSpread * baseSpread + changingBaseSpread * baseSpread * getBaseSpread();
+		double spreadPerShot = 0.3196205801;
+		double maxSpread = 3.192929616;
+		double spreadRecoverySpeed = 2.39578195;
+		*/
+		
+		double baseSpread = 3.192929616;
+		double modifiedBaseSpread = unchangingBaseSpread * baseSpread + changingBaseSpread * baseSpread * getBaseSpread();
+		double spreadPerShot = 0.6392212689;
+		double maxSpread = 6.366150134;
+		double spreadRecoverySpeed = 4.783215341;
 		double recoilPerShot = 1.718358002;
 		double maxRecoil = 5.142764558;
 		double recoilRecoverySpeed = 7.68844777;
 		
-		return new AccuracyEstimator(getRateOfFire(), getMagazineSize(), (0.4 * baseSpread + 0.6 * baseSpread * getBaseSpread()), spreadPerShot * getSpreadPerShot(), maxSpread, spreadRecoverySpeed, recoilPerShot * getRecoil(), maxRecoil * getRecoil(), recoilRecoverySpeed * getRecoil()).calculateAccuracy();
+		return new AccuracyEstimator(getRateOfFire(), getMagazineSize(), modifiedBaseSpread, spreadPerShot * getSpreadPerShot(), maxSpread, spreadRecoverySpeed, recoilPerShot * getRecoil(), maxRecoil * getRecoil(), recoilRecoverySpeed * getRecoil()).calculateAccuracy();
 	}
 
 	@Override

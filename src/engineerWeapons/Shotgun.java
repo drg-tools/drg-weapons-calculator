@@ -556,7 +556,6 @@ public class Shotgun extends Weapon {
 	@Override
 	public double estimatedAccuracy() {
 		// Baseline stats before mods/OCs alter them (measured as degrees of deviation from the central axis)
-		// When Base Spread is 0%, it's really making the cone 53% the size. Likewise, when Base Spread is 50% it's making the cone 77% the size.
 		// 108 + 94 * Base Spread
 		double unchangingBaseSpread = 108.0/202.0;
 		double changingBaseSpread = 94.0/202.0;

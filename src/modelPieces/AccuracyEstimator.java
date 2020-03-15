@@ -55,6 +55,8 @@ public class AccuracyEstimator {
 		Sb = baseSpread;
 		Ss = spreadPerShot;
 		Sr = spreadRecovery;
+		// TODO: For most guns, the max spread is calculated by adding the base spread + max spread -- thus base and max spread are tied together and grow/shrink by the same value (not same multiplier)
+		// This should be refactored to represent that.
 		Sm = maxSpread;
 		
 		// I'm applying a 0.5 multiplier to all of these recoil coefficients, to factor in the player counter-acting the recoil by 50%.
