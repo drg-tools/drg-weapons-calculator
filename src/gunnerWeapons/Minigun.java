@@ -67,7 +67,7 @@ public class Minigun extends Weapon {
 		movespeedWhileFiring = 0.5;
 		baseSpread = 1.0;
 		armorBreakChance = 1.0;
-		bulletsFiredTilMaxStability = 50;  // equals 25 pellets
+		bulletsFiredTilMaxStability = 40;  // equals 20 pellets
 		cooldownAfterOverheat = 11;
 		
 		initializeModsAndOverclocks();
@@ -740,11 +740,59 @@ public class Minigun extends Weapon {
 		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
 		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
 	}
+	
+	// Borrowed from AccuracyEstimator
+	private double convertDegreesToMeters(double degrees) {
+		double radians = degrees * Math.PI / 180.0;
+		return 5.0 * Math.tan(radians);
+	}
 
 	@Override
 	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		return 0;
+		// I'm choosing to model Minigun as if it has no recoil. Although it does, its so negligible that it would have no effect.
+		// Because it's being modeled without recoil, and its crosshair gets smaller as it fires, I'm making a quick-and-dirty estimate here instead of using AccuracyEstimator.
+		
+		// Baseline stats before mods/OCs alter them (measured as degrees of deviation from the central axis)
+		double unchangingBaseSpread = 61.0/129.0;
+		double changingBaseSpread = 68.0/129.0;
+		
+		double maxSpread = 14.54199762;
+		double spreadPerShot = 0.5369524244;
+		double minSpread = 4.116052903;
+		double spreadVariance = maxSpread - minSpread;
+		double modifiedMinSpread = unchangingBaseSpread * minSpread + changingBaseSpread * minSpread * getBaseSpread();
+		double modifiedMaxSpread = modifiedMinSpread + spreadVariance;
+		// double spreadRecoverySpeed = (maxSpread - minSpread) / ((double) getSpindownTime());
+		
+		// Borrowed from AccuracyEstimator
+		// Because this is modeled without recoil, there are only two options: one where the crosshair is larger than the target, and one where it's <=.
+		double sumOfAllProbabilities = 0.0;
+		double targetRadius = 0.4;
+		int numPelletsFired = (int) calculateMaxNumPelletsFiredWithoutOverheating();
+		int numPelletsUntilStable = bulletsFiredTilMaxStability/2;
+		double currentSpreadRadius;
+		for (int i = 0; i < numPelletsUntilStable; i++) {
+			currentSpreadRadius = convertDegreesToMeters(modifiedMaxSpread - i*spreadPerShot);
+			
+			if (currentSpreadRadius > targetRadius) {
+				sumOfAllProbabilities += Math.pow((targetRadius / currentSpreadRadius), 2);
+			}
+			else {
+				sumOfAllProbabilities += 1.0;
+			}
+		}
+		
+		// Because only the first 20 shots have an accuracy penalty, the rest can be modeled with simple multiplication
+		int numPelletsFiredAfterStable = numPelletsFired - numPelletsUntilStable;
+		currentSpreadRadius = convertDegreesToMeters(modifiedMinSpread);
+		if (currentSpreadRadius > targetRadius) {
+			sumOfAllProbabilities += numPelletsFiredAfterStable * Math.pow((targetRadius / currentSpreadRadius), 2);
+		}
+		else {
+			sumOfAllProbabilities += numPelletsFiredAfterStable;
+		}
+		
+		return sumOfAllProbabilities / numPelletsFired * 100.0;
 	}
 
 	@Override

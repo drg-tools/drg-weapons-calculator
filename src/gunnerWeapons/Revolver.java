@@ -408,16 +408,16 @@ public class Revolver extends Weapon {
 	private double getRecoil() {
 		double toReturn = recoil;
 		
-		if (selectedTier2 == 1) {
-			toReturn -= 0.75;
+		// Additive first
+		if (selectedOverclock == 2 || selectedOverclock == 4) {
+			toReturn += 1.5;
 		}
 		
-		if (selectedOverclock == 2) {
-			toReturn += 1.5;
+		// Multiplicative last
+		if (selectedTier2 == 1) {
+			toReturn *= 0.75;
 		}
-		else if (selectedOverclock == 4) {
-			toReturn += 1.5;
-		}
+		
 		return toReturn;
 	}
 	
@@ -697,7 +697,6 @@ public class Revolver extends Weapon {
 	@Override
 	public double estimatedAccuracy() {
 		// Baseline stats before mods/OCs alter them (measured as degrees of deviation from the central axis)
-		// 20 + 30 * Base Spread
 		double unchangingBaseSpread = 3.0/33.0;
 		double changingBaseSpread = 30.0/33.0;
 		
