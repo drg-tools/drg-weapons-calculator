@@ -3,6 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
@@ -591,8 +592,50 @@ public class Autocannon extends Weapon {
 
 	@Override
 	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		return 0;
+		// Because the crosshair is just a rectangle and the recoil is as negligible as the Minigun, the probability of a bullet landing on the intended target
+		// is equal to the area of the target contained within the rectangle divided by the area of the rectangle.
+		// It is assumed that the rectangular crosshair's height < width.
+		
+		double crosshairHeightDegrees, crosshairWidthDegrees;
+		
+		if (selectedTier2 == 0) {
+			// Base Spead = 70%
+			crosshairHeightDegrees = 7.939388723;
+			crosshairWidthDegrees = 17.29030524;
+		}
+		else {
+			// Base Spread = 100%
+			crosshairHeightDegrees = 10.24520617;
+			crosshairWidthDegrees = 23.89008816;
+		}
+		double crosshairHeightMeters = AccuracyEstimator.targetDistance * Math.tan(crosshairHeightDegrees * Math.PI / 180.0);
+		double crosshairWidthMeters = AccuracyEstimator.targetDistance * Math.tan(crosshairWidthDegrees * Math.PI / 180.0);
+		
+		double targetRadius = AccuracyEstimator.targetRadius;
+		double areaOfTargetCircleContainedWithinRectangle = Math.PI * Math.pow(targetRadius, 2);
+		double areaOfCrosshairRectangle = crosshairHeightMeters * crosshairWidthMeters;
+		
+		/*
+			If the diameter of the target circle is greater than the height of the rectangle, that means that there are two parts of the target circle that aren't contained within the rectangle
+			and should be subtracted from the target circle's area so that the probability isn't artificially inflated.
+		*/
+		if (2.0 * targetRadius > crosshairHeightMeters) {
+			// Step 1: find the 4 points where the rectangle intersects the circle, and calculate the angle from the center of the circle to one of those points (Theta, in radians)
+			double theta = Math.asin(crosshairHeightMeters / (2 * targetRadius));
+			
+			// Step 2: Use the angle 2*(Pi/2 - Theta) to calculate the area of the "pie slices" formed from the center of the circle to the top/bottom of the rectangle intersections
+			double sigma = 2.0 * (Math.PI/2.0 - theta);
+			double areaOfPieSlice = 0.5 * sigma * Math.pow(targetRadius, 2);
+			
+			// Step 3: Calculate the area of the triangle contained within each pie slice that is also within the rectangle
+			double lengthOfChordAtTopOfTriangle = 2 * targetRadius * Math.sin(sigma / 2);
+			double areaOfTriangleInPieSlice = (lengthOfChordAtTopOfTriangle / 2.0) * (crosshairHeightMeters / 2.0);
+			
+			// Step 4: Subtract twice the difference from the circle's total area
+			areaOfTargetCircleContainedWithinRectangle -= 2.0 * (areaOfPieSlice - areaOfTriangleInPieSlice);
+		}
+		
+		return areaOfTargetCircleContainedWithinRectangle / areaOfCrosshairRectangle * 100.0;
 	}
 
 	@Override

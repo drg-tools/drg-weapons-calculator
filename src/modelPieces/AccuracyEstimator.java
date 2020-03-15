@@ -1,28 +1,8 @@
 package modelPieces;
 
-/*
-	Weapons that will use this:
-	Subata
-	EPC_RegularShot
-	Shotgun
-	SMG
-	Autocannon
-	BurstPistol
-	Minigun?
-	Revolver
-	Boomstick
-	Classic_Hipfire
-	Deepcore
-	Zhukov
-*/
-
-// TODO: add a way to model Rectangular crosshairs, like Autocannon, Boomstick, and Zhukovs.
-
-// It might be possible that Base Spread percentage doesn't scale the RADIUS, but rather the AREA of the base spread. So 600% base spread -> SqRt(6)*radius, and 50% -> SqRt(0.5)*radius
-
 public class AccuracyEstimator {
-	private double targetRadius;
-	private double targetDistance;
+	public static double targetRadius = 0.4; // meters
+	public static double targetDistance = 5.0; // meters
 	
 	private double RoF;
 	private int magSize;
@@ -44,8 +24,6 @@ public class AccuracyEstimator {
 	public AccuracyEstimator(double rateOfFire, int numBulletsPerMagazine, 
 							 double baseSpread, double spreadPerShot, double maxSpread, double spreadRecovery,
 							 double recoilPerShot, double maxRecoil, double recoilRecovery) {
-		targetRadius = 0.4; // meters
-		targetDistance = 5.0; // meters
 		
 		RoF = rateOfFire;
 		magSize = numBulletsPerMagazine;

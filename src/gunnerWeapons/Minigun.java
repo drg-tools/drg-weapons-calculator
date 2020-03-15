@@ -3,6 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
@@ -744,7 +745,7 @@ public class Minigun extends Weapon {
 	// Borrowed from AccuracyEstimator
 	private double convertDegreesToMeters(double degrees) {
 		double radians = degrees * Math.PI / 180.0;
-		return 5.0 * Math.tan(radians);
+		return AccuracyEstimator.targetDistance * Math.tan(radians);
 	}
 
 	@Override
@@ -767,7 +768,7 @@ public class Minigun extends Weapon {
 		// Borrowed from AccuracyEstimator
 		// Because this is modeled without recoil, there are only two options: one where the crosshair is larger than the target, and one where it's <=.
 		double sumOfAllProbabilities = 0.0;
-		double targetRadius = 0.4;
+		double targetRadius = AccuracyEstimator.targetRadius;
 		int numPelletsFired = (int) calculateMaxNumPelletsFiredWithoutOverheating();
 		int numPelletsUntilStable = bulletsFiredTilMaxStability/2;
 		double currentSpreadRadius;
