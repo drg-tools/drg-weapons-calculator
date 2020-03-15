@@ -96,7 +96,7 @@ public class AccuracyEstimator {
 		return firstThird + secondThird - finalThird;
 	}
 	
-	private static double convertDegreesToMeters(double degrees) {
+	public static double convertDegreesToMeters(double degrees) {
 		double radians = degrees * Math.PI / 180.0;
 		return targetDistance * Math.tan(radians);
 	}

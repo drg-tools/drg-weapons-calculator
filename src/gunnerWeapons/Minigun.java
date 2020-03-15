@@ -741,12 +741,6 @@ public class Minigun extends Weapon {
 		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
 		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
 	}
-	
-	// Borrowed from AccuracyEstimator
-	private double convertDegreesToMeters(double degrees) {
-		double radians = degrees * Math.PI / 180.0;
-		return AccuracyEstimator.targetDistance * Math.tan(radians);
-	}
 
 	@Override
 	public double estimatedAccuracy() {
@@ -773,7 +767,7 @@ public class Minigun extends Weapon {
 		int numPelletsUntilStable = bulletsFiredTilMaxStability/2;
 		double currentSpreadRadius;
 		for (int i = 0; i < numPelletsUntilStable; i++) {
-			currentSpreadRadius = convertDegreesToMeters(modifiedMaxSpread - i*spreadPerShot);
+			currentSpreadRadius = AccuracyEstimator.convertDegreesToMeters(modifiedMaxSpread - i*spreadPerShot);
 			
 			if (currentSpreadRadius > targetRadius) {
 				sumOfAllProbabilities += Math.pow((targetRadius / currentSpreadRadius), 2);
@@ -785,7 +779,7 @@ public class Minigun extends Weapon {
 		
 		// Because only the first 20 shots have an accuracy penalty, the rest can be modeled with simple multiplication
 		int numPelletsFiredAfterStable = numPelletsFired - numPelletsUntilStable;
-		currentSpreadRadius = convertDegreesToMeters(modifiedMinSpread);
+		currentSpreadRadius = AccuracyEstimator.convertDegreesToMeters(modifiedMinSpread);
 		if (currentSpreadRadius > targetRadius) {
 			sumOfAllProbabilities += numPelletsFiredAfterStable * Math.pow((targetRadius / currentSpreadRadius), 2);
 		}
