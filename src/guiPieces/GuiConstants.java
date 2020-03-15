@@ -12,7 +12,7 @@ import utilities.ResourceLoader;
 
 public class GuiConstants {
 	// Custom fonts
-	public static Font HKGrotesk() {
+	private static Font HKGrotesk() {
 		Font toReturn = null;
 		try {
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -29,8 +29,9 @@ public class GuiConstants {
 		}
 		return toReturn;
 	}
+	public static Font customFont = HKGrotesk();
 	
-	public static Font HKGroteskBold() {
+	private static Font HKGroteskBold() {
 		Font toReturn = null;
 		try {
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -47,6 +48,7 @@ public class GuiConstants {
 		}
 		return toReturn;
 	}
+	public static Font customFontBold = HKGroteskBold();
 	
 	// Custom colors that the GUI uses
 	public static Color drgBackgroundBiege = new Color(83, 70, 51);
