@@ -614,17 +614,18 @@ public class Autocannon extends Weapon {
 			crosshairHeightDegrees = 10.24520617;
 			crosshairWidthDegrees = 23.89008816;
 		}
-		double crosshairHeightMeters = AccuracyEstimator.targetDistance * Math.tan(crosshairHeightDegrees * Math.PI / 180.0);
-		double crosshairWidthMeters = AccuracyEstimator.targetDistance * Math.tan(crosshairWidthDegrees * Math.PI / 180.0);
+		
+		double crosshairHeightMeters = AccuracyEstimator.convertDegreesToMeters(crosshairHeightDegrees);
+		double crosshairWidthMeters = AccuracyEstimator.convertDegreesToMeters(crosshairWidthDegrees);
 		
 		double targetRadius = AccuracyEstimator.targetRadius;
 		
 		/*
 			From observation, it looks like the horizontal distribution of bullets followed a bell curve such that the highest probabilities were in the center of the rectangle, 
 			and the lower probabilities were near the edges. To model that, I'm choosing to calculate the sum of the probabilities that the horizontal spread will be within 
-			the target radius and then I'm going to multiply the area of the circle by that weight to artificially increase the accuracy.
+			the target radius as well as the probability of vertical spread being within the target radius, and then taking the area of the "probability ellipse" formed by those two numbers.
 		*/
-		// Convert the target radius in meters to the unitless probability ellipse
+		// Convert the target radius in meters to the unit-less probability ellipse
 		double endOfProbabilityCurve = 2.0 * Math.sqrt(2.0);
 		double horizontalProbabilityRatio = endOfProbabilityCurve * targetRadius / (crosshairWidthMeters / 2.0);
 		double hProb = MathUtils.areaUnderNormalDistribution(-1.0 * horizontalProbabilityRatio, horizontalProbabilityRatio);
