@@ -520,8 +520,18 @@ public class Autocannon extends Weapon {
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		// TODO: this is incomplete; I was just curious to see how the inaccuracy affected this gun.
+		double magSize = getMagazineSize();
+		double accuracy = estimatedAccuracy();
+		// Assuming that all bullets' splash hits the intended target, but only accuracy% bullets hit directly
+		double directDamage = this.increaseBulletDamageForWeakpoints(getDirectDamage());
+		int areaDamage = getAreaDamage();
+		double avgDmgPerBullet = (accuracy*(directDamage + areaDamage) + (100 - accuracy)*areaDamage)/100.0;
+		
+		double dmgPerMagazine = avgDmgPerBullet * magSize;
+		double timeToFireMagazineAndReload = (magSize / getAverageRateOfFire()) + getReloadTime();
+		
+		return dmgPerMagazine / timeToFireMagazineAndReload;
 	}
 
 

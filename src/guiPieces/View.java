@@ -54,8 +54,7 @@ public class View extends JFrame implements Observer {
 	private JTabbedPane infoTabs;
 	
 	/*
-		It looks like they use the paid-for font "Aktiv Grotesk Cd". However, to keep this free, I'm choosing to use font "HK Grotesk" because it's an open-source font
-		https://www.myfonts.com/fonts/daltonmaag/aktiv-grotesk/cd/
+		It looks like they use the paid-for font "Aktiv Grotesk Cd". However, to keep this free, I'm choosing to use font "Roboto Condensed" because it's an open-source font
 	*/
 	
 	public View(Weapon[] dWeapons, Weapon[] eWeapons, Weapon[] gWeapons, Weapon[] sWeapons) {

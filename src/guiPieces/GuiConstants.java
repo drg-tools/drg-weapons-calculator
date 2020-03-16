@@ -12,14 +12,13 @@ import utilities.ResourceLoader;
 
 public class GuiConstants {
 	// Custom fonts
-	private static Font HKGrotesk() {
+	private static Font RobotoCondensed() {
 		Font toReturn = null;
 		try {
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-			// TODO: I really want to switch the lower-case 'g' to use g.ss01 (aka Latin Subtable 15) so that it looks more like DRG
-			toReturn = Font.createFont(Font.TRUETYPE_FONT, ResourceLoader.load("/fonts/HKGrotesk-Regular.ttf"));
+			toReturn = Font.createFont(Font.TRUETYPE_FONT, ResourceLoader.load("/fonts/RobotoCondensed-Regular.ttf"));
 			ge.registerFont(toReturn);
-			toReturn = toReturn.deriveFont(14f);
+			toReturn = toReturn.deriveFont(15f);
 		} 
 		catch (IOException e) {
 			e.printStackTrace();
@@ -29,16 +28,15 @@ public class GuiConstants {
 		}
 		return toReturn;
 	}
-	public static Font customFont = HKGrotesk();
+	public static Font customFont = RobotoCondensed();
 	
-	private static Font HKGroteskBold() {
+	private static Font RobotoCondensedBold() {
 		Font toReturn = null;
 		try {
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-			// TODO: I really want to switch the lower-case 'g' to use g.ss01 (aka Latin Subtable 15) so that it looks more like DRG
-			toReturn = Font.createFont(Font.TRUETYPE_FONT, ResourceLoader.load("/fonts/HKGrotesk-Bold.ttf"));
+			toReturn = Font.createFont(Font.TRUETYPE_FONT, ResourceLoader.load("/fonts/RobotoCondensed-Bold.ttf"));
 			ge.registerFont(toReturn);
-			toReturn = toReturn.deriveFont(14f);
+			toReturn = toReturn.deriveFont(15f);
 		} 
 		catch (IOException e) {
 			e.printStackTrace();
@@ -48,7 +46,7 @@ public class GuiConstants {
 		}
 		return toReturn;
 	}
-	public static Font customFontBold = HKGroteskBold();
+	public static Font customFontBold = RobotoCondensedBold();
 	
 	// Custom colors that the GUI uses
 	public static Color drgBackgroundBiege = new Color(83, 70, 51);
