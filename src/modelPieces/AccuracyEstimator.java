@@ -8,7 +8,7 @@ public class AccuracyEstimator {
 		Except for RoF and magSize, all of these parameters should be passed in as degrees of deviation from a central axis 
 		which are strictly less than 90 degrees.
 	*/
-	public static double calculateAccuracy(double rateOfFire, int numBulletsPerMagazine, 
+	public static double calculateAccuracy(double rateOfFire, int numBulletsPerMagazine, int burstSize,
 			 double baseSpread, double spreadPerShot, double maxSpread, double spreadRecovery,
 			 double recoilPerShot, double maxRecoil, double recoilRecovery) {
 		
@@ -72,7 +72,14 @@ public class AccuracyEstimator {
 			// System.out.println("P for bullet # " + (i + 1) + ": " + P);
 			sumOfAllProbabilities += P;
 			
-			timeElapsed += deltaT;
+			if (burstSize > 1 && (i+1) % burstSize > 0) {
+				// If this gun both has a burst-fire mode and is currently firing a burst, change deltaT
+				timeElapsed += 0.05;
+			}
+			else {
+				// If this gun either doesn't have a burst-fire mode, or the burst has completed and it has to wait before it can fire the next burst
+				timeElapsed += deltaT;
+			}
 		}
 		
 		return sumOfAllProbabilities / magSize * 100.0;

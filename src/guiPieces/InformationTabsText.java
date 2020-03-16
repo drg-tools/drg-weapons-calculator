@@ -74,10 +74,12 @@ public class InformationTabsText {
 			{"Can I help improve to this project?", "Yes! This is an open-source, freeware fan project. Although it's started out as just one developer, I would love to have help."},
 			{"How frequently will this be updated?", "There are a couple features that I want to add (like the 3 missing weapons) before calling this 'stable', but I'm planning to update each weapon's stats as GSG devs update them in-game on their production build."},
 			{"Will this be made available as a live website?", "Probably not. Thousands of lines of Java code do not port well into HTML/CSS/Javascript. There's a similar program already online at https://surmiran.github.io/karl/ but it has much less detail."},
-			{"How did you model [insert mechanic here]?", "This is an open-source project. Feel free to look around the source code and see how it was done. In general though: I chose to model everything like a continuous function instead of discrete. Slight loss of accuracy, but significantly easier."},
+			{"How did you model [insert mechanic here]?", "This is an open-source project. Feel free to look around the source code and see how it was done. In general though: I chose to model everything like a continuous function instead of "
+					+ "discrete. Slight loss of accuracy, but significantly easier."},
 			{"How are Status Effect Utility scores calculated?", "The formula I chose to use is (% Chance to Proc) * (Number of Targets) * (Effect Duration) * (Utility Factor), where 'Utility Factor' is some scalar value assigned to each effect."},
+			{"Why do some of the Base Spread, Spread per Shot, and Recoil values in your program not match what's listed in-game or in the wiki?", "Simply put: because they're either wrong or incomplete. I did over 20 hours of data collection "
+					+ "and analysis to model the accuracy of the projectile weapons as precisely as I could."},
 			// I'm intentionally adding blank lines below here so that the content gets pushed to the top of the page
-			{"", ""},
 			{"", ""},
 			{"", ""},
 			{"", ""},

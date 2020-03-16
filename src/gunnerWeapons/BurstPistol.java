@@ -3,6 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
@@ -623,8 +624,18 @@ public class BurstPistol extends Weapon {
 
 	@Override
 	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		return 0;
+		// Baseline stats before mods/OCs alter them (measured as degrees of deviation from the central axis)
+		double baseSpread = 1.725447245;
+		double spreadPerShot = 0.6392212689;
+		double maxSpread = 5.195581648;
+		double spreadRecoverySpeed = 2.784925116;
+		double recoilPerShot = 1.718358002;
+		double maxRecoil = 6.842773413;
+		double recoilRecoverySpeed = 13.49573328;
+		
+		return AccuracyEstimator.calculateAccuracy(getRateOfFire(), getMagazineSize(), getBurstSize(), 
+				baseSpread, spreadPerShot * getSpreadPerShot(), maxSpread, spreadRecoverySpeed, 
+				recoilPerShot * getRecoil(), maxRecoil * getRecoil(), recoilRecoverySpeed * getRecoil());
 	}
 
 	@Override
