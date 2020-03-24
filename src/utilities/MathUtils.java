@@ -165,11 +165,11 @@ public class MathUtils {
 		Using normal means, Java's implementation of Integer can only do up to 12! before it overflows to a negative number. By writing out this method to cancel out common factors in the
 		(N choose x) formula, just like we do by hand on paper, it can effectively do up to (34 choose 15) before Integer overflows. For simplicity's sake, let N <= 33 for this method.
 		
-		Un-optimized: 
-			Gets: 2057, ArrayLists created: 256, Comparisons made: 2370, Values assigned: 1918, Sets: 130
+		Un-optimized (33 choose 16):
+			Gets: 2057, ArrayLists created: 256, Comparisons made: 3197, Values assigned: 2745, Sets: 130
 			
-		First draft of optimization:
-			Gets: 1671, ArrayLists created: 111, Comparisons made: 2385, Values assigned: 1232, Sets: 112
+		First draft of optimization (33 choose 16):
+			Gets: 1671, ArrayLists created: 111, Comparisons made: 2324, Values assigned: 1171, Sets: 112
 		
 		
 	*/
@@ -210,24 +210,24 @@ public class MathUtils {
 		int getOperations = 0, arrayListCreations = 0, comparisonsMade = 0, valuesAssigned = 0, setOperations = 0;
 		
 		getOperations++;
-		comparisonsMade += numerator.size();
-		valuesAssigned += numerator.size();
+		comparisonsMade += 1;
+		valuesAssigned += 1;
 		for (i = 0; i < numerator.size(); i++) {
 			getOperations++;
 			currentNumeratorTerm = numerator.get(i);
 			arrayListCreations++;
 			nFactors = primeFactors(currentNumeratorTerm);
 			
-			// Optimization: if the only factor of a term is itself (prime number), skip trying to cancel terms out
-			getOperations += 2;
-			comparisonsMade += 2;
-			if (nFactors.size() == 1 && nFactors.get(0) == currentNumeratorTerm) {
+			// Optimization: if the numerator term only has one factor (itself, making the term a prime number), skip trying to cancel terms out
+			getOperations += 1;
+			comparisonsMade += 1;
+			if (nFactors.size() == 1) {
 				continue;
 			}
 			
 			getOperations++;
-			comparisonsMade += denominator.size();
-			valuesAssigned += denominator.size();
+			comparisonsMade += 1;
+			valuesAssigned += 1;
 			for (j = 0; j < denominator.size(); j++) {
 				getOperations++;
 				currentDenominatorTerm = denominator.get(j);
@@ -240,21 +240,20 @@ public class MathUtils {
 				
 				// In order to get the two loops below fully optimized, I'm choosing to re-create the factors ArrayLists. It's sub-optimal memory usage and a medium-length operation,
 				// but I'm hopeful that it will result in less cycles total
-				arrayListCreations++;
-				//nFactors = primeFactors(currentNumeratorTerm);
+				arrayListCreations += 1;
 				dFactors = primeFactors(currentDenominatorTerm);
 				
 				getOperations++;
-				comparisonsMade += nFactors.size();
-				valuesAssigned += nFactors.size();
+				comparisonsMade += 1;
+				valuesAssigned += 1;
 				for (nFactorsIndex = 0; nFactorsIndex < nFactors.size(); nFactorsIndex++) {
 					
 					valuesAssigned++;
 					cancellationMade = false;
 					
 					getOperations++;
-					comparisonsMade += dFactors.size();
-					valuesAssigned += dFactors.size();
+					comparisonsMade += 1;
+					valuesAssigned += 1;
 					for (dFactorsIndex = 0; dFactorsIndex < dFactors.size(); dFactorsIndex++) {
 						// Optimization: if either one of the current factors is a 1 from previous cancellation, skip to the next one
 						getOperations += 2;
@@ -273,6 +272,9 @@ public class MathUtils {
 							valuesAssigned++;
 							cancellationMade = true;
 						}
+						
+						comparisonsMade += 1;
+						valuesAssigned += 1;
 					}
 					
 					comparisonsMade++;
@@ -282,11 +284,18 @@ public class MathUtils {
 						setOperations += 2;
 						numerator.set(i, product(nFactors));
 						denominator.set(j, product(dFactors));
-						//currentNumeratorTerm = product(nFactors);
-						//currentDenominatorTerm = product(dFactors);
 					}
+					
+					comparisonsMade += 1;
+					valuesAssigned += 1;
 				}
+				
+				comparisonsMade += 1;
+				valuesAssigned += 1;
 			}
+			
+			comparisonsMade += 1;
+			valuesAssigned += 1;
 		}
 		
 		valuesAssigned += 2;
