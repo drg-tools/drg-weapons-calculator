@@ -4,6 +4,9 @@ public class AccuracyEstimator {
 	public static double targetRadius = 0.4; // meters
 	public static double targetDistance = 5.0; // meters
 	
+	// 0.4, 5.0 feels good for general Accuracy estimation
+	// 0.2, 3.7 feels really good for Weakpoint Accuracy estimation
+	
 	/*
 		Except for RoF and magSize, all of these parameters should be passed in as degrees of deviation from a central axis 
 		which are strictly less than 90 degrees.
@@ -38,6 +41,8 @@ public class AccuracyEstimator {
 		double reticleRadius, recoil, P; 
 		for (int i = 0; i < magSize; i++) {
 			reticleRadius = convertDegreesToMeters(radius(i, timeElapsed, Sb, Ss, Sr, Sm));
+			// TODO: recoil only starts recovering 0.25 seconds after the gun either stops firing, or in BRT's case after the mouse is clicked to start a burst
+			// This means that guns with RoF >= 4 don't have any recoil recovered until they stop firing
 			recoil = convertDegreesToMeters(recoil(i, timeElapsed, Rs, Rr, Rm));
 			
 			if (targetRadius >= reticleRadius) {

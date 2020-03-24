@@ -429,7 +429,7 @@ public class Shotgun extends Weapon {
 		
 		// Magnetic Pellet Alignment has a hidden 50% recoil stat
 		if (selectedOverclock == 2 || selectedOverclock == 4) {
-			toReturn *= 0.5;
+			// toReturn *= 0.5;
 		}
 		// Cycle Overload actually has 150% recoil, instead of 200% Base Spread
 		else if (selectedOverclock == 3) {
@@ -579,7 +579,10 @@ public class Shotgun extends Weapon {
 		utilityScores[2] = (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
 		
 		// Weakpoint = 10% stun chance, 2 sec duration (upgraded with Mod Tier 3 "Stun Duration")
-		utilityScores[5] = EnemyInformation.probabilityBulletWillHitWeakpoint() * weakpointStunChance * getStunDuration() * UtilityInformation.Stun_Utility;
+		int numPelletsThatHitWeakpoint = (int) Math.round(getNumberOfPellets() * estimatedAccuracy() / 100.0);
+		// Only 1 pellet needs to succeed in order to stun the creature
+		double totalStunChancePerShot = MathUtils.cumulativeBinomialProbability(getWeakpointStunChance(), numPelletsThatHitWeakpoint, 1);
+		utilityScores[5] = totalStunChancePerShot * getStunDuration() * UtilityInformation.Stun_Utility;
 		
 		return MathUtils.sum(utilityScores);
 	}
