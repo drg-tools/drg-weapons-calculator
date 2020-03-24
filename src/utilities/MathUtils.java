@@ -122,58 +122,64 @@ public class MathUtils {
 	}
 	
 	// Adapted from https://www.vogella.com/tutorials/JavaAlgorithmsPrimeFactorization/article.html
-	private static ArrayList<Integer> primeFactors(int n) {
-		// Only need primes <= 33 for optimizedChoose, but 50 is a nice round number :-)
-		int[] primeNumbersLessThanFifty = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47};
+	private static int[] convertNumberToPrimeFactors(int n) {
+		if (n > 33) {
+			return null;
+		}
 		
-		ArrayList<Integer> factors = new ArrayList<Integer>();
+		// Only need primes <= 33 for smartChoose
+		int[] primeNumbersLessThanThirtyThree = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
+		int[] toReturn = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		
 		int currentPrime;
-        for (int i = 0; i < primeNumbersLessThanFifty.length; i++) {
-        	currentPrime = primeNumbersLessThanFifty[i];
-        	if (currentPrime * currentPrime > n) {
-        		// No need to check primes greater than the square root of n
-        		break;
-        	}
-            while (n % currentPrime == 0) {
-                factors.add(currentPrime);
+        for (int i = 0; i < primeNumbersLessThanThirtyThree.length; i++) {
+        	currentPrime = primeNumbersLessThanThirtyThree[i];
+        	while (n > 1 && n % currentPrime == 0) {
+                toReturn[i]++;
                 n /= currentPrime;
             }
         }
-        // If the n has a remainder, it by definition will be a prime factor
-        if (n > 1) {
-            factors.add(n);
-        }
-        return factors;
+        
+        return toReturn;
 	}
 	
-	private static int product(ArrayList<Integer> factors) {
-		int toReturn = 1;
-		int factor;
-		for (int i = 0; i < factors.size(); i++) {
-			factor = factors.get(i);
-			if (factor > 1) {
-				toReturn *= factor;
+	private static int convertPrimeFactorsToNumber(int[] factors) {
+		// Only need primes <= 33 for smartChoose
+		int[] primeNumbersLessThanThirtyThree = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
+		
+		double toReturn = 1.0;
+		for (int i = 0; i < primeNumbersLessThanThirtyThree.length; i++) {
+			if (factors[i] != 0) {
+				toReturn *= Math.pow(primeNumbersLessThanThirtyThree[i], factors[i]);
 			}
-			if (toReturn < 0) {
-				throw new ArithmeticException("Int overflow");
+		}
+		return (int) round(toReturn, 2);
+	}
+	
+	private static int[] primeFactorMultiply(ArrayList<Integer> numbers) {
+		int toReturn[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		int[] primeFactors;
+		int j;
+		for (int i = 0; i < numbers.size(); i++) {
+			primeFactors = convertNumberToPrimeFactors(numbers.get(i));
+			for(j = 0; j < primeFactors.length; j++) {
+				toReturn[j] += primeFactors[j];
 			}
 		}
 		return toReturn;
 	}
 	
-	/*
-		Using normal means, Java's implementation of Integer can only do up to 12! before it overflows to a negative number. By writing out this method to cancel out common factors in the
-		(N choose x) formula, just like we do by hand on paper, it can effectively do up to (34 choose 15) before Integer overflows. For simplicity's sake, let N <= 33 for this method.
+	private static int primeFactorDivide(int[] numerator, int[] denominator) {
+		int toReturn[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		
-		Un-optimized (33 choose 16):
-			Gets: 2057, ArrayLists created: 256, Comparisons made: 3197, Values assigned: 2745, Sets: 130
-			
-		First draft of optimization (33 choose 16):
-			Gets: 1671, ArrayLists created: 111, Comparisons made: 2324, Values assigned: 1171, Sets: 112
+		for (int i = 0; i < toReturn.length; i++) {
+			toReturn[i] = numerator[i] - denominator[i];
+		}
 		
-		
-	*/
-	public static int optimizedChoose(int N, int x) {
+		return convertPrimeFactorsToNumber(toReturn);
+	}
+	
+	public static int smartChoose(int N, int x) {
 		// N! / (x! * (N - x)!)
 		if (N < 0 || x < 0 || x > N) {
 			return -1;
@@ -185,7 +191,7 @@ public class MathUtils {
 		}
 		
 		// First, identify which half of the denominator will cancel out more of the numerator
-		int largerDenominator, smallerDenominator, i, j;
+		int largerDenominator, smallerDenominator, i;
 		if (x > N - x) {
 			largerDenominator = x;
 			smallerDenominator = N - x;
@@ -202,111 +208,10 @@ public class MathUtils {
 		}
 		ArrayList<Integer> denominator = factorialArrayList(smallerDenominator);
 		
-		// Third, iterate over numerator terms and cancel out terms from the denominator (horrible performance -- N^4 or worse)
-		ArrayList<Integer> nFactors, dFactors;
-		int currentNumeratorTerm, currentDenominatorTerm, nFactorsIndex, dFactorsIndex;
-		boolean cancellationMade;
+		int[] numeratorProduct = primeFactorMultiply(numerator);
+		int[] denominatorProduct = primeFactorMultiply(denominator);
 		
-		int getOperations = 0, arrayListCreations = 0, comparisonsMade = 0, valuesAssigned = 0, setOperations = 0;
-		
-		getOperations++;
-		comparisonsMade += 1;
-		valuesAssigned += 1;
-		for (i = 0; i < numerator.size(); i++) {
-			getOperations++;
-			currentNumeratorTerm = numerator.get(i);
-			arrayListCreations++;
-			nFactors = primeFactors(currentNumeratorTerm);
-			
-			// Optimization: if the numerator term only has one factor (itself, making the term a prime number), skip trying to cancel terms out
-			getOperations += 1;
-			comparisonsMade += 1;
-			if (nFactors.size() == 1) {
-				continue;
-			}
-			
-			getOperations++;
-			comparisonsMade += 1;
-			valuesAssigned += 1;
-			for (j = 0; j < denominator.size(); j++) {
-				getOperations++;
-				currentDenominatorTerm = denominator.get(j);
-				
-				// Optimization: if a term in the denominator has already been canceled out to 1, skip it
-				comparisonsMade++;
-				if (currentDenominatorTerm == 1) {
-					continue;
-				}
-				
-				// In order to get the two loops below fully optimized, I'm choosing to re-create the factors ArrayLists. It's sub-optimal memory usage and a medium-length operation,
-				// but I'm hopeful that it will result in less cycles total
-				arrayListCreations += 1;
-				dFactors = primeFactors(currentDenominatorTerm);
-				
-				getOperations++;
-				comparisonsMade += 1;
-				valuesAssigned += 1;
-				for (nFactorsIndex = 0; nFactorsIndex < nFactors.size(); nFactorsIndex++) {
-					
-					valuesAssigned++;
-					cancellationMade = false;
-					
-					getOperations++;
-					comparisonsMade += 1;
-					valuesAssigned += 1;
-					for (dFactorsIndex = 0; dFactorsIndex < dFactors.size(); dFactorsIndex++) {
-						// Optimization: if either one of the current factors is a 1 from previous cancellation, skip to the next one
-						getOperations += 2;
-						comparisonsMade += 2;
-						if (nFactors.get(nFactorsIndex) == 1 || dFactors.get(dFactorsIndex) == 1) {
-							continue;
-						}
-						
-						// This is what actually does the cancelling out
-						getOperations += 2;
-						comparisonsMade++;
-						if (nFactors.get(nFactorsIndex) == dFactors.get(dFactorsIndex)) {
-							setOperations += 2;
-							nFactors.set(nFactorsIndex, 1);
-							dFactors.set(dFactorsIndex, 1);
-							valuesAssigned++;
-							cancellationMade = true;
-						}
-						
-						comparisonsMade += 1;
-						valuesAssigned += 1;
-					}
-					
-					comparisonsMade++;
-					if (cancellationMade) {
-						// Now that the numerator and denominator terms have been cancelled out, replace them with the smaller products to optimize this process on the next iteration
-						// TODO: there's a little more logical optimization to be made here, but it's good enough for now.
-						setOperations += 2;
-						numerator.set(i, product(nFactors));
-						denominator.set(j, product(dFactors));
-					}
-					
-					comparisonsMade += 1;
-					valuesAssigned += 1;
-				}
-				
-				comparisonsMade += 1;
-				valuesAssigned += 1;
-			}
-			
-			comparisonsMade += 1;
-			valuesAssigned += 1;
-		}
-		
-		valuesAssigned += 2;
-		int numeratorProduct = product(numerator);
-		// Because N and x are both <= 33, the denominator is always 1 because all those low numbers cancel out quite nicely. As N and x get bigger, the denominator can be > 1
-		int denominatorProduct = product(denominator);
-		
-		System.out.println("Gets: " + getOperations + ", ArrayLists created: " + arrayListCreations + ", Comparisons made: " + comparisonsMade + ", Values assigned: " + valuesAssigned + ", Sets: " + setOperations);
-		
-		// I'm leaving this division in place on principle, even though it's always just dividing by 1 at such low numbers of N and x
-		return numeratorProduct / denominatorProduct;
+		return primeFactorDivide(numeratorProduct, denominatorProduct);
 	}
 	
 	// This will calculate the probability that there are AT LEAST desiredNumberSuccesses successes across the total numberOfTrials
@@ -341,7 +246,7 @@ public class MathUtils {
 		}
 		
 		// http://onlinestatbook.com/2/probability/graphics/binomial_formula.gif
-		double NchooseX = optimizedChoose(numberOfTrials, desiredNumberSuccesses);
+		double NchooseX = smartChoose(numberOfTrials, desiredNumberSuccesses);
 		double probabilityOfSuccesses = Math.pow(probabilityOfSuccess, desiredNumberSuccesses);
 		double probabilityOfFailures = Math.pow((1.0 - probabilityOfSuccess), (numberOfTrials - desiredNumberSuccesses));
 		

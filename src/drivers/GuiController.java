@@ -36,7 +36,6 @@ import scoutWeapons.Classic_FocusShot;
 import scoutWeapons.Classic_Hipfire;
 import scoutWeapons.Deepcore;
 import scoutWeapons.Zhukov;
-import utilities.MathUtils;
 
 /*
 	Benchmarks: 
@@ -56,17 +55,12 @@ public class GuiController implements ActionListener {
 	private JFileChooser folderChooser;
 	
 	public static void main(String[] args) {
-		/*
 		Weapon[] drillerWeapons = new Weapon[] {new Subata(), new EPC_RegularShot(), new EPC_ChargeShot()};
 		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new GrenadeLauncher()};
 		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new Revolver(), new BurstPistol()};
 		Weapon[] scoutWeapons = new Weapon[] {new Deepcore(), new Classic_Hipfire(), new Classic_FocusShot(), new Boomstick(), new Zhukov()};
 		View gui = new View(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons);
 		new GuiController(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons, gui);
-		*/
-		
-		System.out.println("33 choose 16 should be 1166803110");
-		System.out.println("Optimized Choose result: " + MathUtils.optimizedChoose(33, 16));
 	}
 	
 	public GuiController(Weapon[] dWeapons, Weapon[] eWeapons, Weapon[] gWeapons, Weapon[] sWeapons, View inputGui) {
