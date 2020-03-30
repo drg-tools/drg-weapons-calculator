@@ -123,10 +123,6 @@ public class MathUtils {
 	
 	// Adapted from https://www.vogella.com/tutorials/JavaAlgorithmsPrimeFactorization/article.html
 	private static int[] convertNumberToPrimeFactors(int n) {
-		if (n > 33) {
-			return null;
-		}
-		
 		// Only need primes <= 33 for smartChoose
 		int[] primeNumbersLessThanThirtyThree = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
 		int[] toReturn = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -156,6 +152,18 @@ public class MathUtils {
 		return (int) round(toReturn, 2);
 	}
 	
+	public static int leastCommonMultiple(int a, int b) {
+		int[] A = convertNumberToPrimeFactors(a);
+		int[] B = convertNumberToPrimeFactors(b);
+		
+		int[] LCM = new int[A.length];
+		for (int i = 0; i < A.length; i++) {
+			LCM[i] = Math.max(A[i], B[i]);
+		}
+				
+		return convertPrimeFactorsToNumber(LCM);
+	}
+	
 	private static int[] primeFactorMultiply(ArrayList<Integer> numbers) {
 		int toReturn[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		int[] primeFactors;
@@ -179,7 +187,7 @@ public class MathUtils {
 		return convertPrimeFactorsToNumber(toReturn);
 	}
 	
-	public static int smartChoose(int N, int x) {
+	public static int choose(int N, int x) {
 		// N! / (x! * (N - x)!)
 		if (N < 0 || x < 0 || x > N) {
 			return -1;
@@ -208,9 +216,11 @@ public class MathUtils {
 		}
 		ArrayList<Integer> denominator = factorialArrayList(smallerDenominator);
 		
+		// Third, evaluate the numerator and denominator into its prime factors
 		int[] numeratorProduct = primeFactorMultiply(numerator);
 		int[] denominatorProduct = primeFactorMultiply(denominator);
 		
+		// Finally, divide the two and convert it back to an int
 		return primeFactorDivide(numeratorProduct, denominatorProduct);
 	}
 	
@@ -246,7 +256,7 @@ public class MathUtils {
 		}
 		
 		// http://onlinestatbook.com/2/probability/graphics/binomial_formula.gif
-		double NchooseX = smartChoose(numberOfTrials, desiredNumberSuccesses);
+		double NchooseX = choose(numberOfTrials, desiredNumberSuccesses);
 		double probabilityOfSuccesses = Math.pow(probabilityOfSuccess, desiredNumberSuccesses);
 		double probabilityOfFailures = Math.pow((1.0 - probabilityOfSuccess), (numberOfTrials - desiredNumberSuccesses));
 		

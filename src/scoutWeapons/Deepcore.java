@@ -600,6 +600,10 @@ public class Deepcore extends Weapon {
 	@Override
 	public double estimatedAccuracy() {
 		// TODO Auto-generated method stub
+		
+		// AR seems to have a different implementation of accuracy -- the Spread Recovery gets applied BEFORE the first shot somehow, meaning the first shot is +6 instead of +30 like every other gun that uses this model.
+		// Additionally, its Max Spread is NOT affected by the decrease in Base Spread (again, unlike the other guns)
+		
 		return 0;
 	}
 

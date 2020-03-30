@@ -334,6 +334,56 @@ public abstract class Weapon extends Observable {
 		return timeWhileAfflictedByDoT * DoTDPS;
 	}
 	
+	protected double[] calculateAverageAreaDamage(double radius) {
+		/* 
+			This method is based off of the hypothesis that the innnermost 50% of the radius gets full damage,
+			and then the damage drops to 50%, and then linearly decreases to 33% at the furthest edge of the radius
+			
+			Theoretically it that should average around 71% of the initial damage, but due to how it's been modeled I highly doubt it will be that precise.
+		*/
+		
+		// Want to test the halfway radius and every radius in +0.1m increments, and finally the outermost radius
+		double halfRadius = radius/2.0;
+		int numRadiiToTest = (int) Math.floor(halfRadius*10.0) + 2;
+		
+		// Add an extra tuple at the start for the return values
+		double[][] toReturn = new double[1 + numRadiiToTest][3];
+		double currentRadius, currentDamage;
+		int totalNumGlyphids = 0;
+		int currentGlyphids;
+		for (int i = 0; i < numRadiiToTest - 1; i++) {
+			currentRadius = halfRadius + i * 0.1;
+			currentDamage = 0.5 - 0.1666667 * i / numRadiiToTest;
+			toReturn[i+1] = new double[3];
+			toReturn[i+1][0] = currentRadius;
+			currentGlyphids = calculateNumGlyphidsInRadius(currentRadius) - totalNumGlyphids;
+			toReturn[i+1][2] = currentGlyphids;
+			totalNumGlyphids += currentGlyphids;
+			if (i > 0) {
+				toReturn[i+1][1] = currentDamage;
+			}
+			else if (i == 0) {
+				toReturn[i+1][1] = 1.0;
+			}
+		}
+		toReturn[numRadiiToTest] = new double[3];
+		toReturn[numRadiiToTest][0] = radius;
+		toReturn[numRadiiToTest][1] = calculateNumGlyphidsInRadius(radius) - totalNumGlyphids;
+		toReturn[numRadiiToTest][2] = 0.33;
+		
+		toReturn[0] = new double[3];
+		toReturn[0][0] = radius;
+		toReturn[0][1] = totalNumGlyphids;
+		
+		double avgDmg = 0.0;
+		for (int i = 1; i < toReturn.length; i++) {
+			avgDmg += toReturn[i][1] * toReturn[i][2];
+		}
+		toReturn[0][2] = avgDmg / totalNumGlyphids;
+		
+		return toReturn[0];
+	}
+	
 	protected int calculateNumGlyphidsInRadius(double radius) {
 		/*
 			This method should be used any time a projectile fired from this weapon has area-of-effect (AoE) damage in a radius.
@@ -396,7 +446,8 @@ public abstract class Weapon extends Observable {
 				continue;
 			}
 			
-			if ((distanceFromCenterToOrigin - glyphidBodyAndLegsRadius) < radius) {
+			// Due to rounding errors from double subtraction, this gets rounded to 2 decimal points
+			if (MathUtils.round((distanceFromCenterToOrigin - glyphidBodyAndLegsRadius), 2) < radius) {
 				numGlyphidsHitBySplash++;
 			}
 		}

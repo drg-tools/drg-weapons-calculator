@@ -578,7 +578,7 @@ public class Shotgun extends Weapon {
 		// Armor Breaking
 		utilityScores[2] = (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
 		
-		// Weakpoint = 10% stun chance, 2 sec duration (upgraded with Mod Tier 3 "Stun Duration")
+		// Weakpoint = 10% stun chance per pellet, 2 sec duration (upgraded with Mod Tier 3 "Stun Duration")
 		int numPelletsThatHitWeakpoint = (int) Math.round(getNumberOfPellets() * estimatedAccuracy() / 100.0);
 		// Only 1 pellet needs to succeed in order to stun the creature
 		double totalStunChancePerShot = MathUtils.cumulativeBinomialProbability(getWeakpointStunChance(), numPelletsThatHitWeakpoint, 1);

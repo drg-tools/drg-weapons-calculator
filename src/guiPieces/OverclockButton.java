@@ -113,7 +113,7 @@ public class OverclockButton extends JButton implements ActionListener {
 		for (int i = 0; i < icon.npoints; i++) {
 			currentX = icon.xpoints[i];
 			currentY = icon.ypoints[i];
-			vectorLength = Math.sqrt(Math.pow((currentX - centerX), 2) + Math.pow((currentY - centerY), 2));
+			vectorLength = Math.hypot((currentX - centerX), (currentY - centerY));  // Math.sqrt(Math.pow((currentX - centerX), 2) + Math.pow((currentY - centerY), 2));
 			angle = Math.acos((currentX - centerX)/vectorLength);
 			vectorLength = vectorLength * sizeIncrease;
 			vectorX = vectorLength * Math.cos(angle);

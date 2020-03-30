@@ -78,6 +78,16 @@ public class GrenadeLauncher extends Weapon {
 		
 		// Overclock slot
 		selectedOverclock = overclock;
+		
+		/*
+		double[] aoeRadiusEfficiency;
+		double[] radii = {2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0};
+		for (int i = 0; i < radii.length; i++) {
+			aoeRadiusEfficiency = calculateAverageAreaDamage(radii[i]);
+			System.out.println("A shot with radius " + aoeRadiusEfficiency[0] + "m would hit " + aoeRadiusEfficiency[1] + " Grunts, dealing an average of " + (aoeRadiusEfficiency[2] * 100.0) + "% Area Damage across them all. "
+					+ "In total, it would do " + (aoeRadiusEfficiency[1] * aoeRadiusEfficiency[2]) + " times the listed Area Damage");
+		}
+		*/
 	}
 
 	@Override

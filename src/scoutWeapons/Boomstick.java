@@ -674,7 +674,7 @@ public class Boomstick extends Weapon {
 	@Override
 	public double estimatedAccuracy() {
 		// TODO Auto-generated method stub
-		return 0;
+		return 30.0;
 	}
 
 	@Override
@@ -702,6 +702,7 @@ public class Boomstick extends Weapon {
 		}
 		
 		// Innate Stun = 30% chance for 2.5 sec (improved by Mod Tier 3 "Stun Duration")
+		// It looks like each shot has a 30% chance for all of its pellets to have 100% stun rate, so more pellets doesn't equal more likely to stun.
 		utilityScores[5] = stunChance * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
 		
 		return MathUtils.sum(utilityScores);

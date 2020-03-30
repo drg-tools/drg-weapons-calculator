@@ -64,12 +64,12 @@ public class Minigun extends Weapon {
 		coolingRate = 1.5;
 		rateOfFire = 30;  // equal to 15 pellets/sec
 		spinupTime = 0.7;
-		spindownTime = 3;  // seconds for the stability to decay from fully stabilized to no stability at all
+		spindownTime = 3;  // seconds for the stability to decay full rotational speed down to stationary barrels
 		movespeedWhileFiring = 0.5;
 		baseSpread = 1.0;
 		armorBreakChance = 1.0;
 		bulletsFiredTilMaxStability = 40;  // equals 20 pellets
-		cooldownAfterOverheat = 11;
+		cooldownAfterOverheat = 10;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks

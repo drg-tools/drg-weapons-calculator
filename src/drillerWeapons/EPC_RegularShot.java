@@ -10,6 +10,7 @@ import modelPieces.StatsRow;
 import modelPieces.Weapon;
 
 // TODO: during a game I played, it looked like regular shots did do x2 damage to Grunts shot in the mouth, but it didn't seem to affect Mactera Spawn shot in the belly. Research how this is affected by weakpoints. 
+// TODO: the wiki page for this weapon got updated. Change numbers to match what they have.
 public class EPC_RegularShot extends Weapon {
 	
 	/****************************************************************************************
