@@ -407,7 +407,7 @@ public class Subata extends Weapon {
 		}
 		
 		if (selectedOverclock == 3) {
-			toReturn *= 2.25;
+			toReturn *= 2.5;
 		}
 		
 		return toReturn;

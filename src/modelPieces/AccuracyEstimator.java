@@ -130,23 +130,26 @@ public class AccuracyEstimator {
 	
 	
 	public static double targetDistanceMeters = 8.0;
-	private static double testingDistanceMeters = 5.0;
 	private static double testingDistancePixels = 1074.047528;
 	
 	private static double convertSpreadPixelsToRads(double px) {
 		return Math.atan((px / (2 * testingDistancePixels)));
 	}
 	private static double convertRecoilPixelsToRads(double px) {
-		// TODO: fill in this formula once Recoil is figured out
-		return 0;
+		return Math.atan(px / testingDistancePixels);
 	}
 	private static double convertRadiansToMeters(double r) {
 		return targetDistanceMeters * Math.tan(r);
 	}
 	
-	private static double spread2() {
-		// TODO
-		return 0;
+	private static double spread2(int numBulletsFired, double timeElapsed, double baseSpreadRads, double spreadPerShotRads, double spreadRecoveryRads, double maxSpreadRads) {
+		// This can never be less than 0 pixels of change
+		double calculatedChangeInSpread = Math.max(numBulletsFired * spreadPerShotRads - timeElapsed * spreadRecoveryRads, 0);
+		
+		// It can also never be so high that it exceeds Max Spread
+		double effectiveChangeInSpread = Math.min(calculatedChangeInSpread, maxSpreadRads - baseSpreadRads);
+		
+		return baseSpreadRads + effectiveChangeInSpread;
 	}
 	
 	private static boolean bulletFiredOnThisTick(int thisTick, int numBulletsFiredSoFar, int burstSize, int ticksBetweenBursts, int ticksBetweenBulletsDuringBurst) {
@@ -169,7 +172,7 @@ public class AccuracyEstimator {
 		}
 	}
 	
-	private static double[] recoil2(double RoF, int magSize, int burstSize, double recoilPerShotPixels, double maxRecoilPixels, int[] recoilUpFraction, int[] recoilDownFraction) {
+	private static double[] recoil2(double RoF, int magSize, int burstSize, double recoilPerShotPixels, int[] recoilUpFraction, int[] recoilDownFraction) {
 		
 		// Step 1: find the LCM of the three denominators and convert all fractions to use the common tickrate as their new denominator
 		int[] RoFFraction = {10, (int) Math.round(RoF * 10.0)};  // Because some RoF have one decimal, multiply it by 10/10 to make it integers but maintain ratio
@@ -207,16 +210,15 @@ public class AccuracyEstimator {
 		int totalNumBulletsFired = 0;
 		
 		int a=0, b=0;
+		int[] ticksBulletsWereFired = new int[magSize];
 		int[] ticksBulletsStopIncreasing = new int[magSize];
 		int[] ticksBulletsStopDecreasing = new int[magSize];
 		
-		double[] toReturn = new double[1 + totalTicksRequiredForSimulation];
-		// Set the first value of the array as the ticks/sec ratio, so that the output can be converted later.
-		toReturn[0] = lcm;
-		
+		double[] recoilAtTick = new double[totalTicksRequiredForSimulation];
 		for (int tick = 0; tick < totalTicksRequiredForSimulation; tick++) {
 			// Check if a bullet gets fired this tick
 			if (totalNumBulletsFired < magSize && bulletFiredOnThisTick(tick, totalNumBulletsFired, burstSize, ticksBetweenBursts, ticksBetweenBulletsDuringBurst)) {
+				ticksBulletsWereFired[totalNumBulletsFired] = tick;
 				ticksBulletsStopIncreasing[totalNumBulletsFired] = tick + ticksRecoilIncreasesAfterFiringBullet;
 				ticksBulletsStopDecreasing[totalNumBulletsFired] = tick + ticksRecoilIncreasesAfterFiringBullet + ticksRecoilDecreasesAfterIncreasing;
 				totalNumBulletsFired++;
@@ -224,28 +226,35 @@ public class AccuracyEstimator {
 			}
 			
 			// Check if a previously fired bullet changes from increase to decrease on this tick
-			if (tick == ticksBulletsStopIncreasing[a]) {
-				a = Math.min(a+1, magSize-1);
+			if (a < magSize && tick == ticksBulletsStopIncreasing[a]) {
+				a++;
 				currentSlope -= (increasingSlope + decreasingSlope);
 			}
 			
 			// Check if a previously fired bullet has finished decreasing
-			if (tick == ticksBulletsStopDecreasing[b]) {
-				b = Math.min(b+1, magSize-1);
+			if (b < magSize && tick == ticksBulletsStopDecreasing[b]) {
+				b++;
 				currentSlope += decreasingSlope;
 			}
 			
-			totalPixels = Math.min(totalPixels + currentSlope / lcm, maxRecoilPixels);
-			toReturn[tick + 1] = MathUtils.round(totalPixels, 4);
+			totalPixels = totalPixels + currentSlope / lcm;
+			recoilAtTick[tick] = MathUtils.round(totalPixels, 4);
 		}
 		
+		double[] toReturn = new double[magSize];
+		// The first bullet is always fired when recoil == 0
+		toReturn[0] = 0.0;
+		for (int i = 1; i < magSize; i++) {
+			// Get the value of recoil at the end of tick BEFORE this bullet gets fired because that would be the value of recoil WHEN the bullet gets fired
+			toReturn[i] = recoilAtTick[ticksBulletsWereFired[i] - 1];
+		}
 		return toReturn;
 	}
 	
 	public static double calculateAccuracy2(
 		boolean weakpoint, double rateOfFire, double magSize, double burstSize,
 		double unchangingBaseSpread, double changingBaseSpread, double spreadVariance, double spreadPerShot, double spreadRecoverySpeed,
-		double recoilPerShot, double maxVerticalRecoil, double maxHorizontalRecoil, double recoilRecoverySpeed
+		double recoilPerShot, int[] recoilIncreaseFraction, int[] recoilDecreaseFraction
 	) {
 		double RoF = rateOfFire;
 		// The time that passes between each shot
@@ -254,8 +263,6 @@ public class AccuracyEstimator {
 		// Calculate all the base pixel values before converting to radians
 		double baseSpread = unchangingBaseSpread + changingBaseSpread;
 		double maxSpread = baseSpread + spreadVariance;
-		// double recoilSlope = maxVerticalRecoil / maxHorizontalRecoil;
-		double maxRecoil = Math.hypot(maxVerticalRecoil, maxHorizontalRecoil);
 		
 		// Convert from pixelage (specific per monitor/FoV combination) to radians of deviation from central axis (almost universal if the math is right)
 		double Sb = convertSpreadPixelsToRads(baseSpread);
@@ -263,12 +270,11 @@ public class AccuracyEstimator {
 		double Sm = convertSpreadPixelsToRads(maxSpread);
 		double Sr = convertSpreadPixelsToRads(spreadRecoverySpeed);
 		
-		// I'm applying a 0.5 multiplier to all of these recoil coefficients, to factor in the player counter-acting the recoil by 50%.
-		// Intentionally using 1 - Counter so that I can change the player's efficiency directly, rather than having to do indirect math every time I want to change the value.
-		double playerRecoilCorrectionCoefficient = (1.0 - 0.5);
-		double RpS = convertRecoilPixelsToRads(recoilPerShot * playerRecoilCorrectionCoefficient);
-		double Rm = convertRecoilPixelsToRads(maxRecoil * playerRecoilCorrectionCoefficient);
-		double Rr = convertRecoilPixelsToRads(recoilRecoverySpeed * playerRecoilCorrectionCoefficient);
+		// I'm applying a -75% multiplier to all of these recoil values to factor in the player counter-acting the recoil.
+		// Intentionally using 1 - PlayerCorrection so that I can change the player's efficiency directly, rather than having to do indirect math every time I want to change the value.
+		double playerRecoilCorrectionCoefficient = (1.0 - 0.75);
+		double RpS = recoilPerShot * playerRecoilCorrectionCoefficient;
+		double[] predictedRecoil = recoil2(rateOfFire, (int) magSize, (int) burstSize, RpS, recoilIncreaseFraction, recoilDecreaseFraction);
 		
 		// Step 1: establish the target size
 		// Due to mathematical limitations, I'm forced to model the targets as if they're circular even though it would be a better approximation if the targets were elliptical
@@ -287,10 +293,10 @@ public class AccuracyEstimator {
 		for (int i = 0; i < magSize; i++) {
 			// TODO: redo the radius() and recoil() methods for calculateAccuracy2
 			// Step 2: calculate the crosshair size at the time the bullet gets fired
-			crosshairRadius = convertRadiansToMeters(radius(i, timeElapsed, Sb, SpS, Sr, Sm));
+			crosshairRadius = convertRadiansToMeters(spread2(i, timeElapsed, Sb, SpS, Sr, Sm));
 			
 			// Step 3: calculate how far off-center the crosshair is due to recoil
-			crosshairRecoil = convertRadiansToMeters(recoil(i, timeElapsed, RpS, Rr, Rm));
+			crosshairRecoil = convertRadiansToMeters(convertRecoilPixelsToRads(predictedRecoil[i]));
 			
 			// Step 4: calculate the area of overlap (if any) between the crosshair size, crosshair recoil, and target area
 			// Step 5: divide the overlap by the target area for the probability that at the current bullet will hit

@@ -121,11 +121,11 @@ public class MathUtils {
 		return toReturn;
 	}
 	
+	// Only need primes <= 33 for choose(N, x)
+	private static int[] primeNumbersLessThanThirtyThree = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
 	// Adapted from https://www.vogella.com/tutorials/JavaAlgorithmsPrimeFactorization/article.html
 	private static int[] convertNumberToPrimeFactors(int n) {
-		// Only need primes <= 33 for smartChoose
-		int[] primeNumbersLessThanThirtyThree = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
-		int[] toReturn = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		int[] toReturn = new int[primeNumbersLessThanThirtyThree.length];
 		
 		int currentPrime;
         for (int i = 0; i < primeNumbersLessThanThirtyThree.length; i++) {
@@ -140,9 +140,6 @@ public class MathUtils {
 	}
 	
 	private static int convertPrimeFactorsToNumber(int[] factors) {
-		// Only need primes <= 33 for smartChoose
-		int[] primeNumbersLessThanThirtyThree = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
-		
 		double toReturn = 1.0;
 		for (int i = 0; i < primeNumbersLessThanThirtyThree.length; i++) {
 			if (factors[i] != 0) {
@@ -165,7 +162,7 @@ public class MathUtils {
 	}
 	
 	private static int[] primeFactorMultiply(ArrayList<Integer> numbers) {
-		int toReturn[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		int toReturn[] = new int[primeNumbersLessThanThirtyThree.length];
 		int[] primeFactors;
 		int j;
 		for (int i = 0; i < numbers.size(); i++) {
@@ -178,7 +175,7 @@ public class MathUtils {
 	}
 	
 	private static int primeFactorDivide(int[] numerator, int[] denominator) {
-		int toReturn[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		int toReturn[] = new int[primeNumbersLessThanThirtyThree.length];
 		
 		for (int i = 0; i < toReturn.length; i++) {
 			toReturn[i] = numerator[i] - denominator[i];
