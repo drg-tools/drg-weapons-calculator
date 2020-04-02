@@ -669,7 +669,7 @@ public class EPC_ChargeShot extends Weapon {
 	}
 
 	@Override
-	public double estimatedAccuracy() {
+	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		// Manually aimed; return -1
 		return -1.0;
 	}

@@ -522,7 +522,7 @@ public class Autocannon extends Weapon {
 	public double sustainedWeakpointAccuracyDPS() {
 		// TODO: this is incomplete; I was just curious to see how the inaccuracy affected this gun.
 		double magSize = getMagazineSize();
-		double accuracy = estimatedAccuracy();
+		double accuracy = estimatedAccuracy(false);
 		// Assuming that all bullets' splash hits the intended target, but only accuracy% bullets hit directly
 		double directDamage = this.increaseBulletDamageForWeakpoints(getDirectDamage());
 		int areaDamage = getAreaDamage();
@@ -601,8 +601,7 @@ public class Autocannon extends Weapon {
 	}
 
 	@Override
-	public double estimatedAccuracy() {
-		boolean weakpointAccuracy = false;
+	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		double crosshairHeightPixels, crosshairWidthPixels;
 		
 		if (selectedTier2 == 0) {
@@ -615,7 +614,7 @@ public class Autocannon extends Weapon {
 			crosshairHeightPixels = 162;
 			crosshairWidthPixels = 397;
 		}
-		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, crosshairWidthPixels, crosshairHeightPixels);
+		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, false, crosshairWidthPixels, crosshairHeightPixels);
 	}
 
 	@Override

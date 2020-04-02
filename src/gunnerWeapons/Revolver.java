@@ -573,7 +573,7 @@ public class Revolver extends Weapon {
 			// "Magic Bullets" mean that any bullet that MISSES the primary target will try to automatically riccochet to a nearby enemy.
 			// This can be modeled by returning (1 - Accuracy) * Ideal Sustained DPS
 			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-			sustainedAdditionalDPS = (1.0 - estimatedAccuracy()) * calculateDamagePerMagazine(false, 1) / timeToFireMagazineAndReload;
+			sustainedAdditionalDPS = (1.0 - estimatedAccuracy(false)/100.0) * calculateDamagePerMagazine(false, 1) / timeToFireMagazineAndReload;
 			
 			if (selectedTier5 == 1) {
 				sustainedAdditionalDPS += DoTInformation.Neuro_DPS;
@@ -695,8 +695,7 @@ public class Revolver extends Weapon {
 	}
 
 	@Override
-	public double estimatedAccuracy() {
-		boolean weakpointAccuracy = false;
+	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		double unchangingBaseSpread = 3;
 		double changingBaseSpread = 30 * getBaseSpread();
 		double spreadVariance = 157;
@@ -708,7 +707,7 @@ public class Revolver extends Weapon {
 		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
 		int[] recoilDownInterval = {8, 9};
 		
-		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
+		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
 				recoilPerShot, recoilUpInterval, recoilDownInterval);
 	}

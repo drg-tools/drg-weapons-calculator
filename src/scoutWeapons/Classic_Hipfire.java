@@ -594,8 +594,7 @@ public class Classic_Hipfire extends Weapon {
 	}
 
 	@Override
-	public double estimatedAccuracy() {
-		boolean weakpointAccuracy = false;
+	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		double unchangingBaseSpread = 15;
 		double changingBaseSpread = 0;
 		double spreadVariance = 140 * getSpreadVariance();
@@ -607,7 +606,7 @@ public class Classic_Hipfire extends Weapon {
 		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
 		int[] recoilDownInterval = {6, 5};
 		
-		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
+		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
 				recoilPerShot, recoilUpInterval, recoilDownInterval);
 	}

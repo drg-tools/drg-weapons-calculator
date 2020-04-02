@@ -3,8 +3,9 @@ package modelPieces;
 import utilities.MathUtils;
 
 public class AccuracyEstimator {
-	// The distance from which this class estimates the accuracy of a gun
-	private static double targetDistanceMeters = 7.0;
+	// The distances from which this class estimates the accuracy of a gun
+	private static double closeRangeTargetDistanceMeters = 5.0;
+	private static double mediumRangeTargetDistanceMeters = 7.0;
 	// The distance from which the measurements were taken
 	private static double testingDistancePixels = 1074.047528;
 	private static double playerRecoilCorrectionCoefficient = 1 - 0.625;
@@ -15,12 +16,22 @@ public class AccuracyEstimator {
 	private static double convertRecoilPixelsToRads(double px) {
 		return Math.atan(px / testingDistancePixels);
 	}
-	private static double convertRadiansToMeters(double r) {
-		return targetDistanceMeters * Math.tan(r);
+	private static double convertRadiansToMeters(double r, boolean closeRange) {
+		if (closeRange) {
+			return closeRangeTargetDistanceMeters * Math.tan(r);
+		}
+		else {
+			return mediumRangeTargetDistanceMeters * Math.tan(r);
+		}
 	}
 	// This method also gets used in Gunner/Minigun's accuracy method
-	public static double convertSpreadPixelsToMeters(double px) {
-		return targetDistanceMeters * px /  (2 * testingDistancePixels);
+	public static double convertSpreadPixelsToMeters(double px, boolean closeRange) {
+		if (closeRange) {
+			return closeRangeTargetDistanceMeters * px /  (2 * testingDistancePixels);
+		}
+		else {
+			return mediumRangeTargetDistanceMeters * px /  (2 * testingDistancePixels);
+		}
 	}
 	
 	private static double spread(int numBulletsFired, double timeElapsed, double baseSpreadRads, double spreadPerShotRads, double spreadRecoveryRads, double maxSpreadRads) {
@@ -142,7 +153,7 @@ public class AccuracyEstimator {
 	}
 	
 	public static double calculateCircularAccuracy(
-		boolean weakpoint, double rateOfFire, double magSize, double burstSize,
+		boolean weakpoint, boolean closeRange, double rateOfFire, double magSize, double burstSize,
 		double unchangingBaseSpread, double changingBaseSpread, double spreadVariance, double spreadPerShot, double spreadRecoverySpeed,
 		double recoilPerShot, int[] recoilIncreaseFraction, int[] recoilDecreaseFraction
 	) {
@@ -179,10 +190,10 @@ public class AccuracyEstimator {
 		double crosshairRadius, crosshairRecoil, P; 
 		for (int i = 0; i < magSize; i++) {
 			// Step 2: calculate the crosshair size at the time the bullet gets fired
-			crosshairRadius = convertRadiansToMeters(spread(i, timeElapsed, Sb, SpS, Sr, Sm));
+			crosshairRadius = convertRadiansToMeters(spread(i, timeElapsed, Sb, SpS, Sr, Sm), closeRange);
 			
 			// Step 3: calculate how far off-center the crosshair is due to recoil
-			crosshairRecoil = convertRadiansToMeters(convertRecoilPixelsToRads(predictedRecoil[i]));
+			crosshairRecoil = convertRadiansToMeters(convertRecoilPixelsToRads(predictedRecoil[i]), closeRange);
 			
 			// Step 4: calculate the area of overlap (if any) between the crosshair size, crosshair recoil, and target area
 			// Step 5: divide the overlap by the target area for the probability that at the current bullet will hit
@@ -232,9 +243,9 @@ public class AccuracyEstimator {
 		return sumOfAllProbabilities / magSize * 100.0;
 	}
 	
-	public static double calculateRectangularAccuracy(boolean weakpoint, double crosshairWidthPixels, double crosshairHeightPixels) {
-		double crosshairHeightMeters = AccuracyEstimator.convertSpreadPixelsToMeters(crosshairHeightPixels);
-		double crosshairWidthMeters = AccuracyEstimator.convertSpreadPixelsToMeters(crosshairWidthPixels);
+	public static double calculateRectangularAccuracy(boolean weakpoint, boolean closeRange, double crosshairWidthPixels, double crosshairHeightPixels) {
+		double crosshairHeightMeters = AccuracyEstimator.convertSpreadPixelsToMeters(crosshairHeightPixels, closeRange);
+		double crosshairWidthMeters = AccuracyEstimator.convertSpreadPixelsToMeters(crosshairWidthPixels, closeRange);
 		double targetRadius;
 		if (weakpoint) {
 			targetRadius = 0.2;

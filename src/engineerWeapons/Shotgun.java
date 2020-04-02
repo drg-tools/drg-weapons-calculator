@@ -548,8 +548,7 @@ public class Shotgun extends Weapon {
 	}
 
 	@Override
-	public double estimatedAccuracy() {
-		boolean weakpointAccuracy = false;
+	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		double unchangingBaseSpread = 105;
 		double changingBaseSpread = 96 * getBaseSpread();
 		double spreadVariance = 0;
@@ -561,7 +560,7 @@ public class Shotgun extends Weapon {
 		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
 		int[] recoilDownInterval = {4, 3};
 		
-		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
+		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, true, getRateOfFire(), getMagazineSize(), 1, 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
 				recoilPerShot, recoilUpInterval, recoilDownInterval);
 	}
@@ -572,7 +571,8 @@ public class Shotgun extends Weapon {
 		utilityScores[2] = (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
 		
 		// Weakpoint = 10% stun chance per pellet, 2 sec duration (upgraded with Mod Tier 3 "Stun Duration")
-		int numPelletsThatHitWeakpoint = (int) Math.round(getNumberOfPellets() * estimatedAccuracy() / 100.0);
+		double weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+		int numPelletsThatHitWeakpoint = (int) Math.round(getNumberOfPellets() * weakpointAccuracy);
 		// Only 1 pellet needs to succeed in order to stun the creature
 		double totalStunChancePerShot = MathUtils.cumulativeBinomialProbability(getWeakpointStunChance(), numPelletsThatHitWeakpoint, 1);
 		utilityScores[5] = totalStunChancePerShot * getStunDuration() * UtilityInformation.Stun_Utility;

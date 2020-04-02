@@ -601,15 +601,14 @@ public class Zhukov extends Weapon {
 	}
 
 	@Override
-	public double estimatedAccuracy() {
-		boolean weakpointAccuracy = false;
+	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		double unchangingWidth = 14;
 		double changingWidth = 384;
 		
 		double crosshairHeightPixels = 98;
 		double crosshairWidthPixels = unchangingWidth + changingWidth * getBaseSpread();
 		
-		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, crosshairWidthPixels, crosshairHeightPixels);
+		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, true, crosshairWidthPixels, crosshairHeightPixels);
 	}
 
 	@Override

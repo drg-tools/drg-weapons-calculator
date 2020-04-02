@@ -743,7 +743,7 @@ public class Minigun extends Weapon {
 	}
 
 	@Override
-	public double estimatedAccuracy() {
+	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		// I'm choosing to model Minigun as if it has no recoil. Although it does, its so negligible that it would have no effect.
 		// Because it's being modeled without recoil, and its crosshair gets smaller as it fires, I'm making a quick-and-dirty estimate here instead of using AccuracyEstimator.
 		double unchangingBaseSpread = 61;
@@ -758,7 +758,6 @@ public class Minigun extends Weapon {
 		// Adapted from AccuracyEstimator
 		// Because this is modeled without recoil, there are only two options: one where the crosshair is larger than the target, and one where it's <=.
 		double sumOfAllProbabilities = 0.0;
-		boolean weakpointAccuracy = false;
 		double targetRadius;
 		if (weakpointAccuracy) {
 			targetRadius = 0.2;
@@ -770,7 +769,7 @@ public class Minigun extends Weapon {
 		int numPelletsUntilStable = bulletsFiredTilMaxStability/2;
 		double currentSpreadRadius;
 		for (int i = 0; i < numPelletsUntilStable; i++) {
-			currentSpreadRadius = AccuracyEstimator.convertSpreadPixelsToMeters(maxSpread - i*spreadPerShot);
+			currentSpreadRadius = AccuracyEstimator.convertSpreadPixelsToMeters(maxSpread - i*spreadPerShot, false);
 			
 			if (currentSpreadRadius > targetRadius) {
 				sumOfAllProbabilities += Math.pow((targetRadius / currentSpreadRadius), 2);
@@ -782,7 +781,7 @@ public class Minigun extends Weapon {
 		
 		// Because only the first 20 shots have an accuracy penalty, the rest can be modeled with simple multiplication
 		int numPelletsFiredAfterStable = numPelletsFired - numPelletsUntilStable;
-		currentSpreadRadius = AccuracyEstimator.convertSpreadPixelsToMeters(baseSpread);
+		currentSpreadRadius = AccuracyEstimator.convertSpreadPixelsToMeters(baseSpread, false);
 		if (currentSpreadRadius > targetRadius) {
 			sumOfAllProbabilities += numPelletsFiredAfterStable * Math.pow((targetRadius / currentSpreadRadius), 2);
 		}

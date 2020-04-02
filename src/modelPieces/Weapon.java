@@ -32,6 +32,8 @@ public abstract class Weapon extends Observable {
 	protected Overclock[] overclocks;
 	protected int selectedOverclock;
 	
+	protected double weakpointAccuracy;
+	protected double generalAccuracy;
 	// Mobility, Damage Resist, Armor Break, Slow, Fear, Stun, Freeze
 	// Set them all to zero to start, then override values in child objects as necessary.
 	protected double[] utilityScores = {0,0,0,0,0,0,0};
@@ -232,7 +234,7 @@ public abstract class Weapon extends Observable {
 			calculateFiringDuration(),
 			averageTimeToKill(),
 			averageOverkill(),
-			estimatedAccuracy(),
+			estimatedAccuracy(false),
 			utilityScore()
 		};
 		selectedTier1 = oldT1;
@@ -467,6 +469,13 @@ public abstract class Weapon extends Observable {
 		}
 	}
 	
+	protected double increaseBulletDamageForWeakpoints2(double preWeakpointBulletDamage, double probabilityBulletHitsWeakpoint) {
+		return increaseBulletDamageForWeakpoints2(preWeakpointBulletDamage, 0.0, probabilityBulletHitsWeakpoint);
+	}
+	protected double increaseBulletDamageForWeakpoints2(double preWeakpointBulletDamage, double weakpointBonusModifier, double probabilityBulletHitsWeakpoint) {
+		double estimatedDamageIncreaseWithoutModifier = EnemyInformation.averageWeakpointDamageIncrease();
+		return ((1.0 - probabilityBulletHitsWeakpoint) + probabilityBulletHitsWeakpoint * estimatedDamageIncreaseWithoutModifier * (1.0 + weakpointBonusModifier)) * preWeakpointBulletDamage;
+	}
 	protected double increaseBulletDamageForWeakpoints(double preWeakpointBulletDamage) {
 		return increaseBulletDamageForWeakpoints(preWeakpointBulletDamage, 0.0);
 	}
@@ -515,7 +524,7 @@ public abstract class Weapon extends Observable {
 	public abstract double calculateFiringDuration();
 	public abstract double averageTimeToKill();  // Average health of an enemy divided by weakpoint sustained DPS
 	public abstract double averageOverkill();  // (Total Damage done / Avg Health) - 1.0
-	public abstract double estimatedAccuracy(); // -1 means manual or N/A; [0.00, 1.00] otherwise
+	public abstract double estimatedAccuracy(boolean weakpointAccuracy); // -1 means manual or N/A; [0.00, 1.00] otherwise
 	public abstract double utilityScore();
 	
 	// This method is used to explain how the Utility Scores are calculated for the UtilityBreakdownButton
@@ -538,7 +547,7 @@ public abstract class Weapon extends Observable {
 		return new double[]{
 			calculateIdealBurstDPS(), calculateIdealSustainedDPS(), sustainedWeakpointDPS(), sustainedWeakpointAccuracyDPS(),
 			calculateAdditionalTargetDPS(), calculateMaxMultiTargetDamage(), calculateMaxNumTargets(), calculateFiringDuration(),
-			averageTimeToKill(), averageOverkill(), estimatedAccuracy(), calculateIdealSustainedDPS()
+			averageTimeToKill(), averageOverkill(), estimatedAccuracy(false), calculateIdealSustainedDPS()
 		};
 	}
 }

@@ -177,7 +177,7 @@ public class WeaponStatsGenerator {
 		double lowestOverkill = weaponToTest.averageOverkill();
 		
 		String bestAccuracyCombination = bestIdealBurstDPSCombination;
-		double bestAccuracy = weaponToTest.estimatedAccuracy();
+		double bestAccuracy = weaponToTest.estimatedAccuracy(false);
 		
 		String bestUtilityCombination = bestIdealBurstDPSCombination;
 		double bestUtility = weaponToTest.utilityScore();
@@ -265,7 +265,7 @@ public class WeaponStatsGenerator {
 									lowestOverkillCombination = forLoopsCombination;
 									lowestOverkill = currentOverkill;
 								}
-								currentAccuracy = weaponToTest.estimatedAccuracy();
+								currentAccuracy = weaponToTest.estimatedAccuracy(false);
 								if (currentAccuracy > bestAccuracy) {
 									bestAccuracyCombination = forLoopsCombination;
 									bestAccuracy = currentAccuracy;
@@ -739,7 +739,7 @@ public class WeaponStatsGenerator {
 	
 	public String getHighestAccuracyCombination() {
 		String bestAccuracyCombination = weaponToTest.getCombination();
-		double bestAccuracy = weaponToTest.estimatedAccuracy();
+		double bestAccuracy = weaponToTest.estimatedAccuracy(false);
 		double currentAccuracy;
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
@@ -761,7 +761,7 @@ public class WeaponStatsGenerator {
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
 								weaponToTest.setSelectedModAtTier(1, t1);
 								
-								currentAccuracy = weaponToTest.estimatedAccuracy();
+								currentAccuracy = weaponToTest.estimatedAccuracy(false);
 								if (currentAccuracy > bestAccuracy) {
 									bestAccuracyCombination = weaponToTest.getCombination();
 									bestAccuracy = currentAccuracy;

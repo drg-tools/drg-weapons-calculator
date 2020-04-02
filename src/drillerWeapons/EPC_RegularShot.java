@@ -604,7 +604,7 @@ public class EPC_RegularShot extends Weapon {
 	}
 
 	@Override
-	public double estimatedAccuracy() {
+	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		return -1.0;
 	}
 

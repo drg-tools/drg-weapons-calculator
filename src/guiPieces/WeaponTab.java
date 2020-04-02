@@ -379,7 +379,7 @@ public class WeaponTab extends JPanel {
 		}
 		toReturn.add(value);
 		
-		double accuracy = myWeapon.estimatedAccuracy();
+		double accuracy = myWeapon.estimatedAccuracy(false);
 		if (accuracy < 0) {
 			value = new JLabel("Manually Aimed");
 			value.setForeground(GuiConstants.drgHighlightedYellow);

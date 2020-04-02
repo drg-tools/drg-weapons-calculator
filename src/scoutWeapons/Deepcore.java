@@ -599,7 +599,7 @@ public class Deepcore extends Weapon {
 	}
 
 	@Override
-	public double estimatedAccuracy() {
+	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		/*
 			Scout's Assault Rifle seems to use a different model of accuracy than the other guns do. Speficially, it does the following things differently:
 			1. The Spread Recovery Speed seems to be non-linear; it seems to be more powerful at the start of the magazine and get weaker near the end
@@ -610,7 +610,6 @@ public class Deepcore extends Weapon {
 			If I keep developing this app, I'd like to come back and make a method specifically for this weapon.
 		*/
 		
-		boolean weakpointAccuracy = false;
 		double unchangingBaseSpread = 19;
 		double changingBaseSpread = 21 * getBaseSpread();
 		double spreadVariance = 84;
@@ -622,7 +621,7 @@ public class Deepcore extends Weapon {
 		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
 		int[] recoilDownInterval = {2, 3};
 		
-		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
+		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
 				recoilPerShot, recoilUpInterval, recoilDownInterval);
 	}
