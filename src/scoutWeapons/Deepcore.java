@@ -3,6 +3,7 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
@@ -599,12 +600,31 @@ public class Deepcore extends Weapon {
 
 	@Override
 	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
+		/*
+			Scout's Assault Rifle seems to use a different model of accuracy than the other guns do. Speficially, it does the following things differently:
+			1. The Spread Recovery Speed seems to be non-linear; it seems to be more powerful at the start of the magazine and get weaker near the end
+			2. The Spread Recovery starts getting applied on the first shot, whereas all the other guns have it applied on every shot after the first.
+			3. When its Base Spread is reduced to 0, the Max Spread doesn't decrease as well (every other gun has Max Spread = Base Spread + Spread Variance)
+			
+			With those things in mind, I am choosing to model this slightly incorrectly with the current AccuracyEstimator because I want to get things finished up.
+			If I keep developing this app, I'd like to come back and make a method specifically for this weapon.
+		*/
 		
-		// AR seems to have a different implementation of accuracy -- the Spread Recovery gets applied BEFORE the first shot somehow, meaning the first shot is +6 instead of +30 like every other gun that uses this model.
-		// Additionally, its Max Spread is NOT affected by the decrease in Base Spread (again, unlike the other guns)
+		boolean weakpointAccuracy = false;
+		double unchangingBaseSpread = 19;
+		double changingBaseSpread = 21 * getBaseSpread();
+		double spreadVariance = 84;
+		double spreadPerShot = 30 * getSpreadPerShot();
+		double spreadRecoverySpeed = 170.6869145;
+		double recoilPerShot = 41 * getRecoil();
+		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
+		int[] recoilUpInterval = {1, 6};
+		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
+		int[] recoilDownInterval = {2, 3};
 		
-		return 0;
+		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
+				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
+				recoilPerShot, recoilUpInterval, recoilDownInterval);
 	}
 
 	@Override

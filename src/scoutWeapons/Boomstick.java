@@ -3,6 +3,7 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
@@ -673,8 +674,21 @@ public class Boomstick extends Weapon {
 
 	@Override
 	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		return 30.0;
+		// Even though this gun does have significant recoil, it recovers from that recoil entirely in 0.5 seconds. Rather than make an overly 
+		// complicated model for 2 shots, I'm just going to use the accuracy for a single shot.
+		boolean weakpointAccuracy = false;
+		double crosshairHeightPixels = 156;
+		double crosshairWidthPixels;
+		
+		if (selectedOverclock == 4) {
+			// Base Spread = 65%
+			crosshairWidthPixels = 305;
+		}
+		else {
+			// Base Spread = 100%
+			crosshairWidthPixels = 468;
+		}
+		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, crosshairWidthPixels, crosshairHeightPixels);
 	}
 
 	@Override

@@ -406,34 +406,28 @@ public class Shotgun extends Weapon {
 		
 		// Although DRG has these stats multiply together as 25% Base Spread, it's more precise to represent them as additive bonuses in this model.
 		if (selectedTier2 == 2) {
-			toReturn -= 0.5;
+			toReturn *= 0.5;
 		}
 		
 		if (selectedOverclock == 2) {
-			toReturn -= 0.5;
+			toReturn *= 0.5;
 		}
-		// The listed stat 200% Base Spread on Cycle Overload is actually 150% Recoil
+		else if (selectedOverclock == 3) {
+			toReturn *= 1.5;
+		}
 		
 		return toReturn;
 	}
 	private double getRecoil() {
 		double toReturn = recoil;
 		
-		// Choke has a hidden 120% recoil stat
-		if (selectedTier2 == 2) {
-			toReturn *= 1.2;
-		}
+		// TODO: redo Choke, MPA, and Cycle Overload tests to see if they actually affect recoil
 		if (selectedTier3 == 0) {
 			toReturn *= 0.4;
 		}
 		
-		// Magnetic Pellet Alignment has a hidden 50% recoil stat
-		if (selectedOverclock == 2 || selectedOverclock == 4) {
-			// toReturn *= 0.5;
-		}
-		// Cycle Overload actually has 150% recoil, instead of 200% Base Spread
-		else if (selectedOverclock == 3) {
-			toReturn *= 1.5;
+		if (selectedOverclock == 4) {
+			toReturn *= 0.5;
 		}
 		
 		return toReturn;
@@ -555,22 +549,21 @@ public class Shotgun extends Weapon {
 
 	@Override
 	public double estimatedAccuracy() {
-		// Baseline stats before mods/OCs alter them (measured as degrees of deviation from the central axis)
-		// 108 + 94 * Base Spread
-		double unchangingBaseSpread = 108.0/202.0;
-		double changingBaseSpread = 94.0/202.0;
+		boolean weakpointAccuracy = false;
+		double unchangingBaseSpread = 105;
+		double changingBaseSpread = 96 * getBaseSpread();
+		double spreadVariance = 0;
+		double spreadPerShot = 0;
+		double spreadRecoverySpeed = 0;
+		double recoilPerShot = 124.036285 * getRecoil();
+		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
+		int[] recoilUpInterval = {1, 3};
+		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
+		int[] recoilDownInterval = {4, 3};
 		
-		double baseSpread = 6.429281185;
-		double modifiedBaseSpread = unchangingBaseSpread * baseSpread + changingBaseSpread * baseSpread * getBaseSpread();
-		// Engie's Shotgun's spread doesn't change per shot, and therefore doesn't have to recover afterwards.
-		
-		double recoilPerShot = 5.937416099;
-		double maxRecoil = 9.313598909;
-		double recoilRecoverySpeed = 12.33453059;
-		
-		return AccuracyEstimator.calculateAccuracy(getRateOfFire(), getMagazineSize(), 1, 
-				modifiedBaseSpread, 0, modifiedBaseSpread, 0, 
-				recoilPerShot * getRecoil(), maxRecoil * getRecoil(), recoilRecoverySpeed * getRecoil());
+		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
+				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
+				recoilPerShot, recoilUpInterval, recoilDownInterval);
 	}
 
 	@Override

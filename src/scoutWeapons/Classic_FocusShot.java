@@ -601,8 +601,8 @@ public class Classic_FocusShot extends Weapon {
 
 	@Override
 	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		return 0;
+		// Manually aimed
+		return -1.0;
 	}
 
 	@Override

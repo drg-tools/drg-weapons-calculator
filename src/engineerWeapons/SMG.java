@@ -411,11 +411,6 @@ public class SMG extends Weapon {
 	private double getRecoil() {
 		double toReturn = 1.0;
 		
-		// EM Refire Booster has a hidden 125% recoil penalty
-		if (selectedOverclock == 2) {
-			toReturn *= 1.25;
-		}
-		
 		return toReturn;
 	}
 	private double getWeakpointBonus() {
@@ -603,23 +598,21 @@ public class SMG extends Weapon {
 
 	@Override
 	public double estimatedAccuracy() {
-		// Baseline stats before mods/OCs alter them (measured as degrees of deviation from the central axis)
-		// 64 + 42 * Base Spread
-		double unchangingBaseSpread = 64.0/106.0;
-		double changingBaseSpread = 42.0/106.0;
+		boolean weakpointAccuracy = false;
+		double unchangingBaseSpread = 62;
+		double changingBaseSpread = 43 * getBaseSpread();
+		double spreadVariance = 126;
+		double spreadPerShot = 14;
+		double spreadRecoverySpeed = 102.4121487;
+		double recoilPerShot = 42.54409477 * getRecoil();
+		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
+		int[] recoilUpInterval = {1, 8};
+		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
+		int[] recoilDownInterval = {1, 2};
 		
-		double baseSpread = 3.384072723;
-		double modifiedBaseSpread = unchangingBaseSpread * baseSpread + changingBaseSpread * baseSpread * getBaseSpread();
-		double spreadPerShot = 0.5433443342;
-		double maxSpread = 7.217049469;
-		double spreadRecoverySpeed = 3.861591501;
-		double recoilPerShot = 2.290610043;
-		double maxRecoil = 7.406912128;
-		double recoilRecoverySpeed = 14.5742162;
-		
-		return AccuracyEstimator.calculateAccuracy(getRateOfFire(), getMagazineSize(), 1, 
-				modifiedBaseSpread, spreadPerShot, maxSpread, spreadRecoverySpeed, 
-				recoilPerShot * getRecoil(), maxRecoil * getRecoil(), recoilRecoverySpeed * getRecoil());
+		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
+				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
+				recoilPerShot, recoilUpInterval, recoilDownInterval);
 	}
 
 	@Override

@@ -624,18 +624,21 @@ public class BurstPistol extends Weapon {
 
 	@Override
 	public double estimatedAccuracy() {
-		// Baseline stats before mods/OCs alter them (measured as degrees of deviation from the central axis)
-		double baseSpread = 1.725447245;
-		double spreadPerShot = 0.6392212689;
-		double maxSpread = 5.195581648;
-		double spreadRecoverySpeed = 2.784925116;
-		double recoilPerShot = 1.718358002;
-		double maxRecoil = 6.842773413;
-		double recoilRecoverySpeed = 13.49573328;
+		boolean weakpointAccuracy = false;
+		double unchangingBaseSpread = 52;
+		double changingBaseSpread = 0;
+		double spreadVariance = 111;
+		double spreadPerShot = 21 * getSpreadPerShot();
+		double spreadRecoverySpeed = 81.44881533;
+		double recoilPerShot = 42 * getRecoil();
+		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
+		int[] recoilUpInterval = {1, 10};
+		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
+		int[] recoilDownInterval = {3, 4};
 		
-		return AccuracyEstimator.calculateAccuracy(getRateOfFire(), getMagazineSize(), getBurstSize(), 
-				baseSpread, spreadPerShot * getSpreadPerShot(), maxSpread, spreadRecoverySpeed, 
-				recoilPerShot * getRecoil(), maxRecoil * getRecoil(), recoilRecoverySpeed * getRecoil());
+		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), getBurstSize(), 
+				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
+				recoilPerShot, recoilUpInterval, recoilDownInterval);
 	}
 
 	@Override

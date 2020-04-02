@@ -3,134 +3,11 @@ package modelPieces;
 import utilities.MathUtils;
 
 public class AccuracyEstimator {
-	public static double targetRadius = 0.4; // meters
-	public static double targetDistance = 5.0; // meters
-	
-	// 0.4, 5.0 feels good for general Accuracy estimation
-	// 0.2, 3.7 feels really good for Weakpoint Accuracy estimation
-	
-	/*
-		Except for RoF and magSize, all of these parameters should be passed in as degrees of deviation from a central axis 
-		which are strictly less than 90 degrees.
-	*/
-	public static double calculateAccuracy(double rateOfFire, int numBulletsPerMagazine, int burstSize,
-			 double baseSpread, double spreadPerShot, double maxSpread, double spreadRecovery,
-			 double recoilPerShot, double maxRecoil, double recoilRecovery) {
-		
-		
-		double RoF = rateOfFire;
-		int magSize = numBulletsPerMagazine;
-		// The time that passes between each shot
-		double deltaT = 1.0 / RoF;
-		
-		double Sb = baseSpread;
-		double Ss = spreadPerShot;
-		double Sr = spreadRecovery;
-		// TODO: For most guns, the max spread is calculated by adding the base spread + max spread -- thus base and max spread are tied together and grow/shrink by the same value (not same multiplier)
-		// This should be refactored to represent that.
-		double Sm = maxSpread;
-		
-		// I'm applying a 0.5 multiplier to all of these recoil coefficients, to factor in the player counter-acting the recoil by 50%.
-		// Intentionally using 1 - Counter so that I can change the player's efficiency directly, rather than having to do indirect math every time I want to change the value.
-		double playerRecoilCorrectionCoefficient = (1.0 - 0.5);
-		double Rs = recoilPerShot * playerRecoilCorrectionCoefficient;
-		double Rr = recoilRecovery * playerRecoilCorrectionCoefficient;
-		double Rm = maxRecoil * playerRecoilCorrectionCoefficient;
-		
-		double sumOfAllProbabilities = 0.0;
-		double timeElapsed = 0.0;
-		
-		double reticleRadius, recoil, P; 
-		for (int i = 0; i < magSize; i++) {
-			reticleRadius = convertDegreesToMeters(radius(i, timeElapsed, Sb, Ss, Sr, Sm));
-			// TODO: recoil only starts recovering 0.25 seconds after the gun either stops firing, or in BRT's case after the mouse is clicked to start a burst
-			// This means that guns with RoF >= 4 don't have any recoil recovered until they stop firing
-			recoil = convertDegreesToMeters(recoil(i, timeElapsed, Rs, Rr, Rm));
-			
-			if (targetRadius >= reticleRadius) {
-				if (recoil <= targetRadius - reticleRadius) {
-					// In this case, the larger circle entirely contains the smaller circle, even when displaced by recoil.
-					P = 1.0;
-				}
-				else if (recoil >= targetRadius + reticleRadius) {
-					// In this case, the two circles have no intersection.
-					P = 0.0;
-				}
-				else {
-					// For all other cases, the area of the smaller circle that is still inside the larger circle is known as a "Lens". P = (Lens area / larger circle area)
-					P = areaOfLens(targetRadius, reticleRadius, recoil) / (Math.PI * Math.pow(targetRadius, 2));
-				}
-			}
-			else {
-				if (recoil <= reticleRadius - targetRadius) {
-					// In this case, the larger circle entirely contains the smaller circle, even when displaced by recoil. P = (smaller circle area / larger circle area)
-					P = Math.pow((targetRadius / reticleRadius), 2);
-				}
-				else if (recoil >= reticleRadius + targetRadius) {
-					// In this case, the two circles have no intersection.
-					P = 0.0;
-				}
-				else {
-					// For all other cases, the area of the smaller circle that is still inside the larger circle is known as a "Lens". P = (Lens area / larger circle area)
-					P = areaOfLens(reticleRadius, targetRadius, recoil) / (Math.PI * Math.pow(reticleRadius, 2));
-				}
-			}
-			
-			// System.out.println("P for bullet # " + (i + 1) + ": " + P);
-			sumOfAllProbabilities += P;
-			
-			if (burstSize > 1 && (i+1) % burstSize > 0) {
-				// If this gun both has a burst-fire mode and is currently firing a burst, change deltaT
-				timeElapsed += 0.05;
-			}
-			else {
-				// If this gun either doesn't have a burst-fire mode, or the burst has completed and it has to wait before it can fire the next burst
-				timeElapsed += deltaT;
-			}
-		}
-		
-		return sumOfAllProbabilities / magSize * 100.0;
-	}
-	
-	// Both radius() and recoil() return degrees of deviation and need to have their outputs changed to meters before use.
-	private static double radius(int numBulletsFired, double timeElapsed, double Sb, double Ss, double Sr, double Sm) {
-		return Sb + Math.min(Math.max(numBulletsFired * Ss - timeElapsed * Sr, 0), Sm - Sb);
-	}
-	
-	private static double recoil(int numBulletsFired, double timeElapsed, double Rs, double Rr, double Rm) {
-		return Math.min(Math.max(numBulletsFired * Rs - timeElapsed * Rr, 0), Rm);
-	}
-	
-	private static double areaOfLens(double R, double r, double d) {
-		// Sourced from https://en.wikipedia.org/wiki/Lens_(geometry)
-		double firstThird = Math.pow(r, 2) * Math.acos((Math.pow(d, 2) + Math.pow(r, 2) - Math.pow(R, 2)) / (2 * d * r));
-		double secondThird = Math.pow(R, 2) * Math.acos((Math.pow(d, 2) + Math.pow(R, 2) - Math.pow(r, 2)) / (2 * d * R));
-		double finalThird = 0.5 * Math.sqrt((-d + r + R) * (d - r + R) * (d + r - R) * (d + r + R));
-		
-		return firstThird + secondThird - finalThird;
-	}
-	
-	public static double convertDegreesToMeters(double degrees) {
-		double radians = degrees * Math.PI / 180.0;
-		return targetDistance * Math.tan(radians);
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	public static double targetDistanceMeters = 8.0;
+	// The distance from which this class estimates the accuracy of a gun
+	private static double targetDistanceMeters = 7.0;
+	// The distance from which the measurements were taken
 	private static double testingDistancePixels = 1074.047528;
+	private static double playerRecoilCorrectionCoefficient = 1 - 0.625;
 	
 	private static double convertSpreadPixelsToRads(double px) {
 		return Math.atan((px / (2 * testingDistancePixels)));
@@ -141,8 +18,12 @@ public class AccuracyEstimator {
 	private static double convertRadiansToMeters(double r) {
 		return targetDistanceMeters * Math.tan(r);
 	}
+	// This method also gets used in Gunner/Minigun's accuracy method
+	public static double convertSpreadPixelsToMeters(double px) {
+		return targetDistanceMeters * px /  (2 * testingDistancePixels);
+	}
 	
-	private static double spread2(int numBulletsFired, double timeElapsed, double baseSpreadRads, double spreadPerShotRads, double spreadRecoveryRads, double maxSpreadRads) {
+	private static double spread(int numBulletsFired, double timeElapsed, double baseSpreadRads, double spreadPerShotRads, double spreadRecoveryRads, double maxSpreadRads) {
 		// This can never be less than 0 pixels of change
 		double calculatedChangeInSpread = Math.max(numBulletsFired * spreadPerShotRads - timeElapsed * spreadRecoveryRads, 0);
 		
@@ -172,7 +53,7 @@ public class AccuracyEstimator {
 		}
 	}
 	
-	private static double[] recoil2(double RoF, int magSize, int burstSize, double recoilPerShotPixels, int[] recoilUpFraction, int[] recoilDownFraction) {
+	private static double[] recoil(double RoF, int magSize, int burstSize, double recoilPerShotPixels, int[] recoilUpFraction, int[] recoilDownFraction) {
 		
 		// Step 1: find the LCM of the three denominators and convert all fractions to use the common tickrate as their new denominator
 		int[] RoFFraction = {10, (int) Math.round(RoF * 10.0)};  // Because some RoF have one decimal, multiply it by 10/10 to make it integers but maintain ratio
@@ -251,7 +132,16 @@ public class AccuracyEstimator {
 		return toReturn;
 	}
 	
-	public static double calculateAccuracy2(
+	private static double areaOfLens(double R, double r, double d) {
+		// Sourced from https://en.wikipedia.org/wiki/Lens_(geometry)
+		double firstThird = Math.pow(r, 2) * Math.acos((Math.pow(d, 2) + Math.pow(r, 2) - Math.pow(R, 2)) / (2 * d * r));
+		double secondThird = Math.pow(R, 2) * Math.acos((Math.pow(d, 2) + Math.pow(R, 2) - Math.pow(r, 2)) / (2 * d * R));
+		double finalThird = 0.5 * Math.sqrt((-d + r + R) * (d - r + R) * (d + r - R) * (d + r + R));
+		
+		return firstThird + secondThird - finalThird;
+	}
+	
+	public static double calculateCircularAccuracy(
 		boolean weakpoint, double rateOfFire, double magSize, double burstSize,
 		double unchangingBaseSpread, double changingBaseSpread, double spreadVariance, double spreadPerShot, double spreadRecoverySpeed,
 		double recoilPerShot, int[] recoilIncreaseFraction, int[] recoilDecreaseFraction
@@ -270,11 +160,8 @@ public class AccuracyEstimator {
 		double Sm = convertSpreadPixelsToRads(maxSpread);
 		double Sr = convertSpreadPixelsToRads(spreadRecoverySpeed);
 		
-		// I'm applying a -75% multiplier to all of these recoil values to factor in the player counter-acting the recoil.
-		// Intentionally using 1 - PlayerCorrection so that I can change the player's efficiency directly, rather than having to do indirect math every time I want to change the value.
-		double playerRecoilCorrectionCoefficient = (1.0 - 0.75);
 		double RpS = recoilPerShot * playerRecoilCorrectionCoefficient;
-		double[] predictedRecoil = recoil2(rateOfFire, (int) magSize, (int) burstSize, RpS, recoilIncreaseFraction, recoilDecreaseFraction);
+		double[] predictedRecoil = recoil(rateOfFire, (int) magSize, (int) burstSize, RpS, recoilIncreaseFraction, recoilDecreaseFraction);
 		
 		// Step 1: establish the target size
 		// Due to mathematical limitations, I'm forced to model the targets as if they're circular even though it would be a better approximation if the targets were elliptical
@@ -291,9 +178,8 @@ public class AccuracyEstimator {
 		
 		double crosshairRadius, crosshairRecoil, P; 
 		for (int i = 0; i < magSize; i++) {
-			// TODO: redo the radius() and recoil() methods for calculateAccuracy2
 			// Step 2: calculate the crosshair size at the time the bullet gets fired
-			crosshairRadius = convertRadiansToMeters(spread2(i, timeElapsed, Sb, SpS, Sr, Sm));
+			crosshairRadius = convertRadiansToMeters(spread(i, timeElapsed, Sb, SpS, Sr, Sm));
 			
 			// Step 3: calculate how far off-center the crosshair is due to recoil
 			crosshairRecoil = convertRadiansToMeters(convertRecoilPixelsToRads(predictedRecoil[i]));
@@ -344,5 +230,33 @@ public class AccuracyEstimator {
 		
 		// Step 6: redo steps 2 through 5 for each bullet in the magazine fired at max RoF, sum up the probabilities, and divide by magSize for an approximate estimation of Accuracy
 		return sumOfAllProbabilities / magSize * 100.0;
+	}
+	
+	public static double calculateRectangularAccuracy(boolean weakpoint, double crosshairWidthPixels, double crosshairHeightPixels) {
+		double crosshairHeightMeters = AccuracyEstimator.convertSpreadPixelsToMeters(crosshairHeightPixels);
+		double crosshairWidthMeters = AccuracyEstimator.convertSpreadPixelsToMeters(crosshairWidthPixels);
+		double targetRadius;
+		if (weakpoint) {
+			targetRadius = 0.2;
+		}
+		else {
+			targetRadius = 0.4;
+		}
+		
+		/*
+			From observation, it looks like the horizontal distribution of bullets followed a bell curve such that the highest probabilities were in the center of the rectangle, 
+			and the lower probabilities were near the edges. To model that, I'm choosing to calculate the sum of the probabilities that the horizontal spread will be within 
+			the target radius as well as the probability of vertical spread being within the target radius, and then taking the area of the "probability ellipse" formed by those two numbers.
+		*/
+		// Convert the target radius in meters to the unit-less probability ellipse
+		double endOfProbabilityCurve = 2.0 * Math.sqrt(2.0);
+		double horizontalProbabilityRatio = endOfProbabilityCurve * targetRadius / crosshairWidthMeters;
+		double hProb = MathUtils.areaUnderNormalDistribution(-1.0 * horizontalProbabilityRatio, horizontalProbabilityRatio);
+		double verticalProbabilityRatio = endOfProbabilityCurve * targetRadius / crosshairHeightMeters;
+		double vProb = MathUtils.areaUnderNormalDistribution(-1.0 * verticalProbabilityRatio, verticalProbabilityRatio);
+		
+		double areaOfProbabilityEllipse = Math.PI * hProb * vProb / 4.0;
+		
+		return areaOfProbabilityEllipse * 100.0;
 	}
 }

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import drillerWeapons.Subata;
+import modelPieces.AccuracyEstimator;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
@@ -601,8 +602,14 @@ public class Zhukov extends Weapon {
 
 	@Override
 	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		return 0;
+		boolean weakpointAccuracy = false;
+		double unchangingWidth = 14;
+		double changingWidth = 384;
+		
+		double crosshairHeightPixels = 98;
+		double crosshairWidthPixels = unchangingWidth + changingWidth * getBaseSpread();
+		
+		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, crosshairWidthPixels, crosshairHeightPixels);
 	}
 
 	@Override

@@ -696,22 +696,21 @@ public class Revolver extends Weapon {
 
 	@Override
 	public double estimatedAccuracy() {
-		// Baseline stats before mods/OCs alter them (measured as degrees of deviation from the central axis)
-		double unchangingBaseSpread = 3.0/33.0;
-		double changingBaseSpread = 30.0/33.0;
+		boolean weakpointAccuracy = false;
+		double unchangingBaseSpread = 3;
+		double changingBaseSpread = 30 * getBaseSpread();
+		double spreadVariance = 157;
+		double spreadPerShot = 137 * getSpreadPerShot();
+		double spreadRecoverySpeed = 109.1390954;
+		double recoilPerShot = 155 * getRecoil();
+		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
+		int[] recoilUpInterval = {2, 9};
+		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
+		int[] recoilDownInterval = {8, 9};
 		
-		double baseSpread = 1.05463973;
-		double modifiedBaseSpread = unchangingBaseSpread * baseSpread + changingBaseSpread * baseSpread * getBaseSpread();
-		double spreadPerShot = 3.829772889;
-		double maxSpread = 5.544087639;
-		double spreadRecoverySpeed = 3.75021605;
-		double recoilPerShot = 7.744710546;
-		double maxRecoil = 9.648045316;
-		double recoilRecoverySpeed = 18.77803322;
-		
-		return AccuracyEstimator.calculateAccuracy(getRateOfFire(), getMagazineSize(), 1, 
-				modifiedBaseSpread, spreadPerShot * getSpreadPerShot(), maxSpread, spreadRecoverySpeed, 
-				recoilPerShot * getRecoil(), maxRecoil * getRecoil(), recoilRecoverySpeed * getRecoil());
+		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
+				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
+				recoilPerShot, recoilUpInterval, recoilDownInterval);
 	}
 
 	@Override

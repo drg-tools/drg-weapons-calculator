@@ -3,6 +3,7 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.AccuracyEstimator;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
@@ -424,6 +425,22 @@ public class Classic_Hipfire extends Weapon {
 		
 		return toReturn;
 	}
+	private double getSpreadPerShot() {
+		if (selectedTier2 == 1) {
+			return 0.55;
+		}
+		else {
+			return 1.0;
+		}
+	}
+	private double getSpreadVariance() {
+		if (selectedTier2 == 1) {
+			return 0.7;
+		}
+		else {
+			return 1.0;
+		}
+	}
 	private double getRecoil() {
 		double toReturn = recoil;
 		
@@ -578,8 +595,21 @@ public class Classic_Hipfire extends Weapon {
 
 	@Override
 	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		return 0;
+		boolean weakpointAccuracy = false;
+		double unchangingBaseSpread = 15;
+		double changingBaseSpread = 0;
+		double spreadVariance = 140 * getSpreadVariance();
+		double spreadPerShot = 95 * getSpreadPerShot();
+		double spreadRecoverySpeed = 320;
+		double recoilPerShot = 86.83317338 * getRecoil();
+		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
+		int[] recoilUpInterval = {3, 10};
+		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
+		int[] recoilDownInterval = {6, 5};
+		
+		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
+				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
+				recoilPerShot, recoilUpInterval, recoilDownInterval);
 	}
 
 	@Override

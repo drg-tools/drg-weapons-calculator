@@ -579,23 +579,21 @@ public class Subata extends Weapon {
 
 	@Override
 	public double estimatedAccuracy() {
-		// Baseline stats before mods/OCs alter them (measured as degrees of deviation from the central axis)
-		// 20 + 30 * Base Spread
-		double unchangingBaseSpread = 20.0/50.0;
-		double changingBaseSpread = 30.0/50.0;
+		boolean weakpointAccuracy = false;
+		double unchangingBaseSpread = 20;
+		double changingBaseSpread = 28 * getBaseSpread();
+		double spreadVariance = 53;
+		double spreadPerShot = 24 * getSpreadPerShot();
+		double spreadRecoverySpeed = 127.2762815;
+		double recoilPerShot = 28.23118843 * getRecoil();
+		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
+		int[] recoilUpInterval = {1, 8};
+		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
+		int[] recoilDownInterval = {1, 2};
 		
-		double baseSpread = 1.597705231;
-		double modifiedBaseSpread = unchangingBaseSpread * baseSpread + changingBaseSpread * baseSpread * getBaseSpread();
-		double spreadPerShot = 0.3196205801;
-		double maxSpread = 3.192929616;
-		double spreadRecoverySpeed = 2.39578195;
-		double recoilPerShot = 1.718358002;
-		double maxRecoil = 5.142764558;
-		double recoilRecoverySpeed = 7.68844777;
-		
-		return AccuracyEstimator.calculateAccuracy(getRateOfFire(), getMagazineSize(), 1, 
-				modifiedBaseSpread, spreadPerShot * getSpreadPerShot(), maxSpread, spreadRecoverySpeed, 
-				recoilPerShot * getRecoil(), maxRecoil * getRecoil(), recoilRecoverySpeed * getRecoil());
+		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
+				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
+				recoilPerShot, recoilUpInterval, recoilDownInterval);
 	}
 
 	@Override
