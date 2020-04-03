@@ -492,59 +492,48 @@ public class Classic_FocusShot extends Weapon {
 	}
 
 	// Single-target calculations
-	private double calculateDamagePerMagazine(boolean weakpointBonus) {
-		double bulletDamage = getDirectDamage() * getFocusedShotMultiplier();
-		if (weakpointBonus) {
-			return (double) increaseBulletDamageForWeakpoints(bulletDamage, getWeakpointBonus()) * getMagazineSize();
+	private double calculateSingleTargetDPS(boolean burst, boolean weakpoint) {
+		double duration;
+		if (burst) {
+			duration = ((double) getMagazineSize()) / getRateOfFire();
 		}
 		else {
-			return (double) bulletDamage * getMagazineSize();
+			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
 		}
+		
+		double directDamage = getDirectDamage() * getFocusedShotMultiplier();
+		if (weakpoint) {
+			directDamage = increaseBulletDamageForWeakpoints(directDamage, getWeakpointBonus());
+		}
+		
+		double electroDPS = 0;
+		if (selectedOverclock == 4) {
+			// Because they get Electrocuted immediately, it has 100% uptime.
+			electroDPS = DoTInformation.Electro_DPS;
+		}
+		
+		return (directDamage * getMagazineSize()) / duration + electroDPS;
 	}
 
 	@Override
 	public double calculateIdealBurstDPS() {
-		double timeToFireMagazine = ((double) getMagazineSize()) / getRateOfFire();
-		double burstDPS = calculateDamagePerMagazine(false) / timeToFireMagazine;
-		
-		if (selectedOverclock == 4) {
-			// Because they get Electrocuted immediately, it has 100% uptime.
-			burstDPS += DoTInformation.Electro_DPS;
-		}
-		
-		return burstDPS;
+		return calculateSingleTargetDPS(true, false);
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		double sustainedDPS = calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
-		
-		if (selectedOverclock == 4) {
-			sustainedDPS += DoTInformation.Electro_DPS;
-		}
-		
-		return sustainedDPS;
+		return calculateSingleTargetDPS(false, false);
 	}
 
 	@Override
 	public double sustainedWeakpointDPS() {
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		double sustainedWeakpointDPS = calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
-		
-		if (selectedOverclock == 4) {
-			sustainedWeakpointDPS += DoTInformation.Electro_DPS;
-		}
-		
-		return sustainedWeakpointDPS;
+		return calculateSingleTargetDPS(false, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		return calculateSingleTargetDPS(false, true);
 	}
-
 	
 	// Multi-target calculations
 	@Override
