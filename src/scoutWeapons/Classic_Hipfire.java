@@ -508,39 +508,60 @@ public class Classic_Hipfire extends Weapon {
 	}
 	
 	// Single-target calculations
-	private double calculateDamagePerMagazine(boolean weakpointBonus) {
-		if (weakpointBonus) {
-			return (double) increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) * getMagazineSize();
+	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+		double generalAccuracy, duration, directWeakpointDamage;
+		
+		if (accuracy) {
+			generalAccuracy = estimatedAccuracy(false) / 100.0;
 		}
 		else {
-			return (double) getDirectDamage() * getMagazineSize();
+			generalAccuracy = 1.0;
 		}
+		
+		if (burst) {
+			duration = ((double) getMagazineSize()) / getRateOfFire();
+		}
+		else {
+			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+		}
+		
+		double weakpointAccuracy;
+		if (weakpoint) {
+			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+			directWeakpointDamage = increaseBulletDamageForWeakpoints2(getDirectDamage(), getWeakpointBonus());
+		}
+		else {
+			weakpointAccuracy = 0.0;
+			directWeakpointDamage = getDirectDamage();
+		}
+		
+		// Because this is modeling Hipfired shots, there's no way that the Electrocuting Focus Shots will proc. As such, Electrocution DoT is not modeled.
+		
+		int magSize = getMagazineSize();
+		int bulletsThatHitWeakpoint = (int) Math.round(magSize * weakpointAccuracy);
+		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
+		
+		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * getDirectDamage()) / duration;
 	}
 
 	@Override
 	public double calculateIdealBurstDPS() {
-		// Because this is modeling Hipfired shots, there's no way that the Electrocuting Focus Shots will proc. As such, Electrocution DoT is not modeled.
-		double timeToFireMagazine = ((double) getMagazineSize()) / getRateOfFire();
-		return calculateDamagePerMagazine(false) / timeToFireMagazine;
+		return calculateSingleTargetDPS(true, false, false);
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		// Because this is modeling Hipfired shots, there's no way that the Electrocuting Focus Shots will proc. As such, Electrocution DoT is not modeled.
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
+		return calculateSingleTargetDPS(false, false, false);
 	}
 
 	@Override
 	public double sustainedWeakpointDPS() {
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
+		return calculateSingleTargetDPS(false, false, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	
