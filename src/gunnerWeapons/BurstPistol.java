@@ -505,6 +505,7 @@ public class BurstPistol extends Weapon {
 	
 	// Single-target calculations
 	private double calculateDamagePerBurst(boolean weakpointBonus) {
+		// TODO: I'd like to refactor this method out
 		if (weakpointBonus) {
 			return increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) * getBurstSize() + getBurstBonusDamage();
 		}
@@ -514,6 +515,7 @@ public class BurstPistol extends Weapon {
 	}
 	
 	private double calculateDamagePerMagazine(boolean weakpointBonus) {
+		// TODO: I'd like to refactor this method out
 		double damagePerBurst = calculateDamagePerBurst(weakpointBonus);
 		int numBurstsPerMagazine = getMagazineSize() / getBurstSize();
 		
@@ -527,44 +529,71 @@ public class BurstPistol extends Weapon {
 		
 		return numBurstsPerMagazine * timeToFireBurst + (numBurstsPerMagazine - 1) * delayBetweenBursts;
 	}
+	
+	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+		double generalAccuracy, duration, directWeakpointDamage;
+		
+		if (accuracy) {
+			generalAccuracy = estimatedAccuracy(false) / 100.0;
+		}
+		else {
+			generalAccuracy = 1.0;
+		}
+		
+		if (burst) {
+			duration = calculateTimeToFireMagazine();
+		}
+		else {
+			duration = calculateTimeToFireMagazine() + getReloadTime();
+		}
+		
+		double weakpointAccuracy;
+		if (weakpoint) {
+			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+			directWeakpointDamage = increaseBulletDamageForWeakpoints2(getDirectDamage(), getWeakpointBonus());
+		}
+		else {
+			weakpointAccuracy = 0.0;
+			directWeakpointDamage = getDirectDamage();
+		}
+		
+		double electroDPS = 0;
+		if (selectedOverclock == 5) {
+			if (burst) {
+				// Because the Electro Minelets don't arm for 1 second, the Burst DPS needs to be reduced by an uptime coefficient
+				double electroMinesUptimeCoefficient = (duration - 1) / duration;
+				electroDPS = electroMinesUptimeCoefficient * DoTInformation.Electro_DPS;
+			}
+			else {
+				electroDPS = DoTInformation.Electro_DPS;
+			}
+		}
+		
+		int magSize = getMagazineSize();
+		int bulletsThatHitWeakpoint = (int) Math.round(magSize * weakpointAccuracy);
+		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
+		
+		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * getDirectDamage()) / duration + electroDPS;
+	}
 
 	@Override
 	public double calculateIdealBurstDPS() {
-		double timetoFireMag = calculateTimeToFireMagazine();
-		double rawBurstDPS = calculateDamagePerMagazine(false) / timetoFireMag;
-		
-		double electroBurstDPS = 0;
-		if (selectedOverclock == 5) {
-			// Because the Electro Minelets don't arm for 1 second, the Burst DPS needs to be reduced by an uptime coefficient
-			double electroMinesUptimeCoefficient = (timetoFireMag - 1) / timetoFireMag;
-			electroBurstDPS = electroMinesUptimeCoefficient * DoTInformation.Electro_DPS;
-		}
-		
-		return rawBurstDPS + electroBurstDPS;
+		return calculateSingleTargetDPS(true, false, false);
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		double electroSustainedDPS = 0;
-		if (selectedOverclock == 5) {
-			electroSustainedDPS = DoTInformation.Electro_DPS;
-		}
-		return calculateDamagePerMagazine(false) / (calculateTimeToFireMagazine() + getReloadTime()) + electroSustainedDPS;
+		return calculateSingleTargetDPS(false, false, false);
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		double electroSustainedDPS = 0;
-		if (selectedOverclock == 5) {
-			electroSustainedDPS = DoTInformation.Electro_DPS;
-		}
-		return calculateDamagePerMagazine(true) / (calculateTimeToFireMagazine() + getReloadTime()) + electroSustainedDPS;
+		return calculateSingleTargetDPS(false, false, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	@Override
@@ -583,7 +612,7 @@ public class BurstPistol extends Weapon {
 		double totalDamage = numberOfMagazines * calculateDamagePerMagazine(false);
 		
 		if (selectedOverclock == 5) {
-			double accuracy = 0.85;  // TODO
+			double accuracy = estimatedAccuracy(false) / 100.0;
 			int numBulletsThatMiss = (int) Math.ceil((1 - accuracy) * (getCarriedAmmo() + getMagazineSize()));
 			// Electro Minelets only apply a 2 second DoT, instead of the full 4 seconds like other mods/OCs.
 			totalDamage += numBulletsThatMiss * DoTInformation.Electro_DPS * (0.5 * DoTInformation.Electro_SecsDuration);
@@ -649,8 +678,9 @@ public class BurstPistol extends Weapon {
 		// OC "Electro Minelets" = 100% Electrocute Chance, but only on bullets that miss... maybe (1.0 - Accuracy)?
 		if (selectedOverclock == 5) {
 			// Electro Minelets arm in 1 second, detonate on any enemies that come within ~1.5m, and then explode after 3 seconds. 100% chance to apply Electrocute for 2 sec.
+			double probabilityBulletsMiss = 1.0 - estimatedAccuracy(false) / 100.0;
 			int numGlyphidsInMineletRadius = 8;  // calculateNumGlyphidsInRadius(1.5);
-			utilityScores[3] = numGlyphidsInMineletRadius * (0.5 * DoTInformation.Electro_SecsDuration) * UtilityInformation.Electrocute_Slow_Utility;
+			utilityScores[3] = probabilityBulletsMiss * numGlyphidsInMineletRadius * (0.5 * DoTInformation.Electro_SecsDuration) * UtilityInformation.Electrocute_Slow_Utility;
 		}
 		else {
 			utilityScores[3] = 0;
