@@ -3,7 +3,6 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
-import drillerWeapons.Subata;
 import modelPieces.AccuracyEstimator;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
@@ -461,82 +460,77 @@ public class Zhukov extends Weapon {
 	}
 	
 	// Single-target calculations
-	private double calculateDamagePerMagazine(boolean weakpointBonus) {
-		double effectiveMagazineSize = getMagazineSize() / 2;
+	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+		double generalAccuracy, duration;
 		
+		if (accuracy) {
+			generalAccuracy = estimatedAccuracy(false) / 100.0;
+		}
+		else {
+			generalAccuracy = 1.0;
+		}
+		
+		double effectiveMagazineSize = getMagazineSize() / 2;
+		double effectiveRoF = getRateOfFire() / 2.0;
+		if (burst) {
+			duration = effectiveMagazineSize / effectiveRoF;
+		}
+		else {
+			duration = effectiveMagazineSize / effectiveRoF + getReloadTime();
+		}
+		
+		double damagePerMagazine;
+		int bulletsThatHitTarget;
 		if (selectedOverclock == 2) {
 			// First, you have to intentionally miss bullets in order to convert them to Cryo Minelets, then wait 1 second, and unload the rest of the clip into
 			// the now-frozen enemy for x3 damage. Damage vs frozen enemies does NOT benefit from weakpoint damage on top of the frozen multiplier.
+			duration += 1;
 			double numBulletsMissedToBecomeCryoMinelets = calculateAvgNumBulletsNeededToFreeze();
-			return (getDirectDamage() * UtilityInformation.Frozen_Damage_Multiplier) * (effectiveMagazineSize - numBulletsMissedToBecomeCryoMinelets);
+			bulletsThatHitTarget = (int) Math.round((effectiveMagazineSize - numBulletsMissedToBecomeCryoMinelets) * generalAccuracy);
+			damagePerMagazine = (getDirectDamage() * UtilityInformation.Frozen_Damage_Multiplier) * bulletsThatHitTarget;
 		}
 		else {
-			if (weakpointBonus) {
-				return (increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) + getAreaDamage()) * effectiveMagazineSize;
+			if (weakpoint && selectedOverclock != 4) {
+				double weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+				int bulletsThatHitWeakpoint = (int) Math.round(effectiveMagazineSize * weakpointAccuracy);
+				bulletsThatHitTarget = (int) Math.round(effectiveMagazineSize * generalAccuracy) - bulletsThatHitWeakpoint;
+				damagePerMagazine = bulletsThatHitWeakpoint * increaseBulletDamageForWeakpoints2(getDirectDamage(), getWeakpointBonus()) + bulletsThatHitTarget * getDirectDamage() + (bulletsThatHitWeakpoint + bulletsThatHitTarget) * getAreaDamage();
 			}
 			else {
-				return (getDirectDamage() + getAreaDamage()) * effectiveMagazineSize;
+				bulletsThatHitTarget = (int) Math.round(effectiveMagazineSize * generalAccuracy);
+				damagePerMagazine = (getDirectDamage() + getAreaDamage()) * bulletsThatHitTarget;
 			}
 		}
+		
+		return damagePerMagazine / duration;
 	}
+	
 
 	@Override
 	public double calculateIdealBurstDPS() {
-		double effectiveMagazineSize = getMagazineSize() / 2.0;
-		double effectiveRoF = getRateOfFire() / 2.0;
-		
-		double delayBeforeCroyMineletsArm = 0;
-		if (selectedOverclock == 2) {
-			delayBeforeCroyMineletsArm = 1;
-		}
-		
-		double timeToFireMagazine = effectiveMagazineSize / effectiveRoF + delayBeforeCroyMineletsArm;
-		return calculateDamagePerMagazine(false) / timeToFireMagazine;
+		return calculateSingleTargetDPS(true, false, false);
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		double effectiveMagazineSize = getMagazineSize() / 2.0;
-		double effectiveRoF = getRateOfFire() / 2.0;
-		
-		double delayBeforeCroyMineletsArm = 0;
-		if (selectedOverclock == 2) {
-			delayBeforeCroyMineletsArm = 1;
-		}
-		
-		double timeToFireMagazineAndReload = (effectiveMagazineSize / effectiveRoF + delayBeforeCroyMineletsArm) + getReloadTime();
-		return calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
+		return calculateSingleTargetDPS(false, false, false);
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		double effectiveMagazineSize = getMagazineSize() / 2.0;
-		double effectiveRoF = getRateOfFire() / 2.0;
-		
-		double delayBeforeCroyMineletsArm = 0;
-		if (selectedOverclock == 2) {
-			delayBeforeCroyMineletsArm = 1;
-		}
-		
-		double timeToFireMagazineAndReload = (effectiveMagazineSize / effectiveRoF + delayBeforeCroyMineletsArm) + getReloadTime();
-		
-		// Because the Overclock "Gas Recycling" removes the ability to get any weakpoint bonus damage, that has to be modeled here.
-		boolean canGetWeakpointBonus = selectedOverclock != 4;
-		
-		return calculateDamagePerMagazine(canGetWeakpointBonus) / timeToFireMagazineAndReload;
+		return calculateSingleTargetDPS(false, false, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	// Multi-target calculations
 	@Override
 	public double calculateAdditionalTargetDPS() {
 		if (selectedTier4 == 0) {
-			return calculateIdealSustainedDPS();
+			return calculateSingleTargetDPS(false, false, false);
 		}
 		else {
 			return 0;
