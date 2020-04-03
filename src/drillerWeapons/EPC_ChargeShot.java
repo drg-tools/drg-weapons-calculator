@@ -3,6 +3,7 @@ package drillerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
@@ -572,52 +573,53 @@ public class EPC_ChargeShot extends Weapon {
 	}
 
 	// Single-target calculations
-	@Override
-	public double calculateIdealBurstDPS() {
-		// Much like the Grenade Launcher, the DPS of this gun is modeled by the damage done per projectile divided by the time to fire another projectile.
-		// Because this is modeling the most efficient DPS, it will model releasing the charged shot as soon as it's available, instead of holding it until it automatically overheats.
-		// This means that the mods and OCs that affect heat gain while charged won't affect DPS.
+	private double calculateSingleTargetDPS() {
+		/*
+			Much like the Grenade Launcher, the DPS of this gun is modeled by the damage done per projectile divided by the time to fire another projectile.
+			Because this is modeling the most efficient DPS, it will model releasing the charged shot as soon as it's available, instead of holding it until it automatically overheats.
+			This means that the mods and OCs that affect heat gain while charged won't affect DPS.
+			
+			Additionally, the burst dps == sustained dps == sustained weakpoint dps == sustained weakpoint + accuracy dps because the charged shots' direct damage don't deal weakpoint damage, 
+			the accuracy is ignored because it's manually aimed, and the magSize is effectively 1 due to the overheat mechanic.
+		*/
 		double baseDPS = (getChargedDirectDamage() + getChargedAreaDamage()) * getRateOfFire();
 		
 		if (selectedOverclock == 5) {
-			/*
-				Persistent Plasma
-				The area last 6 seconds and deals 5 damage every 0.25 seconds. (4m radius)
-			*/
-			return baseDPS + 5 * 4;  // Damage per tick * ticks per second = Persistent Plasma DPS
+			return baseDPS + DoTInformation.Plasma_DPS;
 		}
 		else {
 			return baseDPS;
 		}
 	}
+	
+	@Override
+	public double calculateIdealBurstDPS() {
+		return calculateSingleTargetDPS();
+	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
 		// Because it can only fire one charged shot before having to cool down, its sustained DPS = burst DPS
-		return calculateIdealBurstDPS();
+		return calculateSingleTargetDPS();
 	}
 
 	@Override
 	public double sustainedWeakpointDPS() {
 		// EPC can't get weakpoint bonus damage, and sustained = burst in this mode.
-		return calculateIdealBurstDPS();
+		return calculateSingleTargetDPS();
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
 		// Because the Charged Shots have to be aimed manually, Accuracy isn't applicable.
-		return sustainedWeakpointDPS();
+		return calculateSingleTargetDPS();
 	}
 
 	// Multi-target calculations
 	@Override
 	public double calculateAdditionalTargetDPS() {
 		if (selectedOverclock == 5) {
-			/*
-				Persistent Plasma
-				The area last 6 seconds and deals 5 damage every 0.25 seconds. (4m radius)
-			*/
-			return getChargedAreaDamage() * getRateOfFire() + 5 * 4;  // Damage per tick * ticks per second = Persistent Plasma DPS
+			return getChargedAreaDamage() * getRateOfFire() + DoTInformation.Plasma_DPS;
 		}
 		else {
 			return getChargedAreaDamage() * getRateOfFire();
@@ -635,7 +637,7 @@ public class EPC_ChargeShot extends Weapon {
 				The divide by 3 is to simulate the fact that the enemies are not stationary within the DoT field, and will move out of it before 
 				the duration expires.
 			*/
-			double persistentPlasmaDamage = 5 * 4 * calculateFiringDuration() * calculateMaxNumTargets() / 3.0;
+			double persistentPlasmaDamage = DoTInformation.Plasma_DPS * calculateFiringDuration() * calculateMaxNumTargets() / 3.0;
 			return baseDamage + persistentPlasmaDamage;
 		}
 		else {

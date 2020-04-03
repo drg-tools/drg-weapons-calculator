@@ -78,5 +78,19 @@ public class DoTInformation {
 	public static double Rad_FB_TicksPerSec = 2 / (0.75 + 1.25);
 	public static double Rad_FB_DPS = Rad_FB_DmgPerTick * Rad_FB_TicksPerSec;
 	
+	/*
+		Persistent Plasma
+		
+		This DoT is a field left behind by certain weapon mods/OCs that is very similar to Radiation -- it deals 
+		its damage over time in an area, and after a couple of seconds it goes away
+		
+		Weapons that can apply this DoT:
+			Driller - EPC (Overclock, Persistent Plasma, 6 sec duration)
+			Engineer - Breach Cutter (Tier 5 Mod, Persistent Plasma, ???)
+	*/
+	public static double Plasma_DmgPerTick = 5;
+	public static double Plasma_TicksPerSec = 4;
+	public static double Plasma_DPS = Plasma_DmgPerTick * Plasma_TicksPerSec;
+	
 	// Cryo is another elemental damage type, but has no DoT associated. Instead, enemies who have their "cold" meter filled become frozen in place.
 }
