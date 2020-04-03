@@ -119,7 +119,7 @@ public class Minigun extends Weapon {
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Compact Feed Mechanism", "More space left for ammo at the cost of a reduced rate of fire.", 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Exhaust Vectoring", "Increases damage at a cost to accuracy.", 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Bullet Hell", "Special bullets that ricochet off all surfaces and even enemies going on to hit nearby targets. However they deal less damage and are less accurate overall.", 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Storm", "Pushing things to the limit this overclock greatly increases damage output but the kickback makes it almost impossible to move.", 6);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Storm", "Pushing things to the limit this overclock greatly increases damage output but the weapon no longer stuns and the kickback makes it almost impossible to move.", 6);
 	}
 	
 	@Override
@@ -307,8 +307,17 @@ public class Minigun extends Weapon {
 			toReturn -= 3;
 		}
 		else if (selectedOverclock == 6) {
-			toReturn += 5;
+			toReturn += 4;
 		}
+		return toReturn;
+	}
+	private double getStunChancePerPellet() {
+		double toReturn = stunChancePerPellet;
+		
+		if (selectedOverclock == 6) {
+			toReturn *= 0;
+		}
+		
 		return toReturn;
 	}
 	private int getStunDuration() {
@@ -316,6 +325,11 @@ public class Minigun extends Weapon {
 		if (selectedTier3 == 1) {
 			toReturn += 1;
 		}
+		
+		if (selectedOverclock == 6) {
+			toReturn *= 0;
+		}
+		
 		return toReturn;
 	}
 	private int getMaxAmmo() {
@@ -491,9 +505,9 @@ public class Minigun extends Weapon {
 		
 		toReturn[1] = new StatsRow("Ammo Spent per Pellet:", 2, false);
 		
-		toReturn[2] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(stunChancePerPellet), false);
+		toReturn[2] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(getStunChancePerPellet()), selectedOverclock == 6);
 		
-		toReturn[3] = new StatsRow("Stun Duration:", getStunDuration(), selectedTier3 == 1);
+		toReturn[3] = new StatsRow("Stun Duration:", getStunDuration(), selectedTier3 == 1 || selectedOverclock == 6);
 		
 		boolean ammoModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 3;
 		toReturn[4] = new StatsRow("Max Ammo:", getMaxAmmo(), ammoModified);
@@ -857,7 +871,7 @@ public class Minigun extends Weapon {
 		}
 		
 		// Innate stun = 30% chance, 1 sec duration (duration improved by Mod Tier 3 "Stun Duration")
-		utilityScores[5] = stunChancePerPellet * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
+		utilityScores[5] = getStunChancePerPellet() * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
 		
 		return MathUtils.sum(utilityScores);
 	}

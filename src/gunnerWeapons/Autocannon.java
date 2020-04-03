@@ -53,8 +53,8 @@ public class Autocannon extends Weapon {
 		
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 14;
-		areaDamage = 8;
-		aoeRadius = 1.2;  // meters
+		areaDamage = 9;
+		aoeRadius = 1.4;  // meters
 		magazineSize = 110;
 		carriedAmmo = 440;
 		movespeedWhileFiring = 0.5;
@@ -299,7 +299,7 @@ public class Autocannon extends Weapon {
 			toReturn += 12;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn -= 6;
+			toReturn -= 3;
 		}
 		return toReturn;
 	}
@@ -312,7 +312,7 @@ public class Autocannon extends Weapon {
 			toReturn += 1;
 		}
 		else if (selectedOverclock == 2) {
-			toReturn += 4;
+			toReturn += 3;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn -= 6;
@@ -322,13 +322,13 @@ public class Autocannon extends Weapon {
 	private double getAoERadius() {
 		double toReturn = aoeRadius;
 		if (selectedTier4 == 1) {
-			toReturn += 0.5;
+			toReturn += 0.6;
 		}
 		if (selectedOverclock == 1) {
 			toReturn += 0.3;
 		}
 		else if (selectedOverclock == 2) {
-			toReturn += 1.0;
+			toReturn += 0.7;
 		}
 		return toReturn;
 	}
@@ -399,7 +399,10 @@ public class Autocannon extends Weapon {
 	}
 	private double getBaseSpread() {
 		double toReturn = baseSpread;
-		if (selectedTier2 == 0) {
+		if (selectedTier2 == 0 && selectedOverclock == 4) {
+			toReturn -= 0.5;
+		}
+		else if (selectedTier2 == 0 || selectedOverclock == 4) {
 			toReturn -= 0.3;
 		}
 		return toReturn;
@@ -623,6 +626,7 @@ public class Autocannon extends Weapon {
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		double crosshairHeightPixels, crosshairWidthPixels;
 		
+		// TODO: U29 added a bonus to Big Bertha
 		if (selectedTier2 == 0) {
 			// Base Spead = 70%
 			crosshairHeightPixels = 125;
@@ -641,9 +645,9 @@ public class Autocannon extends Weapon {
 		// OC "Combat Mobility" increases Gunner's movespeed
 		utilityScores[0] = (getMovespeedWhileFiring() - MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
 		
-		// Mod Tier 5 "Damage Resist" gives 30% damage reduction at max RoF
+		// Mod Tier 5 "Damage Resist" gives 33% damage reduction at max RoF
 		if (selectedTier5 == 2) {
-			double EHPmultiplier = (1 / (1 - 0.3));
+			double EHPmultiplier = (1 / (1 - 0.33));
 			
 			int numBulletsRampup = getNumBulletsRampup();
 			int magSize = getMagazineSize();

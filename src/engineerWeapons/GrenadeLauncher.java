@@ -102,7 +102,8 @@ public class GrenadeLauncher extends Weapon {
 		tier4[2] = new Mod("Concussive Blast", "Stuns creatures within the blast radius", 4, 2);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Proximity Trigger", "Grenades will explode when they are close to an enemy. Damage goes up the longer the projectile flies. Up to +100%", 5, 0, false);
+		tier5[0] = new Mod("Proximity Trigger", "Launched grenades will only detonate when they are in close proximity to an enemy or after the projectile comes to a complete stop. "
+				+ "Note: the trigger takes a moment to arm, indicated by a green light, and until then the grenade functions as usual.", 5, 0, false);
 		tier5[1] = new Mod("Spiky Grenade", "Deals damage on direct impact", 5, 1);
 		
 		overclocks = new Overclock[6];

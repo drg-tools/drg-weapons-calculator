@@ -52,18 +52,17 @@ public class BurstPistol extends Weapon {
 		fullName = "BRT7 Burst Fire Gun";
 		
 		// Base stats, before mods or overclocks alter them:
-		directDamage = 14;
+		directDamage = 20;
 		burstSize = 3;
 		delayBetweenBulletsDuringBurst = 0.05;
-		carriedAmmo = 144;
-		magazineSize = 18;
+		carriedAmmo = 120;
+		magazineSize = 24;
 		rateOfFire = 2.5;
 		reloadTime = 2.2;
-		armorBreakChance = 0.7;
+		armorBreakChance = 0.5;
 		spreadPerShot = 1.0;
 		recoil = 1.0;
 		weakpointBonus = 0.0;
-		burstBonusDamage = 0;
 		burstStunDuration = 0;
 		
 		initializeModsAndOverclocks();
@@ -85,26 +84,25 @@ public class BurstPistol extends Weapon {
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
 		tier1[0] = new Mod("High Velocity Rounds", "The good folk in R&D have been busy. The overall damage of your weapon is increased", 1, 0);
-		tier1[1] = new Mod("Disabled Safety", "Shorter Delay between bursts", 1, 1);
+		tier1[1] = new Mod("Floating Barrel", "Sweet, sweet optimization. We called in a few friends and managed to significantly improve the stability of this gun.", 1, 1);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Floating Barrel", "Sweet, sweet optimization. We called in a few friends and managed to significantly improve the stability of this gun.", 2, 0);
-		tier2[1] = new Mod("Recoil Dampener", "Quality engineering, the best laser cut parts, the tender loving care of a dedicated R&D Department. The recoil of your gun is drastically reduced.", 2, 1);
-		tier2[2] = new Mod("Quickfire Ejector", "Experience, training, and a couple of under-the-table design \"adjustments\" means your gun can be reloaded significantly faster.", 2, 2);
+		tier2[0] = new Mod("Recoil Dampener", "Quality engineering, the best laser cut parts, the tender loving care of a dedicated R&D Department. The recoil of your gun is drastically reduced.", 2, 0);
+		tier2[1] = new Mod("Quickfire Ejector", "Experience, training, and a couple of under-the-table design \"adjustments\" means your gun can be reloaded significantly faster.", 2, 1);
+		tier2[2] = new Mod("Disabled Safety", "Shorter Delay between bursts", 2, 2);
 		
 		tier3 = new Mod[2];
 		tier3[0] = new Mod("High Capacity Magazine", "The good thing about clips, magazines, ammo drums, fuel tanks... You can always get bigger variants.", 3, 0);
 		tier3[1] = new Mod("Increased Caliber Rounds", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 3, 1);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Penetrating Rounds", "We're proud of this one. Armor shredding. Tear through that high-impact plating of those big buggers like butter. What could be finer?", 4, 0);
+		tier4[0] = new Mod("Hardened Rounds", "We're proud of this one. Armor shredding. Tear through that high-impact plating of those big buggers like butter. What could be finer?", 4, 0);
 		tier4[1] = new Mod("Expanded Ammo Bags", "You had to give up some sandwich-storage, but your total ammo capacity is increased!", 4, 1);
 		tier4[2] = new Mod("Hollow-Point Bullets", "Hit 'em where it hurts! Literally! We've upped the damage you'll be able to do to any creatures fleshy bits. You're welcome.", 4, 2);
 		
-		tier5 = new Mod[3];
-		tier5[0] = new Mod("Burst Damage", "Damage bonus on last bullet if the first two hit", 5, 0);
-		tier5[1] = new Mod("Burst Stun", "Stun target if all shots in a burst hit", 5, 1);
-		tier5[2] = new Mod("Longer Burst", "Fire more rounds in each burst", 5, 2);
+		tier5 = new Mod[2];
+		tier5[0] = new Mod("Burst Stun", "Stun target if all shots in a burst hit", 5, 0);
+		tier5[1] = new Mod("Longer Burst", "Fire more rounds in each burst", 5, 1);
 		
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Casings", "Lighter rounds that permit a shorter delay between bursts and you can carry a few more of them as well. What's not to like?", 0);
@@ -138,6 +136,10 @@ public class BurstPistol extends Weapon {
 			}
 			if (symbols[2] == 'C') {
 				System.out.println("BurstPistol's third tier of mods only has two choices, so 'C' is an invalid choice.");
+				combinationIsValid = false;
+			}
+			if (symbols[4] == 'C') {
+				System.out.println("BurstPistol's fifth tier of mods only has two choices, so 'C' is an invalid choice.");
 				combinationIsValid = false;
 			}
 			List<Character> validOverclockSymbols = Arrays.asList(new Character[] {'1', '2', '3', '4', '5', '6', '7', '-'});
@@ -229,10 +231,6 @@ public class BurstPistol extends Weapon {
 					selectedTier5 = 1;
 					break;
 				}
-				case 'C': {
-					selectedTier5 = 2;
-					break;
-				}
 			}
 			
 			switch (symbols[5]) {
@@ -290,7 +288,7 @@ public class BurstPistol extends Weapon {
 		double toReturn = directDamage;
 		
 		if (selectedTier1 == 0) {
-			toReturn += 2;
+			toReturn += 3;
 		}
 		if (selectedTier3 == 1) {
 			toReturn += 3;
@@ -304,7 +302,7 @@ public class BurstPistol extends Weapon {
 			toReturn *= 1.1;
 		}
 		else if (selectedOverclock == 4) {
-			toReturn += 5;
+			toReturn += 9;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn -= 3;
@@ -318,7 +316,7 @@ public class BurstPistol extends Weapon {
 	private int getBurstSize() {
 		int toReturn = burstSize;
 		
-		if (selectedTier5 == 2) {
+		if (selectedTier5 == 1) {
 			toReturn += 3;
 		}
 		
@@ -341,7 +339,7 @@ public class BurstPistol extends Weapon {
 			toReturn -= 36;
 		}
 		else if (selectedOverclock == 6) {
-			toReturn += 144;
+			toReturn += 120;
 		}
 		
 		return toReturn;
@@ -365,7 +363,7 @@ public class BurstPistol extends Weapon {
 	private double getRateOfFire() {
 		double toReturn = rateOfFire;
 		
-		if (selectedTier1 == 1) {
+		if (selectedTier2 == 2) {
 			toReturn += 3.0;
 		}
 		
@@ -381,8 +379,8 @@ public class BurstPistol extends Weapon {
 	private double getReloadTime() {
 		double toReturn = reloadTime;
 		
-		if (selectedTier2 == 2) {
-			toReturn -= 0.5;
+		if (selectedTier2 == 1) {
+			toReturn -= 0.7;
 		}
 		
 		if (selectedOverclock == 1) {
@@ -406,7 +404,7 @@ public class BurstPistol extends Weapon {
 	private double getSpreadPerShot() {
 		double toReturn = spreadPerShot;
 		
-		if (selectedTier2 == 0) {
+		if (selectedTier1 == 1) {
 			toReturn -= 0.42;
 		}
 		
@@ -419,7 +417,7 @@ public class BurstPistol extends Weapon {
 	private double getRecoil() {
 		double toReturn = recoil;
 		
-		if (selectedTier2 == 1) {
+		if (selectedTier2 == 0) {
 			toReturn *= 0.5;
 		}
 		
@@ -438,20 +436,11 @@ public class BurstPistol extends Weapon {
 		
 		return toReturn;
 	}
-	private int getBurstBonusDamage() {
-		int toReturn = burstBonusDamage;
-		
-		if (selectedTier5 == 0) {
-			toReturn += 10;
-		}
-		
-		return toReturn;
-	}
 	private int getBurstStunDuration() {
 		int toReturn = burstStunDuration;
 		
-		if (selectedTier5 == 1) {
-			toReturn += 3;
+		if (selectedTier5 == 0) {
+			toReturn += 4;
 		}
 		
 		return toReturn;
@@ -459,12 +448,12 @@ public class BurstPistol extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[12];
+		StatsRow[] toReturn = new StatsRow[11];
 		
 		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 1 || (selectedOverclock > 0 && selectedOverclock < 7 && selectedOverclock != 3);
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
-		toReturn[1] = new StatsRow("Burst Size:", getBurstSize(), selectedTier5 == 2);
+		toReturn[1] = new StatsRow("Burst Size:", getBurstSize(), selectedTier5 == 1);
 		
 		boolean magSizeModified = selectedTier3 == 0 || (selectedOverclock > 3 && selectedOverclock < 7);
 		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
@@ -472,23 +461,21 @@ public class BurstPistol extends Weapon {
 		boolean carriedAmmoModified = selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 3 || selectedOverclock == 4 || selectedOverclock == 6;
 		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		boolean RoFModified = selectedTier1 == 1 || selectedOverclock == 0 || selectedOverclock == 3;
+		boolean RoFModified = selectedTier2== 2 || selectedOverclock == 0 || selectedOverclock == 3;
 		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), RoFModified);
 		
-		boolean reloadModified = selectedTier2 == 2 || selectedOverclock == 1 || selectedOverclock == 3;
+		boolean reloadModified = selectedTier2 == 1 || selectedOverclock == 1 || selectedOverclock == 3;
 		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), reloadModified);
 		
 		toReturn[6] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 2, selectedTier4 == 2);
 		
 		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 0);
 		
-		toReturn[8] = new StatsRow("Spread Per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier2 == 0 || selectedOverclock == 6);
+		toReturn[8] = new StatsRow("Spread Per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier1 == 1 || selectedOverclock == 6);
 		
-		toReturn[9] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1 || selectedOverclock == 6);
+		toReturn[9] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 0 || selectedOverclock == 6);
 		
-		toReturn[10] = new StatsRow("Burst Bonus Damage:", getBurstBonusDamage(), selectedTier5 == 0, selectedTier5 == 0);
-		
-		toReturn[11] = new StatsRow("Burst Stun Duration:", getBurstStunDuration(), selectedTier5 == 1, selectedTier5 == 1);
+		toReturn[10] = new StatsRow("Burst Stun Duration:", getBurstStunDuration(), selectedTier5 == 0, selectedTier5 == 0);
 		
 		return toReturn;
 	}
@@ -507,10 +494,10 @@ public class BurstPistol extends Weapon {
 	private double calculateDamagePerBurst(boolean weakpointBonus) {
 		// TODO: I'd like to refactor this method out
 		if (weakpointBonus) {
-			return increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) * getBurstSize() + getBurstBonusDamage();
+			return increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) * getBurstSize();
 		}
 		else {
-			return getDirectDamage() * getBurstSize() + getBurstBonusDamage();
+			return getDirectDamage() * getBurstSize();
 		}
 	}
 	
@@ -688,6 +675,7 @@ public class BurstPistol extends Weapon {
 		
 		// Mod Tier 5 "Burst Stun" = 100% chance for 3 sec stun
 		if (selectedTier5 == 1) {
+			// TODO: maybe multiply this by Accuracy?
 			utilityScores[5] = getBurstStunDuration() * UtilityInformation.Stun_Utility;
 		}
 		else {

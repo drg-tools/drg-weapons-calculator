@@ -48,10 +48,10 @@ public class SMG extends Weapon {
 		fullName = "\"Stubby\" Voltaic SMG";
 		
 		// Base stats, before mods or overclocks alter them:
-		electrocutionDoTChance = 0.1;
+		electrocutionDoTChance = 0.2;
 		// Electrocution DoTs do not stack; it only refreshes the duration.
-		directDamage = 6;
-		electricDamage = 2; 
+		directDamage = 9;
+		electricDamage = 0; 
 		// Added onto the direct damage of each bullet; does not affect DoT damage. Affected by weakpoint bonuses and elemental weaknesses/resistances 
 		// Dreadnaughts resist 60% electric damage, Huuli Hoarders take 80% extra electric damage.
 		magazineSize = 30;
@@ -85,22 +85,20 @@ public class SMG extends Weapon {
 		
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("High Capacity Magazine", "The good thing about clips, magazines, ammo drums, fuel tanks... You can always get bigger variants.", 2, 0);
-		tier2[1] = new Mod("Floating Barrel", "Sweet, sweet optimization. We called in a few friends and managed to significantly improve the stability of this gun.", 2, 1);
+		tier2[1] = new Mod("Recoil Dampener", "Quality engineering, the best lasercut parts, the tender loving care of a dedicated R&D Department. The recoil of your gun is drastically reduced.", 2, 1);
 		tier2[2] = new Mod("Improved Gas System", "We overclocked your gun. It fires faster. Don't ask. Just enjoy. Also probably don't tell Management, please.", 2, 2);
 		
 		tier3 = new Mod[2];
 		tier3[0] = new Mod("High Velocity Rounds", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 3, 0);
 		tier3[1] = new Mod("Expanded Ammo Bags", "You had to give up some sandwich-storage, but your total ammo capacity is increased!", 3, 1);
 		
-		tier4 = new Mod[3];
+		tier4 = new Mod[2];
 		tier4[0] = new Mod("Hollow-Point Bullets", "Hit 'em where it hurts! Literally! We've updated the damage you'll be able to do to any creatures fleshy bits. You're welcome.", 4, 0);
-		tier4[1] = new Mod("Larger Capacitors", "Better chance to electrocute target", 4, 1);
-		tier4[2] = new Mod("Overcharged Rounds", "More electric damage", 4, 2);
+		tier4[1] = new Mod("Conductive Bullets", "More damage to targets that are in an electric field.", 4, 1);
 		
-		tier5 = new Mod[3];
-		tier5[0] = new Mod("Conductive Bullets", "More damage to targets that are in an electric field.", 5, 0);
-		tier5[1] = new Mod("Magazine Capacity Tweak", "Greatly increased magazine capacity", 5, 1);
-		tier5[2] = new Mod("Electric Arc", "Chance for electrocution to arc from one target to another", 5, 2);
+		tier5 = new Mod[2];
+		tier5[0] = new Mod("Magazine Capacity Tweak", "Greatly increased magazine capacity", 5, 0);
+		tier5[1] = new Mod("Electric Arc", "Chance for electrocution to arc from one target to another", 5, 1);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Super-Slim Rounds", "Same power but in a smaller package giving slightly better accuracay and letting you fit a few more rounds in each mag.", 0);
@@ -129,6 +127,14 @@ public class SMG extends Weapon {
 			}
 			if (symbols[2] == 'C') {
 				System.out.println("SMG's third tier of mods only has two choices, so 'C' is an invalid choice.");
+				combinationIsValid = false;
+			}
+			if (symbols[3] == 'C') {
+				System.out.println("SMG's fourth tier of mods only has two choices, so 'C' is an invalid choice.");
+				combinationIsValid = false;
+			}
+			if (symbols[4] == 'C') {
+				System.out.println("SMG's fifth tier of mods only has two choices, so 'C' is an invalid choice.");
 				combinationIsValid = false;
 			}
 			List<Character> validOverclockSymbols = Arrays.asList(new Character[] {'1', '2', '3', '4', '5', '6', '-'});
@@ -205,10 +211,6 @@ public class SMG extends Weapon {
 					selectedTier4 = 1;
 					break;
 				}
-				case 'C': {
-					selectedTier4 = 2;
-					break;
-				}
 			}
 			
 			switch (symbols[4]) {
@@ -222,10 +224,6 @@ public class SMG extends Weapon {
 				}
 				case 'B': {
 					selectedTier5 = 1;
-					break;
-				}
-				case 'C': {
-					selectedTier5 = 2;
 					break;
 				}
 			}
@@ -281,11 +279,7 @@ public class SMG extends Weapon {
 		double toReturn = electrocutionDoTChance;
 		
 		if (selectedTier1 == 1) {
-			toReturn += 0.1;
-		}
-		
-		if (selectedTier4 == 1) {
-			toReturn += 0.1;
+			toReturn += 0.3;
 		}
 		
 		if (selectedOverclock == 5) {
@@ -317,10 +311,6 @@ public class SMG extends Weapon {
 	private int getElectricDamage() {
 		int toReturn = electricDamage;
 		
-		if (selectedTier4 == 2) {
-			toReturn += 2;
-		}
-		
 		if (selectedOverclock == 2) {
 			toReturn += 2;
 		}
@@ -334,7 +324,7 @@ public class SMG extends Weapon {
 			toReturn += 10;
 		}
 		
-		if (selectedTier5 == 1) {
+		if (selectedTier5 == 0) {
 			toReturn += 20;
 		}
 		
@@ -394,10 +384,6 @@ public class SMG extends Weapon {
 	}
 	private double getBaseSpread() {
 		double toReturn = baseSpread;
-		
-		if (selectedTier2 == 1) {
-			toReturn *= 0.4;
-		}
 
 		if (selectedOverclock == 0) {
 			toReturn *= 0.8;
@@ -410,6 +396,10 @@ public class SMG extends Weapon {
 	}
 	private double getRecoil() {
 		double toReturn = 1.0;
+		
+		if (selectedTier2 == 1) {
+			toReturn *= 0.5;
+		}
 		
 		return toReturn;
 	}
@@ -427,8 +417,7 @@ public class SMG extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[14];
 		
-		boolean DoTChanceModified = selectedTier1 == 1 || selectedTier4 == 1 || selectedOverclock == 5;
-		toReturn[0] = new StatsRow("Electrocution DoT Chance:", convertDoubleToPercentage(getElectrocutionDoTChance()), DoTChanceModified);
+		toReturn[0] = new StatsRow("Electrocution DoT Chance:", convertDoubleToPercentage(getElectrocutionDoTChance()), selectedTier1 == 1 || selectedOverclock == 5);
 		toReturn[1] = new StatsRow("Electrocution DoT Dmg/Tick:", DoTInformation.Electro_DmgPerTick, false);
 		toReturn[2] = new StatsRow("Electrocution DoT Ticks/Sec:", DoTInformation.Electro_TicksPerSec, false);
 		toReturn[3] = new StatsRow("Electrocution DoT Duration:", DoTInformation.Electro_SecsDuration, false);
@@ -438,9 +427,9 @@ public class SMG extends Weapon {
 		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 0 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[5] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
-		toReturn[6] = new StatsRow("Electric Damage:", getElectricDamage(), selectedTier4 == 2 || selectedOverclock == 2);
+		toReturn[6] = new StatsRow("Electric Damage:", getElectricDamage(), selectedOverclock == 2);
 		
-		boolean magSizeModified = selectedTier2 == 0 || selectedTier5 == 1 || selectedOverclock == 0;
+		boolean magSizeModified = selectedTier2 == 0 || selectedTier5 == 0 || selectedOverclock == 0;
 		toReturn[7] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier1 == 2 || selectedTier3 == 1 || selectedOverclock == 3 || selectedOverclock == 4;
@@ -451,10 +440,9 @@ public class SMG extends Weapon {
 		
 		toReturn[10] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 1);
 		
-		boolean baseSpreadModified = selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock == 2;
-		toReturn[11] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified);
+		toReturn[11] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedOverclock == 0 || selectedOverclock == 2);
 		
-		toReturn[12] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedOverclock == 2);
+		toReturn[12] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1);
 		
 		toReturn[13] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0, selectedTier4 == 0);
 		
@@ -468,7 +456,7 @@ public class SMG extends Weapon {
 	private double calculateDamagePerBullet(boolean weakpointBonus) {
 		double directDamage = getDirectDamage();
 		
-		if (selectedTier5 == 0) {
+		if (selectedTier4 == 1) {
 			// To model a 30% physical damage increase to electrocuted targets, average out how many bullets/mag that would get the buff after a DoT proc, and then spread that bonus across every bullet.
 			double DoTChance = getElectrocutionDoTChance();
 			double meanBulletsFiredBeforeProc = MathUtils.meanRolls(DoTChance);
@@ -557,7 +545,7 @@ public class SMG extends Weapon {
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		if (selectedTier5 == 2) {
+		if (selectedTier5 == 1) {
 			return 0.25 * calculateBurstElectrocutionDoTDPS();
 		}
 		else {
@@ -578,7 +566,7 @@ public class SMG extends Weapon {
 		*/
 		totalDamage += calculateBurstElectrocutionDoTDPS() * calculateFiringDuration();
 		
-		if (selectedTier5 == 2) {
+		if (selectedTier5 == 1) {
 			totalDamage += calculateAdditionalTargetDPS() * calculateFiringDuration();
 		}
 		
@@ -588,7 +576,7 @@ public class SMG extends Weapon {
 	@Override
 	public int calculateMaxNumTargets() {
 		// TODO: I had modeled this method like it could only hit one other target, but looking at its visual effect I think it might be able to hit more than 1 around the primary target.
-		if (selectedTier5 == 2) {
+		if (selectedTier5 == 1) {
 			return 2;
 		}
 		else {

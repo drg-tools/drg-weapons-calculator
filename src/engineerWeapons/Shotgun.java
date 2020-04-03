@@ -49,14 +49,14 @@ public class Shotgun extends Weapon {
 		fullName = "\"Warthog\" Auto 210";
 		
 		// Base stats, before mods or overclocks alter them:
-		damagePerPellet = 6;
+		damagePerPellet = 7;
 		numberOfPellets = 8;
 		carriedAmmo = 90;
 		magazineSize = 6;
-		rateOfFire = 1.6;
+		rateOfFire = 2.0;
 		reloadTime = 2.0;
 		weakpointStunChance = 0.1;
-		stunDuration = 2;
+		stunDuration = 3;
 		armorBreakChance = 1.0;
 		baseSpread = 1.0;
 		recoil = 1.0;
@@ -92,10 +92,9 @@ public class Shotgun extends Weapon {
 		tier3[1] = new Mod("Quickfire Ejector", "Experience, training, and a couple of under-the-table \"adjustments\" means your gun can be reloaded significantly faster.", 3, 1);
 		tier3[2] = new Mod("High Capacity Magazine", "The good thing about clips, magazines, ammo drums, fuel tanks... You can always get bigger variants.", 3, 2);
 		
-		tier4 = new Mod[3];
+		tier4 = new Mod[2];
 		tier4[0] = new Mod("Tungsten Coated Buckshot", "We're proud of this one. Armor shredding. Tear through that high-impact plating of those big buggers like butter. What could be finer?", 4, 0);
-		tier4[1] = new Mod("Stun Duration", "Stunned enemies are incapacitated for a longer period of time.", 4, 1);
-		tier4[2] = new Mod("Bigger Pellets", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 4, 2);
+		tier4[1] = new Mod("Bigger Pellets", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 4, 1);
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them create an overcharged shot", 5, 0, false);
@@ -127,6 +126,10 @@ public class Shotgun extends Weapon {
 			}
 			if (symbols[0] == 'C') {
 				System.out.println("Shotgun's first tier of mods only has two choices, so 'C' is an invalid choice.");
+				combinationIsValid = false;
+			}
+			if (symbols[3] == 'C') {
+				System.out.println("Shotgun's fourth tier of mods only has two choices, so 'C' is an invalid choice.");
 				combinationIsValid = false;
 			}
 			if (symbols[4] == 'C') {
@@ -207,10 +210,6 @@ public class Shotgun extends Weapon {
 					selectedTier4 = 1;
 					break;
 				}
-				case 'C': {
-					selectedTier4 = 2;
-					break;
-				}
 			}
 			
 			switch (symbols[4]) {
@@ -274,8 +273,8 @@ public class Shotgun extends Weapon {
 	private int getDamagePerPellet() {
 		int toReturn = damagePerPellet;
 		
-		if (selectedTier4 == 2) {
-			toReturn += 2;
+		if (selectedTier4 == 1) {
+			toReturn += 1;
 		}
 		
 		if (selectedOverclock == 3) {
@@ -339,11 +338,11 @@ public class Shotgun extends Weapon {
 		double toReturn = rateOfFire;
 		
 		if (selectedTier1 == 0) {
-			toReturn += 0.8;
+			toReturn += 1.0;
 		}
 		
 		if (selectedTier5 == 1) {
-			toReturn += 1.2;
+			toReturn += 0.5;
 		}
 		
 		if (selectedOverclock == 0) {
@@ -377,8 +376,9 @@ public class Shotgun extends Weapon {
 	private double getWeakpointStunChance() {
 		double toReturn = weakpointStunChance;
 		
-		if (selectedTier4 == 1) {
-			toReturn += 0.2;
+		// OC "Mini Shells" removes stun chance
+		if (selectedOverclock == 4) {
+			toReturn = 0;
 		}
 		
 		return toReturn;
@@ -386,8 +386,9 @@ public class Shotgun extends Weapon {
 	private int getStunDuration() {
 		int toReturn = stunDuration;
 		
-		if (selectedTier4 == 1) {
-			toReturn += 1;
+		// OC "Mini Shells" removes stun chance
+		if (selectedOverclock == 4) {
+			toReturn = 0;
 		}
 		
 		return toReturn;
@@ -437,7 +438,7 @@ public class Shotgun extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[11];
 		
-		boolean damageModified = selectedTier4 == 2 || selectedOverclock == 3 || selectedOverclock == 4;
+		boolean damageModified = selectedTier4 == 1 || selectedOverclock == 3 || selectedOverclock == 4;
 		toReturn[0] = new StatsRow("Damage Per Pellet:", getDamagePerPellet(), damageModified);
 		
 		toReturn[1] = new StatsRow("Number of Pellets/Shot:", getNumberOfPellets(), selectedTier2 == 1);
@@ -454,9 +455,9 @@ public class Shotgun extends Weapon {
 		boolean reloadModified = selectedTier3 == 1 || selectedOverclock == 1 || selectedOverclock == 3;
 		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), reloadModified);
 		
-		toReturn[6] = new StatsRow("Weakpoint Stun Chance:", convertDoubleToPercentage(getWeakpointStunChance()), selectedTier4 == 1);
+		toReturn[6] = new StatsRow("Weakpoint Stun Chance Per Pellet:", convertDoubleToPercentage(getWeakpointStunChance()), selectedOverclock == 4);
 		
-		toReturn[7] = new StatsRow("Stun Duration:", getStunDuration(), selectedTier4 == 1);
+		toReturn[7] = new StatsRow("Stun Duration:", getStunDuration(), selectedOverclock == 4);
 		
 		toReturn[8] = new StatsRow("Armor Break Chance:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 0);
 		
