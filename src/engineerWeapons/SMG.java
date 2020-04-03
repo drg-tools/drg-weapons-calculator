@@ -471,7 +471,7 @@ public class SMG extends Weapon {
 		if (selectedTier5 == 0) {
 			// To model a 30% physical damage increase to electrocuted targets, average out how many bullets/mag that would get the buff after a DoT proc, and then spread that bonus across every bullet.
 			double DoTChance = getElectrocutionDoTChance();
-			double meanBulletsFiredBeforeProc = Math.round(1.0 / DoTChance);
+			double meanBulletsFiredBeforeProc = MathUtils.meanRolls(DoTChance);
 			double numBulletsFiredAfterProc = getMagazineSize() - meanBulletsFiredBeforeProc;
 			
 			directDamage *= (meanBulletsFiredBeforeProc + numBulletsFiredAfterProc * 1.3) / getMagazineSize();
@@ -480,15 +480,11 @@ public class SMG extends Weapon {
 		// According to the wiki, Electric damage gets bonus from Weakpoints too
 		double totalDamage = directDamage + getElectricDamage();
 		if (weakpointBonus) {
-			return increaseBulletDamageForWeakpoints(totalDamage, getWeakpointBonus());
+			return increaseBulletDamageForWeakpoints2(totalDamage, getWeakpointBonus());
 		}
 		else {
 			return totalDamage;
 		}
-	}
-	
-	private double calculateDirectDamagePerMagazine(boolean weakpointBonus) {
-		return calculateDamagePerBullet(weakpointBonus) * getMagazineSize();
 	}
 	
 	private double calculateBurstElectrocutionDoTDPS() {
@@ -499,40 +495,64 @@ public class SMG extends Weapon {
 	public boolean currentlyDealsSplashDamage() {
 		return false;
 	}
+	
+	// Single-target calculations
+	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+		double generalAccuracy, duration;
+		
+		if (accuracy) {
+			generalAccuracy = estimatedAccuracy(false) / 100.0;
+		}
+		else {
+			generalAccuracy = 1.0;
+		}
+		
+		double electrocuteDPS;
+		if (burst) {
+			duration = ((double) getMagazineSize()) / getRateOfFire();
+			electrocuteDPS = calculateBurstElectrocutionDoTDPS();
+		}
+		else {
+			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+			electrocuteDPS = DoTInformation.Electro_DPS;
+		}
+		
+		double weakpointAccuracy;
+		double directWeakpointDamage = calculateDamagePerBullet(weakpoint);
+		double directDamage = calculateDamagePerBullet(false);
+		
+		if (weakpoint) {
+			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+		}
+		else {
+			weakpointAccuracy = 0.0;
+		}
+		
+		int magSize = getMagazineSize();
+		int bulletsThatHitWeakpoint = (int) Math.round(magSize * weakpointAccuracy);
+		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
+		
+		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * directDamage) / duration + electrocuteDPS;
+	}
 
 	@Override
 	public double calculateIdealBurstDPS() {
-		// First calculate the direct damage DPS of the bullets, then add the DoT DPS on top.
-		double timeToFireMagazine = ((double) getMagazineSize()) / getRateOfFire();
-		double directDPS = calculateDirectDamagePerMagazine(false) / timeToFireMagazine;
-		
-		return directDPS + calculateBurstElectrocutionDoTDPS();
+		return calculateSingleTargetDPS(true, false, false);
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		// First calculate the direct damage DPS of the bullets, then add the DoT DPS on top.
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		double directDPS = calculateDirectDamagePerMagazine(false) / timeToFireMagazineAndReload;
-		
-		// Due to high fire rate of the gun, it can be modeled as always having an Electrocute DoT up for sustained DPS.
-		return directDPS + DoTInformation.Electro_DPS;
+		return calculateSingleTargetDPS(false, false, false);
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		// First calculate the direct damage DPS of the bullets, then add the DoT DPS on top.
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		double directDPS = calculateDirectDamagePerMagazine(true) / timeToFireMagazineAndReload;
-		
-		// Due to high fire rate of the gun, it can be modeled as always having an Electrocute DoT up for sustained DPS.
-		return directDPS + DoTInformation.Electro_DPS;
+		return calculateSingleTargetDPS(false, false, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	@Override
@@ -567,6 +587,7 @@ public class SMG extends Weapon {
 
 	@Override
 	public int calculateMaxNumTargets() {
+		// TODO: I had modeled this method like it could only hit one other target, but looking at its visual effect I think it might be able to hit more than 1 around the primary target.
 		if (selectedTier5 == 2) {
 			return 2;
 		}
