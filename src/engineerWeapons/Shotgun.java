@@ -266,6 +266,13 @@ public class Shotgun extends Weapon {
 		return new Shotgun(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getDwarfClass() {
+		return "Engineer";
+	}
+	public String getSimpleName() {
+		return "Shotgun";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/

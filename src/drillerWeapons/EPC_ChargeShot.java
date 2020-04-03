@@ -302,6 +302,13 @@ public class EPC_ChargeShot extends Weapon {
 		return new EPC_ChargeShot(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getDwarfClass() {
+		return "Driller";
+	}
+	public String getSimpleName() {
+		return "EPC_ChargeShot";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/

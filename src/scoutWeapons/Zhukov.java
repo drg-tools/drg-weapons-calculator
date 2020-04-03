@@ -265,6 +265,13 @@ public class Zhukov extends Weapon {
 		return new Zhukov(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getDwarfClass() {
+		return "Scout";
+	}
+	public String getSimpleName() {
+		return "Zhukov";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/

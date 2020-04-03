@@ -279,6 +279,13 @@ public class Deepcore extends Weapon {
 		return new Deepcore(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getDwarfClass() {
+		return "Scout";
+	}
+	public String getSimpleName() {
+		return "Deepcore";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/

@@ -395,13 +395,16 @@ public class View extends JFrame implements Observer {
 		// Realistically, it should be improved to do object ID matching to items in each of the arrays.
 		
 		// In theory, these if and for statements should work together to only update the one WeaponTab that got updated by a button click, instead of rebuilding every tab on every button click.
-		String packageName = o.getClass().getPackageName();
-		String weaponName = "";
+		String packageName, weaponName;
 		if (o instanceof Weapon) {
+			packageName = ((Weapon) o).getDwarfClass();
 			weaponName = ((Weapon) o).getFullName();
 		}
+		else {
+			return;
+		}
 		
-		if (packageName == "drillerWeapons") {
+		if (packageName == "Driller") {
 			for (int i = 0; i < drillerWeapons.length; i++) {
 				if (drillerWeapons[i].getFullName() == weaponName) {
 					drillerTabs.setComponentAt(i, new WeaponTab(drillerWeapons[i]));
@@ -409,7 +412,7 @@ public class View extends JFrame implements Observer {
 				}
 			}
 		}
-		else if (packageName == "engineerWeapons") {
+		else if (packageName == "Engineer") {
 			for (int i = 0; i < engineerWeapons.length; i++) {
 				if (engineerWeapons[i].getFullName() == weaponName) {
 					engineerTabs.setComponentAt(i, new WeaponTab(engineerWeapons[i]));
@@ -417,7 +420,7 @@ public class View extends JFrame implements Observer {
 				}
 			}
 		}
-		else if (packageName == "gunnerWeapons") {
+		else if (packageName == "Gunner") {
 			for (int i = 0; i < gunnerWeapons.length; i++) {
 				if (gunnerWeapons[i].getFullName() == weaponName) {
 					gunnerTabs.setComponentAt(i, new WeaponTab(gunnerWeapons[i]));
@@ -425,7 +428,7 @@ public class View extends JFrame implements Observer {
 				}
 			}
 		}
-		else if (packageName == "scoutWeapons") {
+		else if (packageName == "Scout") {
 			for (int i = 0; i < scoutWeapons.length; i++) {
 				if (scoutWeapons[i].getFullName() == weaponName) {
 					scoutTabs.setComponentAt(i, new WeaponTab(scoutWeapons[i]));

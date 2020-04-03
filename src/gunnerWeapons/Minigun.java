@@ -288,6 +288,13 @@ public class Minigun extends Weapon {
 		return new Minigun(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getDwarfClass() {
+		return "Gunner";
+	}
+	public String getSimpleName() {
+		return "Minigun";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/

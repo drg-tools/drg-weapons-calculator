@@ -271,6 +271,13 @@ public class SMG extends Weapon {
 		return new SMG(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getDwarfClass() {
+		return "Engineer";
+	}
+	public String getSimpleName() {
+		return "SMG";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/

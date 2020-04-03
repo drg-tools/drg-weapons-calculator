@@ -277,6 +277,13 @@ public class Autocannon extends Weapon {
 		return new Autocannon(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getDwarfClass() {
+		return "Gunner";
+	}
+	public String getSimpleName() {
+		return "Autocannon";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/

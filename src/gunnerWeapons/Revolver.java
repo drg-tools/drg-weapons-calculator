@@ -278,6 +278,13 @@ public class Revolver extends Weapon {
 		return new Revolver(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getDwarfClass() {
+		return "Gunner";
+	}
+	public String getSimpleName() {
+		return "Revolver";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/

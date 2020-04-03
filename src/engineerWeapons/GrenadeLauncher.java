@@ -277,6 +277,13 @@ public class GrenadeLauncher extends Weapon {
 		return new GrenadeLauncher(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getDwarfClass() {
+		return "Engineer";
+	}
+	public String getSimpleName() {
+		return "GrenadeLauncher";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/

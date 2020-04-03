@@ -252,6 +252,10 @@ public abstract class Weapon extends Observable {
 	* Other Methods
 	****************************************************************************************/
 	
+	// Used by GUI and Auto-Calculator
+	public abstract String getDwarfClass();
+	public abstract String getSimpleName();
+	
 	// Stats page
 	public String getFullName() {
 		return fullName;

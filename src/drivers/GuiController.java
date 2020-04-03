@@ -233,8 +233,8 @@ public class GuiController implements ActionListener {
 		
 		else if (e == gui.getMiscScreenshot()) {
 			chooseFolder();
-			String weaponPackage = currentlySelectedWeapon.getClass().getPackageName();
-			String weaponClassName = currentlySelectedWeapon.getClass().getSimpleName();
+			String weaponPackage = currentlySelectedWeapon.getDwarfClass();
+			String weaponClassName = currentlySelectedWeapon.getSimpleName();
 			String filePath = calculator.getCSVFolderPath() + "\\" + weaponPackage + "_" + weaponClassName + "_" + currentlySelectedWeapon.getCombination() +".png";
 			
 			// Sourced from https://stackoverflow.com/a/44019372

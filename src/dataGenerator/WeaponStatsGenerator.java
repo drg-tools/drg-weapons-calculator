@@ -18,8 +18,8 @@ public class WeaponStatsGenerator {
 		weaponToTest = testingWeapon;
 		csvFolderPath = "";
 		
-		String weaponPackage = weaponToTest.getClass().getPackageName();
-		String weaponClassName = weaponToTest.getClass().getSimpleName();
+		String weaponPackage = weaponToTest.getDwarfClass();
+		String weaponClassName = weaponToTest.getSimpleName();
 		csvFilePath = csvFolderPath + "\\" + weaponPackage + "_" + weaponClassName + ".csv";
 		
 		headers = new String[] {"Mods/OC", "Ideal Burst DPS", "Ideal Sustained DPS", "Sustained DPS (+Weakpoints)", 
@@ -33,15 +33,15 @@ public class WeaponStatsGenerator {
 	}
 	public void setCSVFolderPath(String newPath) {
 		csvFolderPath = newPath;
-		String weaponPackage = weaponToTest.getClass().getPackageName();
-		String weaponClassName = weaponToTest.getClass().getSimpleName();
+		String weaponPackage = weaponToTest.getDwarfClass();
+		String weaponClassName = weaponToTest.getSimpleName();
 		csvFilePath = csvFolderPath + "\\" + weaponPackage + "_" + weaponClassName + ".csv";
 	}
 	
 	public void changeWeapon(Weapon newWeaponToCalculate) {
 		weaponToTest = newWeaponToCalculate;
-		String weaponPackage = weaponToTest.getClass().getPackageName();
-		String weaponClassName = weaponToTest.getClass().getSimpleName();
+		String weaponPackage = weaponToTest.getDwarfClass();
+		String weaponClassName = weaponToTest.getSimpleName();
 		csvFilePath = csvFolderPath + "\\" + weaponPackage + "_" + weaponClassName + ".csv";
 		
 		// Proactively clear out the old CSV lines, since they won't be applicable to the new Weapon
