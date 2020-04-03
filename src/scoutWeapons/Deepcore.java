@@ -405,8 +405,8 @@ public class Deepcore extends Weapon {
 			// According to the Wiki, Battle Cool sets spreadPerShot = 0 for 1.5 seconds after a kill. This effectively lets the Spread decrease during that period due to the constant Spread Recovery.
 			// I'm choosing to model this as an averaged reduction on Spread per Shot across the whole magazine instead of trying to model it as the On-Kill effect that it truly is. 
 			double battleCoolDuration = 1.5;
-			double avgTTK = averageTimeToKill();
-			double battleCoolUptimeCoefficient = battleCoolDuration / avgTTK;
+			double burstTTK = EnemyInformation.averageHealthPool() / calculateIdealBurstDPS();
+			double battleCoolUptimeCoefficient = battleCoolDuration / burstTTK;
 			
 			double magSize = getMagazineSize();
 			double numBulletsPerMagAffected = Math.round(magSize * battleCoolUptimeCoefficient);

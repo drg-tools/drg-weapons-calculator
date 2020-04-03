@@ -135,7 +135,6 @@ public class View extends JFrame implements Observer {
 		bcmSustainedWeakpoint = new JMenuItem("Best Sustained + Weakpoint DPS");
 		bestCombinationsMenu.add(bcmSustainedWeakpoint);
 		bcmSustainedWeakpointAccuracy = new JMenuItem("Best Sustained + Weakpoint + Accuracy DPS");
-		bcmSustainedWeakpointAccuracy.setEnabled(false);  // TODO: Re-enable this once Accuracy is implemented.
 		bestCombinationsMenu.add(bcmSustainedWeakpointAccuracy);
 		bcmIdealAdditional = new JMenuItem("Best Additional Target DPS");
 		bestCombinationsMenu.add(bcmIdealAdditional);
@@ -150,7 +149,6 @@ public class View extends JFrame implements Observer {
 		bcmOverkill = new JMenuItem("Lowest Avg Overkill");
 		bestCombinationsMenu.add(bcmOverkill);
 		bcmAccuracy = new JMenuItem("Highest Accuracy");
-		bcmAccuracy.setEnabled(false);  // TODO: Re-enable this once Accuracy is implemented.
 		bestCombinationsMenu.add(bcmAccuracy);
 		bcmUtility = new JMenuItem("Most Utility");
 		bestCombinationsMenu.add(bcmUtility);

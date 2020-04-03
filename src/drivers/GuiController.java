@@ -141,12 +141,9 @@ public class GuiController implements ActionListener {
 		else if (e == gui.getBcmSustainedWeakpoint()) {
 			currentlySelectedWeapon.buildFromCombination(calculator.getBestSustainedWeakpointDPSCombination());
 		}
-		/*
-		TODO: re-add this once Accuracy is implemented
 		else if (e == gui.getBcmSustainedWeakpointAccuracy()) {
 			currentlySelectedWeapon.buildFromCombination(calculator.getBestSustainedWeakpointAccuracyDPSCombination());
 		}
-		*/
 		else if (e == gui.getBcmIdealAdditional()) {
 			currentlySelectedWeapon.buildFromCombination(calculator.getBestIdealAdditionalTargetDPSCombination());
 		}
@@ -165,12 +162,9 @@ public class GuiController implements ActionListener {
 		else if (e == gui.getBcmOverkill()) {
 			currentlySelectedWeapon.buildFromCombination(calculator.getLowestOverkillCombination());
 		}
-		/*
-		TODO: re-add this once Accuracy is implemented
 		else if (e == gui.getBcmAccuracy()) {
 			currentlySelectedWeapon.buildFromCombination(calculator.getHighestAccuracyCombination());
 		}
-		*/
 		else if (e == gui.getBcmUtility()) {
 			currentlySelectedWeapon.buildFromCombination(calculator.getMostUtilityCombination());
 		}
