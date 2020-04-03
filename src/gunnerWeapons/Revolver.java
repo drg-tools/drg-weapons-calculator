@@ -349,11 +349,11 @@ public class Revolver extends Weapon {
 		return toReturn;
 	}
 	private double getRateOfFire() {
-		double toReturn = rateOfFire;
+		double maxRoF = rateOfFire;
 		if (selectedOverclock == 2) {
-			toReturn += 4.0;
+			maxRoF += 4.0;
 		}
-		return toReturn;
+		return calculateAccurateRoF(maxRoF);
 	}
 	private double getReloadTime() {
 		double toReturn = reloadTime;
@@ -471,7 +471,79 @@ public class Revolver extends Weapon {
 		return selectedTier3 == 1;
 	}
 	
+	/*
+		I'm writing this method specifically because I know that the Revolver is never fired at max RoF -- it's used by the community as a sniper side-arm.
+		
+		I'm a bit worried that this is counter-intuitive in comparison to how the rest of the weapons are modeled, but I think this is a better approximation for how this weapon gets used in-game.
+	*/
+	private double calculateAccurateRoF(double maxRoF) {
+		// Variables copied from estimatedAccuracy() to reverse-calculate the slow RoF needed for high accuracy
+		double spreadPerShot = 137 * getSpreadPerShot();
+		double spreadRecoverySpeed = 109.1390954;
+		double recoilPerShot = 155 * getRecoil();
+		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
+		double recoilUpInterval = 2.0/9.0;
+		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
+		double recoilDownInterval = 8.0/9.0;
+		
+		double desiredNetSpreadPerShot = 40.0;
+		double minSpreadRoF = (desiredNetSpreadPerShot + spreadRecoverySpeed) / spreadPerShot;
+		
+		double desiredNetRecoilPerShot = 50.0;
+		double minRecoilRoF = 1.0 / (recoilUpInterval + (1.0 - desiredNetRecoilPerShot / recoilPerShot) * recoilDownInterval);
+		
+		return Math.min(Math.min(minSpreadRoF, minRecoilRoF), maxRoF);
+	}
+	
+	// Single-target calculations
+	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+		double generalAccuracy, duration, directWeakpointDamage;
+		
+		if (accuracy) {
+			generalAccuracy = estimatedAccuracy(false) / 100.0;
+		}
+		else {
+			generalAccuracy = 1.0;
+		}
+		
+		if (burst) {
+			duration = ((double) getMagazineSize()) / getRateOfFire();
+		}
+		else {
+			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+		}
+		
+		double weakpointAccuracy;
+		if (weakpoint) {
+			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+			directWeakpointDamage = increaseBulletDamageForWeakpoints2(getDirectDamage(), getWeakpointBonus());
+		}
+		else {
+			weakpointAccuracy = 0.0;
+			directWeakpointDamage = getDirectDamage();
+		}
+		
+		double neuroDPS = 0;
+		if (selectedTier5 == 1) {
+			// Neurotoxin Coating has a 50% chance to inflict the DoT
+			// TODO: should this be penalized by Accuracy?
+			if (burst) {
+				neuroDPS = calculateRNGDoTDPSPerMagazine(0.5, DoTInformation.Neuro_DPS, getMagazineSize());
+			}
+			else {
+				neuroDPS = DoTInformation.Neuro_DPS;
+			}
+		}
+		
+		int magSize = getMagazineSize();
+		int bulletsThatHitWeakpoint = (int) Math.round(magSize * weakpointAccuracy);
+		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
+		
+		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * getDirectDamage()) / duration + neuroDPS;
+	}
+	
 	private double calculateDamagePerMagazine(boolean weakpointBonus, int numTargets) {
+		// TODO: I'd like to refactor this method out
 		if (weakpointBonus) {
 			return (increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) + numTargets * getAreaDamage()) * getMagazineSize();
 		}
@@ -482,45 +554,22 @@ public class Revolver extends Weapon {
 
 	@Override
 	public double calculateIdealBurstDPS() {
-		double timeToFireMagazine = (double) getMagazineSize() / getRateOfFire();
-		double burstDPS = calculateDamagePerMagazine(false, 1) / timeToFireMagazine;
-		
-		if (selectedTier5 == 1) {
-			// Neurotoxin Coating has a 50% chance to inflict the DoT
-			burstDPS += calculateRNGDoTDPSPerMagazine(0.5, DoTInformation.Neuro_DPS, getMagazineSize());
-		}
-		
-		return burstDPS;
+		return calculateSingleTargetDPS(true, false, false);
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		double sustainedDPS = calculateDamagePerMagazine(false, 1) / timeToFireMagazineAndReload;
-		
-		if (selectedTier5 == 1) {
-			sustainedDPS += DoTInformation.Neuro_DPS;
-		}
-		
-		return sustainedDPS;
+		return calculateSingleTargetDPS(false, false, false);
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		double sustainedWeakpointDPS = calculateDamagePerMagazine(true, 1) / timeToFireMagazineAndReload;
-		
-		if (selectedTier5 == 1) {
-			sustainedWeakpointDPS += DoTInformation.Neuro_DPS;
-		}
-		
-		return sustainedWeakpointDPS;
+		return calculateSingleTargetDPS(false, false, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	@Override
