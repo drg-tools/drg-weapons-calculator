@@ -618,6 +618,7 @@ public class EPC_ChargeShot extends Weapon {
 	// Multi-target calculations
 	@Override
 	public double calculateAdditionalTargetDPS() {
+		// TODO: reduce this by its AoE Efficiency percentage
 		if (selectedOverclock == 5) {
 			return getChargedAreaDamage() * getRateOfFire() + DoTInformation.Plasma_DPS;
 		}

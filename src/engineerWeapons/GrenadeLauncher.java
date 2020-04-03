@@ -78,16 +78,6 @@ public class GrenadeLauncher extends Weapon {
 		
 		// Overclock slot
 		selectedOverclock = overclock;
-		
-		/*
-		double[] aoeRadiusEfficiency;
-		double[] radii = {2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0};
-		for (int i = 0; i < radii.length; i++) {
-			aoeRadiusEfficiency = calculateAverageAreaDamage(radii[i]);
-			System.out.println("A shot with radius " + aoeRadiusEfficiency[0] + "m would hit " + aoeRadiusEfficiency[1] + " Grunts, dealing an average of " + (aoeRadiusEfficiency[2] * 100.0) + "% Area Damage across them all. "
-					+ "In total, it would do " + (aoeRadiusEfficiency[1] * aoeRadiusEfficiency[2]) + " times the listed Area Damage");
-		}
-		*/
 	}
 
 	@Override
@@ -470,94 +460,76 @@ public class GrenadeLauncher extends Weapon {
 	public boolean currentlyDealsSplashDamage() {
 		return true;
 	}
+	
+	private double calculateSingleTargetDPS(boolean burst, boolean weakpoint) {
+		double directDamage;
+		if (weakpoint) {
+			directDamage = increaseBulletDamageForWeakpoints(getDirectDamage());
+		}
+		else {
+			directDamage = getDirectDamage();
+		}
+		
+		double damagePerProjectile = directDamage + getAreaDamage();
+		double baseDPS = damagePerProjectile / reloadTime;
+		
+		double burnDPS = 0.0;
+		// Incendiary Compound
+		if (selectedTier3 == 0) {
+			if (burst) {
+				double heatPerGrenade = getDirectDamage() + getAreaDamage();
+				double RoF = 1.0 / reloadTime;
+				double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatPerGrenade, RoF);
+				double burnDoTUptime = (reloadTime - timeToIgnite) / reloadTime;
+				
+				burnDPS = burnDoTUptime * DoTInformation.Burn_DPS;
+			}
+			else {
+				burnDPS = DoTInformation.Burn_DPS;
+			}
+		}
+		
+		double radDPS = 0.0;
+		// Fat Boy OC
+		if (selectedOverclock == 4) {
+			// double FBduration = 15;
+			// double FBradius = 8;
+			radDPS = DoTInformation.Rad_FB_DPS;
+		}
+		
+		return baseDPS + burnDPS + radDPS;
+	}
 
 	@Override
 	public double calculateIdealBurstDPS() {
-		// This method will only calculate single-target DPS, but the additional target DPS should reflect how well this scales.
-		double damagePerGrenade = getDirectDamage() + getAreaDamage();
-		double totalDPS = damagePerGrenade / reloadTime;
-		
-		if (selectedTier3 == 0) {
-			// Incendiary Compound
-			double heatPerGrenade = damagePerGrenade;
-			double RoF = 1 / reloadTime;
-			double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatPerGrenade, RoF);
-			double burnDoTUptime = (reloadTime - timeToIgnite) / reloadTime;
-			
-			totalDPS += burnDoTUptime * DoTInformation.Burn_DPS;
-		}
-		if (selectedOverclock == 4) {
-			// Fat Boy OC
-			double FBdmgPerTick = 25;
-			double FBticksPerSec = 1/0.9;
-			double fatBoyDPS = FBdmgPerTick * FBticksPerSec;
-			// double FBduration = 15;
-			// double FBradius = 8;
-			totalDPS += fatBoyDPS;
-		}
-		
-		return totalDPS;
+		return calculateSingleTargetDPS(true, false);
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		// This is virtually identical to Ideal Burst DPS, but instead of reducing the Burn DoT DPS it's just modeled as if the enemy is permanently on fire.
-		double damagePerGrenade = getDirectDamage() + getAreaDamage();
-		double totalDPS = damagePerGrenade / reloadTime;
-		
-		if (selectedTier3 == 0) {
-			// Incendiary Compound
-			totalDPS += DoTInformation.Burn_DPS;
-		}
-		if (selectedOverclock == 4) {
-			// Fat Boy OC
-			double FBdmgPerTick = 25;
-			double FBticksPerSec = 1/0.9;
-			double fatBoyDPS = FBdmgPerTick * FBticksPerSec;
-			totalDPS += fatBoyDPS;
-		}
-		
-		return totalDPS;
+		return calculateSingleTargetDPS(false, false);
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		// Again, virtually identical. The key difference is weakpoint increases.
-		double damagePerGrenade = increaseBulletDamageForWeakpoints(getDirectDamage()) + getAreaDamage();
-		double totalDPS = damagePerGrenade / reloadTime;
-		
-		if (selectedTier3 == 0) {
-			// Incendiary Compound
-			totalDPS += DoTInformation.Burn_DPS;
-		}
-		if (selectedOverclock == 4) {
-			// Fat Boy OC
-			double FBdmgPerTick = 25;
-			double FBticksPerSec = 1/0.9;
-			double fatBoyDPS = FBdmgPerTick * FBticksPerSec;
-			totalDPS += fatBoyDPS;
-		}
-		
-		return totalDPS;
+		return calculateSingleTargetDPS(false, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
 		// Because the Grenade Launcher has to be aimed manually, its Accuracy isn't applicable.
-		return sustainedWeakpointDPS();
+		return calculateSingleTargetDPS(false, true);
 	}
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
+		// TODO: reduce this by its AoE efficiency percentage
 		double totalDPS = getAreaDamage() / reloadTime;
 		if (selectedTier3 == 0) {
 			totalDPS += DoTInformation.Burn_DPS;
 		}
 		if (selectedOverclock == 4) {
-			double FBdmgPerTick = 25;
-			double FBticksPerSec = 1/0.9;
-			double fatBoyDPS = FBdmgPerTick * FBticksPerSec;
-			totalDPS += fatBoyDPS;
+			totalDPS += DoTInformation.Rad_FB_DPS;
 		}
 		return totalDPS;
 	}
