@@ -466,8 +466,83 @@ public class Boomstick extends Weapon {
 		return false;
 	}
 	
+	private double calculateTimeToIgnite(boolean accuracy) {
+		// This method gets used by the Tier 5 Mod "White Phosphorous Shells"
+		int numPelletsThatApplyHeat;
+		if (accuracy) {
+			numPelletsThatApplyHeat = (int) Math.round(estimatedAccuracy(false) * getNumberOfPelletsPerShot());
+		}
+		else {
+			numPelletsThatApplyHeat = getNumberOfPelletsPerShot();
+		}
+		
+		// 50% of Direct Damage from the pellets gets added on as Heat Damage.
+		double heatDamagePerShot = 0.5 * getDamagePerPellet() * numPelletsThatApplyHeat;
+		if (getMagazineSize() > 1) {
+			return EnemyInformation.averageTimeToIgnite(heatDamagePerShot * getRateOfFire());
+		}
+		else {
+			return EnemyInformation.averageTimeToIgnite(heatDamagePerShot / getReloadTime());
+		}
+	}
+	
 	// Single-target calculations
+	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+		double generalAccuracy, duration, directWeakpointDamagePerPellet;
+		
+		if (accuracy) {
+			generalAccuracy = estimatedAccuracy(false) / 100.0;
+		}
+		else {
+			generalAccuracy = 1.0;
+		}
+		
+		int magSize = getMagazineSize();
+		if (magSize > 1) {
+			if (burst) {
+				duration = ((double) getMagazineSize()) / getRateOfFire();
+			}
+			else {
+				duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+			}
+		}
+		else {
+			duration = getReloadTime();
+		}
+		
+		double weakpointAccuracy;
+		if (weakpoint) {
+			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+			directWeakpointDamagePerPellet = increaseBulletDamageForWeakpoints2(getDamagePerPellet());
+		}
+		else {
+			weakpointAccuracy = 0.0;
+			directWeakpointDamagePerPellet = getDamagePerPellet();
+		}
+		
+		// They way it's currently modeled, any time the WPS mod and Double Barrel OC are equipped simultaneously, then the Reload Time doesn't affect the Fire DoT Uptime.
+		double burnDPS = 0;
+		if (selectedTier5 == 2) {
+			if (burst) {
+				double timeToIgnite = calculateTimeToIgnite(accuracy);
+				double fireDoTUptimeCoefficient = (duration - timeToIgnite) / duration;
+				
+				burnDPS = fireDoTUptimeCoefficient * DoTInformation.Burn_DPS;
+			}
+			else {
+				burnDPS = DoTInformation.Burn_DPS;
+			}
+		}
+		
+		int numPelletsPerShot = getNumberOfPelletsPerShot();
+		int pelletsThatHitWeakpointPerShot = (int) Math.round(numPelletsPerShot * weakpointAccuracy);
+		int pelletsThatHitTargetPerShot = (int) Math.round(numPelletsPerShot * generalAccuracy) - pelletsThatHitWeakpointPerShot;
+		
+		return (pelletsThatHitWeakpointPerShot * directWeakpointDamagePerPellet + pelletsThatHitTargetPerShot * getDamagePerPellet() + getBlastwaveDamage()) * magSize / duration + burnDPS;
+	}
+	
 	private double calculateDamagePerMagazine(boolean weakpointBonus) {
+		// TODO: I'd like to refactor this method out if possible
 		double damagePerShot;
 		if (weakpointBonus) {
 			damagePerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet() * getNumberOfPelletsPerShot()) + getBlastwaveDamage();
@@ -478,98 +553,25 @@ public class Boomstick extends Weapon {
 			return (double) damagePerShot * getMagazineSize();
 		}
 	}
-	
-	private double calculateHeatPerSec() {
-		// This method gets used by the Tier 5 Mod "White Phosphorous Shells"
-		// 50% of Direct Damage from the pellets gets added on as Heat Damage.
-		// TODO: this should be reduced by Accuracy eventually.
-		double heatDamagePerShot = (getDamagePerPellet() * getNumberOfPelletsPerShot()) * 0.5;
-		if (getMagazineSize() > 1) {
-			return heatDamagePerShot * getRateOfFire();
-		}
-		else {
-			return heatDamagePerShot / getReloadTime();
-		}
-	}
 
 	@Override
 	public double calculateIdealBurstDPS() {
-		int magSize = getMagazineSize();
-		
-		double burstDPS = 0;
-		if (magSize > 1) {
-			double timeToFireMagazine = ((double) getMagazineSize()) / getRateOfFire();
-			burstDPS = calculateDamagePerMagazine(false) / timeToFireMagazine;
-			
-			if (selectedTier5 == 2) {
-				double heatPerSec = calculateHeatPerSec();
-				double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatPerSec);
-				double fireDoTUptimeCoefficient = (timeToFireMagazine - timeToIgnite) / timeToFireMagazine;
-				
-				burstDPS += fireDoTUptimeCoefficient * DoTInformation.Burn_DPS;
-			}
-		}
-		else {
-			burstDPS = calculateDamagePerMagazine(false) / getReloadTime();
-			
-			// They way it's currently modeled, any time the WPS mod and Double Barrel OC are equipped simultaneously, then the Reload Time doesn't affect the Fire DoT Uptime.
-			if (selectedTier5 == 2) {
-				double heatPerSec = calculateHeatPerSec();
-				double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatPerSec);
-				double reloadTime = getReloadTime();
-				double fireDoTUptimeCoefficient = (reloadTime - timeToIgnite) / reloadTime;
-				
-				burstDPS += fireDoTUptimeCoefficient * DoTInformation.Burn_DPS;
-			}
-		}
-		
-		return burstDPS;
+		return calculateSingleTargetDPS(true, false, false);
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		int magSize = getMagazineSize();
-		double sustainedDPS = 0;
-		
-		if (magSize > 1) {
-			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-			sustainedDPS += calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
-		}
-		else {
-			sustainedDPS += calculateDamagePerMagazine(false) / getReloadTime();
-		}
-		
-		if (selectedTier5 == 2) {
-			sustainedDPS += DoTInformation.Burn_DPS;
-		}
-		
-		return sustainedDPS;
+		return calculateSingleTargetDPS(false, false, false);
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		int magSize = getMagazineSize();
-		double sustainedWeakpointDPS = 0;
-		
-		if (magSize > 1) {
-			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-			sustainedWeakpointDPS += calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
-		}
-		else {
-			sustainedWeakpointDPS += calculateDamagePerMagazine(true) / getReloadTime();
-		}
-		
-		if (selectedTier5 == 2) {
-			sustainedWeakpointDPS += DoTInformation.Burn_DPS;
-		}
-		
-		return sustainedWeakpointDPS;
+		return calculateSingleTargetDPS(false, false, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	@Override
@@ -602,16 +604,7 @@ public class Boomstick extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		int gruntsHitByPellets;
-		if (selectedOverclock == 4) {
-			// Since the base spread gets reduced by 35%, assume that each shot's pellets can only hit one grunt without blowthrough.
-			gruntsHitByPellets = 1;
-		}
-		else {
-			// If Shaped Shells is not selected, then assume the pellets are wide enough to hit 2 grunts.
-			gruntsHitByPellets = 2;
-		}
-		int directDamagePerShot = getDamagePerPellet() * getNumberOfPelletsPerShot() * (calculateMaxNumTargets() / gruntsHitByPellets);
+		int directDamagePerShot = getDamagePerPellet() * getNumberOfPelletsPerShot();
 		// The frontal blastwave is a 20 degree isosceles triangle, 4m height; 1.41m base. 4 grunts can be hit in a 1-2-1 stack.
 		int gruntsHitByBlastwave = 4;
 		int blastwaveDamagePerShot = gruntsHitByBlastwave * getBlastwaveDamage();
@@ -619,7 +612,8 @@ public class Boomstick extends Weapon {
 		
 		double fireDoTTotalDamage = 0;
 		if (selectedTier5 == 2) {
-			double timeBeforeIgnite = EnemyInformation.averageTimeToIgnite(calculateHeatPerSec());
+			// TODO: if magsize == 1, do the % enemies ignited like Minigun's Aggressive Venting
+			double timeBeforeIgnite = calculateTimeToIgnite(false);
 			double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
 			
 			double estimatedNumEnemiesKilled = calculateMaxNumTargets() * (calculateFiringDuration() / averageTimeToKill());
@@ -632,16 +626,7 @@ public class Boomstick extends Weapon {
 
 	@Override
 	public int calculateMaxNumTargets() {
-		int gruntsHitByPellets;
-		if (selectedOverclock == 4) {
-			// Since the base spread gets reduced by 35%, assume that each shot's pellets can only hit one grunt without blowthrough.
-			gruntsHitByPellets = 1;
-		}
-		else {
-			// If Shaped Shells is not selected, then assume the pellets are wide enough to hit 2 grunts.
-			gruntsHitByPellets = 2;
-		}
-		return gruntsHitByPellets * (1 + getMaxPenetrations());
+		return 1 + getMaxPenetrations();
 	}
 
 	@Override
