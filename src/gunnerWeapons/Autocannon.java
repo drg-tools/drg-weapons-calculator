@@ -510,6 +510,7 @@ public class Autocannon extends Weapon {
 	}
 	
 	private double calculateDamagePerMagazine(boolean weakpointBonus, int numTargets) {
+		// TODO: I'd like to refactor out this method if possible
 		double damagePerBullet;
 		if (weakpointBonus) {
 			damagePerBullet = increaseBulletDamageForWeakpoints(getDirectDamage()) + numTargets * getAreaDamage();

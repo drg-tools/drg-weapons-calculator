@@ -542,10 +542,115 @@ public class Minigun extends Weapon {
 		return false;
 	}
 	
+	private double calculateIgnitionTime(boolean accuracy) {
+		// It looks like Hot Bullets and Burning Hell both have -50% Burn DoT Durations?
+		double burningHellHeatPerSec = 30;
+		
+		double generalAccuracy;
+		if (accuracy) {
+			generalAccuracy = estimatedAccuracy(false);
+		}
+		else {
+			generalAccuracy = 1.0;
+		}
+		
+		// Special case: Bullet Hell causes the bullets to guarantee impact.
+		if (selectedOverclock == 5) {
+			generalAccuracy = 0.5;
+		}
+		
+		// Hot Bullets only
+		if (selectedTier5 == 2 && selectedOverclock != 2) {
+			// Hot Bullets adds 50% of of each pellet's Direct Damage as Heat Damage while the Heat Meter on the Minigun is red.
+			// In practice, the meter turns red after 4 seconds of sustained firing, meaning that the last 5.5 seconds of the burst will have Hot Bullets.
+			// I'm choosing to reduce the heatPerPellet by the Accuracy of the gun to imitate when pellets miss the target
+			double heatPerPellet = ((double) getDamagePerPellet()) * generalAccuracy / 2.0;
+			double RoF = getRateOfFire() / 2.0;
+			return 4 + EnemyInformation.averageTimeToIgnite(heatPerPellet, RoF);
+		}
+		// Burning Hell only
+		else if (selectedTier5 != 2 && selectedOverclock == 2) {
+			// Burning Hell looks like it burns everything within 4m in a 20 degree arc in front of you at a rate of 30 heat/sec
+			return EnemyInformation.averageTimeToIgnite(burningHellHeatPerSec);
+		}
+		// Both Hot Bullets AND Burning Hell
+		else if (selectedTier5 == 2 && selectedOverclock == 2) {
+			// Because Burning Hell reduces the Firing Period from 9.5 sec to 6.33 sec, this means that Hot Bullets gets activated after 2.66 seconds instead of 4.
+			double heatPerPellet = ((double) getDamagePerPellet()) * generalAccuracy / 2.0;
+			double RoF = getRateOfFire() / 2.0;
+			double avgHeatPerSec = (2.66 * burningHellHeatPerSec + 3.66 * (heatPerPellet * RoF + burningHellHeatPerSec)) / 6.33;
+			return EnemyInformation.averageTimeToIgnite(avgHeatPerSec);
+		}
+		// Neither are equipped.
+		else {
+			return -1;
+		}
+	}
+	
+	// Single-target calculations
+	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+		double generalAccuracy, duration, directWeakpointDamage;
+		
+		if (accuracy) {
+			generalAccuracy = estimatedAccuracy(false) / 100.0;
+		}
+		else {
+			generalAccuracy = 1.0;
+		}
+		
+		// Special case: the overclock Bullet Hell makes all pellets that miss redirect and hit an enemy.
+		if (selectedOverclock == 5) {
+			generalAccuracy = 0.5;
+		}
+		
+		if (burst) {
+			duration = calculateFiringPeriod();
+		}
+		else {
+			duration = calculateFiringPeriod() + calculateCooldownPeriod();
+		}
+		
+		int burstSize = (int) calculateMaxNumPelletsFiredWithoutOverheating();
+		double directDamage = getDamagePerPellet();
+		if (selectedTier4 == 0) {
+			double pelletsFiredWhileNotStabilized = bulletsFiredTilMaxStability / 2.0;
+			directDamage *= (pelletsFiredWhileNotStabilized + 1.15*(burstSize - pelletsFiredWhileNotStabilized)) / burstSize;
+		}
+		
+		double weakpointAccuracy;
+		if (weakpoint) {
+			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+			directWeakpointDamage = increaseBulletDamageForWeakpoints2(directDamage);
+		}
+		else {
+			weakpointAccuracy = 0.0;
+			directWeakpointDamage = directDamage;
+		}
+		
+		double burnDPS = 0;
+		if (selectedTier5 == 2 || selectedOverclock == 2) {
+			if (burst) {
+				double ignitionTime = calculateIgnitionTime(accuracy);
+				double burnDoTUptime = (duration - ignitionTime) / duration;
+				burnDPS = burnDoTUptime * DoTInformation.Burn_DPS;
+			}
+			else {
+				burnDPS = DoTInformation.Burn_DPS;
+			}
+		}
+		
+		int pelletsThatHitWeakpoint = (int) Math.round(burstSize * weakpointAccuracy);
+		int pelletsThatHitTarget = (int) Math.round(burstSize * generalAccuracy) - pelletsThatHitWeakpoint;
+		
+		return (pelletsThatHitWeakpoint * directWeakpointDamage + pelletsThatHitTarget * directDamage) / duration + burnDPS;
+	}
+	
 	private double calculateDamagePerBurst(boolean weakpointBonus) {
 		/* 
 			The length of the burst is determined by the heat accumulated. Each burst duration should stop just shy of 
 			overheating the minigun so that it doesn't have the overheat cooldown penalty imposed.
+			
+			TODO: I'd like to refactor out this method if at all possible
 		*/
 		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
 		double damageMultiplier = 1.0;
@@ -561,85 +666,25 @@ public class Minigun extends Weapon {
 			return numPelletsFiredBeforeOverheat * (double) getDamagePerPellet() * damageMultiplier;
 		}
 	}
-
-	private double calculateIgnitionTime() {
-		// It looks like Hot Bullets and Burning Hell both have -50% Burn DoT Durations?
-		// Hot Bullets only
-		if (selectedTier5 == 2 && selectedOverclock != 2) {
-			// Hot Bullets adds 50% of of each pellet's Direct Damage as Heat Damage while the Heat Meter on the Minigun is red.
-			// In practice, the meter turns red after 4 seconds of sustained firing, meaning that the last 5.5 seconds of the burst will have Hot Bullets.
-			double heatPerPellet = ((double) getDamagePerPellet()) / 2.0;
-			double RoF = getRateOfFire() / 2.0;
-			return 4 + EnemyInformation.averageTimeToIgnite(heatPerPellet, RoF);
-		}
-		// Burning Hell only
-		else if (selectedTier5 != 2 && selectedOverclock == 2) {
-			// Burning Hell looks like it burns everything within 4m in a 20 degree arc in front of you at a rate of 30 heat/sec
-			return EnemyInformation.averageTimeToIgnite(30);
-		}
-		// Both Hot Bullets AND Burning Hell
-		else if (selectedTier5 == 2 && selectedOverclock == 2) {
-			// Because Burning Hell reduces the Firing Period from 9.5 sec to 6.33 sec, this means that Hot Bullets gets activated after 2.66 seconds instead of 4.
-			double heatPerPellet = ((double) getDamagePerPellet()) / 2.0;
-			double RoF = getRateOfFire() / 2.0;
-			double avgHeatPerSec = (2.66 * 30 + 3.66 * (heatPerPellet * RoF + 30)) / 6.33;
-			return EnemyInformation.averageTimeToIgnite(avgHeatPerSec);
-		}
-		// Neither are equipped.
-		else {
-			return -1;
-		}
-	}
 	
 	@Override
 	public double calculateIdealBurstDPS() {
-		// damagePerBurst only accounts for damage dealt by pellets, not by any Burn DoTs applied.
-		double damagePerBurst = calculateDamagePerBurst(false);
-		double burstDuration = calculateFiringPeriod();
-		double burstDPS = damagePerBurst / burstDuration;
-		
-		double fireDoTBurstDPS = 0;
-		if (selectedTier5 == 2 || selectedOverclock == 2) {
-			double ignitionTime = calculateIgnitionTime();
-			double burnDoTUptime = (burstDuration - ignitionTime) / burstDuration;
-			fireDoTBurstDPS = burnDoTUptime * DoTInformation.Burn_DPS;
-		}
-		
-		return burstDPS + fireDoTBurstDPS;
+		return calculateSingleTargetDPS(true, false, false);
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		double damagePerBurst = calculateDamagePerBurst(false);
-		double burstDuration = calculateFiringPeriod();
-		double coolOffDuration = calculateCooldownPeriod();
-		double sustainedDPS = damagePerBurst / (burstDuration + coolOffDuration);
-		
-		if (selectedTier5 == 2 || selectedOverclock == 2) {
-			sustainedDPS += DoTInformation.Burn_DPS;
-		}
-		
-		return sustainedDPS;
+		return calculateSingleTargetDPS(false, false, false);
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		double damagePerBurst = calculateDamagePerBurst(true);
-		double burstDuration = calculateFiringPeriod();
-		double coolOffDuration = calculateCooldownPeriod();
-		double sustainedWeakpointDPS = damagePerBurst / (burstDuration + coolOffDuration);
-		
-		if (selectedTier5 == 2 || selectedOverclock == 2) {
-			sustainedWeakpointDPS += DoTInformation.Burn_DPS;
-		}
-		
-		return sustainedWeakpointDPS;
+		return calculateSingleTargetDPS(false, false, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	@Override
@@ -665,7 +710,7 @@ public class Minigun extends Weapon {
 		// Both Hot Bullets and Burning Hell are penalized with -50% DoT duration
 		// Because of how Hot Bullets' ignition time is calculated, it returns (4 + the ignition time). As a result, it would end up subtracting from the total damage.
 		if (selectedTier5 == 2 && selectedOverclock != 2) {
-			timeBeforeFireProc = calculateIgnitionTime() - 4;
+			timeBeforeFireProc = calculateIgnitionTime(false) - 4;
 			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, 0.5 * EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
 			
 			// Because Hot Bullets only starts igniting enemies after 4 seconds, reduce this damage by the uptime coefficient.
@@ -677,7 +722,7 @@ public class Minigun extends Weapon {
 		}
 		// Burning Hell, on the other hand, works great with this. Even with Hot Bullets stacked on top of it, it doesn't do negative damage.
 		else if (selectedOverclock == 2) {
-			timeBeforeFireProc = calculateIgnitionTime();
+			timeBeforeFireProc = calculateIgnitionTime(false);
 			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, 0.5 * EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
 			
 			estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
@@ -744,6 +789,8 @@ public class Minigun extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
+		// TODO: Bullet Hell guarantees riccochets into enemies. I need to figure out how to model what percentage hit the intended enemy, and then edit calculateIgnitionTime() and calculateSingleTargetDPS() accordingly.
+		
 		// I'm choosing to model Minigun as if it has no recoil. Although it does, its so negligible that it would have no effect.
 		// Because it's being modeled without recoil, and its crosshair gets smaller as it fires, I'm making a quick-and-dirty estimate here instead of using AccuracyEstimator.
 		double unchangingBaseSpread = 61;

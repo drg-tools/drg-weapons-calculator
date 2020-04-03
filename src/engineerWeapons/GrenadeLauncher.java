@@ -477,6 +477,7 @@ public class GrenadeLauncher extends Weapon {
 		// Incendiary Compound
 		if (selectedTier3 == 0) {
 			if (burst) {
+				// TODO: maybe change this to work like Minigun's Aggressive Venting in its calculateMaxMultiTargetDamage() method?
 				double heatPerGrenade = getDirectDamage() + getAreaDamage();
 				double RoF = 1.0 / reloadTime;
 				double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatPerGrenade, RoF);
