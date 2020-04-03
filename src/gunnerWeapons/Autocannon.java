@@ -456,6 +456,59 @@ public class Autocannon extends Weapon {
 		return true;
 	}
 	
+	// Single-target calculations
+	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+		double generalAccuracy, duration, directWeakpointDamage;
+		
+		if (accuracy) {
+			generalAccuracy = estimatedAccuracy(false) / 100.0;
+		}
+		else {
+			generalAccuracy = 1.0;
+		}
+		
+		if (burst) {
+			duration = ((double) getMagazineSize()) / getAverageRateOfFire();
+		}
+		else {
+			duration = (((double) getMagazineSize()) / getAverageRateOfFire()) + getReloadTime();
+		}
+		
+		int magSize = getMagazineSize();
+		double directDamage = getDirectDamage();
+		if (selectedTier5 == 0) {
+			double numBulletsRampup = (double) getNumBulletsRampup();
+			directDamage *= (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+		}
+		
+		double weakpointAccuracy;
+		if (weakpoint) {
+			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+			directWeakpointDamage = increaseBulletDamageForWeakpoints2(directDamage);
+		}
+		else {
+			weakpointAccuracy = 0.0;
+			directWeakpointDamage = directDamage;
+		}
+		
+		int bulletsThatHitWeakpoint = (int) Math.round(magSize * weakpointAccuracy);
+		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
+		
+		double neuroDPS = 0;
+		if (selectedOverclock == 5) {
+			// Neurotoxin Payload has a 20% chance to inflict the DoT
+			if (burst) {
+				neuroDPS = calculateRNGDoTDPSPerMagazine(0.2, DoTInformation.Neuro_DPS, getMagazineSize());
+			}
+			else {
+				neuroDPS = DoTInformation.Neuro_DPS;
+			}
+		}
+		
+		// I'm choosing to model this as if the splash damage from every bullet were to hit the primary target, even if the bullets themselves don't.
+		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * directDamage + magSize * getAreaDamage()) / duration + neuroDPS;
+	}
+	
 	private double calculateDamagePerMagazine(boolean weakpointBonus, int numTargets) {
 		double damagePerBullet;
 		if (weakpointBonus) {
@@ -475,68 +528,27 @@ public class Autocannon extends Weapon {
 
 	@Override
 	public double calculateIdealBurstDPS() {
-		/*
-			There are two ways to calculate this: 
-				(damage/bullet times bullets/mag) / (bullets/mag divided by bullets/sec) 
-			OR 
-				damage/bullet times bullets/sec
-				
-			I THINK that they're equivalent, but I'll do it the long way to be sure.
-		*/
-		double timeToFireMagazine = ((double) getMagazineSize()) / getAverageRateOfFire();
-		double burstDPS = calculateDamagePerMagazine(false, 1) / timeToFireMagazine;
-		
-		if (selectedOverclock == 5) {
-			// Neurotoxin Payload has a 20% chance to inflict the DoT
-			burstDPS += calculateRNGDoTDPSPerMagazine(0.2, DoTInformation.Neuro_DPS, getMagazineSize());
-		}
-		
-		return burstDPS;
+		return calculateSingleTargetDPS(true, false, false);
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getAverageRateOfFire()) + getReloadTime();
-		double sustainedDPS = calculateDamagePerMagazine(false, 1) / timeToFireMagazineAndReload;
-		
-		if (selectedOverclock == 5) {
-			sustainedDPS += DoTInformation.Neuro_DPS;
-		}
-		
-		return sustainedDPS;
+		return calculateSingleTargetDPS(false, false, false);
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getAverageRateOfFire()) + getReloadTime();
-		double sustainedWeakpointDPS = calculateDamagePerMagazine(true, 1) / timeToFireMagazineAndReload;
-		
-		if (selectedOverclock == 5) {
-			sustainedWeakpointDPS += DoTInformation.Neuro_DPS;
-		}
-		
-		return sustainedWeakpointDPS;
+		return calculateSingleTargetDPS(false, false, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO: this is incomplete; I was just curious to see how the inaccuracy affected this gun.
-		double magSize = getMagazineSize();
-		double accuracy = estimatedAccuracy(false);
-		// Assuming that all bullets' splash hits the intended target, but only accuracy% bullets hit directly
-		double directDamage = this.increaseBulletDamageForWeakpoints(getDirectDamage());
-		int areaDamage = getAreaDamage();
-		double avgDmgPerBullet = (accuracy*(directDamage + areaDamage) + (100 - accuracy)*areaDamage)/100.0;
-		
-		double dmgPerMagazine = avgDmgPerBullet * magSize;
-		double timeToFireMagazineAndReload = (magSize / getAverageRateOfFire()) + getReloadTime();
-		
-		return dmgPerMagazine / timeToFireMagazineAndReload;
+		return calculateSingleTargetDPS(false, true, true);
 	}
-
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
+		// TODO: multiply this by its AoE Efficiency percentage
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getAverageRateOfFire()) + getReloadTime();
 		double magSize = (double) getMagazineSize();
 		double damageMultiplier = 1.0;
@@ -557,6 +569,7 @@ public class Autocannon extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
+		// TODO: refactor this
 		int numTargets = calculateMaxNumTargets();
 		double damagePerMagazine = calculateDamagePerMagazine(false, numTargets);
 		double numberOfMagazines = numMagazines(getCarriedAmmo(), getMagazineSize());
