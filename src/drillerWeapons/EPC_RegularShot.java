@@ -537,36 +537,54 @@ public class EPC_RegularShot extends Weapon {
 	}
 
 	// Single-target calculations
+	private double calculateSingleTargetDPS(boolean burst, boolean weakpoint) {
+		double damagePerProjectile;
+		if (weakpoint) {
+			// Because this weapon doesn't have its Accuracy handled like the other weapons, I'm choosing to just increase the damage by a weighted average.
+			damagePerProjectile = increaseBulletDamageForWeakpoints(getDirectDamage());
+		}
+		else {
+			damagePerProjectile = getDirectDamage();
+		}
+		
+		int burstSize = getNumRegularShotsBeforeOverheat();
+		
+		double duration;
+		if (burst) {
+			duration = burstSize / rateOfFire;
+		}
+		else {
+			duration = burstSize / rateOfFire + getCooldownDuration();
+		}
+		
+		return damagePerProjectile * burstSize / duration;
+	}
+	
 	@Override
 	public double calculateIdealBurstDPS() {
-		return getDirectDamage() * rateOfFire;
+		return calculateSingleTargetDPS(true, false);
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		int burstSize = getNumRegularShotsBeforeOverheat();
-		double totalDamage = getDirectDamage() * burstSize;
-		double timeToFireBurst = burstSize / rateOfFire;
-		
-		return totalDamage / (timeToFireBurst + getCooldownDuration());
+		return calculateSingleTargetDPS(false, false);
 	}
 
 	@Override
 	public double sustainedWeakpointDPS() {
-		// EPC can't get weakpoint bonus damage
-		return calculateIdealSustainedDPS();
+		return calculateSingleTargetDPS(false, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
 		// EPC has no recoil and no spread per shot, so it can effectively be considered 100% accurate
-		return calculateIdealSustainedDPS();
+		return calculateSingleTargetDPS(false, true);
 	}
 
 	// Multi-target calculations
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		// Regular shots can only hit one enemy before disappearing.
+		// Regular shots can only hit one enemy before disappearing. I'm choosing not to model Bouncy Plasma.
 		return 0;
 	}
 
