@@ -494,60 +494,64 @@ public class Deepcore extends Weapon {
 	}
 	
 	// Single-target calculations
-	private double calculateDamagePerMagazine(boolean weakpointBonus) {
-		// Somehow "Explosive Reload" will have to be modeled in here.
-		if (weakpointBonus) {
-			return (double) increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) * getMagazineSize();
+	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+		double generalAccuracy, duration, directWeakpointDamage;
+		
+		if (accuracy) {
+			generalAccuracy = estimatedAccuracy(false) / 100.0;
 		}
 		else {
-			return (double) getDirectDamage() * getMagazineSize();
+			generalAccuracy = 1.0;
 		}
+		
+		if (burst) {
+			duration = ((double) getMagazineSize()) / getRateOfFire();
+		}
+		else {
+			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+		}
+		
+		double weakpointAccuracy;
+		if (weakpoint) {
+			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+			directWeakpointDamage = increaseBulletDamageForWeakpoints2(getDirectDamage(), getWeakpointBonus());
+		}
+		else {
+			weakpointAccuracy = 0.0;
+			directWeakpointDamage = getDirectDamage();
+		}
+		
+		double electroDPS = 0;
+		if (selectedOverclock == 6) {
+			double electroDoTUptimeCoefficient = Math.min(DoTInformation.Electro_SecsDuration / duration, 1);
+			electroDPS += electroDoTUptimeCoefficient * DoTInformation.Electro_DPS;
+		}
+		
+		int magSize = getMagazineSize();
+		int bulletsThatHitWeakpoint = (int) Math.round(magSize * weakpointAccuracy);
+		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
+		
+		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * getDirectDamage()) / duration + electroDPS;
 	}
 
 	@Override
 	public double calculateIdealBurstDPS() {
-		double timeToFireMagazine = ((double) getMagazineSize()) / getRateOfFire();
-		double burstDPS = calculateDamagePerMagazine(false) / timeToFireMagazine;
-		
-		if (selectedOverclock == 6) {
-			// This is modeled as if the magazine has just finished reloading, so there's a few seconds of Electrocute DoT right at the beginning of firing the magazine.
-			double electroDoTUptimeCoefficient = Math.min((DoTInformation.Electro_SecsDuration - getReloadTime()) / timeToFireMagazine, 1);
-			burstDPS += electroDoTUptimeCoefficient * DoTInformation.Electro_DPS;
-		}
-		
-		return burstDPS;
+		return calculateSingleTargetDPS(true, false, false);
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		double sustainedDPS = calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
-		
-		if (selectedOverclock == 6) {
-			double electroDoTUptimeCoefficient = Math.min(DoTInformation.Electro_SecsDuration / timeToFireMagazineAndReload, 1);
-			sustainedDPS += electroDoTUptimeCoefficient * DoTInformation.Electro_DPS;
-		}
-		
-		return sustainedDPS;
+		return calculateSingleTargetDPS(false, false, false);
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		double sustainedWeakpointDPS = calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
-		
-		if (selectedOverclock == 6) {
-			double electroDoTUptimeCoefficient = Math.min(DoTInformation.Electro_SecsDuration / timeToFireMagazineAndReload, 1);
-			sustainedWeakpointDPS += electroDoTUptimeCoefficient * DoTInformation.Electro_DPS;
-		}
-		
-		return sustainedWeakpointDPS;
+		return calculateSingleTargetDPS(false, false, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	@Override
@@ -568,7 +572,7 @@ public class Deepcore extends Weapon {
 			electrocutionDoTTotalDamage = electrocuteDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		}
 		
-		return (getMagazineSize() + getCarriedAmmo()) * getDirectDamage() + electrocutionDoTTotalDamage;
+		return totalDamage + electrocutionDoTTotalDamage;
 	}
 
 	@Override
