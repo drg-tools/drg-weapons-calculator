@@ -644,6 +644,7 @@ public class Revolver extends Weapon {
 		
 		// Only Explosive
 		else if (selectedTier3 == 1 && selectedOverclock != 1 && selectedOverclock != 5) {
+			// From my limited testing, it appears that the full damage radius == full radius, so the efficiency will be 100%
 			return calculateNumGlyphidsInRadius(getAoERadius());
 		}
 		

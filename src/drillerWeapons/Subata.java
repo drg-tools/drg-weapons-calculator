@@ -499,7 +499,7 @@ public class Subata extends Weapon {
 		double weakpointAccuracy;
 		if (weakpoint) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
-			directWeakpointDamage = increaseBulletDamageForWeakpoints2(getDirectDamage(), getWeakpointBonus(), weakpointAccuracy);
+			directWeakpointDamage = increaseBulletDamageForWeakpoints2(getDirectDamage(), getWeakpointBonus());
 		}
 		else {
 			weakpointAccuracy = 0.0;

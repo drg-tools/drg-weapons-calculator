@@ -645,6 +645,11 @@ public class EPC_ChargeShot extends Weapon {
 
 	@Override
 	public int calculateMaxNumTargets() {
+		
+		double radius = getChargedAoERadius();
+		double[] foo = calculateAverageAreaDamage(radius, radius*0.75, 5.0/6.0, 5.0/6.0);
+		//System.out.println(foo[0] + " " + foo[1] + " " + foo[2]);
+		
 		return calculateNumGlyphidsInRadius(getChargedAoERadius());
 	}
 

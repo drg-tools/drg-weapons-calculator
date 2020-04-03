@@ -576,6 +576,11 @@ public class Autocannon extends Weapon {
 
 	@Override
 	public int calculateMaxNumTargets() {
+		
+		double radius = getAoERadius();
+		double[] foo = calculateAverageAreaDamage(radius, radius/2.0, 0.75, 0.5);
+		//System.out.println(foo[0] + " " + foo[1] + " " + foo[2]);
+		
 		return calculateNumGlyphidsInRadius(getAoERadius());
 	}
 

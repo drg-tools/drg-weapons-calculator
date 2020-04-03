@@ -336,7 +336,7 @@ public abstract class Weapon extends Observable {
 		return timeWhileAfflictedByDoT * DoTDPS;
 	}
 	
-	protected double[] calculateAverageAreaDamage(double radius) {
+	protected double[] calculateAverageAreaDamage(double radius, double fullDamageRadius, double falloffStart, double falloffEnd) {
 		/* 
 			This method is based off of the hypothesis that the innnermost 50% of the radius gets full damage,
 			and then the damage drops to 50%, and then linearly decreases to 33% at the furthest edge of the radius
@@ -345,8 +345,7 @@ public abstract class Weapon extends Observable {
 		*/
 		
 		// Want to test the halfway radius and every radius in +0.1m increments, and finally the outermost radius
-		double halfRadius = radius/2.0;
-		int numRadiiToTest = (int) Math.floor(halfRadius*10.0) + 2;
+		int numRadiiToTest = (int) Math.floor((radius - fullDamageRadius) * 20.0) + 1;
 		
 		// Add an extra tuple at the start for the return values
 		double[][] toReturn = new double[1 + numRadiiToTest][3];
@@ -354,24 +353,25 @@ public abstract class Weapon extends Observable {
 		int totalNumGlyphids = 0;
 		int currentGlyphids;
 		for (int i = 0; i < numRadiiToTest - 1; i++) {
-			currentRadius = halfRadius + i * 0.1;
-			currentDamage = 0.5 - 0.1666667 * i / numRadiiToTest;
+			currentRadius = fullDamageRadius + i * 0.05;
+			if (i > 0) {
+				currentDamage = falloffStart - (falloffStart - falloffEnd) * (i - 1) / (numRadiiToTest - 2);
+			}
+			else {
+				currentDamage = 1.0;
+			}
+			
 			toReturn[i+1] = new double[3];
 			toReturn[i+1][0] = currentRadius;
+			toReturn[i+1][1] = currentDamage;
 			currentGlyphids = calculateNumGlyphidsInRadius(currentRadius) - totalNumGlyphids;
 			toReturn[i+1][2] = currentGlyphids;
 			totalNumGlyphids += currentGlyphids;
-			if (i > 0) {
-				toReturn[i+1][1] = currentDamage;
-			}
-			else if (i == 0) {
-				toReturn[i+1][1] = 1.0;
-			}
 		}
 		toReturn[numRadiiToTest] = new double[3];
 		toReturn[numRadiiToTest][0] = radius;
-		toReturn[numRadiiToTest][1] = calculateNumGlyphidsInRadius(radius) - totalNumGlyphids;
-		toReturn[numRadiiToTest][2] = 0.33;
+		toReturn[numRadiiToTest][1] = falloffEnd;
+		toReturn[numRadiiToTest][2] = calculateNumGlyphidsInRadius(radius) - totalNumGlyphids;
 		
 		toReturn[0] = new double[3];
 		toReturn[0][0] = radius;
@@ -379,6 +379,7 @@ public abstract class Weapon extends Observable {
 		
 		double avgDmg = 0.0;
 		for (int i = 1; i < toReturn.length; i++) {
+			//System.out.println(toReturn[i][0] + " " + toReturn[i][1] + " " + toReturn[i][2] + " ");
 			avgDmg += toReturn[i][1] * toReturn[i][2];
 		}
 		toReturn[0][2] = avgDmg / totalNumGlyphids;
@@ -469,12 +470,12 @@ public abstract class Weapon extends Observable {
 		}
 	}
 	
-	protected double increaseBulletDamageForWeakpoints2(double preWeakpointBulletDamage, double probabilityBulletHitsWeakpoint) {
-		return increaseBulletDamageForWeakpoints2(preWeakpointBulletDamage, 0.0, probabilityBulletHitsWeakpoint);
+	protected double increaseBulletDamageForWeakpoints2(double preWeakpointBulletDamage) {
+		return increaseBulletDamageForWeakpoints2(preWeakpointBulletDamage, 0.0);
 	}
-	protected double increaseBulletDamageForWeakpoints2(double preWeakpointBulletDamage, double weakpointBonusModifier, double probabilityBulletHitsWeakpoint) {
+	protected double increaseBulletDamageForWeakpoints2(double preWeakpointBulletDamage, double weakpointBonusModifier) {
 		double estimatedDamageIncreaseWithoutModifier = EnemyInformation.averageWeakpointDamageIncrease();
-		return ((1.0 - probabilityBulletHitsWeakpoint) + probabilityBulletHitsWeakpoint * estimatedDamageIncreaseWithoutModifier * (1.0 + weakpointBonusModifier)) * preWeakpointBulletDamage;
+		return estimatedDamageIncreaseWithoutModifier * (1.0 + weakpointBonusModifier) * preWeakpointBulletDamage;
 	}
 	protected double increaseBulletDamageForWeakpoints(double preWeakpointBulletDamage) {
 		return increaseBulletDamageForWeakpoints(preWeakpointBulletDamage, 0.0);
