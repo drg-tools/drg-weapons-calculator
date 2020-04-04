@@ -12,8 +12,6 @@ import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
-// TODO: While Incendiary Compound has been modeled, I think it deserves to be refactored. It feels sloppy how it turned out.
-
 public class GrenadeLauncher extends Weapon {
 	
 	/****************************************************************************************
@@ -493,13 +491,10 @@ public class GrenadeLauncher extends Weapon {
 		// Incendiary Compound
 		if (selectedTier3 == 0) {
 			if (burst) {
-				// TODO: maybe change this to work like Minigun's Aggressive Venting in its calculateMaxMultiTargetDamage() method?
 				double heatPerGrenade = getDirectDamage() + getAreaDamage();
-				double RoF = 1.0 / reloadTime;
-				double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatPerGrenade, RoF);
-				double burnDoTUptime = (reloadTime - timeToIgnite) / reloadTime;
+				double percentageOfEnemiesIgnitedByOneGrenade = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(heatPerGrenade);
 				
-				burnDPS = burnDoTUptime * DoTInformation.Burn_DPS;
+				burnDPS = percentageOfEnemiesIgnitedByOneGrenade * DoTInformation.Burn_DPS;
 			}
 			else {
 				burnDPS = DoTInformation.Burn_DPS;
@@ -552,31 +547,30 @@ public class GrenadeLauncher extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		int numTargets = calculateMaxNumTargets();
-		double estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
+		int numShots = 1 + getCarriedAmmo();
 		
-		// Now that I have Incendiary Compound modeled "correctly", I'm very dissatisfied with it. TODO: look over this math again later, see if something is messed up.
 		double burnDoTTotalDamage = 0;
 		if (selectedTier3 == 0) {
-			double heatPerGrenade = getDirectDamage() + getAreaDamage();
-			double RoF = 1 / reloadTime;
-			double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatPerGrenade, RoF);
+			double singleTargetHeatPerGrenade = getDirectDamage() + getAreaDamage();
+			double percentageEnemiesIgnitedByDirectImpact = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(singleTargetHeatPerGrenade);
+			double multiTargetHeatPerGrenade = getAreaDamage() * aoeEfficiency[1];
+			double percentageOfEnemiesIgnitedByAreaDamage = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(multiTargetHeatPerGrenade);
 			
-			double burnDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
-			burnDoTTotalDamage = burnDoTDamagePerEnemy * estimatedNumEnemiesKilled;
+			double avgPercentageIgnited = (percentageEnemiesIgnitedByDirectImpact + (aoeEfficiency[2] - 1) * percentageOfEnemiesIgnitedByAreaDamage) / aoeEfficiency[2];
+			double burnDoTDamagePerEnemy = avgPercentageIgnited * calculateAverageDoTDamagePerEnemy(0, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			
+			// I'm choosing to model this as if the player lets the enemies burn for the full duration, instead of continuing to fire grenades until they die.
+			burnDoTTotalDamage = numShots * aoeEfficiency[2] * burnDoTDamagePerEnemy;
 		}
 		
 		double radiationDoTTotalDamage = 0;
 		if (selectedOverclock == 4) {
-			double FBdmgPerTick = 25;
-			double FBticksPerSec = 1/0.9;
-			double fatBoyDPS = FBdmgPerTick * FBticksPerSec;
 			// I'm guessing that it takes about 4 seconds for enemies to move out of the 8m radius field
-			double radiationDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, 4, fatBoyDPS);
+			double radiationDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, 4, DoTInformation.Rad_FB_DPS);
+			double estimatedNumEnemiesKilled = aoeEfficiency[2] * (calculateFiringDuration() / averageTimeToKill());
 			radiationDoTTotalDamage = radiationDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		}
 		
-		int numShots = 1 + getCarriedAmmo();
 		return numShots * (getDirectDamage() + getAreaDamage() * aoeEfficiency[1] * aoeEfficiency[2]) + burnDoTTotalDamage + radiationDoTTotalDamage;
 	}
 

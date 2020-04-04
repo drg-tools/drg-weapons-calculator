@@ -342,7 +342,7 @@ public class WeaponStatsGenerator {
 	}
 	
 	private void printStatsToCSV(String combination, double[] metrics) {
-		String format = "%s, %f, %f, %f, %f, %d, %f, %f, %f, %f, %f, %f, %f,\n";
+		String format = "%s, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,\n";
 		csvLinesToWrite.add((String.format(format, combination, metrics[0], metrics[1], metrics[2], metrics[3], metrics[4], metrics[5], 
 				  			 metrics[6], metrics[7], metrics[8], metrics[9], metrics[10], metrics[11])));
 	}

@@ -579,7 +579,7 @@ public class Shotgun extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		double unchangingBaseSpread = 105;
+		double unchangingBaseSpread = 104;
 		double changingBaseSpread = 96 * getBaseSpread();
 		double spreadVariance = 0;
 		double spreadPerShot = 0;

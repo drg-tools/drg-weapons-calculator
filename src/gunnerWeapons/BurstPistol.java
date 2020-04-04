@@ -647,16 +647,16 @@ public class BurstPistol extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		double unchangingBaseSpread = 52;
+		double unchangingBaseSpread = 54;
 		double changingBaseSpread = 0;
-		double spreadVariance = 111;
+		double spreadVariance = 74;
 		double spreadPerShot = 21 * getSpreadPerShot();
-		double spreadRecoverySpeed = 81.44881533;
-		double recoilPerShot = 42 * getRecoil();
+		double spreadRecoverySpeed = 83.72401183;
+		double recoilPerShot = 27 * getRecoil();
 		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
 		int[] recoilUpInterval = {1, 10};
 		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		int[] recoilDownInterval = {3, 4};
+		int[] recoilDownInterval = {3, 10};
 		
 		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), getBurstSize(), 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
@@ -682,8 +682,7 @@ public class BurstPistol extends Weapon {
 		
 		// Mod Tier 5 "Burst Stun" = 100% chance for 3 sec stun
 		if (selectedTier5 == 1) {
-			// TODO: maybe multiply this by Accuracy?
-			utilityScores[5] = getBurstStunDuration() * UtilityInformation.Stun_Utility;
+			utilityScores[5] = estimatedAccuracy(false) * getBurstStunDuration() * UtilityInformation.Stun_Utility;
 		}
 		else {
 			utilityScores[5] = 0;

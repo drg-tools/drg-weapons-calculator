@@ -565,7 +565,7 @@ public class Minigun extends Weapon {
 	
 	private double calculateIgnitionTime(boolean accuracy) {
 		// It looks like Hot Bullets and Burning Hell both have -50% Burn DoT Durations?
-		double burningHellHeatPerSec = 30;
+		double burningHellHeatPerSec = 100;
 		
 		double generalAccuracy;
 		if (accuracy) {
@@ -591,7 +591,8 @@ public class Minigun extends Weapon {
 		}
 		// Burning Hell only
 		else if (selectedTier5 != 2 && selectedOverclock == 2) {
-			// Burning Hell looks like it burns everything within 4m in a 20 degree arc in front of you at a rate of 30 heat/sec
+			// Burning Hell looks like it burns everything within 4m in a 20 degree arc in front of you at a rate of 100 heat/sec
+			// TODO: I would like for this damage to be reflected in additional target somehow, and then its AoE damage reflected in max damage too
 			return EnemyInformation.averageTimeToIgnite(burningHellHeatPerSec);
 		}
 		// Both Hot Bullets AND Burning Hell
@@ -610,7 +611,7 @@ public class Minigun extends Weapon {
 	
 	// Single-target calculations
 	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
-		double generalAccuracy, duration, directWeakpointDamage;
+		double generalAccuracy, shortDuration, longDuration, directWeakpointDamage;
 		
 		if (accuracy) {
 			generalAccuracy = estimatedAccuracy(false) / 100.0;
@@ -624,13 +625,27 @@ public class Minigun extends Weapon {
 			generalAccuracy = 0.5;
 		}
 		
-		// TODO: I'd like to factor in the Spin-up and Spin-down periods into the duration somehow. This would include adding Spin-up time at the front of both Burst and sustained,
-		// and then adding min(Spin-down, cooldown) to the end of sustained. if spin-down < cooldown, then spinup would have to be proportionally decreased for sustained
 		if (burst) {
-			duration = calculateFiringPeriod();
+			shortDuration = calculateFiringPeriod();
+			longDuration = getSpinupTime() + calculateFiringPeriod();
 		}
 		else {
-			duration = calculateFiringPeriod() + calculateCooldownPeriod();
+			double firingPeriod = calculateFiringPeriod();
+			double cooldownPeriod = calculateCooldownPeriod();
+			
+			shortDuration = firingPeriod + cooldownPeriod;
+			
+			double spindown = getSpindownTime();
+			double spinup;
+			if (cooldownPeriod < spindown) {
+				double fractionOfSpinupNeeded = 1.0 - (cooldownPeriod / spindown);
+				spinup = fractionOfSpinupNeeded * getSpinupTime();
+			}
+			else {
+				spinup = getSpinupTime();
+			}
+			
+			longDuration = firingPeriod + cooldownPeriod + spinup;
 		}
 		
 		int burstSize = (int) calculateMaxNumPelletsFiredWithoutOverheating();
@@ -654,7 +669,7 @@ public class Minigun extends Weapon {
 		if (selectedTier5 == 2 || selectedOverclock == 2) {
 			if (burst) {
 				double ignitionTime = calculateIgnitionTime(accuracy);
-				double burnDoTUptime = (duration - ignitionTime) / duration;
+				double burnDoTUptime = (shortDuration - ignitionTime) / shortDuration;
 				burnDPS = burnDoTUptime * DoTInformation.Burn_DPS;
 			}
 			else {
@@ -665,7 +680,7 @@ public class Minigun extends Weapon {
 		int pelletsThatHitWeakpoint = (int) Math.round(burstSize * weakpointAccuracy);
 		int pelletsThatHitTarget = (int) Math.round(burstSize * generalAccuracy) - pelletsThatHitWeakpoint;
 		
-		return (pelletsThatHitWeakpoint * directWeakpointDamage + pelletsThatHitTarget * directDamage) / duration + burnDPS;
+		return (pelletsThatHitWeakpoint * directWeakpointDamage + pelletsThatHitTarget * directDamage) / longDuration + burnDPS;
 	}
 	
 	private double calculateDamagePerBurst(boolean weakpointBonus) {

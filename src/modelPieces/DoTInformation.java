@@ -89,7 +89,7 @@ public class DoTInformation {
 			Engineer - Breach Cutter (Tier 5 Mod, Persistent Plasma, ???)
 	*/
 	public static double Plasma_DmgPerTick = 5;
-	public static double Plasma_TicksPerSec = 4;
+	public static double Plasma_TicksPerSec = 2 / (0.25 + 0.5);
 	public static double Plasma_DPS = Plasma_DmgPerTick * Plasma_TicksPerSec;
 	
 	// Cryo is another elemental damage type, but has no DoT associated. Instead, enemies who have their "cold" meter filled become frozen in place.

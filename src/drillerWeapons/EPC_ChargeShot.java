@@ -114,7 +114,7 @@ public class EPC_ChargeShot extends Weapon {
 		
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("Expanded Plasma Splash", "Greater damage radius for the charged projectile explosion.", 2, 0);
-		tier2[1] = new Mod("Overcharged Plasma Accelerator", "Increases the movement speed of EPC's normal projectiles.", 2, 1);
+		tier2[1] = new Mod("Overcharged Plasma Accelerator", "Increases the movement speed of EPC's normal projectiles.", 2, 1, false);
 		tier2[2] = new Mod("Reactive Shockwave", "More bang for the buck! Increases the damage done within the Area of Effect!", 2, 2);
 		
 		tier3 = new Mod[3];
@@ -324,7 +324,7 @@ public class EPC_ChargeShot extends Weapon {
 		}
 		
 		if (selectedOverclock == 3) {
-			toReturn += 5;
+			toReturn += 10;
 		}
 		
 		return toReturn;

@@ -52,8 +52,7 @@ public class SMG extends Weapon {
 		// Electrocution DoTs do not stack; it only refreshes the duration.
 		directDamage = 9;
 		electricDamage = 0; 
-		// Added onto the direct damage of each bullet; does not affect DoT damage. Affected by weakpoint bonuses and elemental weaknesses/resistances 
-		// Dreadnaughts resist 60% electric damage, Huuli Hoarders take 80% extra electric damage.
+		// Added onto the direct damage of each bullet; does not affect DoT damage. Affected by weakpoint bonuses and elemental weaknesses/resistances
 		magazineSize = 30;
 		carriedAmmo = 420;
 		rateOfFire = 11.0;
@@ -614,16 +613,16 @@ public class SMG extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		double unchangingBaseSpread = 62;
-		double changingBaseSpread = 43 * getBaseSpread();
-		double spreadVariance = 126;
-		double spreadPerShot = 14;
-		double spreadRecoverySpeed = 102.4121487;
-		double recoilPerShot = 42.54409477 * getRecoil();
+		double unchangingBaseSpread = 59.5;
+		double changingBaseSpread = 33.5 * getBaseSpread();
+		double spreadVariance = 36;
+		double spreadPerShot = 12;
+		double spreadRecoverySpeed = 72;
+		double recoilPerShot = 41 * getRecoil();
 		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
-		int[] recoilUpInterval = {1, 8};
+		int[] recoilUpInterval = {5, 64};
 		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		int[] recoilDownInterval = {1, 2};
+		int[] recoilDownInterval = {5, 16};
 		
 		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 

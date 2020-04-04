@@ -535,7 +535,6 @@ public class Revolver extends Weapon {
 		double neuroDPS = 0;
 		if (selectedTier5 == 1) {
 			// Neurotoxin Coating has a 50% chance to inflict the DoT
-			// TODO: should this be penalized by Accuracy?
 			if (burst) {
 				neuroDPS = calculateRNGDoTDPSPerMagazine(0.5, DoTInformation.Neuro_DPS, getMagazineSize());
 			}

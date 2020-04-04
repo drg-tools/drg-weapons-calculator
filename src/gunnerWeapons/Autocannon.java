@@ -453,7 +453,7 @@ public class Autocannon extends Weapon {
 		
 		toReturn[8] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 0);
 		
-		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier2 == 0);
+		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier2 == 0 || selectedOverclock == 4);
 		
 		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 0);
 		
@@ -643,9 +643,13 @@ public class Autocannon extends Weapon {
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		double crosshairHeightPixels, crosshairWidthPixels;
 		
-		// TODO: U29 added a bonus to Big Bertha
-		if (selectedTier2 == 0) {
-			// Base Spead = 70%
+		if (selectedTier2 == 0 && selectedOverclock == 4) {
+			// Base Spead = 50%
+			crosshairHeightPixels = 96;
+			crosshairWidthPixels = 206;
+		}
+		else if (selectedTier2 == 0 || selectedOverclock == 4) {
+			// Base Spread = 70%;
 			crosshairHeightPixels = 125;
 			crosshairWidthPixels = 279;
 		}
@@ -654,6 +658,7 @@ public class Autocannon extends Weapon {
 			crosshairHeightPixels = 162;
 			crosshairWidthPixels = 397;
 		}
+		
 		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, false, crosshairWidthPixels, crosshairHeightPixels);
 	}
 

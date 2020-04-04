@@ -356,7 +356,7 @@ public class EnemyInformation {
 			}
 		}
 		
-		return sum;
+		return MathUtils.round(sum, 4);
 	}
 	
 	// Cold per shot should be a negative number to indicate that the enemy's temperature is being decreased
