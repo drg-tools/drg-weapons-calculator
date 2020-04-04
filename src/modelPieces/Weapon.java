@@ -34,6 +34,7 @@ public abstract class Weapon extends Observable {
 	
 	protected double weakpointAccuracy;
 	protected double generalAccuracy;
+	protected double[] aoeEfficiency;
 	// Mobility, Damage Resist, Armor Break, Slow, Fear, Stun, Freeze
 	// Set them all to zero to start, then override values in child objects as necessary.
 	protected double[] utilityScores = {0,0,0,0,0,0,0};
@@ -152,6 +153,11 @@ public abstract class Weapon extends Observable {
 					break;
 				}
 			}
+			
+			if (currentlyDealsSplashDamage()) {
+				setAoEEfficiency();
+			}
+			
 			if (countObservers() > 0) {
 				setChanged();
 				notifyObservers();
@@ -174,6 +180,11 @@ public abstract class Weapon extends Observable {
 			else {
 				selectedOverclock = newSelection;
 			}
+			
+			if (currentlyDealsSplashDamage()) {
+				setAoEEfficiency();
+			}
+			
 			if (countObservers() > 0) {
 				setChanged();
 				notifyObservers();
@@ -223,6 +234,11 @@ public abstract class Weapon extends Observable {
 	protected void setBaselineStats() {
 		int oldT1 = selectedTier1, oldT2 = selectedTier2, oldT3 = selectedTier3, oldT4 = selectedTier4, oldT5 = selectedTier5, oldOC = selectedOverclock;
 		selectedTier1 = selectedTier2 = selectedTier3 = selectedTier4 = selectedTier5 = selectedOverclock = -1;
+		
+		if (currentlyDealsSplashDamage()) {
+			setAoEEfficiency();
+		}
+		
 		baselineCalculatedStats = new double[] {
 			calculateIdealBurstDPS(),
 			calculateIdealSustainedDPS(),
@@ -246,6 +262,12 @@ public abstract class Weapon extends Observable {
 	}
 	public double[] getBaselineStats() {
 		return baselineCalculatedStats;
+	}
+	
+	protected void setAoEEfficiency() {
+		// This is a placeholder method that only gets overwritten by weapons that deal splash damage (EPC_ChargedShot, GrenadeLauncher, Autocannon, and Revolver)
+		// It just exists here so that Weapon can reference the method when it changes mods or OCs
+		aoeEfficiency = new double[3];
 	}
 	
 	/****************************************************************************************
@@ -375,18 +397,20 @@ public abstract class Weapon extends Observable {
 		toReturn[numRadiiToTest] = new double[3];
 		toReturn[numRadiiToTest][0] = radius;
 		toReturn[numRadiiToTest][1] = falloffEnd;
-		toReturn[numRadiiToTest][2] = calculateNumGlyphidsInRadius(radius) - totalNumGlyphids;
+		currentGlyphids = calculateNumGlyphidsInRadius(radius) - totalNumGlyphids;
+		toReturn[numRadiiToTest][2] = currentGlyphids;
+		totalNumGlyphids += currentGlyphids;
 		
 		toReturn[0] = new double[3];
 		toReturn[0][0] = radius;
-		toReturn[0][1] = totalNumGlyphids;
+		toReturn[0][2] = totalNumGlyphids;
 		
 		double avgDmg = 0.0;
 		for (int i = 1; i < toReturn.length; i++) {
 			//System.out.println(toReturn[i][0] + " " + toReturn[i][1] + " " + toReturn[i][2] + " ");
 			avgDmg += toReturn[i][1] * toReturn[i][2];
 		}
-		toReturn[0][2] = avgDmg / totalNumGlyphids;
+		toReturn[0][1] = avgDmg / totalNumGlyphids;
 		
 		return toReturn[0];
 	}

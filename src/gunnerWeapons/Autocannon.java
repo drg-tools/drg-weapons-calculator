@@ -265,6 +265,9 @@ public class Autocannon extends Weapon {
 				}
 			}
 			
+			// Re-set AoE Efficiency
+			setAoEEfficiency();
+			
 			if (countObservers() > 0) {
 				setChanged();
 				notifyObservers();
@@ -433,7 +436,7 @@ public class Autocannon extends Weapon {
 		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), areaDamageModified);
 		
 		boolean aoeRadiusModified = selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 2;
-		toReturn[2] = new StatsRow("Effect Radius:", getAoERadius(), aoeRadiusModified);
+		toReturn[2] = new StatsRow("Effect Radius:", aoeEfficiency[0], aoeRadiusModified);
 		
 		toReturn[3] = new StatsRow("Magazine Size:", getMagazineSize(), selectedTier1 == 1 || selectedOverclock == 4);
 		
@@ -464,6 +467,11 @@ public class Autocannon extends Weapon {
 	@Override
 	public boolean currentlyDealsSplashDamage() {
 		return true;
+	}
+	
+	protected void setAoEEfficiency() {
+		double radius = getAoERadius();
+		aoeEfficiency =  calculateAverageAreaDamage(radius, radius/2.0, 0.75, 0.5);
 	}
 	
 	// Single-target calculations
@@ -522,11 +530,19 @@ public class Autocannon extends Weapon {
 	private double calculateDamagePerMagazine(boolean weakpointBonus, int numTargets) {
 		// TODO: I'd like to refactor out this method if possible
 		double damagePerBullet;
-		if (weakpointBonus) {
-			damagePerBullet = increaseBulletDamageForWeakpoints(getDirectDamage()) + numTargets * getAreaDamage();
+		double averageAreaDamage;
+		if (numTargets > 1) {
+			averageAreaDamage = aoeEfficiency[1];
 		}
 		else {
-			damagePerBullet = getDirectDamage() + numTargets * getAreaDamage();
+			averageAreaDamage = 1.0;
+		}
+		
+		if (weakpointBonus) {
+			damagePerBullet = increaseBulletDamageForWeakpoints(getDirectDamage()) + numTargets * getAreaDamage() * averageAreaDamage;
+		}
+		else {
+			damagePerBullet = getDirectDamage() + numTargets * getAreaDamage() * averageAreaDamage;
 		}
 		double magSize = (double) getMagazineSize();
 		double damageMultiplier = 1.0;
@@ -559,7 +575,6 @@ public class Autocannon extends Weapon {
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		// TODO: multiply this by its AoE Efficiency percentage
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getAverageRateOfFire()) + getReloadTime();
 		double magSize = (double) getMagazineSize();
 		double damageMultiplier = 1.0;
@@ -567,7 +582,7 @@ public class Autocannon extends Weapon {
 			double numBulletsRampup = (double) getNumBulletsRampup();
 			damageMultiplier = (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
 		}
-		double areaDamagePerMag = getAreaDamage() * magSize * damageMultiplier;
+		double areaDamagePerMag = getAreaDamage() * aoeEfficiency[1] * magSize * damageMultiplier;
 		
 		double sustainedAdditionalDPS = areaDamagePerMag / timeToFireMagazineAndReload;
 		
@@ -581,13 +596,13 @@ public class Autocannon extends Weapon {
 	@Override
 	public double calculateMaxMultiTargetDamage() {
 		// TODO: refactor this
-		int numTargets = calculateMaxNumTargets();
+		int numTargets = (int) aoeEfficiency[2];
 		double damagePerMagazine = calculateDamagePerMagazine(false, numTargets);
 		double numberOfMagazines = numMagazines(getCarriedAmmo(), getMagazineSize());
 		
 		double neurotoxinDoTTotalDamage = 0;
 		if (selectedOverclock == 5) {
-			double timeBeforeNeuroProc = Math.round(1.0 / 0.2) / getAverageRateOfFire();
+			double timeBeforeNeuroProc = MathUtils.meanRolls(0.2) / getAverageRateOfFire();
 			double neurotoxinDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeNeuroProc, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
 			
 			double estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
@@ -600,12 +615,7 @@ public class Autocannon extends Weapon {
 
 	@Override
 	public int calculateMaxNumTargets() {
-		
-		double radius = getAoERadius();
-		double[] foo = calculateAverageAreaDamage(radius, radius/2.0, 0.75, 0.5);
-		//System.out.println(foo[0] + " " + foo[1] + " " + foo[2]);
-		
-		return calculateNumGlyphidsInRadius(getAoERadius());
+		return (int) aoeEfficiency[2];
 	}
 
 	@Override

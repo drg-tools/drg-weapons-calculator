@@ -475,6 +475,8 @@ public class Revolver extends Weapon {
 	
 	@Override
 	public boolean currentlyDealsSplashDamage() {
+		// It appears that Revolver doesn't have any damage falloff within its 1.5m radius, so its AoE efficiency would be [1.5, 1.0, 5].
+		// However, in order to save a few cycles every auto-calculate, I'm choosing not to implement that as it has no mathematical effect on the outputs.
 		return selectedTier3 == 1;
 	}
 	

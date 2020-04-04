@@ -290,6 +290,9 @@ public class EPC_ChargeShot extends Weapon {
 				}
 			}
 			
+			// Re-set AoE Efficiency
+			setAoEEfficiency();
+			
 			if (countObservers() > 0) {
 				setChanged();
 				notifyObservers();
@@ -545,7 +548,7 @@ public class EPC_ChargeShot extends Weapon {
 		boolean chargedAreaDamageModified = selectedTier2 == 2 || selectedTier5 == 0 || selectedTier5 == 1 || selectedOverclock == 5;
 		toReturn[5] = new StatsRow("Charged Shot Area Damage:", getChargedAreaDamage(), chargedAreaDamageModified);
 		
-		toReturn[6] = new StatsRow("Charged Shot AoE Radius:", getChargedAoERadius(), selectedTier2 == 0);
+		toReturn[6] = new StatsRow("Charged Shot AoE Radius:", aoeEfficiency[0], selectedTier2 == 0);
 		
 		boolean windupModified = selectedTier3 == 1 || selectedTier5 == 0 || selectedOverclock == 0 || selectedOverclock == 4;
 		toReturn[7] = new StatsRow("Charged Shot Windup:", getChargedShotWindup(), windupModified);
@@ -577,6 +580,11 @@ public class EPC_ChargeShot extends Weapon {
 	public boolean currentlyDealsSplashDamage() {
 		// Because this only models the charged shots of the EPC, it will always do splash damage.
 		return true;
+	}
+	
+	protected void setAoEEfficiency() {
+		double radius = getChargedAoERadius();
+		aoeEfficiency = calculateAverageAreaDamage(radius, radius*0.75, 5.0/6.0, 5.0/6.0);
 	}
 
 	// Single-target calculations
@@ -625,19 +633,18 @@ public class EPC_ChargeShot extends Weapon {
 	// Multi-target calculations
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		// TODO: reduce this by its AoE Efficiency percentage
 		if (selectedOverclock == 5) {
-			return getChargedAreaDamage() * getRateOfFire() + DoTInformation.Plasma_DPS;
+			return getChargedAreaDamage() * aoeEfficiency[1] * getRateOfFire() + DoTInformation.Plasma_DPS;
 		}
 		else {
-			return getChargedAreaDamage() * getRateOfFire();
+			return getChargedAreaDamage() * aoeEfficiency[1] * getRateOfFire();
 		}
 	}
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
 		int numberOfChargedShots = (int) Math.ceil(getBatterySize() / getAmmoPerChargedShot());
-		double baseDamage = numberOfChargedShots * (getChargedDirectDamage() + calculateMaxNumTargets() * getChargedAreaDamage());
+		double baseDamage = numberOfChargedShots * (getChargedDirectDamage() + getChargedAreaDamage() * aoeEfficiency[1] * aoeEfficiency[2]);
 		if (selectedOverclock == 5) {
 			/*
 				Since Persistent Plasma is a DoT that last 6 seconds, but doesn't guarantee to hit every target for that full 6 seconds, 
@@ -645,7 +652,7 @@ public class EPC_ChargeShot extends Weapon {
 				The divide by 3 is to simulate the fact that the enemies are not stationary within the DoT field, and will move out of it before 
 				the duration expires.
 			*/
-			double persistentPlasmaDamage = DoTInformation.Plasma_DPS * calculateFiringDuration() * calculateMaxNumTargets() / 3.0;
+			double persistentPlasmaDamage = DoTInformation.Plasma_DPS * calculateFiringDuration() * aoeEfficiency[2] / 3.0;
 			return baseDamage + persistentPlasmaDamage;
 		}
 		else {
@@ -655,12 +662,7 @@ public class EPC_ChargeShot extends Weapon {
 
 	@Override
 	public int calculateMaxNumTargets() {
-		
-		double radius = getChargedAoERadius();
-		double[] foo = calculateAverageAreaDamage(radius, radius*0.75, 5.0/6.0, 5.0/6.0);
-		//System.out.println(foo[0] + " " + foo[1] + " " + foo[2]);
-		
-		return calculateNumGlyphidsInRadius(getChargedAoERadius());
+		return (int) aoeEfficiency[2];
 	}
 
 	@Override

@@ -624,6 +624,8 @@ public class Minigun extends Weapon {
 			generalAccuracy = 0.5;
 		}
 		
+		// TODO: I'd like to factor in the Spin-up and Spin-down periods into the duration somehow. This would include adding Spin-up time at the front of both Burst and sustained,
+		// and then adding min(Spin-down, cooldown) to the end of sustained. if spin-down < cooldown, then spinup would have to be proportionally decreased for sustained
 		if (burst) {
 			duration = calculateFiringPeriod();
 		}

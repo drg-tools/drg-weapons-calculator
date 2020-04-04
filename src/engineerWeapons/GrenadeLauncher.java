@@ -265,6 +265,9 @@ public class GrenadeLauncher extends Weapon {
 				}
 			}
 			
+			// Re-set AoE Efficiency
+			setAoEEfficiency();
+			
 			if (countObservers() > 0) {
 				setChanged();
 				notifyObservers();
@@ -436,7 +439,7 @@ public class GrenadeLauncher extends Weapon {
 		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), areaDamageModified);
 		
 		boolean aoeRadiusModified = selectedTier1 == 0 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[2] = new StatsRow("AoE Radius:", getAoERadius(), aoeRadiusModified);
+		toReturn[2] = new StatsRow("AoE Radius:", aoeEfficiency[0], aoeRadiusModified);
 		
 		toReturn[3] = new StatsRow("Magazine Size:", magazineSize, false);
 		
@@ -467,6 +470,11 @@ public class GrenadeLauncher extends Weapon {
 	@Override
 	public boolean currentlyDealsSplashDamage() {
 		return true;
+	}
+	
+	protected void setAoEEfficiency() {
+		double radius = getAoERadius();
+		aoeEfficiency = calculateAverageAreaDamage(radius, radius/2.0, 0.75, 0.33);
 	}
 	
 	private double calculateSingleTargetDPS(boolean burst, boolean weakpoint) {
@@ -532,8 +540,7 @@ public class GrenadeLauncher extends Weapon {
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		// TODO: reduce this by its AoE efficiency percentage
-		double totalDPS = getAreaDamage() / reloadTime;
+		double totalDPS = getAreaDamage() * aoeEfficiency[1] / reloadTime;
 		if (selectedTier3 == 0) {
 			totalDPS += DoTInformation.Burn_DPS;
 		}
@@ -570,17 +577,12 @@ public class GrenadeLauncher extends Weapon {
 		}
 		
 		int numShots = 1 + getCarriedAmmo();
-		return numShots * (getDirectDamage() + (getAreaDamage()) * calculateMaxNumTargets()) + burnDoTTotalDamage + radiationDoTTotalDamage;
+		return numShots * (getDirectDamage() + getAreaDamage() * aoeEfficiency[1] * aoeEfficiency[2]) + burnDoTTotalDamage + radiationDoTTotalDamage;
 	}
 
 	@Override
 	public int calculateMaxNumTargets() {
-		
-		double radius = getAoERadius();
-		double[] foo = calculateAverageAreaDamage(radius, radius/2.0, 0.75, 0.33);
-		//System.out.println(foo[0] + " " + foo[1] + " " + foo[2]);
-		
-		return calculateNumGlyphidsInRadius(getAoERadius());
+		return (int) aoeEfficiency[2];
 	}
 
 	@Override
