@@ -26,8 +26,6 @@ public class SMG extends Weapon {
 	private int carriedAmmo;
 	private double rateOfFire;
 	private double reloadTime;
-	private double baseSpread;
-	private double weakpointBonus;
 	
 	/****************************************************************************************
 	* Constructors
@@ -57,8 +55,6 @@ public class SMG extends Weapon {
 		carriedAmmo = 420;
 		rateOfFire = 11.0;
 		reloadTime = 2.0;
-		baseSpread = 1.0;
-		weakpointBonus = 0.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -389,7 +385,7 @@ public class SMG extends Weapon {
 		return toReturn;
 	}
 	private double getBaseSpread() {
-		double toReturn = baseSpread;
+		double toReturn = 1.0;
 
 		if (selectedOverclock == 0) {
 			toReturn *= 0.8;
@@ -410,7 +406,7 @@ public class SMG extends Weapon {
 		return toReturn;
 	}
 	private double getWeakpointBonus() {
-		double toReturn = weakpointBonus;
+		double toReturn = 0.0;
 		
 		if (selectedTier4 == 0) {
 			toReturn += 0.3;
@@ -421,36 +417,33 @@ public class SMG extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[14];
+		StatsRow[] toReturn = new StatsRow[11];
 		
 		toReturn[0] = new StatsRow("Electrocution DoT Chance:", convertDoubleToPercentage(getElectrocutionDoTChance()), selectedTier1 == 1 || selectedOverclock == 5);
-		toReturn[1] = new StatsRow("Electrocution DoT Dmg/Tick:", DoTInformation.Electro_DmgPerTick, false);
-		toReturn[2] = new StatsRow("Electrocution DoT Ticks/Sec:", DoTInformation.Electro_TicksPerSec, false);
-		toReturn[3] = new StatsRow("Electrocution DoT Duration:", DoTInformation.Electro_SecsDuration, false);
-		double electrocuteTotalDamage = DoTInformation.Electro_DmgPerTick * DoTInformation.Electro_TicksPerSec * DoTInformation.Electro_SecsDuration;
-		toReturn[4] = new StatsRow("Electrocution DoT Total Dmg:", electrocuteTotalDamage, false);
+		toReturn[1] = new StatsRow("Electrocution DoT DPS:", DoTInformation.Electro_DPS, false);
 		
 		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 0 || selectedOverclock == 3 || selectedOverclock == 5;
-		toReturn[5] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
+		toReturn[2] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
-		toReturn[6] = new StatsRow("Electric Damage:", getElectricDamage(), selectedOverclock == 2);
+		toReturn[3] = new StatsRow("Electric Damage:", getElectricDamage(), selectedOverclock == 2);
 		
 		boolean magSizeModified = selectedTier2 == 0 || selectedTier5 == 0 || selectedOverclock == 0;
-		toReturn[7] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
+		toReturn[4] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier1 == 2 || selectedTier3 == 1 || selectedOverclock == 3 || selectedOverclock == 4;
-		toReturn[8] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
+		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
 		boolean RoFModified = selectedTier2 == 2 || (selectedOverclock > 0 && selectedOverclock < 5);
-		toReturn[9] = new StatsRow("Rate of Fire:", getRateOfFire(), RoFModified);
+		toReturn[6] = new StatsRow("Rate of Fire:", getRateOfFire(), RoFModified);
 		
-		toReturn[10] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 1);
+		toReturn[7] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 1);
 		
-		toReturn[11] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedOverclock == 0 || selectedOverclock == 2);
+		boolean baseSpreadModified = selectedOverclock == 0 || selectedOverclock == 2;
+		toReturn[8] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
 		
-		toReturn[12] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1);
+		toReturn[9] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1, selectedTier2 == 1);
 		
-		toReturn[13] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[10] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0, selectedTier4 == 0);
 		
 		return toReturn;
 	}
