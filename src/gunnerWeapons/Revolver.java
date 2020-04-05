@@ -20,19 +20,13 @@ public class Revolver extends Weapon {
 	****************************************************************************************/
 	
 	private double directDamage;
-	private int areaDamage;
-	private double aoeRadius;
 	private int carriedAmmo;
 	private int magazineSize;
 	private double rateOfFire;
 	private double reloadTime;
 	private double stunChance;
 	private double stunDuration;
-	private int maxPenetrations;
 	private double weakpointBonus;
-	private double baseSpread;
-	private double spreadPerShot;
-	private double recoil;
 	
 	/****************************************************************************************
 	* Constructors
@@ -54,19 +48,13 @@ public class Revolver extends Weapon {
 		
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 50.0;
-		areaDamage = 0;
-		aoeRadius = 0.0;  // meters
 		carriedAmmo = 28;
 		magazineSize = 4;
 		rateOfFire = 2.0;  // bullets per second
 		reloadTime = 2.0;  // seconds
 		stunChance = 0.5;
 		stunDuration = 1.5;  // seconds
-		maxPenetrations = 0;
 		weakpointBonus = 0.15;
-		baseSpread = 1.0;
-		spreadPerShot = 1.0;
-		recoil = 1.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -316,18 +304,20 @@ public class Revolver extends Weapon {
 		return toReturn;
 	}
 	private int getAreaDamage() {
-		int toReturn = areaDamage;
 		if (selectedTier3 == 1) {
-			toReturn += 30;
+			return 30;
 		}
-		return toReturn;
+		else {
+			return 0;
+		}
 	}
 	private double getAoERadius() {
-		double toReturn = aoeRadius;
 		if (selectedTier3 == 1) {
-			toReturn += 1.5;
+			return 1.5;
 		}
-		return toReturn;
+		else {
+			return 0;
+		}
 	}
 	private int getCarriedAmmo() {
 		int toReturn = carriedAmmo;
@@ -370,11 +360,12 @@ public class Revolver extends Weapon {
 		return toReturn;
 	}
 	private int getMaxPenetrations() {
-		int toReturn = maxPenetrations;
 		if (selectedTier3 == 0) {
-			toReturn += 3;
+			return 3;
 		}
-		return toReturn;
+		else {
+			return 0;
+		}
 	}
 	private int getMaxRicochets() {
 		if (selectedOverclock == 1 || selectedOverclock == 5) {
@@ -392,18 +383,18 @@ public class Revolver extends Weapon {
 		return toReturn;
 	}
 	private double getBaseSpread() {
-		double toReturn = baseSpread;
+		double toReturn = 1.0;
 		if (selectedTier1 == 1) {
 			toReturn -= 0.7;
 		}
 		
 		if (selectedOverclock == 3) {
-			toReturn += 0.15;
+			toReturn *= 1.5;
 		}
 		return toReturn;
 	}
 	private double getSpreadPerShot() {
-		double toReturn = spreadPerShot;
+		double toReturn = 1.0;
 		if (selectedTier2 == 1) {
 			toReturn -= 0.8;
 		}
@@ -413,7 +404,7 @@ public class Revolver extends Weapon {
 		return toReturn;
 	}
 	private double getRecoil() {
-		double toReturn = recoil;
+		double toReturn = 1.0;
 		
 		// Additive first
 		if (selectedOverclock == 2 || selectedOverclock == 4) {
@@ -453,11 +444,14 @@ public class Revolver extends Weapon {
 		
 		toReturn[8] = new StatsRow("Stun duration:", stunDuration, false);
 		
-		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier1 == 1 || selectedOverclock == 3);
+		boolean baseSpreadModified = selectedTier1 == 1 || selectedOverclock == 3;
+		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
 		
-		toReturn[10] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier2 == 1 || selectedOverclock == 4);
+		boolean spreadPerShotModified = selectedTier2 == 1 || selectedOverclock == 4;
+		toReturn[10] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), spreadPerShotModified, spreadPerShotModified);
 		
-		toReturn[11] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 4);
+		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 4;
+		toReturn[11] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
 		
 		toReturn[12] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier3 == 2);
 		
