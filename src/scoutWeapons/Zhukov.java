@@ -26,10 +26,6 @@ public class Zhukov extends Weapon {
 	private int magazineSize;
 	private double rateOfFire;
 	private double reloadTime;
-	private double baseSpread;
-	private int maxPenetrations;
-	private double weakpointBonus;
-	private double movespeedWhileFiring;
 	
 	/****************************************************************************************
 	* Constructors
@@ -55,10 +51,6 @@ public class Zhukov extends Weapon {
 		magazineSize = 50;  // Really 25
 		rateOfFire = 30.0;  // Really 15
 		reloadTime = 1.8;
-		baseSpread = 1.0;
-		maxPenetrations = 0;
-		weakpointBonus = 0.0;
-		movespeedWhileFiring = 1.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -366,7 +358,7 @@ public class Zhukov extends Weapon {
 		return toReturn;
 	}
 	private double getBaseSpread() {
-		double toReturn = baseSpread;
+		double toReturn = 1.0;
 		
 		if (selectedTier3 == 1) {
 			toReturn *= 0.5;
@@ -379,30 +371,27 @@ public class Zhukov extends Weapon {
 		return toReturn;
 	}
 	private int getMaxPenetrations() {
-		int toReturn = maxPenetrations;
-		
 		if (selectedTier4 == 0) {
-			toReturn += 1;
+			return 1;
 		}
-		
-		return toReturn;
+		else {
+			return 0;
+		}
 	}
 	private double getWeakpointBonus() {
-		double toReturn = weakpointBonus;
-		
-		if (selectedTier4 == 1) {
-			toReturn += 0.3;
-		}
-		
 		if (selectedOverclock == 4) {
 			// Since this removes the Zhukov's ability to get weakpoint bonus damage, return a -100% to symbolize it.
 			return -1.0;
 		}
-		
-		return toReturn;
+		else if (selectedTier4 == 1){
+			return 0.3;
+		}
+		else {
+			return 0;
+		}
 	}
 	private double getMovespeedWhileFiring() {
-		double modifier = movespeedWhileFiring;
+		double modifier = 1.0;
 		
 		if (selectedOverclock == 4) {
 			modifier -= 0.5;
@@ -439,11 +428,12 @@ public class Zhukov extends Weapon {
 		boolean weakpointModified = selectedTier4 == 1 || selectedOverclock == 4;
 		toReturn[6] = new StatsRow("Weakpoint Bonus:", sign + convertDoubleToPercentage(getWeakpointBonus()), weakpointModified, weakpointModified);
 		
-		toReturn[7] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier3 == 1 || selectedOverclock == 4);
+		boolean baseSpreadModified = selectedTier3 == 1 || selectedOverclock == 4;
+		toReturn[7] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
 		
 		toReturn[8] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0, selectedTier4 == 0);
 		
-		toReturn[9] = new StatsRow("Movespeed While Firing: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 4);
+		toReturn[9] = new StatsRow("Movespeed While Firing: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 4, selectedOverclock == 4);
 		
 		return toReturn;
 	}
@@ -615,7 +605,7 @@ public class Zhukov extends Weapon {
 	@Override
 	public double utilityScore() {
 		// OC "Gas Recycling" reduces Scout's movement speed
-		utilityScores[0] = (getMovespeedWhileFiring() - MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
+		utilityScores[0] = (getMovespeedWhileFiring() - MathUtils.round(DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
 		
 		// Mod Tier 5 "Get In, Get Out" gives 100% movement speed increase for 2 sec after reloading empty clips
 		if (selectedTier5 == 1) {
