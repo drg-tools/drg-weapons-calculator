@@ -582,9 +582,9 @@ public class Revolver extends Weapon {
 		*/
 		double sustainedAdditionalDPS;
 		
-		// If Super Blowthrough Rounds is equipped, then the riccochets from either "Chain Hit" or "Magic Bullets" won't affect the additional DPS
+		// If Super Blowthrough Rounds is equipped, then the ricochets from either "Chain Hit" or "Magic Bullets" won't affect the additional DPS
 		if (selectedTier3 == 0) {
-			// Because Super Blowthrough Rounds are just the same damage to another enemy behind the primary target (or from a riccochet), return Ideal Sustained DPS
+			// Because Super Blowthrough Rounds are just the same damage to another enemy behind the primary target (or from a ricochet), return Ideal Sustained DPS
 			return calculateIdealSustainedDPS();
 		}
 		
@@ -621,7 +621,7 @@ public class Revolver extends Weapon {
 		
 		// Only "Magic Bullets"
 		else if (selectedOverclock == 5 && selectedTier3 != 0 && selectedTier3 != 1) {
-			// "Magic Bullets" mean that any bullet that MISSES the primary target will try to automatically riccochet to a nearby enemy.
+			// "Magic Bullets" mean that any bullet that MISSES the primary target will try to automatically ricochet to a nearby enemy.
 			// This can be modeled by returning (1 - Accuracy) * Ideal Sustained DPS
 			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
 			sustainedAdditionalDPS = (1.0 - estimatedAccuracy(false)/100.0) * calculateDamagePerMagazine(false, 1) / timeToFireMagazineAndReload;
@@ -635,7 +635,7 @@ public class Revolver extends Weapon {
 		
 		// "Magic Bullets" + Explosive
 		else if (selectedOverclock == 5 && selectedTier3 == 1) {
-			// This combination is the hardest to model: when a missed bullet riccochets, it still deals an explosion of damage on the ground before redirecting to the new target. This means that if you shoot the ground next to an
+			// This combination is the hardest to model: when a missed bullet ricochets, it still deals an explosion of damage on the ground before redirecting to the new target. This means that if you shoot the ground next to an
 			// enemy with this combination, they'll take the Area Damage, followed by the Direct + Area Damage of the bullet after it redirects.
 			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
 			sustainedAdditionalDPS = getMagazineSize() * (getDirectDamage() + 2 * getAreaDamage()) / timeToFireMagazineAndReload;
@@ -657,7 +657,7 @@ public class Revolver extends Weapon {
 		double damagePerMagazine = calculateDamagePerMagazine(false, numberOfTargets);
 		double numberOfMagazines = numMagazines(getCarriedAmmo(), getMagazineSize());
 		
-		double riccochetTotalDamage = 0;
+		double ricochetTotalDamage = 0;
 		// If Blowthrough Rounds is selected, multiply the dmg/mag times the total num targets hit
 		if (selectedTier3 == 0) {
 			damagePerMagazine *= numberOfTargets;
@@ -665,8 +665,8 @@ public class Revolver extends Weapon {
 		else if (selectedOverclock == 1 && selectedTier3 != 1) {
 			// Only Chain Hit
 			double ricochetProbability = 0.33 * EnemyInformation.probabilityBulletWillHitWeakpoint();
-			double totalNumRiccochets = Math.round(ricochetProbability * (getMagazineSize() + getCarriedAmmo()));
-			riccochetTotalDamage = totalNumRiccochets * getDirectDamage();
+			double totalNumRicochets = Math.round(ricochetProbability * (getMagazineSize() + getCarriedAmmo()));
+			ricochetTotalDamage = totalNumRicochets * getDirectDamage();
 		}
 		
 		double neurotoxinDoTTotalDamage = 0;
@@ -679,7 +679,7 @@ public class Revolver extends Weapon {
 			neurotoxinDoTTotalDamage = neurotoxinDoTTotalDamagePerEnemy * estimatedNumEnemiesKilled;
 		}
 
-		return damagePerMagazine * numberOfMagazines + riccochetTotalDamage + neurotoxinDoTTotalDamage;
+		return damagePerMagazine * numberOfMagazines + ricochetTotalDamage + neurotoxinDoTTotalDamage;
 	}
 
 	@Override
@@ -688,7 +688,7 @@ public class Revolver extends Weapon {
 			There are 8 combinations of ways for the Revolver to hit an additional target, based on various combinations of
 			the Overclocks "Chain Hit" and "Magic Bullets", and the Tier 3 Mods "Super Blowthrough Rounds" and "Explosive Rounds"
 		*/
-		// If Super Blowthrough Rounds is equipped, then the riccochets from either "Chain Hit" or "Magic Bullets" won't affect the additional targets
+		// If Super Blowthrough Rounds is equipped, then the ricochets from either "Chain Hit" or "Magic Bullets" won't affect the additional targets
 		if (selectedTier3 == 0) {
 			return 1 + getMaxPenetrations();
 		}
@@ -713,8 +713,8 @@ public class Revolver extends Weapon {
 		
 		// "Magic Bullets" + Explosive
 		else if (selectedOverclock == 5 && selectedTier3 == 1) {
-			// Because the bullet has to first MISS a target, but the riccochet explodes, this is effectively (2*numTargets - 1) - overlap so that the primary target doesn't get double-counted
-			// I'm choosing to model the overlapping Grunts as 5 instead of 3, because it's likely that the bullet lands near the center target that it riccochets to so more of the Grunts would 
+			// Because the bullet has to first MISS a target, but the ricochet explodes, this is effectively (2*numTargets - 1) - overlap so that the primary target doesn't get double-counted
+			// I'm choosing to model the overlapping Grunts as 5 instead of 3, because it's likely that the bullet lands near the center target that it ricochets to so more of the Grunts would 
 			// be hit by both explosions.
 			return (2 * calculateNumGlyphidsInRadius(getAoERadius()) - 1) - 5;
 		}

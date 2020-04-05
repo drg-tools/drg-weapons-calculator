@@ -822,7 +822,7 @@ public class Minigun extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		// TODO: Bullet Hell guarantees riccochets into enemies. I need to figure out how to model what percentage hit the intended enemy, and then edit calculateIgnitionTime() and calculateSingleTargetDPS() accordingly.
+		// TODO: Bullet Hell guarantees ricochets into enemies. I need to figure out how to model what percentage hit the intended enemy, and then edit calculateIgnitionTime() and calculateSingleTargetDPS() accordingly.
 		
 		// I'm choosing to model Minigun as if it has no recoil. Although it does, its so negligible that it would have no effect.
 		// Because it's being modeled without recoil, and its crosshair gets smaller as it fires, I'm making a quick-and-dirty estimate here instead of using AccuracyEstimator.
