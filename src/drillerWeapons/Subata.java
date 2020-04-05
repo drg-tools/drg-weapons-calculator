@@ -275,7 +275,7 @@ public class Subata extends Weapon {
 		return "Driller";
 	}
 	public String getSimpleName() {
-		return "Subatat";
+		return "Subata";
 	}
 	
 	/****************************************************************************************

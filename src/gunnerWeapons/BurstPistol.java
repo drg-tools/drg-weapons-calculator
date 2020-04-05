@@ -30,7 +30,6 @@ public class BurstPistol extends Weapon {
 	private double spreadPerShot;
 	private double recoil;
 	private double weakpointBonus;
-	private int burstBonusDamage;
 	private int burstStunDuration;
 	
 	/****************************************************************************************
