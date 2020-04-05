@@ -24,11 +24,6 @@ public class Subata extends Weapon {
 	private double rateOfFire;
 	private double reloadTime;
 	private double weakpointBonus;
-	private double baseSpread;
-	private double spreadPerShot;
-	private double recoil;
-	private double stunChance;
-	private int stunDuration;
 	
 	/****************************************************************************************
 	* Constructors
@@ -55,11 +50,6 @@ public class Subata extends Weapon {
 		rateOfFire = 8.0;
 		reloadTime = 1.9;
 		weakpointBonus = 0.2;
-		baseSpread = 1.0;
-		spreadPerShot = 1.0;
-		recoil = 1.0;
-		stunChance = 0.0;
-		stunDuration = 0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -383,7 +373,7 @@ public class Subata extends Weapon {
 		return toReturn;
 	}
 	private double getBaseSpread() {
-		double toReturn = baseSpread;
+		double toReturn = 1.0;
 		
 		// Additive bonuses first
 		if (selectedOverclock == 3) {
@@ -398,7 +388,7 @@ public class Subata extends Weapon {
 		return toReturn;
 	}
 	private double getSpreadPerShot() {
-		double toReturn = spreadPerShot;
+		double toReturn = 1.0;
 		
 		if (selectedTier3 == 1) {
 			toReturn -= 0.2;
@@ -407,7 +397,7 @@ public class Subata extends Weapon {
 		return toReturn;
 	}
 	private double getRecoil() {
-		double toReturn = recoil;
+		double toReturn = 1.0;
 		
 		if (selectedTier3 == 1) {
 			toReturn *= 0.75;
@@ -420,22 +410,20 @@ public class Subata extends Weapon {
 		return toReturn;
 	}
 	private double getStunChance() {
-		double toReturn = stunChance;
-		
 		if (selectedOverclock == 5) {
-			toReturn += 0.5;
+			return 0.5;
 		}
-		
-		return toReturn;
+		else {
+			return 0;
+		}
 	}
 	private int getStunDuration() {
-		int toReturn = stunDuration;
-		
 		if (selectedOverclock == 5) {
-			toReturn += 5;
+			return 5;
 		}
-		
-		return toReturn;
+		else {
+			return 0;
+		}
 	}
 	
 	@Override
@@ -446,8 +434,7 @@ public class Subata extends Weapon {
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
 		// This stat only applies to OC "Explosive Reload"
-		boolean explosiveReloadEquipped = selectedOverclock == 4;
-		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), explosiveReloadEquipped, explosiveReloadEquipped);
+		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), selectedOverclock == 4, selectedOverclock == 4);
 		
 		boolean magSizeModified = selectedTier1 == 1 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
@@ -461,11 +448,13 @@ public class Subata extends Weapon {
 		
 		toReturn[6] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0);
 		
-		toReturn[7] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier1 == 0 || selectedOverclock == 3);
+		boolean baseSpreadModified = selectedTier1 == 0 || selectedOverclock == 3;
+		toReturn[7] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
 		
-		toReturn[8] = new StatsRow("Spread Per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier3 == 1);
+		toReturn[8] = new StatsRow("Spread Per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier3 == 1, selectedTier3 == 1);
 		
-		toReturn[9] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedOverclock == 3 || selectedTier3 == 1);
+		boolean recoilModified = selectedOverclock == 3 || selectedTier3 == 1;
+		toReturn[9] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
 		
 		// These two stats only apply to OC "Tranquilizer Rounds"
 		boolean tranqRoundsEquipped = selectedOverclock == 5;
