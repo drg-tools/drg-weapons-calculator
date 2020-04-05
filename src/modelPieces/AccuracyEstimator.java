@@ -1,5 +1,9 @@
 package modelPieces;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Set;
+
 import utilities.MathUtils;
 
 public class AccuracyEstimator {
@@ -44,103 +48,251 @@ public class AccuracyEstimator {
 		return baseSpreadRads + effectiveChangeInSpread;
 	}
 	
-	private static boolean bulletFiredOnThisTick(int thisTick, int numBulletsFiredSoFar, int burstSize, int ticksBetweenBursts, int ticksBetweenBulletsDuringBurst) {
-		if (burstSize > 1) {
-			int numberOfFullBurstsFired = numBulletsFiredSoFar / burstSize;  // Using int division truncation as a stand-in for the Math.floor function
-			int numberOfBulletsFiredDuringThisBurst = numBulletsFiredSoFar % burstSize;
-			int numBurstDelays = numberOfFullBurstsFired * (burstSize - 1);
-			thisTick -= numBurstDelays * ticksBetweenBulletsDuringBurst + (numberOfFullBurstsFired - 1) * ticksBetweenBursts;
-			
-			if (numberOfBulletsFiredDuringThisBurst > 0) {
-				thisTick -= ticksBetweenBursts + (numberOfBulletsFiredDuringThisBurst - 1) * ticksBetweenBulletsDuringBurst;
-				return thisTick % ticksBetweenBulletsDuringBurst == 0;
-			}
-			else {
-				return thisTick % ticksBetweenBursts == 0;
-			}
+	private enum inflectionType{increase, decrease, stop, IandD, IandS, DandS, allThree};
+	
+	// This method, used in conjunction with the enum variable inflectionType, effectively returns the Union of all three possibilities that could happen on an inflection point.
+	private static inflectionType combineTwoInflectionTypes(inflectionType A, inflectionType B) {
+		// Base case: one of they types is nothing; return the other.
+		if (A == null) {
+			return B;
 		}
-		else {
-			return thisTick % ticksBetweenBursts == 0;
+		if (B == null) {
+			return A;
+		}
+		
+		switch (A) {
+			case increase: {
+				if (B == inflectionType.decrease) {
+					return inflectionType.IandD;
+				}
+				else if (B == inflectionType.stop) {
+					return inflectionType.IandS;
+				}
+				else if (B == inflectionType.DandS) {
+					return inflectionType.allThree;
+				}
+				else {
+					// All other cases already have an Increase, so just return that type.
+					return B;
+				}
+			}
+			case decrease: {
+				if (B == inflectionType.increase) {
+					return inflectionType.IandD;
+				}
+				else if (B == inflectionType.stop) {
+					return inflectionType.DandS;
+				}
+				else if (B == inflectionType.IandS) {
+					return inflectionType.allThree;
+				}
+				else {
+					return B;
+				}
+			}
+			case stop: {
+				if (B == inflectionType.increase) {
+					return inflectionType.IandS;
+				}
+				else if (B == inflectionType.decrease) {
+					return inflectionType.DandS;
+				}
+				else if (B == inflectionType.IandD) {
+					return inflectionType.allThree;
+				}
+				else {
+					return B;
+				}
+			}
+			case IandD: {
+				// Already increasing and decreasing; can only add stop
+				if (B == inflectionType.stop) {
+					return inflectionType.allThree;
+				}
+				else {
+					return inflectionType.IandD;
+				}
+			}
+			case IandS: {
+				// Already increasing and stopping; can only add decrease
+				if (B == inflectionType.decrease) {
+					return inflectionType.allThree;
+				}
+				else {
+					return inflectionType.IandS;
+				}
+			}
+			case DandS: {
+				// Already decreasing and stopping; can only add increase
+				if (B == inflectionType.increase) {
+					return inflectionType.allThree;
+				}
+				else {
+					return inflectionType.DandS;
+				}
+			}
+			case allThree: {
+				// If there are already all three types, it can't be added to any more
+				return inflectionType.allThree;
+			}
+			default: {
+				return null;
+			}
 		}
 	}
 	
-	private static double[] recoil(double RoF, int magSize, int burstSize, double recoilPerShotPixels, int[] recoilUpFraction, int[] recoilDownFraction) {
+	private static double[] recoil(double RoF, int magSize, int burstSize, double recoilPerShotPixels, int[] rUp, int[] rDown) {
+		double delta = 1.0 / RoF;
+		double U = (double) rUp[0] / (double) rUp[1];
+		double D = (double) rDown[0] / (double) rDown[1];
 		
-		// Step 1: find the LCM of the three denominators and convert all fractions to use the common tickrate as their new denominator
-		int[] RoFFraction = {10, (int) Math.round(RoF * 10.0)};  // Because some RoF have one decimal, multiply it by 10/10 to make it integers but maintain ratio
-		int lcm = MathUtils.leastCommonMultiple(recoilUpFraction[1], recoilDownFraction[1]);
-		lcm = MathUtils.leastCommonMultiple(lcm, RoFFraction[1]);
+		// Each key will be the timestamp of the inflection point, and the value will be an enumerated variable that will say how the slope changes at that inflection point
+		HashMap<Double, inflectionType> inflectionPoints = new HashMap<Double, inflectionType>();
 		
-		int ticksBetweenBulletsDuringBurst;
-		if (burstSize > 1) {
-			// If this gun has burst-fire, then the difference between ticks needs to be compatible with the 20 RoF
-			lcm = MathUtils.leastCommonMultiple(lcm, 20);
-			ticksBetweenBulletsDuringBurst = lcm / 20;
-		}
-		else {
-			ticksBetweenBulletsDuringBurst = 0;
-		}
-		int ticksBetweenBursts = RoFFraction[0] * lcm / RoFFraction[1];
-		int ticksRecoilIncreasesAfterFiringBullet = recoilUpFraction[0] * lcm / recoilUpFraction[1];
-		int ticksRecoilDecreasesAfterIncreasing = recoilDownFraction[0] * lcm / recoilDownFraction[1];
-		
-		// Step 2: calculate how many ticks it will take from the start of firing until the recoil has completely reset
-		int totalTicksRequiredForSimulation = 0;
-		if (burstSize > 1) {
-			int numBursts = magSize / burstSize;
-			totalTicksRequiredForSimulation = numBursts * (burstSize - 1) * ticksBetweenBulletsDuringBurst + (numBursts - 1) * ticksBetweenBursts + ticksRecoilIncreasesAfterFiringBullet + ticksRecoilDecreasesAfterIncreasing;
-		}
-		else {
-			totalTicksRequiredForSimulation = (magSize - 1) * ticksBetweenBursts + ticksRecoilIncreasesAfterFiringBullet + ticksRecoilDecreasesAfterIncreasing;
-		}
-		
-		// Step 3: model the entire period of time, tick-by-tick, and store the pixel distances in the array to return
-		double increasingSlope = recoilPerShotPixels * recoilUpFraction[1] / (double) recoilUpFraction[0];  // pixels/sec
-		double decreasingSlope = recoilPerShotPixels * recoilDownFraction[1] / (double) recoilDownFraction[0];  // pixels/sec
-		double currentSlope = 0;
-		double totalPixels = 0;
-		int totalNumBulletsFired = 0;
-		
-		int a=0, b=0;
-		int[] ticksBulletsWereFired = new int[magSize];
-		int[] ticksBulletsStopIncreasing = new int[magSize];
-		int[] ticksBulletsStopDecreasing = new int[magSize];
-		
-		double[] recoilAtTick = new double[totalTicksRequiredForSimulation];
-		for (int tick = 0; tick < totalTicksRequiredForSimulation; tick++) {
-			// Check if a bullet gets fired this tick
-			if (totalNumBulletsFired < magSize && bulletFiredOnThisTick(tick, totalNumBulletsFired, burstSize, ticksBetweenBursts, ticksBetweenBulletsDuringBurst)) {
-				ticksBulletsWereFired[totalNumBulletsFired] = tick;
-				ticksBulletsStopIncreasing[totalNumBulletsFired] = tick + ticksRecoilIncreasesAfterFiringBullet;
-				ticksBulletsStopDecreasing[totalNumBulletsFired] = tick + ticksRecoilIncreasesAfterFiringBullet + ticksRecoilDecreasesAfterIncreasing;
-				totalNumBulletsFired++;
-				currentSlope += increasingSlope;
+		double[] bulletFiredTimestamps = new double[magSize];
+		double currentTime = 0.0;
+		double a, b, c;
+		int i;
+		for (i = 0; i < magSize; i++) {
+			bulletFiredTimestamps[i] = currentTime;
+			
+			a = currentTime;
+			if (inflectionPoints.containsKey(a)) {
+				inflectionPoints.put(a, combineTwoInflectionTypes(inflectionPoints.get(a), inflectionType.increase));
+			}
+			else {
+				inflectionPoints.put(a, inflectionType.increase);
 			}
 			
-			// Check if a previously fired bullet changes from increase to decrease on this tick
-			if (a < magSize && tick == ticksBulletsStopIncreasing[a]) {
-				a++;
-				currentSlope -= (increasingSlope + decreasingSlope);
+			b = currentTime + U;
+			if (inflectionPoints.containsKey(b)) {
+				inflectionPoints.put(b, combineTwoInflectionTypes(inflectionPoints.get(b), inflectionType.decrease));
+			}
+			else {
+				inflectionPoints.put(b, inflectionType.decrease);
 			}
 			
-			// Check if a previously fired bullet has finished decreasing
-			if (b < magSize && tick == ticksBulletsStopDecreasing[b]) {
-				b++;
-				currentSlope += decreasingSlope;
+			c = currentTime + U + D;
+			if (inflectionPoints.containsKey(c)) {
+				inflectionPoints.put(c, combineTwoInflectionTypes(inflectionPoints.get(c), inflectionType.stop));
+			}
+			else {
+				inflectionPoints.put(c, inflectionType.stop);
 			}
 			
-			totalPixels = totalPixels + currentSlope / lcm;
-			recoilAtTick[tick] = MathUtils.round(totalPixels, 4);
+			if (burstSize > 1 && (i+1) % burstSize > 0) {
+				// During burst; add 1/20th second
+				currentTime += 0.05;
+			}
+			else {
+				// Either this gun doesn't have a burst mode, or it just fired the last bullet during a burst
+				currentTime += delta;
+			}
 		}
 		
-		double[] toReturn = new double[magSize];
-		// The first bullet is always fired when recoil == 0
-		toReturn[0] = 0.0;
-		for (int i = 1; i < magSize; i++) {
-			// Get the value of recoil at the end of tick BEFORE this bullet gets fired because that would be the value of recoil WHEN the bullet gets fired
-			toReturn[i] = recoilAtTick[ticksBulletsWereFired[i] - 1];
+		// In theory, the length of this array should be in the range [magSize + 2, 3 * magSize]
+		Set<Double> unsortedTimestampKeys = inflectionPoints.keySet();
+		Double[] inflectionPointTimestamps = unsortedTimestampKeys.toArray(new Double[unsortedTimestampKeys.size()]);
+		Arrays.sort(inflectionPointTimestamps);
+		
+		// Now that we should have an array of all the timestamps of the inflection points, it can be converted into an array of slope changes
+		double[] slopeAtT = new double[inflectionPointTimestamps.length];
+		double increaseSlope = recoilPerShotPixels / U;
+		double decreaseSlope = recoilPerShotPixels / D;
+		inflectionType infType;
+		double currentSlope = 0.0;
+		for (i = 0; i < inflectionPointTimestamps.length; i++) {
+			infType = inflectionPoints.get(inflectionPointTimestamps[i]);
+			
+			switch (infType) {
+				case increase: {
+					// A bullet was just fired; add the increasing delta-slope
+					currentSlope += increaseSlope;
+					break;
+				}
+				case decrease: {
+					// A bullet just changed from increasing to decreasing; subtract both delta-slopes from the current slope
+					currentSlope -= (increaseSlope + decreaseSlope);
+					break;
+				}
+				case stop: {
+					// A bullet just finished its recoil cycle; remove the decreasing delta-slope.
+					currentSlope += decreaseSlope;
+					break;
+				}
+				case IandD: {
+					// Two bullets are changing at the same time, one increasing and the other decreasing
+					currentSlope -= decreaseSlope;
+					break;
+				}
+				case IandS: {
+					// Two bullets are changing at the same time, one increasing and the other decreasing
+					currentSlope += increaseSlope + decreaseSlope;
+					break;
+				}
+				case DandS: {
+					// Two bullets are changing at the same time, one increasing and the other decreasing
+					currentSlope -= increaseSlope;
+					break;
+				}
+				case allThree: {
+					// Three bullets are changing at the same time, but because of how the math works out this is a net change of 0 to the slope
+					currentSlope += 0.0;
+					break;
+				}
+				default: {
+					// Theoretically this should never happen, but I'm adding it anyway just for sanity check.
+					// I'm having this be a HUGE change to the slope so that it will negatively affect the model in a substantial way; big enough to be noticeable from the GUI's accuracy of 2% or something...
+					currentSlope *= -10.0;
+					break;
+				}
+			}
+			
+			slopeAtT[i] = currentSlope;
 		}
-		return toReturn;
+		
+		// With the array of slope changes and their corresponding timestamps, it should be possible to accurately recreate what the recoil will look like over time.
+		double[] recoilAtEachShot = new double[magSize];
+		double currentRecoilPixels = 0.0;
+		recoilAtEachShot[0] = currentRecoilPixels;
+		currentTime = 0.0;
+		double deltaTime;
+		double timeInterval;
+		int inflectionPointIndex = 0;
+		for (i = 1; i < magSize; i++) {
+			deltaTime = bulletFiredTimestamps[i] - currentTime;
+			
+			if (currentTime + deltaTime > inflectionPointTimestamps[inflectionPointIndex]) {
+				/*
+					If/when we hit this case, it means that AT LEAST one inflection point passed between when the last bullet fired and when this bullet is about to fire. 
+					We need to add to currentRecoilPixels as the inflection points pass and the slope changes until the next inflection point is after "now" 
+				*/
+				
+				// Start by doing the partial interval to get to the current inflection point
+				timeInterval = inflectionPointTimestamps[inflectionPointIndex] - currentTime;
+				currentRecoilPixels += timeInterval * slopeAtT[inflectionPointIndex];
+				
+				// Iterate inflection point by inflection point until the next one will be after currentTime + deltaTime
+				while (currentTime + deltaTime > inflectionPointTimestamps[inflectionPointIndex + 1]) {
+					timeInterval = inflectionPointTimestamps[inflectionPointIndex + 1] - inflectionPointTimestamps[inflectionPointIndex];
+					currentRecoilPixels += timeInterval * slopeAtT[inflectionPointIndex];
+					
+					// Because inflectionPointTimestamps is just the keys of that Hash, it should always have AT LEAST 2 more values than magSize, so it's ok to blindly increment it without having to worry about exceeding array bounds.
+					inflectionPointIndex++;
+				}
+				
+				// Finally, do a second partial interval so that the currentRecoilPixels is modeled fully for the deltaTime period
+				timeInterval = (currentTime + deltaTime) - inflectionPointTimestamps[inflectionPointIndex];
+				currentRecoilPixels += timeInterval * slopeAtT[inflectionPointIndex];
+			}
+			else {
+				currentRecoilPixels += deltaTime * slopeAtT[inflectionPointIndex];
+			}
+			currentTime += deltaTime;
+			recoilAtEachShot[i] = currentRecoilPixels;
+		}
+		
+		return recoilAtEachShot;
 	}
 	
 	private static double areaOfLens(double R, double r, double d) {
@@ -172,6 +324,7 @@ public class AccuracyEstimator {
 		double Sr = convertSpreadPixelsToRads(spreadRecoverySpeed);
 		
 		double RpS = recoilPerShot * playerRecoilCorrectionCoefficient;
+		
 		double[] predictedRecoil = recoil(rateOfFire, (int) magSize, (int) burstSize, RpS, recoilIncreaseFraction, recoilDecreaseFraction);
 		
 		// Step 1: establish the target size

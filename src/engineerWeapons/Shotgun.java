@@ -429,7 +429,6 @@ public class Shotgun extends Weapon {
 	private double getRecoil() {
 		double toReturn = recoil;
 		
-		// TODO: redo Choke, MPA, and Cycle Overload tests to see if they actually affect recoil
 		if (selectedTier3 == 0) {
 			toReturn *= 0.4;
 		}

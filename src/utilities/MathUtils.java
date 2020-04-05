@@ -149,18 +149,6 @@ public class MathUtils {
 		return (int) round(toReturn, 2);
 	}
 	
-	public static int leastCommonMultiple(int a, int b) {
-		int[] A = convertNumberToPrimeFactors(a);
-		int[] B = convertNumberToPrimeFactors(b);
-		
-		int[] LCM = new int[A.length];
-		for (int i = 0; i < A.length; i++) {
-			LCM[i] = Math.max(A[i], B[i]);
-		}
-				
-		return convertPrimeFactorsToNumber(LCM);
-	}
-	
 	private static int[] primeFactorMultiply(ArrayList<Integer> numbers) {
 		int toReturn[] = new int[primeNumbersLessThanThirtyThree.length];
 		int[] primeFactors;
