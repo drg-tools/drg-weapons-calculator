@@ -28,7 +28,6 @@ public class EPC_RegularShot extends Weapon {
 	private double chargeShotWindup;
 	private double heatPerRegularShot;
 	private double heatPerSecondWhileCharged;
-	private double regularShotVelocity;
 	
 	/*
  	Damage breakdown, sourced from the Wiki:
@@ -87,7 +86,6 @@ public class EPC_RegularShot extends Weapon {
 		chargeShotWindup = 1.5;  // seconds
 		heatPerRegularShot = 1.0;
 		heatPerSecondWhileCharged = maxHeat * 2.0;  // Want this to work out to 0.5 sec of heat buildup before overheating by default
-		regularShotVelocity = 1.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -465,7 +463,7 @@ public class EPC_RegularShot extends Weapon {
 		return toReturn;
 	}
 	private double getRegularShotVelocity() {
-		double toReturn = regularShotVelocity;
+		double toReturn = 1.0;
 		
 		if (selectedTier2 == 1) {
 			toReturn += 0.25;
@@ -493,40 +491,24 @@ public class EPC_RegularShot extends Weapon {
 	public StatsRow[] getStats() {
 		boolean coolingRateModified = selectedTier3 == 2 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 4;
 		
-		StatsRow[] toReturn = new StatsRow[15];
+		StatsRow[] toReturn = new StatsRow[8];
 		
 		toReturn[0] = new StatsRow("Regular Shot Direct Damage:", getDirectDamage(), selectedTier1 == 0 || selectedOverclock == 3);
 		
-		toReturn[1] = new StatsRow("Regular Shot Velocity:", convertDoubleToPercentage(getRegularShotVelocity()), selectedTier2 == 1);
+		toReturn[1] = new StatsRow("Regular Shot Velocity:", convertDoubleToPercentage(getRegularShotVelocity()), selectedTier2 == 1, selectedTier2 == 1);
 		
-		toReturn[2] = new StatsRow("Heat/Regular Shot:", getHeatPerRegularShot(), selectedOverclock == 3);
+		toReturn[2] = new StatsRow("Heat/Regular Shot:", getHeatPerRegularShot(), selectedOverclock == 3, selectedOverclock == 3);
 		
 		toReturn[3] = new StatsRow("Regular Shots Fired Before Overheating:", getNumRegularShotsBeforeOverheat(), coolingRateModified || selectedOverclock == 3);
 		
-		boolean chargedDirectDamageModified = selectedTier1 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[4] = new StatsRow("Charged Shot Direct Damage:", getChargedDirectDamage(), chargedDirectDamageModified);
-		
-		toReturn[5] = new StatsRow("Charged Shot Area Damage:", getChargedAreaDamage(), selectedTier2 == 2 || selectedOverclock == 5);
-		
-		toReturn[6] = new StatsRow("Charged Shot AoE Radius:", getChargedAoERadius(), selectedTier2 == 0);
-		
-		boolean windupModified = selectedTier3 == 1 || selectedTier5 == 0 || selectedOverclock == 0 || selectedOverclock == 4;
-		toReturn[7] = new StatsRow("Charged Shot Windup:", getChargedShotWindup(), windupModified);
-		
-		toReturn[8] = new StatsRow("Heat/Sec While Charged:", getHeatPerSecondWhileCharged(), selectedTier4 == 0 || selectedOverclock == 1);
-		
-		toReturn[9] = new StatsRow("Seconds Charged Shot Can Be Held Before Overheating:", getSecondsBeforeOverheatWhileCharged(), selectedTier4 == 0 || selectedOverclock == 1);
-		
-		toReturn[10] = new StatsRow("Ammo/Charged Shot:", getAmmoPerChargedShot(), selectedTier3 == 0 || selectedOverclock == 2);
-		
 		boolean batterySizeModified = selectedTier1 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 3;
-		toReturn[11] = new StatsRow("Battery Size:", getBatterySize(), batterySizeModified);
+		toReturn[4] = new StatsRow("Battery Size:", getBatterySize(), batterySizeModified);
 		
-		toReturn[12] = new StatsRow("Rate of Fire:", rateOfFire, false);
+		toReturn[5] = new StatsRow("Rate of Fire:", rateOfFire, false);
 		
-		toReturn[13] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), coolingRateModified);
+		toReturn[6] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), coolingRateModified);
 		
-		toReturn[14] = new StatsRow("Cooldown After Overheating:", getCooldownDuration(), coolingRateModified);
+		toReturn[7] = new StatsRow("Cooldown After Overheating:", getCooldownDuration(), coolingRateModified);
 		
 		return toReturn;
 	}
