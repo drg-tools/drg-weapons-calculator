@@ -28,11 +28,8 @@ public class Classic_FocusShot extends Weapon {
 	private double delayBeforeFocusing;
 	private double focusDuration;
 	private double movespeedWhileFocusing;
-	private int maxPenetrations;
 	private double weakpointBonus;
 	private double armorBreakChance;
-	private int stunDuration;
-	private double recoil;
 	
 	/****************************************************************************************
 	* Constructors
@@ -62,11 +59,8 @@ public class Classic_FocusShot extends Weapon {
 		delayBeforeFocusing = 0.4;  // seconds
 		focusDuration = 0.6;  // seconds.
 		movespeedWhileFocusing = 0.3;
-		maxPenetrations = 0;
 		weakpointBonus = 0.1;
 		armorBreakChance = 0.3;
-		stunDuration = 3;
-		recoil = 1.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -404,13 +398,12 @@ public class Classic_FocusShot extends Weapon {
 		return MathUtils.round(modifier * DwarfInformation.walkSpeed, 2);
 	}
 	private int getMaxPenetrations() {
-		int toReturn = maxPenetrations;
-		
 		if (selectedTier4 == 0) {
-			toReturn += 3;
+			return 3;
 		}
-		
-		return toReturn;
+		else {
+			return 0;
+		}
 	}
 	private double getWeakpointBonus() {
 		double toReturn = weakpointBonus;
@@ -431,7 +424,7 @@ public class Classic_FocusShot extends Weapon {
 		return toReturn;
 	}
 	private double getRecoil() {
-		double toReturn = recoil;
+		double toReturn = 1.0;
 		
 		if (selectedTier2 == 1) {
 			toReturn *= 0.5;
@@ -445,7 +438,7 @@ public class Classic_FocusShot extends Weapon {
 	}
 	private int getStunDuration() {
 		if (selectedTier5 == 0) {
-			return stunDuration;
+			return 3;
 		}
 		else {
 			return 0;
@@ -480,7 +473,8 @@ public class Classic_FocusShot extends Weapon {
 		
 		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 2);
 		
-		toReturn[11] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1 || selectedOverclock == 3);
+		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 3;
+		toReturn[11] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
 		
 		toReturn[12] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0, selectedTier4 == 0);
 		
