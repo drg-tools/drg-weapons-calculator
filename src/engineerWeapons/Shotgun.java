@@ -26,9 +26,6 @@ public class Shotgun extends Weapon {
 	private double reloadTime;
 	private double weakpointStunChance;
 	private int stunDuration;
-	private double armorBreakChance;
-	private double baseSpread;
-	private double recoil;
 	
 	/****************************************************************************************
 	* Constructors
@@ -57,9 +54,6 @@ public class Shotgun extends Weapon {
 		reloadTime = 2.0;
 		weakpointStunChance = 0.1;
 		stunDuration = 3;
-		armorBreakChance = 1.0;
-		baseSpread = 1.0;
-		recoil = 1.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -401,7 +395,7 @@ public class Shotgun extends Weapon {
 		return toReturn;
 	}
 	private double getArmorBreakChance() {
-		double toReturn = armorBreakChance;
+		double toReturn = 1.0;
 		
 		if (selectedTier4 == 0) {
 			toReturn += 4.0;
@@ -410,7 +404,7 @@ public class Shotgun extends Weapon {
 		return toReturn;
 	}
 	private double getBaseSpread() {
-		double toReturn = baseSpread;
+		double toReturn = 1.0;
 		
 		// Although DRG has these stats multiply together as 25% Base Spread, it's more precise to represent them as additive bonuses in this model.
 		if (selectedTier2 == 2) {
@@ -427,7 +421,7 @@ public class Shotgun extends Weapon {
 		return toReturn;
 	}
 	private double getRecoil() {
-		double toReturn = recoil;
+		double toReturn = 1.0;
 		
 		if (selectedTier3 == 0) {
 			toReturn *= 0.4;
@@ -465,12 +459,13 @@ public class Shotgun extends Weapon {
 		
 		toReturn[7] = new StatsRow("Stun Duration:", getStunDuration(), selectedOverclock == 4);
 		
-		toReturn[8] = new StatsRow("Armor Break Chance:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 0);
+		toReturn[8] = new StatsRow("Armor Break Chance:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 0, selectedTier4 == 0);
 		
 		boolean baseSpreadModified = selectedTier2 == 2 || selectedOverclock == 2 || selectedOverclock == 3;
-		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified);
+		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
 		
-		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier3 == 0 || selectedOverclock == 4);
+		boolean recoilModified = selectedTier3 == 0 || selectedOverclock == 4;
+		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
 		
 		return toReturn;
 	}
