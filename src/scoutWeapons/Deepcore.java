@@ -27,10 +27,7 @@ public class Deepcore extends Weapon {
 	private double weakpointStunChance;
 	private double stunDuration;
 	private double reloadTime;
-	private double baseSpread;
-	private double recoil;
 	private double weakpointBonus;
-	private double armorBreakChance;
 	
 	/****************************************************************************************
 	* Constructors
@@ -59,9 +56,6 @@ public class Deepcore extends Weapon {
 		stunDuration = 1.5;
 		reloadTime = 1.8;
 		weakpointBonus = 0.1;
-		armorBreakChance = 1.0;
-		baseSpread = 1.0;
-		recoil = 1.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -390,22 +384,20 @@ public class Deepcore extends Weapon {
 		return toReturn;
 	}
 	private double getArmorBreakChance() {
-		double toReturn = armorBreakChance;
-		
 		if (selectedTier4 == 1) {
-			toReturn += 5.0;
+			return 6.0;
 		}
-		
-		return toReturn;
+		else {
+			return 1.0;
+		}
 	}
 	private double getBaseSpread() {
-		double toReturn = baseSpread;
-		
 		if (selectedTier1 == 0) {
-			toReturn -= 1.0;
+			return 0.0;
 		}
-		
-		return toReturn;
+		else {
+			return 1.0;
+		}
 	}
 	private double getSpreadPerShot() {
 		if (selectedTier5 == 1) {
@@ -435,7 +427,7 @@ public class Deepcore extends Weapon {
 		}
 	}
 	private double getRecoil() {
-		double toReturn = recoil;
+		double toReturn = 1.0;
 		
 		if (selectedTier3 == 0) {
 			toReturn *= 0.5;
@@ -473,16 +465,16 @@ public class Deepcore extends Weapon {
 		
 		toReturn[5] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0);
 		
-		toReturn[6] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 1);
+		toReturn[6] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 1, selectedTier4 == 1);
 		
-		toReturn[7] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier1 == 0);
+		toReturn[7] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier1 == 0, selectedTier1 == 0);
 		
-		toReturn[8] = new StatsRow("Spread Per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier5 == 1);
+		toReturn[8] = new StatsRow("Spread Per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier5 == 1, selectedTier5 == 1);
 		
-		toReturn[9] = new StatsRow("Spread Recovery:", convertDoubleToPercentage(getSpreadRecoverySpeed()), selectedOverclock == 5);
+		toReturn[9] = new StatsRow("Spread Recovery:", convertDoubleToPercentage(getSpreadRecoverySpeed()), selectedOverclock == 5, selectedOverclock == 5);
 		
 		boolean recoilModified = selectedTier3 == 0 || selectedOverclock == 0 || selectedOverclock == 3 || selectedOverclock == 5;
-		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified);
+		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
 		
 		toReturn[11] = new StatsRow("Weakpoint Stun Chance:", convertDoubleToPercentage(getWeakpointStunChance()), selectedTier5 == 2);
 		
