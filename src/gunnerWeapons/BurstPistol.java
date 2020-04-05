@@ -27,10 +27,6 @@ public class BurstPistol extends Weapon {
 	private double rateOfFire;
 	private double reloadTime;
 	private double armorBreakChance;
-	private double spreadPerShot;
-	private double recoil;
-	private double weakpointBonus;
-	private int burstStunDuration;
 	
 	/****************************************************************************************
 	* Constructors
@@ -59,10 +55,6 @@ public class BurstPistol extends Weapon {
 		rateOfFire = 2.5;
 		reloadTime = 2.2;
 		armorBreakChance = 0.5;
-		spreadPerShot = 1.0;
-		recoil = 1.0;
-		weakpointBonus = 0.0;
-		burstStunDuration = 0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -408,7 +400,7 @@ public class BurstPistol extends Weapon {
 		return toReturn;
 	}
 	private double getSpreadPerShot() {
-		double toReturn = spreadPerShot;
+		double toReturn = 1.0;
 		
 		if (selectedTier1 == 1) {
 			toReturn -= 0.42;
@@ -421,7 +413,7 @@ public class BurstPistol extends Weapon {
 		return toReturn;
 	}
 	private double getRecoil() {
-		double toReturn = recoil;
+		double toReturn = 1.0;
 		
 		if (selectedTier2 == 0) {
 			toReturn *= 0.5;
@@ -434,22 +426,20 @@ public class BurstPistol extends Weapon {
 		return toReturn;
 	}
 	private double getWeakpointBonus() {
-		double toReturn = weakpointBonus;
-		
 		if (selectedTier4 == 2) {
-			toReturn += 0.4;
+			return 0.4;
 		}
-		
-		return toReturn;
+		else {
+			return 0;
+		}
 	}
 	private int getBurstStunDuration() {
-		int toReturn = burstStunDuration;
-		
 		if (selectedTier5 == 0) {
-			toReturn += 4;
+			return 4;
 		}
-		
-		return toReturn;
+		else {
+			return 0;
+		}
 	}
 	
 	@Override
@@ -477,9 +467,11 @@ public class BurstPistol extends Weapon {
 		
 		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 0);
 		
-		toReturn[8] = new StatsRow("Spread Per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier1 == 1 || selectedOverclock == 6);
+		boolean spreadPerShotModified = selectedTier1 == 1 || selectedOverclock == 6;
+		toReturn[8] = new StatsRow("Spread Per Shot:", convertDoubleToPercentage(getSpreadPerShot()), spreadPerShotModified, spreadPerShotModified);
 		
-		toReturn[9] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 0 || selectedOverclock == 6);
+		boolean recoilModified = selectedTier2 == 0 || selectedOverclock == 6;
+		toReturn[9] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
 		
 		toReturn[10] = new StatsRow("Burst Stun Duration:", getBurstStunDuration(), selectedTier5 == 0, selectedTier5 == 0);
 		
@@ -679,9 +671,9 @@ public class BurstPistol extends Weapon {
 			utilityScores[3] = 0;
 		}
 		
-		// Mod Tier 5 "Burst Stun" = 100% chance for 3 sec stun
-		if (selectedTier5 == 1) {
-			utilityScores[5] = estimatedAccuracy(false) * getBurstStunDuration() * UtilityInformation.Stun_Utility;
+		// Mod Tier 5 "Burst Stun" = 100% chance for 4 sec stun
+		if (selectedTier5 == 0) {
+			utilityScores[5] = estimatedAccuracy(false) / 100.0 * getBurstStunDuration() * UtilityInformation.Stun_Utility;
 		}
 		else {
 			utilityScores[5] = 0;
