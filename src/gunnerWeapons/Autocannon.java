@@ -30,8 +30,6 @@ public class Autocannon extends Weapon {
 	private double maxRateOfFire;
 	private int numBulletsFiredDuringRampup;
 	private double reloadTime;
-	private double baseSpread;
-	private double armorBreakChance;
 	
 	/****************************************************************************************
 	* Constructors
@@ -62,8 +60,6 @@ public class Autocannon extends Weapon {
 		maxRateOfFire = 5.5;  // Before 5.5 was listed in-game this was measured to be 5.25
 		numBulletsFiredDuringRampup = 10;
 		reloadTime = 5.0;  // seconds
-		baseSpread = 1.0;  // equivalent to its accuracy
-		armorBreakChance = 1.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -408,7 +404,7 @@ public class Autocannon extends Weapon {
 		return toReturn;
 	}
 	private double getBaseSpread() {
-		double toReturn = baseSpread;
+		double toReturn = 1.0;
 		if (selectedTier2 == 0 && selectedOverclock == 4) {
 			toReturn -= 0.5;
 		}
@@ -418,11 +414,12 @@ public class Autocannon extends Weapon {
 		return toReturn;
 	}
 	private double getArmorBreakChance() {
-		double toReturn = armorBreakChance;
 		if (selectedTier4 == 0) {
-			toReturn += 4.0;
+			return 5.0;
 		}
-		return toReturn;
+		else {
+			return 1.0;
+		}
 	}
 	
 	@Override
@@ -430,7 +427,7 @@ public class Autocannon extends Weapon {
 		StatsRow[] toReturn = new StatsRow[11];
 		
 		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 2 || (selectedOverclock > 1 && selectedOverclock < 6);
-		toReturn[0] = new StatsRow("Damage:", getDirectDamage(), directDamageModified);
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
 		boolean areaDamageModified = selectedTier3 == 1 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), areaDamageModified);
@@ -453,9 +450,10 @@ public class Autocannon extends Weapon {
 		
 		toReturn[8] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 0);
 		
-		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier2 == 0 || selectedOverclock == 4);
+		boolean baseSpreadModified = selectedTier2 == 0 || selectedOverclock == 4;
+		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
 		
-		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 0);
+		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 0, selectedTier4 == 0);
 		
 		return toReturn;
 	}

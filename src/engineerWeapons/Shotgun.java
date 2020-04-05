@@ -395,13 +395,12 @@ public class Shotgun extends Weapon {
 		return toReturn;
 	}
 	private double getArmorBreakChance() {
-		double toReturn = 1.0;
-		
 		if (selectedTier4 == 0) {
-			toReturn += 4.0;
+			return 5.0;
 		}
-		
-		return toReturn;
+		else {
+			return 1.0;
+		}
 	}
 	private double getBaseSpread() {
 		double toReturn = 1.0;
