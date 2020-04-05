@@ -30,9 +30,6 @@ public class Boomstick extends Weapon {
 	private double reloadTime;
 	private double stunChance;
 	private double stunDuration;
-	private int maxPenetrations;
-	private double armorBreakChance;
-	private double baseSpread;
 	
 	/****************************************************************************************
 	* Constructors
@@ -62,9 +59,6 @@ public class Boomstick extends Weapon {
 		reloadTime = 2.0;
 		stunChance = 0.3;
 		stunDuration = 2.5;
-		maxPenetrations = 0;
-		armorBreakChance = 1.0;
-		baseSpread = 1.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -401,31 +395,28 @@ public class Boomstick extends Weapon {
 		return toReturn;
 	}
 	private int getMaxPenetrations() {
-		int toReturn = maxPenetrations;
-		
 		if (selectedTier4 == 0) {
-			toReturn += 3;
+			return 3;
 		}
-		
-		return toReturn;
+		else {
+			return 0;
+		}
 	}
 	private double getArmorBreakChance() {
-		double toReturn = armorBreakChance;
-		
 		if (selectedTier4 == 1) {
-			toReturn += 3.0;
+			return 4.0;
 		}
-		
-		return toReturn;
+		else {
+			return 1.0;
+		}
 	}
 	private double getBaseSpread() {
-		double toReturn = baseSpread;
-		
 		if (selectedOverclock == 4) {
-			toReturn -= 0.35;
+			return 0.65;
 		}
-		
-		return toReturn;
+		else {
+			return 1.0;
+		}
 	}
 	
 	@Override
@@ -456,9 +447,9 @@ public class Boomstick extends Weapon {
 		
 		toReturn[9] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0, selectedTier4 == 0);
 		
-		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 1);
+		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 1, selectedTier4 == 1);
 		
-		toReturn[11] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedOverclock == 4);
+		toReturn[11] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedOverclock == 4, selectedOverclock == 4);
 		
 		return toReturn;
 	}
@@ -615,6 +606,7 @@ public class Boomstick extends Weapon {
 		// The frontal blastwave is a 20 degree isosceles triangle, 4m height; 1.41m base. 4 grunts can be hit in a 1-2-1 stack.
 		int gruntsHitByBlastwave = 4;
 		int blastwaveDamagePerShot = gruntsHitByBlastwave * getBlastwaveDamage();
+		// TODO: this doesn't reflect the penetrations...
 		double totalDamage = (getMagazineSize() + getCarriedAmmo()) * (directDamagePerShot + blastwaveDamagePerShot);
 		
 		double fireDoTTotalDamage = 0;
