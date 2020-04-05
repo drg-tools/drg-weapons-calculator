@@ -630,9 +630,9 @@ public class Classic_Hipfire extends Weapon {
 		double spreadRecoverySpeed = 320;
 		double recoilPerShot = 86.83317338 * getRecoil();
 		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
-		int[] recoilUpInterval = {3, 10};
+		double recoilUpInterval = 3.0 / 10.0;
 		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		int[] recoilDownInterval = {6, 5};
+		double recoilDownInterval = 6.0 / 5.0;
 		
 		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 

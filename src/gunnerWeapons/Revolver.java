@@ -761,9 +761,9 @@ public class Revolver extends Weapon {
 		double spreadRecoverySpeed = 109.1390954;
 		double recoilPerShot = 155 * getRecoil();
 		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
-		int[] recoilUpInterval = {2, 9};
+		double recoilUpInterval = 2.0 / 9.0;
 		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		int[] recoilDownInterval = {8, 9};
+		double recoilDownInterval = 8.0 / 9.0;
 		
 		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 

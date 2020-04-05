@@ -613,9 +613,9 @@ public class Subata extends Weapon {
 		double spreadRecoverySpeed = 127.2762815;
 		double recoilPerShot = 28.23118843 * getRecoil();
 		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
-		int[] recoilUpInterval = {1, 8};
+		double recoilUpInterval = 1.0 / 8.0;
 		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		int[] recoilDownInterval = {1, 2};
+		double recoilDownInterval = 1.0 / 2.0;
 		
 		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 

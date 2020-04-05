@@ -620,9 +620,9 @@ public class SMG extends Weapon {
 		double spreadRecoverySpeed = 72;
 		double recoilPerShot = 41 * getRecoil();
 		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
-		int[] recoilUpInterval = {2, 25};  // {5, 64};
+		double recoilUpInterval = 5.0 / 64.0;
 		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		int[] recoilDownInterval = {3, 10};  // {5, 16};
+		double recoilDownInterval = 5.0 / 16.0;
 		
 		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 

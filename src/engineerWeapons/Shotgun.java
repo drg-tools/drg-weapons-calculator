@@ -585,9 +585,9 @@ public class Shotgun extends Weapon {
 		double spreadRecoverySpeed = 0;
 		double recoilPerShot = 124.036285 * getRecoil();
 		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
-		int[] recoilUpInterval = {1, 3};
+		double recoilUpInterval = 1.0 / 3.0;
 		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		int[] recoilDownInterval = {4, 3};
+		double recoilDownInterval = 4.0 / 3.0;
 		
 		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, true, getRateOfFire(), getMagazineSize(), 1, 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 

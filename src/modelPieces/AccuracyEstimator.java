@@ -141,10 +141,8 @@ public class AccuracyEstimator {
 		}
 	}
 	
-	private static double[] recoil(double RoF, int magSize, int burstSize, double recoilPerShotPixels, int[] rUp, int[] rDown) {
+	private static double[] recoil(double RoF, int magSize, int burstSize, double recoilPerShotPixels, double rUp, double rDown) {
 		double delta = 1.0 / RoF;
-		double U = (double) rUp[0] / (double) rUp[1];
-		double D = (double) rDown[0] / (double) rDown[1];
 		
 		// Each key will be the timestamp of the inflection point, and the value will be an enumerated variable that will say how the slope changes at that inflection point
 		HashMap<Double, inflectionType> inflectionPoints = new HashMap<Double, inflectionType>();
@@ -164,7 +162,7 @@ public class AccuracyEstimator {
 				inflectionPoints.put(a, inflectionType.increase);
 			}
 			
-			b = currentTime + U;
+			b = currentTime + rUp;
 			if (inflectionPoints.containsKey(b)) {
 				inflectionPoints.put(b, combineTwoInflectionTypes(inflectionPoints.get(b), inflectionType.decrease));
 			}
@@ -172,7 +170,7 @@ public class AccuracyEstimator {
 				inflectionPoints.put(b, inflectionType.decrease);
 			}
 			
-			c = currentTime + U + D;
+			c = currentTime + rUp + rDown;
 			if (inflectionPoints.containsKey(c)) {
 				inflectionPoints.put(c, combineTwoInflectionTypes(inflectionPoints.get(c), inflectionType.stop));
 			}
@@ -197,8 +195,8 @@ public class AccuracyEstimator {
 		
 		// Now that we should have an array of all the timestamps of the inflection points, it can be converted into an array of slope changes
 		double[] slopeAtT = new double[inflectionPointTimestamps.length];
-		double increaseSlope = recoilPerShotPixels / U;
-		double decreaseSlope = recoilPerShotPixels / D;
+		double increaseSlope = recoilPerShotPixels / rUp;
+		double decreaseSlope = recoilPerShotPixels / rDown;
 		inflectionType infType;
 		double currentSlope = 0.0;
 		for (i = 0; i < inflectionPointTimestamps.length; i++) {
@@ -307,7 +305,7 @@ public class AccuracyEstimator {
 	public static double calculateCircularAccuracy(
 		boolean weakpoint, boolean closeRange, double rateOfFire, double magSize, double burstSize,
 		double unchangingBaseSpread, double changingBaseSpread, double spreadVariance, double spreadPerShot, double spreadRecoverySpeed,
-		double recoilPerShot, int[] recoilIncreaseFraction, int[] recoilDecreaseFraction
+		double recoilPerShot, double recoilIncreaseInterval, double recoilDecreaseInterval
 	) {
 		double RoF = rateOfFire;
 		// The time that passes between each shot
@@ -325,7 +323,7 @@ public class AccuracyEstimator {
 		
 		double RpS = recoilPerShot * playerRecoilCorrectionCoefficient;
 		
-		double[] predictedRecoil = recoil(rateOfFire, (int) magSize, (int) burstSize, RpS, recoilIncreaseFraction, recoilDecreaseFraction);
+		double[] predictedRecoil = recoil(rateOfFire, (int) magSize, (int) burstSize, RpS, recoilIncreaseInterval, recoilDecreaseInterval);
 		
 		// Step 1: establish the target size
 		// Due to mathematical limitations, I'm forced to model the targets as if they're circular even though it would be a better approximation if the targets were elliptical
