@@ -372,6 +372,14 @@ public class Subata extends Weapon {
 		
 		return toReturn;
 	}
+	private int getMaxRicochets() {
+		if (selectedOverclock == 0) {
+			return 1;
+		}
+		else {
+			return 0;
+		}
+	}
 	private double getBaseSpread() {
 		double toReturn = 1.0;
 		
@@ -428,7 +436,7 @@ public class Subata extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[12];
+		StatsRow[] toReturn = new StatsRow[13];
 		
 		boolean directDamageModified = selectedTier2 == 1 || selectedTier3 == 0 || selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 4;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
@@ -461,6 +469,8 @@ public class Subata extends Weapon {
 		toReturn[10] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), tranqRoundsEquipped, tranqRoundsEquipped);
 		
 		toReturn[11] = new StatsRow("Stun Duration:", getStunDuration(), tranqRoundsEquipped, tranqRoundsEquipped);
+		
+		toReturn[12] = new StatsRow("Max Ricochets:", getMaxRicochets(), selectedOverclock == 0, selectedOverclock == 0);
 		
 		return toReturn;
 	}
