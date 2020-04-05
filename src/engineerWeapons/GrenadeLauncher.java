@@ -18,7 +18,6 @@ public class GrenadeLauncher extends Weapon {
 	* Class Variables
 	****************************************************************************************/
 	
-	private int directDamage;
 	private int areaDamage;
 	private double aoeRadius;
 	private int carriedAmmo;
@@ -27,9 +26,6 @@ public class GrenadeLauncher extends Weapon {
 	private double reloadTime;
 	private double fearChance;
 	private double armorBreakChance;
-	private double stunChance;
-	private int stunDuration;
-	private double projectileVelocity;
 	
 	/****************************************************************************************
 	* Constructors
@@ -50,7 +46,6 @@ public class GrenadeLauncher extends Weapon {
 		fullName = "Deepcore 40MM PGL";
 		
 		// Base stats, before mods or overclocks alter them:
-		directDamage = 0;
 		areaDamage = 110;
 		aoeRadius = 2.5;
 		carriedAmmo = 8;
@@ -59,9 +54,6 @@ public class GrenadeLauncher extends Weapon {
 		reloadTime = 2.0;
 		fearChance = 1.0;
 		armorBreakChance = 0.5;
-		stunChance = 0.0;
-		stunDuration = 0;
-		projectileVelocity = 1.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -290,7 +282,7 @@ public class GrenadeLauncher extends Weapon {
 	****************************************************************************************/
 	
 	private int getDirectDamage() {
-		int toReturn = directDamage;
+		int toReturn = 0;
 		if (selectedTier5 == 1) {
 			toReturn += 60;
 		}
@@ -392,25 +384,23 @@ public class GrenadeLauncher extends Weapon {
 		return toReturn;
 	}
 	private double getStunChance() {
-		double toReturn = stunChance;
-		
 		if (selectedTier4 == 2) {
-			toReturn += 1.0;
+			return 1.0;
 		}
-		
-		return toReturn;
+		else {
+			return 0;
+		}
 	}
 	private int getStunDuration() {
-		int toReturn = stunDuration;
-		
 		if (selectedTier4 == 2) {
-			toReturn += 3;
+			return 3;
 		}
-
-		return toReturn;
+		else {
+			return 0;
+		}
 	}
 	private double getProjectileVelocity() {
-		double toReturn = projectileVelocity;
+		double toReturn = 1.0;
 		
 		if (selectedTier2 == 2) {
 			toReturn += 1.8;
@@ -448,7 +438,7 @@ public class GrenadeLauncher extends Weapon {
 		toReturn[6] = new StatsRow("Reload Time:", reloadTime, false);
 		
 		boolean velocityModified = selectedTier2 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[7] = new StatsRow("Projectile Velocity:", convertDoubleToPercentage(getProjectileVelocity()), velocityModified);
+		toReturn[7] = new StatsRow("Projectile Velocity:", convertDoubleToPercentage(getProjectileVelocity()), velocityModified, velocityModified);
 		
 		toReturn[8] = new StatsRow("Fear Chance:", convertDoubleToPercentage(fearChance), false);
 		
