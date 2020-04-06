@@ -428,10 +428,10 @@ public class Zhukov extends Weapon {
 		boolean weakpointModified = selectedTier4 == 1 || selectedOverclock == 4;
 		toReturn[6] = new StatsRow("Weakpoint Bonus:", sign + convertDoubleToPercentage(getWeakpointBonus()), weakpointModified, weakpointModified);
 		
-		boolean baseSpreadModified = selectedTier3 == 1 || selectedOverclock == 4;
-		toReturn[7] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
+		toReturn[7] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0, selectedTier4 == 0);
 		
-		toReturn[8] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0, selectedTier4 == 0);
+		boolean baseSpreadModified = selectedTier3 == 1 || selectedOverclock == 4;
+		toReturn[8] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
 		
 		toReturn[9] = new StatsRow("Movespeed While Firing: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 4, selectedOverclock == 4);
 		

@@ -438,12 +438,12 @@ public class SMG extends Weapon {
 		
 		toReturn[7] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 1);
 		
+		toReturn[8] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0, selectedTier4 == 0);
+		
 		boolean baseSpreadModified = selectedOverclock == 0 || selectedOverclock == 2;
-		toReturn[8] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
+		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
 		
-		toReturn[9] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1, selectedTier2 == 1);
-		
-		toReturn[10] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1, selectedTier2 == 1);
 		
 		return toReturn;
 	}

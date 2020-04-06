@@ -13,6 +13,8 @@ import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
+// TODO: homebrew powder increases direct damage in getStats(), but Scout/AR and Driller/Subata don't do that. I should standardize that functionality. Look into Engineer/GrenadeLauncher too.
+// TODO: Also, wolfram alpha suggests that Sum(80, 140) / 60 equals 111.833, so all the Homebrew Powder mods/OCs should be buffed from 10% to 11.833% multipliers.
 public class Revolver extends Weapon {
 	
 	/****************************************************************************************
@@ -424,7 +426,7 @@ public class Revolver extends Weapon {
 		StatsRow[] toReturn = new StatsRow[15];
 		
 		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[0] = new StatsRow("Damage:", getDirectDamage(), directDamageModified);
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
 		boolean explosiveEquipped = selectedTier3 == 1;
 		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), explosiveEquipped, explosiveEquipped);
@@ -440,25 +442,25 @@ public class Revolver extends Weapon {
 		
 		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), selectedTier1 == 0);
 		
-		toReturn[7] = new StatsRow("Stun chance:", convertDoubleToPercentage(stunChance), false);
+		toReturn[7] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier3 == 2);
 		
-		toReturn[8] = new StatsRow("Stun duration:", stunDuration, false);
+		toReturn[8] = new StatsRow("Stun chance:", convertDoubleToPercentage(stunChance), false);
 		
-		boolean baseSpreadModified = selectedTier1 == 1 || selectedOverclock == 3;
-		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
+		toReturn[9] = new StatsRow("Stun duration:", stunDuration, false);
 		
-		boolean spreadPerShotModified = selectedTier2 == 1 || selectedOverclock == 4;
-		toReturn[10] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), spreadPerShotModified, spreadPerShotModified);
-		
-		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 4;
-		toReturn[11] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
-		
-		toReturn[12] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier3 == 2);
-		
-		toReturn[13] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier3 == 0, selectedTier3 == 0);
+		toReturn[10] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier3 == 0, selectedTier3 == 0);
 		
 		boolean canRicochet = selectedOverclock == 1 || selectedOverclock == 5;
-		toReturn[14] = new StatsRow("Max Ricochets:", getMaxRicochets(), canRicochet, canRicochet);
+		toReturn[11] = new StatsRow("Max Ricochets:", getMaxRicochets(), canRicochet, canRicochet);
+		
+		boolean baseSpreadModified = selectedTier1 == 1 || selectedOverclock == 3;
+		toReturn[12] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
+		
+		boolean spreadPerShotModified = selectedTier2 == 1 || selectedOverclock == 4;
+		toReturn[13] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), spreadPerShotModified, spreadPerShotModified);
+		
+		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 4;
+		toReturn[14] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
 		
 		return toReturn;
 	}

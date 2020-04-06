@@ -454,11 +454,11 @@ public class Shotgun extends Weapon {
 		boolean reloadModified = selectedTier3 == 1 || selectedOverclock == 1 || selectedOverclock == 3;
 		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), reloadModified);
 		
-		toReturn[6] = new StatsRow("Weakpoint Stun Chance Per Pellet:", convertDoubleToPercentage(getWeakpointStunChance()), selectedOverclock == 4);
+		toReturn[6] = new StatsRow("Armor Break Chance:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 0, selectedTier4 == 0);
 		
-		toReturn[7] = new StatsRow("Stun Duration:", getStunDuration(), selectedOverclock == 4);
+		toReturn[7] = new StatsRow("Weakpoint Stun Chance Per Pellet:", convertDoubleToPercentage(getWeakpointStunChance()), selectedOverclock == 4);
 		
-		toReturn[8] = new StatsRow("Armor Break Chance:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[8] = new StatsRow("Stun Duration:", getStunDuration(), selectedOverclock == 4);
 		
 		boolean baseSpreadModified = selectedTier2 == 2 || selectedOverclock == 2 || selectedOverclock == 3;
 		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);

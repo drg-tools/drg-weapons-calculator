@@ -507,19 +507,19 @@ public class Minigun extends Weapon {
 		boolean damageModified = selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock > 3;
 		toReturn[0] = new StatsRow("Damage per Pellet:", getDamagePerPellet(), damageModified);
 		
-		toReturn[1] = new StatsRow("Ammo Spent per Pellet:", 2, false);
+		toReturn[1] = new StatsRow("Ammo Consumed per Pellet:", 2, false);
 		
-		toReturn[2] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(getStunChancePerPellet()), selectedOverclock == 6);
+		toReturn[2] = new StatsRow("Ammo Spent Until Stabilized:", bulletsFiredTilMaxStability, false);
 		
-		toReturn[3] = new StatsRow("Stun Duration:", getStunDuration(), selectedTier3 == 1 || selectedOverclock == 6);
-		
-		boolean ammoModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 3;
-		toReturn[4] = new StatsRow("Max Ammo:", getMaxAmmo(), ammoModified);
-		
-		toReturn[5] = new StatsRow("Max Duration of Firing Without Overheating: ", calculateFiringPeriod(), selectedTier5 == 1 || selectedOverclock == 2);
+		toReturn[3] = new StatsRow("Max Duration of Firing Without Overheating:", calculateFiringPeriod(), selectedTier5 == 1 || selectedOverclock == 2);
 		
 		boolean pelletsPerBurstModified = selectedTier5 == 1 || selectedOverclock == 2 || selectedTier1 == 1 || selectedOverclock == 3;
-		toReturn[6] = new StatsRow("Max Num Pellets Fired Per Burst:", calculateMaxNumPelletsFiredWithoutOverheating(), pelletsPerBurstModified);
+		toReturn[4] = new StatsRow("Max Num Pellets Fired Per Burst:", calculateMaxNumPelletsFiredWithoutOverheating(), pelletsPerBurstModified);
+		
+		boolean ammoModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 3;
+		toReturn[5] = new StatsRow("Max Ammo:", getMaxAmmo(), ammoModified);
+		
+		toReturn[6] = new StatsRow("Rate of Fire (Ammo/Sec):", getRateOfFire(), selectedTier1 == 1 || selectedOverclock == 3);
 		
 		toReturn[7] = new StatsRow("Cooling Rate:", getCoolingRate(), selectedTier1 == 0 || selectedOverclock == 1);
 		
@@ -527,24 +527,24 @@ public class Minigun extends Weapon {
 		
 		toReturn[9] = new StatsRow("Cooldown After Overheat:", cooldownAfterOverheat, false);
 		
-		toReturn[10] = new StatsRow("Rate of Fire (Ammo/Sec):", getRateOfFire(), selectedTier1 == 1 || selectedOverclock == 3);
+		toReturn[10] = new StatsRow("Spinup Time:", getSpinupTime(), selectedTier4 == 1 || selectedOverclock == 0);
 		
-		toReturn[11] = new StatsRow("Ammo Spent Until Stabilized:", bulletsFiredTilMaxStability, false);
+		toReturn[11] = new StatsRow("Spindown Time:", getSpindownTime(), selectedTier4 == 2);
 		
-		toReturn[12] = new StatsRow("Spinup Time:", getSpinupTime(), selectedTier4 == 1 || selectedOverclock == 0);
+		toReturn[12] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier3 == 0, selectedTier3 == 0);
 		
-		toReturn[13] = new StatsRow("Spindown Time:", getSpindownTime(), selectedTier4 == 2);
+		toReturn[13] = new StatsRow("Max Penetrations:", getNumberOfPenetrations(), selectedTier3 == 2, selectedTier3 == 2);
+		
+		toReturn[14] = new StatsRow("Max Ricochets:", getNumberOfRicochets(), selectedOverclock == 5, selectedOverclock == 5);
+		
+		toReturn[15] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(getStunChancePerPellet()), selectedOverclock == 6);
+		
+		toReturn[16] = new StatsRow("Stun Duration:", getStunDuration(), selectedTier3 == 1 || selectedOverclock == 6);
 		
 		boolean baseSpreadModified = selectedTier1 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[14] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
+		toReturn[17] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
 		
-		toReturn[15] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 6);
-		
-		toReturn[16] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier3 == 0, selectedTier3 == 0);
-		
-		toReturn[17] = new StatsRow("Max Penetrations:", getNumberOfPenetrations(), selectedTier3 == 2, selectedTier3 == 2);
-		
-		toReturn[18] = new StatsRow("Max Ricochets:", getNumberOfRicochets(), selectedOverclock == 5, selectedOverclock == 5);
+		toReturn[18] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 6);
 		
 		return toReturn;
 	}

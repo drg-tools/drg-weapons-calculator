@@ -427,7 +427,7 @@ public class Subata extends Weapon {
 	}
 	private int getStunDuration() {
 		if (selectedOverclock == 5) {
-			return 5;
+			return 6;
 		}
 		else {
 			return 0;
@@ -456,21 +456,21 @@ public class Subata extends Weapon {
 		
 		toReturn[6] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0);
 		
-		boolean baseSpreadModified = selectedTier1 == 0 || selectedOverclock == 3;
-		toReturn[7] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
-		
-		toReturn[8] = new StatsRow("Spread Per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier3 == 1, selectedTier3 == 1);
-		
-		boolean recoilModified = selectedOverclock == 3 || selectedTier3 == 1;
-		toReturn[9] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
-		
 		// These two stats only apply to OC "Tranquilizer Rounds"
 		boolean tranqRoundsEquipped = selectedOverclock == 5;
-		toReturn[10] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), tranqRoundsEquipped, tranqRoundsEquipped);
+		toReturn[7] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), tranqRoundsEquipped, tranqRoundsEquipped);
 		
-		toReturn[11] = new StatsRow("Stun Duration:", getStunDuration(), tranqRoundsEquipped, tranqRoundsEquipped);
+		toReturn[8] = new StatsRow("Stun Duration:", getStunDuration(), tranqRoundsEquipped, tranqRoundsEquipped);
 		
-		toReturn[12] = new StatsRow("Max Ricochets:", getMaxRicochets(), selectedOverclock == 0, selectedOverclock == 0);
+		toReturn[9] = new StatsRow("Max Ricochets:", getMaxRicochets(), selectedOverclock == 0, selectedOverclock == 0);
+		
+		boolean baseSpreadModified = selectedTier1 == 0 || selectedOverclock == 3;
+		toReturn[10] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
+		
+		toReturn[11] = new StatsRow("Spread Per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier3 == 1, selectedTier3 == 1);
+		
+		boolean recoilModified = selectedOverclock == 3 || selectedTier3 == 1;
+		toReturn[12] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
 		
 		return toReturn;
 	}

@@ -265,7 +265,7 @@ public abstract class Weapon extends Observable {
 	}
 	
 	protected void setAoEEfficiency() {
-		// This is a placeholder method that only gets overwritten by weapons that deal splash damage (EPC_ChargedShot, GrenadeLauncher, Autocannon, and Revolver)
+		// This is a placeholder method that only gets overwritten by weapons that deal splash damage (EPC_ChargedShot, GrenadeLauncher, and Autocannon)
 		// It just exists here so that Weapon can reference the method when it changes mods or OCs
 		aoeEfficiency = new double[3];
 	}
@@ -326,6 +326,30 @@ public abstract class Weapon extends Observable {
 		int percent = (int) Math.round(input * 100.0);
 		return percent + "%";
 	}
+	
+	/*
+		getStats() is the method used to interface between the Weapon and the left column of stats in WeaponTab. In general, the stats should be listed in this order:
+		
+		1. Direct Damage per projectile
+		2. Number of projectiles per shot / Burst size
+		3. Area Damage per shot
+		4. Mechanics about how each shot gets fired (AoE radius, velocity, charge-time, etc)
+		5. Magazine size / number of shots fired per burst / ammo consumed per shot
+		6. Carried Ammo
+		7. Rate of Fire (and any relevant mechanics)
+		8. Reload Time / cooldown time and related mechanics or stats
+		9. Weakpoint Bonus
+		10. Armor Breaking
+		11. Crowd Control effects (percentage to proc first, duration second)
+		12. Additional Targets per projectile (blowthrough rounds, ricochets)
+		13. Accuracy Modifiers
+			a. Base Spread
+			b. Spread Per Shot
+			c. Max Spread (Base Spread + Spread Variance)
+			d. Spread Recovery Speed
+			e. Recoil Per Shot
+		14. Effects on the Dwarf
+	*/
 	public abstract StatsRow[] getStats();
 	public abstract Weapon clone();
 	

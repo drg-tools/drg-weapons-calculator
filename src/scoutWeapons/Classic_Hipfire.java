@@ -490,14 +490,14 @@ public class Classic_Hipfire extends Weapon {
 		
 		toReturn[6] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 2);
 		
-		toReturn[7] = new StatsRow("Spread Per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier2 == 1, selectedTier2 == 1);
+		toReturn[7] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0, selectedTier4 == 0);
 		
-		toReturn[8] = new StatsRow("Max Spread:", convertDoubleToPercentage(getMaxSpread()), selectedTier2 == 1, selectedTier2 == 1);
+		toReturn[8] = new StatsRow("Spread Per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier2 == 1, selectedTier2 == 1);
+		
+		toReturn[9] = new StatsRow("Max Spread:", convertDoubleToPercentage(getMaxSpread()), selectedTier2 == 1, selectedTier2 == 1);
 		
 		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 3;
-		toReturn[9] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
-		
-		toReturn[10] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
 		
 		return toReturn;
 	}

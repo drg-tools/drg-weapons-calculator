@@ -429,20 +429,20 @@ public class GrenadeLauncher extends Weapon {
 		boolean aoeRadiusModified = selectedTier1 == 0 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[2] = new StatsRow("AoE Radius:", aoeEfficiency[0], aoeRadiusModified);
 		
-		toReturn[3] = new StatsRow("Magazine Size:", magazineSize, false);
+		boolean velocityModified = selectedTier2 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
+		toReturn[3] = new StatsRow("Projectile Velocity:", convertDoubleToPercentage(getProjectileVelocity()), velocityModified, velocityModified);
+		
+		toReturn[4] = new StatsRow("Magazine Size:", magazineSize, false);
 		
 		boolean carriedAmmoModified = selectedTier1 == 1 || selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[4] = new StatsRow("Carried Ammo:", getCarriedAmmo(), carriedAmmoModified);
+		toReturn[5] = new StatsRow("Carried Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[5] = new StatsRow("Rate of Fire:", rateOfFire, false);
-		toReturn[6] = new StatsRow("Reload Time:", reloadTime, false);
+		toReturn[6] = new StatsRow("Rate of Fire:", rateOfFire, false);
+		toReturn[7] = new StatsRow("Reload Time:", reloadTime, false);
 		
-		boolean velocityModified = selectedTier2 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[7] = new StatsRow("Projectile Velocity:", convertDoubleToPercentage(getProjectileVelocity()), velocityModified, velocityModified);
+		toReturn[8] = new StatsRow("Armor Break Chance:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier3 == 1);
 		
-		toReturn[8] = new StatsRow("Fear Chance:", convertDoubleToPercentage(fearChance), false);
-		
-		toReturn[9] = new StatsRow("Armor Break Chance:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier3 == 1);
+		toReturn[9] = new StatsRow("Fear Chance:", convertDoubleToPercentage(fearChance), false);
 		
 		boolean stunEquipped = selectedTier4 == 2;
 		toReturn[10] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), stunEquipped, stunEquipped);
