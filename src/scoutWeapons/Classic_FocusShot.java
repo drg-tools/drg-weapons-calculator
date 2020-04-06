@@ -458,7 +458,7 @@ public class Classic_FocusShot extends Weapon {
 		
 		toReturn[3] = new StatsRow("Focus Shot Charge-up Duration:", getFocusDuration(), selectedTier2 == 0 || selectedOverclock == 5);
 		
-		toReturn[4] = new StatsRow("Magazine Size:", getMagazineSize(), selectedTier3 == 1);
+		toReturn[4] = new StatsRow("Clip Size:", getMagazineSize(), selectedTier3 == 1);
 		
 		boolean carriedAmmoModified = selectedTier1 == 0 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);

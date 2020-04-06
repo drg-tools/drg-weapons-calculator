@@ -426,24 +426,21 @@ public class Classic_Hipfire extends Weapon {
 		return toReturn;
 	}
 	private double getSpreadPerShot() {
+		double toReturn = 1.0;
+		
 		if (selectedTier2 == 1) {
-			return 0.55;
+			toReturn *= 0.8;
 		}
-		else {
-			return 1.0;
+		
+		if (selectedOverclock == 3) {
+			toReturn *= 0.85;
 		}
+		
+		return toReturn;
 	}
-	private double getSpreadVariance() {
-		if (selectedTier2 == 1) {
-			return 0.7;
-		}
-		else {
-			return 1.0;
-		}
-	}
-	private double getMaxSpread() {
-		if (selectedTier2 == 1) {
-			return 0.75;
+	private double getSpreadRecoverySpeed() {
+		if (selectedOverclock == 3) {
+			return 1.75;
 		}
 		else {
 			return 1.0;
@@ -477,7 +474,7 @@ public class Classic_Hipfire extends Weapon {
 		
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), selectedOverclock == 3 || selectedTier1 == 1);
 		
-		toReturn[1] = new StatsRow("Magazine Size:", getMagazineSize(), selectedTier3 == 1);
+		toReturn[1] = new StatsRow("Clip Size:", getMagazineSize(), selectedTier3 == 1);
 		
 		boolean carriedAmmoModified = selectedTier1 == 0 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[2] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
@@ -492,9 +489,10 @@ public class Classic_Hipfire extends Weapon {
 		
 		toReturn[7] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0, selectedTier4 == 0);
 		
-		toReturn[8] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier2 == 1, selectedTier2 == 1);
+		boolean spsModified = selectedTier2 == 1 || selectedOverclock == 3;
+		toReturn[8] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), spsModified, spsModified);
 		
-		toReturn[9] = new StatsRow("Max Spread:", convertDoubleToPercentage(getMaxSpread()), selectedTier2 == 1, selectedTier2 == 1);
+		toReturn[9] = new StatsRow("Spread Recovery:", convertDoubleToPercentage(getSpreadRecoverySpeed()), selectedOverclock == 3, selectedOverclock == 3);
 		
 		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 3;
 		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
@@ -620,11 +618,11 @@ public class Classic_Hipfire extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		double unchangingBaseSpread = 15;
+		double unchangingBaseSpread = 16;
 		double changingBaseSpread = 0;
-		double spreadVariance = 140 * getSpreadVariance();
-		double spreadPerShot = 95 * getSpreadPerShot();
-		double spreadRecoverySpeed = 320;
+		double spreadVariance = 138;
+		double spreadPerShot = 94 * getSpreadPerShot();
+		double spreadRecoverySpeed = 174 * getSpreadRecoverySpeed();
 		double recoilPerShot = 86.83317338 * getRecoil();
 		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
 		double recoilUpInterval = 3.0 / 10.0;

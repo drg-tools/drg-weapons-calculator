@@ -18,7 +18,7 @@ public class Subata extends Weapon {
 	* Class Variables
 	****************************************************************************************/
 	
-	private int directDamage;
+	private double directDamage;
 	private int carriedAmmo;
 	private int magazineSize;
 	private double rateOfFire;
@@ -272,8 +272,8 @@ public class Subata extends Weapon {
 	* Setters and Getters
 	****************************************************************************************/
 	
-	private int getDirectDamage() {
-		int toReturn = directDamage;
+	private double getDirectDamage() {
+		double toReturn = directDamage;
 		
 		if (selectedTier2 == 1) {
 			toReturn += 1;
@@ -286,7 +286,7 @@ public class Subata extends Weapon {
 		}
 		
 		if (selectedOverclock == 1) {
-			toReturn = (int) Math.round(toReturn * 1.1);
+			toReturn *= homebrewPowderCoefficient;
 		}
 		else if (selectedOverclock == 4) {
 			toReturn -= 3;
@@ -436,7 +436,7 @@ public class Subata extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[13];
+		StatsRow[] toReturn = new StatsRow[14];
 		
 		boolean directDamageModified = selectedTier2 == 1 || selectedTier3 == 0 || selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 4;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
@@ -462,15 +462,17 @@ public class Subata extends Weapon {
 		
 		toReturn[8] = new StatsRow("Stun Duration:", getStunDuration(), tranqRoundsEquipped, tranqRoundsEquipped);
 		
-		toReturn[9] = new StatsRow("Max Ricochets:", getMaxRicochets(), selectedOverclock == 0, selectedOverclock == 0);
+		boolean chainHitEquipped = selectedOverclock == 0;
+		toReturn[9] = new StatsRow("Weakpoint Chain Hit Chance:", "50%", chainHitEquipped, chainHitEquipped);
+		toReturn[10] = new StatsRow("Max Ricochets:", getMaxRicochets(), chainHitEquipped, chainHitEquipped);
 		
 		boolean baseSpreadModified = selectedTier1 == 0 || selectedOverclock == 3;
-		toReturn[10] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
+		toReturn[11] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
 		
-		toReturn[11] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier3 == 1, selectedTier3 == 1);
+		toReturn[12] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier3 == 1, selectedTier3 == 1);
 		
 		boolean recoilModified = selectedOverclock == 3 || selectedTier3 == 1;
-		toReturn[12] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
+		toReturn[13] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
 		
 		return toReturn;
 	}

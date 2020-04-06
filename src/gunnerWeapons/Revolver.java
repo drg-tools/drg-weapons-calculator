@@ -13,8 +13,6 @@ import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
-// TODO: homebrew powder increases direct damage in getStats(), but Scout/AR and Driller/Subata don't do that. I should standardize that functionality. Look into Engineer/GrenadeLauncher too.
-// TODO: Also, wolfram alpha suggests that Sum(80, 140) / 60 equals 111.833, so all the Homebrew Powder mods/OCs should be buffed from 10% to 11.833% multipliers.
 public class Revolver extends Weapon {
 	
 	/****************************************************************************************
@@ -297,8 +295,7 @@ public class Revolver extends Weapon {
 			toReturn *= 0.5;
 		}
 		if (selectedOverclock == 0) {
-			// Since this ranges from 80% to 140% damage, I'll just average it out to 110%.
-			toReturn *= 1.1;
+			toReturn *= homebrewPowderCoefficient;
 		}
 		else if (selectedOverclock == 4) {
 			toReturn *= 2.0;
@@ -423,7 +420,7 @@ public class Revolver extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[15];
+		StatsRow[] toReturn = new StatsRow[16];
 		
 		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
@@ -431,7 +428,7 @@ public class Revolver extends Weapon {
 		boolean explosiveEquipped = selectedTier3 == 1;
 		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), explosiveEquipped, explosiveEquipped);
 		
-		toReturn[2] = new StatsRow("Effect Radius:", getAoERadius(), explosiveEquipped, explosiveEquipped);
+		toReturn[2] = new StatsRow("AoE Radius:", getAoERadius(), explosiveEquipped, explosiveEquipped);
 		
 		toReturn[3] = new StatsRow("Magazine Size:", getMagazineSize(), selectedOverclock == 3);
 		
@@ -450,17 +447,19 @@ public class Revolver extends Weapon {
 		
 		toReturn[10] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier3 == 0, selectedTier3 == 0);
 		
+		toReturn[11] = new StatsRow("Weakpoint Chain Hit Chance:", "33%", selectedOverclock == 1, selectedOverclock == 1);
+		
 		boolean canRicochet = selectedOverclock == 1 || selectedOverclock == 5;
-		toReturn[11] = new StatsRow("Max Ricochets:", getMaxRicochets(), canRicochet, canRicochet);
+		toReturn[12] = new StatsRow("Max Ricochets:", getMaxRicochets(), canRicochet, canRicochet);
 		
 		boolean baseSpreadModified = selectedTier1 == 1 || selectedOverclock == 3;
-		toReturn[12] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
+		toReturn[13] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
 		
 		boolean spreadPerShotModified = selectedTier2 == 1 || selectedOverclock == 4;
-		toReturn[13] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), spreadPerShotModified, spreadPerShotModified);
+		toReturn[14] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), spreadPerShotModified, spreadPerShotModified);
 		
 		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 4;
-		toReturn[14] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
+		toReturn[15] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
 		
 		return toReturn;
 	}
@@ -578,6 +577,7 @@ public class Revolver extends Weapon {
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
+		// TODO: I'd like to refactor this method a little.
 		/*
 			There are 8 combinations of ways for the Revolver to hit an additional target, based on various combinations of
 			the Overclocks "Chain Hit" and "Magic Bullets", and the Tier 3 Mods "Super Blowthrough Rounds" and "Explosive Rounds"
@@ -608,7 +608,7 @@ public class Revolver extends Weapon {
 			// If "Chain Hit" is equipped, 33% of bullets that hit a weakpoint will ricochet to nearby enemies.
 			// Effectively 25% of ideal sustained DPS?
 			// Making the assumption that the ricochet won't hit another weakpoint, and will just do normal damage.
-			double ricochetProbability = 0.33 * EnemyInformation.probabilityBulletWillHitWeakpoint();
+			double ricochetProbability = 0.33 * estimatedAccuracy(true) / 100.0;
 			double numBulletsRicochetPerMagazine = Math.round(ricochetProbability * getMagazineSize());
 			
 			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();

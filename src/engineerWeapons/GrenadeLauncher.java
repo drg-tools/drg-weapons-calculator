@@ -18,7 +18,7 @@ public class GrenadeLauncher extends Weapon {
 	* Class Variables
 	****************************************************************************************/
 	
-	private int areaDamage;
+	private double areaDamage;
 	private double aoeRadius;
 	private int carriedAmmo;
 	private int magazineSize;
@@ -294,7 +294,7 @@ public class GrenadeLauncher extends Weapon {
 		}
 		return toReturn;
 	}
-	private int getAreaDamage() {
+	private double getAreaDamage() {
 		double toReturn = areaDamage;
 		if (selectedTier1 == 2) {
 			toReturn += 15;
@@ -314,7 +314,7 @@ public class GrenadeLauncher extends Weapon {
 		}
 
 		if (selectedTier4 == 0) {
-			toReturn = toReturn * 1.1;
+			toReturn *= homebrewPowderCoefficient;
 		}
 		
 		if (selectedOverclock == 4) {
@@ -325,7 +325,7 @@ public class GrenadeLauncher extends Weapon {
 			toReturn /= 2.0;
 		}
 		
-		return (int) Math.round(toReturn);
+		return toReturn;
 	}
 	private double getAoERadius() {
 		double toReturn = aoeRadius;
@@ -369,9 +369,6 @@ public class GrenadeLauncher extends Weapon {
 		}
 		else if (selectedOverclock == 4) {
 			toReturn *= 0.3;
-		}
-		else if (selectedOverclock == 5) {
-			toReturn *= 0.6;
 		}
 		
 		return (int) Math.round(toReturn);
@@ -434,7 +431,7 @@ public class GrenadeLauncher extends Weapon {
 		
 		toReturn[4] = new StatsRow("Magazine Size:", magazineSize, false);
 		
-		boolean carriedAmmoModified = selectedTier1 == 1 || selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
+		boolean carriedAmmoModified = selectedTier1 == 1 || selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 4;
 		toReturn[5] = new StatsRow("Carried Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
 		toReturn[6] = new StatsRow("Rate of Fire:", rateOfFire, false);

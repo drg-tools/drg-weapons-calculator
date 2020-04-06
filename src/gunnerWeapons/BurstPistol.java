@@ -296,8 +296,7 @@ public class BurstPistol extends Weapon {
 			toReturn += 1;
 		}
 		else if (selectedOverclock == 2) {
-			// Since the randomized damage of "Homebrew Powder" averages out to 10% damage increase, I'm choosing to model it as a simple 10% multiplier.
-			toReturn *= 1.1;
+			toReturn *= homebrewPowderCoefficient;
 		}
 		else if (selectedOverclock == 4) {
 			toReturn += 9;

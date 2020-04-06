@@ -380,7 +380,7 @@ public class Autocannon extends Weapon {
 	private double getMaxRateOfFire() {
 		double toReturn = maxRateOfFire;
 		if (selectedTier2 == 1) {
-			toReturn += 1;  // Before being listed in-game, this used to be a +15% modifier
+			toReturn += 1.5;  // Before being listed in-game, this used to be a +15% modifier
 		}
 		if (selectedTier3 == 0) {
 			toReturn += 2;  // Before being listed in-game, this used to be a +35% modifier

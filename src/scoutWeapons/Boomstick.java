@@ -13,8 +13,6 @@ import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
-// White Phosphorous Shells has the full Burn DoT duration
-
 public class Boomstick extends Weapon {
 	
 	/****************************************************************************************
@@ -421,7 +419,7 @@ public class Boomstick extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[12];
+		StatsRow[] toReturn = new StatsRow[13];
 		
 		boolean damageModified = selectedTier1 == 1 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Damage per Pellet:", getDamagePerPellet(), damageModified);
@@ -443,13 +441,15 @@ public class Boomstick extends Weapon {
 		
 		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier4 == 1, selectedTier4 == 1);
 		
-		toReturn[8] = new StatsRow("Stun Chance:", convertDoubleToPercentage(stunChance), false);
+		toReturn[8] = new StatsRow("Fear Chance:", "50%", selectedTier5 == 1, selectedTier5 == 1);
 		
-		toReturn[9] = new StatsRow("Stun Duration:", getStunDuration(), selectedTier3 == 0);
+		toReturn[9] = new StatsRow("Stun Chance:", convertDoubleToPercentage(stunChance), false);
 		
-		toReturn[10] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), selectedTier3 == 0);
 		
-		toReturn[11] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedOverclock == 4, selectedOverclock == 4);
+		toReturn[11] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0, selectedTier4 == 0);
+		
+		toReturn[12] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedOverclock == 4, selectedOverclock == 4);
 		
 		return toReturn;
 	}

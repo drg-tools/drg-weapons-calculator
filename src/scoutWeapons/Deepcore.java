@@ -20,7 +20,7 @@ public class Deepcore extends Weapon {
 	* Class Variables
 	****************************************************************************************/
 	
-	private int directDamage;
+	private double directDamage;
 	private int carriedAmmo;
 	private int magazineSize;
 	private double rateOfFire;
@@ -284,8 +284,8 @@ public class Deepcore extends Weapon {
 	* Setters and Getters
 	****************************************************************************************/
 	
-	private int getDirectDamage() {
-		int toReturn = directDamage;
+	private double getDirectDamage() {
+		double toReturn = directDamage;
 		
 		// First do additive bonuses
 		if (selectedTier2 == 0) {
@@ -304,7 +304,7 @@ public class Deepcore extends Weapon {
 		
 		// Then do multiplicative bonuses
 		if (selectedOverclock == 2) {
-			toReturn = (int) Math.round(toReturn * 1.1);
+			toReturn *= homebrewPowderCoefficient;
 		}
 		
 		return toReturn;
@@ -420,7 +420,7 @@ public class Deepcore extends Weapon {
 	}
 	private double getSpreadRecoverySpeed() {
 		if (selectedOverclock == 5) {
-			return 9.0;
+			return 10.0;
 		}
 		else {
 			return 1.0;
@@ -450,7 +450,7 @@ public class Deepcore extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[13];
 		
-		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 ||  selectedOverclock == 5 || selectedOverclock == 6;
+		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 || selectedOverclock == 2 || selectedOverclock == 5 || selectedOverclock == 6;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
 		boolean magSizeModified = selectedTier3 == 2 || selectedOverclock == 0 || selectedOverclock == 4 || selectedOverclock == 6;
