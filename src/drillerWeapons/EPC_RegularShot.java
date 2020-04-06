@@ -493,13 +493,13 @@ public class EPC_RegularShot extends Weapon {
 		
 		StatsRow[] toReturn = new StatsRow[8];
 		
-		toReturn[0] = new StatsRow("Regular Shot Direct Damage:", getDirectDamage(), selectedTier1 == 0 || selectedOverclock == 3);
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), selectedTier1 == 0 || selectedOverclock == 3);
 		
-		toReturn[1] = new StatsRow("Regular Shot Velocity:", convertDoubleToPercentage(getRegularShotVelocity()), selectedTier2 == 1, selectedTier2 == 1);
+		toReturn[1] = new StatsRow("Projectile Velocity:", convertDoubleToPercentage(getRegularShotVelocity()), selectedTier2 == 1, selectedTier2 == 1);
 		
-		toReturn[2] = new StatsRow("Heat/Regular Shot:", getHeatPerRegularShot(), selectedOverclock == 3, selectedOverclock == 3);
+		toReturn[2] = new StatsRow("Heat/Shot:", getHeatPerRegularShot(), selectedOverclock == 3, selectedOverclock == 3);
 		
-		toReturn[3] = new StatsRow("Regular Shots Fired Before Overheating:", getNumRegularShotsBeforeOverheat(), coolingRateModified || selectedOverclock == 3);
+		toReturn[3] = new StatsRow("Shots Fired Before Overheating:", getNumRegularShotsBeforeOverheat(), coolingRateModified || selectedOverclock == 3);
 		
 		boolean batterySizeModified = selectedTier1 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 3;
 		toReturn[4] = new StatsRow("Battery Size:", getBatterySize(), batterySizeModified);

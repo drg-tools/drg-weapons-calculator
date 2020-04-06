@@ -533,19 +533,19 @@ public class EPC_ChargeShot extends Weapon {
 		StatsRow[] toReturn = new StatsRow[11];
 		
 		boolean chargedDirectDamageModified = selectedTier1 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[0] = new StatsRow("Charged Shot Direct Damage:", getChargedDirectDamage(), chargedDirectDamageModified);
+		toReturn[0] = new StatsRow("Direct Damage:", getChargedDirectDamage(), chargedDirectDamageModified);
 		
 		boolean chargedAreaDamageModified = selectedTier2 == 2 || selectedTier5 == 0 || selectedTier5 == 1 || selectedOverclock == 5;
-		toReturn[1] = new StatsRow("Charged Shot Area Damage:", getChargedAreaDamage(), chargedAreaDamageModified);
+		toReturn[1] = new StatsRow("Area Damage:", getChargedAreaDamage(), chargedAreaDamageModified);
 		
-		toReturn[2] = new StatsRow("Charged Shot AoE Radius:", aoeEfficiency[0], selectedTier2 == 0);
+		toReturn[2] = new StatsRow("AoE Radius:", aoeEfficiency[0], selectedTier2 == 0);
 		
 		boolean windupModified = selectedTier3 == 1 || selectedTier5 == 0 || selectedOverclock == 0 || selectedOverclock == 4;
 		toReturn[3] = new StatsRow("Charged Shot Windup:", getChargedShotWindup(), windupModified);
 		
 		toReturn[4] = new StatsRow("Heat/Sec While Charged:", getHeatPerSecondWhileCharged(), selectedTier4 == 0 || selectedOverclock == 1);
 		
-		toReturn[5] = new StatsRow("Seconds Charged Shot Can Be Held Before Overheating:", getSecondsBeforeOverheatWhileCharged(), selectedTier4 == 0 || selectedOverclock == 1);
+		toReturn[5] = new StatsRow("Seconds Charged Shot can be Held Before Overheating:", getSecondsBeforeOverheatWhileCharged(), selectedTier4 == 0 || selectedOverclock == 1);
 		
 		toReturn[6] = new StatsRow("Ammo/Charged Shot:", getAmmoPerChargedShot(), selectedTier3 == 0 || selectedTier5 == 1 || selectedOverclock == 2);
 		

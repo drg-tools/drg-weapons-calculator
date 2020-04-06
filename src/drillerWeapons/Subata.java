@@ -467,7 +467,7 @@ public class Subata extends Weapon {
 		boolean baseSpreadModified = selectedTier1 == 0 || selectedOverclock == 3;
 		toReturn[10] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
 		
-		toReturn[11] = new StatsRow("Spread Per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier3 == 1, selectedTier3 == 1);
+		toReturn[11] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier3 == 1, selectedTier3 == 1);
 		
 		boolean recoilModified = selectedOverclock == 3 || selectedTier3 == 1;
 		toReturn[12] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);

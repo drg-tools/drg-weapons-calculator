@@ -414,7 +414,7 @@ public class Classic_FocusShot extends Weapon {
 		
 		return toReturn;
 	}
-	private double getArmorBreakChance() {
+	private double getArmorBreaking() {
 		double toReturn = armorBreakChance;
 		
 		if (selectedTier4 == 2) {
@@ -469,7 +469,7 @@ public class Classic_FocusShot extends Weapon {
 		
 		toReturn[8] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 1);
 		
-		toReturn[9] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 2);
+		toReturn[9] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier4 == 2);
 		
 		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), selectedTier5 == 0, selectedTier5 == 0);
 		
@@ -609,7 +609,7 @@ public class Classic_FocusShot extends Weapon {
 		
 		// Armor Breaking
 		// Because Blowthrough Rounds are on the same tier as Armor Break, this bonus isn't multiplied by max num targets.
-		utilityScores[2] = (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
+		utilityScores[2] = (getArmorBreaking() - 1) * UtilityInformation.ArmorBreak_Utility;
 		
 		// OC "Electrocuting Focus Shots" = 100% chance to electrocute on focused shots
 		if (selectedOverclock == 4) {

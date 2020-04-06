@@ -419,8 +419,8 @@ public class SMG extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[11];
 		
-		toReturn[0] = new StatsRow("Electrocution DoT Chance:", convertDoubleToPercentage(getElectrocutionDoTChance()), selectedTier1 == 1 || selectedOverclock == 5);
-		toReturn[1] = new StatsRow("Electrocution DoT DPS:", DoTInformation.Electro_DPS, false);
+		toReturn[0] = new StatsRow("Electrocute DoT Chance:", convertDoubleToPercentage(getElectrocutionDoTChance()), selectedTier1 == 1 || selectedOverclock == 5);
+		toReturn[1] = new StatsRow("Electrocute DoT DPS:", DoTInformation.Electro_DPS, false);
 		
 		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 0 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[2] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);

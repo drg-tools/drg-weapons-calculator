@@ -413,7 +413,7 @@ public class Autocannon extends Weapon {
 		}
 		return toReturn;
 	}
-	private double getArmorBreakChance() {
+	private double getArmorBreaking() {
 		if (selectedTier4 == 0) {
 			return 5.0;
 		}
@@ -433,7 +433,7 @@ public class Autocannon extends Weapon {
 		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), areaDamageModified);
 		
 		boolean aoeRadiusModified = selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 2;
-		toReturn[2] = new StatsRow("Effect Radius:", aoeEfficiency[0], aoeRadiusModified);
+		toReturn[2] = new StatsRow("AoE Radius:", aoeEfficiency[0], aoeRadiusModified);
 		
 		toReturn[3] = new StatsRow("Magazine Size:", getMagazineSize(), selectedTier1 == 1 || selectedOverclock == 4);
 		
@@ -448,7 +448,7 @@ public class Autocannon extends Weapon {
 		
 		toReturn[7] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 0);
 		
-		toReturn[8] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[8] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier4 == 0, selectedTier4 == 0);
 		
 		toReturn[9] = new StatsRow("Fear Chance:", "20% (?)", selectedTier5 == 1, selectedTier5 == 1);
 		
@@ -688,7 +688,7 @@ public class Autocannon extends Weapon {
 		}
 		
 		// Mod Tier 4 "Pentrating Rounds" armor breaking bonus
-		utilityScores[2] = (getArmorBreakChance() - 1) * calculateMaxNumTargets() * UtilityInformation.ArmorBreak_Utility;
+		utilityScores[2] = (getArmorBreaking() - 1) * calculateMaxNumTargets() * UtilityInformation.ArmorBreak_Utility;
 		
 		// OC "Neurotoxin Payload" has a 20% chance to inflict a 30% slow by poisoning enemies
 		if (selectedOverclock == 5) {

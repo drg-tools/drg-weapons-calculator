@@ -416,7 +416,7 @@ public class Classic_Hipfire extends Weapon {
 		
 		return toReturn;
 	}
-	private double getArmorBreakChance() {
+	private double getArmorBreaking() {
 		double toReturn = armorBreakChance;
 		
 		if (selectedTier4 == 2) {
@@ -488,11 +488,11 @@ public class Classic_Hipfire extends Weapon {
 		
 		toReturn[5] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 1);
 		
-		toReturn[6] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 2);
+		toReturn[6] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier4 == 2);
 		
 		toReturn[7] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0, selectedTier4 == 0);
 		
-		toReturn[8] = new StatsRow("Spread Per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier2 == 1, selectedTier2 == 1);
+		toReturn[8] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier2 == 1, selectedTier2 == 1);
 		
 		toReturn[9] = new StatsRow("Max Spread:", convertDoubleToPercentage(getMaxSpread()), selectedTier2 == 1, selectedTier2 == 1);
 		
@@ -642,7 +642,7 @@ public class Classic_Hipfire extends Weapon {
 		
 		// Armor Breaking
 		// Because Blowthrough Rounds are on the same tier as Armor Break, this bonus isn't multiplied by max num targets.
-		utilityScores[2] = (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
+		utilityScores[2] = (getArmorBreaking() - 1) * UtilityInformation.ArmorBreak_Utility;
 		
 		return MathUtils.sum(utilityScores);
 	}

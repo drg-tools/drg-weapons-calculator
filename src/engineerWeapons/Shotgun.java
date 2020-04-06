@@ -394,7 +394,7 @@ public class Shotgun extends Weapon {
 		
 		return toReturn;
 	}
-	private double getArmorBreakChance() {
+	private double getArmorBreaking() {
 		if (selectedTier4 == 0) {
 			return 5.0;
 		}
@@ -438,7 +438,7 @@ public class Shotgun extends Weapon {
 		StatsRow[] toReturn = new StatsRow[11];
 		
 		boolean damageModified = selectedTier4 == 1 || selectedOverclock == 3 || selectedOverclock == 4;
-		toReturn[0] = new StatsRow("Damage Per Pellet:", getDamagePerPellet(), damageModified);
+		toReturn[0] = new StatsRow("Damage per Pellet:", getDamagePerPellet(), damageModified);
 		
 		toReturn[1] = new StatsRow("Number of Pellets/Shot:", getNumberOfPellets(), selectedTier2 == 1);
 		
@@ -454,9 +454,9 @@ public class Shotgun extends Weapon {
 		boolean reloadModified = selectedTier3 == 1 || selectedOverclock == 1 || selectedOverclock == 3;
 		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), reloadModified);
 		
-		toReturn[6] = new StatsRow("Armor Break Chance:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[6] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier4 == 0, selectedTier4 == 0);
 		
-		toReturn[7] = new StatsRow("Weakpoint Stun Chance Per Pellet:", convertDoubleToPercentage(getWeakpointStunChance()), selectedOverclock == 4);
+		toReturn[7] = new StatsRow("Weakpoint Stun Chance per Pellet:", convertDoubleToPercentage(getWeakpointStunChance()), selectedOverclock == 4);
 		
 		toReturn[8] = new StatsRow("Stun Duration:", getStunDuration(), selectedOverclock == 4);
 		
@@ -591,7 +591,7 @@ public class Shotgun extends Weapon {
 	@Override
 	public double utilityScore() {
 		// Armor Breaking
-		utilityScores[2] = (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
+		utilityScores[2] = (getArmorBreaking() - 1) * UtilityInformation.ArmorBreak_Utility;
 		
 		// Weakpoint = 10% stun chance per pellet, 2 sec duration (upgraded with Mod Tier 3 "Stun Duration")
 		double weakpointAccuracy = estimatedAccuracy(true) / 100.0;

@@ -444,9 +444,9 @@ public class Revolver extends Weapon {
 		
 		toReturn[7] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier3 == 2);
 		
-		toReturn[8] = new StatsRow("Stun chance:", convertDoubleToPercentage(stunChance), false);
+		toReturn[8] = new StatsRow("Stun Chance:", convertDoubleToPercentage(stunChance), false);
 		
-		toReturn[9] = new StatsRow("Stun duration:", stunDuration, false);
+		toReturn[9] = new StatsRow("Stun Duration:", stunDuration, false);
 		
 		toReturn[10] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier3 == 0, selectedTier3 == 0);
 		

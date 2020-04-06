@@ -376,7 +376,7 @@ public class GrenadeLauncher extends Weapon {
 		
 		return (int) Math.round(toReturn);
 	}
-	private double getArmorBreakChance() {
+	private double getArmorBreaking() {
 		double toReturn = armorBreakChance;
 		if (selectedTier3 == 1) {
 			toReturn += 5.0;
@@ -440,7 +440,7 @@ public class GrenadeLauncher extends Weapon {
 		toReturn[6] = new StatsRow("Rate of Fire:", rateOfFire, false);
 		toReturn[7] = new StatsRow("Reload Time:", reloadTime, false);
 		
-		toReturn[8] = new StatsRow("Armor Break Chance:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier3 == 1);
+		toReturn[8] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier3 == 1);
 		
 		toReturn[9] = new StatsRow("Fear Chance:", convertDoubleToPercentage(fearChance), false);
 		
@@ -607,7 +607,7 @@ public class GrenadeLauncher extends Weapon {
 		}
 		
 		// Armor Breaking
-		utilityScores[2] = (getArmorBreakChance() - 1) * calculateMaxNumTargets() * UtilityInformation.ArmorBreak_Utility;
+		utilityScores[2] = (getArmorBreaking() - 1) * calculateMaxNumTargets() * UtilityInformation.ArmorBreak_Utility;
 		
 		// Because the Stun from Concussive Blast keeps them immobolized while they're trying to run in Fear, I'm choosing to make the Stun/Fear Utility scores NOT additive.
 		if (selectedTier4 == 2) {

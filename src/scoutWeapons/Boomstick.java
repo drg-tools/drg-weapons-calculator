@@ -402,7 +402,7 @@ public class Boomstick extends Weapon {
 			return 0;
 		}
 	}
-	private double getArmorBreakChance() {
+	private double getArmorBreaking() {
 		if (selectedTier4 == 1) {
 			return 4.0;
 		}
@@ -424,7 +424,7 @@ public class Boomstick extends Weapon {
 		StatsRow[] toReturn = new StatsRow[12];
 		
 		boolean damageModified = selectedTier1 == 1 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
-		toReturn[0] = new StatsRow("Damage Per Pellet:", getDamagePerPellet(), damageModified);
+		toReturn[0] = new StatsRow("Damage per Pellet:", getDamagePerPellet(), damageModified);
 		
 		boolean pelletsModified = selectedTier3 == 2 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 4;
 		toReturn[1] = new StatsRow("Number of Pellets/Shot:", getNumberOfPelletsPerShot(), pelletsModified);
@@ -441,7 +441,7 @@ public class Boomstick extends Weapon {
 		boolean reloadTimeModified = selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock == 5;
 		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), reloadTimeModified);
 		
-		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 1, selectedTier4 == 1);
+		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier4 == 1, selectedTier4 == 1);
 		
 		toReturn[8] = new StatsRow("Stun Chance:", convertDoubleToPercentage(stunChance), false);
 		
@@ -686,7 +686,7 @@ public class Boomstick extends Weapon {
 		}
 		
 		// Armor Breaking bonuses
-		utilityScores[2] = (getArmorBreakChance() - 1) * calculateMaxNumTargets() * UtilityInformation.ArmorBreak_Utility;
+		utilityScores[2] = (getArmorBreaking() - 1) * calculateMaxNumTargets() * UtilityInformation.ArmorBreak_Utility;
 		
 		// Mod Tier 5 "Fear the Boomstick" = 50% chance to Fear in same blast cone as the Blastwave damage
 		if (selectedTier5 == 1) {

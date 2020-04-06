@@ -383,7 +383,7 @@ public class Deepcore extends Weapon {
 		
 		return toReturn;
 	}
-	private double getArmorBreakChance() {
+	private double getArmorBreaking() {
 		if (selectedTier4 == 1) {
 			return 6.0;
 		}
@@ -465,7 +465,7 @@ public class Deepcore extends Weapon {
 		
 		toReturn[5] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0);
 		
-		toReturn[6] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 1, selectedTier4 == 1);
+		toReturn[6] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier4 == 1, selectedTier4 == 1);
 		
 		toReturn[7] = new StatsRow("Weakpoint Stun Chance:", convertDoubleToPercentage(getWeakpointStunChance()), selectedTier5 == 2);
 		
@@ -473,7 +473,7 @@ public class Deepcore extends Weapon {
 		
 		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier1 == 0, selectedTier1 == 0);
 		
-		toReturn[10] = new StatsRow("Spread Per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier5 == 1, selectedTier5 == 1);
+		toReturn[10] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier5 == 1, selectedTier5 == 1);
 		
 		toReturn[11] = new StatsRow("Spread Recovery:", convertDoubleToPercentage(getSpreadRecoverySpeed()), selectedOverclock == 5, selectedOverclock == 5);
 		
@@ -642,7 +642,7 @@ public class Deepcore extends Weapon {
 		
 		// Armor Breaking
 		// Like Burst Pistol, this armor break bonus only applies to the bullets so it's not multiplied by max num targets
-		utilityScores[2] = (getArmorBreakChance() - 1) * UtilityInformation.ArmorBreak_Utility;
+		utilityScores[2] = (getArmorBreaking() - 1) * UtilityInformation.ArmorBreak_Utility;
 		
 		// OC "Electrifying Reload" = 100% chance to electrocute on reload
 		if (selectedOverclock == 6) {

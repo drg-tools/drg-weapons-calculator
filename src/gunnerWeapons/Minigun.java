@@ -505,7 +505,7 @@ public class Minigun extends Weapon {
 		StatsRow[] toReturn = new StatsRow[19];
 		
 		boolean damageModified = selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock > 3;
-		toReturn[0] = new StatsRow("Damage per Pellet:", getDamagePerPellet(), damageModified);
+		toReturn[0] = new StatsRow("Direct Damage per Pellet:", getDamagePerPellet(), damageModified);
 		
 		toReturn[1] = new StatsRow("Ammo Consumed per Pellet:", 2, false);
 		
@@ -514,7 +514,7 @@ public class Minigun extends Weapon {
 		toReturn[3] = new StatsRow("Max Duration of Firing Without Overheating:", calculateFiringPeriod(), selectedTier5 == 1 || selectedOverclock == 2);
 		
 		boolean pelletsPerBurstModified = selectedTier5 == 1 || selectedOverclock == 2 || selectedTier1 == 1 || selectedOverclock == 3;
-		toReturn[4] = new StatsRow("Max Num Pellets Fired Per Burst:", calculateMaxNumPelletsFiredWithoutOverheating(), pelletsPerBurstModified);
+		toReturn[4] = new StatsRow("Max Num Pellets Fired per Burst:", calculateMaxNumPelletsFiredWithoutOverheating(), pelletsPerBurstModified);
 		
 		boolean ammoModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 3;
 		toReturn[5] = new StatsRow("Max Ammo:", getMaxAmmo(), ammoModified);

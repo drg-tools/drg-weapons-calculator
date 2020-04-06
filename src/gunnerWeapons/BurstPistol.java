@@ -467,10 +467,10 @@ public class BurstPistol extends Weapon {
 		
 		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 0);
 		
-		toReturn[8] = new StatsRow("Burst Stun Duration:", getBurstStunDuration(), selectedTier5 == 0, selectedTier5 == 0);
+		toReturn[8] = new StatsRow("Stun Duration:", getBurstStunDuration(), selectedTier5 == 0, selectedTier5 == 0);
 		
 		boolean spreadPerShotModified = selectedTier1 == 1 || selectedOverclock == 6;
-		toReturn[9] = new StatsRow("Spread Per Shot:", convertDoubleToPercentage(getSpreadPerShot()), spreadPerShotModified, spreadPerShotModified);
+		toReturn[9] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), spreadPerShotModified, spreadPerShotModified);
 		
 		boolean recoilModified = selectedTier2 == 0 || selectedOverclock == 6;
 		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
