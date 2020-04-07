@@ -3,11 +3,15 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.AccuracyEstimator;
+import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
+import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
+import utilities.MathUtils;
 
 public class Classic_Hipfire extends Weapon {
 	
@@ -24,11 +28,8 @@ public class Classic_Hipfire extends Weapon {
 	private double delayBeforeFocusing;
 	private double focusDuration;
 	private double movespeedWhileFocusing;
-	private int maxPenetrations;
 	private double weakpointBonus;
 	private double armorBreakChance;
-	private int stunDuration;
-	private double recoil;
 	
 	/****************************************************************************************
 	* Constructors
@@ -58,11 +59,8 @@ public class Classic_Hipfire extends Weapon {
 		delayBeforeFocusing = 0.4;  // seconds
 		focusDuration = 0.6;  // seconds
 		movespeedWhileFocusing = 0.3;
-		maxPenetrations = 0;
 		weakpointBonus = 0.1;
 		armorBreakChance = 0.3;
-		stunDuration = 0;  // Because no Focus Shots in this model, there can never be a Stun
-		recoil = 1.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -100,11 +98,11 @@ public class Classic_Hipfire extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Hitting Where it Hurts", "Focused shots stagger the target", 5, 0);
-		tier5[1] = new Mod("Precision Terror", "Killing your target with a focused shot to the weakspot will send nearby creatures fleeing with terror!", 5, 1, false);
-		tier5[2] = new Mod("Killing Machine", "You can perform a lightning-fast reload right after killing an enemy.", 5, 2, false);  // Supposedly reduces manual reload time by 0.75 sec after a kill?
+		tier5[1] = new Mod("Precision Terror", "Killing your target with a focused shot to the weakspot will send nearby creatures fleeing with terror!", 5, 1);
+		tier5[2] = new Mod("Killing Machine", "You can perform a lightning-fast reload right after killing an enemy.", 5, 2);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Hoverclock", "Your movement slows down for a few seconds while using focus mode in the air.", 0, false);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Hoverclock", "Your movement slows down for a few seconds while using focus mode in the air.", 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Minimal Clips", "Make space for more ammo and speed up reloads by getting rid of dead weight on the clips.", 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Active Stability System", "Focus without slowing down but the power drain from the coils lowers the power of the focused shots.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Hipster", "A rebalancing of weight distribution, enlarged vents and a reshaped grip result in a rifle that is more controllable when hip-firing in quick succession but at the cost of pure damage output.", 3);
@@ -274,6 +272,13 @@ public class Classic_Hipfire extends Weapon {
 		return new Classic_Hipfire(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getDwarfClass() {
+		return "Scout";
+	}
+	public String getSimpleName() {
+		return "Classic_Hipfire";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/
@@ -350,11 +355,23 @@ public class Classic_Hipfire extends Weapon {
 	private double getReloadTime() {
 		double toReturn = reloadTime;
 		
+		if (selectedTier5 == 2) {
+			// "Killing Machine": if you manually reload within 1 second after a kill, the reload time is reduced by approximately 0.75 seconds.
+			// Because Sustained DPS uses this ReloadTime method, I'm choosing to use the Ideal Burst DPS as a quick-and-dirty estimate how often a kill gets scored 
+			// so that this doesn't infinitely loop.
+			double killingMachineManualReloadWindow = 1.0;
+			double killingMachineReloadReduction = 0.75;
+			double burstTTK = EnemyInformation.averageHealthPool() / calculateIdealBurstDPS();
+			// Don't let a high Burst DPS increase this beyond a 100% uptime
+			double killingMachineUptimeCoefficient = Math.min(killingMachineManualReloadWindow / burstTTK, 1.0);
+			double effectiveReloadReduction = killingMachineUptimeCoefficient * killingMachineReloadReduction;
+			
+			toReturn -= effectiveReloadReduction;
+		}
+		
 		if (selectedOverclock == 1) {
 			toReturn -= 0.2;
 		}
-		
-		// TODO: implement T5 "Killing Machine" reload time reduction
 		
 		return toReturn;
 	}
@@ -371,25 +388,24 @@ public class Classic_Hipfire extends Weapon {
 		return focusDuration / focusSpeedCoefficient;
 	}
 	private double getMovespeedWhileFocusing() {
-		double toReturn = movespeedWhileFocusing;
+		double modifier = movespeedWhileFocusing;
 		
 		if (selectedOverclock == 2) {
-			toReturn += 0.7;
+			modifier += 0.7;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn *= 0;
+			modifier *= 0;
 		}
 		
-		return toReturn;
+		return MathUtils.round(modifier * DwarfInformation.walkSpeed, 2);
 	}
 	private int getMaxPenetrations() {
-		int toReturn = maxPenetrations;
-		
 		if (selectedTier4 == 0) {
-			toReturn += 3;
+			return 3;
 		}
-		
-		return toReturn;
+		else {
+			return 0;
+		}
 	}
 	private double getWeakpointBonus() {
 		double toReturn = weakpointBonus;
@@ -400,7 +416,7 @@ public class Classic_Hipfire extends Weapon {
 		
 		return toReturn;
 	}
-	private double getArmorBreakChance() {
+	private double getArmorBreaking() {
 		double toReturn = armorBreakChance;
 		
 		if (selectedTier4 == 2) {
@@ -409,8 +425,29 @@ public class Classic_Hipfire extends Weapon {
 		
 		return toReturn;
 	}
+	private double getSpreadPerShot() {
+		double toReturn = 1.0;
+		
+		if (selectedTier2 == 1) {
+			toReturn *= 0.8;
+		}
+		
+		if (selectedOverclock == 3) {
+			toReturn *= 0.85;
+		}
+		
+		return toReturn;
+	}
+	private double getSpreadRecoverySpeed() {
+		if (selectedOverclock == 3) {
+			return 1.75;
+		}
+		else {
+			return 1.0;
+		}
+	}
 	private double getRecoil() {
-		double toReturn = recoil;
+		double toReturn = 1.0;
 		
 		if (selectedTier2 == 1) {
 			toReturn *= 0.5;
@@ -424,7 +461,7 @@ public class Classic_Hipfire extends Weapon {
 	}
 	private int getStunDuration() {
 		if (selectedTier5 == 0) {
-			return stunDuration;
+			return 3;
 		}
 		else {
 			return 0;
@@ -433,37 +470,32 @@ public class Classic_Hipfire extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[14];
+		StatsRow[] toReturn = new StatsRow[11];
 		
-		toReturn[0] = new StatsRow("Direct Damage:", "" + getDirectDamage(), selectedOverclock == 3 || selectedTier1 == 1);
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), selectedOverclock == 3 || selectedTier1 == 1);
 		
-		boolean multiplierModified = selectedTier3 == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[1] = new StatsRow("Focused Shot Multiplier:", convertDoubleToPercentage(getFocusedShotMultiplier()), multiplierModified);
-		
-		toReturn[2] = new StatsRow("Delay Before Focusing:", "" + delayBeforeFocusing, false);
-		
-		toReturn[3] = new StatsRow("Focus Shot Charge-up Duration:", "" + getFocusDuration(), selectedTier2 == 0 || selectedOverclock == 5);
-		
-		toReturn[4] = new StatsRow("Movespeed While Focusing:", convertDoubleToPercentage(getMovespeedWhileFocusing()), selectedOverclock == 2 || selectedOverclock == 5);
-		
-		toReturn[5] = new StatsRow("Magazine Size:", "" + getMagazineSize(), selectedTier3 == 1);
+		toReturn[1] = new StatsRow("Clip Size:", getMagazineSize(), selectedTier3 == 1);
 		
 		boolean carriedAmmoModified = selectedTier1 == 0 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
-		toReturn[6] = new StatsRow("Max Ammo:", "" + getCarriedAmmo(), carriedAmmoModified);
+		toReturn[2] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[7] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), selectedOverclock == 3);
+		toReturn[3] = new StatsRow("Rate of Fire:", getRateOfFire(), selectedOverclock == 3);
 		
-		toReturn[8] = new StatsRow("Reload Time:", "" + getReloadTime(), selectedOverclock == 1);
+		toReturn[4] = new StatsRow("Reload Time:", getReloadTime(), selectedTier5 == 2 || selectedOverclock == 1);
 		
-		toReturn[9] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 1);
+		toReturn[5] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 1);
 		
-		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 2);
+		toReturn[6] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier4 == 2);
 		
-		toReturn[11] = new StatsRow("Max Penetrations:", "" + getMaxPenetrations(), selectedTier4 == 0);
+		toReturn[7] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0, selectedTier4 == 0);
 		
-		toReturn[12] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1 || selectedOverclock == 3);
+		boolean spsModified = selectedTier2 == 1 || selectedOverclock == 3;
+		toReturn[8] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), spsModified, spsModified);
 		
-		toReturn[13] = new StatsRow("Stun Duration:", "" + getStunDuration(), selectedTier5 == 0);
+		toReturn[9] = new StatsRow("Spread Recovery:", convertDoubleToPercentage(getSpreadRecoverySpeed()), selectedOverclock == 3, selectedOverclock == 3);
+		
+		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 3;
+		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
 		
 		return toReturn;
 	}
@@ -478,39 +510,60 @@ public class Classic_Hipfire extends Weapon {
 	}
 	
 	// Single-target calculations
-	private double calculateDamagePerMagazine(boolean weakpointBonus) {
-		if (weakpointBonus) {
-			return (double) increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) * getMagazineSize();
+	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+		double generalAccuracy, duration, directWeakpointDamage;
+		
+		if (accuracy) {
+			generalAccuracy = estimatedAccuracy(false) / 100.0;
 		}
 		else {
-			return (double) getDirectDamage() * getMagazineSize();
+			generalAccuracy = 1.0;
 		}
+		
+		if (burst) {
+			duration = ((double) getMagazineSize()) / getRateOfFire();
+		}
+		else {
+			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+		}
+		
+		double weakpointAccuracy;
+		if (weakpoint) {
+			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+			directWeakpointDamage = increaseBulletDamageForWeakpoints2(getDirectDamage(), getWeakpointBonus());
+		}
+		else {
+			weakpointAccuracy = 0.0;
+			directWeakpointDamage = getDirectDamage();
+		}
+		
+		// Because this is modeling Hipfired shots, there's no way that the Electrocuting Focus Shots will proc. As such, Electrocution DoT is not modeled.
+		
+		int magSize = getMagazineSize();
+		int bulletsThatHitWeakpoint = (int) Math.round(magSize * weakpointAccuracy);
+		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
+		
+		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * getDirectDamage()) / duration;
 	}
 
 	@Override
 	public double calculateIdealBurstDPS() {
-		// Because this is modeling Hipfired shots, there's no way that the Electrocuting Focus Shots will proc. As such, Electrocution DoT is not modeled.
-		double timeToFireMagazine = ((double) getMagazineSize()) / getRateOfFire();
-		return calculateDamagePerMagazine(false) / timeToFireMagazine;
+		return calculateSingleTargetDPS(true, false, false);
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		// Because this is modeling Hipfired shots, there's no way that the Electrocuting Focus Shots will proc. As such, Electrocution DoT is not modeled.
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
+		return calculateSingleTargetDPS(false, false, false);
 	}
 
 	@Override
 	public double sustainedWeakpointDPS() {
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
+		return calculateSingleTargetDPS(false, false, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	
@@ -544,12 +597,10 @@ public class Classic_Hipfire extends Weapon {
 
 	@Override
 	public double calculateFiringDuration() {
-		double magSize = (double) getMagazineSize();
-		// Don't forget to add the magazine that you start out with, in addition to the carried ammo
-		double numberOfMagazines = (((double) getCarriedAmmo()) / magSize) + 1.0;
-		double timeToFireMagazine = magSize / getRateOfFire();
-		// There are one fewer reloads than there are magazines to fire
-		return numberOfMagazines * timeToFireMagazine + (numberOfMagazines - 1.0) * getReloadTime();
+		int magSize = getMagazineSize();
+		int carriedAmmo = getCarriedAmmo();
+		double timeToFireMagazine = ((double) magSize) / getRateOfFire();
+		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
 
 	@Override
@@ -560,19 +611,37 @@ public class Classic_Hipfire extends Weapon {
 	@Override
 	public double averageOverkill() {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus());
-		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
-		return overkill / dmgPerShot * 100.0;
+		double enemyHP = EnemyInformation.averageHealthPool();
+		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
+		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
 	}
 
 	@Override
-	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		return 0;
+	public double estimatedAccuracy(boolean weakpointAccuracy) {
+		double unchangingBaseSpread = 16;
+		double changingBaseSpread = 0;
+		double spreadVariance = 138;
+		double spreadPerShot = 94 * getSpreadPerShot();
+		double spreadRecoverySpeed = 174 * getSpreadRecoverySpeed();
+		double recoilPerShot = 86.83317338 * getRecoil();
+		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
+		double recoilUpInterval = 3.0 / 10.0;
+		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
+		double recoilDownInterval = 6.0 / 5.0;
+		
+		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
+				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
+				recoilPerShot, recoilUpInterval, recoilDownInterval);
 	}
 
 	@Override
 	public double utilityScore() {
-		// TODO Auto-generated method stub
-		return 0;
+		// Because almost all of M1k's Utility is based on Focused Shots, Hipfire is pretty meager as Utility goes...
+		
+		// Armor Breaking
+		// Because Blowthrough Rounds are on the same tier as Armor Break, this bonus isn't multiplied by max num targets.
+		utilityScores[2] = (getArmorBreaking() - 1) * UtilityInformation.ArmorBreak_Utility;
+		
+		return MathUtils.sum(utilityScores);
 	}
 }

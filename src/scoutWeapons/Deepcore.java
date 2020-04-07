@@ -3,11 +3,16 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.AccuracyEstimator;
+import modelPieces.DoTInformation;
+import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
+import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
+import utilities.MathUtils;
 
 public class Deepcore extends Weapon {
 	
@@ -15,17 +20,14 @@ public class Deepcore extends Weapon {
 	* Class Variables
 	****************************************************************************************/
 	
-	private int directDamage;
+	private double directDamage;
 	private int carriedAmmo;
 	private int magazineSize;
 	private double rateOfFire;
 	private double weakpointStunChance;
 	private double stunDuration;
 	private double reloadTime;
-	private double baseSpread;
-	private double recoil;
 	private double weakpointBonus;
-	private double armorBreakChance;
 	
 	/****************************************************************************************
 	* Constructors
@@ -54,9 +56,6 @@ public class Deepcore extends Weapon {
 		stunDuration = 1.5;
 		reloadTime = 1.8;
 		weakpointBonus = 0.1;
-		armorBreakChance = 1.0;
-		baseSpread = 1.0;
-		recoil = 1.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -94,8 +93,8 @@ public class Deepcore extends Weapon {
 		tier4[2] = new Mod("Improved Gas System", "We overclocked your gun. It fires faster. Don't ask, just enjoy. Also probably don't tell Management, please.", 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Battle Frenzy", "Move faster for a short time after killing an enemy", 5, 0, false);
-		tier5[1] = new Mod("Battle Cool", "Killing an enemy increases accuracy", 5, 1, false);  // According to wiki, sets spreadPerShot = 0 for 1.5 seconds after a kill?
+		tier5[0] = new Mod("Battle Frenzy", "Move faster for a short time after killing an enemy", 5, 0);
+		tier5[1] = new Mod("Battle Cool", "Killing an enemy increases accuracy", 5, 1);
 		tier5[2] = new Mod("Stun", "Increased chance to stun the target on a weakpoint hit", 5, 2);
 		
 		overclocks = new Overclock[7];
@@ -103,9 +102,9 @@ public class Deepcore extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Gas Rerouting", "Increases the weapon's rate of fire without affecting performance and helps with magazine ejection as well.", 1);
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "More damage on average but it's a bit inconsistent.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Overclocked Firing Mechanism", "More bullets faster and it kicks like a mule.", 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Bullets of Mercy", "Put suffering bugs out of their missery with a damage bonus against afflicted enemies.", 4, false);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Bullets of Mercy", "Put suffering bugs out of their misery with a damage bonus against afflicted enemies.", 4, false);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "AI Stability Engine", "It's like it knows what you are going to do before you do it, compensating for all recoil and bullet spread but the system requires a lower rate of fire and the modified firing chamber reduces overall damage.", 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Electrifying Reload", "Embedded capacitors have a chance to electrocute targets from the inside when you reload. Probability of electrocution increases with the number of hits. However all that tech reduces raw damage of the bullets and takes up some space in the magazines.", 6, false);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Electrifying Reload", "Embedded capacitors have a chance to electrocute targets from the inside when you reload. Probability of electrocution increases with the number of hits. However all that tech reduces raw damage of the bullets and takes up some space in the magazines.", 6);
 	}
 	
 	@Override
@@ -274,12 +273,19 @@ public class Deepcore extends Weapon {
 		return new Deepcore(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getDwarfClass() {
+		return "Scout";
+	}
+	public String getSimpleName() {
+		return "Deepcore";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/
 	
-	private int getDirectDamage() {
-		int toReturn = directDamage;
+	private double getDirectDamage() {
+		double toReturn = directDamage;
 		
 		// First do additive bonuses
 		if (selectedTier2 == 0) {
@@ -298,7 +304,7 @@ public class Deepcore extends Weapon {
 		
 		// Then do multiplicative bonuses
 		if (selectedOverclock == 2) {
-			toReturn = (int) Math.round(toReturn * 1.1);
+			toReturn *= homebrewPowderCoefficient;
 		}
 		
 		return toReturn;
@@ -377,26 +383,51 @@ public class Deepcore extends Weapon {
 		
 		return toReturn;
 	}
-	private double getArmorBreakChance() {
-		double toReturn = armorBreakChance;
-		
+	private double getArmorBreaking() {
 		if (selectedTier4 == 1) {
-			toReturn += 5.0;
+			return 6.0;
 		}
-		
-		return toReturn;
+		else {
+			return 1.0;
+		}
 	}
 	private double getBaseSpread() {
-		double toReturn = baseSpread;
-		
 		if (selectedTier1 == 0) {
-			toReturn -= 1.0;
+			return 0.0;
 		}
-		
-		return toReturn;
+		else {
+			return 1.0;
+		}
+	}
+	private double getSpreadPerShot() {
+		if (selectedTier5 == 1) {
+			// According to the Wiki, Battle Cool sets spreadPerShot = 0 for 1.5 seconds after a kill. This effectively lets the Spread decrease during that period due to the constant Spread Recovery.
+			// I'm choosing to model this as an averaged reduction on Spread per Shot across the whole magazine instead of trying to model it as the On-Kill effect that it truly is. 
+			double battleCoolDuration = 1.5;
+			double burstTTK = EnemyInformation.averageHealthPool() / calculateIdealBurstDPS();
+			double battleCoolUptimeCoefficient = battleCoolDuration / burstTTK;
+			
+			double magSize = getMagazineSize();
+			double numBulletsPerMagAffected = Math.round(magSize * battleCoolUptimeCoefficient);
+			double numBulletsUnaffected = magSize - numBulletsPerMagAffected;
+			
+			// This could be written simpler by not using the term multiplied by zero, but I'm choosing to write it explicitly to show how the averaging gets done.
+			return (0.0 * numBulletsPerMagAffected + 1.0 * numBulletsUnaffected) / magSize;
+		}
+		else {
+			return 1.0;
+		}
+	}
+	private double getSpreadRecoverySpeed() {
+		if (selectedOverclock == 5) {
+			return 10.0;
+		}
+		else {
+			return 1.0;
+		}
 	}
 	private double getRecoil() {
-		double toReturn = recoil;
+		double toReturn = 1.0;
 		
 		if (selectedTier3 == 0) {
 			toReturn *= 0.5;
@@ -417,33 +448,37 @@ public class Deepcore extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[11];
+		StatsRow[] toReturn = new StatsRow[13];
 		
-		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 ||  selectedOverclock == 5 || selectedOverclock == 6;
-		toReturn[0] = new StatsRow("Direct Damage:", "" + getDirectDamage(), directDamageModified);
+		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 || selectedOverclock == 2 || selectedOverclock == 5 || selectedOverclock == 6;
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
 		boolean magSizeModified = selectedTier3 == 2 || selectedOverclock == 0 || selectedOverclock == 4 || selectedOverclock == 6;
-		toReturn[1] = new StatsRow("Magazine Size:", "" + getMagazineSize(), magSizeModified);
+		toReturn[1] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
 		
-		toReturn[2] = new StatsRow("Max Ammo:", "" + getCarriedAmmo(), selectedTier2 == 1);
+		toReturn[2] = new StatsRow("Max Ammo:", getCarriedAmmo(), selectedTier2 == 1);
 		
 		boolean rofModified = selectedTier1 == 1 || selectedTier4 == 2 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
-		toReturn[3] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), rofModified);
+		toReturn[3] = new StatsRow("Rate of Fire:", getRateOfFire(), rofModified);
 		
-		toReturn[4] = new StatsRow("Reload Time:", "" + getReloadTime(), selectedOverclock == 1);
+		toReturn[4] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 1);
 		
 		toReturn[5] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0);
 		
-		toReturn[6] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 1);
+		toReturn[6] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier4 == 1, selectedTier4 == 1);
 		
-		toReturn[7] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier1 == 0);
+		toReturn[7] = new StatsRow("Weakpoint Stun Chance:", convertDoubleToPercentage(getWeakpointStunChance()), selectedTier5 == 2);
+		
+		toReturn[8] = new StatsRow("Stun Duration:", stunDuration, false);
+		
+		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier1 == 0, selectedTier1 == 0);
+		
+		toReturn[10] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier5 == 1, selectedTier5 == 1);
+		
+		toReturn[11] = new StatsRow("Spread Recovery:", convertDoubleToPercentage(getSpreadRecoverySpeed()), selectedOverclock == 5, selectedOverclock == 5);
 		
 		boolean recoilModified = selectedTier3 == 0 || selectedOverclock == 0 || selectedOverclock == 3 || selectedOverclock == 5;
-		toReturn[8] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified);
-		
-		toReturn[9] = new StatsRow("Weakpoint Stun Chance:", convertDoubleToPercentage(getWeakpointStunChance()), selectedTier5 == 2);
-		
-		toReturn[10] = new StatsRow("Stun Duration:", "" + stunDuration, false);
+		toReturn[12] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
 		
 		return toReturn;
 	}
@@ -458,65 +493,99 @@ public class Deepcore extends Weapon {
 	}
 	
 	// Single-target calculations
-	private double calculateDamagePerMagazine(boolean weakpointBonus) {
-		// Somehow "Explosive Reload" will have to be modeled in here.
-		if (weakpointBonus) {
-			return (double) increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) * getMagazineSize();
+	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+		double generalAccuracy, duration, directWeakpointDamage;
+		
+		if (accuracy) {
+			generalAccuracy = estimatedAccuracy(false) / 100.0;
 		}
 		else {
-			return (double) getDirectDamage() * getMagazineSize();
+			generalAccuracy = 1.0;
 		}
+		
+		if (burst) {
+			duration = ((double) getMagazineSize()) / getRateOfFire();
+		}
+		else {
+			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+		}
+		
+		double weakpointAccuracy;
+		if (weakpoint) {
+			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+			directWeakpointDamage = increaseBulletDamageForWeakpoints2(getDirectDamage(), getWeakpointBonus());
+		}
+		else {
+			weakpointAccuracy = 0.0;
+			directWeakpointDamage = getDirectDamage();
+		}
+		
+		double electroDPS = 0;
+		if (selectedOverclock == 6) {
+			double electroDoTUptimeCoefficient = Math.min(DoTInformation.Electro_SecsDuration / duration, 1);
+			electroDPS += electroDoTUptimeCoefficient * DoTInformation.Electro_DPS;
+		}
+		
+		int magSize = getMagazineSize();
+		int bulletsThatHitWeakpoint = (int) Math.round(magSize * weakpointAccuracy);
+		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
+		
+		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * getDirectDamage()) / duration + electroDPS;
 	}
 
 	@Override
 	public double calculateIdealBurstDPS() {
-		double timeToFireMagazine = ((double) getMagazineSize()) / getRateOfFire();
-		return calculateDamagePerMagazine(false) / timeToFireMagazine;
+		return calculateSingleTargetDPS(true, false, false);
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
+		return calculateSingleTargetDPS(false, false, false);
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
+		return calculateSingleTargetDPS(false, false, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		// Deepcore can't hit any additional targets
+		// Deepcore can't hit any additional targets in a single shot
 		return 0;
 	}
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		return (getMagazineSize() + getCarriedAmmo()) * getDirectDamage();
+		double totalDamage = (getMagazineSize() + getCarriedAmmo()) * getDirectDamage();
+		
+		double electrocutionDoTTotalDamage = 0;
+		if (selectedOverclock == 6) {
+			double electrocuteDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Electro_SecsDuration, DoTInformation.Electro_DPS);
+			double estimatedNumEnemiesKilled = calculateFiringDuration() / averageTimeToKill();
+			
+			electrocutionDoTTotalDamage = electrocuteDoTDamagePerEnemy * estimatedNumEnemiesKilled;
+		}
+		
+		return totalDamage + electrocutionDoTTotalDamage;
 	}
 
 	@Override
 	public int calculateMaxNumTargets() {
-		// Deepcore can't hit any additional targets
+		// Deepcore can't hit any additional targets in a single shot
 		return 1;
 	}
 
 	@Override
 	public double calculateFiringDuration() {
-		double magSize = (double) getMagazineSize();
-		// Don't forget to add the magazine that you start out with, in addition to the carried ammo
-		double numberOfMagazines = (((double) getCarriedAmmo()) / magSize) + 1.0;
-		double timeToFireMagazine = magSize / getRateOfFire();
-		// There are one fewer reloads than there are magazines to fire
-		return numberOfMagazines * timeToFireMagazine + (numberOfMagazines - 1.0) * getReloadTime();
+		int magSize = getMagazineSize();
+		int carriedAmmo = getCarriedAmmo();
+		double timeToFireMagazine = ((double) magSize) / getRateOfFire();
+		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
 
 	@Override
@@ -527,19 +596,67 @@ public class Deepcore extends Weapon {
 	@Override
 	public double averageOverkill() {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus());
-		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
-		return overkill / dmgPerShot * 100.0;
+		double enemyHP = EnemyInformation.averageHealthPool();
+		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
+		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
 	}
 
 	@Override
-	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		return 0;
+	public double estimatedAccuracy(boolean weakpointAccuracy) {
+		/*
+			Scout's Assault Rifle seems to use a different model of accuracy than the other guns do. Speficially, it does the following things differently:
+			1. The Spread Recovery Speed seems to be non-linear; it seems to be more powerful at the start of the magazine and get weaker near the end
+			2. The Spread Recovery starts getting applied on the first shot, whereas all the other guns have it applied on every shot after the first.
+			3. When its Base Spread is reduced to 0, the Max Spread doesn't decrease as well (every other gun has Max Spread = Base Spread + Spread Variance)
+			
+			With those things in mind, I am choosing to model this slightly incorrectly with the current AccuracyEstimator because I want to get things finished up.
+			If I keep developing this app, I'd like to come back and make a method specifically for this weapon.
+		*/
+		
+		double unchangingBaseSpread = 19;
+		double changingBaseSpread = 21 * getBaseSpread();
+		double spreadVariance = 84;
+		double spreadPerShot = 30 * getSpreadPerShot();
+		double spreadRecoverySpeed = 170.6869145;
+		double recoilPerShot = 41 * getRecoil();
+		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
+		double recoilUpInterval = 1.0 / 6.0;
+		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
+		double recoilDownInterval = 2.0 / 3.0;
+		
+		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
+				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
+				recoilPerShot, recoilUpInterval, recoilDownInterval);
 	}
 
 	@Override
 	public double utilityScore() {
-		// TODO Auto-generated method stub
-		return 0;
+		// Mod Tier 5 "Battle Frenzy" grants a 50% movespeed increase on kill for 3 seconds
+		if (selectedTier5 == 0) {
+			double uptimeCoefficient = Math.min(3.0 / averageTimeToKill(), 1);
+			utilityScores[0] = uptimeCoefficient * MathUtils.round(0.5 * DwarfInformation.walkSpeed, 2) * UtilityInformation.Movespeed_Utility;
+		}
+		else {
+			utilityScores[0] = 0;
+		}
+		
+		// Armor Breaking
+		// Like Burst Pistol, this armor break bonus only applies to the bullets so it's not multiplied by max num targets
+		utilityScores[2] = (getArmorBreaking() - 1) * UtilityInformation.ArmorBreak_Utility;
+		
+		// OC "Electrifying Reload" = 100% chance to electrocute on reload
+		if (selectedOverclock == 6) {
+			// This formula is entirely made up. It's designed to increase number electrocuted with Mag Size, and decrease it with Rate of Fire.
+			int numEnemiesElectrocutedPerMagazine = (int) Math.ceil(2.0 * getMagazineSize() / getRateOfFire());
+			utilityScores[3] = numEnemiesElectrocutedPerMagazine * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+		}
+		else {
+			utilityScores[3] = 0;
+		}
+		
+		// Innate Weakpoint stun = 10% chance for 1.5 sec stun (improved to 40% by Mod Tier 5 "Stun")
+		utilityScores[5] = EnemyInformation.probabilityBulletWillHitWeakpoint() * getWeakpointStunChance() * stunDuration * UtilityInformation.Stun_Utility;
+		
+		return MathUtils.sum(utilityScores);
 	}
 }

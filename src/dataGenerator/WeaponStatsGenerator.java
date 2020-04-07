@@ -18,8 +18,8 @@ public class WeaponStatsGenerator {
 		weaponToTest = testingWeapon;
 		csvFolderPath = "";
 		
-		String weaponPackage = weaponToTest.getClass().getPackageName();
-		String weaponClassName = weaponToTest.getClass().getSimpleName();
+		String weaponPackage = weaponToTest.getDwarfClass();
+		String weaponClassName = weaponToTest.getSimpleName();
 		csvFilePath = csvFolderPath + "\\" + weaponPackage + "_" + weaponClassName + ".csv";
 		
 		headers = new String[] {"Mods/OC", "Ideal Burst DPS", "Ideal Sustained DPS", "Sustained DPS (+Weakpoints)", 
@@ -33,15 +33,15 @@ public class WeaponStatsGenerator {
 	}
 	public void setCSVFolderPath(String newPath) {
 		csvFolderPath = newPath;
-		String weaponPackage = weaponToTest.getClass().getPackageName();
-		String weaponClassName = weaponToTest.getClass().getSimpleName();
+		String weaponPackage = weaponToTest.getDwarfClass();
+		String weaponClassName = weaponToTest.getSimpleName();
 		csvFilePath = csvFolderPath + "\\" + weaponPackage + "_" + weaponClassName + ".csv";
 	}
 	
 	public void changeWeapon(Weapon newWeaponToCalculate) {
 		weaponToTest = newWeaponToCalculate;
-		String weaponPackage = weaponToTest.getClass().getPackageName();
-		String weaponClassName = weaponToTest.getClass().getSimpleName();
+		String weaponPackage = weaponToTest.getDwarfClass();
+		String weaponClassName = weaponToTest.getSimpleName();
 		csvFilePath = csvFolderPath + "\\" + weaponPackage + "_" + weaponClassName + ".csv";
 		
 		// Proactively clear out the old CSV lines, since they won't be applicable to the new Weapon
@@ -146,18 +146,45 @@ public class WeaponStatsGenerator {
 		
 		// Section 4: COMBINATORICS
 		// Start by cloning the weapon with no mods or overclocks selected to get baselines
-		Weapon bestIdealBurstDPS = weaponToTest.clone();
-		Weapon bestIdealSustainedDPS = weaponToTest.clone();
-		Weapon bestWeakpointSustainedDPS = weaponToTest.clone();
-		Weapon bestWeakpointAccuracySustainedDPS = weaponToTest.clone();
-		Weapon bestAdditionalTargetDPS = weaponToTest.clone();
-		Weapon mostMultiTargetDamage = weaponToTest.clone();
-		Weapon mostNumTargets = weaponToTest.clone();
-		Weapon longestFiringDuration = weaponToTest.clone();
-		Weapon fastestTTK = weaponToTest.clone();
-		Weapon lowestOverkill = weaponToTest.clone();
-		Weapon bestAccuracy = weaponToTest.clone();
-		Weapon bestUtility = weaponToTest.clone();
+		String bestIdealBurstDPSCombination = weaponToTest.getCombination();
+		double bestIdealBurstDPS = weaponToTest.calculateIdealBurstDPS();
+		
+		String bestIdealSustainedDPSCombination = bestIdealBurstDPSCombination;
+		double bestIdealSustainedDPS = weaponToTest.calculateIdealSustainedDPS();
+		
+		String bestWeakpointSustainedDPSCombination = bestIdealBurstDPSCombination;
+		double bestWeakpointSustainedDPS = weaponToTest.sustainedWeakpointDPS();
+		
+		String bestWeakpointAccuracySustainedDPSCombination = bestIdealBurstDPSCombination;
+		double bestWeakpointAccuracySustainedDPS = weaponToTest.sustainedWeakpointAccuracyDPS();
+		
+		String bestAdditionalTargetDPSCombination = bestIdealBurstDPSCombination;
+		double bestAdditionalTargetDPS = weaponToTest.calculateAdditionalTargetDPS();
+		
+		String mostMultiTargetDamageCombination = bestIdealBurstDPSCombination;
+		double mostMultiTargetDamage = weaponToTest.calculateMaxMultiTargetDamage();
+		
+		String mostNumTargetsCombination = bestIdealBurstDPSCombination;
+		double mostNumTargets = weaponToTest.calculateMaxNumTargets();
+		
+		String longestFiringDurationCombination = bestIdealBurstDPSCombination;
+		double longestFiringDuration = weaponToTest.calculateFiringDuration();
+		
+		String fastestTTKCombination = bestIdealBurstDPSCombination;
+		double fastestTTK = weaponToTest.averageTimeToKill();
+		
+		String lowestOverkillCombination = bestIdealBurstDPSCombination;
+		double lowestOverkill = weaponToTest.averageOverkill();
+		
+		String bestAccuracyCombination = bestIdealBurstDPSCombination;
+		double bestAccuracy = weaponToTest.estimatedAccuracy(false);
+		
+		String bestUtilityCombination = bestIdealBurstDPSCombination;
+		double bestUtility = weaponToTest.utilityScore();
+		
+		double currentBurst, currentSustained, currentSustainedWeakpoint, currentSustainedWeakpointAccuracy, currentAdditional, currentMaxDamage, 
+				currentNumTargets, currentFiringDuration, currentTTK, currentOverkill, currentAccuracy, currentUtility;
+		String forLoopsCombination;
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
@@ -181,46 +208,72 @@ public class WeaponStatsGenerator {
 								// Because this will generate thousands of lines of data, never print to console.
 								calculateStatsAndPrint(false, exportStatsToCSV);
 								
+								forLoopsCombination = weaponToTest.getCombination();
+								
 								// Single-target calculations
-								if (weaponToTest.calculateIdealBurstDPS() > bestIdealBurstDPS.calculateIdealBurstDPS()) {
-									bestIdealBurstDPS = weaponToTest.clone();
+								currentBurst = weaponToTest.calculateIdealBurstDPS();
+								if (currentBurst > bestIdealBurstDPS) {
+									bestIdealBurstDPSCombination = forLoopsCombination;
+									bestIdealBurstDPS = currentBurst;
 								}
-								if (weaponToTest.calculateIdealSustainedDPS() > bestIdealSustainedDPS.calculateIdealSustainedDPS()) {
-									bestIdealSustainedDPS = weaponToTest.clone();
+								currentSustained = weaponToTest.calculateIdealSustainedDPS();
+								if (currentSustained > bestIdealSustainedDPS) {
+									bestIdealSustainedDPSCombination = forLoopsCombination;
+									bestIdealSustainedDPS = currentSustained;
 								}
-								if (weaponToTest.sustainedWeakpointDPS() > bestWeakpointSustainedDPS.sustainedWeakpointDPS()) {
-									bestWeakpointSustainedDPS = weaponToTest.clone();
+								currentSustainedWeakpoint = weaponToTest.sustainedWeakpointDPS();
+								if (currentSustainedWeakpoint > bestWeakpointSustainedDPS) {
+									bestWeakpointSustainedDPSCombination = forLoopsCombination;
+									bestWeakpointSustainedDPS = currentSustainedWeakpoint;
 								}
-								if (weaponToTest.sustainedWeakpointAccuracyDPS() > bestWeakpointAccuracySustainedDPS.sustainedWeakpointAccuracyDPS()) {
-									bestWeakpointAccuracySustainedDPS = weaponToTest.clone();
+								currentSustainedWeakpointAccuracy = weaponToTest.sustainedWeakpointAccuracyDPS();
+								if (currentSustainedWeakpointAccuracy > bestWeakpointAccuracySustainedDPS) {
+									bestWeakpointAccuracySustainedDPSCombination = forLoopsCombination;
+									bestWeakpointAccuracySustainedDPS = currentSustainedWeakpointAccuracy;
 								}
 								
 								// Multi-target calculations
-								if (weaponToTest.calculateAdditionalTargetDPS() > bestAdditionalTargetDPS.calculateAdditionalTargetDPS()) {
-									bestAdditionalTargetDPS = weaponToTest.clone();
+								currentAdditional = weaponToTest.calculateAdditionalTargetDPS();
+								if (currentAdditional > bestAdditionalTargetDPS) {
+									bestAdditionalTargetDPSCombination = forLoopsCombination;
+									bestAdditionalTargetDPS = currentAdditional;
 								}
-								if (weaponToTest.calculateMaxMultiTargetDamage() > mostMultiTargetDamage.calculateMaxMultiTargetDamage()) {
-									mostMultiTargetDamage = weaponToTest.clone();
+								currentMaxDamage = weaponToTest.calculateMaxMultiTargetDamage();
+								if (currentMaxDamage > mostMultiTargetDamage) {
+									mostMultiTargetDamageCombination = forLoopsCombination;
+									mostMultiTargetDamage = currentMaxDamage;
 								}
 								
 								// Non-damage calculations
-								if (weaponToTest.calculateMaxNumTargets() > mostNumTargets.calculateMaxNumTargets()) {
-									mostNumTargets = weaponToTest.clone();
+								currentNumTargets = weaponToTest.calculateMaxNumTargets();
+								if (currentNumTargets > mostNumTargets) {
+									mostNumTargetsCombination = forLoopsCombination;
+									mostNumTargets = currentNumTargets;
 								}
-								if (weaponToTest.calculateFiringDuration() > longestFiringDuration.calculateFiringDuration()) {
-									longestFiringDuration = weaponToTest.clone();
+								currentFiringDuration = weaponToTest.calculateFiringDuration();
+								if (currentFiringDuration > longestFiringDuration) {
+									longestFiringDurationCombination = forLoopsCombination;
+									longestFiringDuration = currentFiringDuration;
 								}
-								if (weaponToTest.averageTimeToKill() < fastestTTK.averageTimeToKill()) {
-									fastestTTK = weaponToTest.clone();
+								currentTTK = weaponToTest.averageTimeToKill();
+								if (currentTTK < fastestTTK) {
+									fastestTTKCombination = forLoopsCombination;
+									fastestTTK = currentTTK;
 								}
-								if (weaponToTest.averageOverkill() < lowestOverkill.averageOverkill()) {
-									lowestOverkill = weaponToTest.clone();
+								currentOverkill = weaponToTest.averageOverkill();
+								if (currentOverkill < lowestOverkill) {
+									lowestOverkillCombination = forLoopsCombination;
+									lowestOverkill = currentOverkill;
 								}
-								if (weaponToTest.estimatedAccuracy() > bestAccuracy.estimatedAccuracy()) {
-									bestAccuracy = weaponToTest.clone();
+								currentAccuracy = weaponToTest.estimatedAccuracy(false);
+								if (currentAccuracy > bestAccuracy) {
+									bestAccuracyCombination = forLoopsCombination;
+									bestAccuracy = currentAccuracy;
 								}
-								if (weaponToTest.utilityScore() > bestUtility.utilityScore()) {
-									bestUtility = weaponToTest.clone();
+								currentUtility = weaponToTest.utilityScore();
+								if (currentUtility > bestUtility) {
+									bestUtilityCombination = forLoopsCombination;
+									bestUtility = currentUtility;
 								}
 							}
 						}
@@ -231,18 +284,18 @@ public class WeaponStatsGenerator {
 		
 		if (printStatsToConsole) {
 			System.out.println("Best build combinations for each category:");
-			System.out.println("	Best Ideal Burst DPS: " + bestIdealBurstDPS.getCombination() + " at " + bestIdealBurstDPS.calculateIdealBurstDPS()  + " DPS");
-			System.out.println("	Best Ideal Sustained DPS: " + bestIdealSustainedDPS.getCombination() + " at " + bestIdealSustainedDPS.calculateIdealSustainedDPS() + " DPS");
-			System.out.println("	Best Sustained + Weakpoint DPS: " + bestWeakpointSustainedDPS.getCombination() + " at " + bestWeakpointSustainedDPS.sustainedWeakpointDPS() + " DPS");
-			System.out.println("	Best Sustained + Weakpoint + Accuracy DPS: " + bestWeakpointAccuracySustainedDPS.getCombination() + " at " + bestWeakpointAccuracySustainedDPS.sustainedWeakpointAccuracyDPS() + " DPS");
-			System.out.println("	Best Additional Target DPS: " + bestAdditionalTargetDPS.getCombination() + " at " + bestAdditionalTargetDPS.calculateAdditionalTargetDPS() + " extra DPS per additional target");
-			System.out.println("	Most damage dealt to multiple targets: " + mostMultiTargetDamage.getCombination() + " at " + mostMultiTargetDamage.calculateMaxMultiTargetDamage() + " damage");
-			System.out.println("	Most number of targets hit per projectile: " + mostNumTargets.getCombination() + " at " + mostNumTargets.calculateMaxNumTargets() + " targets per projectile");
-			System.out.println("	Longest time to fire all projectiles: " + longestFiringDuration.getCombination() + " at " + longestFiringDuration.calculateFiringDuration() + " sec");
-			System.out.println("	Shortest average Time To Kill: " + fastestTTK.getCombination() + " at " + fastestTTK.averageTimeToKill() + " sec");
-			System.out.println("	Lowest average Overkill: " + lowestOverkill.getCombination() + " at " + lowestOverkill.averageOverkill() + "%");
-			System.out.println("	Most Accurate: " + bestAccuracy.getCombination() + " at " + bestAccuracy.estimatedAccuracy() + "%");
-			System.out.println("	Most Utility: " + bestUtility.getCombination() + " at " + bestUtility.utilityScore());
+			System.out.println("	Best Ideal Burst DPS: " + bestIdealBurstDPSCombination + " at " + bestIdealBurstDPS  + " DPS");
+			System.out.println("	Best Ideal Sustained DPS: " + bestIdealSustainedDPSCombination + " at " + bestIdealSustainedDPS + " DPS");
+			System.out.println("	Best Sustained + Weakpoint DPS: " + bestWeakpointSustainedDPSCombination + " at " + bestWeakpointSustainedDPS + " DPS");
+			System.out.println("	Best Sustained + Weakpoint + Accuracy DPS: " + bestWeakpointAccuracySustainedDPSCombination + " at " + bestWeakpointAccuracySustainedDPS + " DPS");
+			System.out.println("	Best Additional Target DPS: " + bestAdditionalTargetDPSCombination + " at " + bestAdditionalTargetDPS + " extra DPS per additional target");
+			System.out.println("	Most damage dealt to multiple targets: " + mostMultiTargetDamageCombination + " at " + mostMultiTargetDamage + " damage");
+			System.out.println("	Most number of targets hit per projectile: " + mostNumTargetsCombination + " at " + mostNumTargets + " targets per projectile");
+			System.out.println("	Longest time to fire all projectiles: " + longestFiringDurationCombination + " at " + longestFiringDuration + " sec");
+			System.out.println("	Shortest average Time To Kill: " + fastestTTKCombination + " at " + fastestTTK + " sec");
+			System.out.println("	Lowest average Overkill: " + lowestOverkillCombination + " at " + lowestOverkill + "%");
+			System.out.println("	Most Accurate: " + bestAccuracyCombination + " at " + bestAccuracy + "%");
+			System.out.println("	Most Utility: " + bestUtilityCombination + " at " + bestUtility);
 		}
 		if (exportStatsToCSV) {
 			// Open the CSV file once, then dump the accumulated ArrayList of lines all at once to minimize I/O time
@@ -289,13 +342,15 @@ public class WeaponStatsGenerator {
 	}
 	
 	private void printStatsToCSV(String combination, double[] metrics) {
-		String format = "%s, %f, %f, %f, %f, %d, %f, %f, %f, %f, %f, %f, %f,\n";
+		String format = "%s, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,\n";
 		csvLinesToWrite.add((String.format(format, combination, metrics[0], metrics[1], metrics[2], metrics[3], metrics[4], metrics[5], 
 				  			 metrics[6], metrics[7], metrics[8], metrics[9], metrics[10], metrics[11])));
 	}
 	
-	public String getBestBurstDPSCombination() {
-		Weapon bestBurstDPS = weaponToTest.clone();
+	public String getBestIdealBurstDPSCombination() {
+		String bestBurstDPSCombination = weaponToTest.getCombination();
+		double bestBurstDPS = weaponToTest.calculateIdealBurstDPS();
+		double currentBurstDPS;
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
@@ -316,8 +371,10 @@ public class WeaponStatsGenerator {
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
 								weaponToTest.setSelectedModAtTier(1, t1);
 								
-								if (weaponToTest.calculateIdealBurstDPS() > bestBurstDPS.calculateIdealBurstDPS()) {
-									bestBurstDPS = weaponToTest.clone();
+								currentBurstDPS = weaponToTest.calculateIdealBurstDPS();
+								if (currentBurstDPS > bestBurstDPS) {
+									bestBurstDPSCombination = weaponToTest.getCombination();
+									bestBurstDPS = currentBurstDPS;
 								}
 							}
 						}
@@ -326,11 +383,13 @@ public class WeaponStatsGenerator {
 			}
 		}
 		
-		return bestBurstDPS.getCombination();
+		return bestBurstDPSCombination;
 	}
 	
-	public String getBestSustainedDPSCombination() {
-		Weapon bestSustainedDPS = weaponToTest.clone();
+	public String getBestIdealSustainedDPSCombination() {
+		String bestSustainedDPSCombination = weaponToTest.getCombination();
+		double bestSustainedDPS = weaponToTest.calculateIdealSustainedDPS();
+		double currentSustainedDPS;
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
@@ -351,8 +410,10 @@ public class WeaponStatsGenerator {
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
 								weaponToTest.setSelectedModAtTier(1, t1);
 								
-								if (weaponToTest.calculateIdealSustainedDPS() > bestSustainedDPS.calculateIdealSustainedDPS()) {
-									bestSustainedDPS = weaponToTest.clone();
+								currentSustainedDPS = weaponToTest.calculateIdealSustainedDPS();
+								if (currentSustainedDPS > bestSustainedDPS) {
+									bestSustainedDPSCombination = weaponToTest.getCombination();
+									bestSustainedDPS = currentSustainedDPS;
 								}
 							}
 						}
@@ -361,11 +422,13 @@ public class WeaponStatsGenerator {
 			}
 		}
 		
-		return bestSustainedDPS.getCombination();
+		return bestSustainedDPSCombination;
 	}
 	
 	public String getBestSustainedWeakpointDPSCombination() {
-		Weapon bestWeakpointSustainedDPS = weaponToTest.clone();
+		String bestWeakpointSustainedDPSCombination = weaponToTest.getCombination();
+		double bestWeakpointSustainedDPS = weaponToTest.sustainedWeakpointDPS();
+		double currentWeakpointSustainedDPS;
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
@@ -386,8 +449,10 @@ public class WeaponStatsGenerator {
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
 								weaponToTest.setSelectedModAtTier(1, t1);
 								
-								if (weaponToTest.sustainedWeakpointDPS() > bestWeakpointSustainedDPS.sustainedWeakpointDPS()) {
-									bestWeakpointSustainedDPS = weaponToTest.clone();
+								currentWeakpointSustainedDPS = weaponToTest.sustainedWeakpointDPS();
+								if (currentWeakpointSustainedDPS > bestWeakpointSustainedDPS) {
+									bestWeakpointSustainedDPSCombination = weaponToTest.getCombination();
+									bestWeakpointSustainedDPS = currentWeakpointSustainedDPS;
 								}
 							}
 						}
@@ -396,11 +461,13 @@ public class WeaponStatsGenerator {
 			}
 		}
 		
-		return bestWeakpointSustainedDPS.getCombination();
+		return bestWeakpointSustainedDPSCombination;
 	}
 	
 	public String getBestSustainedWeakpointAccuracyDPSCombination() {
-		Weapon bestWeakpointAccuracySustainedDPS = weaponToTest.clone();
+		String bestWeakpointAccuracySustainedDPSCombination = weaponToTest.getCombination();
+		double bestWeakpointAccuracySustainedDPS = weaponToTest.sustainedWeakpointAccuracyDPS();
+		double currentWeakpointAccuracySustainedDPS;
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
@@ -421,8 +488,10 @@ public class WeaponStatsGenerator {
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
 								weaponToTest.setSelectedModAtTier(1, t1);
 								
-								if (weaponToTest.sustainedWeakpointAccuracyDPS() > bestWeakpointAccuracySustainedDPS.sustainedWeakpointAccuracyDPS()) {
-									bestWeakpointAccuracySustainedDPS = weaponToTest.clone();
+								currentWeakpointAccuracySustainedDPS = weaponToTest.sustainedWeakpointAccuracyDPS();
+								if (currentWeakpointAccuracySustainedDPS > bestWeakpointAccuracySustainedDPS) {
+									bestWeakpointAccuracySustainedDPSCombination = weaponToTest.getCombination();
+									bestWeakpointAccuracySustainedDPS = currentWeakpointAccuracySustainedDPS;
 								}
 							}
 						}
@@ -431,11 +500,13 @@ public class WeaponStatsGenerator {
 			}
 		}
 		
-		return bestWeakpointAccuracySustainedDPS.getCombination();
+		return bestWeakpointAccuracySustainedDPSCombination;
 	}
 	
-	public String getBestAdditionalTargetDPSCombination() {
-		Weapon bestAdditionalTargetDPS = weaponToTest.clone();
+	public String getBestIdealAdditionalTargetDPSCombination() {
+		String bestAdditionalTargetDPSCombination = weaponToTest.getCombination();
+		double bestAdditionalTargetDPS = weaponToTest.calculateAdditionalTargetDPS();
+		double currentAdditionalTargetDPS;
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
@@ -456,8 +527,10 @@ public class WeaponStatsGenerator {
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
 								weaponToTest.setSelectedModAtTier(1, t1);
 								
-								if (weaponToTest.calculateAdditionalTargetDPS() > bestAdditionalTargetDPS.calculateAdditionalTargetDPS()) {
-									bestAdditionalTargetDPS = weaponToTest.clone();
+								currentAdditionalTargetDPS = weaponToTest.calculateAdditionalTargetDPS();
+								if (currentAdditionalTargetDPS > bestAdditionalTargetDPS) {
+									bestAdditionalTargetDPSCombination = weaponToTest.getCombination();
+									bestAdditionalTargetDPS = currentAdditionalTargetDPS;
 								}
 							}
 						}
@@ -466,11 +539,13 @@ public class WeaponStatsGenerator {
 			}
 		}
 		
-		return bestAdditionalTargetDPS.getCombination();
+		return bestAdditionalTargetDPSCombination;
 	}
 	
 	public String getHighestMultiTargetDamageCombination() {
-		Weapon mostMultiTargetDamage = weaponToTest.clone();
+		String mostMultiTargetDamageCombination = weaponToTest.getCombination();
+		double mostMultiTargetDamage = weaponToTest.calculateMaxMultiTargetDamage();
+		double currentMultiTargetDamage;
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
@@ -491,8 +566,10 @@ public class WeaponStatsGenerator {
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
 								weaponToTest.setSelectedModAtTier(1, t1);
 								
-								if (weaponToTest.calculateMaxMultiTargetDamage() > mostMultiTargetDamage.calculateMaxMultiTargetDamage()) {
-									mostMultiTargetDamage = weaponToTest.clone();
+								currentMultiTargetDamage = weaponToTest.calculateMaxMultiTargetDamage();
+								if (currentMultiTargetDamage > mostMultiTargetDamage) {
+									mostMultiTargetDamageCombination = weaponToTest.getCombination();
+									mostMultiTargetDamage = currentMultiTargetDamage;
 								}
 							}
 						}
@@ -501,11 +578,13 @@ public class WeaponStatsGenerator {
 			}
 		}
 		
-		return mostMultiTargetDamage.getCombination();
+		return mostMultiTargetDamageCombination;
 	}
 	
 	public String getMostNumTargetsCombination() {
-		Weapon mostNumTargets = weaponToTest.clone();
+		String mostNumTargetsCombination = weaponToTest.getCombination();
+		double mostNumTargets = weaponToTest.calculateMaxNumTargets();
+		double currentNumTargets;
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
@@ -526,8 +605,10 @@ public class WeaponStatsGenerator {
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
 								weaponToTest.setSelectedModAtTier(1, t1);
 								
-								if (weaponToTest.calculateMaxNumTargets() > mostNumTargets.calculateMaxNumTargets()) {
-									mostNumTargets = weaponToTest.clone();
+								currentNumTargets = weaponToTest.calculateMaxNumTargets();
+								if (currentNumTargets > mostNumTargets) {
+									mostNumTargetsCombination = weaponToTest.getCombination();
+									mostNumTargets = currentNumTargets;
 								}
 							}
 						}
@@ -536,11 +617,13 @@ public class WeaponStatsGenerator {
 			}
 		}
 		
-		return mostNumTargets.getCombination();
+		return mostNumTargetsCombination;
 	}
 	
 	public String getLongestFiringDurationCombination() {
-		Weapon longestFiringDuration = weaponToTest.clone();
+		String longestFiringDurationCombination = weaponToTest.getCombination();
+		double longestFiringDuration = weaponToTest.calculateFiringDuration();
+		double currentFiringDuration;
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
@@ -561,8 +644,10 @@ public class WeaponStatsGenerator {
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
 								weaponToTest.setSelectedModAtTier(1, t1);
 								
-								if (weaponToTest.calculateFiringDuration() > longestFiringDuration.calculateFiringDuration()) {
-									longestFiringDuration = weaponToTest.clone();
+								currentFiringDuration = weaponToTest.calculateFiringDuration();
+								if (currentFiringDuration > longestFiringDuration) {
+									longestFiringDurationCombination = weaponToTest.getCombination();
+									longestFiringDuration = currentFiringDuration;
 								}
 							}
 						}
@@ -571,11 +656,13 @@ public class WeaponStatsGenerator {
 			}
 		}
 		
-		return longestFiringDuration.getCombination();
+		return longestFiringDurationCombination;
 	}
 	
 	public String getShortestTimeToKillCombination() {
-		Weapon fastestTTK = weaponToTest.clone();
+		String fastestTTKCombination = weaponToTest.getCombination();
+		double fastestTTK = weaponToTest.averageTimeToKill();
+		double currentTTK;
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
@@ -596,8 +683,10 @@ public class WeaponStatsGenerator {
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
 								weaponToTest.setSelectedModAtTier(1, t1);
 								
-								if (weaponToTest.averageTimeToKill() < fastestTTK.averageTimeToKill()) {
-									fastestTTK = weaponToTest.clone();
+								currentTTK = weaponToTest.averageTimeToKill();
+								if (currentTTK < fastestTTK) {
+									fastestTTKCombination = weaponToTest.getCombination();
+									fastestTTK = currentTTK;
 								}
 							}
 						}
@@ -606,11 +695,13 @@ public class WeaponStatsGenerator {
 			}
 		}
 		
-		return fastestTTK.getCombination();
+		return fastestTTKCombination;
 	}
 	
 	public String getLowestOverkillCombination() {
-		Weapon lowestOverkill = weaponToTest.clone();
+		String lowestOverkillCombination = weaponToTest.getCombination();
+		double lowestOverkill = weaponToTest.averageOverkill();
+		double currentOverkill;
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
@@ -631,8 +722,10 @@ public class WeaponStatsGenerator {
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
 								weaponToTest.setSelectedModAtTier(1, t1);
 								
-								if (weaponToTest.averageOverkill() < lowestOverkill.averageOverkill()) {
-									lowestOverkill = weaponToTest.clone();
+								currentOverkill = weaponToTest.averageOverkill();
+								if (currentOverkill < lowestOverkill) {
+									lowestOverkillCombination = weaponToTest.getCombination();
+									lowestOverkill = currentOverkill;
 								}
 							}
 						}
@@ -641,11 +734,13 @@ public class WeaponStatsGenerator {
 			}
 		}
 		
-		return lowestOverkill.getCombination();
+		return lowestOverkillCombination;
 	}
 	
 	public String getHighestAccuracyCombination() {
-		Weapon bestAccuracy = weaponToTest.clone();
+		String bestAccuracyCombination = weaponToTest.getCombination();
+		double bestAccuracy = weaponToTest.estimatedAccuracy(false);
+		double currentAccuracy;
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
@@ -666,8 +761,10 @@ public class WeaponStatsGenerator {
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
 								weaponToTest.setSelectedModAtTier(1, t1);
 								
-								if (weaponToTest.estimatedAccuracy() > bestAccuracy.estimatedAccuracy()) {
-									bestAccuracy = weaponToTest.clone();
+								currentAccuracy = weaponToTest.estimatedAccuracy(false);
+								if (currentAccuracy > bestAccuracy) {
+									bestAccuracyCombination = weaponToTest.getCombination();
+									bestAccuracy = currentAccuracy;
 								}
 							}
 						}
@@ -676,11 +773,13 @@ public class WeaponStatsGenerator {
 			}
 		}
 		
-		return bestAccuracy.getCombination();
+		return bestAccuracyCombination;
 	}
 	
 	public String getMostUtilityCombination() {
-		Weapon bestUtility = weaponToTest.clone();
+		String bestUtilityCombination = weaponToTest.getCombination();
+		double bestUtility = weaponToTest.utilityScore();
+		double currentUtility;
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
@@ -701,8 +800,10 @@ public class WeaponStatsGenerator {
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
 								weaponToTest.setSelectedModAtTier(1, t1);
 								
-								if (weaponToTest.utilityScore() > bestUtility.utilityScore()) {
-									bestUtility = weaponToTest.clone();
+								currentUtility = weaponToTest.utilityScore();
+								if (currentUtility > bestUtility) {
+									bestUtilityCombination = weaponToTest.getCombination();
+									bestUtility = currentUtility;
 								}
 							}
 						}
@@ -711,6 +812,6 @@ public class WeaponStatsGenerator {
 			}
 		}
 		
-		return bestUtility.getCombination();
+		return bestUtilityCombination;
 	}
 }

@@ -12,7 +12,6 @@ import javax.swing.JButton;
 import javax.swing.JToolTip;
 
 import modelPieces.Weapon;
-import utilities.GuiConstants;
 
 public class ModButton extends JButton implements ActionListener {
 	private static final long serialVersionUID = 1L;

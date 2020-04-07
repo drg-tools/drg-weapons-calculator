@@ -2,6 +2,8 @@ package guiPieces;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -15,7 +17,7 @@ import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.Weapon;
-import utilities.GuiConstants;
+import utilities.MathUtils;
 
 public class WeaponTab extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -93,28 +95,32 @@ public class WeaponTab extends JPanel {
 		JLabel statLabel, statValue;
 		int paddingPixels = 2*GuiConstants.paddingPixels;
 		for (int i = 0; i < weaponStats.length; i++) {
-			row = new JPanel();
-			row.setOpaque(false);
-			row.setLayout(new BorderLayout());
-			
-			statLabel = new JLabel(weaponStats[i].getName());
-			statLabel.setForeground(Color.white);
-			// Left-pad the label text
-			statLabel.setBorder(new EmptyBorder(0, paddingPixels, 0, 0));
-			row.add(statLabel, BorderLayout.LINE_START);
-			
-			statValue = new JLabel(weaponStats[i].getValue());
-			if (weaponStats[i].shouldValueBeHighlighted()) {
-				statValue.setForeground(GuiConstants.drgHighlightedYellow);
+			if (weaponStats[i].shouldBeDisplayed()) {
+				row = new JPanel();
+				row.setOpaque(false);
+				row.setLayout(new BorderLayout());
+				
+				statLabel = new JLabel(weaponStats[i].getName());
+				// statLabel.setFont(GuiConstants.customFont);
+				statLabel.setForeground(Color.white);
+				// Left-pad the label text
+				statLabel.setBorder(new EmptyBorder(0, paddingPixels, 0, 0));
+				row.add(statLabel, BorderLayout.LINE_START);
+				
+				statValue = new JLabel(weaponStats[i].getValue());
+				// statValue.setFont(GuiConstants.customFontBold);
+				if (weaponStats[i].shouldValueBeHighlighted()) {
+					statValue.setForeground(GuiConstants.drgHighlightedYellow);
+				}
+				else {
+					statValue.setForeground(GuiConstants.drgRegularOrange);
+				}
+				// Right-pad the value text
+				statValue.setBorder(new EmptyBorder(0, 0, 0, paddingPixels));
+				row.add(statValue, BorderLayout.LINE_END);
+				
+				toReturn.add(row);
 			}
-			else {
-				statValue.setForeground(GuiConstants.drgRegularOrange);
-			}
-			// Right-pad the value text
-			statValue.setBorder(new EmptyBorder(0, 0, 0, paddingPixels));
-			row.add(statValue, BorderLayout.LINE_END);
-			
-			toReturn.add(row);
 		}
 		
 		return toReturn;
@@ -189,6 +195,7 @@ public class WeaponTab extends JPanel {
 		
 		int i;
 		JLabel header, value;
+		String roundedNumber;
 		
 		// Row 1
 		for (i = 0; i < headers.length/2; i++) {
@@ -200,7 +207,8 @@ public class WeaponTab extends JPanel {
 		double[] originalStats = myWeapon.getBaselineStats();
 		
 		double idealBurstDPS = myWeapon.calculateIdealBurstDPS();
-		value = new JLabel("" + idealBurstDPS);
+		roundedNumber = "" + MathUtils.round(idealBurstDPS, GuiConstants.numDecimalPlaces);
+		value = new JLabel(roundedNumber);
 		if (idealBurstDPS < originalStats[0]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
@@ -214,7 +222,8 @@ public class WeaponTab extends JPanel {
 		toReturn.add(value);
 		
 		double idealSustainedDPS = myWeapon.calculateIdealSustainedDPS();
-		value = new JLabel("" + idealSustainedDPS);
+		roundedNumber = "" + MathUtils.round(idealSustainedDPS, GuiConstants.numDecimalPlaces);
+		value = new JLabel(roundedNumber);
 		if (idealSustainedDPS < originalStats[1]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
@@ -228,7 +237,8 @@ public class WeaponTab extends JPanel {
 		toReturn.add(value);
 		
 		double sustainedWeakpointDPS = myWeapon.sustainedWeakpointDPS();
-		value = new JLabel("" + sustainedWeakpointDPS);
+		roundedNumber = "" + MathUtils.round(sustainedWeakpointDPS, GuiConstants.numDecimalPlaces);
+		value = new JLabel(roundedNumber);
 		if (sustainedWeakpointDPS < originalStats[2]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
@@ -242,7 +252,8 @@ public class WeaponTab extends JPanel {
 		toReturn.add(value);
 		
 		double sustainedWeakpointAccuracyDPS = myWeapon.sustainedWeakpointAccuracyDPS();
-		value = new JLabel("" + sustainedWeakpointAccuracyDPS);
+		roundedNumber = "" + MathUtils.round(sustainedWeakpointAccuracyDPS, GuiConstants.numDecimalPlaces);
+		value = new JLabel(roundedNumber);
 		if (sustainedWeakpointAccuracyDPS < originalStats[3]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
@@ -256,7 +267,8 @@ public class WeaponTab extends JPanel {
 		toReturn.add(value);
 		
 		double additionalTargetDPS = myWeapon.calculateAdditionalTargetDPS();
-		value = new JLabel("" + additionalTargetDPS);
+		roundedNumber = "" + MathUtils.round(additionalTargetDPS, GuiConstants.numDecimalPlaces);
+		value = new JLabel(roundedNumber);
 		if (additionalTargetDPS < originalStats[4]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
@@ -270,7 +282,8 @@ public class WeaponTab extends JPanel {
 		toReturn.add(value);
 		
 		double maxMultiDmg = myWeapon.calculateMaxMultiTargetDamage();
-		value = new JLabel("" + maxMultiDmg);
+		roundedNumber = "" + MathUtils.round(maxMultiDmg, GuiConstants.numDecimalPlaces);
+		value = new JLabel(roundedNumber);
 		if (maxMultiDmg < originalStats[5]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
@@ -322,7 +335,8 @@ public class WeaponTab extends JPanel {
 		}
 		
 		double firingDuration = myWeapon.calculateFiringDuration();
-		value = new JLabel("" + firingDuration);
+		roundedNumber = "" + MathUtils.round(firingDuration, GuiConstants.numDecimalPlaces);
+		value = new JLabel(roundedNumber);
 		if (firingDuration < originalStats[7]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
@@ -336,7 +350,8 @@ public class WeaponTab extends JPanel {
 		toReturn.add(value);
 		
 		double timeToKill = myWeapon.averageTimeToKill();
-		value = new JLabel("" + timeToKill);
+		roundedNumber = "" + MathUtils.round(timeToKill, GuiConstants.numDecimalPlaces);
+		value = new JLabel(roundedNumber);
 		if (timeToKill > originalStats[8]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
@@ -350,7 +365,8 @@ public class WeaponTab extends JPanel {
 		toReturn.add(value);
 		
 		double overkill = myWeapon.averageOverkill();
-		value = new JLabel(overkill + "%");
+		roundedNumber = MathUtils.round(overkill, GuiConstants.numDecimalPlaces) + "%";
+		value = new JLabel(roundedNumber);
 		if (overkill > originalStats[9]) {
 			value.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
@@ -363,13 +379,14 @@ public class WeaponTab extends JPanel {
 		}
 		toReturn.add(value);
 		
-		double accuracy = myWeapon.estimatedAccuracy();
+		double accuracy = myWeapon.estimatedAccuracy(false);
 		if (accuracy < 0) {
 			value = new JLabel("Manually Aimed");
 			value.setForeground(GuiConstants.drgHighlightedYellow);
 		}
 		else {
-			value = new JLabel(accuracy + "%");
+			roundedNumber = MathUtils.round(accuracy, GuiConstants.numDecimalPlaces) + "%";
+			value = new JLabel(roundedNumber);
 			if (accuracy < originalStats[10]) {
 				value.setForeground(GuiConstants.drgOverclockUnstableRed);
 			}
@@ -384,18 +401,19 @@ public class WeaponTab extends JPanel {
 		toReturn.add(value);
 		
 		double utility = myWeapon.utilityScore();
-		value = new JLabel("" + utility);
+		roundedNumber = "" + MathUtils.round(utility, GuiConstants.numDecimalPlaces);
+		UtilityBreakdownButton utilButton = new UtilityBreakdownButton("    " + roundedNumber, myWeapon);
 		if (utility < originalStats[11]) {
-			value.setForeground(GuiConstants.drgOverclockUnstableRed);
+			utilButton.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
 		else if (utility > originalStats[11]) {
-			value.setForeground(GuiConstants.drgOverclockCleanGreen);
+			utilButton.setForeground(GuiConstants.drgOverclockCleanGreen);
 		}
 		else {
 			// Implicitly means that they're equal
-			value.setForeground(GuiConstants.drgHighlightedYellow);
+			utilButton.setForeground(GuiConstants.drgHighlightedYellow);
 		}
-		toReturn.add(value);
+		toReturn.add(utilButton);
 		
 		return toReturn;
 	}

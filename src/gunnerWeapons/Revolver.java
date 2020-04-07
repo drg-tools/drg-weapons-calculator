@@ -3,11 +3,15 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.AccuracyEstimator;
+import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
+import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
+import utilities.MathUtils;
 
 public class Revolver extends Weapon {
 	
@@ -16,21 +20,13 @@ public class Revolver extends Weapon {
 	****************************************************************************************/
 	
 	private double directDamage;
-	private int areaDamage;
-	private double aoeRadius;
 	private int carriedAmmo;
 	private int magazineSize;
 	private double rateOfFire;
 	private double reloadTime;
 	private double stunChance;
 	private double stunDuration;
-	private int maxPenetrations;
 	private double weakpointBonus;
-	private double baseSpread;
-	private double spreadPerShot;
-	private double recoil;
-	
-	private int numberOfTargets;
 	
 	/****************************************************************************************
 	* Constructors
@@ -52,21 +48,13 @@ public class Revolver extends Weapon {
 		
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 50.0;
-		areaDamage = 0;
-		aoeRadius = 0.0;  // meters
 		carriedAmmo = 28;
 		magazineSize = 4;
 		rateOfFire = 2.0;  // bullets per second
 		reloadTime = 2.0;  // seconds
 		stunChance = 0.5;
 		stunDuration = 1.5;  // seconds
-		maxPenetrations = 0;
 		weakpointBonus = 0.15;
-		baseSpread = 1.0;
-		spreadPerShot = 1.0;
-		recoil = 1.0;
-		
-		numberOfTargets = 1;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -105,13 +93,13 @@ public class Revolver extends Weapon {
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Dead-Eye", "No aim penalty while moving", 5, 0, false);
-		tier5[1] = new Mod("Glyphid Neurotoxin Coating", "Chance to poison your target. Affected creatures move slower and take damage over time.", 5, 1, false);  // It looks like whenever this procs for the main target, all splash targets get it too, instead of RNG/enemy.
+		tier5[1] = new Mod("Glyphid Neurotoxin Coating", "Chance to poison your target. Affected creatures move slower and take damage over time.", 5, 1);  // It looks like whenever this procs for the main target, all splash targets get it too, instead of RNG/enemy.
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "More damage on average but it's a bit inconsistent.", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a chance to ricochet into a nearby enemy.", 1, false);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a chance to ricochet into a nearby enemy.", 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Feather Trigger", "Less weight means you can squeeze out more bullets faster than you can say \"Recoil\" but the stability of the weapon is reduced.", 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Five Shooter", "An updated casing profile lets you squeeze one more round into the cylinder and increases the maximum rate of fire, but all that filling and drilling has compromised the pure damage output of the weapon.", 3);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Five Shooter", "An updated casing profile lets you squeeze one more round into the cylinder and take a few more rounds with you, but all that filling and drilling has compromised the accuracy of the weapon.", 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "Heavy tweaking has made it possible to use modified autocannon rounds in the revolver! The damage is crazy but so is the recoil and you can't carry very many rounds.", 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Magic Bullets", "Smaller bouncy bullets ricochet off hard surfaces and hit nearby enemies like magic and you can carry a few more due to their compact size. However the overall damage of the weapon is reduced.", 5);
 	}
@@ -278,6 +266,13 @@ public class Revolver extends Weapon {
 		return new Revolver(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getDwarfClass() {
+		return "Gunner";
+	}
+	public String getSimpleName() {
+		return "Revolver";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/
@@ -300,8 +295,7 @@ public class Revolver extends Weapon {
 			toReturn *= 0.5;
 		}
 		if (selectedOverclock == 0) {
-			// Since this ranges from 80% to 140% damage, I'll just average it out to 110%.
-			toReturn *= 1.1;
+			toReturn *= homebrewPowderCoefficient;
 		}
 		else if (selectedOverclock == 4) {
 			toReturn *= 2.0;
@@ -309,18 +303,20 @@ public class Revolver extends Weapon {
 		return toReturn;
 	}
 	private int getAreaDamage() {
-		int toReturn = areaDamage;
 		if (selectedTier3 == 1) {
-			toReturn += 30;
+			return 30;
 		}
-		return toReturn;
+		else {
+			return 0;
+		}
 	}
 	private double getAoERadius() {
-		double toReturn = aoeRadius;
 		if (selectedTier3 == 1) {
-			toReturn += 1.5;
+			return 1.5;
 		}
-		return toReturn;
+		else {
+			return 0;
+		}
 	}
 	private int getCarriedAmmo() {
 		int toReturn = carriedAmmo;
@@ -349,11 +345,11 @@ public class Revolver extends Weapon {
 		return toReturn;
 	}
 	private double getRateOfFire() {
-		double toReturn = rateOfFire;
+		double maxRoF = rateOfFire;
 		if (selectedOverclock == 2) {
-			toReturn += 4.0;
+			maxRoF += 4.0;
 		}
-		return toReturn;
+		return calculateAccurateRoF(maxRoF);
 	}
 	private double getReloadTime() {
 		double toReturn = reloadTime;
@@ -363,11 +359,12 @@ public class Revolver extends Weapon {
 		return toReturn;
 	}
 	private int getMaxPenetrations() {
-		int toReturn = maxPenetrations;
 		if (selectedTier3 == 0) {
-			toReturn += 3;
+			return 3;
 		}
-		return toReturn;
+		else {
+			return 0;
+		}
 	}
 	private int getMaxRicochets() {
 		if (selectedOverclock == 1 || selectedOverclock == 5) {
@@ -385,18 +382,18 @@ public class Revolver extends Weapon {
 		return toReturn;
 	}
 	private double getBaseSpread() {
-		double toReturn = baseSpread;
+		double toReturn = 1.0;
 		if (selectedTier1 == 1) {
 			toReturn -= 0.7;
 		}
 		
 		if (selectedOverclock == 3) {
-			toReturn += 0.15;
+			toReturn *= 1.5;
 		}
 		return toReturn;
 	}
 	private double getSpreadPerShot() {
-		double toReturn = spreadPerShot;
+		double toReturn = 1.0;
 		if (selectedTier2 == 1) {
 			toReturn -= 0.8;
 		}
@@ -406,56 +403,63 @@ public class Revolver extends Weapon {
 		return toReturn;
 	}
 	private double getRecoil() {
-		double toReturn = recoil;
+		double toReturn = 1.0;
 		
+		// Additive first
+		if (selectedOverclock == 2 || selectedOverclock == 4) {
+			toReturn += 1.5;
+		}
+		
+		// Multiplicative last
 		if (selectedTier2 == 1) {
-			toReturn -= 0.75;
+			toReturn *= 0.75;
 		}
 		
-		if (selectedOverclock == 2) {
-			toReturn += 1.5;
-		}
-		else if (selectedOverclock == 4) {
-			toReturn += 1.5;
-		}
 		return toReturn;
 	}
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[15];
+		StatsRow[] toReturn = new StatsRow[16];
 		
-		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || (selectedOverclock > 2 && selectedOverclock < 6);
-		toReturn[0] = new StatsRow("Damage:", "" + getDirectDamage(), directDamageModified);
+		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 4 || selectedOverclock == 5;
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
-		toReturn[1] = new StatsRow("Area Damage:", "" + getAreaDamage(), selectedTier3 == 1);
+		boolean explosiveEquipped = selectedTier3 == 1;
+		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), explosiveEquipped, explosiveEquipped);
 		
-		toReturn[2] = new StatsRow("Effect Radius:", "" + getAoERadius(), selectedTier3 == 1);
+		toReturn[2] = new StatsRow("AoE Radius:", getAoERadius(), explosiveEquipped, explosiveEquipped);
 		
-		toReturn[3] = new StatsRow("Magazine Size:", "" + getMagazineSize(), selectedOverclock == 3);
+		toReturn[3] = new StatsRow("Magazine Size:", getMagazineSize(), selectedOverclock == 3);
 		
 		boolean carriedAmmoModified = selectedTier2 == 2 || selectedTier4 == 0 || (selectedOverclock > 2 && selectedOverclock < 6);
-		toReturn[4] = new StatsRow("Max Ammo:", "" + getCarriedAmmo(), carriedAmmoModified);
+		toReturn[4] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[5] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), selectedOverclock == 2);
+		toReturn[5] = new StatsRow("Rate of Fire:", getRateOfFire(), selectedOverclock == 2);
 		
-		toReturn[6] = new StatsRow("Reload Time:", "" + getReloadTime(), selectedTier1 == 0);
+		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), selectedTier1 == 0);
 		
-		toReturn[7] = new StatsRow("Stun chance:", convertDoubleToPercentage(stunChance), false);
+		toReturn[7] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier3 == 2);
 		
-		toReturn[8] = new StatsRow("Stun duration:", "" + stunDuration, false);
+		toReturn[8] = new StatsRow("Stun Chance:", convertDoubleToPercentage(stunChance), false);
 		
-		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier1 == 1);
+		toReturn[9] = new StatsRow("Stun Duration:", stunDuration, false);
 		
-		toReturn[10] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier2 == 1 || selectedOverclock == 4);
+		toReturn[10] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier3 == 0, selectedTier3 == 0);
 		
-		toReturn[11] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 4);
+		toReturn[11] = new StatsRow("Weakpoint Chain Hit Chance:", "33%", selectedOverclock == 1, selectedOverclock == 1);
 		
-		toReturn[12] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier3 == 2);
+		boolean canRicochet = selectedOverclock == 1 || selectedOverclock == 5;
+		toReturn[12] = new StatsRow("Max Ricochets:", getMaxRicochets(), canRicochet, canRicochet);
 		
-		toReturn[13] = new StatsRow("Max Penetrations:", "" + getMaxPenetrations(), selectedTier3 == 0);
+		boolean baseSpreadModified = selectedTier1 == 1 || selectedOverclock == 3;
+		toReturn[13] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
 		
-		toReturn[14] = new StatsRow("Max Ricochets:", "" + getMaxRicochets(), selectedOverclock == 1 || selectedOverclock == 5);
+		boolean spreadPerShotModified = selectedTier2 == 1 || selectedOverclock == 4;
+		toReturn[14] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), spreadPerShotModified, spreadPerShotModified);
+		
+		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 4;
+		toReturn[15] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
 		
 		return toReturn;
 	}
@@ -466,99 +470,269 @@ public class Revolver extends Weapon {
 	
 	@Override
 	public boolean currentlyDealsSplashDamage() {
+		// It appears that Revolver doesn't have any damage falloff within its 1.5m radius, so its AoE efficiency would be [1.5, 1.0, 5].
+		// However, in order to save a few cycles every auto-calculate, I'm choosing not to implement that as it has no mathematical effect on the outputs.
 		return selectedTier3 == 1;
 	}
 	
-	private double calculateDamagePerMagazine(boolean weakpointBonus) {
-		if (weakpointBonus) {
-			return (increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) + numberOfTargets * getAreaDamage()) * getMagazineSize();
+	/*
+		I'm writing this method specifically because I know that the Revolver is never fired at max RoF -- it's used by the community as a sniper side-arm.
+		
+		I'm a bit worried that this is counter-intuitive in comparison to how the rest of the weapons are modeled, but I think this is a better approximation for how this weapon gets used in-game.
+	*/
+	private double calculateAccurateRoF(double maxRoF) {
+		// Variables copied from estimatedAccuracy() to reverse-calculate the slow RoF needed for high accuracy
+		double spreadPerShot = 137 * getSpreadPerShot();
+		double spreadRecoverySpeed = 109.1390954;
+		double recoilPerShot = 155 * getRecoil();
+		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
+		double recoilUpInterval = 2.0/9.0;
+		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
+		double recoilDownInterval = 8.0/9.0;
+		
+		double desiredNetSpreadPerShot = 40.0;
+		double minSpreadRoF = (desiredNetSpreadPerShot + spreadRecoverySpeed) / spreadPerShot;
+		
+		double desiredNetRecoilPerShot = 50.0;
+		double minRecoilRoF = 1.0 / (recoilUpInterval + (1.0 - desiredNetRecoilPerShot / recoilPerShot) * recoilDownInterval);
+		
+		return Math.min(Math.min(minSpreadRoF, minRecoilRoF), maxRoF);
+	}
+	
+	// Single-target calculations
+	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+		double generalAccuracy, duration, directWeakpointDamage;
+		
+		if (accuracy) {
+			generalAccuracy = estimatedAccuracy(false) / 100.0;
 		}
 		else {
-			return (getDirectDamage() + numberOfTargets * getAreaDamage()) * getMagazineSize();
+			generalAccuracy = 1.0;
+		}
+		
+		if (burst) {
+			duration = ((double) getMagazineSize()) / getRateOfFire();
+		}
+		else {
+			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+		}
+		
+		double weakpointAccuracy;
+		if (weakpoint) {
+			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+			directWeakpointDamage = increaseBulletDamageForWeakpoints2(getDirectDamage(), getWeakpointBonus());
+		}
+		else {
+			weakpointAccuracy = 0.0;
+			directWeakpointDamage = getDirectDamage();
+		}
+		
+		double neuroDPS = 0;
+		if (selectedTier5 == 1) {
+			// Neurotoxin Coating has a 50% chance to inflict the DoT
+			if (burst) {
+				neuroDPS = calculateRNGDoTDPSPerMagazine(0.5, DoTInformation.Neuro_DPS, getMagazineSize());
+			}
+			else {
+				neuroDPS = DoTInformation.Neuro_DPS;
+			}
+		}
+		
+		int magSize = getMagazineSize();
+		int bulletsThatHitWeakpoint = (int) Math.round(magSize * weakpointAccuracy);
+		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
+		
+		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * getDirectDamage()) / duration + neuroDPS;
+	}
+	
+	private double calculateDamagePerMagazine(boolean weakpointBonus, int numTargets) {
+		// TODO: I'd like to refactor this method out
+		if (weakpointBonus) {
+			return (increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) + numTargets * getAreaDamage()) * getMagazineSize();
+		}
+		else {
+			return (getDirectDamage() + numTargets * getAreaDamage()) * getMagazineSize();
 		}
 	}
 
 	@Override
 	public double calculateIdealBurstDPS() {
-		double timeToFireMagazine = (double) getMagazineSize() / getRateOfFire();
-		return calculateDamagePerMagazine(false) / timeToFireMagazine;
+		return calculateSingleTargetDPS(true, false, false);
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
+		return calculateSingleTargetDPS(false, false, false);
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
+		return calculateSingleTargetDPS(false, false, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
+		// TODO: I'd like to refactor this method a little.
+		/*
+			There are 8 combinations of ways for the Revolver to hit an additional target, based on various combinations of
+			the Overclocks "Chain Hit" and "Magic Bullets", and the Tier 3 Mods "Super Blowthrough Rounds" and "Explosive Rounds"
+		*/
+		double sustainedAdditionalDPS;
+		
+		// If Super Blowthrough Rounds is equipped, then the ricochets from either "Chain Hit" or "Magic Bullets" won't affect the additional DPS
 		if (selectedTier3 == 0) {
-			return  calculateIdealSustainedDPS();
+			// Because Super Blowthrough Rounds are just the same damage to another enemy behind the primary target (or from a ricochet), return Ideal Sustained DPS
+			return calculateIdealSustainedDPS();
 		}
-		else if (selectedTier3 == 1) {
-			int oldNumTargets = numberOfTargets;
-			numberOfTargets = 3;
-			double threeTargetsDPS = calculateIdealSustainedDPS();
-			numberOfTargets = 2;
-			double twoTargetsDPS = calculateIdealSustainedDPS();
-			numberOfTargets = oldNumTargets;
-			return threeTargetsDPS - twoTargetsDPS;
+		
+		// Only Explosive
+		else if (selectedTier3 == 1 && selectedOverclock != 1 && selectedOverclock != 5) {
+			// Explosive Rounds are just the Area Damage, so I have to re-model the sustained DPS formula here
+			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+			sustainedAdditionalDPS = getMagazineSize() * getAreaDamage() / timeToFireMagazineAndReload;
+			
+			if (selectedTier5 == 1) {
+				sustainedAdditionalDPS += DoTInformation.Neuro_DPS;
+			}
+			
+			return sustainedAdditionalDPS;
+		}
+		
+		// Only "Chain Hit" OR "Chain Hit" + Explosive Rounds
+		else if (selectedOverclock == 1 && selectedTier3 != 0) {
+			// If "Chain Hit" is equipped, 33% of bullets that hit a weakpoint will ricochet to nearby enemies.
+			// Effectively 25% of ideal sustained DPS?
+			// Making the assumption that the ricochet won't hit another weakpoint, and will just do normal damage.
+			double ricochetProbability = 0.33 * estimatedAccuracy(true) / 100.0;
+			double numBulletsRicochetPerMagazine = Math.round(ricochetProbability * getMagazineSize());
+			
+			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+			sustainedAdditionalDPS = numBulletsRicochetPerMagazine * (getDirectDamage() + getAreaDamage()) / timeToFireMagazineAndReload;
+			
+			if (selectedTier5 == 1) {
+				sustainedAdditionalDPS += DoTInformation.Neuro_DPS;
+			}
+			
+			return sustainedAdditionalDPS;
+		}
+		
+		// Only "Magic Bullets"
+		else if (selectedOverclock == 5 && selectedTier3 != 0 && selectedTier3 != 1) {
+			// "Magic Bullets" mean that any bullet that MISSES the primary target will try to automatically ricochet to a nearby enemy.
+			// This can be modeled by returning (1 - Accuracy) * Ideal Sustained DPS
+			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+			sustainedAdditionalDPS = (1.0 - estimatedAccuracy(false)/100.0) * calculateDamagePerMagazine(false, 1) / timeToFireMagazineAndReload;
+			
+			if (selectedTier5 == 1) {
+				sustainedAdditionalDPS += DoTInformation.Neuro_DPS;
+			}
+			
+			return sustainedAdditionalDPS;
+		}
+		
+		// "Magic Bullets" + Explosive
+		else if (selectedOverclock == 5 && selectedTier3 == 1) {
+			// This combination is the hardest to model: when a missed bullet ricochets, it still deals an explosion of damage on the ground before redirecting to the new target. This means that if you shoot the ground next to an
+			// enemy with this combination, they'll take the Area Damage, followed by the Direct + Area Damage of the bullet after it redirects.
+			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+			sustainedAdditionalDPS = getMagazineSize() * (getDirectDamage() + 2 * getAreaDamage()) / timeToFireMagazineAndReload;
+			
+			if (selectedTier5 == 1) {
+				sustainedAdditionalDPS += DoTInformation.Neuro_DPS;
+			}
+			
+			return sustainedAdditionalDPS;
 		}
 		else {
-			return 0.0;
+			return 0;
 		}
 	}
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		int oldNumTargets = numberOfTargets;
+		int numberOfTargets = calculateMaxNumTargets();
+		double damagePerMagazine = calculateDamagePerMagazine(false, numberOfTargets);
+		double numberOfMagazines = numMagazines(getCarriedAmmo(), getMagazineSize());
 		
-		// Set how many targets you expect will be hit per bullet here.
-		numberOfTargets = calculateMaxNumTargets();
-		double damagePerMagazine = calculateDamagePerMagazine(false);
-		// Don't forget to add the magazine that you start out with, in addition to the carried ammo
-		double numberOfMagazines = ((double) getCarriedAmmo()) / ((double) getMagazineSize()) + 1.0;
-		
+		double ricochetTotalDamage = 0;
+		// If Blowthrough Rounds is selected, multiply the dmg/mag times the total num targets hit
 		if (selectedTier3 == 0) {
 			damagePerMagazine *= numberOfTargets;
 		}
+		else if (selectedOverclock == 1 && selectedTier3 != 1) {
+			// Only Chain Hit
+			double ricochetProbability = 0.33 * EnemyInformation.probabilityBulletWillHitWeakpoint();
+			double totalNumRicochets = Math.round(ricochetProbability * (getMagazineSize() + getCarriedAmmo()));
+			ricochetTotalDamage = totalNumRicochets * getDirectDamage();
+		}
 		
-		numberOfTargets = oldNumTargets;
-		return damagePerMagazine * numberOfMagazines;
+		double neurotoxinDoTTotalDamage = 0;
+		if (selectedTier5 == 1) {
+			double timeBeforeNeuroProc = Math.round(1.0 / 0.5) / getRateOfFire();
+			double neurotoxinDoTTotalDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeNeuroProc, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
+			
+			double estimatedNumEnemiesKilled = numberOfTargets * (calculateFiringDuration() / averageTimeToKill());
+			
+			neurotoxinDoTTotalDamage = neurotoxinDoTTotalDamagePerEnemy * estimatedNumEnemiesKilled;
+		}
+
+		return damagePerMagazine * numberOfMagazines + ricochetTotalDamage + neurotoxinDoTTotalDamage;
 	}
 
 	@Override
 	public int calculateMaxNumTargets() {
-		if (selectedTier3 == 1) {
+		/*
+			There are 8 combinations of ways for the Revolver to hit an additional target, based on various combinations of
+			the Overclocks "Chain Hit" and "Magic Bullets", and the Tier 3 Mods "Super Blowthrough Rounds" and "Explosive Rounds"
+		*/
+		// If Super Blowthrough Rounds is equipped, then the ricochets from either "Chain Hit" or "Magic Bullets" won't affect the additional targets
+		if (selectedTier3 == 0) {
+			return 1 + getMaxPenetrations();
+		}
+		
+		// Only Explosive
+		else if (selectedTier3 == 1 && selectedOverclock != 1 && selectedOverclock != 5) {
+			// From my limited testing, it appears that the full damage radius == full radius, so the efficiency will be 100%
 			return calculateNumGlyphidsInRadius(getAoERadius());
 		}
+		
+		// Only "Chain Hit"
+		else if (selectedOverclock == 1 && selectedTier3 != 0 && selectedTier3 != 1) {
+			return 2;
+		}
+		
+		// "Chain Hit" + Explosive
+		else if (selectedOverclock == 1 && selectedTier3 == 1) {
+			// Because the second hit is guaranteed to hit another primary target, this is 2*numTargets - overlap
+			// I'm guessing that of the 8 Glyphid Grunts, about 3 would be hit by both explosions.
+			return (2 * calculateNumGlyphidsInRadius(getAoERadius())) - 3;
+		}
+		
+		// "Magic Bullets" + Explosive
+		else if (selectedOverclock == 5 && selectedTier3 == 1) {
+			// Because the bullet has to first MISS a target, but the ricochet explodes, this is effectively (2*numTargets - 1) - overlap so that the primary target doesn't get double-counted
+			// I'm choosing to model the overlapping Grunts as 5 instead of 3, because it's likely that the bullet lands near the center target that it ricochets to so more of the Grunts would 
+			// be hit by both explosions.
+			return (2 * calculateNumGlyphidsInRadius(getAoERadius()) - 1) - 5;
+		}
+		
 		else {
-			// Even though two Overclocks let this weapon ricochet, their shots have to miss in order to ricochet.
-			// As a result, the ricochets don't increase the max number of targets.
-			return 1 + getMaxPenetrations();
+			// Because Magic Bullets have to MISS in order to hit a secondary target, they don't increase the numTarget count unless Explosive Rounds is equipped
+			return 1;
 		}
 	}
 
 	@Override
 	public double calculateFiringDuration() {
-		double magSize = (double) getMagazineSize();
-		// Don't forget to add the magazine that you start out with, in addition to the carried ammo
-		double numberOfMagazines = (((double) getCarriedAmmo()) / magSize) + 1.0;
-		double timeToFireMagazine = magSize / getRateOfFire();
-		// There are one fewer reloads than there are magazines to fire
-		return numberOfMagazines * timeToFireMagazine + (numberOfMagazines - 1.0) * getReloadTime();
+		int magSize = getMagazineSize();
+		int carriedAmmo = getCarriedAmmo();
+		double timeToFireMagazine = ((double) magSize) / getRateOfFire();
+		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
 
 	@Override
@@ -569,19 +743,42 @@ public class Revolver extends Weapon {
 	@Override
 	public double averageOverkill() {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) + getAreaDamage();
-		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
-		return overkill / dmgPerShot * 100.0;
+		double enemyHP = EnemyInformation.averageHealthPool();
+		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
+		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
 	}
 
 	@Override
-	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		return 0;
+	public double estimatedAccuracy(boolean weakpointAccuracy) {
+		double unchangingBaseSpread = 3;
+		double changingBaseSpread = 30 * getBaseSpread();
+		double spreadVariance = 157;
+		double spreadPerShot = 137 * getSpreadPerShot();
+		double spreadRecoverySpeed = 109.1390954;
+		double recoilPerShot = 155 * getRecoil();
+		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
+		double recoilUpInterval = 2.0 / 9.0;
+		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
+		double recoilDownInterval = 8.0 / 9.0;
+		
+		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
+				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
+				recoilPerShot, recoilUpInterval, recoilDownInterval);
 	}
 
 	@Override
 	public double utilityScore() {
-		// TODO Auto-generated method stub
-		return 0;
+		// Neurotoxin Slow; 50% chance
+		if (selectedTier5 == 1) {
+			utilityScores[3] = 0.5 * calculateMaxNumTargets() * DoTInformation.Neuro_SecsDuration * UtilityInformation.Neuro_Slow_Utility;
+		}
+		else {
+			utilityScores[3] = 0;
+		}
+		
+		// Innate stun; 50% chance for 1.5 sec duration
+		utilityScores[5] = stunChance * calculateMaxNumTargets() * stunDuration * UtilityInformation.Stun_Utility;
+		
+		return MathUtils.sum(utilityScores);
 	}
 }

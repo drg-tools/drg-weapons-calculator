@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
+import utilities.MathUtils;
 import utilities.Point2D;
 
 public class AoEVisualizer extends JPanel  {
@@ -80,7 +81,8 @@ public class AoEVisualizer extends JPanel  {
 			centerY = (int) Math.round(aoeCircleCenterY + center.y() * pixelsPerMeter);
 			glyphidCircle = new Ellipse2D.Double(centerX - glyphidBodyAndLegsRadius * pixelsPerMeter, centerY - glyphidBodyAndLegsRadius * pixelsPerMeter, 2.0 * glyphidBodyAndLegsRadius * pixelsPerMeter, 2.0 * glyphidBodyAndLegsRadius * pixelsPerMeter);
 			
-			if ((center.vectorLength() - glyphidBodyAndLegsRadius) < aoeRadius) {
+			// Again, rounded to 2 decimal points
+			if (MathUtils.round((center.vectorLength() - glyphidBodyAndLegsRadius), 2) < aoeRadius) {
 				fillColor = Color.blue;
 			}
 			else {

@@ -3,12 +3,17 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
-import drillerWeapons.Subata;
+import modelPieces.AccuracyEstimator;
+import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
+import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
+import utilities.MathUtils;
+
+// Embedded Detonators does 5 damage per ammo (10/bullet) on reload
 
 public class Zhukov extends Weapon {
 	
@@ -21,10 +26,6 @@ public class Zhukov extends Weapon {
 	private int magazineSize;
 	private double rateOfFire;
 	private double reloadTime;
-	private double baseSpread;
-	private int maxPenetrations;
-	private double weakpointBonus;
-	private double movespeedWhileFiring;
 	
 	/****************************************************************************************
 	* Constructors
@@ -50,10 +51,6 @@ public class Zhukov extends Weapon {
 		magazineSize = 50;  // Really 25
 		rateOfFire = 30.0;  // Really 15
 		reloadTime = 1.8;
-		baseSpread = 1.0;
-		maxPenetrations = 0;
-		weakpointBonus = 0.0;
-		movespeedWhileFiring = 1.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -92,13 +89,13 @@ public class Zhukov extends Weapon {
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Conductive Bullets", "More damage to targets that are in an electric field", 5, 0, false);
-		tier5[1] = new Mod("Get In, Get Out", "Temporary movement speed bonus after emptying clip", 5, 1, false);
+		tier5[1] = new Mod("Get In, Get Out", "Temporary movement speed bonus after emptying clip", 5, 1);
 		
 		overclocks = new Overclock[5];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Minimal Magazines", "By filling away unnecessary material from the magazines you've made them lighter, and that means they pop out faster when reloading. Also the rounds can move more freely increasing the max rate of fire slightly.", 0);
 		overclocks[1] = new Overclock(Overclock.classification.balanced, "Custom Casings", "Fit more of these custom rounds in each magazine but at small loss in raw damage.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "After impacting terrain, these high-tech bullets convert into cryo-minelets that will super-cool anything that comes close. However they don't last forever and the rounds themselves take more space in the clip and deal less direct damage.", 2, false);
-		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Special bullets contain micro-explosives that detonate when you reload the weapon at the cost of total ammo and direct damage.", 3, false);
+		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "After impacting terrain, these high-tech bullets convert into cryo-minelets that will super-cool anything that comes close. However they don't last forever and the rounds themselves take more space in the clip and deal less direct damage.", 2);
+		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Special bullets contain micro-explosives that detonate when you reload the weapon at the cost of total ammo and direct damage.", 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Gas Recycling", "Special hardened bullets combined with rerouting escaping gasses back into the chamber greatly increases the raw damage of the weapon but makes it more difficult to control and removes any bonus to weakpoint hits.", 4);
 	}
 	
@@ -260,6 +257,13 @@ public class Zhukov extends Weapon {
 		return new Zhukov(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getDwarfClass() {
+		return "Scout";
+	}
+	public String getSimpleName() {
+		return "Zhukov";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/
@@ -285,6 +289,15 @@ public class Zhukov extends Weapon {
 		}
 		
 		return toReturn;
+	}
+	private int getAreaDamage() {
+		// Equipping the Overclock "Embedded Detonators" leaves a detonator inside enemies that does 5 Area Damage per Ammo (10/Bullet) that deals damage to an enemy upon reloading the Zhukovs
+		if (selectedOverclock == 3) {
+			return 10;
+		}
+		else { 
+			return 0;
+		}
 	}
 	private int getCarriedAmmo() {
 		int toReturn = carriedAmmo;
@@ -345,7 +358,7 @@ public class Zhukov extends Weapon {
 		return toReturn;
 	}
 	private double getBaseSpread() {
-		double toReturn = baseSpread;
+		double toReturn = 1.0;
 		
 		if (selectedTier3 == 1) {
 			toReturn *= 0.5;
@@ -358,67 +371,69 @@ public class Zhukov extends Weapon {
 		return toReturn;
 	}
 	private int getMaxPenetrations() {
-		int toReturn = maxPenetrations;
-		
 		if (selectedTier4 == 0) {
-			toReturn += 1;
+			return 1;
 		}
-		
-		return toReturn;
+		else {
+			return 0;
+		}
 	}
 	private double getWeakpointBonus() {
-		double toReturn = weakpointBonus;
-		
-		if (selectedTier4 == 1) {
-			toReturn += 0.3;
-		}
-		
 		if (selectedOverclock == 4) {
 			// Since this removes the Zhukov's ability to get weakpoint bonus damage, return a -100% to symbolize it.
 			return -1.0;
 		}
-		
-		return toReturn;
+		else if (selectedTier4 == 1){
+			return 0.3;
+		}
+		else {
+			return 0;
+		}
 	}
 	private double getMovespeedWhileFiring() {
-		double toReturn = movespeedWhileFiring;
+		double modifier = 1.0;
 		
 		if (selectedOverclock == 4) {
-			toReturn -= 0.5;
+			modifier -= 0.5;
 		}
 		
-		return toReturn;
+		return MathUtils.round(modifier * DwarfInformation.walkSpeed, 2);
 	}
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[9];
+		StatsRow[] toReturn = new StatsRow[10];
 		
 		boolean directDamageModified = selectedTier1 == 1 || selectedTier3 == 0 || (selectedOverclock > 0 && selectedOverclock < 5);
-		toReturn[0] = new StatsRow("Direct Damage:", "" + getDirectDamage(), directDamageModified);
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
+		
+		// This stat only applies to OC "Embedded Detonators"
+		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), selectedOverclock == 3, selectedOverclock == 3);
 		
 		boolean magSizeModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2;
-		toReturn[1] = new StatsRow("Magazine Size:", "" + getMagazineSize(), magSizeModified);
+		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier1 == 0 || selectedTier4 == 2 || selectedOverclock == 3;
-		toReturn[2] = new StatsRow("Max Ammo:", "" + getCarriedAmmo(), carriedAmmoModified);
+		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[3] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), selectedTier2 == 1 || selectedOverclock == 0);
+		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), selectedTier2 == 1 || selectedOverclock == 0);
 		
-		toReturn[4] = new StatsRow("Reload Time:", "" + getReloadTime(), selectedTier2 == 2 || selectedOverclock == 0);
+		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), selectedTier2 == 2 || selectedOverclock == 0);
 		
 		String sign = "";
 		if (selectedOverclock != 4) {
 			sign = "+";
 		}
 		
-		toReturn[5] = new StatsRow("Weakpoint Bonus:", sign + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 1 || selectedOverclock == 4);
+		boolean weakpointModified = selectedTier4 == 1 || selectedOverclock == 4;
+		toReturn[6] = new StatsRow("Weakpoint Bonus:", sign + convertDoubleToPercentage(getWeakpointBonus()), weakpointModified, weakpointModified);
 		
-		toReturn[6] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier3 == 1 || selectedOverclock == 4);
+		toReturn[7] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0, selectedTier4 == 0);
 		
-		toReturn[7] = new StatsRow("Max Penetrations:", "" + getMaxPenetrations(), selectedTier4 == 0);
+		boolean baseSpreadModified = selectedTier3 == 1 || selectedOverclock == 4;
+		toReturn[8] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
 		
-		toReturn[8] = new StatsRow("Movespeed While Firing:", convertDoubleToPercentage(getMovespeedWhileFiring()), selectedOverclock == 4);
+		toReturn[9] = new StatsRow("Movespeed While Firing: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 4, selectedOverclock == 4);
 		
 		return toReturn;
 	}
@@ -433,57 +448,86 @@ public class Zhukov extends Weapon {
 		return false;
 	}
 	
+	private double calculateAvgNumBulletsNeededToFreeze() {
+		// Minelets do 8 Cold Damage upon detonation, but they have to take 1 second to arm first.
+		// While Frozen, bullets do x3 Direct Damage.
+		double effectiveRoF = getRateOfFire() / 2.0;
+		double timeToFreeze = EnemyInformation.averageTimeToFreeze(-8, effectiveRoF);
+		return Math.ceil(timeToFreeze * effectiveRoF);
+	}
+	
 	// Single-target calculations
-	private double calculateDamagePerMagazine(boolean weakpointBonus) {
-		// Somehow "Embedded Detonators" will have to be modeled in here.
-		int effectiveMagazineSize = getMagazineSize() / 2;
-		if (weakpointBonus) {
-			return (double) increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) * effectiveMagazineSize;
+	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+		double generalAccuracy, duration;
+		
+		if (accuracy) {
+			generalAccuracy = estimatedAccuracy(false) / 100.0;
 		}
 		else {
-			return (double) getDirectDamage() * effectiveMagazineSize;
+			generalAccuracy = 1.0;
 		}
+		
+		double effectiveMagazineSize = getMagazineSize() / 2;
+		double effectiveRoF = getRateOfFire() / 2.0;
+		if (burst) {
+			duration = effectiveMagazineSize / effectiveRoF;
+		}
+		else {
+			duration = effectiveMagazineSize / effectiveRoF + getReloadTime();
+		}
+		
+		double damagePerMagazine;
+		int bulletsThatHitTarget;
+		if (selectedOverclock == 2) {
+			// First, you have to intentionally miss bullets in order to convert them to Cryo Minelets, then wait 1 second, and unload the rest of the clip into
+			// the now-frozen enemy for x3 damage. Damage vs frozen enemies does NOT benefit from weakpoint damage on top of the frozen multiplier.
+			duration += 1;
+			double numBulletsMissedToBecomeCryoMinelets = calculateAvgNumBulletsNeededToFreeze();
+			bulletsThatHitTarget = (int) Math.round((effectiveMagazineSize - numBulletsMissedToBecomeCryoMinelets) * generalAccuracy);
+			damagePerMagazine = (getDirectDamage() * UtilityInformation.Frozen_Damage_Multiplier) * bulletsThatHitTarget;
+		}
+		else {
+			if (weakpoint && selectedOverclock != 4) {
+				double weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+				int bulletsThatHitWeakpoint = (int) Math.round(effectiveMagazineSize * weakpointAccuracy);
+				bulletsThatHitTarget = (int) Math.round(effectiveMagazineSize * generalAccuracy) - bulletsThatHitWeakpoint;
+				damagePerMagazine = bulletsThatHitWeakpoint * increaseBulletDamageForWeakpoints2(getDirectDamage(), getWeakpointBonus()) + bulletsThatHitTarget * getDirectDamage() + (bulletsThatHitWeakpoint + bulletsThatHitTarget) * getAreaDamage();
+			}
+			else {
+				bulletsThatHitTarget = (int) Math.round(effectiveMagazineSize * generalAccuracy);
+				damagePerMagazine = (getDirectDamage() + getAreaDamage()) * bulletsThatHitTarget;
+			}
+		}
+		
+		return damagePerMagazine / duration;
 	}
+	
 
 	@Override
 	public double calculateIdealBurstDPS() {
-		double effectiveMagazineSize = getMagazineSize() / 2.0;
-		double effectiveRoF = getRateOfFire() / 2.0;
-		double timeToFireMagazine = effectiveMagazineSize / effectiveRoF;
-		return calculateDamagePerMagazine(false) / timeToFireMagazine;
+		return calculateSingleTargetDPS(true, false, false);
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		double effectiveMagazineSize = getMagazineSize() / 2.0;
-		double effectiveRoF = getRateOfFire() / 2.0;
-		double timeToFireMagazineAndReload = (effectiveMagazineSize / effectiveRoF) + getReloadTime();
-		return calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
+		return calculateSingleTargetDPS(false, false, false);
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		double effectiveMagazineSize = getMagazineSize() / 2.0;
-		double effectiveRoF = getRateOfFire() / 2.0;
-		double timeToFireMagazineAndReload = (effectiveMagazineSize / effectiveRoF) + getReloadTime();
-		
-		// Because the Overclock "Gas Recycling" removes the ability to get any weakpoint bonus damage, that has to be modeled here.
-		boolean canGetWeakpointBonus = selectedOverclock != 4;
-		
-		return calculateDamagePerMagazine(canGetWeakpointBonus) / timeToFireMagazineAndReload;
+		return calculateSingleTargetDPS(false, false, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	// Multi-target calculations
 	@Override
 	public double calculateAdditionalTargetDPS() {
 		if (selectedTier4 == 0) {
-			return calculateIdealSustainedDPS();
+			return calculateSingleTargetDPS(false, false, false);
 		}
 		else {
 			return 0;
@@ -495,7 +539,18 @@ public class Zhukov extends Weapon {
 		double effectiveMagazineSize = getMagazineSize() / 2.0;
 		// If there's an odd number carried ammo, round up since you can fire the last "odd" ammo as a full-damage shot
 		double effectiveCarriedAmmo = Math.ceil(getCarriedAmmo() / 2.0);
-		return (effectiveMagazineSize + effectiveCarriedAmmo) * getDirectDamage() * calculateMaxNumTargets();
+		
+		if (selectedOverclock == 2) {
+			double bulletsIntentionallyMissedPerMag = calculateAvgNumBulletsNeededToFreeze();
+			double numMags = numMagazines((int) effectiveCarriedAmmo, (int) effectiveMagazineSize);
+			double totalBulletsIntentionallyWasted = Math.round(bulletsIntentionallyMissedPerMag * numMags);
+			
+			return (effectiveMagazineSize + effectiveCarriedAmmo - totalBulletsIntentionallyWasted) * (getDirectDamage() * UtilityInformation.Frozen_Damage_Multiplier) * calculateMaxNumTargets();
+		}
+		else {
+			// Area Damage only applies when using OC "Embedded Detonators", so it doesn't need to be modeled for the Cryo Minelets' max damage.
+			return (effectiveMagazineSize + effectiveCarriedAmmo) * (getDirectDamage() + getAreaDamage()) * calculateMaxNumTargets();
+		}
 	}
 
 	@Override
@@ -506,16 +561,13 @@ public class Zhukov extends Weapon {
 	@Override
 	public double calculateFiringDuration() {
 		// Because of how this weapon works, all these numbers need to be halved to be accurate.
-		double effectiveMagazineSize = getMagazineSize() / 2.0;
+		int effectiveMagazineSize = getMagazineSize() / 2;
 		// If there's an odd number carried ammo, round up since you can fire the last "odd" ammo as a full-damage shot
-		double effectiveCarriedAmmo = Math.ceil(getCarriedAmmo() / 2.0);
+		int effectiveCarriedAmmo = (int) Math.ceil(((double) getCarriedAmmo()) / 2.0);
 		double effectiveRoF = getRateOfFire() / 2.0;
 		
-		// Don't forget to add the magazine that you start out with, in addition to the carried ammo
-		double numberOfMagazines = (effectiveCarriedAmmo / effectiveMagazineSize) + 1.0;
-		double timeToFireMagazine = effectiveMagazineSize / effectiveRoF;
-		// There are one fewer reloads than there are magazines to fire
-		return numberOfMagazines * timeToFireMagazine + (numberOfMagazines - 1.0) * getReloadTime();
+		double timeToFireMagazine = ((double) effectiveMagazineSize) / effectiveRoF;
+		return numMagazines(effectiveCarriedAmmo, effectiveMagazineSize) * timeToFireMagazine + numReloads(effectiveCarriedAmmo, effectiveMagazineSize) * getReloadTime();
 	}
 
 	@Override
@@ -534,19 +586,54 @@ public class Zhukov extends Weapon {
 			dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus());
 		}
 		
-		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
-		return overkill / dmgPerShot * 100.0;
+		double enemyHP = EnemyInformation.averageHealthPool();
+		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
+		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
 	}
 
 	@Override
-	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		return 0;
+	public double estimatedAccuracy(boolean weakpointAccuracy) {
+		double unchangingWidth = 14;
+		double changingWidth = 384;
+		
+		double crosshairHeightPixels = 98;
+		double crosshairWidthPixels = unchangingWidth + changingWidth * getBaseSpread();
+		
+		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, true, crosshairWidthPixels, crosshairHeightPixels);
 	}
 
 	@Override
 	public double utilityScore() {
-		// TODO Auto-generated method stub
-		return 0;
+		// OC "Gas Recycling" reduces Scout's movement speed
+		utilityScores[0] = (getMovespeedWhileFiring() - MathUtils.round(DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
+		
+		// Mod Tier 5 "Get In, Get Out" gives 100% movement speed increase for 2 sec after reloading empty clips
+		if (selectedTier5 == 1) {
+			// Because this buff lasts 2 seconds, but I don't think it's possible to have 100% uptime. Use the uptime as a coefficient to reduce the value of the movespeed buff.
+			double effectiveMagazineSize = getMagazineSize() / 2.0;
+			double effectiveRoF = getRateOfFire() / 2.0;
+			double timeToFireMagazineAndReload = (effectiveMagazineSize / effectiveRoF) + getReloadTime();
+			
+			// Just because I don't think it's possible doesn't mean I'm not safeguarding against it.
+			double uptimeCoefficient = Math.min(2.0 / timeToFireMagazineAndReload, 1);
+			
+			utilityScores[0] += uptimeCoefficient * DwarfInformation.walkSpeed * UtilityInformation.Movespeed_Utility;
+		}
+		
+		// OC "Cryo Minelets" applies Cryo damage to missed bullets
+		if (selectedOverclock == 2) {
+			// Cryo minelets: 1 placed per 2 ammo, minelets arm in 1 second, and detonate in 3 seconds if no enemy is around.
+			// Minelets seem to do 8 Cold Damage each, and they don't explode in a radius -- instead it seems that they spurt off in a random direction for 2.5m.
+			int estimatedNumTargetsSlowedOrFrozen = 3;  // This is a pure, unadulterated guess.
+			
+			utilityScores[3] = estimatedNumTargetsSlowedOrFrozen * UtilityInformation.Cold_Utility;
+			utilityScores[6] = estimatedNumTargetsSlowedOrFrozen * UtilityInformation.Frozen_Utility;
+		}
+		else {
+			utilityScores[3] = 0;
+			utilityScores[6] = 0;
+		}
+		
+		return MathUtils.sum(utilityScores);
 	}
 }

@@ -28,7 +28,6 @@ public class EPC_RegularShot extends Weapon {
 	private double chargeShotWindup;
 	private double heatPerRegularShot;
 	private double heatPerSecondWhileCharged;
-	private double regularShotVelocity;
 	
 	/*
  	Damage breakdown, sourced from the Wiki:
@@ -42,15 +41,15 @@ public class EPC_RegularShot extends Weapon {
 		Charged Shot (area damage)
 		Damage type is 50% Electric and 50% Explosive.
 		
-		Flying Nightmare  TODO
+		Flying Nightmare
 		Damage type is Fire.
 		Damage done is equal to the Charged Shot direct damage and is affected by mods, but is NOT affected by overclocks.
 		
-		Thin Containment Field  TODO
+		Thin Containment Field
 		Damage type is Fire.
 		Damage done is 240 and is not affected by mods or overclocks.
 		
-		Persistent Plasma  TODO
+		Persistent Plasma
 		Damage type is Electric.
 		The area last 6 seconds and deals 5 damage every 0.25 to 0.5 seconds. 
 	*/
@@ -87,7 +86,6 @@ public class EPC_RegularShot extends Weapon {
 		chargeShotWindup = 1.5;  // seconds
 		heatPerRegularShot = 1.0;
 		heatPerSecondWhileCharged = maxHeat * 2.0;  // Want this to work out to 0.5 sec of heat buildup before overheating by default
-		regularShotVelocity = 1.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -113,7 +111,7 @@ public class EPC_RegularShot extends Weapon {
 		
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("Expanded Plasma Splash", "Greater damage radius for the charged projectile explosion.", 2, 0);
-		tier2[1] = new Mod("Overcharged Plasma Accelerator", "Increases the movement speed of EPC's normal projectiles.", 2, 1);
+		tier2[1] = new Mod("Overcharged Plasma Accelerator", "Increases the movement speed of EPC's normal projectiles.", 2, 1, false);
 		tier2[2] = new Mod("Reactive Shockwave", "More bang for the buck! Increases the damage done within the Area of Effect!", 2, 2);
 		
 		tier3 = new Mod[3];
@@ -132,7 +130,7 @@ public class EPC_RegularShot extends Weapon {
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Energy Rerouting", "A masterwork of engineering that improves charge speed and energy efficiency without affecting overall performance!", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Magnetic Cooling Unit", "A high-tech solution to Cleanly improve the cooling rate increasing the number of slots that can be fired before overheating and also the speed of recovery from an overheat as well as how long a charge can be held.", 1);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Magnetic Cooling Unit", "A high-tech solution to cleanly improve the cooling rate increasing the number of slots that can be fired before overheating and also the speed of recovery from an overheat as well as how long a charge can be held.", 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Heat Pipe", "By channeling exhaust heat back into the charge chamber a shot can be charged using less energy. This does however make the weapon less efficient at dissipating heat.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Heavy Hitter", "Some extensive tweaking to how the shots are prepared can increase the pure damage of the weapon but at the cost of a lower projectile velocity and a reduced battery size.", 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Overcharger", "Pushing the EPC to the limit will give you a significant increase in charge shot damage but at the heavy cost of slow charge speed and decreased cooling efficiency", 4);
@@ -301,6 +299,13 @@ public class EPC_RegularShot extends Weapon {
 		return new EPC_RegularShot(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getDwarfClass() {
+		return "Driller";
+	}
+	public String getSimpleName() {
+		return "EPC_RegularShot";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/
@@ -313,7 +318,7 @@ public class EPC_RegularShot extends Weapon {
 		}
 		
 		if (selectedOverclock == 3) {
-			toReturn += 5;
+			toReturn += 10;
 		}
 		
 		return toReturn;
@@ -458,7 +463,7 @@ public class EPC_RegularShot extends Weapon {
 		return toReturn;
 	}
 	private double getRegularShotVelocity() {
-		double toReturn = regularShotVelocity;
+		double toReturn = 1.0;
 		
 		if (selectedTier2 == 1) {
 			toReturn += 0.25;
@@ -486,40 +491,24 @@ public class EPC_RegularShot extends Weapon {
 	public StatsRow[] getStats() {
 		boolean coolingRateModified = selectedTier3 == 2 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 4;
 		
-		StatsRow[] toReturn = new StatsRow[15];
+		StatsRow[] toReturn = new StatsRow[8];
 		
-		toReturn[0] = new StatsRow("Regular Shot Direct Damage:", "" + getDirectDamage(), selectedTier1 == 0 || selectedOverclock == 3);
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), selectedTier1 == 0 || selectedOverclock == 3);
 		
-		toReturn[1] = new StatsRow("Regular Shot Velocity:", convertDoubleToPercentage(getRegularShotVelocity()), selectedTier2 == 1);
+		toReturn[1] = new StatsRow("Projectile Velocity:", convertDoubleToPercentage(getRegularShotVelocity()), selectedTier2 == 1, selectedTier2 == 1);
 		
-		toReturn[2] = new StatsRow("Heat/Regular Shot:", "" + getHeatPerRegularShot(), selectedOverclock == 3);
+		toReturn[2] = new StatsRow("Heat/Shot:", getHeatPerRegularShot(), selectedOverclock == 3, selectedOverclock == 3);
 		
-		toReturn[3] = new StatsRow("Regular Shots Fired Before Overheating:", "" + getNumRegularShotsBeforeOverheat(), coolingRateModified || selectedOverclock == 3);
-		
-		boolean chargedDirectDamageModified = selectedTier1 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[4] = new StatsRow("Charged Shot Direct Damage:", "" + getChargedDirectDamage(), chargedDirectDamageModified);
-		
-		toReturn[5] = new StatsRow("Charged Shot Area Damage:", "" + getChargedAreaDamage(), selectedTier2 == 2 || selectedOverclock == 5);
-		
-		toReturn[6] = new StatsRow("Charged Shot AoE Radius:", "" + getChargedAoERadius(), selectedTier2 == 0);
-		
-		boolean windupModified = selectedTier3 == 1 || selectedTier5 == 0 || selectedOverclock == 0 || selectedOverclock == 4;
-		toReturn[7] = new StatsRow("Charged Shot Windup:", "" + getChargedShotWindup(), windupModified);
-		
-		toReturn[8] = new StatsRow("Heat/Sec While Charged:", "" + getHeatPerSecondWhileCharged(), selectedTier4 == 0 || selectedOverclock == 1);
-		
-		toReturn[9] = new StatsRow("Seconds Charged Shot Can Be Held Before Overheating:", "" + getSecondsBeforeOverheatWhileCharged(), selectedTier4 == 0 || selectedOverclock == 1);
-		
-		toReturn[10] = new StatsRow("Ammo/Charged Shot:", "" + getAmmoPerChargedShot(), selectedTier3 == 0 || selectedOverclock == 2);
+		toReturn[3] = new StatsRow("Shots Fired Before Overheating:", getNumRegularShotsBeforeOverheat(), coolingRateModified || selectedOverclock == 3);
 		
 		boolean batterySizeModified = selectedTier1 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 3;
-		toReturn[11] = new StatsRow("Battery Size:", "" + getBatterySize(), batterySizeModified);
+		toReturn[4] = new StatsRow("Battery Size:", getBatterySize(), batterySizeModified);
 		
-		toReturn[12] = new StatsRow("Rate of Fire:", "" + rateOfFire, false);
+		toReturn[5] = new StatsRow("Rate of Fire:", rateOfFire, false);
 		
-		toReturn[13] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), coolingRateModified);
+		toReturn[6] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), coolingRateModified);
 		
-		toReturn[14] = new StatsRow("Cooldown After Overheating:", "" + getCooldownDuration(), coolingRateModified);
+		toReturn[7] = new StatsRow("Cooldown After Overheating:", getCooldownDuration(), coolingRateModified);
 		
 		return toReturn;
 	}
@@ -535,36 +524,54 @@ public class EPC_RegularShot extends Weapon {
 	}
 
 	// Single-target calculations
+	private double calculateSingleTargetDPS(boolean burst, boolean weakpoint) {
+		double damagePerProjectile;
+		if (weakpoint) {
+			// Because this weapon doesn't have its Accuracy handled like the other weapons, I'm choosing to just increase the damage by a weighted average.
+			damagePerProjectile = increaseBulletDamageForWeakpoints(getDirectDamage());
+		}
+		else {
+			damagePerProjectile = getDirectDamage();
+		}
+		
+		int burstSize = getNumRegularShotsBeforeOverheat();
+		
+		double duration;
+		if (burst) {
+			duration = burstSize / rateOfFire;
+		}
+		else {
+			duration = burstSize / rateOfFire + getCooldownDuration();
+		}
+		
+		return damagePerProjectile * burstSize / duration;
+	}
+	
 	@Override
 	public double calculateIdealBurstDPS() {
-		return getDirectDamage() * rateOfFire;
+		return calculateSingleTargetDPS(true, false);
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		int burstSize = getNumRegularShotsBeforeOverheat();
-		double totalDamage = getDirectDamage() * burstSize;
-		double timeToFireBurst = burstSize / rateOfFire;
-		
-		return totalDamage / (timeToFireBurst + getCooldownDuration());
+		return calculateSingleTargetDPS(false, false);
 	}
 
 	@Override
 	public double sustainedWeakpointDPS() {
-		// EPC can't get weakpoint bonus damage
-		return calculateIdealSustainedDPS();
+		return calculateSingleTargetDPS(false, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		// EPC has no recoil and no spread per shot, so it can effectively be considered 100% accurate
+		return calculateSingleTargetDPS(false, true);
 	}
 
 	// Multi-target calculations
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		// Regular shots can only hit one enemy before disappearing.
+		// Regular shots can only hit one enemy before disappearing. I'm choosing not to model Bouncy Plasma.
 		return 0;
 	}
 
@@ -583,8 +590,9 @@ public class EPC_RegularShot extends Weapon {
 	public double calculateFiringDuration() {
 		int burstSize = getNumRegularShotsBeforeOverheat();
 		double timeToFireBurst = burstSize / rateOfFire;
+		// Choosing not to use Weapon.numMagazines since the "burst" size isn't adding to total ammo count like normal bullets in a mag do.
 		double numBursts = (double) getBatterySize() / (double) burstSize;
-		return numBursts * timeToFireBurst + (numBursts - 1.0) * getCooldownDuration();
+		return numBursts * timeToFireBurst + numReloads(getBatterySize(), burstSize) * getCooldownDuration();
 	}
 
 	@Override
@@ -595,20 +603,19 @@ public class EPC_RegularShot extends Weapon {
 	@Override
 	public double averageOverkill() {
 		double dmgPerShot = getDirectDamage();
-		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
-		return overkill / dmgPerShot * 100.0;
+		double enemyHP = EnemyInformation.averageHealthPool();
+		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
+		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
 	}
 
 	@Override
-	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		return 0;
+	public double estimatedAccuracy(boolean weakpointAccuracy) {
+		return -1.0;
 	}
 
 	@Override
 	public double utilityScore() {
-		// TODO Auto-generated method stub
+		// EPC doesn't have any utility
 		return 0;
 	}
-
 }

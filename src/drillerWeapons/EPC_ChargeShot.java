@@ -3,6 +3,7 @@ package drillerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
@@ -28,7 +29,6 @@ public class EPC_ChargeShot extends Weapon {
 	private double chargeShotWindup;
 	private double heatPerRegularShot;
 	private double heatPerSecondWhileCharged;
-	private double regularShotVelocity;
 	
 	/*
  	Damage breakdown, sourced from the Wiki:
@@ -87,7 +87,6 @@ public class EPC_ChargeShot extends Weapon {
 		chargeShotWindup = 1.5;  // seconds
 		heatPerRegularShot = 1.0;
 		heatPerSecondWhileCharged = maxHeat * 2.0;  // Want this to work out to 0.5 sec of heat buildup before overheating by default
-		regularShotVelocity = 1.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -113,7 +112,7 @@ public class EPC_ChargeShot extends Weapon {
 		
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("Expanded Plasma Splash", "Greater damage radius for the charged projectile explosion.", 2, 0);
-		tier2[1] = new Mod("Overcharged Plasma Accelerator", "Increases the movement speed of EPC's normal projectiles.", 2, 1);
+		tier2[1] = new Mod("Overcharged Plasma Accelerator", "Increases the movement speed of EPC's normal projectiles.", 2, 1, false);
 		tier2[2] = new Mod("Reactive Shockwave", "More bang for the buck! Increases the damage done within the Area of Effect!", 2, 2);
 		
 		tier3 = new Mod[3];
@@ -132,7 +131,7 @@ public class EPC_ChargeShot extends Weapon {
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Energy Rerouting", "A masterwork of engineering that improves charge speed and energy efficiency without affecting overall performance!", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Magnetic Cooling Unit", "A high-tech solution to Cleanly improve the cooling rate increasing the number of slots that can be fired before overheating and also the speed of recovery from an overheat as well as how long a charge can be held.", 1);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Magnetic Cooling Unit", "A high-tech solution to cleanly improve the cooling rate increasing the number of slots that can be fired before overheating and also the speed of recovery from an overheat as well as how long a charge can be held.", 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Heat Pipe", "By channeling exhaust heat back into the charge chamber a shot can be charged using less energy. This does however make the weapon less efficient at dissipating heat.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Heavy Hitter", "Some extensive tweaking to how the shots are prepared can increase the pure damage of the weapon but at the cost of a lower projectile velocity and a reduced battery size.", 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Overcharger", "Pushing the EPC to the limit will give you a significant increase in charge shot damage but at the heavy cost of slow charge speed and decreased cooling efficiency", 4);
@@ -289,6 +288,9 @@ public class EPC_ChargeShot extends Weapon {
 				}
 			}
 			
+			// Re-set AoE Efficiency
+			setAoEEfficiency();
+			
 			if (countObservers() > 0) {
 				setChanged();
 				notifyObservers();
@@ -299,6 +301,13 @@ public class EPC_ChargeShot extends Weapon {
 	@Override
 	public EPC_ChargeShot clone() {
 		return new EPC_ChargeShot(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
+	}
+	
+	public String getDwarfClass() {
+		return "Driller";
+	}
+	public String getSimpleName() {
+		return "EPC_ChargeShot";
 	}
 	
 	/****************************************************************************************
@@ -313,7 +322,7 @@ public class EPC_ChargeShot extends Weapon {
 		}
 		
 		if (selectedOverclock == 3) {
-			toReturn += 5;
+			toReturn += 10;
 		}
 		
 		return toReturn;
@@ -493,7 +502,7 @@ public class EPC_ChargeShot extends Weapon {
 		return toReturn;
 	}
 	private double getRegularShotVelocity() {
-		double toReturn = regularShotVelocity;
+		double toReturn = 1.0;
 		
 		if (selectedTier2 == 1) {
 			toReturn += 0.25;
@@ -521,42 +530,34 @@ public class EPC_ChargeShot extends Weapon {
 	public StatsRow[] getStats() {
 		boolean coolingRateModified = selectedTier3 == 2 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 4;
 		
-		StatsRow[] toReturn = new StatsRow[15];
-		
-		toReturn[0] = new StatsRow("Regular Shot Direct Damage:", "" + getDirectDamage(), selectedTier1 == 0 || selectedOverclock == 3);
-		
-		toReturn[1] = new StatsRow("Regular Shot Velocity:", convertDoubleToPercentage(getRegularShotVelocity()), selectedTier2 == 1);
-		
-		toReturn[2] = new StatsRow("Heat/Regular Shot:", "" + getHeatPerRegularShot(), selectedOverclock == 3);
-		
-		toReturn[3] = new StatsRow("Regular Shots Fired Before Overheating:", "" + getNumRegularShotsBeforeOverheat(), coolingRateModified || selectedOverclock == 3);
+		StatsRow[] toReturn = new StatsRow[11];
 		
 		boolean chargedDirectDamageModified = selectedTier1 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[4] = new StatsRow("Charged Shot Direct Damage:", "" + getChargedDirectDamage(), chargedDirectDamageModified);
+		toReturn[0] = new StatsRow("Direct Damage:", getChargedDirectDamage(), chargedDirectDamageModified);
 		
 		boolean chargedAreaDamageModified = selectedTier2 == 2 || selectedTier5 == 0 || selectedTier5 == 1 || selectedOverclock == 5;
-		toReturn[5] = new StatsRow("Charged Shot Area Damage:", "" + getChargedAreaDamage(), chargedAreaDamageModified);
+		toReturn[1] = new StatsRow("Area Damage:", getChargedAreaDamage(), chargedAreaDamageModified);
 		
-		toReturn[6] = new StatsRow("Charged Shot AoE Radius:", "" + getChargedAoERadius(), selectedTier2 == 0);
+		toReturn[2] = new StatsRow("AoE Radius:", aoeEfficiency[0], selectedTier2 == 0);
 		
 		boolean windupModified = selectedTier3 == 1 || selectedTier5 == 0 || selectedOverclock == 0 || selectedOverclock == 4;
-		toReturn[7] = new StatsRow("Charged Shot Windup:", "" + getChargedShotWindup(), windupModified);
+		toReturn[3] = new StatsRow("Charged Shot Windup:", getChargedShotWindup(), windupModified);
 		
-		toReturn[8] = new StatsRow("Heat/Sec While Charged:", "" + getHeatPerSecondWhileCharged(), selectedTier4 == 0 || selectedOverclock == 1);
+		toReturn[4] = new StatsRow("Heat/Sec While Charged:", getHeatPerSecondWhileCharged(), selectedTier4 == 0 || selectedOverclock == 1);
 		
-		toReturn[9] = new StatsRow("Seconds Charged Shot Can Be Held Before Overheating:", "" + getSecondsBeforeOverheatWhileCharged(), selectedTier4 == 0 || selectedOverclock == 1);
+		toReturn[5] = new StatsRow("Seconds Charged Shot can be Held Before Overheating:", getSecondsBeforeOverheatWhileCharged(), selectedTier4 == 0 || selectedOverclock == 1);
 		
-		toReturn[10] = new StatsRow("Ammo/Charged Shot:", "" + getAmmoPerChargedShot(), selectedTier3 == 0 || selectedTier5 == 1 || selectedOverclock == 2);
+		toReturn[6] = new StatsRow("Ammo/Charged Shot:", getAmmoPerChargedShot(), selectedTier3 == 0 || selectedTier5 == 1 || selectedOverclock == 2);
 		
 		boolean batterySizeModified = selectedTier1 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 3;
-		toReturn[11] = new StatsRow("Battery Size:", "" + getBatterySize(), batterySizeModified);
+		toReturn[7] = new StatsRow("Battery Size:", getBatterySize(), batterySizeModified);
 		
 		boolean RoFModified = selectedTier3 == 1 || selectedTier3 == 2 || selectedTier5 == 0 || (selectedOverclock > -1 && selectedOverclock < 3) || selectedOverclock == 4;
-		toReturn[12] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), RoFModified);
+		toReturn[8] = new StatsRow("Rate of Fire:", getRateOfFire(), RoFModified);
 		
-		toReturn[13] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), coolingRateModified);
+		toReturn[9] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), coolingRateModified);
 		
-		toReturn[14] = new StatsRow("Cooldown After Overheating:", "" + getCooldownDuration(), coolingRateModified);
+		toReturn[10] = new StatsRow("Cooldown After Overheating:", getCooldownDuration(), coolingRateModified);
 		
 		return toReturn;
 	}
@@ -570,64 +571,70 @@ public class EPC_ChargeShot extends Weapon {
 		// Because this only models the charged shots of the EPC, it will always do splash damage.
 		return true;
 	}
+	
+	protected void setAoEEfficiency() {
+		double radius = getChargedAoERadius();
+		aoeEfficiency = calculateAverageAreaDamage(radius, radius*0.75, 5.0/6.0, 5.0/6.0);
+	}
 
 	// Single-target calculations
-	@Override
-	public double calculateIdealBurstDPS() {
-		// Much like the Grenade Launcher, the DPS of this gun is modeled by the damage done per projectile divided by the time to fire another projectile.
-		// Because this is modeling the most efficient DPS, it will model releasing the charged shot as soon as it's available, instead of holding it until it automatically overheats.
-		// This means that the mods and OCs that affect heat gain while charged won't affect DPS.
+	private double calculateSingleTargetDPS() {
+		/*
+			Much like the Grenade Launcher, the DPS of this gun is modeled by the damage done per projectile divided by the time to fire another projectile.
+			Because this is modeling the most efficient DPS, it will model releasing the charged shot as soon as it's available, instead of holding it until it automatically overheats.
+			This means that the mods and OCs that affect heat gain while charged won't affect DPS.
+			
+			Additionally, the burst dps == sustained dps == sustained weakpoint dps == sustained weakpoint + accuracy dps because the charged shots' direct damage don't deal weakpoint damage, 
+			the accuracy is ignored because it's manually aimed, and the magSize is effectively 1 due to the overheat mechanic.
+		*/
 		double baseDPS = (getChargedDirectDamage() + getChargedAreaDamage()) * getRateOfFire();
 		
 		if (selectedOverclock == 5) {
-			/*
-				Persistent Plasma
-				The area last 6 seconds and deals 5 damage every 0.25 seconds. (4m radius)
-			*/
-			return baseDPS + 5 * 4;  // Damage per tick * ticks per second = Persistent Plasma DPS
+			return baseDPS + DoTInformation.Plasma_DPS;
 		}
 		else {
 			return baseDPS;
 		}
 	}
+	
+	@Override
+	public double calculateIdealBurstDPS() {
+		return calculateSingleTargetDPS();
+	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
 		// Because it can only fire one charged shot before having to cool down, its sustained DPS = burst DPS
-		return calculateIdealBurstDPS();
+		return calculateSingleTargetDPS();
 	}
 
 	@Override
 	public double sustainedWeakpointDPS() {
 		// EPC can't get weakpoint bonus damage, and sustained = burst in this mode.
-		return calculateIdealBurstDPS();
+		return calculateSingleTargetDPS();
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		// Because the Charged Shots have to be aimed manually, Accuracy isn't applicable.
+		return calculateSingleTargetDPS();
 	}
 
 	// Multi-target calculations
 	@Override
 	public double calculateAdditionalTargetDPS() {
 		if (selectedOverclock == 5) {
-			/*
-				Persistent Plasma
-				The area last 6 seconds and deals 5 damage every 0.25 seconds. (4m radius)
-			*/
-			return getChargedAreaDamage() * getRateOfFire() + 5 * 4;  // Damage per tick * ticks per second = Persistent Plasma DPS
+			return getChargedAreaDamage() * aoeEfficiency[1] * getRateOfFire() + DoTInformation.Plasma_DPS;
 		}
 		else {
-			return getChargedAreaDamage() * getRateOfFire();
+			return getChargedAreaDamage() * aoeEfficiency[1] * getRateOfFire();
 		}
 	}
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
 		int numberOfChargedShots = (int) Math.ceil(getBatterySize() / getAmmoPerChargedShot());
-		double baseDamage = numberOfChargedShots * (getChargedDirectDamage() + calculateMaxNumTargets() * getChargedAreaDamage());
+		double baseDamage = numberOfChargedShots * (getChargedDirectDamage() + getChargedAreaDamage() * aoeEfficiency[1] * aoeEfficiency[2]);
 		if (selectedOverclock == 5) {
 			/*
 				Since Persistent Plasma is a DoT that last 6 seconds, but doesn't guarantee to hit every target for that full 6 seconds, 
@@ -635,7 +642,7 @@ public class EPC_ChargeShot extends Weapon {
 				The divide by 3 is to simulate the fact that the enemies are not stationary within the DoT field, and will move out of it before 
 				the duration expires.
 			*/
-			double persistentPlasmaDamage = 5 * 4 * calculateFiringDuration() * calculateMaxNumTargets() / 3.0;
+			double persistentPlasmaDamage = DoTInformation.Plasma_DPS * calculateFiringDuration() * aoeEfficiency[2] / 3.0;
 			return baseDamage + persistentPlasmaDamage;
 		}
 		else {
@@ -645,7 +652,7 @@ public class EPC_ChargeShot extends Weapon {
 
 	@Override
 	public int calculateMaxNumTargets() {
-		return calculateNumGlyphidsInRadius(getChargedAoERadius());
+		return (int) aoeEfficiency[2];
 	}
 
 	@Override
@@ -663,20 +670,20 @@ public class EPC_ChargeShot extends Weapon {
 	@Override
 	public double averageOverkill() {
 		double dmgPerShot = getChargedDirectDamage() + getChargedAreaDamage();
-		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
-		return overkill / dmgPerShot * 100.0;
+		double enemyHP = EnemyInformation.averageHealthPool();
+		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
+		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
 	}
 
 	@Override
-	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		return 0;
+	public double estimatedAccuracy(boolean weakpointAccuracy) {
+		// Manually aimed; return -1
+		return -1.0;
 	}
 
 	@Override
 	public double utilityScore() {
-		// TODO Auto-generated method stub
+		// EPC doesn't have any utility
 		return 0;
 	}
-
 }

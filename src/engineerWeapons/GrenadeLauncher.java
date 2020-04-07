@@ -3,11 +3,14 @@ package engineerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
+import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
+import utilities.MathUtils;
 
 public class GrenadeLauncher extends Weapon {
 	
@@ -15,8 +18,7 @@ public class GrenadeLauncher extends Weapon {
 	* Class Variables
 	****************************************************************************************/
 	
-	private int directDamage;
-	private int areaDamage;
+	private double areaDamage;
 	private double aoeRadius;
 	private int carriedAmmo;
 	private int magazineSize;
@@ -24,9 +26,6 @@ public class GrenadeLauncher extends Weapon {
 	private double reloadTime;
 	private double fearChance;
 	private double armorBreakChance;
-	private double stunChance;
-	private int stunDuration;
-	private double projectileVelocity;
 	
 	/****************************************************************************************
 	* Constructors
@@ -47,7 +46,6 @@ public class GrenadeLauncher extends Weapon {
 		fullName = "Deepcore 40MM PGL";
 		
 		// Base stats, before mods or overclocks alter them:
-		directDamage = 0;
 		areaDamage = 110;
 		aoeRadius = 2.5;
 		carriedAmmo = 8;
@@ -56,9 +54,6 @@ public class GrenadeLauncher extends Weapon {
 		reloadTime = 2.0;
 		fearChance = 1.0;
 		armorBreakChance = 0.5;
-		stunChance = 0.0;
-		stunDuration = 0;
-		projectileVelocity = 1.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -97,7 +92,8 @@ public class GrenadeLauncher extends Weapon {
 		tier4[2] = new Mod("Concussive Blast", "Stuns creatures within the blast radius", 4, 2);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Proximity Trigger", "Grenades will explode when they are close to an enemy. Damage goes up the longer the projectile flies. Up to +100%", 5, 0, false);
+		tier5[0] = new Mod("Proximity Trigger", "Launched grenades will only detonate when they are in close proximity to an enemy or after the projectile comes to a complete stop. "
+				+ "Note: the trigger takes a moment to arm, indicated by a green light, and until then the grenade functions as usual.", 5, 0, false);
 		tier5[1] = new Mod("Spiky Grenade", "Deals damage on direct impact", 5, 1);
 		
 		overclocks = new Overclock[6];
@@ -259,6 +255,9 @@ public class GrenadeLauncher extends Weapon {
 				}
 			}
 			
+			// Re-set AoE Efficiency
+			setAoEEfficiency();
+			
 			if (countObservers() > 0) {
 				setChanged();
 				notifyObservers();
@@ -271,12 +270,19 @@ public class GrenadeLauncher extends Weapon {
 		return new GrenadeLauncher(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getDwarfClass() {
+		return "Engineer";
+	}
+	public String getSimpleName() {
+		return "GrenadeLauncher";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/
 	
 	private int getDirectDamage() {
-		int toReturn = directDamage;
+		int toReturn = 0;
 		if (selectedTier5 == 1) {
 			toReturn += 60;
 		}
@@ -288,7 +294,7 @@ public class GrenadeLauncher extends Weapon {
 		}
 		return toReturn;
 	}
-	private int getAreaDamage() {
+	private double getAreaDamage() {
 		double toReturn = areaDamage;
 		if (selectedTier1 == 2) {
 			toReturn += 15;
@@ -296,6 +302,7 @@ public class GrenadeLauncher extends Weapon {
 		if (selectedTier2 == 1) {
 			toReturn += 20;
 		}
+		
 		if (selectedOverclock == 0) {
 			toReturn += 10;
 		}
@@ -305,19 +312,20 @@ public class GrenadeLauncher extends Weapon {
 		else if (selectedOverclock == 3) {
 			toReturn -= 25;
 		}
-		else if (selectedOverclock == 4) {
-			toReturn += 330;
-		}
 
 		if (selectedTier4 == 0) {
-			toReturn = toReturn * 1.1;
+			toReturn *= homebrewPowderCoefficient;
+		}
+		
+		if (selectedOverclock == 4) {
+			toReturn *= 4;
 		}
 		
 		if (selectedTier3 == 0) {
 			toReturn /= 2.0;
 		}
 		
-		return (int) Math.round(toReturn);
+		return toReturn;
 	}
 	private double getAoERadius() {
 		double toReturn = aoeRadius;
@@ -362,13 +370,10 @@ public class GrenadeLauncher extends Weapon {
 		else if (selectedOverclock == 4) {
 			toReturn *= 0.3;
 		}
-		else if (selectedOverclock == 5) {
-			toReturn *= 0.6;
-		}
 		
 		return (int) Math.round(toReturn);
 	}
-	private double getArmorBreakChance() {
+	private double getArmorBreaking() {
 		double toReturn = armorBreakChance;
 		if (selectedTier3 == 1) {
 			toReturn += 5.0;
@@ -380,19 +385,19 @@ public class GrenadeLauncher extends Weapon {
 			return 1.0;
 		}
 		else {
-			return 0.0;
+			return 0;
 		}
 	}
 	private int getStunDuration() {
 		if (selectedTier4 == 2) {
-			return 2;
+			return 3;
 		}
 		else {
 			return 0;
 		}
 	}
 	private double getProjectileVelocity() {
-		double toReturn = projectileVelocity;
+		double toReturn = 1.0;
 		
 		if (selectedTier2 == 2) {
 			toReturn += 1.8;
@@ -413,31 +418,32 @@ public class GrenadeLauncher extends Weapon {
 		StatsRow[] toReturn = new StatsRow[12];
 		
 		boolean directDamageModified = selectedTier5 == 1 || selectedTier3 == 0 || selectedOverclock == 5;
-		toReturn[0] = new StatsRow("Direct Damage:", "" + getDirectDamage(), directDamageModified);
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified, selectedTier5 == 1 || selectedOverclock == 5);
 		
 		boolean areaDamageModified = selectedTier1 == 2 || selectedTier2 == 1 || selectedTier3 == 0 || selectedTier4 == 0 || selectedOverclock == 0 || (selectedOverclock > 1 && selectedOverclock < 5);
-		toReturn[1] = new StatsRow("Area Damage:", "" + getAreaDamage(), areaDamageModified);
+		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), areaDamageModified);
 		
 		boolean aoeRadiusModified = selectedTier1 == 0 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[2] = new StatsRow("AoE Radius:", "" + getAoERadius(), aoeRadiusModified);
-		
-		toReturn[3] = new StatsRow("Magazine Size:", "1", false);
-		
-		boolean carriedAmmoModified = selectedTier1 == 1 || selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[4] = new StatsRow("Carried Ammo:", "" + getCarriedAmmo(), carriedAmmoModified);
-		
-		toReturn[5] = new StatsRow("Rate of Fire:", "2", false);
-		toReturn[6] = new StatsRow("Reload Time:", "2", false);
+		toReturn[2] = new StatsRow("AoE Radius:", aoeEfficiency[0], aoeRadiusModified);
 		
 		boolean velocityModified = selectedTier2 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[7] = new StatsRow("Projectile Velocity:", convertDoubleToPercentage(getProjectileVelocity()), velocityModified);
+		toReturn[3] = new StatsRow("Projectile Velocity:", convertDoubleToPercentage(getProjectileVelocity()), velocityModified, velocityModified);
 		
-		toReturn[8] = new StatsRow("Fear Chance:", "100%", false);
+		toReturn[4] = new StatsRow("Magazine Size:", magazineSize, false);
 		
-		toReturn[9] = new StatsRow("Armor Break Chance:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier3 == 1);
+		boolean carriedAmmoModified = selectedTier1 == 1 || selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 4;
+		toReturn[5] = new StatsRow("Carried Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[10] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), selectedTier4 == 2);
-		toReturn[11] = new StatsRow("Stun Duration:", "" + getStunDuration(), selectedTier4 == 2);
+		toReturn[6] = new StatsRow("Rate of Fire:", rateOfFire, false);
+		toReturn[7] = new StatsRow("Reload Time:", reloadTime, false);
+		
+		toReturn[8] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier3 == 1);
+		
+		toReturn[9] = new StatsRow("Fear Chance:", convertDoubleToPercentage(fearChance), false);
+		
+		boolean stunEquipped = selectedTier4 == 2;
+		toReturn[10] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), stunEquipped, stunEquipped);
+		toReturn[11] = new StatsRow("Stun Duration:", getStunDuration(), stunEquipped, stunEquipped);
 		
 		return toReturn;
 	}
@@ -450,47 +456,114 @@ public class GrenadeLauncher extends Weapon {
 	public boolean currentlyDealsSplashDamage() {
 		return true;
 	}
+	
+	protected void setAoEEfficiency() {
+		double radius = getAoERadius();
+		aoeEfficiency = calculateAverageAreaDamage(radius, radius/2.0, 0.75, 0.33);
+	}
+	
+	private double calculateSingleTargetDPS(boolean burst, boolean weakpoint) {
+		double directDamage;
+		if (weakpoint) {
+			directDamage = increaseBulletDamageForWeakpoints(getDirectDamage());
+		}
+		else {
+			directDamage = getDirectDamage();
+		}
+		
+		double damagePerProjectile = directDamage + getAreaDamage();
+		double baseDPS = damagePerProjectile / reloadTime;
+		
+		double burnDPS = 0.0;
+		// Incendiary Compound
+		if (selectedTier3 == 0) {
+			if (burst) {
+				double heatPerGrenade = getDirectDamage() + getAreaDamage();
+				double percentageOfEnemiesIgnitedByOneGrenade = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(heatPerGrenade);
+				
+				burnDPS = percentageOfEnemiesIgnitedByOneGrenade * DoTInformation.Burn_DPS;
+			}
+			else {
+				burnDPS = DoTInformation.Burn_DPS;
+			}
+		}
+		
+		double radDPS = 0.0;
+		// Fat Boy OC
+		if (selectedOverclock == 4) {
+			// double FBduration = 15;
+			// double FBradius = 8;
+			radDPS = DoTInformation.Rad_FB_DPS;
+		}
+		
+		return baseDPS + burnDPS + radDPS;
+	}
 
 	@Override
 	public double calculateIdealBurstDPS() {
-		// This method will only calculate single-target DPS, but the additional target DPS should reflect how well this scales.
-		double damagePerGrenade = getDirectDamage() + getAreaDamage();
-		return damagePerGrenade / reloadTime;
+		return calculateSingleTargetDPS(true, false);
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		// Because the mag size can only have the value of 1, Sustained DPS == Burst DPS
-		return calculateIdealBurstDPS();
+		return calculateSingleTargetDPS(false, false);
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		// This method will only calculate single-target DPS, but the additional target DPS should reflect how well this scales.
-		double damagePerGrenade = increaseBulletDamageForWeakpoints(getDirectDamage()) + getAreaDamage();
-		return damagePerGrenade / reloadTime;
+		return calculateSingleTargetDPS(false, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
 		// Because the Grenade Launcher has to be aimed manually, its Accuracy isn't applicable.
-		return sustainedWeakpointDPS();
+		return calculateSingleTargetDPS(false, true);
 	}
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		return getAreaDamage() / reloadTime;
+		double totalDPS = getAreaDamage() * aoeEfficiency[1] / reloadTime;
+		if (selectedTier3 == 0) {
+			totalDPS += DoTInformation.Burn_DPS;
+		}
+		if (selectedOverclock == 4) {
+			totalDPS += DoTInformation.Rad_FB_DPS;
+		}
+		return totalDPS;
 	}
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
 		int numShots = 1 + getCarriedAmmo();
-		return numShots * (getDirectDamage() + getAreaDamage() * calculateMaxNumTargets());
+		
+		double burnDoTTotalDamage = 0;
+		if (selectedTier3 == 0) {
+			double singleTargetHeatPerGrenade = getDirectDamage() + getAreaDamage();
+			double percentageEnemiesIgnitedByDirectImpact = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(singleTargetHeatPerGrenade);
+			double multiTargetHeatPerGrenade = getAreaDamage() * aoeEfficiency[1];
+			double percentageOfEnemiesIgnitedByAreaDamage = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(multiTargetHeatPerGrenade);
+			
+			double avgPercentageIgnited = (percentageEnemiesIgnitedByDirectImpact + (aoeEfficiency[2] - 1) * percentageOfEnemiesIgnitedByAreaDamage) / aoeEfficiency[2];
+			double burnDoTDamagePerEnemy = avgPercentageIgnited * calculateAverageDoTDamagePerEnemy(0, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			
+			// I'm choosing to model this as if the player lets the enemies burn for the full duration, instead of continuing to fire grenades until they die.
+			burnDoTTotalDamage = numShots * aoeEfficiency[2] * burnDoTDamagePerEnemy;
+		}
+		
+		double radiationDoTTotalDamage = 0;
+		if (selectedOverclock == 4) {
+			// I'm guessing that it takes about 4 seconds for enemies to move out of the 8m radius field
+			double radiationDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, 4, DoTInformation.Rad_FB_DPS);
+			double estimatedNumEnemiesKilled = aoeEfficiency[2] * (calculateFiringDuration() / averageTimeToKill());
+			radiationDoTTotalDamage = radiationDoTDamagePerEnemy * estimatedNumEnemiesKilled;
+		}
+		
+		return numShots * (getDirectDamage() + getAreaDamage() * aoeEfficiency[1] * aoeEfficiency[2]) + burnDoTTotalDamage + radiationDoTTotalDamage;
 	}
 
 	@Override
 	public int calculateMaxNumTargets() {
-		return calculateNumGlyphidsInRadius(getAoERadius());
+		return (int) aoeEfficiency[2];
 	}
 
 	@Override
@@ -507,19 +580,44 @@ public class GrenadeLauncher extends Weapon {
 	@Override
 	public double averageOverkill() {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage()) + getAreaDamage();
-		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
-		return overkill / dmgPerShot * 100.0;
+		double enemyHP = EnemyInformation.averageHealthPool();
+		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
+		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
 	}
 
 	@Override
-	public double estimatedAccuracy() {
+	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		// Manually aimed; return -1
 		return -1.0;
 	}
 
 	@Override
 	public double utilityScore() {
-		// TODO Auto-generated method stub
-		return 0;
+		// OC "RJ250 Compound" gives a ton of Mobility (8m vertical, 12m horizontal)
+		if (selectedOverclock == 3) {
+			// For now, until I think of a better system, I'll just add the max vertical jump and max horizontal jump distances at 1/2 weight each.
+			// Ideally I would like to calculate the m/sec velocity of launch, but that could take a while to test and calculate.
+			utilityScores[0] = (0.5 * 8 + 0.5 * 12) * UtilityInformation.BlastJump_Utility;
+		}
+		else {
+			utilityScores[0] = 0;
+		}
+		
+		// Armor Breaking
+		utilityScores[2] = (getArmorBreaking() - 1) * calculateMaxNumTargets() * UtilityInformation.ArmorBreak_Utility;
+		
+		// Because the Stun from Concussive Blast keeps them immobolized while they're trying to run in Fear, I'm choosing to make the Stun/Fear Utility scores NOT additive.
+		if (selectedTier4 == 2) {
+			// Concussive Blast = 100% stun, 2 sec duration
+			utilityScores[4] = 0;
+			utilityScores[5] = getStunChance() * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
+		}
+		else {
+			// Built-in Fear is 100%, but it doesn't seem to work 100% of the time... 
+			utilityScores[4] = fearChance * calculateMaxNumTargets() * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			utilityScores[5] = 0;
+		}
+		
+		return MathUtils.sum(utilityScores);
 	}
 }

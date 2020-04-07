@@ -8,7 +8,6 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 
 import modelPieces.Weapon;
-import utilities.GuiConstants;
 
 public class AoEVisualizerButton extends JButton implements ActionListener {
 	private static final long serialVersionUID = 1L;

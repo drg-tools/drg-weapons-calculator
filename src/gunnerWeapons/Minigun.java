@@ -3,10 +3,14 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.AccuracyEstimator;
+import modelPieces.DoTInformation;
+import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
+import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
@@ -21,14 +25,12 @@ public class Minigun extends Weapon {
 	private int stunDuration;
 	private int maxAmmo;
 	private double maxHeat;
-	private double heatPerPellet;
+	private double heatPerSecond;
 	private double coolingRate;
 	private int rateOfFire;
 	private double spinupTime;
 	private int spindownTime;
-	private double moveSpeedWhileFiring;
-	private double baseSpread;
-	private double armorBreakChance;
+	private double movespeedWhileFiring;
 	private int bulletsFiredTilMaxStability;
 	private int cooldownAfterOverheat;
 	
@@ -50,23 +52,20 @@ public class Minigun extends Weapon {
 	public Minigun(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "\"Lead Storm\" Powered Minigun";
 		
-		// TODO: redo these tests to verify. num bullets was 286 last time I tested.
 		// Base stats, before mods or overclocks alter them:
 		damagePerPellet = 10;
-		stunChancePerPellet = 0.3;  // 30%
-		stunDuration = 1;  // second
+		stunChancePerPellet = 0.3;
+		stunDuration = 1;
 		maxAmmo = 2400; // equal to 1200 pellets
-		maxHeat = 9.0;
-		heatPerPellet = maxHeat*2.0/258.0;  // max heat divided by 258 ammo times 2 to count pellets. This may need to change to 256? The testing was a little ambiguous...
-		coolingRate = 1.5; // heat dissipated per second; translates to 6 seconds of cooling off from max heat (without overheating)
+		maxHeat = 9.5;
+		heatPerSecond = 1.0;
+		coolingRate = 1.5;
 		rateOfFire = 30;  // equal to 15 pellets/sec
-		spinupTime = 0.7;  // seconds before minigun starts firing
-		spindownTime = 3;  // seconds for the stability to decay from fully stabilized to no stability at all
-		moveSpeedWhileFiring = 0.5;
-		baseSpread = 1.0;  // effectively its accuracy
-		armorBreakChance = 1.0; // it is just as effective at breaking armor per pellet as any other gun
-		bulletsFiredTilMaxStability = 50;  // equals 25 pellets
-		cooldownAfterOverheat = 10;  // seconds
+		spinupTime = 0.7;
+		spindownTime = 3;  // seconds for the stability to decay full rotational speed down to stationary barrels
+		movespeedWhileFiring = 0.5;
+		bulletsFiredTilMaxStability = 40;  // equals 20 pellets
+		cooldownAfterOverheat = 10;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -105,18 +104,18 @@ public class Minigun extends Weapon {
 		tier4[2] = new Mod("Magnetic Bearings", "Barrels keep spinning for a longer time after firing, keeping the gun stable for longer.", 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Aggressive Venting", "Burn everything in a radius when the minigun overheats", 5, 0, false);
-		tier5[1] = new Mod("Cold As The Grave", "Every kill cools the gun", 5, 1, false);
-		tier5[2] = new Mod("Hot Bullets", "Rounds fired when the heat meter is red will burn the target", 5, 2, false);
+		tier5[0] = new Mod("Aggressive Venting", "Burn everything in a radius when the minigun overheats", 5, 0);
+		tier5[1] = new Mod("Cold As The Grave", "Every kill cools the gun", 5, 1);
+		tier5[2] = new Mod("Hot Bullets", "Rounds fired when the heat meter is red will burn the target", 5, 2);
 		
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "A Little More Oomph!", "Get the most out of each shot without compromising any of the gun's systems.", 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Thinned Drum Walls", "Stuff more bullets into the ammo drum by thinning the material in non-critical areas.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Burning Hell", "Turn the area just infront of the minigun into an even worse place by venting all the combustion gasses forward. However, it does overheat rather quickly.", 2, false);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Burning Hell", "Turn the area just infront of the minigun into an even worse place by venting all the combustion gasses forward. However, it does overheat rather quickly.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Compact Feed Mechanism", "More space left for ammo at the cost of a reduced rate of fire.", 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Exhaust Vectoring", "Increases damage at a cost to accuracy.", 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Bullet Hell", "Special bullets that ricochet off all surfaces and even enemies going on to hit nearby targets. However they deal less damage and are less accurate overall.", 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Storm", "Pushing things to the limit this overclock greatly increases damage output but the kickback makes it almost impossible to move.", 6);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Storm", "Pushing things to the limit this overclock greatly increases damage output but the weapon no longer stuns and the kickback makes it almost impossible to move.", 6);
 	}
 	
 	@Override
@@ -285,6 +284,13 @@ public class Minigun extends Weapon {
 		return new Minigun(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getDwarfClass() {
+		return "Gunner";
+	}
+	public String getSimpleName() {
+		return "Minigun";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/
@@ -304,8 +310,17 @@ public class Minigun extends Weapon {
 			toReturn -= 3;
 		}
 		else if (selectedOverclock == 6) {
-			toReturn += 5;
+			toReturn += 4;
 		}
+		return toReturn;
+	}
+	private double getStunChancePerPellet() {
+		double toReturn = stunChancePerPellet;
+		
+		if (selectedOverclock == 6) {
+			toReturn *= 0;
+		}
+		
 		return toReturn;
 	}
 	private int getStunDuration() {
@@ -313,6 +328,11 @@ public class Minigun extends Weapon {
 		if (selectedTier3 == 1) {
 			toReturn += 1;
 		}
+		
+		if (selectedOverclock == 6) {
+			toReturn *= 0;
+		}
+		
 		return toReturn;
 	}
 	private int getMaxAmmo() {
@@ -328,10 +348,10 @@ public class Minigun extends Weapon {
 		}
 		return toReturn;
 	}
-	private double getHeatPerPellet() {
-		double toReturn = heatPerPellet;
+	private double getHeatPerSecond() {
+		double toReturn = heatPerSecond;
 		if (selectedOverclock == 2) {
-			toReturn *= 2.5;
+			toReturn += 0.5;
 		}
 		return toReturn;
 	}
@@ -363,9 +383,8 @@ public class Minigun extends Weapon {
 		if (selectedOverclock == 0) {
 			toReturn -= 0.2;
 		}
-		// This value is really annoying; the imprecise nature of double values make 0.7 - 0.4 != 0.3
-		// Round it to one decimal point to present the expected value.
-		return MathUtils.round(toReturn, 1);
+		
+		return toReturn;
 	}
 	private int getSpindownTime() {
 		int toReturn = spindownTime;
@@ -375,16 +394,16 @@ public class Minigun extends Weapon {
 		return toReturn;
 	}
 	private double getMovespeedWhileFiring() {
-		double toReturn = moveSpeedWhileFiring;
+		double modifier = movespeedWhileFiring;
 		if (selectedOverclock == 6) {
-			toReturn *= 0;
+			modifier *= 0;
 		}
-		return toReturn;
+		return MathUtils.round(modifier * DwarfInformation.walkSpeed, 2);
 	}
 	private double getBaseSpread() {
-		double toReturn = baseSpread;
+		double toReturn = 1.0;
 		if (selectedTier1 == 2) {
-			toReturn -= 0.8;
+			toReturn *= 0.2;
 		}
 		if (selectedOverclock == 4) {
 			toReturn *= 2.5;
@@ -395,11 +414,12 @@ public class Minigun extends Weapon {
 		return toReturn;
 	}
 	private double getArmorBreakChance() {
-		double toReturn = armorBreakChance;
 		if (selectedTier3 == 0) {
-			toReturn +=  2.0;
+			return 3.0;
 		}
-		return toReturn;
+		else {
+			return 1.0;
+		}
 	}
 	private int getNumberOfPenetrations() {
 		if (selectedTier3 == 2) {
@@ -411,61 +431,120 @@ public class Minigun extends Weapon {
 	}
 	private int getNumberOfRicochets() {
 		if (selectedOverclock == 5) {
-			// I don't know if the penetration bullet will ricochet too. For now, I'll assume that it does.
-			if (selectedTier3 == 2) {
-				return 2;
-			}
-			else {
-				return 1;
-			}
+			return 1;
 		}
 		else {
 			return 0;
 		}
 	}
 	
+	private double calculateFiringPeriod() {
+		double firingPeriod = maxHeat / getHeatPerSecond();
+		
+		// Cold as the Grave removes a set amount of Heat from the Minigun's meter every time that the Minigun gets the killing blow on an enemy.
+		// TODO: Although the way it's implemented avoids the infinite loop of methods calling each other, I'm not satisfied with how CATG is modeled currently.
+		if (selectedTier5 == 1) {
+			// Amount of Heat removed per kill, depending on enemy size. (pure guesses)
+			double smallEnemy = 0.1;
+			double mediumEnemy = 0.5;
+			double largeEnemy = 1.0;
+			double [] heatRemovalVector = {
+				smallEnemy,  // Glyphid Swarmer
+				mediumEnemy,  // Glyphid Grunt
+				mediumEnemy,  // Glyphid Grunt Guard
+				mediumEnemy,  // Glyphid Grunt Slasher
+				largeEnemy,  // Glyphid Praetorian
+				smallEnemy,  // Glyphid Exploder
+				largeEnemy,  // Glyphid Bulk Detonator
+				largeEnemy,  // Glyphid Crassus Detonator
+				mediumEnemy,  // Glyphid Webspitter
+				mediumEnemy,  // Glyphid Acidspitter
+				largeEnemy,  // Glyphid Menace
+				largeEnemy,  // Glyphid Warden
+				largeEnemy,  // Glyphid Oppressor
+				largeEnemy,  // Q'ronar Shellback
+				mediumEnemy,  // Mactera Spawn
+				mediumEnemy,  // Mactera Grabber
+				largeEnemy,  // Mactera Bomber
+				largeEnemy,  // Naedocyte Breeder
+				largeEnemy,  // Glyphid Brood Nexus
+				largeEnemy,  // Spitball Infector
+				smallEnemy   // Cave Leech
+			};
+			double averageHeatRemovedOnKill = EnemyInformation.dotProductWithSpawnRates(heatRemovalVector);
+			
+			// This is a quick-and-dirty way to guess what the Ideal Burst DPS will be when it's all said and done without calculating Firing Period and causing an infinite loop.
+			double estimatedBurstDPS = getDamagePerPellet() * getRateOfFire() / 2.0;
+			if (selectedTier4 == 0) {
+				// Slight overestimation
+				estimatedBurstDPS *= 1.13;
+			}
+			if (selectedOverclock == 2) {
+				// Slight overestimation
+				estimatedBurstDPS += 0.8 * DoTInformation.Burn_DPS;
+			}
+			
+			double estimatedBurstTTK = EnemyInformation.averageHealthPool() / estimatedBurstDPS;
+			double estimatedNumKillsDuringDefaultPeriod = firingPeriod / estimatedBurstTTK;
+			firingPeriod += estimatedNumKillsDuringDefaultPeriod * averageHeatRemovedOnKill;
+		}
+		
+		return firingPeriod;
+	}
+	private double calculateMaxNumPelletsFiredWithoutOverheating() {
+		// Strangely, the RoF does NOT affect the heat/sec gain?
+		return Math.floor(calculateFiringPeriod() * getRateOfFire() / 2.0);
+	}
+	private double calculateCooldownPeriod() {
+		// This equation took a while to figure out, and it's still just an approximation. A very close approximation, but an approximation nonetheless.
+		return 9.5 / getCoolingRate() + getCoolingRate() / 9;
+	}
+	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[18];
+		StatsRow[] toReturn = new StatsRow[19];
 		
 		boolean damageModified = selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock > 3;
-		toReturn[0] = new StatsRow("Damage per Pellet:", "" + getDamagePerPellet(), damageModified);
+		toReturn[0] = new StatsRow("Direct Damage per Pellet:", getDamagePerPellet(), damageModified);
 		
-		toReturn[1] = new StatsRow("Ammo Spent per Pellet:", "2", false);
+		toReturn[1] = new StatsRow("Ammo Consumed per Pellet:", 2, false);
 		
-		toReturn[2] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(stunChancePerPellet), false);
+		toReturn[2] = new StatsRow("Ammo Spent Until Stabilized:", bulletsFiredTilMaxStability, false);
 		
-		toReturn[3] = new StatsRow("Stun Duration:", "" + getStunDuration(), selectedTier3 == 1);
+		toReturn[3] = new StatsRow("Max Duration of Firing Without Overheating:", calculateFiringPeriod(), selectedTier5 == 1 || selectedOverclock == 2);
+		
+		boolean pelletsPerBurstModified = selectedTier5 == 1 || selectedOverclock == 2 || selectedTier1 == 1 || selectedOverclock == 3;
+		toReturn[4] = new StatsRow("Max Num Pellets Fired per Burst:", calculateMaxNumPelletsFiredWithoutOverheating(), pelletsPerBurstModified);
 		
 		boolean ammoModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 3;
-		toReturn[4] = new StatsRow("Max Ammo:", "" + getMaxAmmo(), ammoModified);
+		toReturn[5] = new StatsRow("Max Ammo:", getMaxAmmo(), ammoModified);
 		
-		toReturn[5] = new StatsRow("Max Heat:", maxHeat + " *", false);
+		toReturn[6] = new StatsRow("Rate of Fire (Ammo/Sec):", getRateOfFire(), selectedTier1 == 1 || selectedOverclock == 3);
 		
-		toReturn[6] = new StatsRow("Heat Accumulated per Pellet:", getHeatPerPellet() + " *", selectedOverclock == 2);
+		toReturn[7] = new StatsRow("Cooling Rate:", getCoolingRate(), selectedTier1 == 0 || selectedOverclock == 1);
 		
-		toReturn[7] = new StatsRow("Cooling Rate (Heat Dissipated/Sec):", "" + getCoolingRate(), selectedTier1 == 0 || selectedOverclock == 1);
+		toReturn[8] = new StatsRow("Max Cooldown Without Overheating:", calculateCooldownPeriod(), selectedTier1 == 0 || selectedOverclock == 1);
 		
-		toReturn[8] = new StatsRow("Cooldown After Overheat:", cooldownAfterOverheat + " *", false);
+		toReturn[9] = new StatsRow("Cooldown After Overheat:", cooldownAfterOverheat, false);
 		
-		toReturn[9] = new StatsRow("Rate of Fire (Ammo/Sec):", "" + getRateOfFire(), selectedTier1 == 1 || selectedOverclock == 3);
+		toReturn[10] = new StatsRow("Spinup Time:", getSpinupTime(), selectedTier4 == 1 || selectedOverclock == 0);
 		
-		toReturn[10] = new StatsRow("Ammo Spent Until Stabilized:", bulletsFiredTilMaxStability + " *", false);
+		toReturn[11] = new StatsRow("Spindown Time:", getSpindownTime(), selectedTier4 == 2);
 		
-		toReturn[11] = new StatsRow("Spinup Time:", "" + getSpinupTime(), selectedTier4 == 1 || selectedOverclock == 0);
+		toReturn[12] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier3 == 0, selectedTier3 == 0);
 		
-		toReturn[12] = new StatsRow("Spindown Time:", "" + getSpindownTime(), selectedTier4 == 2);
+		toReturn[13] = new StatsRow("Max Penetrations:", getNumberOfPenetrations(), selectedTier3 == 2, selectedTier3 == 2);
+		
+		toReturn[14] = new StatsRow("Max Ricochets:", getNumberOfRicochets(), selectedOverclock == 5, selectedOverclock == 5);
+		
+		toReturn[15] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(getStunChancePerPellet()), selectedOverclock == 6);
+		
+		toReturn[16] = new StatsRow("Stun Duration:", getStunDuration(), selectedTier3 == 1 || selectedOverclock == 6);
 		
 		boolean baseSpreadModified = selectedTier1 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[13] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified);
+		toReturn[17] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
 		
-		toReturn[14] = new StatsRow("Movement Speed While Using:", convertDoubleToPercentage(getMovespeedWhileFiring()), selectedOverclock == 6);
-		
-		toReturn[15] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier3 == 0);
-		
-		toReturn[16] = new StatsRow("Max Penetrations:", "" + getNumberOfPenetrations(), selectedTier3 == 2);
-		
-		toReturn[17] = new StatsRow("Max Ricochets:", "" + getNumberOfRicochets(), selectedOverclock == 5);
+		toReturn[18] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 6);
 		
 		return toReturn;
 	}
@@ -479,12 +558,136 @@ public class Minigun extends Weapon {
 		return false;
 	}
 	
+	private double calculateIgnitionTime(boolean accuracy) {
+		// It looks like Hot Bullets and Burning Hell both have -50% Burn DoT Durations?
+		double burningHellHeatPerSec = 100;
+		
+		double generalAccuracy;
+		if (accuracy) {
+			generalAccuracy = estimatedAccuracy(false);
+		}
+		else {
+			generalAccuracy = 1.0;
+		}
+		
+		// Special case: Bullet Hell causes the bullets to guarantee impact.
+		if (selectedOverclock == 5) {
+			generalAccuracy = 0.5;
+		}
+		
+		// Hot Bullets only
+		if (selectedTier5 == 2 && selectedOverclock != 2) {
+			// Hot Bullets adds 50% of of each pellet's Direct Damage as Heat Damage while the Heat Meter on the Minigun is red.
+			// In practice, the meter turns red after 4 seconds of sustained firing, meaning that the last 5.5 seconds of the burst will have Hot Bullets.
+			// I'm choosing to reduce the heatPerPellet by the Accuracy of the gun to imitate when pellets miss the target
+			double heatPerPellet = ((double) getDamagePerPellet()) * generalAccuracy / 2.0;
+			double RoF = getRateOfFire() / 2.0;
+			return 4 + EnemyInformation.averageTimeToIgnite(heatPerPellet, RoF);
+		}
+		// Burning Hell only
+		else if (selectedTier5 != 2 && selectedOverclock == 2) {
+			// Burning Hell looks like it burns everything within 4m in a 20 degree arc in front of you at a rate of 100 heat/sec
+			// TODO: I would like for this damage to be reflected in additional target somehow, and then its AoE damage reflected in max damage too
+			return EnemyInformation.averageTimeToIgnite(burningHellHeatPerSec);
+		}
+		// Both Hot Bullets AND Burning Hell
+		else if (selectedTier5 == 2 && selectedOverclock == 2) {
+			// Because Burning Hell reduces the Firing Period from 9.5 sec to 6.33 sec, this means that Hot Bullets gets activated after 2.66 seconds instead of 4.
+			double heatPerPellet = ((double) getDamagePerPellet()) * generalAccuracy / 2.0;
+			double RoF = getRateOfFire() / 2.0;
+			double avgHeatPerSec = (2.66 * burningHellHeatPerSec + 3.66 * (heatPerPellet * RoF + burningHellHeatPerSec)) / 6.33;
+			return EnemyInformation.averageTimeToIgnite(avgHeatPerSec);
+		}
+		// Neither are equipped.
+		else {
+			return -1;
+		}
+	}
+	
+	// Single-target calculations
+	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+		double generalAccuracy, shortDuration, longDuration, directWeakpointDamage;
+		
+		if (accuracy) {
+			generalAccuracy = estimatedAccuracy(false) / 100.0;
+		}
+		else {
+			generalAccuracy = 1.0;
+		}
+		
+		// Special case: the overclock Bullet Hell makes all pellets that miss redirect and hit an enemy.
+		if (selectedOverclock == 5) {
+			generalAccuracy = 0.5;
+		}
+		
+		if (burst) {
+			shortDuration = calculateFiringPeriod();
+			longDuration = calculateFiringPeriod();
+			// I've considered adding the spinup time to the burst duration, but seeing it in the metrics was very counter-intuitive -- it made the burst DPS not the intuitively expected 150.
+			// longDuration = getSpinupTime() + calculateFiringPeriod();
+		}
+		else {
+			double firingPeriod = calculateFiringPeriod();
+			double cooldownPeriod = calculateCooldownPeriod();
+			
+			shortDuration = firingPeriod + cooldownPeriod;
+			
+			double spindown = getSpindownTime();
+			double spinup;
+			if (cooldownPeriod < spindown) {
+				double fractionOfSpinupNeeded = 1.0 - (cooldownPeriod / spindown);
+				spinup = fractionOfSpinupNeeded * getSpinupTime();
+			}
+			else {
+				spinup = getSpinupTime();
+			}
+			
+			longDuration = firingPeriod + cooldownPeriod + spinup;
+		}
+		
+		int burstSize = (int) calculateMaxNumPelletsFiredWithoutOverheating();
+		double directDamage = getDamagePerPellet();
+		if (selectedTier4 == 0) {
+			double pelletsFiredWhileNotStabilized = bulletsFiredTilMaxStability / 2.0;
+			directDamage *= (pelletsFiredWhileNotStabilized + 1.15*(burstSize - pelletsFiredWhileNotStabilized)) / burstSize;
+		}
+		
+		double weakpointAccuracy;
+		if (weakpoint) {
+			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+			directWeakpointDamage = increaseBulletDamageForWeakpoints2(directDamage);
+		}
+		else {
+			weakpointAccuracy = 0.0;
+			directWeakpointDamage = directDamage;
+		}
+		
+		double burnDPS = 0;
+		if (selectedTier5 == 2 || selectedOverclock == 2) {
+			if (burst) {
+				double ignitionTime = calculateIgnitionTime(accuracy);
+				double burnDoTUptime = (shortDuration - ignitionTime) / shortDuration;
+				burnDPS = burnDoTUptime * DoTInformation.Burn_DPS;
+			}
+			else {
+				burnDPS = DoTInformation.Burn_DPS;
+			}
+		}
+		
+		int pelletsThatHitWeakpoint = (int) Math.round(burstSize * weakpointAccuracy);
+		int pelletsThatHitTarget = (int) Math.round(burstSize * generalAccuracy) - pelletsThatHitWeakpoint;
+		
+		return (pelletsThatHitWeakpoint * directWeakpointDamage + pelletsThatHitTarget * directDamage) / longDuration + burnDPS;
+	}
+	
 	private double calculateDamagePerBurst(boolean weakpointBonus) {
 		/* 
 			The length of the burst is determined by the heat accumulated. Each burst duration should stop just shy of 
 			overheating the minigun so that it doesn't have the overheat cooldown penalty imposed.
+			
+			TODO: I'd like to refactor out this method if at all possible
 		*/
-		double numPelletsFiredBeforeOverheat = Math.floor(maxHeat / getHeatPerPellet());
+		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
 		double damageMultiplier = 1.0;
 		if (selectedTier4 == 0) {
 			double pelletsFiredWhileNotStabilized = bulletsFiredTilMaxStability / 2.0;
@@ -498,72 +701,112 @@ public class Minigun extends Weapon {
 			return numPelletsFiredBeforeOverheat * (double) getDamagePerPellet() * damageMultiplier;
 		}
 	}
-
+	
 	@Override
 	public double calculateIdealBurstDPS() {
-		double damagePerBurst = calculateDamagePerBurst(false);
-		double numPelletsFiredBeforeOverheat = Math.floor(maxHeat / getHeatPerPellet());
-		double burstDuration = 2.0 * numPelletsFiredBeforeOverheat / ((double) getRateOfFire());
-		return damagePerBurst / burstDuration;
+		return calculateSingleTargetDPS(true, false, false);
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		double damagePerBurst = calculateDamagePerBurst(false);
-		double numPelletsFiredBeforeOverheat = Math.floor(maxHeat / getHeatPerPellet());
-		double burstDuration = 2.0 * numPelletsFiredBeforeOverheat / ((double) getRateOfFire());
-		double coolOffDuration = maxHeat / getCoolingRate();
-		return damagePerBurst / (burstDuration + coolOffDuration);
+		return calculateSingleTargetDPS(false, false, false);
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		double damagePerBurst = calculateDamagePerBurst(true);
-		double numPelletsFiredBeforeOverheat = Math.floor(maxHeat / getHeatPerPellet());
-		double burstDuration = 2.0 * numPelletsFiredBeforeOverheat / ((double) getRateOfFire());
-		double coolOffDuration = maxHeat / getCoolingRate();
-		return damagePerBurst / (burstDuration + coolOffDuration);
+		return calculateSingleTargetDPS(false, false, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
 		if (selectedTier3 == 2 || selectedOverclock == 5) {
-			// This assumes that the penetrations don't have their damage reduced.
+			// This assumes that the penetrations and ricochets don't have their damage reduced.
 			return calculateIdealSustainedDPS();
 		}
 		else {
 			return 0;
 		}
 	}
-	
-	private double calculateMaxSingleTargetDamage() {
-		double numPelletsFiredBeforeOverheat = Math.floor(maxHeat / getHeatPerPellet());
-		double numberOfBursts = (double) getMaxAmmo() / (2.0 * numPelletsFiredBeforeOverheat);
-		return numberOfBursts * calculateDamagePerBurst(false);
-	}
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		return (double) calculateMaxNumTargets() * calculateMaxSingleTargetDamage();
+		int numTargets = calculateMaxNumTargets();
+		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
+		double numberOfBursts = (double) getMaxAmmo() / (2.0 * numPelletsFiredBeforeOverheat);
+		double totalDamage = numberOfBursts * calculateDamagePerBurst(false) * numTargets;
+		
+		double fireDoTTotalDamage = 0;
+		double timeBeforeFireProc, fireDoTDamagePerEnemy, estimatedNumEnemiesKilled;
+		// Both Hot Bullets and Burning Hell are penalized with -50% DoT duration
+		// Because of how Hot Bullets' ignition time is calculated, it returns (4 + the ignition time). As a result, it would end up subtracting from the total damage.
+		if (selectedTier5 == 2 && selectedOverclock != 2) {
+			timeBeforeFireProc = calculateIgnitionTime(false) - 4;
+			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, 0.5 * EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			
+			// Because Hot Bullets only starts igniting enemies after 4 seconds, reduce this damage by the uptime coefficient.
+			fireDoTDamagePerEnemy *= (5.5/9.5);
+			
+			estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
+			
+			fireDoTTotalDamage += fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
+		}
+		// Burning Hell, on the other hand, works great with this. Even with Hot Bullets stacked on top of it, it doesn't do negative damage.
+		else if (selectedOverclock == 2) {
+			timeBeforeFireProc = calculateIgnitionTime(false);
+			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, 0.5 * EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			
+			estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
+			
+			fireDoTTotalDamage += fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
+		}
+		
+		// Aggressive Venting does one burst of 75 Heat Damage in a 3m radius around the Gunner
+		if (selectedTier5 == 0) {
+			// I'm choosing to model Aggressive Venting as Fire DoT max damage without affecting DPS stats, since the 11 sec cooldown penalty would TANK all of those stats.
+			// Additionally, I'm choosing to not combine its burst of 75 Heat Damage with the Heat/sec dealt by Hot Bullets or Burning Hell. It gets its own section, all to itself.
+			double percentageOfEnemiesIgnitedByAV = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(75);
+			double numGlyphidsHitByHeatBurst = 20;  // this.calculateNumGlyphidsInRadius(3);
+			int numTimesAVcanTrigger = (int) Math.floor(numberOfBursts);
+			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			
+			fireDoTTotalDamage += numTimesAVcanTrigger * (percentageOfEnemiesIgnitedByAV * numGlyphidsHitByHeatBurst) * fireDoTDamagePerEnemy;
+		}
+		
+		return totalDamage + fireDoTTotalDamage;
 	}
 
 	@Override
 	public int calculateMaxNumTargets() {
-		return 1 + getNumberOfPenetrations() + getNumberOfRicochets();
+		// Because a ricochet from Bullet Hell consumes the penetration from Blowthrough Rounds, they don't stack together (unless BT Rounds gets buffed to do more than 1 penetration).
+		if (selectedTier3 == 2 || selectedOverclock == 5) {
+			return 2;
+		}
+		else {
+			return 1;
+		}
 	}
 
 	@Override
 	public double calculateFiringDuration() {
-		double numPelletsFiredBeforeOverheat = Math.floor(maxHeat / getHeatPerPellet());
-		double numberOfBursts = (double) getMaxAmmo() / (2.0 * numPelletsFiredBeforeOverheat);
-		double numberOfCooldowns = Math.floor(numberOfBursts) - 1.0;
-		return (numberOfBursts * 2.0 * numPelletsFiredBeforeOverheat / getRateOfFire()) + (numberOfCooldowns * maxHeat / getCoolingRate());
+		int ammoSpentBeforeOverheat = (int) (2.0 * calculateMaxNumPelletsFiredWithoutOverheating());
+		int maxAmmo = getMaxAmmo();
+		
+		double numberOfBursts = ((double) maxAmmo) / ((double) ammoSpentBeforeOverheat);
+		
+		int numberOfCooldowns = 0;
+		if (maxAmmo % ammoSpentBeforeOverheat == 0) {
+			numberOfCooldowns = (int) (numberOfBursts - 1.0);
+		}
+		else {
+			numberOfCooldowns = Math.floorDiv(maxAmmo, ammoSpentBeforeOverheat);
+		}
+		
+		return (numberOfBursts * calculateFiringPeriod()) + (numberOfCooldowns * calculateCooldownPeriod());
 	}
 
 	@Override
@@ -574,20 +817,83 @@ public class Minigun extends Weapon {
 	@Override
 	public double averageOverkill() {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet());
-		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
-		return overkill / dmgPerShot * 100.0;
+		double enemyHP = EnemyInformation.averageHealthPool();
+		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
+		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
 	}
 
 	@Override
-	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		return 0;
+	public double estimatedAccuracy(boolean weakpointAccuracy) {
+		// TODO: Bullet Hell guarantees ricochets into enemies. I need to figure out how to model what percentage hit the intended enemy, and then edit calculateIgnitionTime() and calculateSingleTargetDPS() accordingly.
+		
+		// I'm choosing to model Minigun as if it has no recoil. Although it does, its so negligible that it would have no effect.
+		// Because it's being modeled without recoil, and its crosshair gets smaller as it fires, I'm making a quick-and-dirty estimate here instead of using AccuracyEstimator.
+		double unchangingBaseSpread = 61;
+		double changingBaseSpread = 68 * getBaseSpread();
+		double spreadVariance = 334;
+		double spreadPerShot = 16.7;
+		// double spreadRecoverySpeed = 95.42857143;
+		
+		double baseSpread = unchangingBaseSpread + changingBaseSpread;
+		double maxSpread = baseSpread + spreadVariance;
+		
+		// Adapted from AccuracyEstimator
+		// Because this is modeled without recoil, there are only two options: one where the crosshair is larger than the target, and one where it's <=.
+		double sumOfAllProbabilities = 0.0;
+		double targetRadius;
+		if (weakpointAccuracy) {
+			targetRadius = 0.2;
+		}
+		else {
+			targetRadius = 0.4;
+		}
+		int numPelletsFired = (int) calculateMaxNumPelletsFiredWithoutOverheating();
+		int numPelletsUntilStable = bulletsFiredTilMaxStability/2;
+		double currentSpreadRadius;
+		for (int i = 0; i < numPelletsUntilStable; i++) {
+			currentSpreadRadius = AccuracyEstimator.convertSpreadPixelsToMeters(maxSpread - i*spreadPerShot, false);
+			
+			if (currentSpreadRadius > targetRadius) {
+				sumOfAllProbabilities += Math.pow((targetRadius / currentSpreadRadius), 2);
+			}
+			else {
+				sumOfAllProbabilities += 1.0;
+			}
+		}
+		
+		// Because only the first 20 shots have an accuracy penalty, the rest can be modeled with simple multiplication
+		int numPelletsFiredAfterStable = numPelletsFired - numPelletsUntilStable;
+		currentSpreadRadius = AccuracyEstimator.convertSpreadPixelsToMeters(baseSpread, false);
+		if (currentSpreadRadius > targetRadius) {
+			sumOfAllProbabilities += numPelletsFiredAfterStable * Math.pow((targetRadius / currentSpreadRadius), 2);
+		}
+		else {
+			sumOfAllProbabilities += numPelletsFiredAfterStable;
+		}
+		
+		return sumOfAllProbabilities / numPelletsFired * 100.0;
 	}
 
 	@Override
 	public double utilityScore() {
-		// TODO Auto-generated method stub
-		return 0;
+		// OC "Lead Storm" reduces Gunner's movement speed
+		utilityScores[0] = (getMovespeedWhileFiring() - MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
+		
+		// Armor Breaking
+		utilityScores[2] = (getArmorBreakChance() - 1) * calculateMaxNumTargets() * UtilityInformation.ArmorBreak_Utility;
+		
+		// Mod Tier 5 "Aggressive Venting" induces Fear in a 3m radius (while also dealing 75 Heat Damage)
+		if (selectedTier5 == 0) {
+			int numGlyphidsFeared = 20;  // this.calculateNumGlyphidsInRadius(3);
+			utilityScores[4] = numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+		}
+		else {
+			utilityScores[4] = 0;
+		}
+		
+		// Innate stun = 30% chance, 1 sec duration (duration improved by Mod Tier 3 "Stun Duration")
+		utilityScores[5] = getStunChancePerPellet() * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
+		
+		return MathUtils.sum(utilityScores);
 	}
-
 }

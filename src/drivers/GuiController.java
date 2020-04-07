@@ -1,10 +1,18 @@
 package drivers;
 
+import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -99,6 +107,12 @@ public class GuiController implements ActionListener {
 		
 		Weapon currentlySelectedWeapon;
 		int classIndex = gui.getCurrentClassIndex();
+		
+		// Have these commands disabled when Information is at the front.
+		if (classIndex > 3) {
+			return;
+		}
+		
 		int weaponIndex = gui.getCurrentWeaponIndex();
 		if (classIndex == 0) {
 			currentlySelectedWeapon = drillerWeapons[weaponIndex];
@@ -118,14 +132,20 @@ public class GuiController implements ActionListener {
 		}
 		calculator.changeWeapon(currentlySelectedWeapon);
 		
-		if (e == gui.getBcmBurst()) {
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestBurstDPSCombination());
+		if (e == gui.getBcmIdealBurst()) {
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestIdealBurstDPSCombination());
 		}
-		else if (e == gui.getBcmSustained()) {
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestSustainedDPSCombination());
+		else if (e == gui.getBcmIdealSustained()) {
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestIdealSustainedDPSCombination());
 		}
-		else if (e == gui.getBcmAdditional()) {
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestAdditionalTargetDPSCombination());
+		else if (e == gui.getBcmSustainedWeakpoint()) {
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestSustainedWeakpointDPSCombination());
+		}
+		else if (e == gui.getBcmSustainedWeakpointAccuracy()) {
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestSustainedWeakpointAccuracyDPSCombination());
+		}
+		else if (e == gui.getBcmIdealAdditional()) {
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestIdealAdditionalTargetDPSCombination());
 		}
 		else if (e == gui.getBcmMaxDmg()) {
 			currentlySelectedWeapon.buildFromCombination(calculator.getHighestMultiTargetDamageCombination());
@@ -136,6 +156,56 @@ public class GuiController implements ActionListener {
 		else if (e == gui.getBcmDuration()) {
 			currentlySelectedWeapon.buildFromCombination(calculator.getLongestFiringDurationCombination());
 		}
+		else if (e == gui.getBcmTTK()) {
+			currentlySelectedWeapon.buildFromCombination(calculator.getShortestTimeToKillCombination());
+		}
+		else if (e == gui.getBcmOverkill()) {
+			currentlySelectedWeapon.buildFromCombination(calculator.getLowestOverkillCombination());
+		}
+		else if (e == gui.getBcmAccuracy()) {
+			currentlySelectedWeapon.buildFromCombination(calculator.getHighestAccuracyCombination());
+		}
+		else if (e == gui.getBcmUtility()) {
+			currentlySelectedWeapon.buildFromCombination(calculator.getMostUtilityCombination());
+		}
+		
+		else if (e == gui.getDSHaz1()) {
+			EnemyInformation.setHazardLevel(1);
+			gui.updateDifficultyScaling();
+		}
+		else if (e == gui.getDSHaz2()) {
+			EnemyInformation.setHazardLevel(2);
+			gui.updateDifficultyScaling();
+		}
+		else if (e == gui.getDSHaz3()) {
+			EnemyInformation.setHazardLevel(3);
+			gui.updateDifficultyScaling();
+		}
+		else if (e == gui.getDSHaz4()) {
+			EnemyInformation.setHazardLevel(4);
+			gui.updateDifficultyScaling();
+		}
+		else if (e == gui.getDSHaz5()) {
+			EnemyInformation.setHazardLevel(5);
+			gui.updateDifficultyScaling();
+		}
+		else if (e == gui.getDSPC1()) {
+			EnemyInformation.setPlayerCount(1);
+			gui.updateDifficultyScaling();
+		}
+		else if (e == gui.getDSPC2()) {
+			EnemyInformation.setPlayerCount(2);
+			gui.updateDifficultyScaling();
+		}
+		else if (e == gui.getDSPC3()) {
+			EnemyInformation.setPlayerCount(3);
+			gui.updateDifficultyScaling();
+		}
+		else if (e == gui.getDSPC4()) {
+			EnemyInformation.setPlayerCount(4);
+			gui.updateDifficultyScaling();
+		}
+		
 		else if (e == gui.getExportCurrent()) {
 			chooseFolder();
 			calculator.runTest(false, true);
@@ -160,6 +230,21 @@ public class GuiController implements ActionListener {
 				calculator.runTest(false, true);
 			}
 		}
+		
+		else if (e == gui.getMiscScreenshot()) {
+			chooseFolder();
+			String weaponPackage = currentlySelectedWeapon.getDwarfClass();
+			String weaponClassName = currentlySelectedWeapon.getSimpleName();
+			String filePath = calculator.getCSVFolderPath() + "\\" + weaponPackage + "_" + weaponClassName + "_" + currentlySelectedWeapon.getCombination() +".png";
+			
+			// Sourced from https://stackoverflow.com/a/44019372
+			BufferedImage screenshot = gui.getScreenshot();
+			try {
+				ImageIO.write(screenshot, "png", new File(filePath));
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
 		else if (e == gui.getMiscExport()) {
 			String combination = currentlySelectedWeapon.getCombination();
 			JTextField output = new JTextField(combination);
@@ -170,5 +255,38 @@ public class GuiController implements ActionListener {
 			String newCombination = JOptionPane.showInputDialog(null, "Enter the comination you want to load:");
 			currentlySelectedWeapon.buildFromCombination(newCombination);
 		}
+		else if (e == gui.getMiscSuggestion()) {
+			openWebpage("https://github.com/phg49389/drg-weapons-calculator/issues/new/choose");
+		}
+	}
+	
+	// These methods sourced from https://stackoverflow.com/a/10967469
+	private static boolean openWebpage(URI uri) {
+	    Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+	    if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+	        try {
+	            desktop.browse(uri);
+	            return true;
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	    }
+	    return false;
+	}
+	private static boolean openWebpage(URL url) {
+	    try {
+	        return openWebpage(url.toURI());
+	    } catch (URISyntaxException e) {
+	        e.printStackTrace();
+	    }
+	    return false;
+	}
+	private static boolean openWebpage(String url) {
+		try {
+			return openWebpage(new URL(url));
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 }

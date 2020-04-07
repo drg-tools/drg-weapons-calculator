@@ -4,11 +4,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import modelPieces.DoTInformation;
+import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
+import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
+import utilities.MathUtils;
 
 public class Classic_FocusShot extends Weapon {
 	
@@ -25,11 +28,8 @@ public class Classic_FocusShot extends Weapon {
 	private double delayBeforeFocusing;
 	private double focusDuration;
 	private double movespeedWhileFocusing;
-	private int maxPenetrations;
 	private double weakpointBonus;
 	private double armorBreakChance;
-	private int stunDuration;
-	private double recoil;
 	
 	/****************************************************************************************
 	* Constructors
@@ -59,11 +59,8 @@ public class Classic_FocusShot extends Weapon {
 		delayBeforeFocusing = 0.4;  // seconds
 		focusDuration = 0.6;  // seconds.
 		movespeedWhileFocusing = 0.3;
-		maxPenetrations = 0;
 		weakpointBonus = 0.1;
 		armorBreakChance = 0.3;
-		stunDuration = 3;
-		recoil = 1.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -101,11 +98,11 @@ public class Classic_FocusShot extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Hitting Where it Hurts", "Focused shots stagger the target", 5, 0);
-		tier5[1] = new Mod("Precision Terror", "Killing your target with a focused shot to the weakspot will send nearby creatures fleeing with terror!", 5, 1, false);
-		tier5[2] = new Mod("Killing Machine", "You can perform a lightning-fast reload right after killing an enemy.", 5, 2, false);  // Supposedly reduces manual reload time by 0.75 sec after a kill?
+		tier5[1] = new Mod("Precision Terror", "Killing your target with a focused shot to the weakspot will send nearby creatures fleeing with terror!", 5, 1);
+		tier5[2] = new Mod("Killing Machine", "You can perform a lightning-fast reload right after killing an enemy.", 5, 2);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Hoverclock", "Your movement slows down for a few seconds while using focus mode in the air.", 0, false);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Hoverclock", "Your movement slows down for a few seconds while using focus mode in the air.", 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Minimal Clips", "Make space for more ammo and speed up reloads by getting rid of dead weight on the clips.", 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Active Stability System", "Focus without slowing down but the power drain from the coils lowers the power of the focused shots.", 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Hipster", "A rebalancing of weight distribution, enlarged vents and a reshaped grip result in a rifle that is more controllable when hip-firing in quick succession but at the cost of pure damage output.", 3);
@@ -275,6 +272,13 @@ public class Classic_FocusShot extends Weapon {
 		return new Classic_FocusShot(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getDwarfClass() {
+		return "Scout";
+	}
+	public String getSimpleName() {
+		return "Classic_FocusShot";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/
@@ -349,11 +353,23 @@ public class Classic_FocusShot extends Weapon {
 	private double getReloadTime() {
 		double toReturn = reloadTime;
 		
+		if (selectedTier5 == 2) {
+			// "Killing Machine": if you manually reload within 1 second after a kill, the reload time is reduced by approximately 0.75 seconds.
+			// Because Sustained DPS uses this ReloadTime method, I'm choosing to use the Ideal Burst DPS as a quick-and-dirty estimate how often a kill gets scored 
+			// so that this doesn't infinitely loop.
+			double killingMachineManualReloadWindow = 1.0;
+			double killingMachineReloadReduction = 0.75;
+			double burstTTK = EnemyInformation.averageHealthPool() / calculateIdealBurstDPS();
+			// Don't let a high Burst DPS increase this beyond a 100% uptime
+			double killingMachineUptimeCoefficient = Math.min(killingMachineManualReloadWindow / burstTTK, 1.0);
+			double effectiveReloadReduction = killingMachineUptimeCoefficient * killingMachineReloadReduction;
+			
+			toReturn -= effectiveReloadReduction;
+		}
+		
 		if (selectedOverclock == 1) {
 			toReturn -= 0.2;
 		}
-		
-		// TODO: implement T5 "Killing Machine" reload time reduction
 		
 		return toReturn;
 	}
@@ -370,25 +386,24 @@ public class Classic_FocusShot extends Weapon {
 		return focusDuration / focusSpeedCoefficient;
 	}
 	private double getMovespeedWhileFocusing() {
-		double toReturn = movespeedWhileFocusing;
+		double modifier = movespeedWhileFocusing;
 		
 		if (selectedOverclock == 2) {
-			toReturn += 0.7;
+			modifier += 0.7;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn *= 0;
+			modifier *= 0;
 		}
 		
-		return toReturn;
+		return MathUtils.round(modifier * DwarfInformation.walkSpeed, 2);
 	}
 	private int getMaxPenetrations() {
-		int toReturn = maxPenetrations;
-		
 		if (selectedTier4 == 0) {
-			toReturn += 3;
+			return 3;
 		}
-		
-		return toReturn;
+		else {
+			return 0;
+		}
 	}
 	private double getWeakpointBonus() {
 		double toReturn = weakpointBonus;
@@ -399,7 +414,7 @@ public class Classic_FocusShot extends Weapon {
 		
 		return toReturn;
 	}
-	private double getArmorBreakChance() {
+	private double getArmorBreaking() {
 		double toReturn = armorBreakChance;
 		
 		if (selectedTier4 == 2) {
@@ -409,7 +424,7 @@ public class Classic_FocusShot extends Weapon {
 		return toReturn;
 	}
 	private double getRecoil() {
-		double toReturn = recoil;
+		double toReturn = 1.0;
 		
 		if (selectedTier2 == 1) {
 			toReturn *= 0.5;
@@ -423,7 +438,7 @@ public class Classic_FocusShot extends Weapon {
 	}
 	private int getStunDuration() {
 		if (selectedTier5 == 0) {
-			return stunDuration;
+			return 3;
 		}
 		else {
 			return 0;
@@ -434,35 +449,36 @@ public class Classic_FocusShot extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[14];
 		
-		toReturn[0] = new StatsRow("Direct Damage:", "" + getDirectDamage(), selectedOverclock == 3 || selectedTier1 == 1);
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), selectedOverclock == 3 || selectedTier1 == 1);
 		
 		boolean multiplierModified = selectedTier3 == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[1] = new StatsRow("Focused Shot Multiplier:", convertDoubleToPercentage(getFocusedShotMultiplier()), multiplierModified);
 		
-		toReturn[2] = new StatsRow("Delay Before Focusing:", "" + delayBeforeFocusing, false);
+		toReturn[2] = new StatsRow("Delay Before Focusing:", delayBeforeFocusing, false);
 		
-		toReturn[3] = new StatsRow("Focus Shot Charge-up Duration:", "" + getFocusDuration(), selectedTier2 == 0 || selectedOverclock == 5);
+		toReturn[3] = new StatsRow("Focus Shot Charge-up Duration:", getFocusDuration(), selectedTier2 == 0 || selectedOverclock == 5);
 		
-		toReturn[4] = new StatsRow("Movespeed While Focusing:", convertDoubleToPercentage(getMovespeedWhileFocusing()), selectedOverclock == 2 || selectedOverclock == 5);
-		
-		toReturn[5] = new StatsRow("Magazine Size:", "" + getMagazineSize(), selectedTier3 == 1);
+		toReturn[4] = new StatsRow("Clip Size:", getMagazineSize(), selectedTier3 == 1);
 		
 		boolean carriedAmmoModified = selectedTier1 == 0 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
-		toReturn[6] = new StatsRow("Max Ammo:", "" + getCarriedAmmo(), carriedAmmoModified);
+		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[7] = new StatsRow("Rate of Fire:", "" + getRateOfFire(), selectedTier2 == 0 || selectedOverclock == 5);
+		toReturn[6] = new StatsRow("Rate of Fire:", getRateOfFire(), selectedTier2 == 0 || selectedOverclock == 5);
 		
-		toReturn[8] = new StatsRow("Reload Time:", "" + getReloadTime(), selectedOverclock == 1);
+		toReturn[7] = new StatsRow("Reload Time:", getReloadTime(), selectedTier5 == 2 || selectedOverclock == 1);
 		
-		toReturn[9] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 1);
+		toReturn[8] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 1);
 		
-		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 2);
+		toReturn[9] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier4 == 2);
 		
-		toReturn[11] = new StatsRow("Max Penetrations:", "" + getMaxPenetrations(), selectedTier4 == 0);
+		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), selectedTier5 == 0, selectedTier5 == 0);
 		
-		toReturn[12] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1 || selectedOverclock == 3);
+		toReturn[11] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier4 == 0, selectedTier4 == 0);
 		
-		toReturn[13] = new StatsRow("Stun Duration:", "" + getStunDuration(), selectedTier5 == 0);
+		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 3;
+		toReturn[12] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
+		
+		toReturn[13] = new StatsRow("Movespeed While Focusing: (m/sec)", getMovespeedWhileFocusing(), selectedOverclock == 2 || selectedOverclock == 5);
 		
 		return toReturn;
 	}
@@ -477,54 +493,48 @@ public class Classic_FocusShot extends Weapon {
 	}
 
 	// Single-target calculations
-	private double calculateDamagePerMagazine(boolean weakpointBonus) {
-		double bulletDamage = getDirectDamage() * getFocusedShotMultiplier();
-		if (weakpointBonus) {
-			return (double) increaseBulletDamageForWeakpoints(bulletDamage, getWeakpointBonus()) * getMagazineSize();
+	private double calculateSingleTargetDPS(boolean burst, boolean weakpoint) {
+		double duration;
+		if (burst) {
+			duration = ((double) getMagazineSize()) / getRateOfFire();
 		}
 		else {
-			return (double) bulletDamage * getMagazineSize();
+			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
 		}
+		
+		double directDamage = getDirectDamage() * getFocusedShotMultiplier();
+		if (weakpoint) {
+			directDamage = increaseBulletDamageForWeakpoints(directDamage, getWeakpointBonus());
+		}
+		
+		double electroDPS = 0;
+		if (selectedOverclock == 4) {
+			// Because they get Electrocuted immediately, it has 100% uptime.
+			electroDPS = DoTInformation.Electro_DPS;
+		}
+		
+		return (directDamage * getMagazineSize()) / duration + electroDPS;
 	}
 
 	@Override
 	public double calculateIdealBurstDPS() {
-		double timeToFireMagazine = ((double) getMagazineSize()) / getRateOfFire();
-		double dps = calculateDamagePerMagazine(false) / timeToFireMagazine;
-		
-		if (selectedOverclock == 4) {
-			return dps + DoTInformation.Electro_DPS;
-		}
-		else {
-			return dps;
-		}
+		return calculateSingleTargetDPS(true, false);
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		double dps = calculateDamagePerMagazine(false) / timeToFireMagazineAndReload;
-		
-		if (selectedOverclock == 4) {
-			return dps + DoTInformation.Electro_DPS;
-		}
-		else {
-			return dps;
-		}
+		return calculateSingleTargetDPS(false, false);
 	}
 
 	@Override
 	public double sustainedWeakpointDPS() {
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-		return calculateDamagePerMagazine(true) / timeToFireMagazineAndReload;
+		return calculateSingleTargetDPS(false, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		// TODO Auto-generated method stub
-		return 0;
+		return calculateSingleTargetDPS(false, true);
 	}
-
 	
 	// Multi-target calculations
 	@Override
@@ -539,19 +549,18 @@ public class Classic_FocusShot extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		double directDamageDealt = calculateMaxNumTargets() * (getMagazineSize() + getCarriedAmmo()) * getDirectDamage() * getFocusedShotMultiplier();
+		double totalDamageDealt = calculateMaxNumTargets() * (getMagazineSize() + getCarriedAmmo()) * getDirectDamage() * getFocusedShotMultiplier();
 		
+		double electrocuteDoTTotalDamage = 0;
 		if (selectedOverclock == 4) {
-			// Because Electrocute DoT will be refreshed instead of stacked, this block of code will estimate how many shots of the whole ammo pool apply a new DoT.
-			// Functionally, this is basically asking how many enemies get DoTs on them, which is equivalent to how many enemies are expected to be killed with the carried ammo
-			double avgShotsToKillEnemy = Math.ceil(EnemyInformation.averageHealthPool() / (getDirectDamage() * getFocusedShotMultiplier()));
-			int avgNumEnemiesAfflictedWithDoT = (int) Math.ceil((getMagazineSize() + getCarriedAmmo()) / avgShotsToKillEnemy);
-			double electrocuteDoTDamageDealt = calculateMaxNumTargets() * avgNumEnemiesAfflictedWithDoT * DoTInformation.Electro_DPS * DoTInformation.Electro_SecsDuration;
-			return directDamageDealt + electrocuteDoTDamageDealt;
+			double electrocuteDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Electro_SecsDuration, DoTInformation.Electro_DPS);
+			
+			double estimatedNumEnemiesKilled = calculateMaxNumTargets() * (calculateFiringDuration() / averageTimeToKill());
+			
+			electrocuteDoTTotalDamage = electrocuteDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		}
-		else {
-			return directDamageDealt;
-		}
+		
+		return totalDamageDealt + electrocuteDoTTotalDamage;
 	}
 
 	@Override
@@ -561,44 +570,73 @@ public class Classic_FocusShot extends Weapon {
 
 	@Override
 	public double calculateFiringDuration() {
-		double magSize = (double) getMagazineSize();
-		// Don't forget to add the magazine that you start out with, in addition to the carried ammo
-		double numberOfMagazines = (((double) getCarriedAmmo()) / magSize) + 1.0;
-		double timeToFireMagazine = magSize / getRateOfFire();
-		// There are one fewer reloads than there are magazines to fire
-		return numberOfMagazines * timeToFireMagazine + (numberOfMagazines - 1.0) * getReloadTime();
+		int magSize = getMagazineSize();
+		int carriedAmmo = getCarriedAmmo();
+		double timeToFireMagazine = ((double) magSize) / getRateOfFire();
+		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
 
 	@Override
 	public double averageTimeToKill() {
-		double effectiveDPS;
-		
-		if (selectedOverclock == 4) {
-			effectiveDPS = sustainedWeakpointDPS() + DoTInformation.Electro_DPS;
-		}
-		else {
-			effectiveDPS = sustainedWeakpointDPS();
-		}
-		
-		return EnemyInformation.averageHealthPool() / effectiveDPS;
+		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
 	}
 
 	@Override
 	public double averageOverkill() {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage() * getFocusedShotMultiplier(), getWeakpointBonus());
-		double overkill = EnemyInformation.averageHealthPool() % dmgPerShot;
-		return overkill / dmgPerShot * 100.0;
+		double enemyHP = EnemyInformation.averageHealthPool();
+		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
+		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
 	}
 
 	@Override
-	public double estimatedAccuracy() {
-		// TODO Auto-generated method stub
-		return 0;
+	public double estimatedAccuracy(boolean weakpointAccuracy) {
+		// Manually aimed
+		return -1.0;
 	}
 
 	@Override
 	public double utilityScore() {
-		// TODO Auto-generated method stub
-		return 0;
+		// OC "Active Stability System" removes the movespeed penalty while Focusing
+		utilityScores[0] = (getMovespeedWhileFocusing() - MathUtils.round(movespeedWhileFocusing * DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
+		
+		// OC "Hoverclock" gives a 2 second cap to Scout's vertical movement speed (guess: 0.5 m/sec?), but after that 2sec ends original velocity is restored
+		if (selectedOverclock == 0) {
+			// Because the vertical movespeed cap of +- 0.5 m/sec can be used to negate fall damage from infinite height, there's not really a 
+			// way to give this OC a numerical value. For now, I'm just gonna call it 10 and move on.
+			utilityScores[0] += 10;
+		}
+		
+		// Armor Breaking
+		// Because Blowthrough Rounds are on the same tier as Armor Break, this bonus isn't multiplied by max num targets.
+		utilityScores[2] = (getArmorBreaking() - 1) * UtilityInformation.ArmorBreak_Utility;
+		
+		// OC "Electrocuting Focus Shots" = 100% chance to electrocute on focused shots
+		if (selectedOverclock == 4) {
+			utilityScores[3] = calculateMaxNumTargets() * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+		}
+		else {
+			utilityScores[3] = 0;
+		}
+		
+		// Mod Tier 5 "Precision Terror" = 100% chance to Fear in 2m AoE
+		if (selectedTier5 == 1) {
+			double uptimeCoefficient = Math.min(UtilityInformation.Fear_Duration / averageTimeToKill(), 1);
+			int numGlyphidsFeared = 12;  // calculateNumGlyphidsInRadius(2);
+			utilityScores[4] = uptimeCoefficient * numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+		}
+		else {
+			utilityScores[4] = 0;
+		}
+		
+		// Mod Tier 5 "Hitting Where it Hurts" = 100% chance for 3 sec stun
+		if (selectedTier5 == 0) {
+			utilityScores[5] = calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
+		}
+		else {
+			utilityScores[5] = 0;
+		}
+		
+		return MathUtils.sum(utilityScores);
 	}
 }
