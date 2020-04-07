@@ -606,18 +606,27 @@ public class Boomstick extends Weapon {
 		// The frontal blastwave is a 20 degree isosceles triangle, 4m height; 1.41m base. 4 grunts can be hit in a 1-2-1 stack.
 		int gruntsHitByBlastwave = 4;
 		int blastwaveDamagePerShot = gruntsHitByBlastwave * getBlastwaveDamage();
-		// TODO: this doesn't reflect the penetrations...
-		double totalDamage = (getMagazineSize() + getCarriedAmmo()) * (directDamagePerShot + blastwaveDamagePerShot);
+		int numTargets = calculateMaxNumTargets();
+		int numShots = getMagazineSize() + getCarriedAmmo();
+		double totalDamage = numShots * (directDamagePerShot*numTargets + blastwaveDamagePerShot);
 		
 		double fireDoTTotalDamage = 0;
 		if (selectedTier5 == 2) {
-			// TODO: if magsize == 1, do the % enemies ignited like Minigun's Aggressive Venting
-			double timeBeforeIgnite = calculateTimeToIgnite(false);
-			double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
 			
-			double estimatedNumEnemiesKilled = calculateMaxNumTargets() * (calculateFiringDuration() / averageTimeToKill());
-			
-			fireDoTTotalDamage = fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
+			double estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
+			double fireDoTDamagePerEnemy;
+			if (getMagazineSize() > 1) {
+				double timeBeforeIgnite = calculateTimeToIgnite(false);
+				fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+				
+				fireDoTTotalDamage = fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
+			}
+			else {
+				double percentageOfEnemiesIgnitedPerShot = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(0.5 * directDamagePerShot);
+				fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+				
+				fireDoTTotalDamage += numShots * (percentageOfEnemiesIgnitedPerShot * numTargets) * fireDoTDamagePerEnemy;
+			}
 		}
 		
 		return totalDamage + fireDoTTotalDamage;

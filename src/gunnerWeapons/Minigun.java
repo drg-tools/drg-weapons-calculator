@@ -622,7 +622,9 @@ public class Minigun extends Weapon {
 		
 		if (burst) {
 			shortDuration = calculateFiringPeriod();
-			longDuration = getSpinupTime() + calculateFiringPeriod();
+			longDuration = calculateFiringPeriod();
+			// I've considered adding the spinup time to the burst duration, but seeing it in the metrics was very counter-intuitive -- it made the burst DPS not the intuitively expected 150.
+			// longDuration = getSpinupTime() + calculateFiringPeriod();
 		}
 		else {
 			double firingPeriod = calculateFiringPeriod();
