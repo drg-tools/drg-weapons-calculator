@@ -85,37 +85,37 @@ public class Minigun extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
-		tier1[0] = new Mod("Magnetic Refrigeration", "Increases the cooling Rate", 1, 0);
-		tier1[1] = new Mod("Improved Motor", "Increased rate of fire and faster gyro stabilization", 1, 1);
-		tier1[2] = new Mod("Improved Platform Stability", "Increased Accuracy", 1, 2);
+		tier1[0] = new Mod("Magnetic Refrigeration", "+1.5 Cooling Rate", 1, 0);
+		tier1[1] = new Mod("Improved Motor", "+4 Rate of Fire", 1, 1);
+		tier1[2] = new Mod("Improved Platform Stability", "x0.2 Base Spread", 1, 2);
 		
 		tier2 = new Mod[2];
-		tier2[0] = new Mod("Oversized Drum", "Expanded Ammo Bags", 2, 0);
-		tier2[1] = new Mod("High Velocity Rounds", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 2, 1);
+		tier2[0] = new Mod("Oversized Drum", "+600 Max Ammo", 2, 0);
+		tier2[1] = new Mod("High Velocity Rounds", "+2 Damage per Pellet", 2, 1);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Hardened Rounds", "Improved armor breaking", 3, 0);
-		tier3[1] = new Mod("Stun Duration", "Stunned enemies are incapacitated for a longer period of time.", 3, 1);
-		tier3[2] = new Mod("Blowthrough Rounds", "Shaped bullets capable of passing through a target!", 3, 2);
+		tier3[0] = new Mod("Hardened Rounds", "+200% Armor Breaking", 3, 0);
+		tier3[1] = new Mod("Stun Duration", "+1 second Stun duration", 3, 1);
+		tier3[2] = new Mod("Blowthrough Rounds", "+1 Penetration", 3, 2);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Variable Chamber Pressure", "Damage increase when fully stabilized", 4, 0);
-		tier4[1] = new Mod("Lighter Barrel Assembly", "Start killing things sooner with a shorter spinup time.", 4, 1);
-		tier4[2] = new Mod("Magnetic Bearings", "Barrels keep spinning for a longer time after firing, keeping the gun stable for longer.", 4, 2);
+		tier4[0] = new Mod("Variable Chamber Pressure", "+15% Damage per Pellet after reaching Base Spread", 4, 0);
+		tier4[1] = new Mod("Lighter Barrel Assembly", "-0.4 seconds spinup time", 4, 1);
+		tier4[2] = new Mod("Magnetic Bearings", "+3 seconds spindown time", 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Aggressive Venting", "Burn everything in a radius when the minigun overheats", 5, 0);
-		tier5[1] = new Mod("Cold As The Grave", "Every kill cools the gun", 5, 1);
-		tier5[2] = new Mod("Hot Bullets", "Rounds fired when the heat meter is red will burn the target", 5, 2);
+		tier5[0] = new Mod("Aggressive Venting", "After overheating, deal 75 Heat Damage and 100% chance to apply Fear to all enemies within a 3m radius", 5, 0);
+		tier5[1] = new Mod("Cold As The Grave", "Every kill reduces the current Heat Meter and thus increases the firing duration before overheating", 5, 1);
+		tier5[2] = new Mod("Hot Bullets", "After the Heat Meter turns red, 50% of the Damage per Pellet gets added as Heat Damage", 5, 2);
 		
 		overclocks = new Overclock[7];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "A Little More Oomph!", "Get the most out of each shot without compromising any of the gun's systems.", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Thinned Drum Walls", "Stuff more bullets into the ammo drum by thinning the material in non-critical areas.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Burning Hell", "Turn the area just infront of the minigun into an even worse place by venting all the combustion gasses forward. However, it does overheat rather quickly.", 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Compact Feed Mechanism", "More space left for ammo at the cost of a reduced rate of fire.", 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Exhaust Vectoring", "Increases damage at a cost to accuracy.", 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Bullet Hell", "Special bullets that ricochet off all surfaces and even enemies going on to hit nearby targets. However they deal less damage and are less accurate overall.", 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Storm", "Pushing things to the limit this overclock greatly increases damage output but the weapon no longer stuns and the kickback makes it almost impossible to move.", 6);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "A Little More Oomph!", "+1 Damage per Pellet, -0.2 spinup time", 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Thinned Drum Walls", "+300 Max Ammo, +0.5 Cooling Rate", 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Burning Hell", "While firing, the Minigun deals 100 Heat per Second in a cone 4m in front of the muzzle. +50% heat accumulation in the gun's heat meter, which translates to 2/3 the firing period", 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Compact Feed Mechanism", "+800 Max Ammo, -4 Rate of Fire", 3);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Exhaust Vectoring", "+2 Damage per Pellet, x2.5 Base Spread", 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Bullet Hell", "50% for bullets that impact an enemy or terrain to ricochet into another enemy. -3 Damage per Pellet, x6 Base Spread", 5);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Storm", "+4 Damage per Pellet, x0 Movespeed while using, and the Minigun cannot stun enemies anymore.", 6);
 	}
 	
 	@Override

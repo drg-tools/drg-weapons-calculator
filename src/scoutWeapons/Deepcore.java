@@ -75,36 +75,37 @@ public class Deepcore extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Gyro Stabilisation", "Base accuracy improvement with pin-point accuracy on first shot", 1, 0);
-		tier1[1] = new Mod("Supercharged Feed Mechanism", "We overclocked your gun. It fires faster. Don't ask, just enjoy. Also probably don't tell Management, please.", 1, 1);
+		tier1[0] = new Mod("Gyro Stabilisation", "-100% Base Spread", 1, 0);
+		tier1[1] = new Mod("Supercharged Feed Mechanism", "+2 Rate of Fire", 1, 1);
 		
 		tier2 = new Mod[2];
-		tier2[0] = new Mod("Increased Caliber Rounds", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 2, 0);
-		tier2[1] = new Mod("Expanded Ammo Bags", "You had to give up some sandwich-storage, but your total ammo capacity is increased!", 2, 1);
+		tier2[0] = new Mod("Increased Caliber Rounds", "+2 Direct Damage", 2, 0);
+		tier2[1] = new Mod("Expanded Ammo Bags", "+100 Max Ammo", 2, 1);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Floating Barrel", "Sweet, sweet optimization. We called in a few friends and managed to significantly improve the stability of this gun.", 3, 0);
-		tier3[1] = new Mod("Improved Propellant", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 3, 1);
-		tier3[2] = new Mod("High Capacity Magazine", "The good thing about clips, magazines, ammo drums, fuel tanks... You can always get bigger variants.", 3, 2);
+		tier3[0] = new Mod("Floating Barrel", "x0.5 Recoil", 3, 0);
+		tier3[1] = new Mod("Improved Propellant", "+1 Direct Damage", 3, 1);
+		tier3[2] = new Mod("High Capacity Magazine", "+10 Magazine Size", 3, 2);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Hollow-Point Bullets", "Hit 'em where it hurts! Literally! We've upped the damage you'll be able to do to any creatures fleshy bits. You're welcome.", 4, 0);
-		tier4[1] = new Mod("Hardened Rounds", "We're proud of this one. Armor shredding. Tear through that high-impact plating of those big buggers like butter. What could be finer?", 4, 1);
-		tier4[2] = new Mod("Improved Gas System", "We overclocked your gun. It fires faster. Don't ask, just enjoy. Also probably don't tell Management, please.", 4, 2);
+		tier4[0] = new Mod("Hollow-Point Bullets", "+20% Weakpoint Bonus", 4, 0);
+		tier4[1] = new Mod("Hardened Rounds", "+500% Armor Breaking", 4, 1);
+		tier4[2] = new Mod("Improved Gas System", "+2 Rate of Fire", 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Battle Frenzy", "Move faster for a short time after killing an enemy", 5, 0);
-		tier5[1] = new Mod("Battle Cool", "Killing an enemy increases accuracy", 5, 1);
-		tier5[2] = new Mod("Stun", "Increased chance to stun the target on a weakpoint hit", 5, 2);
+		tier5[0] = new Mod("Battle Frenzy", "After killing an enemy, gain +50% Movement Speed for 3 seconds", 5, 0);
+		tier5[1] = new Mod("Battle Cool", "After killing an enemy, Spread per Shot is set to 0 for 1.5 seconds", 5, 1);
+		tier5[2] = new Mod("Stun", "+30% chance to Stun on Weakpoint hit", 5, 2);
 		
 		overclocks = new Overclock[7];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Ammo", "Stuff a few more of these compact rounds into each magazine and they have a bit less recoil as well.", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Gas Rerouting", "Increases the weapon's rate of fire without affecting performance and helps with magazine ejection as well.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "More damage on average but it's a bit inconsistent.", 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Overclocked Firing Mechanism", "More bullets faster and it kicks like a mule.", 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Bullets of Mercy", "Put suffering bugs out of their misery with a damage bonus against afflicted enemies.", 4, false);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "AI Stability Engine", "It's like it knows what you are going to do before you do it, compensating for all recoil and bullet spread but the system requires a lower rate of fire and the modified firing chamber reduces overall damage.", 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Electrifying Reload", "Embedded capacitors have a chance to electrocute targets from the inside when you reload. Probability of electrocution increases with the number of hits. However all that tech reduces raw damage of the bullets and takes up some space in the magazines.", 6);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Ammo", "+5 Magazine Size, x0.7 Recoil", 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Gas Rerouting", "+1 Rate of Fire, -0.3 Reload Time", 1);
+		overclocks[2] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Overclocked Firing Mechanism", "+3 Rate of Fire, x2.5 Recoil", 3);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Bullets of Mercy", "+33% Damage dealt to enemies that are burning, electrocuted, poisoned, stunned, or frozen. Additionally, -5 Magazine Size", 4, false);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "AI Stability Engine", "x0 Recoil, x10 Spread Recovery Speed, -1 Direct Damage, -2 Rate of Fire", 5);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Electrifying Reload", "If any bullets from a magazine damage an enemy's healthbar, then those enemies will have an Electrocute DoT applied when that "
+				+ "magazine gets reloaded. Electrocute does an average of " + DoTInformation.Electro_DPS + " DPS. -3 Direct Damage, -5 Magazine Size", 6);
 	}
 	
 	@Override

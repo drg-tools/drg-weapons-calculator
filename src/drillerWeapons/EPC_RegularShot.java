@@ -3,6 +3,7 @@ package drillerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
@@ -105,36 +106,37 @@ public class EPC_RegularShot extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
-		tier1[0] = new Mod("Increased Particle Density", "Increased damage caused by normal shots", 1, 0);
-		tier1[1] = new Mod("Larger Battery", "The good thing about clips, magazines, ammo drums, fuel tanks ... you can always get bigger variants.", 1, 1);
-		tier1[2] = new Mod("Higher Charged Plasma Energy", "Increases the direct damage for the charged projectile.", 1, 2);
+		tier1[0] = new Mod("Increased Particle Density", "+5 Regular Shot Direct Damage", 1, 0);
+		tier1[1] = new Mod("Larger Battery", "+24 Battery Size", 1, 1);
+		tier1[2] = new Mod("Higher Charged Plasma Energy", "+30 Charged Shot Direct Damage", 1, 2);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Expanded Plasma Splash", "Greater damage radius for the charged projectile explosion.", 2, 0);
-		tier2[1] = new Mod("Overcharged Plasma Accelerator", "Increases the movement speed of EPC's normal projectiles.", 2, 1, false);
-		tier2[2] = new Mod("Reactive Shockwave", "More bang for the buck! Increases the damage done within the Area of Effect!", 2, 2);
+		tier2[0] = new Mod("Expanded Plasma Splash", "+1.5 Charged Shot AoE Radius", 2, 0);
+		tier2[1] = new Mod("Overcharged Plasma Accelerator", "+25% Regular Shot Velocity", 2, 1, false);
+		tier2[2] = new Mod("Reactive Shockwave", "+20 Charged Shot Area Damage", 2, 2);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Improved Charge Efficiency", "Each charged shot uses less energy.", 3, 0);
-		tier3[1] = new Mod("Crystal Capacitors", "Prepare a charged shot much faster.", 3, 1);
-		tier3[2] = new Mod("Tweaked Radiator", "Increases the rate at which the weapon sheds heat, letting you shoot more rounds before overheating and also recovering faster from an overheat.", 3, 2);
+		tier3[0] = new Mod("Improved Charge Efficiency", "-2 Ammo per Charged Shot", 3, 0);
+		tier3[1] = new Mod("Crystal Capacitors", "x3 Charge Speed", 3, 1);
+		tier3[2] = new Mod("Tweaked Radiator", "+50% Cooling Rate", 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Heat Shield", "Reduces how fast the weapon overheats when holding a charged shot.", 4, 0);
-		tier4[1] = new Mod("High Density Battery", "The good thing about clips, magazines, ammo drums, fuel tanks ...you can always get bigger variants.", 4, 1);
+		tier4[0] = new Mod("Heat Shield", "x0.4 Heat per Second when fully charged", 4, 0);
+		tier4[1] = new Mod("High Density Battery", "+24 Battery Size", 4, 1);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Flying Nightmare", "The charged projectile deals damage to nearby enemies while it flies but takes longer to charge up.", 5, 0);
-		tier5[1] = new Mod("Thin Containment Field", "A weaker containment field takes less energy to create thus producing less heat for Charged Shots. Be aware that any high-energy impact will destabilize the Charged Projectile causing a large area implosion.", 5, 1);
-		tier5[2] = new Mod("Bouncy Plasma", "Regular shots now ricochet, please try not to hit yourself or your teammates while pulling off trick shots.", 5, 2, false);
+		tier5[0] = new Mod("Flying Nightmare", "Charged Shots now deal their Direct Damage to enemies hit by the AoE while in-flight. Additionally, x0.7 Charge Speed.", 5, 0);
+		tier5[1] = new Mod("Thin Containment Field", "Shoot the Charged Shot with a Regular Shot to make it detonate for an extra +240 Damage. Additionally, x0.7 Heat per Charged Shot.", 5, 1);
+		tier5[2] = new Mod("Bouncy Plasma", "Regular Shots now ricochet off of enemies and surfaces up to 3 times, and now ignore Light Armor.", 5, 2, false);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Energy Rerouting", "A masterwork of engineering that improves charge speed and energy efficiency without affecting overall performance!", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Magnetic Cooling Unit", "A high-tech solution to cleanly improve the cooling rate increasing the number of slots that can be fired before overheating and also the speed of recovery from an overheat as well as how long a charge can be held.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Heat Pipe", "By channeling exhaust heat back into the charge chamber a shot can be charged using less energy. This does however make the weapon less efficient at dissipating heat.", 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Heavy Hitter", "Some extensive tweaking to how the shots are prepared can increase the pure damage of the weapon but at the cost of a lower projectile velocity and a reduced battery size.", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Overcharger", "Pushing the EPC to the limit will give you a significant increase in charge shot damage but at the heavy cost of slow charge speed and decreased cooling efficiency", 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Persistent Plasma", "By changing how the plasma is layered within the charged projectile a slow and persistent discharge can be achieved upon impact. However this does reduce the instance damage done.", 5);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Energy Rerouting", "+16 Battery Size, x1.5 Charge Speed.", 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Magnetic Cooling Unit", "+25% Cooling Rate, x0.7 Heat per Second while Charged.", 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Heat Pipe", "-2 Ammo per Charged Shot, -50% Cooling Rate", 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Heavy Hitter", "+10 Regular Shot Direct Damage, x1.5 Heat per Regular Shot, -16 Battery Size", 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Overcharger", "+40 Charged Shot Direct Damage, x0.5 Charge Speed, -50% Cooling Rate", 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Persistent Plasma", "Upon impact, Charged Shots leave behind a 3m radius field of Persistent Plasma that deals " + DoTInformation.Plasma_DPS + 
+				" DPS for 6 seconds. -20 Charged Shot Direct Damage, -20 Charged Shot Area Damage", 5);
 	}
 	
 	@Override

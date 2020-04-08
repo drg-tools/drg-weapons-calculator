@@ -74,34 +74,35 @@ public class Revolver extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Quickfire Ejector", "Experience, training, and a couple of under-the-table design \"adjustments\" means your gun can be reloaded significantly faster.", 1, 0);
-		tier1[1] = new Mod("Perfect Weight Balance", "Improved Accuracy", 1, 1);
+		tier1[0] = new Mod("Quickfire Ejector", "-0.4 Reload Time", 1, 0);
+		tier1[1] = new Mod("Perfect Weight Balance", "-70% Base Spread", 1, 1);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Increased Caliber Rounds", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 2, 0);
-		tier2[1] = new Mod("Floating Barrel", "Sweet, sweet optimization. We called in a few friends and managed to significantly improve the stability of this gun.", 2, 1);
-		tier2[2] = new Mod("Expanded Ammo Bags", "Expanded Ammo Bags", 2, 2);
+		tier2[0] = new Mod("Increased Caliber Rounds", "+15 Direct Damage", 2, 0);
+		tier2[1] = new Mod("Floating Barrel", "-80% Spread per Shot, x0.75 Recoil", 2, 1);
+		tier2[2] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", 2, 2);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Super Blowthrough Rounds", "Shaped projectiles capable to over-penetrate targets with a mininal loss of energy. In other words: Fire straight through several enemies at once!", 3, 0);
-		tier3[1] = new Mod("Explosive Rounds", "Bullet detonates creating a radius of damage but deals less direct damage.", 3, 1);
-		tier3[2] = new Mod("Hollow-Point Bullets", "Hit 'em where it hurts! Literally! We've upped the damage you'll be able to do to any creature's fleshy bits. You're welcome.", 3, 2);
+		tier3[0] = new Mod("Super Blowthrough Rounds", "+3 Penetrations", 3, 0);
+		tier3[1] = new Mod("Explosive Rounds", "+30 Area Damage in a 1.5m radius, x0.5 Direct Damage", 3, 1);
+		tier3[2] = new Mod("Hollow-Point Bullets", "+50% Weakpoint Bonus.", 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Expanded Ammo Bags", "You had to give up some sandwich-storage, but your total ammo capacity is increased!", 4, 0);
-		tier4[1] = new Mod("High Velocity Rounds", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 4, 1);
+		tier4[0] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", 4, 0);
+		tier4[1] = new Mod("High Velocity Rounds", "+15 Direct Damage", 4, 1);
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Dead-Eye", "No aim penalty while moving", 5, 0, false);
-		tier5[1] = new Mod("Glyphid Neurotoxin Coating", "Chance to poison your target. Affected creatures move slower and take damage over time.", 5, 1);  // It looks like whenever this procs for the main target, all splash targets get it too, instead of RNG/enemy.
+		tier5[1] = new Mod("Glyphid Neurotoxin Coating", "50% chance to inflict Neurotoxin DoT on all enemies hit by the Revolver. "
+				+ "Neurotoxin does an average of " + DoTInformation.Neuro_DPS + " DPS", 5, 1);  // It looks like whenever this procs for the main target, all splash targets get it too, instead of RNG/enemy.
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "More damage on average but it's a bit inconsistent.", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a chance to ricochet into a nearby enemy.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Feather Trigger", "Less weight means you can squeeze out more bullets faster than you can say \"Recoil\" but the stability of the weapon is reduced.", 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Five Shooter", "An updated casing profile lets you squeeze one more round into the cylinder and take a few more rounds with you, but all that filling and drilling has compromised the accuracy of the weapon.", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "Heavy tweaking has made it possible to use modified autocannon rounds in the revolver! The damage is crazy but so is the recoil and you can't carry very many rounds.", 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Magic Bullets", "Smaller bouncy bullets ricochet off hard surfaces and hit nearby enemies like magic and you can carry a few more due to their compact size. However the overall damage of the weapon is reduced.", 5);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 33% chance to ricochet into a nearby enemy.", 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Feather Trigger", "+4 Rate of Fire, +150% Recoil", 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Five Shooter", "+1 Magazine Size, +5 Max Ammo, x1.5 Base Spread", 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -12 Max Ammo, +100% Spread per Shot, +150% Recoil", 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Magic Bullets", "All bullets that impact terrain automatically ricochet to nearby enemies (effectively raising accuracy to 100%). +8 Max Ammo, -20 Direct Damage", 5);
 	}
 	
 	@Override

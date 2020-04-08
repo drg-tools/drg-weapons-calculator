@@ -22,7 +22,7 @@ public class GrenadeLauncher extends Weapon {
 	private double aoeRadius;
 	private int carriedAmmo;
 	private int magazineSize;
-	private double rateOfFire;
+	//private double rateOfFire;
 	private double reloadTime;
 	private double fearChance;
 	private double armorBreaking;
@@ -50,7 +50,6 @@ public class GrenadeLauncher extends Weapon {
 		aoeRadius = 2.5;
 		carriedAmmo = 8;
 		magazineSize = 1;
-		rateOfFire = 2.0;
 		reloadTime = 2.0;
 		fearChance = 1.0;
 		armorBreaking = 0.5;
@@ -73,36 +72,36 @@ public class GrenadeLauncher extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
-		tier1[0] = new Mod("Fragmentary Shell", "Damage radius increase", 1, 0);
-		tier1[1] = new Mod("Expanded Ammo Bags", "Expanded Ammo Bags", 1, 1);
-		tier1[2] = new Mod("HE Compound", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 1, 2);
+		tier1[0] = new Mod("Fragmentary Shell", "+1m AoE Radius", 1, 0);
+		tier1[1] = new Mod("Expanded Ammo Bags", "+2 Max Ammo", 1, 1);
+		tier1[2] = new Mod("HE Compound", "+15 Area Damage", 1, 2);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Extra Ammo", "Expanded Ammo Bags", 2, 0);
-		tier2[1] = new Mod("Larger Payload", "More bang for the buck! Increases the damage done within the Area of Effect!", 2, 1);
-		tier2[2] = new Mod("High Velocity Grenades", "We souped up the ejection mechanisms of your gun, so the projectiles are now fired at a much higher velocity.", 2, 2);
+		tier2[0] = new Mod("Extra Ammo", "+3 Max Ammo", 2, 0);
+		tier2[1] = new Mod("Larger Payload", "+20 Area Damage", 2, 1);
+		tier2[2] = new Mod("High Velocity Grenades", "+180% Projectile Velocity", 2, 2);
 		
 		tier3 = new Mod[2];
-		tier3[0] = new Mod("Incendiary Compound", "50% damage converted to heat damage", 3, 0);
-		tier3[1] = new Mod("Pressure Wave", "We're proud of this one. Armor shredding. Tear through that high-impact plating of those bug buggers like butter. What could be finer?", 3, 1);
+		tier3[0] = new Mod("Incendiary Compound", "Lose 50% of Direct and Area Damage, and convert it to Heat Damage that will ignite enemies, dealing " + DoTInformation.Burn_DPS + " DPS", 3, 0);
+		tier3[1] = new Mod("Pressure Wave", "+500% Armor Breaking", 3, 1);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Homebrew Explosive", "More damage on average but it's a bit inconsistent with a spread of 80% to 140%", 4, 0);
-		tier4[1] = new Mod("Nails + Tape", "Fire in the hole! The Area of Effect is increased. (We advise keeping the term \"safe distance\" close to your heart)", 4, 1);
-		tier4[2] = new Mod("Concussive Blast", "Stuns creatures within the blast radius", 4, 2);
+		tier4[0] = new Mod("Homebrew Explosive", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, 4, 0);
+		tier4[1] = new Mod("Nails + Tape", "+1.5m AoE Radius", 4, 1);
+		tier4[2] = new Mod("Concussive Blast", "Stuns creatures within the blast radius for 3 seconds", 4, 2);
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Proximity Trigger", "Launched grenades will only detonate when they are in close proximity to an enemy or after the projectile comes to a complete stop. "
 				+ "Note: the trigger takes a moment to arm, indicated by a green light, and until then the grenade functions as usual.", 5, 0, false);
-		tier5[1] = new Mod("Spiky Grenade", "Deals damage on direct impact", 5, 1);
+		tier5[1] = new Mod("Spiky Grenade", "+60 Direct Damage to any target directly impacted by a grenade.", 5, 1);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Clean Sweep", "Increases the explosion radius and damage without any unwanted effects.", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Pack Rat", "You found a way to pack away two more rounds somewhere", 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Rounds", "Smaller and lighter rounds means more rounds in the pocket at the cost of the explosion's effective radius and damage", 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "RJ250 Compound", "Trade raw damage for the ability to use explosions to move yourself and your teammates. (~33% self-damage)", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Fat Boy", "Big and deadly and dirty. Too bad plutonium is so heavy that you can only take a few rounds with you. And remember to take care with the fallout.", 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Hyper Propellant", "New super-high velocity projectiles trade explosive range for raw damage in a tight area. The larger rounds also limit the total amount you can carry.", 5);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Clean Sweep", "+10 Area Damage, +0.5m AoE Radius", 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Pack Rat", "+2 Max Ammo", 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Rounds", "+4 Max Ammo, -10 Area Damage, -0.5m AoE Radius", 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "RJ250 Compound", "Jump and shoot the ground beneath you to Grenade Jump. Can also be used on allies who are jumping. -25 Area Damage. (~33% self-damage)", 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Fat Boy", "x4 Area Damage, +1m AoE Radius, x0.3 Max Ammo, x0.7 Projectile Velocity", 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Hyper Propellant", "+250 Direct Damage, +350% Projectile Velocity, x0.3 AoE Radius", 5);
 	}
 	
 	@Override
@@ -415,7 +414,7 @@ public class GrenadeLauncher extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[12];
+		StatsRow[] toReturn = new StatsRow[11];
 		
 		boolean directDamageModified = selectedTier5 == 1 || selectedTier3 == 0 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified, selectedTier5 == 1 || selectedOverclock == 5);
@@ -432,18 +431,16 @@ public class GrenadeLauncher extends Weapon {
 		toReturn[4] = new StatsRow("Magazine Size:", magazineSize, false);
 		
 		boolean carriedAmmoModified = selectedTier1 == 1 || selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 4;
-		toReturn[5] = new StatsRow("Carried Ammo:", getCarriedAmmo(), carriedAmmoModified);
+		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
+		toReturn[6] = new StatsRow("Reload Time:", reloadTime, false);
 		
-		toReturn[6] = new StatsRow("Rate of Fire:", rateOfFire, false);
-		toReturn[7] = new StatsRow("Reload Time:", reloadTime, false);
+		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier3 == 1);
 		
-		toReturn[8] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier3 == 1);
-		
-		toReturn[9] = new StatsRow("Fear Chance:", convertDoubleToPercentage(fearChance), false);
+		toReturn[8] = new StatsRow("Fear Chance:", convertDoubleToPercentage(fearChance), false);
 		
 		boolean stunEquipped = selectedTier4 == 2;
-		toReturn[10] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), stunEquipped, stunEquipped);
-		toReturn[11] = new StatsRow("Stun Duration:", getStunDuration(), stunEquipped, stunEquipped);
+		toReturn[9] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), stunEquipped, stunEquipped);
+		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), stunEquipped, stunEquipped);
 		
 		return toReturn;
 	}

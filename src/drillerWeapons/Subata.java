@@ -72,34 +72,34 @@ public class Subata extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
-		tier1[0] = new Mod("Improved Alignment", "Pin-point accuracy on first shot.", 1, 0);
-		tier1[1] = new Mod("High Capacity Magazine", "The good thing about clips, magazines, ammo drums, fuel tanks... you can always get bigger variants.", 1, 1);
-		tier1[2] = new Mod("Quickfire Ejector", "Experience, training, and a couple of under-the-table design \"adjustments\" means your gun can be reloaded significantly faster.", 1, 2);
+		tier1[0] = new Mod("Improved Alignment", "x0 Base Spread", 1, 0);
+		tier1[1] = new Mod("High Capacity Magazine", "+5 Magazine Size", 1, 1);
+		tier1[2] = new Mod("Quickfire Ejector", "-0.6 Reload Time", 1, 2);
 		
 		tier2 = new Mod[2];
-		tier2[0] = new Mod("Expanded Ammo Bags", "You had to give up some sandwich-storage, but your total ammo capacity is increased!", 2, 0);
-		tier2[1] = new Mod("Increased Caliber Rounds", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 2, 1);
+		tier2[0] = new Mod("Expanded Ammo Bags", "+40 Max Ammo", 2, 0);
+		tier2[1] = new Mod("Increased Caliber Rounds", "+1 Direct Damage", 2, 1);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Improved Propellant", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 3, 0);
-		tier3[1] = new Mod("Recoil Compensator", "This little tweak reduces weapon recoil and spread per shot helping you hit consecutive shots.", 3, 1);
-		tier3[2] = new Mod("Expanded Ammo Bags", "You had to give up some sandwich-storage, but your total ammo capacity is increased!", 3, 2);
+		tier3[0] = new Mod("Improved Propellant", "+1 Direct Damage", 3, 0);
+		tier3[1] = new Mod("Recoil Compensator", "-20% Spread per Shot, x0.75 Recoil", 3, 1);
+		tier3[2] = new Mod("Expanded Ammo Bags", "+40 Max Ammo", 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Hollow-Point Bullets", "Hit 'em where it hurts! Literally! We've upped the damage you'll be able to do to any creature's fleshy bits. You're welcome.", 4, 0);
-		tier4[1] = new Mod("High Velocity Rounds", "The Good folk in R&D have been busy. The overall damage of your weapon is increased.", 4, 1);
+		tier4[0] = new Mod("Hollow-Point Bullets", "+60% Weakpoint Bonus", 4, 0);
+		tier4[1] = new Mod("High Velocity Rounds", "+3 Direct Damage", 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Volatile Bullets", "Bonus fire damage to burning targets.", 5, 0, false);
-		tier5[1] = new Mod("Mactera Neurotoxin Coating", "Bonus damage against Mactera", 5, 1, false);
+		tier5[0] = new Mod("Volatile Bullets", "+50% Damage dealt to Burning enemies", 5, 0, false);
+		tier5[1] = new Mod("Mactera Neurotoxin Coating", "+20% Damage dealt to Mactera-type enemies", 5, 1, false);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a chance to ricochet into a nearby enemy.", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "More damage on average but it's a bit inconsistent.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Oversized Magazine", "Custom magazine that can fit a lot more ammo but it's a bit unwieldy and takes longer to reload.", 2);
-		overclocks[3] = new Overclock(Overclock.classification.unstable, "Automatic Fire", "Fully automatic action, watch out for the recoil.", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Explosive Reload", "Micro-explosives that explode inside hit targets when you reload. However these fancy bullets come at the cost of raw damage, total ammo, and magazine capacity.", 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Tranquilizer Rounds", "Part bullet, part syringe these rounds are very effective at stunning most enemies.", 5);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 50% chance to ricochet into a nearby enemy.", 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Oversized Magazine", "+10 Magazine Size, +0.5 Reload Time", 2);
+		overclocks[3] = new Overclock(Overclock.classification.unstable, "Automatic Fire", "Changes the Subata from semi-automatic to fully automatic, +2 Rate of Fire, +100% Base Spread, x2.5 Recoil", 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Explosive Reload", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 15 Area Damage to the enemy upon reloading. -3 Direct Damage, -3 Magazine Size, -40 Max Ammo.", 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Tranquilizer Rounds", "Every bullet has a 50% chance to stun an enemy for 6 seconds. -4 Magazine Size, -4 Rate of Fire.", 5);
 	}
 	
 	@Override
@@ -411,6 +411,7 @@ public class Subata extends Weapon {
 		double toReturn = 1.0;
 		
 		if (selectedTier3 == 1) {
+			// TODO: The wiki indicates that this is x0.5. Test that.
 			toReturn *= 0.75;
 		}
 		

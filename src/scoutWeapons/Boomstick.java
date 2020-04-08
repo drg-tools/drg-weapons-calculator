@@ -76,35 +76,36 @@ public class Boomstick extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Expanded Ammo Bags", "You had to give up some sandwich-storage, but your total ammo capacity is increased!", 1, 0);
-		tier1[1] = new Mod("Double-Sized Buckshot", "Bigger and heavier handcrafted specialist dwarf buckshot. Accept no substitute.", 1, 1);
+		tier1[0] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", 1, 0);
+		tier1[1] = new Mod("Double-Sized Buckshot", "+3 Damage per Pellet", 1, 1);
 		
 		tier2 = new Mod[2];
-		tier2[0] = new Mod("Double Trigger", "Tweaked trigger mechanism allows you to unload both barrels in quick succession dealing massive damage to anything in front of you.", 2, 0);
-		tier2[1] = new Mod("Quickfire Ejector", "Experience, training, and a couple of under-the-table design \"adjustments\" means your gun can be reloaded significantly faster.", 2, 1);
+		tier2[0] = new Mod("Double Trigger", "+7.5 Rate of Fire", 2, 0);
+		tier2[1] = new Mod("Quickfire Ejector", "-0.7 Reload Time", 2, 1);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Stun Duration", "Stunned enemies are incapacitated for a longer period of time.", 3, 0);
-		tier3[1] = new Mod("Expanded Ammo Bags", "You had to give up some sandwich-storage, but your total ammo capacity is increased!", 3, 1);
-		tier3[2] = new Mod("High Capacity Shells", "It took some creating thinking, but we finally found out how to pack more buckshot into each shell. Just... Handle with care, they're liable to take your eye out.", 3, 2);
+		tier3[0] = new Mod("Stun Duration", "+2.5 seconds Stun duration", 3, 0);
+		tier3[1] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", 3, 1);
+		tier3[2] = new Mod("High Capacity Shells", "+3 Pellets per Shot", 3, 2);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Super Blowthrough Rounds", "Shaped projectiles designed to over-penetrate targets with a minimal loss of energy. In other words: Fire straight through several enemies at once!", 4, 0);
-		tier4[1] = new Mod("Tungsten Coated Buckshot", "We're proud of this one. Armor shredding. Tear through that high-impact plating of those big buggers like butter. What could be finer?", 4, 1);
-		tier4[2] = new Mod("Improved Blast Wave", "The shockwave from the blast deals extra damage to any enemies unlucky enough to be in the area extending 4m infront of you.", 4, 2);
+		tier4[0] = new Mod("Super Blowthrough Rounds", "+3 Penetratinos", 4, 0);
+		tier4[1] = new Mod("Tungsten Coated Buckshot", "+300% Armor Breaking", 4, 1);
+		tier4[2] = new Mod("Improved Blast Wave", "+20 Blastwave Damage to any enemies in the area extending 4m infront of you.", 4, 2);
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Auto Reload", "Reloads automatically when unequipped for more than 5 seconds", 5, 0, false);
-		tier5[1] = new Mod("Fear The Boomstick", "Chance to scare nearby creatures whenever you shoot", 5, 1);
-		tier5[2] = new Mod("White Phosphorous Shells", "Convert some of the damage to fire damage", 5, 2);
+		tier5[1] = new Mod("Fear The Boomstick", "50% Chance to inflict Fear on enemies caught within the Blastwave", 5, 1);
+		tier5[2] = new Mod("White Phosphorous Shells", "Add 50% of the Damage per Pellet as Heat Damage, which can ignite enemies. Burn DoT does an average of " + DoTInformation.Burn_DPS + " DPS", 5, 2);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Shells", "You can carry a few more of these compact shells in your pockets and they are a bit faster to reload with.", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Double Barrel", "Unload both barrels at once, no regrets.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.clean, "Special Powder", "Less like gunpowder and more like rocketfuel, this mixture gives a hell of a kick that you can use to get places.", 2);
-		overclocks[3] = new Overclock(Overclock.classification.clean, "Stuffed Shells", "With a bit of patience and some luck you can get one more pellet and a few more grains of powder into each shell without affecting the gun's performance or losing an eye in the process.", 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "Specially shaped shells result in a tighter shot but the number of pellets is reduced.", 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Jumbo Shells", "These large shells pack a lot more charge for a big increase in damage but they also take up more space so total ammo is limited.", 5);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Shells", "+6 Max Ammo, -0.2 Reload Time", 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Double Barrel", "Fire both barrels with a single tigger pull. As a result, both Magazine Size and Max Ammo are effectively halved, while the "
+				+ "number of Pellets per Shot gets doubled. Additionally, +1 Damage per Pellet.", 1);
+		overclocks[2] = new Overclock(Overclock.classification.clean, "Special Powder", "Jump off of the ground and fire the shotgun to \"blast jump\" around the caves for increased mobility.", 2);
+		overclocks[3] = new Overclock(Overclock.classification.clean, "Stuffed Shells", "+1 Damage per Pellet, +1 Pellet per Shot", 3);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "-35% Base Spread, -2 Pellets per Shot", 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Jumbo Shells", "+8 Damage per Pellet, -10 Max Ammo, +0.5 Reload Time", 5);
 	}
 	
 	@Override

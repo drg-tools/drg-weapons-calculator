@@ -74,35 +74,36 @@ public class BurstPistol extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("High Velocity Rounds", "The good folk in R&D have been busy. The overall damage of your weapon is increased", 1, 0);
-		tier1[1] = new Mod("Floating Barrel", "Sweet, sweet optimization. We called in a few friends and managed to significantly improve the stability of this gun.", 1, 1);
+		tier1[0] = new Mod("High Velocity Rounds", "+3 Direct Damage", 1, 0);
+		tier1[1] = new Mod("Floating Barrel", "-42% Spread per Shot", 1, 1);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Recoil Dampener", "Quality engineering, the best laser cut parts, the tender loving care of a dedicated R&D Department. The recoil of your gun is drastically reduced.", 2, 0);
-		tier2[1] = new Mod("Quickfire Ejector", "Experience, training, and a couple of under-the-table design \"adjustments\" means your gun can be reloaded significantly faster.", 2, 1);
-		tier2[2] = new Mod("Disabled Safety", "Shorter Delay between bursts", 2, 2);
+		tier2[0] = new Mod("Recoil Dampener", "x0.5 Recoil", 2, 0);
+		tier2[1] = new Mod("Quickfire Ejector", "-0.7 Reload Time", 2, 1);
+		tier2[2] = new Mod("Disabled Safety", "+3 Rate of Fire (translates to less time between bursts)", 2, 2);
 		
 		tier3 = new Mod[2];
-		tier3[0] = new Mod("High Capacity Magazine", "The good thing about clips, magazines, ammo drums, fuel tanks... You can always get bigger variants.", 3, 0);
-		tier3[1] = new Mod("Increased Caliber Rounds", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 3, 1);
+		tier3[0] = new Mod("High Capacity Magazine", "+12 Magazine Size", 3, 0);
+		tier3[1] = new Mod("Increased Caliber Rounds", "+3 Direct Damage", 3, 1);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Hardened Rounds", "We're proud of this one. Armor shredding. Tear through that high-impact plating of those big buggers like butter. What could be finer?", 4, 0);
-		tier4[1] = new Mod("Expanded Ammo Bags", "You had to give up some sandwich-storage, but your total ammo capacity is increased!", 4, 1);
-		tier4[2] = new Mod("Hollow-Point Bullets", "Hit 'em where it hurts! Literally! We've upped the damage you'll be able to do to any creatures fleshy bits. You're welcome.", 4, 2);
+		tier4[0] = new Mod("Hardened Rounds", "+200% Armor Breaking", 4, 0);
+		tier4[1] = new Mod("Expanded Ammo Bags", "+72 Max Ammo", 4, 1);
+		tier4[2] = new Mod("Hollow-Point Bullets", "+40% Weakpoint Bonus", 4, 2);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Burst Stun", "Stun target if all shots in a burst hit", 5, 0);
-		tier5[1] = new Mod("Longer Burst", "Fire more rounds in each burst", 5, 1);
+		tier5[0] = new Mod("Burst Stun", "Stun an enemy for 4 seconds if all 3 shots in a burst hit", 5, 0);
+		tier5[1] = new Mod("Longer Burst", "+3 Bullets per Burst", 5, 1);
 		
 		overclocks = new Overclock[7];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Casings", "Lighter rounds that permit a shorter delay between bursts and you can carry a few more of them as well. What's not to like?", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Full Chamber Seal", "Meticulous sealing lets you get a bit more power out of each round and the attention to detail improves how easily the magazine slots in.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "More damage on average but it's a bit inconsistent.", 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Compact Mags", "You can carry even more ammo but the rate of fire needs to be toned back to avoid a jam and please take more care while reloading.", 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Experimental Rounds", "A new shape to the bullet delivers a lot more damage but it's odd size means fewer rounds in the clip and a bit less ammo overall.", 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Electro Minelets", "After impacting terrain, these high-tech bullets convert in to electro-minelets that will electrocute anything unfortunate enough to come close. However they don't last forever and the rounds themselves take more space in the clip and deal less direct damage.", 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Micro Fletchettes", "Convert the BRT to fire small flechettes instead of slugs. Increases overall ammo and clip size as well as reducing recoil but at the cost of pure damage.", 6);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Casings", "+36 Max Ammo, +1 Rate of Fire", 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Full Chamber Seal", "+1 Direct Damage, -0.2 Reload Time", 1);
+		overclocks[2] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Compact Mags", "+72 Max Ammo, -1 Rate of Fire, +0.4 Reload Time", 3);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Experimental Rounds", "+9 Direct Damage, -6 Magazine Size, -36 Max Ammo", 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Electro Minelets", "Any bullets that impact terrain get converted to Electro Minelets. After 1 second of arming time, "
+				+ "they inflict an Electrocute DoT to any enemies that pass within 1.5m of them. The Electrocute DoTs deal an average of " + DoTInformation.Electro_DPS + " DPS.", 5);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Micro Fletchettes", "+24 Magazine Size, +144 Max Ammo, -20% Spread per Shot, x0.5 Recoil, x0.5 Damage per bullet", 6);
 	}
 	
 	@Override

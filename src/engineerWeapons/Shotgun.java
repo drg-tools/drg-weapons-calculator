@@ -73,33 +73,33 @@ public class Shotgun extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Supercharged Feed Mechanism", "We overclocked your gun. It fires faster. Don't ask, just enjoy. Also probably don't tell Management, please.", 1, 0);
-		tier1[1] = new Mod("Overstuffed Magazine", "The good thing about clips, magazines, ammo drums, fuel tanks... You can always get bigger variants.", 1, 1);
+		tier1[0] = new Mod("Supercharged Feed Mechanism", "+1 Rate of Fire", 1, 0);
+		tier1[1] = new Mod("Overstuffed Magazine", "+2 Magazine Size", 1, 1);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Expanded Ammo Bags", "You had to give up some sandwich-storage, but your total ammo capacity is increased!", 2, 0);
-		tier2[1] = new Mod("Loaded Shells", "More pellets in each shell", 2, 1);
-		tier2[2] = new Mod("Choke", "Decreased shot spread", 2, 2);
+		tier2[0] = new Mod("Expanded Ammo Bags", "+40 Max Ammo", 2, 0);
+		tier2[1] = new Mod("Loaded Shells", "+2 Pellets per Shot", 2, 1);
+		tier2[2] = new Mod("Choke", "x0.5 Base Spread", 2, 2);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Recoil Dampener", "Quality engineering, the best lasercut parts, the tender loving care of a dedicated R&D Department, The recoil of your gun is drastically reduced.", 3, 0);
-		tier3[1] = new Mod("Quickfire Ejector", "Experience, training, and a couple of under-the-table \"adjustments\" means your gun can be reloaded significantly faster.", 3, 1);
-		tier3[2] = new Mod("High Capacity Magazine", "The good thing about clips, magazines, ammo drums, fuel tanks... You can always get bigger variants.", 3, 2);
+		tier3[0] = new Mod("Recoil Dampener", "x0.4 Recoil", 3, 0);
+		tier3[1] = new Mod("Quickfire Ejector", "-0.5 Reload Time", 3, 1);
+		tier3[2] = new Mod("High Capacity Magazine", "+3 Magazine Size", 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Tungsten Coated Buckshot", "We're proud of this one. Armor shredding. Tear through that high-impact plating of those big buggers like butter. What could be finer?", 4, 0);
-		tier4[1] = new Mod("Bigger Pellets", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 4, 1);
+		tier4[0] = new Mod("Tungsten Coated Buckshot", "+400% Armor Breaking", 4, 0);
+		tier4[1] = new Mod("Bigger Pellets", "+1 Damage per Pellet", 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them create an overcharged shot", 5, 0, false);
-		tier5[1] = new Mod("Miner Adjustments", "Fully automatic with an increased rate of fire", 5, 1);
+		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1m Radius. 3 second cooldown per turret.", 5, 0, false);
+		tier5[1] = new Mod("Miner Adjustments", "Changes the Shotgun from semi-automatic to fully automatic, +0.5 Rate of Fire", 5, 1);
 		
 		overclocks = new Overclock[5];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Shells", "Using these shells expands magazine capacity slightly and the weapon can fire them faster!", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Light-Weight Magazines", "It's amazing how much material can be removed without affecting anything and lighter magazines means more magazines and faster reloading.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Magnetic Pellet Alignment", "Electromagnets in the chamber help reduce shot spread at the cost of a reduced rate of fire and magazine capacity.", 2);
-		overclocks[3] = new Overclock(Overclock.classification.unstable, "Cycle Overload", "Heavy modification to the chamber greatly increases the maximum rate of fire but reduces the weapon's accuracy and reload speed as a consequence.", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Mini Shells", "Smaller shells designed around a new charge type reduce recoil and increase overall ammo and magazine capacity at the cost of raw damage.", 4);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Shells", "+1 Magazine Size, +0.4 Rate of Fire", 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Light-Weight Magazines", "+20 Max Ammo, -0.2 Reload Time", 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Magnetic Pellet Alignment", "x0.5 Base Spread, -2 Magazine Size, -0.4 Rate of Fire", 2);
+		overclocks[3] = new Overclock(Overclock.classification.unstable, "Cycle Overload", "+1 Damage per Pellet, +2 Rate of Fire, +0.5 Reload Time, x1.5 Base Spread", 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Mini Shells", "+90 Max Ammo, +6 Magazine Size, x0.5 Recoil, -2 Damage per Pellet", 4);
 	}
 	
 	@Override

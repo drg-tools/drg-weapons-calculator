@@ -70,33 +70,34 @@ public class Zhukov extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Expanded Ammo Bags", "You had to give up some sandwich-storage, but your total ammo capacity is increased", 1, 0);
-		tier1[1] = new Mod("High Velocity Rounds", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 1, 1);
+		tier1[0] = new Mod("Expanded Ammo Bags", "+75 Max Ammo", 1, 0);
+		tier1[1] = new Mod("High Velocity Rounds", "+1 Direct Damage", 1, 1);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("High Capacity Magazine", "The good thing about clips, magazines, ammo drums, fuel tanks...you can always get bigger variants.", 2, 0);
-		tier2[1] = new Mod("Supercharged Feed Mechanism", "We overclocked your gun. It fires faster. Don't ask. Just enjoy. Also probably don't tell Management, please.", 2, 1);
-		tier2[2] = new Mod("Quickfire Ejector", "Experience, training, and a couple of under-the-table design \"adjustments\" means your gun can be reloaded significantly faster.", 2, 2);
+		tier2[0] = new Mod("High Capacity Magazine", "+10 Magazine Size", 2, 0);
+		tier2[1] = new Mod("Supercharged Feed Mechanism", "+8 Rate of Fire", 2, 1);
+		tier2[2] = new Mod("Quickfire Ejector", "-0.6 Reload Time", 2, 2);
 		
 		tier3 = new Mod[2];
-		tier3[0] = new Mod("Increased Caliber Rounds", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 3, 0);
-		tier3[1] = new Mod("Better Weight Balance", "Base accuracy increase", 3, 1);
+		tier3[0] = new Mod("Increased Caliber Rounds", "+2 Direct Damage", 3, 0);
+		tier3[1] = new Mod("Better Weight Balance", "x0.5 Base Spread", 3, 1);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Blowthrough Rounds", "Shaped projectiles designed to over-penetrate targets with a minimal loss of energy. In other words: Fire straight through an enemy!", 4, 0);
-		tier4[1] = new Mod("Hollow-Point Bullets", "Hit em' where it hurts! Literally! We've upped the damage you'll be able to do to any creature's fleshy bits. You're welcome.", 4, 1);
-		tier4[2] = new Mod("Expanded Ammo Bags", "You had to give up on some sandwich-storage, but your total ammo capacity is increased!", 4, 2);
+		tier4[0] = new Mod("Blowthrough Rounds", "+1 Penetration", 4, 0);
+		tier4[1] = new Mod("Hollow-Point Bullets", "+30% Weakpoint Bonus", 4, 1);
+		tier4[2] = new Mod("Expanded Ammo Bags", "+150 Max Ammo", 4, 2);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Conductive Bullets", "More damage to targets that are in an electric field", 5, 0, false);
-		tier5[1] = new Mod("Get In, Get Out", "Temporary movement speed bonus after emptying clip", 5, 1);
+		tier5[0] = new Mod("Conductive Bullets", "+30% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", 5, 0, false);
+		tier5[1] = new Mod("Get In, Get Out", "+100% Movement Speed for 2 seconds after reloading an empty magazine", 5, 1);
 		
 		overclocks = new Overclock[5];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Minimal Magazines", "By filling away unnecessary material from the magazines you've made them lighter, and that means they pop out faster when reloading. Also the rounds can move more freely increasing the max rate of fire slightly.", 0);
-		overclocks[1] = new Overclock(Overclock.classification.balanced, "Custom Casings", "Fit more of these custom rounds in each magazine but at small loss in raw damage.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "After impacting terrain, these high-tech bullets convert into cryo-minelets that will super-cool anything that comes close. However they don't last forever and the rounds themselves take more space in the clip and deal less direct damage.", 2);
-		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Special bullets contain micro-explosives that detonate when you reload the weapon at the cost of total ammo and direct damage.", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Gas Recycling", "Special hardened bullets combined with rerouting escaping gasses back into the chamber greatly increases the raw damage of the weapon but makes it more difficult to control and removes any bonus to weakpoint hits.", 4);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Minimal Magazines", "+2 Rate of Fire, -0.4 Reload Time", 0);
+		overclocks[1] = new Overclock(Overclock.classification.balanced, "Custom Casings", "+30 Mag Size, -1 Direct Damage", 1);
+		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "Any bullets that impact terrain get converted to Cryo Minelets. After 1 second of arming time they will explode on any "
+				+ "enemies that get close, dealing 8 Cold Damage each. They automatically explode after 3 seconds. -1 Direct Damage, -10 Magazine Size", 2);
+		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 10 Area Damage to the enemy upon reloading. -3 Direct Damage, -75 Max Ammo.", 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Gas Recycling", "+5 Direct Damage, but it can no longer gain bonus damage from hitting a Weakpoint. Additionally, x1.5 Base Spread and -50% Movement Speed while firing.", 4);
 	}
 	
 	@Override
