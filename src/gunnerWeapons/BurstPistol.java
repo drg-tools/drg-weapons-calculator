@@ -26,7 +26,7 @@ public class BurstPistol extends Weapon {
 	private int magazineSize;
 	private double rateOfFire;
 	private double reloadTime;
-	private double armorBreakChance;
+	private double armorBreaking;
 	
 	/****************************************************************************************
 	* Constructors
@@ -54,7 +54,7 @@ public class BurstPistol extends Weapon {
 		magazineSize = 24;
 		rateOfFire = 2.5;
 		reloadTime = 2.2;
-		armorBreakChance = 0.5;
+		armorBreaking = 0.5;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -389,8 +389,8 @@ public class BurstPistol extends Weapon {
 		
 		return toReturn;
 	}
-	private double getArmorBreakChance() {
-		double toReturn = armorBreakChance;
+	private double getArmorBreaking() {
+		double toReturn = armorBreaking;
 		
 		if (selectedTier4 == 0) {
 			toReturn += 2.0;
@@ -464,7 +464,7 @@ public class BurstPistol extends Weapon {
 		
 		toReturn[6] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 2, selectedTier4 == 2);
 		
-		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreakChance()), selectedTier4 == 0);
+		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier4 == 0);
 		
 		toReturn[8] = new StatsRow("Stun Duration:", getBurstStunDuration(), selectedTier5 == 0, selectedTier5 == 0);
 		
@@ -657,7 +657,7 @@ public class BurstPistol extends Weapon {
 	public double utilityScore() {
 		// Armor Breaking
 		// Since only the bullets get the armor break bonus, this doesn't get multiplied by max num targets since the bullets don't have Blowthrough
-		utilityScores[2] = (getArmorBreakChance() - 1.0) * UtilityInformation.ArmorBreak_Utility;
+		utilityScores[2] = (getArmorBreaking() - 1.0) * UtilityInformation.ArmorBreak_Utility;
 		
 		// OC "Electro Minelets" = 100% Electrocute Chance, but only on bullets that miss... maybe (1.0 - Accuracy)?
 		if (selectedOverclock == 5) {

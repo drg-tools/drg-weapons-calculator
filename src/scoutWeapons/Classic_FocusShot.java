@@ -29,7 +29,7 @@ public class Classic_FocusShot extends Weapon {
 	private double focusDuration;
 	private double movespeedWhileFocusing;
 	private double weakpointBonus;
-	private double armorBreakChance;
+	private double armorBreaking;
 	
 	/****************************************************************************************
 	* Constructors
@@ -60,7 +60,7 @@ public class Classic_FocusShot extends Weapon {
 		focusDuration = 0.6;  // seconds.
 		movespeedWhileFocusing = 0.3;
 		weakpointBonus = 0.1;
-		armorBreakChance = 0.3;
+		armorBreaking = 0.3;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -415,7 +415,7 @@ public class Classic_FocusShot extends Weapon {
 		return toReturn;
 	}
 	private double getArmorBreaking() {
-		double toReturn = armorBreakChance;
+		double toReturn = armorBreaking;
 		
 		if (selectedTier4 == 2) {
 			toReturn += 2.2;

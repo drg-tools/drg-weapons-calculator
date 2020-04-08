@@ -123,7 +123,7 @@ public class UtilityInformation {
 		Armor Break will multiplicatively increase that chance without increasing the actual damage dealt. The chance to break Damage-Reducing Armor
 		can be approximated by the formula:
 			
-			Math.Min(ArmorBreakChance * DamagePerProjectile / 50, 1)
+			Math.Min(DamagePerProjectile * ArmorBreaking * 0.033, 1)
 		
 		Breakable Damage-Immune armor ("BDI armor"), as the name implies, reduces all damage dealt to 0 until the armor plate is broken off. These armor plates all have 
 		their own health bars, at 100 hp each. Any damage over that 100 will still be absorbed by the plate, so it's better to use low-damage bullets

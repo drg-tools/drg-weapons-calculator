@@ -25,7 +25,7 @@ public class GrenadeLauncher extends Weapon {
 	private double rateOfFire;
 	private double reloadTime;
 	private double fearChance;
-	private double armorBreakChance;
+	private double armorBreaking;
 	
 	/****************************************************************************************
 	* Constructors
@@ -53,7 +53,7 @@ public class GrenadeLauncher extends Weapon {
 		rateOfFire = 2.0;
 		reloadTime = 2.0;
 		fearChance = 1.0;
-		armorBreakChance = 0.5;
+		armorBreaking = 0.5;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -374,7 +374,7 @@ public class GrenadeLauncher extends Weapon {
 		return (int) Math.round(toReturn);
 	}
 	private double getArmorBreaking() {
-		double toReturn = armorBreakChance;
+		double toReturn = armorBreaking;
 		if (selectedTier3 == 1) {
 			toReturn += 5.0;
 		}
