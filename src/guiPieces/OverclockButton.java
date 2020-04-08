@@ -32,7 +32,7 @@ public class OverclockButton extends JButton implements ActionListener {
 		implemented = ocImplemented;
 		
 		this.setText(ocName);
-		this.setToolTipText(ocText);
+		this.setToolTipText(HoverText.breakLongToolTipString(ocText, 50));
 		this.setOpaque(false);
 		this.setContentAreaFilled(false);
 		this.setBorderPainted(false);

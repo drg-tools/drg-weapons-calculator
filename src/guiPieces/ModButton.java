@@ -30,7 +30,7 @@ public class ModButton extends JButton implements ActionListener {
 		implemented = modImplemented;
 		
 		this.setText(modName);
-		this.setToolTipText(modText);
+		this.setToolTipText(HoverText.breakLongToolTipString(modText, 50));
 		this.setOpaque(false);
 		this.setContentAreaFilled(false);
 		this.setBorderPainted(false);
