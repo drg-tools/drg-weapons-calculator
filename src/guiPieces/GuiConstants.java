@@ -12,13 +12,21 @@ import utilities.ResourceLoader;
 
 public class GuiConstants {
 	// Custom fonts
-	private static Font RobotoCondensed() {
+	private static Font RobotoCondensed(boolean bold, float fontSize) {
+		String fontFile;
+		if (bold) {
+			fontFile = "/fonts/RobotoCondensed-Bold.ttf";
+		}
+		else {
+			fontFile = "/fonts/RobotoCondensed-Regular.ttf";
+		}
+		
 		Font toReturn = null;
 		try {
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-			toReturn = Font.createFont(Font.TRUETYPE_FONT, ResourceLoader.load("/fonts/RobotoCondensed-Regular.ttf"));
+			toReturn = Font.createFont(Font.TRUETYPE_FONT, ResourceLoader.load(fontFile));
 			ge.registerFont(toReturn);
-			toReturn = toReturn.deriveFont(15f);
+			toReturn = toReturn.deriveFont(fontSize);
 		} 
 		catch (IOException e) {
 			e.printStackTrace();
@@ -28,25 +36,10 @@ public class GuiConstants {
 		}
 		return toReturn;
 	}
-	public static Font customFont = RobotoCondensed();
-	
-	private static Font RobotoCondensedBold() {
-		Font toReturn = null;
-		try {
-			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-			toReturn = Font.createFont(Font.TRUETYPE_FONT, ResourceLoader.load("/fonts/RobotoCondensed-Bold.ttf"));
-			ge.registerFont(toReturn);
-			toReturn = toReturn.deriveFont(15f);
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		catch (FontFormatException e) {
-			e.printStackTrace();
-		}
-		return toReturn;
-	}
-	public static Font customFontBold = RobotoCondensedBold();
+	public static Font customFont = RobotoCondensed(false, 15f);
+	public static Font customFontBold = RobotoCondensed(true, 15f);
+	public static Font customFontHeader = RobotoCondensed(false, 18f);
+	public static int fontHeight = 11;  // Estimated
 	
 	// Custom colors that the GUI uses
 	public static Color drgBackgroundBiege = new Color(83, 70, 51);
@@ -62,9 +55,6 @@ public class GuiConstants {
 	
 	// This number determines the width of the edges of ModButton and OverclockButton objects
 	public static int edgeWidth = 4;
-	
-	// Estimated
-	public static int fontHeight = 11; 
 	
 	public static int numDecimalPlaces = 4;
 	

@@ -29,6 +29,7 @@ public class UtilityBreakdownButton extends JButton implements ActionListener {
 		this.setBorder(GuiConstants.orangeLine);
 		
 		this.setText(textToDisplay);
+		this.setFont(GuiConstants.customFont);
 		this.setHorizontalAlignment(SwingConstants.LEFT);
 		this.addActionListener(this);
 	}
@@ -50,12 +51,14 @@ public class UtilityBreakdownButton extends JButton implements ActionListener {
 			row.setLayout(new BorderLayout());
 			
 			statLabel = new JLabel(utilityStats[i].getName());
+			statLabel.setFont(GuiConstants.customFont);
 			statLabel.setForeground(Color.white);
 			// Left-pad the label text
 			statLabel.setBorder(new EmptyBorder(0, paddingPixels, 0, 0));
 			row.add(statLabel, BorderLayout.LINE_START);
 			
 			statValue = new JLabel(utilityStats[i].getValue());
+			statValue.setFont(GuiConstants.customFont);
 			if (utilityStats[i].shouldValueBeHighlighted()) {
 				statValue.setForeground(GuiConstants.drgHighlightedYellow);
 			}

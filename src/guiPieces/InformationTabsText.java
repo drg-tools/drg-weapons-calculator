@@ -24,7 +24,7 @@ public class InformationTabsText {
 		 
 		 JLabel header = new JLabel(title);
 		 header.setForeground(GuiConstants.drgRegularOrange);
-		 header.setFont(new Font("Dialogue", Font.PLAIN, 18));
+		 header.setFont(GuiConstants.customFontHeader);
 		 JPanel centerAlignHeader = new JPanel();
 		 centerAlignHeader.setLayout(new FlowLayout(FlowLayout.CENTER));
 		 centerAlignHeader.setBackground(GuiConstants.drgBackgroundBrown);
@@ -44,6 +44,7 @@ public class InformationTabsText {
 		toReturn.setLayout(new BoxLayout(toReturn, BoxLayout.PAGE_AXIS));
 		
 		JLabel questionOrTerm = new JLabel(question);
+		questionOrTerm.setFont(GuiConstants.customFontBold);
 		questionOrTerm.setForeground(GuiConstants.drgRegularOrange);
 		// Set the Label to be almost flush with the left side
 		JPanel leftAlignLabel = new JPanel();
@@ -53,6 +54,7 @@ public class InformationTabsText {
 		toReturn.add(leftAlignLabel);
 		
 		JTextArea answerOrDefinition = new JTextArea(answer);
+		answerOrDefinition.setFont(GuiConstants.customFont);
 		answerOrDefinition.setBackground(GuiConstants.drgBackgroundBrown);
 		answerOrDefinition.setForeground(GuiConstants.drgHighlightedYellow);
 		// Left-pad the answer a bit for visual clarity
@@ -171,7 +173,6 @@ public class InformationTabsText {
 			{"Elythnwaen", "Thank you for collecting data about elemental weaknesses, resistances, Burn/Freeze temperatures, and more! Also, thank you for letting me know about Subata's 50% Armor Breaking penalty and helping me figure out the correct Armor Breaking formula."},
 			{"Alpha and Beta testers", "Thank you Minomess, Royal, and CynicalAtropos for giving me feedback while this was still being developed and helping test out the builds."},
 			// I'm intentionally adding blank lines below here so that the content gets pushed to the top of the page
-			{"", ""},
 			{"", ""},
 			{"", ""},
 			{"", ""},

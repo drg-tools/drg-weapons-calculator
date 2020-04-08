@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -30,6 +31,7 @@ public class ModButton extends JButton implements ActionListener {
 		implemented = modImplemented;
 		
 		this.setText(modName);
+		this.setFont(GuiConstants.customFont);
 		this.setToolTipText(HoverText.breakLongToolTipString(modText, 50));
 		this.setOpaque(false);
 		this.setContentAreaFilled(false);
@@ -58,6 +60,8 @@ public class ModButton extends JButton implements ActionListener {
 		Polygon p = createBackgroundHexagon();
 		
 		Graphics2D g2 = (Graphics2D) g.create();
+		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
+		g2.setFont(GuiConstants.customFont);
 		g2.setStroke(new BasicStroke(GuiConstants.edgeWidth));
 		
 		// If this mod hasn't yet been implemented in the Weapon, draw its border red.

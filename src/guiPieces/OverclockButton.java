@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.RoundRectangle2D;
@@ -32,6 +33,7 @@ public class OverclockButton extends JButton implements ActionListener {
 		implemented = ocImplemented;
 		
 		this.setText(ocName);
+		this.setFont(GuiConstants.customFont);
 		this.setToolTipText(HoverText.breakLongToolTipString(ocText, 50));
 		this.setOpaque(false);
 		this.setContentAreaFilled(false);
@@ -130,6 +132,8 @@ public class OverclockButton extends JButton implements ActionListener {
 	
 	public void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g.create();
+		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
+		g2.setFont(GuiConstants.customFont);
 		
 		int bufferPixels = GuiConstants.paddingPixels;
 		RoundRectangle2D border = new RoundRectangle2D.Double(bufferPixels, bufferPixels, getWidth() - 2*bufferPixels, getHeight() - 2*bufferPixels, 50, 50);
@@ -144,7 +148,7 @@ public class OverclockButton extends JButton implements ActionListener {
 		g2.setStroke(new BasicStroke(GuiConstants.edgeWidth));
 		g2.draw(border);
 		
-		// If this mod is currently selected, draw its interior as yellow.
+		// If this overclock is currently selected, draw its interior as yellow.
 		if (enabled) {
 			g2.setPaint(GuiConstants.drgHighlightedYellow);
 		}
