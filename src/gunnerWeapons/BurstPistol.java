@@ -13,6 +13,7 @@ import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
+// TODO: redo accuracy and recoil calculations for 29.7
 public class BurstPistol extends Weapon {
 	
 	/****************************************************************************************
@@ -73,9 +74,10 @@ public class BurstPistol extends Weapon {
 	
 	@Override
 	protected void initializeModsAndOverclocks() {
-		tier1 = new Mod[2];
+		tier1 = new Mod[3];
 		tier1[0] = new Mod("High Velocity Rounds", "+3 Direct Damage", 1, 0);
-		tier1[1] = new Mod("Floating Barrel", "-42% Spread per Shot", 1, 1);
+		tier1[1] = new Mod("Floating Barrel", "x0.6 Spread per Shot, -30% Base Spread", 1, 1);
+		tier1[2] = new Mod("Blowthrough Rounds", "+1 Penetration", 1, 2);
 		
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("Recoil Dampener", "x0.5 Recoil", 2, 0);
@@ -98,12 +100,12 @@ public class BurstPistol extends Weapon {
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Casings", "+36 Max Ammo, +1 Rate of Fire", 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Full Chamber Seal", "+1 Direct Damage, -0.2 Reload Time", 1);
-		overclocks[2] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Compact Mags", "+72 Max Ammo, -1 Rate of Fire, +0.4 Reload Time", 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Experimental Rounds", "+9 Direct Damage, -6 Magazine Size, -36 Max Ammo", 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Electro Minelets", "Any bullets that impact terrain get converted to Electro Minelets. After 1 second of arming time, "
-				+ "they inflict an Electrocute DoT to any enemies that pass within 1.5m of them. The Electrocute DoTs deal an average of " + DoTInformation.Electro_DPS + " DPS.", 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Micro Fletchettes", "+24 Magazine Size, +144 Max Ammo, -20% Spread per Shot, x0.5 Recoil, x0.5 Damage per bullet", 6);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Mags", "+84 Max Ammo, -1 Rate of Fire, +0.4 Reload Time", 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Experimental Rounds", "+9 Direct Damage, -6 Magazine Size, -36 Max Ammo", 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Electro Minelets", "Any bullets that impact terrain get converted to Electro Minelets. After 1 second of arming time, "
+				+ "they inflict an Electrocute DoT to any enemies that pass within 1.5m of them. The Electrocute DoTs deal an average of " + DoTInformation.Electro_DPS + " DPS. -3 Direct Damage, -6 Magazine Size.", 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Micro Fletchettes", "+30 Magazine Size, +120 Max Ammo, x0.5 Spread per Shot, x0.5 Recoil, x0.5 Damage per bullet", 5);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Spray", "x1.5 Direct Damage, x4 Base Spread", 6);
 	}
 	
 	@Override
@@ -121,10 +123,6 @@ public class BurstPistol extends Weapon {
 					System.out.println("Symbol #" + (i+1) + ", " + symbols[i] + ", is not a capital letter between A-C or a hyphen");
 					combinationIsValid = false;
 				}
-			}
-			if (symbols[0] == 'C') {
-				System.out.println("BurstPistol's first tier of mods only has two choices, so 'C' is an invalid choice.");
-				combinationIsValid = false;
 			}
 			if (symbols[2] == 'C') {
 				System.out.println("BurstPistol's third tier of mods only has two choices, so 'C' is an invalid choice.");
@@ -153,6 +151,10 @@ public class BurstPistol extends Weapon {
 				}
 				case 'B': {
 					selectedTier1 = 1;
+					break;
+				}
+				case 'C': {
+					selectedTier1 = 2;
 					break;
 				}
 			}
@@ -296,17 +298,17 @@ public class BurstPistol extends Weapon {
 		if (selectedOverclock == 1) {
 			toReturn += 1;
 		}
-		else if (selectedOverclock == 2) {
-			toReturn *= homebrewPowderCoefficient;
-		}
-		else if (selectedOverclock == 4) {
+		else if (selectedOverclock == 3) {
 			toReturn += 9;
 		}
-		else if (selectedOverclock == 5) {
+		else if (selectedOverclock == 4) {
 			toReturn -= 3;
 		}
-		else if (selectedOverclock == 6) {
+		else if (selectedOverclock == 5) {
 			toReturn *= 0.5;
+		}
+		else if (selectedOverclock == 6) {
+			toReturn *= 1.5;
 		}
 		
 		return toReturn;
@@ -330,13 +332,13 @@ public class BurstPistol extends Weapon {
 		if (selectedOverclock == 0) {
 			toReturn += 36;
 		}
-		else if (selectedOverclock == 3) {
-			toReturn += 72;
+		else if (selectedOverclock == 2) {
+			toReturn += 84;
 		}
-		else if (selectedOverclock == 4) {
+		else if (selectedOverclock == 3) {
 			toReturn -= 36;
 		}
-		else if (selectedOverclock == 6) {
+		else if (selectedOverclock == 5) {
 			toReturn += 120;
 		}
 		
@@ -349,11 +351,11 @@ public class BurstPistol extends Weapon {
 			toReturn += 12;
 		}
 		
-		if (selectedOverclock == 4 || selectedOverclock == 5) {
+		if (selectedOverclock == 3 || selectedOverclock == 4) {
 			toReturn -= 6;
 		}
-		else if (selectedOverclock == 6) {
-			toReturn += 24;
+		else if (selectedOverclock == 5) {
+			toReturn += 30;
 		}
 		
 		return toReturn;
@@ -368,7 +370,7 @@ public class BurstPistol extends Weapon {
 		if (selectedOverclock == 0) {
 			toReturn += 1.0;
 		}
-		else if (selectedOverclock == 3) {
+		else if (selectedOverclock == 2) {
 			toReturn -= 1.0;
 		}
 		
@@ -384,7 +386,7 @@ public class BurstPistol extends Weapon {
 		if (selectedOverclock == 1) {
 			toReturn -= 0.2;
 		}
-		else if (selectedOverclock == 3) {
+		else if (selectedOverclock == 2) {
 			toReturn += 0.4;
 		}
 		
@@ -399,15 +401,36 @@ public class BurstPistol extends Weapon {
 		
 		return toReturn;
 	}
+	private int getMaxPenetrations() {
+		if (selectedTier1 == 2) {
+			return 1;
+		}
+		else {
+			return 0;
+		}
+	}
+	private double getBaseSpread() {
+		double toReturn = 1.0;
+		
+		if (selectedTier1 == 1) {
+			toReturn -= 0.3;
+		}
+		
+		if (selectedOverclock == 6) {
+			toReturn *= 4.0;
+		}
+		
+		return toReturn;
+	}
 	private double getSpreadPerShot() {
 		double toReturn = 1.0;
 		
 		if (selectedTier1 == 1) {
-			toReturn -= 0.42;
+			toReturn *= 0.6;
 		}
 		
-		if (selectedOverclock == 6) {
-			toReturn -= 0.2;
+		if (selectedOverclock == 5) {
+			toReturn *= 0.5;
 		}
 		
 		return toReturn;
@@ -419,7 +442,7 @@ public class BurstPistol extends Weapon {
 			toReturn *= 0.5;
 		}
 		
-		if (selectedOverclock == 6) {
+		if (selectedOverclock == 5) {
 			toReturn *= 0.5;
 		}
 		
@@ -444,23 +467,23 @@ public class BurstPistol extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[11];
+		StatsRow[] toReturn = new StatsRow[13];
 		
-		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 1 || (selectedOverclock > 0 && selectedOverclock < 7 && selectedOverclock != 3);
+		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 1 || (selectedOverclock > 0 && selectedOverclock < 7 && selectedOverclock != 2);
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
 		toReturn[1] = new StatsRow("Burst Size:", getBurstSize(), selectedTier5 == 1);
 		
-		boolean magSizeModified = selectedTier3 == 0 || (selectedOverclock > 3 && selectedOverclock < 7);
+		boolean magSizeModified = selectedTier3 == 0 || (selectedOverclock > 2 && selectedOverclock < 6);
 		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
 		
-		boolean carriedAmmoModified = selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 3 || selectedOverclock == 4 || selectedOverclock == 6;
+		boolean carriedAmmoModified = selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 2 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		boolean RoFModified = selectedTier2== 2 || selectedOverclock == 0 || selectedOverclock == 3;
+		boolean RoFModified = selectedTier2 == 2 || selectedOverclock == 0 || selectedOverclock == 2;
 		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), RoFModified);
 		
-		boolean reloadModified = selectedTier2 == 1 || selectedOverclock == 1 || selectedOverclock == 3;
+		boolean reloadModified = selectedTier2 == 1 || selectedOverclock == 1 || selectedOverclock == 2;
 		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), reloadModified);
 		
 		toReturn[6] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 2, selectedTier4 == 2);
@@ -469,11 +492,16 @@ public class BurstPistol extends Weapon {
 		
 		toReturn[8] = new StatsRow("Stun Duration:", getBurstStunDuration(), selectedTier5 == 0, selectedTier5 == 0);
 		
-		boolean spreadPerShotModified = selectedTier1 == 1 || selectedOverclock == 6;
-		toReturn[9] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), spreadPerShotModified, spreadPerShotModified);
+		toReturn[9] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier1 == 2, selectedTier1 == 2);
 		
-		boolean recoilModified = selectedTier2 == 0 || selectedOverclock == 6;
-		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
+		boolean baseSpreadModified = selectedTier1 == 1 || selectedOverclock == 6;
+		toReturn[10] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
+		
+		boolean spreadPerShotModified = selectedTier1 == 1 || selectedOverclock == 5;
+		toReturn[11] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), spreadPerShotModified, spreadPerShotModified);
+		
+		boolean recoilModified = selectedTier2 == 0 || selectedOverclock == 5;
+		toReturn[12] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
 		
 		return toReturn;
 	}
@@ -543,7 +571,7 @@ public class BurstPistol extends Weapon {
 		}
 		
 		double electroDPS = 0;
-		if (selectedOverclock == 5) {
+		if (selectedOverclock == 4) {
 			if (burst) {
 				// Because the Electro Minelets don't arm for 1 second, the Burst DPS needs to be reduced by an uptime coefficient
 				double electroMinesUptimeCoefficient = (duration - 1) / duration;
@@ -583,12 +611,17 @@ public class BurstPistol extends Weapon {
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		if (selectedOverclock == 5) {
-			return DoTInformation.Electro_DPS;
+		double electroDPS = 0;
+		if (selectedOverclock == 4) {
+			electroDPS = DoTInformation.Electro_DPS;
 		}
-		else {
-			return 0;
+		
+		double blowthroughDPS = 0;
+		if (selectedTier1 == 2) {
+			blowthroughDPS = calculateIdealSustainedDPS();
 		}
+		
+		return blowthroughDPS + electroDPS;
 	}
 
 	@Override
@@ -596,7 +629,7 @@ public class BurstPistol extends Weapon {
 		double numberOfMagazines = numMagazines(getCarriedAmmo(), getMagazineSize());
 		double totalDamage = numberOfMagazines * calculateDamagePerMagazine(false);
 		
-		if (selectedOverclock == 5) {
+		if (selectedOverclock == 4) {
 			double accuracy = estimatedAccuracy(false) / 100.0;
 			int numBulletsThatMiss = (int) Math.ceil((1 - accuracy) * (getCarriedAmmo() + getMagazineSize()));
 			// Electro Minelets only apply a 2 second DoT, instead of the full 4 seconds like other mods/OCs.
@@ -608,11 +641,11 @@ public class BurstPistol extends Weapon {
 
 	@Override
 	public int calculateMaxNumTargets() {
-		if (selectedOverclock == 5) {
+		if (selectedOverclock == 4) {
 			return 8;  // calculateNumGlyphidsInRadius(1.5);
 		}
 		else {
-			return 1;
+			return 1 + getMaxPenetrations();
 		}
 	}
 
@@ -661,7 +694,7 @@ public class BurstPistol extends Weapon {
 		utilityScores[2] = (getArmorBreaking() - 1.0) * UtilityInformation.ArmorBreak_Utility;
 		
 		// OC "Electro Minelets" = 100% Electrocute Chance, but only on bullets that miss... maybe (1.0 - Accuracy)?
-		if (selectedOverclock == 5) {
+		if (selectedOverclock == 4) {
 			// Electro Minelets arm in 1 second, detonate on any enemies that come within ~1.5m, and then explode after 3 seconds. 100% chance to apply Electrocute for 2 sec.
 			double probabilityBulletsMiss = 1.0 - estimatedAccuracy(false) / 100.0;
 			int numGlyphidsInMineletRadius = 8;  // calculateNumGlyphidsInRadius(1.5);

@@ -13,6 +13,7 @@ import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
+// TODO: redo accuracy and recoil tests for 29.7
 public class Revolver extends Weapon {
 	
 	/****************************************************************************************
@@ -99,8 +100,8 @@ public class Revolver extends Weapon {
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 33% chance to ricochet into a nearby enemy.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Feather Trigger", "+4 Rate of Fire, +150% Recoil", 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Five Shooter", "+1 Magazine Size, +5 Max Ammo, x1.5 Base Spread", 3);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Bullets", "x4 Damage to Burning targets, -25 Direct Damage", 2, false);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Six Shooter", "+1 Magazine Size, +5 Max Ammo, x1.5 Base Spread", 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -12 Max Ammo, +100% Spread per Shot, +150% Recoil", 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Magic Bullets", "All bullets that impact terrain automatically ricochet to nearby enemies (effectively raising accuracy to 100%). +8 Max Ammo, -20 Direct Damage", 5);
 	}
@@ -287,7 +288,11 @@ public class Revolver extends Weapon {
 		if (selectedTier4 == 1) {
 			toReturn += 15.0;
 		}
-		if (selectedOverclock == 5) {
+		
+		if (selectedOverclock == 2) {
+			toReturn -= 25.0;
+		}
+		else if (selectedOverclock == 5) {
 			toReturn -= 20.0;
 		}
 			
@@ -327,27 +332,28 @@ public class Revolver extends Weapon {
 		if (selectedTier4 == 0) {
 			toReturn += 12;
 		}
-		if (selectedOverclock == 3) {
-			toReturn += 5;
+		
+		if (selectedOverclock == 3 || selectedOverclock == 5) {
+			toReturn += 8;
 		}
 		else if (selectedOverclock == 4) {
-			toReturn -= 12;
-		}
-		else if (selectedOverclock == 5) {
-			toReturn += 8;
+			toReturn -= 13;
 		}
 		return toReturn;
 	}
 	private int getMagazineSize() {
 		int toReturn = magazineSize;
 		if (selectedOverclock == 3) {
-			toReturn += 1;
+			toReturn += 2;
+		}
+		else if (selectedOverclock == 4) {
+			toReturn -= 1;
 		}
 		return toReturn;
 	}
 	private double getRateOfFire() {
 		double maxRoF = rateOfFire;
-		if (selectedOverclock == 2) {
+		if (selectedOverclock == 3) {
 			maxRoF += 4.0;
 		}
 		return calculateAccurateRoF(maxRoF);
@@ -355,7 +361,11 @@ public class Revolver extends Weapon {
 	private double getReloadTime() {
 		double toReturn = reloadTime;
 		if (selectedTier1 == 0) {
-			toReturn -= 0.4;
+			toReturn -= 0.7;
+		}
+		
+		if (selectedOverclock == 3 || selectedOverclock == 4) {
+			toReturn += 0.5;
 		}
 		return toReturn;
 	}
@@ -391,23 +401,30 @@ public class Revolver extends Weapon {
 		if (selectedOverclock == 3) {
 			toReturn *= 1.5;
 		}
+		else if (selectedOverclock == 4) {
+			toReturn *= 0.5;
+		}
+		
 		return toReturn;
 	}
 	private double getSpreadPerShot() {
 		double toReturn = 1.0;
+		
 		if (selectedTier2 == 1) {
 			toReturn -= 0.8;
 		}
+		
 		if (selectedOverclock == 4) {
-			toReturn += 1.0;
+			toReturn += 0.71;
 		}
+		
 		return toReturn;
 	}
 	private double getRecoil() {
 		double toReturn = 1.0;
 		
 		// Additive first
-		if (selectedOverclock == 2 || selectedOverclock == 4) {
+		if (selectedOverclock == 4) {
 			toReturn += 1.5;
 		}
 		
@@ -423,7 +440,7 @@ public class Revolver extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[16];
 		
-		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 4 || selectedOverclock == 5;
+		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
 		boolean explosiveEquipped = selectedTier3 == 1;
@@ -431,14 +448,15 @@ public class Revolver extends Weapon {
 		
 		toReturn[2] = new StatsRow("AoE Radius:", getAoERadius(), explosiveEquipped, explosiveEquipped);
 		
-		toReturn[3] = new StatsRow("Magazine Size:", getMagazineSize(), selectedOverclock == 3);
+		toReturn[3] = new StatsRow("Magazine Size:", getMagazineSize(), selectedOverclock == 3 || selectedOverclock == 4);
 		
 		boolean carriedAmmoModified = selectedTier2 == 2 || selectedTier4 == 0 || (selectedOverclock > 2 && selectedOverclock < 6);
 		toReturn[4] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[5] = new StatsRow("Rate of Fire:", getRateOfFire(), selectedOverclock == 2);
+		// For right now, the RoF is artificially slowed by trying to be accurate. I'm planning on re-modeling this weapon with full RoF to see what builds would be good for "fanning the hammer"
+		toReturn[5] = new StatsRow("Rate of Fire:", getRateOfFire(), false);
 		
-		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), selectedTier1 == 0);
+		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), selectedTier1 == 0 || selectedOverclock == 3 || selectedOverclock == 4);
 		
 		toReturn[7] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier3 == 2);
 		
@@ -453,13 +471,13 @@ public class Revolver extends Weapon {
 		boolean canRicochet = selectedOverclock == 1 || selectedOverclock == 5;
 		toReturn[12] = new StatsRow("Max Ricochets:", getMaxRicochets(), canRicochet, canRicochet);
 		
-		boolean baseSpreadModified = selectedTier1 == 1 || selectedOverclock == 3;
+		boolean baseSpreadModified = selectedTier1 == 1 || selectedOverclock == 3 || selectedOverclock == 4;
 		toReturn[13] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
 		
 		boolean spreadPerShotModified = selectedTier2 == 1 || selectedOverclock == 4;
 		toReturn[14] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), spreadPerShotModified, spreadPerShotModified);
 		
-		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 4;
+		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 4;
 		toReturn[15] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
 		
 		return toReturn;

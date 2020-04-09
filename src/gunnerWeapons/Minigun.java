@@ -111,7 +111,7 @@ public class Minigun extends Weapon {
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "A Little More Oomph!", "+1 Damage per Pellet, -0.2 spinup time", 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Thinned Drum Walls", "+300 Max Ammo, +0.5 Cooling Rate", 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Burning Hell", "While firing, the Minigun deals 100 Heat per Second in a cone 4m in front of the muzzle. +50% heat accumulation in the gun's heat meter, which translates to 2/3 the firing period", 2);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Burning Hell", "While firing, the Minigun deals 100 Heat per Second in a cone 6m in front of the muzzle. +50% heat accumulation in the gun's heat meter, which translates to 2/3 the firing period", 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Compact Feed Mechanism", "+800 Max Ammo, -4 Rate of Fire", 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Exhaust Vectoring", "+2 Damage per Pellet, x2.5 Base Spread", 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Bullet Hell", "50% for bullets that impact an enemy or terrain to ricochet into another enemy. -3 Damage per Pellet, x6 Base Spread", 5);
@@ -481,7 +481,7 @@ public class Minigun extends Weapon {
 			}
 			if (selectedOverclock == 2) {
 				// Slight overestimation
-				estimatedBurstDPS += 0.8 * DoTInformation.Burn_DPS;
+				estimatedBurstDPS += 0.95 * DoTInformation.Burn_DPS;
 			}
 			
 			double estimatedBurstTTK = EnemyInformation.averageHealthPool() / estimatedBurstDPS;
@@ -570,9 +570,10 @@ public class Minigun extends Weapon {
 			generalAccuracy = 1.0;
 		}
 		
-		// Special case: Bullet Hell causes the bullets to guarantee impact.
-		if (selectedOverclock == 5) {
-			generalAccuracy = 0.5;
+		// Special case: the overclock Bullet Hell gives every bullet a 50% chance to ricochet into nearby enemies after impacting terrain or an enemy
+		if (selectedOverclock == 5 && accuracy) {
+			// Never let it be above 1.0 probability to hit a target.
+			generalAccuracy = Math.min(generalAccuracy + 0.5, 1.0);
 		}
 		
 		// Hot Bullets only
@@ -586,8 +587,8 @@ public class Minigun extends Weapon {
 		}
 		// Burning Hell only
 		else if (selectedTier5 != 2 && selectedOverclock == 2) {
-			// Burning Hell looks like it burns everything within 4m in a 20 degree arc in front of you at a rate of 100 heat/sec
-			// TODO: I would like for this damage to be reflected in additional target somehow, and then its AoE damage reflected in max damage too
+			// Burning Hell looks like it burns everything within 6m in a 20 degree arc in front of you at a rate of 100 heat/sec
+			// TODO: I would like for this to have its AoE damage reflected in max damage too like Aggressive Venting
 			return EnemyInformation.averageTimeToIgnite(burningHellHeatPerSec);
 		}
 		// Both Hot Bullets AND Burning Hell
@@ -615,9 +616,10 @@ public class Minigun extends Weapon {
 			generalAccuracy = 1.0;
 		}
 		
-		// Special case: the overclock Bullet Hell makes all pellets that miss redirect and hit an enemy.
-		if (selectedOverclock == 5) {
-			generalAccuracy = 0.5;
+		// Special case: the overclock Bullet Hell gives every bullet a 50% chance to ricochet into nearby enemies after impacting terrain or an enemy
+		if (selectedOverclock == 5 && accuracy) {
+			// Never let it be above 1.0 probability to hit a target.
+			generalAccuracy = Math.min(generalAccuracy + 0.5, 1.0);
 		}
 		
 		if (burst) {
@@ -677,6 +679,7 @@ public class Minigun extends Weapon {
 		int pelletsThatHitWeakpoint = (int) Math.round(burstSize * weakpointAccuracy);
 		int pelletsThatHitTarget = (int) Math.round(burstSize * generalAccuracy) - pelletsThatHitWeakpoint;
 		
+		// TODO: I'm not satisfied with how this turned out, because Ideal Burst DPS always turns out JUST shy of its true value. This is because the num pellets is always one less than what would make it overheat.
 		return (pelletsThatHitWeakpoint * directWeakpointDamage + pelletsThatHitTarget * directDamage) / longDuration + burnDPS;
 	}
 	
@@ -724,9 +727,18 @@ public class Minigun extends Weapon {
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		if (selectedTier3 == 2 || selectedOverclock == 5) {
-			// This assumes that the penetrations and ricochets don't have their damage reduced.
-			return calculateIdealSustainedDPS();
+		double idealSustained = calculateIdealSustainedDPS();
+		
+		if (selectedTier3 == 2) {
+			// Blowthrough Rounds are just the same DPS, with Burn DPS already added if Burning Hell or Hot Bullets is already equipped
+			return idealSustained;
+		}
+		else if (selectedOverclock == 2) {
+			return DoTInformation.Burn_DPS;
+		}
+		else if (selectedOverclock == 5) {
+			// Bullet Hell has a 50% chance to ricochet
+			return 0.5 * idealSustained;
 		}
 		else {
 			return 0;
@@ -760,6 +772,7 @@ public class Minigun extends Weapon {
 			timeBeforeFireProc = calculateIgnitionTime(false);
 			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, 0.5 * EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
 			
+			// TODO: change numTargets to reflect the 6m 20* cone AoE igniting more than just the primary target and sometimes the blowthroughs
 			estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
 			
 			fireDoTTotalDamage += fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
@@ -824,8 +837,6 @@ public class Minigun extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		// TODO: Bullet Hell guarantees ricochets into enemies. I need to figure out how to model what percentage hit the intended enemy, and then edit calculateIgnitionTime() and calculateSingleTargetDPS() accordingly.
-		
 		// I'm choosing to model Minigun as if it has no recoil. Although it does, its so negligible that it would have no effect.
 		// Because it's being modeled without recoil, and its crosshair gets smaller as it fires, I'm making a quick-and-dirty estimate here instead of using AccuracyEstimator.
 		double unchangingBaseSpread = 61;
