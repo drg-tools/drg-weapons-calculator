@@ -7,6 +7,8 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -19,9 +21,11 @@ import modelPieces.Weapon;
 public class UtilityBreakdownButton extends JButton implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	
+	private JComponent parentComponent;
 	private Weapon toDisplay;
 
-	public UtilityBreakdownButton(String textToDisplay, Weapon weaponWithStats) {
+	public UtilityBreakdownButton(JComponent parent, String textToDisplay, Weapon weaponWithStats) {
+		parentComponent = parent;
 		toDisplay = weaponWithStats;
 		
 		// Font color will be set by the parent WeaponTab, in constructCalculationsPanel()
@@ -77,6 +81,10 @@ public class UtilityBreakdownButton extends JButton implements ActionListener {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		JOptionPane.showMessageDialog(null, getUtilityBreakdownPanel(), "Utility Score Breakdown", JOptionPane.INFORMATION_MESSAGE);
+		// Adapted from https://stackoverflow.com/a/13760416
+		JOptionPane a = new JOptionPane(getUtilityBreakdownPanel(), JOptionPane.INFORMATION_MESSAGE);
+		JDialog d = a.createDialog(null, "Utility Score Breakdown");
+		d.setLocationRelativeTo(parentComponent);
+		d.setVisible(true);
 	}
 }

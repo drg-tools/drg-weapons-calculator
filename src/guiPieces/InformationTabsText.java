@@ -2,7 +2,6 @@ package guiPieces;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.Insets;
 
 import javax.swing.BoxLayout;

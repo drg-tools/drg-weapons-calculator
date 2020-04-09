@@ -2,8 +2,6 @@ package guiPieces;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -315,7 +313,7 @@ public class WeaponTab extends JPanel {
 		int maxNumTargets = myWeapon.calculateMaxNumTargets();
 		int originalNumTargets = (int) originalStats[6];
 		if (myWeapon.currentlyDealsSplashDamage()) {
-			AoEVisualizerButton valButton = new AoEVisualizerButton(leftPadSpaces + maxNumTargets, myWeapon);
+			AoEVisualizerButton valButton = new AoEVisualizerButton(this, leftPadSpaces + maxNumTargets, myWeapon);
 			if (maxNumTargets < originalNumTargets) {
 				valButton.setForeground(GuiConstants.drgOverclockUnstableRed);
 			}
@@ -417,7 +415,7 @@ public class WeaponTab extends JPanel {
 		
 		double utility = myWeapon.utilityScore();
 		roundedNumber = leftPadSpaces + MathUtils.round(utility, GuiConstants.numDecimalPlaces);
-		UtilityBreakdownButton utilButton = new UtilityBreakdownButton(roundedNumber, myWeapon);
+		UtilityBreakdownButton utilButton = new UtilityBreakdownButton(this, roundedNumber, myWeapon);
 		if (utility < originalStats[11]) {
 			utilButton.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
