@@ -46,6 +46,7 @@ public class GuiConstants {
 	public static Color drgBackgroundBrown = new Color(73, 63, 41);
 	public static Color drgHighlightedYellow = new Color(255, 210, 0);
 	public static Color drgRegularOrange = new Color(255, 156, 0);
+	public static Color drgNegativeChangeRed = new Color(225, 50, 10);
 	public static Color drgOverclockCleanGreen = new Color(67, 159, 97);
 	public static Color drgOverclockBalancedYellow = new Color(231, 201, 71);
 	public static Color drgOverclockUnstableRed = new Color(205, 45, 19);

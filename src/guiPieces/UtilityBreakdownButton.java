@@ -33,7 +33,7 @@ public class UtilityBreakdownButton extends JButton implements ActionListener {
 		this.setBorder(GuiConstants.orangeLine);
 		
 		this.setText(textToDisplay);
-		this.setFont(GuiConstants.customFont);
+		this.setFont(GuiConstants.customFontBold);
 		this.setHorizontalAlignment(SwingConstants.LEFT);
 		this.addActionListener(this);
 	}

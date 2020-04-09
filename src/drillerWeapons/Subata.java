@@ -525,7 +525,7 @@ public class Subata extends Weapon {
 		int bulletsThatHitWeakpoint = (int) Math.round(magSize * weakpointAccuracy);
 		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
 		
-		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * getDirectDamage()) / duration;
+		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * getDirectDamage() + (bulletsThatHitWeakpoint + bulletsThatHitTarget) * getAreaDamage()) / duration;
 	}
 
 	@Override
