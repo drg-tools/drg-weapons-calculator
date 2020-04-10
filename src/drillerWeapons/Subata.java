@@ -82,7 +82,7 @@ public class Subata extends Weapon {
 		
 		tier3 = new Mod[3];
 		tier3[0] = new Mod("Improved Propellant", "+1 Direct Damage", 3, 0);
-		tier3[1] = new Mod("Recoil Compensator", "-20% Spread per Shot, x0.75 Recoil", 3, 1);
+		tier3[1] = new Mod("Recoil Compensator", "-20% Spread per Shot, x0.5 Recoil", 3, 1);
 		tier3[2] = new Mod("Expanded Ammo Bags", "+40 Max Ammo", 3, 2);
 		
 		tier4 = new Mod[2];
@@ -411,8 +411,7 @@ public class Subata extends Weapon {
 		double toReturn = 1.0;
 		
 		if (selectedTier3 == 1) {
-			// TODO: The wiki indicates that this is x0.5. Test that.
-			toReturn *= 0.75;
+			toReturn *= 0.5;
 		}
 		
 		if (selectedOverclock == 3) {

@@ -13,7 +13,6 @@ import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
-// TODO: redo accuracy and recoil tests for 29.7
 public class Revolver extends Weapon {
 	
 	/****************************************************************************************
@@ -45,7 +44,7 @@ public class Revolver extends Weapon {
 	}
 	
 	public Revolver(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
-		fullName = "\"Bulldog\" Heavy Revolver";
+		fullName = "\"Bulldog\" Heavy Revolver (Slow RoF)";
 		
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 50.0;
@@ -101,8 +100,8 @@ public class Revolver extends Weapon {
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 33% chance to ricochet into a nearby enemy.", 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Bullets", "x4 Damage to Burning targets, -25 Direct Damage", 2, false);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Six Shooter", "+1 Magazine Size, +5 Max Ammo, x1.5 Base Spread", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -12 Max Ammo, +100% Spread per Shot, +150% Recoil", 4);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Six Shooter", "+2 Magazine Size, +8 Max Ammo, +4 Rate of Fire, x1.5 Base Spread, +0.5 Reload Time", 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -13 Max Ammo, +171% Spread per Shot, +150% Recoil, +0.5 Reload Time", 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Magic Bullets", "All bullets that impact terrain automatically ricochet to nearby enemies (effectively raising accuracy to 100%). +8 Max Ammo, -20 Direct Damage", 5);
 	}
 	
@@ -769,16 +768,31 @@ public class Revolver extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		double unchangingBaseSpread = 3;
+		double unchangingBaseSpread = 14;
 		double changingBaseSpread = 30 * getBaseSpread();
-		double spreadVariance = 157;
-		double spreadPerShot = 137 * getSpreadPerShot();
+		double spreadVariance = 148;
+		double spreadPerShot = 129 * getSpreadPerShot();
 		double spreadRecoverySpeed = 109.1390954;
 		double recoilPerShot = 155 * getRecoil();
+		
 		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
-		double recoilUpInterval = 2.0 / 9.0;
+		double recoilUpInterval = 1.0 / 6.0;
 		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		double recoilDownInterval = 8.0 / 9.0;
+		double recoilDownInterval = 1.0;
+		
+		// Elephant Rounds significantly reduces the recoil speeds in addition to increasing recoil per shot
+		if (selectedOverclock == 4) {
+			// It also increases Max Spread
+			spreadVariance = 389;
+			
+			if (selectedTier2 != 1) {
+				// And if Floating Barrel isn't equipped, then the Spread per Shot takes it to Max Spread on first shot for some reason?
+				spreadPerShot = 389;
+			}
+			
+			recoilUpInterval = 16.0 / 60.0;
+			recoilDownInterval = 140.0 / 60.0;
+		}
 		
 		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 

@@ -38,6 +38,12 @@ public class AccuracyEstimator {
 		}
 	}
 	
+	// TODO: the tests done on Revolver for 29.7 seem to indicated that Spread Recovery is non-linear. I don't have enough data to speculate about its model, but it's worth taking a look at later down the road.
+	// Now that I've had time to think about it, it's probably the same as recoil, but instantly applies the Spread per Shot instead of over time. The Slope would be Spread Recovery Speed, and it would only have two inflection point types:
+	// decrease and stop (and DandS if they overlap). Point is, I think modeling with the same while loop logic I used for recoil() would be a good way to do it later. However, this means firing every gun exactly once to find what 
+	// the true Spread Recovery Speed is, and update the values accordingly. What's nice about this, though, is that it should resolve the Scout/AR issues.
+	
+	// Also, if I'm right, then this model might account for changes in Spread Variance/Max Spread like Gunner/Revolver/OC/Elephant Rounds
 	private static double spread(int numBulletsFired, double timeElapsed, double baseSpreadRads, double spreadPerShotRads, double spreadRecoveryRads, double maxSpreadRads) {
 		// This can never be less than 0 pixels of change
 		double calculatedChangeInSpread = Math.max(numBulletsFired * spreadPerShotRads - timeElapsed * spreadRecoveryRads, 0);
@@ -321,6 +327,7 @@ public class AccuracyEstimator {
 		double Sm = convertSpreadPixelsToRads(maxSpread);
 		double Sr = convertSpreadPixelsToRads(spreadRecoverySpeed);
 		
+		// TODO: Recoil should be converted to rads BEFORE getting the getRecoil() multiplier applied, I think?
 		double RpS = recoilPerShot * playerRecoilCorrectionCoefficient;
 		
 		double[] predictedRecoil = recoil(rateOfFire, (int) magSize, (int) burstSize, RpS, recoilIncreaseInterval, recoilDecreaseInterval);

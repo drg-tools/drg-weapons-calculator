@@ -13,7 +13,6 @@ import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
-// TODO: redo accuracy and recoil calculations for 29.7
 public class BurstPistol extends Weapon {
 	
 	/****************************************************************************************
@@ -671,16 +670,16 @@ public class BurstPistol extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		double unchangingBaseSpread = 54;
-		double changingBaseSpread = 0;
-		double spreadVariance = 74;
-		double spreadPerShot = 21 * getSpreadPerShot();
+		double unchangingBaseSpread = 14;
+		double changingBaseSpread = 54 * getBaseSpread();
+		double spreadVariance = 94;
+		double spreadPerShot = 25 * getSpreadPerShot();
 		double spreadRecoverySpeed = 83.72401183;
-		double recoilPerShot = 27 * getRecoil();
+		double recoilPerShot = 25 * getRecoil();
 		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
 		double recoilUpInterval = 1.0 / 10.0;
 		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		double recoilDownInterval = 3.0 / 10.0;
+		double recoilDownInterval = 37.0 / 60.0;
 		
 		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), getBurstSize(), 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
