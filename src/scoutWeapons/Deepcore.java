@@ -615,19 +615,21 @@ public class Deepcore extends Weapon {
 		*/
 		
 		double unchangingBaseSpread = 19;
-		double changingBaseSpread = 21 * getBaseSpread();
+		double changingBaseSpread = 21;
 		double spreadVariance = 84;
-		double spreadPerShot = 30 * getSpreadPerShot();
+		double spreadPerShot = 30;
 		double spreadRecoverySpeed = 170.6869145;
-		double recoilPerShot = 41 * getRecoil();
+		double recoilPerShot = 41;
 		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
 		double recoilUpInterval = 1.0 / 6.0;
 		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
 		double recoilDownInterval = 2.0 / 3.0;
 		
+		double[] modifiers = {getBaseSpread(), getSpreadPerShot(), getSpreadRecoverySpeed(), 1.0, getRecoil()};
+		
 		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
-				recoilPerShot, recoilUpInterval, recoilDownInterval);
+				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
 	}
 
 	@Override

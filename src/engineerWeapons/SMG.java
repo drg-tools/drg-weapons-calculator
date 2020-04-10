@@ -609,19 +609,21 @@ public class SMG extends Weapon {
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		double unchangingBaseSpread = 59.5;
-		double changingBaseSpread = 33.5 * getBaseSpread();
+		double changingBaseSpread = 33.5;
 		double spreadVariance = 36;
 		double spreadPerShot = 12;
 		double spreadRecoverySpeed = 72;
-		double recoilPerShot = 41 * getRecoil();
+		double recoilPerShot = 41;
 		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
 		double recoilUpInterval = 5.0 / 64.0;
 		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
 		double recoilDownInterval = 5.0 / 16.0;
 		
+		double[] modifiers = {getBaseSpread(), 1.0, 1.0, 1.0, getRecoil()};
+		
 		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
-				recoilPerShot, recoilUpInterval, recoilDownInterval);
+				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
 	}
 
 	@Override

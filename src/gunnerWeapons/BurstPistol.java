@@ -671,19 +671,21 @@ public class BurstPistol extends Weapon {
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		double unchangingBaseSpread = 14;
-		double changingBaseSpread = 54 * getBaseSpread();
+		double changingBaseSpread = 54;
 		double spreadVariance = 94;
-		double spreadPerShot = 25 * getSpreadPerShot();
+		double spreadPerShot = 25;
 		double spreadRecoverySpeed = 83.72401183;
-		double recoilPerShot = 25 * getRecoil();
+		double recoilPerShot = 25;
 		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
 		double recoilUpInterval = 1.0 / 10.0;
 		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
 		double recoilDownInterval = 37.0 / 60.0;
 		
+		double[] modifiers = {getBaseSpread(), getSpreadPerShot(), 1.0, 1.0, getRecoil()};
+		
 		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), getBurstSize(), 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
-				recoilPerShot, recoilUpInterval, recoilDownInterval);
+				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
 	}
 
 	@Override

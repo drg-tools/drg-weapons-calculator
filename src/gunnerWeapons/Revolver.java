@@ -769,11 +769,11 @@ public class Revolver extends Weapon {
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		double unchangingBaseSpread = 14;
-		double changingBaseSpread = 30 * getBaseSpread();
+		double changingBaseSpread = 30;
 		double spreadVariance = 148;
-		double spreadPerShot = 129 * getSpreadPerShot();
+		double spreadPerShot = 129;
 		double spreadRecoverySpeed = 109.1390954;
-		double recoilPerShot = 155 * getRecoil();
+		double recoilPerShot = 155;
 		
 		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
 		double recoilUpInterval = 1.0 / 6.0;
@@ -781,6 +781,7 @@ public class Revolver extends Weapon {
 		double recoilDownInterval = 1.0;
 		
 		// Elephant Rounds significantly reduces the recoil speeds in addition to increasing recoil per shot
+		double SpSModifier = getSpreadPerShot();
 		if (selectedOverclock == 4) {
 			// It also increases Max Spread
 			spreadVariance = 389;
@@ -788,15 +789,19 @@ public class Revolver extends Weapon {
 			if (selectedTier2 != 1) {
 				// And if Floating Barrel isn't equipped, then the Spread per Shot takes it to Max Spread on first shot for some reason?
 				spreadPerShot = 389;
+				SpSModifier = 1.0;
+				
 			}
 			
 			recoilUpInterval = 16.0 / 60.0;
 			recoilDownInterval = 140.0 / 60.0;
 		}
 		
+		double[] modifiers = {getBaseSpread(), SpSModifier, 1.0, 1.0, getRecoil()};
+		
 		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
-				recoilPerShot, recoilUpInterval, recoilDownInterval);
+				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
 	}
 
 	@Override
