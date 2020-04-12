@@ -129,138 +129,33 @@ public class AccuracyEstimator {
 	}
 	
 	// This method returns an array of what the change in pixels from Base Spread will be at the moment each bullet gets fired (will need to be converted from Spread Pixels to rads to meters)
-	private static double[] spread(double RoF, int magSize, int burstSize, double baseSpreadPixels, double spreadPerShotPixels, double spreadRecoverySpeedPixels, double maxSpread) {
-		double delta = 1.0 / RoF;
-		double timeToRecoverFromOneShot = spreadPerShotPixels / spreadRecoverySpeedPixels;
-		
-		// Each key will be the timestamp of the inflection point, and the value will be an enumerated variable that will say how the slope changes at that inflection point
-		HashMap<Double, inflectionType> inflectionPoints = new HashMap<Double, inflectionType>();
-		
-		double[] bulletFiredTimestamps = new double[magSize];
-		double currentTime = 0.0;
-		double a, b;
-		int i;
-		for (i = 0; i < magSize; i++) {
-			bulletFiredTimestamps[i] = currentTime;
-			
-			a = currentTime;
-			if (inflectionPoints.containsKey(a)) {
-				inflectionPoints.put(a, combineTwoInflectionTypes(inflectionPoints.get(a), inflectionType.decrease));
-			}
-			else {
-				inflectionPoints.put(a, inflectionType.decrease);
-			}
-			
-			b = currentTime + timeToRecoverFromOneShot;
-			if (inflectionPoints.containsKey(b)) {
-				inflectionPoints.put(b, combineTwoInflectionTypes(inflectionPoints.get(b), inflectionType.stop));
-			}
-			else {
-				inflectionPoints.put(b, inflectionType.stop);
-			}
-			
-			if (burstSize > 1 && (i+1) % burstSize > 0) {
-				// During burst; add 1/20th second
-				currentTime += 0.05;
-			}
-			else {
-				// Either this gun doesn't have a burst mode, or it just fired the last bullet during a burst
-				currentTime += delta;
-			}
-		}
-		
-		// In theory, the length of this array should be in the range [magSize + 1, 2 * magSize]
-		Set<Double> unsortedTimestampKeys = inflectionPoints.keySet();
-		Double[] inflectionPointTimestamps = unsortedTimestampKeys.toArray(new Double[unsortedTimestampKeys.size()]);
-		Arrays.sort(inflectionPointTimestamps);
-		
-		// Now that we should have an array of all the timestamps of the inflection points, it can be converted into an array of slope changes (equivalent to integrating from the 2nd derivative to the 1st derivative)
-		double[] slopeAtT = new double[inflectionPointTimestamps.length];
-		inflectionType infType;
-		double currentSlope = 0.0;
-		for (i = 0; i < inflectionPointTimestamps.length; i++) {
-			infType = inflectionPoints.get(inflectionPointTimestamps[i]);
-			
-			switch (infType) {
-				case decrease: {
-					// A bullet was just fired, so its Spread per Shot was just applied. Begin decreasing the total Spread by decreasing the slope.
-					currentSlope -= spreadRecoverySpeedPixels;
-					break;
-				}
-				case stop: {
-					// A bullet that was fired just had its Spread per Shot fully recovered by this point. Stop decreasing the total Spread for this particular bullet by increasing the slope.
-					currentSlope += spreadRecoverySpeedPixels;
-					break;
-				}
-				case DandS: {
-					// One bullet was fired at the same time that a previous bullet finished its spread recovery period. The net change to the slope is 0.
-					currentSlope += 0.0;
-					break;
-				}
-				default: {
-					// Theoretically this should never happen, but I'm adding it anyway just for sanity check.
-					// I'm having this be a HUGE change to the slope so that it will negatively affect the model in a substantial way; big enough to be noticeable from the GUI's accuracy of 2% or something...
-					currentSlope *= -10.0;
-					break;
-				}
-			}
-			
-			// Because Spread Recovery starts instantly, the slope should always be <= 0.
-			slopeAtT[i] = currentSlope;
-		}
-		
-		// With the array of slope changes and their corresponding timestamps, it should be possible to accurately recreate what the Spread will look like over time. (equivalent to integrating from the 1st derivative to the function itself)
+	private static double[] spread(double RoF, int magSize, int burstSize, double baseSpreadPixels, double spreadPerShotPixels, double spreadRecoverySpeedPixels, double maxSpreadPixels) {
 		double[] spreadAtEachShot = new double[magSize];
 		double currentSpreadPixels = baseSpreadPixels;
 		spreadAtEachShot[0] = currentSpreadPixels;
-		// Add the Spread per Shot from the first shot
-		// TODO: If this does have a Max Spread value, this is one of the spots where it would be implemented
-		currentSpreadPixels += spreadPerShotPixels;
+		// Add the Spread per Shot for the first shot
+		currentSpreadPixels = Math.min(currentSpreadPixels + spreadPerShotPixels, maxSpreadPixels);  // This value can never go above Max Spread
 		
-		currentTime = 0.0;
+		double timeBetweenBursts = 1 / RoF;
 		double deltaTime;
-		double timeInterval;
-		int inflectionPointIndex = 0;
-		for (i = 1; i < magSize; i++) {
-			// Start by reducing Spread based on the time elapsed since the last bullet was fired
-			deltaTime = bulletFiredTimestamps[i] - currentTime;
-			
-			if (currentTime + deltaTime > inflectionPointTimestamps[inflectionPointIndex]) {
-				/*
-					If/when we hit this case, it means that AT LEAST one inflection point passed between when the last bullet fired and when this bullet is about to fire. 
-					We need to add to currentSpreadPixels as the inflection points pass and the slope changes until the next inflection point is after "now" 
-				*/
-				
-				// Start by doing the partial interval to get to the current inflection point
-				timeInterval = inflectionPointTimestamps[inflectionPointIndex] - currentTime;
-				// TODO: If this does have a Max Spread value, this is one of the spots where it would be implemented
-				currentSpreadPixels += timeInterval * slopeAtT[inflectionPointIndex];
-				
-				// Iterate inflection point by inflection point until the next one will be after currentTime + deltaTime
-				while (currentTime + deltaTime > inflectionPointTimestamps[inflectionPointIndex + 1]) {
-					timeInterval = inflectionPointTimestamps[inflectionPointIndex + 1] - inflectionPointTimestamps[inflectionPointIndex];
-					// TODO: If this does have a Max Spread value, this is one of the spots where it would be implemented
-					currentSpreadPixels += timeInterval * slopeAtT[inflectionPointIndex];
-					
-					// Because inflectionPointTimestamps is just the keys of that Hash, it should always have AT LEAST 1 more value than magSize, so it's ok to blindly increment it without having to worry about exceeding array bounds.
-					inflectionPointIndex++;
-				}
-				
-				// Finally, do a second partial interval so that the currentSpreadPixels is modeled fully for the deltaTime period
-				timeInterval = (currentTime + deltaTime) - inflectionPointTimestamps[inflectionPointIndex];
-				// TODO: If this does have a Max Spread value, this is one of the spots where it would be implemented
-				currentSpreadPixels += timeInterval * slopeAtT[inflectionPointIndex];
+		for (int i = 1; i < magSize; i++) {
+			// Start by decreasing spread based on how much time has passed since the last bullet was fired
+			if (burstSize > 1 && (i+1) % burstSize > 0) {
+				// During burst; 1/20th second
+				deltaTime = 0.05;
 			}
 			else {
-				currentSpreadPixels += deltaTime * slopeAtT[inflectionPointIndex];
+				// Either this gun doesn't have a burst mode, or it just fired the last bullet during a burst
+				deltaTime = timeBetweenBursts;
 			}
-			currentTime += deltaTime;
 			
+			currentSpreadPixels = Math.max(currentSpreadPixels - deltaTime * spreadRecoverySpeedPixels, baseSpreadPixels);  // This value can never go below Base Spread
+			
+			// Mark what the current spread is when this bullet gets fired
 			spreadAtEachShot[i] = currentSpreadPixels;
 			
-			// Now that some Spread has been reduced to what it would be when the bullet gets fired, add the Spread per Shot of the current bullet for the next loop.
-			// TODO: If this does have a Max Spread value, this is where it would be implemented
-			currentSpreadPixels += spreadPerShotPixels;
+			// Add the Spread per Shot from this bullet for the next loop
+			currentSpreadPixels = Math.min(currentSpreadPixels + spreadPerShotPixels, maxSpreadPixels);  // This value can never go above Max Spread
 		}
 		
 		return spreadAtEachShot;
@@ -445,8 +340,8 @@ public class AccuracyEstimator {
 		*/
 		double Sb = unchangingBaseSpread + changingBaseSpread * accuracyModifiers[0];
 		double SpS = spreadPerShot * accuracyModifiers[1];
-		double Sm = Sb + spreadVariance * accuracyModifiers[2];
-		double Sr = spreadRecoverySpeed * accuracyModifiers[3];
+		double Sr = spreadRecoverySpeed * accuracyModifiers[2];
+		double Sm = Sb + spreadVariance * accuracyModifiers[3];
 		double RpS = convertRecoilPixelsToRads(recoilPerShot) * accuracyModifiers[4] * (1 - playerRecoilCorrectionCoefficient);
 		
 		// predictedSpread is an array of the pixel values of the width of the crosshair when each bullet gets fired

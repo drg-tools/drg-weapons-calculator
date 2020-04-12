@@ -42,6 +42,7 @@ import utilities.MathUtils;
 	Benchmarks: 
 		150 Ideal Burst DPS
 		100 Ideal Sustained DPS
+		125 Sustained + Weakpoint
 		8000 Total Damage
 */
 

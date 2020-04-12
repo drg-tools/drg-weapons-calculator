@@ -419,6 +419,14 @@ public class Revolver extends Weapon {
 		
 		return toReturn;
 	}
+	private double getSpreadRecoverySpeed() {
+		if (selectedOverclock == 4) {
+			return 1.5;
+		}
+		else {
+			return 1.0;
+		}
+	}
 	private double getRecoil() {
 		double toReturn = 1.0;
 		
@@ -475,6 +483,8 @@ public class Revolver extends Weapon {
 		
 		boolean spreadPerShotModified = selectedTier2 == 1 || selectedOverclock == 4;
 		toReturn[14] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), spreadPerShotModified, spreadPerShotModified);
+		
+		toReturn[15] = new StatsRow("Spread Recovery:", convertDoubleToPercentage(getSpreadRecoverySpeed()), selectedOverclock == 4, selectedOverclock == 4);
 		
 		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 4;
 		toReturn[15] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
@@ -797,7 +807,7 @@ public class Revolver extends Weapon {
 			recoilDownInterval = 140.0 / 60.0;
 		}
 		
-		double[] modifiers = {getBaseSpread(), SpSModifier, 1.0, 1.0, getRecoil()};
+		double[] modifiers = {getBaseSpread(), SpSModifier, getSpreadRecoverySpeed(), 1.0, getRecoil()};
 		
 		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
