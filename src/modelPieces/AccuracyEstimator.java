@@ -12,7 +12,6 @@ public class AccuracyEstimator {
 	private static double mediumRangeTargetDistanceMeters = 7.0;
 	// The distance from which the measurements were taken
 	private static double testingDistancePixels = 1074.047528;
-	private static double playerRecoilCorrectionCoefficient = 0.625;
 	
 	private static double convertRecoilPixelsToRads(double px) {
 		return Math.atan(px / testingDistancePixels);
@@ -39,7 +38,7 @@ public class AccuracyEstimator {
 	
 	// This method, used in conjunction with the enum variable inflectionType, effectively returns the Union of all three possibilities that could happen on an inflection point.
 	private static inflectionType combineTwoInflectionTypes(inflectionType A, inflectionType B) {
-		// Base case: one of they types is nothing; return the other.
+		// Base case: one of the types is nothing; return the other.
 		if (A == null) {
 			return B;
 		}
@@ -128,7 +127,7 @@ public class AccuracyEstimator {
 		}
 	}
 	
-	// This method returns an array of what the change in pixels from Base Spread will be at the moment each bullet gets fired (will need to be converted from Spread Pixels to rads to meters)
+	// This method returns an array of what the crosshair width will be at the moment each bullet gets fired (will need to be converted from Spread Pixels to rads to meters)
 	private static double[] spread(double RoF, int magSize, int burstSize, double baseSpreadPixels, double spreadPerShotPixels, double spreadRecoverySpeedPixels, double maxSpreadPixels) {
 		double[] spreadAtEachShot = new double[magSize];
 		double currentSpreadPixels = baseSpreadPixels;
@@ -161,6 +160,7 @@ public class AccuracyEstimator {
 		return spreadAtEachShot;
 	}
 	
+	// TODO: change player recoil coefficent from scalar number to a function that decreases total recoil over time or something... how it is right now is way too sensitive (0.53 vs 0.54 changes Subata.T1.BaseSpread from 65% to 100% ?!) and doesn't make a difference in large-magazine guns
 	// This method returns an array of what the radians of deviation from the center of the target will be at the moment each bullet gets fired (will need to be converted from rads to meters)
 	private static double[] recoil(double RoF, int magSize, int burstSize, double recoilPerShotRads, double rUp, double rDown) {
 		double delta = 1.0 / RoF;
@@ -270,7 +270,7 @@ public class AccuracyEstimator {
 			slopeAtT[i] = currentSlope;
 		}
 		
-		// With the array of slope changes and their corresponding timestamps, it should be possible to accurately recreate what the recoil will look like over time. (equivalent to integrating from the 1st derivative to the function itself)
+		// With the array of slope changes and their corresponding timestamps, it should be possible to accurately recreate what the recoil will look like over time before player counter-action. (equivalent to integrating from the 1st derivative to the function itself)
 		double[] recoilAtEachShot = new double[magSize];
 		double currentRecoilPixels = 0.0;
 		recoilAtEachShot[0] = currentRecoilPixels;
@@ -311,6 +311,34 @@ public class AccuracyEstimator {
 			recoilAtEachShot[i] = currentRecoilPixels;
 		}
 		
+		// Finally, reduce the predicted recoil as if the player was pulling the mouse downwards to compensate for the ever-increasing recoil.
+		double delayBeforePlayerReaction = 0.5;  // seconds
+		double timeElapsedThatPlayerHasBeenReducingRecoil = 0.0;
+		double currentRecoilCoefficient;
+		currentTime = 0;
+		for (i = 1; i < magSize; i++) {
+			deltaTime = bulletFiredTimestamps[i] - currentTime;
+			currentTime += deltaTime;
+			
+			// If the delay between shots/bursts is greater than the reaction time, reset the timer to 0 so that the recoil isn't artificially decreased
+			if (deltaTime > delayBeforePlayerReaction) {
+				timeElapsedThatPlayerHasBeenReducingRecoil = 0;
+			}
+			else {
+				timeElapsedThatPlayerHasBeenReducingRecoil += deltaTime;
+			}
+			
+			// The 0.45 is completely arbitrary -- I fiddled around with this number until I found one that gave accuracy predictions that I could believe.
+			currentRecoilCoefficient = 0.6;
+			if (timeElapsedThatPlayerHasBeenReducingRecoil > delayBeforePlayerReaction) {
+				// The goal is a 1/x function that starts at 1 when T == delay
+				currentRecoilCoefficient = currentRecoilCoefficient / (timeElapsedThatPlayerHasBeenReducingRecoil + (1.0 - delayBeforePlayerReaction));
+			}
+			recoilAtEachShot[i] *= currentRecoilCoefficient;
+		}
+		
+		// TODO: This 1/x player recoil reduction model is WAY too aggressive on large Magazines. Maybe change it to a static linear decrease?
+		
 		return recoilAtEachShot;
 	}
 	
@@ -342,7 +370,8 @@ public class AccuracyEstimator {
 		double SpS = spreadPerShot * accuracyModifiers[1];
 		double Sr = spreadRecoverySpeed * accuracyModifiers[2];
 		double Sm = Sb + spreadVariance * accuracyModifiers[3];
-		double RpS = convertRecoilPixelsToRads(recoilPerShot) * accuracyModifiers[4] * (1 - playerRecoilCorrectionCoefficient);
+		//double RpS = convertRecoilPixelsToRads(recoilPerShot) * accuracyModifiers[4] * (1 - playerRecoilCorrectionCoefficient);
+		double RpS = convertRecoilPixelsToRads(recoilPerShot) * accuracyModifiers[4];
 		
 		// predictedSpread is an array of the pixel values of the width of the crosshair when each bullet gets fired
 		double[] predictedSpread = spread(rateOfFire, magSize, burstSize, Sb, SpS, Sr, Sm);
