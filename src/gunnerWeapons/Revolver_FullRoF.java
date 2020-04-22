@@ -3,6 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.ButtonIcons.drgIcons;
 import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
@@ -74,27 +75,27 @@ public class Revolver_FullRoF extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Quickfire Ejector", "-0.7 Reload Time", 1, 0);
-		tier1[1] = new Mod("Perfect Weight Balance", "-70% Base Spread", 1, 1);
+		tier1[0] = new Mod("Quickfire Ejector", "-0.7 Reload Time", drgIcons.reloadSpeed, 1, 0);
+		tier1[1] = new Mod("Perfect Weight Balance", "-70% Base Spread", drgIcons.baseSpread, 1, 1);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Increased Caliber Rounds", "+15 Direct Damage", 2, 0);
-		tier2[1] = new Mod("Floating Barrel", "-80% Spread per Shot, x0.75 Recoil", 2, 1);
-		tier2[2] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", 2, 2);
+		tier2[0] = new Mod("Increased Caliber Rounds", "+15 Direct Damage", drgIcons.directDamage, 2, 0);
+		tier2[1] = new Mod("Floating Barrel", "-80% Spread per Shot, x0.75 Recoil", drgIcons.recoil, 2, 1);
+		tier2[2] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", drgIcons.carriedAmmo, 2, 2);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Super Blowthrough Rounds", "+3 Penetrations", 3, 0);
-		tier3[1] = new Mod("Explosive Rounds", "+30 Area Damage in a 1.5m radius, x0.5 Direct Damage", 3, 1);
-		tier3[2] = new Mod("Hollow-Point Bullets", "+50% Weakpoint Bonus", 3, 2);
+		tier3[0] = new Mod("Super Blowthrough Rounds", "+3 Penetrations", drgIcons.blowthrough, 3, 0);
+		tier3[1] = new Mod("Explosive Rounds", "+30 Area Damage in a 1.5m radius, x0.5 Direct Damage", drgIcons.addedExplosion, 3, 1);
+		tier3[2] = new Mod("Hollow-Point Bullets", "+50% Weakpoint Bonus", drgIcons.weakpointBonus, 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", 4, 0);
-		tier4[1] = new Mod("High Velocity Rounds", "+15 Direct Damage", 4, 1);
+		tier4[0] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", drgIcons.carriedAmmo, 4, 0);
+		tier4[1] = new Mod("High Velocity Rounds", "+15 Direct Damage", drgIcons.directDamage, 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Dead-Eye", "No aim penalty while moving", 5, 0, false);
+		tier5[0] = new Mod("Dead-Eye", "No aim penalty while moving", drgIcons.baseSpread, 5, 0, false);
 		tier5[1] = new Mod("Glyphid Neurotoxin Coating", "50% chance to inflict Neurotoxin DoT on all enemies hit by the Revolver"
-				+ "Neurotoxin does an average of " + DoTInformation.Neuro_DPS + " DPS", 5, 1);  // It looks like whenever this procs for the main target, all splash targets get it too, instead of RNG/enemy.
+				+ "Neurotoxin does an average of " + DoTInformation.Neuro_DPS + " DPS", drgIcons.neurotoxin, 5, 1);  // It looks like whenever this procs for the main target, all splash targets get it too, instead of RNG/enemy.
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, 0);

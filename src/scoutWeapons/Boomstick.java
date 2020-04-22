@@ -3,6 +3,7 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.ButtonIcons.drgIcons;
 import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
@@ -76,27 +77,27 @@ public class Boomstick extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", 1, 0);
-		tier1[1] = new Mod("Double-Sized Buckshot", "+3 Damage per Pellet", 1, 1);
+		tier1[0] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", drgIcons.carriedAmmo, 1, 0);
+		tier1[1] = new Mod("Double-Sized Buckshot", "+3 Damage per Pellet", drgIcons.directDamage, 1, 1);
 		
 		tier2 = new Mod[2];
-		tier2[0] = new Mod("Double Trigger", "+7.5 Rate of Fire", 2, 0);
-		tier2[1] = new Mod("Quickfire Ejector", "-0.7 Reload Time", 2, 1);
+		tier2[0] = new Mod("Double Trigger", "+7.5 Rate of Fire", drgIcons.rateOfFire, 2, 0);
+		tier2[1] = new Mod("Quickfire Ejector", "-0.7 Reload Time", drgIcons.reloadSpeed, 2, 1);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Stun Duration", "+2.5 seconds Stun duration", 3, 0);
-		tier3[1] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", 3, 1);
-		tier3[2] = new Mod("High Capacity Shells", "+3 Pellets per Shot", 3, 2);
+		tier3[0] = new Mod("Stun Duration", "+2.5 seconds Stun duration", drgIcons.stun, 3, 0);
+		tier3[1] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", drgIcons.carriedAmmo, 3, 1);
+		tier3[2] = new Mod("High Capacity Shells", "+3 Pellets per Shot", drgIcons.pelletsPerShot, 3, 2);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Super Blowthrough Rounds", "+3 Penetratinos", 4, 0);
-		tier4[1] = new Mod("Tungsten Coated Buckshot", "+300% Armor Breaking", 4, 1);
-		tier4[2] = new Mod("Improved Blast Wave", "+20 Blastwave Damage to any enemies in the area extending 4m infront of you.", 4, 2);
+		tier4[0] = new Mod("Super Blowthrough Rounds", "+3 Penetratinos", drgIcons.blowthrough, 4, 0);
+		tier4[1] = new Mod("Tungsten Coated Buckshot", "+300% Armor Breaking", drgIcons.armorBreaking, 4, 1);
+		tier4[2] = new Mod("Improved Blast Wave", "+20 Blastwave Damage to any enemies in the area extending 4m infront of you.", drgIcons.special, 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Auto Reload", "Reloads automatically when unequipped for more than 5 seconds", 5, 0, false);
-		tier5[1] = new Mod("Fear The Boomstick", "50% Chance to inflict Fear on enemies caught within the Blastwave", 5, 1);
-		tier5[2] = new Mod("White Phosphorous Shells", "Add 50% of the Damage per Pellet as Heat Damage, which can ignite enemies. Burn DoT does an average of " + DoTInformation.Burn_DPS + " DPS", 5, 2);
+		tier5[0] = new Mod("Auto Reload", "Reloads automatically when unequipped for more than 5 seconds", drgIcons.reloadSpeed, 5, 0, false);
+		tier5[1] = new Mod("Fear The Boomstick", "50% Chance to inflict Fear on enemies caught within the Blastwave", drgIcons.fear, 5, 1);
+		tier5[2] = new Mod("White Phosphorous Shells", "Add 50% of the Damage per Pellet as Heat Damage, which can ignite enemies. Burn DoT does an average of " + DoTInformation.Burn_DPS + " DPS", drgIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Shells", "+6 Max Ammo, -0.2 Reload Time", 0);

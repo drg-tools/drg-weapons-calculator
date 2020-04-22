@@ -3,6 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.ButtonIcons.drgIcons;
 import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.DwarfInformation;
@@ -79,28 +80,28 @@ public class Autocannon extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
-		tier1[0] = new Mod("Increased Caliber Rounds", "+3 Direct Damage", 1, 0);
-		tier1[1] = new Mod("High Capacity Magazine", "+110 Magazine Size", 1, 1);
-		tier1[2] = new Mod("Expanded Ammo Bags", "+220 Max Ammo", 1, 2);
+		tier1[0] = new Mod("Increased Caliber Rounds", "+3 Direct Damage", drgIcons.directDamage, 1, 0);
+		tier1[1] = new Mod("High Capacity Magazine", "+110 Magazine Size", drgIcons.magSize, 1, 1);
+		tier1[2] = new Mod("Expanded Ammo Bags", "+220 Max Ammo", drgIcons.carriedAmmo, 1, 2);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Tighter Barrel Alignment", "-30% Base Spread", 2, 0);
-		tier2[1] = new Mod("Improved Gas System", "+1.5 Max Rate of Fire", 2, 1);
-		tier2[2] = new Mod("Lighter Barrel Assembly", "-5 Bullets fired to reach Max Rate of Fire", 2, 2);
+		tier2[0] = new Mod("Tighter Barrel Alignment", "-30% Base Spread", drgIcons.baseSpread, 2, 0);
+		tier2[1] = new Mod("Improved Gas System", "+1.5 Max Rate of Fire", drgIcons.rateOfFire, 2, 1);
+		tier2[2] = new Mod("Lighter Barrel Assembly", "-5 Bullets fired to reach Max Rate of Fire", drgIcons.rateOfFire, 2, 2);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Supercharged Feed Mechanism", "+2 Max Rate of Fire", 3, 0);
-		tier3[1] = new Mod("Loaded Rounds", "+2 Area Damage", 3, 1);
-		tier3[2] = new Mod("High Velocity Rounds", "+4 Direct Damage", 3, 2);
+		tier3[0] = new Mod("Supercharged Feed Mechanism", "+2 Max Rate of Fire", drgIcons.rateOfFire, 3, 0);
+		tier3[1] = new Mod("Loaded Rounds", "+2 Area Damage", drgIcons.areaDamage, 3, 1);
+		tier3[2] = new Mod("High Velocity Rounds", "+4 Direct Damage", drgIcons.directDamage, 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Penetrating Rounds", "+400% Armor Breaking", 4, 0);
-		tier4[1] = new Mod("Shrapnel Rounds", "+0.6 AoE Radius", 4, 1);
+		tier4[0] = new Mod("Penetrating Rounds", "+400% Armor Breaking", drgIcons.armorBreaking, 4, 0);
+		tier4[1] = new Mod("Shrapnel Rounds", "+0.6 AoE Radius", drgIcons.aoeRadius, 4, 1);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Feedback Loop", "x1.2 Direct and Area Damage when at Max Rate of Fire", 5, 0);
-		tier5[1] = new Mod("Suppressive Fire", "Around 20% chance to inflict Fear to enemies within the AoE Radius on impact.", 5, 1);
-		tier5[2] = new Mod("Damage Resistance At Full RoF", "33% Damage Resistance when at Max Rate of Fire", 5, 2);
+		tier5[0] = new Mod("Feedback Loop", "x1.2 Direct and Area Damage when at Max Rate of Fire", drgIcons.directDamage, 5, 0);  // TODO: find the right icon for this?
+		tier5[1] = new Mod("Suppressive Fire", "Around 20% chance to inflict Fear to enemies within the AoE Radius on impact.", drgIcons.fear, 5, 1);
+		tier5[2] = new Mod("Damage Resistance At Full RoF", "33% Damage Resistance when at Max Rate of Fire", drgIcons.damageResistance, 5, 2);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Drums", "+110 Max Ammo, -0.5 Reload Time", 0);

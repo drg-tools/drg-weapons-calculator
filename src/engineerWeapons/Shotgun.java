@@ -3,6 +3,7 @@ package engineerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.ButtonIcons.drgIcons;
 import modelPieces.AccuracyEstimator;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
@@ -73,26 +74,26 @@ public class Shotgun extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Supercharged Feed Mechanism", "+1 Rate of Fire", 1, 0);
-		tier1[1] = new Mod("Overstuffed Magazine", "+2 Magazine Size", 1, 1);
+		tier1[0] = new Mod("Supercharged Feed Mechanism", "+1 Rate of Fire", drgIcons.rateOfFire, 1, 0);
+		tier1[1] = new Mod("Overstuffed Magazine", "+2 Magazine Size", drgIcons.magSize, 1, 1);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Expanded Ammo Bags", "+40 Max Ammo", 2, 0);
-		tier2[1] = new Mod("Loaded Shells", "+2 Pellets per Shot", 2, 1);
-		tier2[2] = new Mod("Choke", "x0.5 Base Spread", 2, 2);
+		tier2[0] = new Mod("Expanded Ammo Bags", "+40 Max Ammo", drgIcons.carriedAmmo, 2, 0);
+		tier2[1] = new Mod("Loaded Shells", "+2 Pellets per Shot", drgIcons.pelletsPerShot, 2, 1);
+		tier2[2] = new Mod("Choke", "x0.5 Base Spread", drgIcons.baseSpread, 2, 2);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Recoil Dampener", "x0.4 Recoil", 3, 0);
-		tier3[1] = new Mod("Quickfire Ejector", "-0.5 Reload Time", 3, 1);
-		tier3[2] = new Mod("High Capacity Magazine", "+3 Magazine Size", 3, 2);
+		tier3[0] = new Mod("Recoil Dampener", "x0.4 Recoil", drgIcons.recoil, 3, 0);
+		tier3[1] = new Mod("Quickfire Ejector", "-0.5 Reload Time", drgIcons.reloadSpeed, 3, 1);
+		tier3[2] = new Mod("High Capacity Magazine", "+3 Magazine Size", drgIcons.magSize, 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Tungsten Coated Buckshot", "+400% Armor Breaking", 4, 0);
-		tier4[1] = new Mod("Bigger Pellets", "+1 Damage per Pellet", 4, 1);
+		tier4[0] = new Mod("Tungsten Coated Buckshot", "+400% Armor Breaking", drgIcons.armorBreaking, 4, 0);
+		tier4[1] = new Mod("Bigger Pellets", "+1 Damage per Pellet", drgIcons.directDamage, 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1m Radius. 3 second cooldown per turret.", 5, 0, false);
-		tier5[1] = new Mod("Miner Adjustments", "Changes the Shotgun from semi-automatic to fully automatic, +0.5 Rate of Fire", 5, 1);
+		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1m Radius. 3 second cooldown per turret.", drgIcons.special, 5, 0, false);
+		tier5[1] = new Mod("Miner Adjustments", "Changes the Shotgun from semi-automatic to fully automatic, +0.5 Rate of Fire", drgIcons.rateOfFire, 5, 1);
 		
 		overclocks = new Overclock[5];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Stunner", "Pellets now have a 10% chance to stun any time they damage an enemy, and any shots that hit a target that's already stunned deal x1.25 damage.", 0);  // This might be x1.3, but it's hard to tell...

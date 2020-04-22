@@ -3,6 +3,7 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.ButtonIcons.drgIcons;
 import modelPieces.DoTInformation;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
@@ -80,26 +81,26 @@ public class Classic_FocusShot extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Expanded Ammo Bags", "+32 Max Ammo", 1, 0);
-		tier1[1] = new Mod("Increased Caliber Rounds", "x1.2 Direct Damage", 1, 1);
+		tier1[0] = new Mod("Expanded Ammo Bags", "+32 Max Ammo", drgIcons.carriedAmmo, 1, 0);
+		tier1[1] = new Mod("Increased Caliber Rounds", "x1.2 Direct Damage", drgIcons.directDamage, 1, 1);
 		
 		tier2 = new Mod[2];
-		tier2[0] = new Mod("Fast-Charging Coils", "x1.6 Focus Speed", 2, 0);
-		tier2[1] = new Mod("Better Weight Balance", "x0.8 Spread per Shot, x0.5 Recoil", 2, 1);
+		tier2[0] = new Mod("Fast-Charging Coils", "x1.6 Focus Speed", drgIcons.chargeSpeed, 2, 0);
+		tier2[1] = new Mod("Better Weight Balance", "x0.8 Spread per Shot, x0.5 Recoil", drgIcons.recoil, 2, 1);
 		
 		tier3 = new Mod[2];
-		tier3[0] = new Mod("Killer Focus", "+25% Focused Shot Multiplier", 3, 0);
-		tier3[1] = new Mod("Extended Clip", "+6 Magazine Size", 3, 1);
+		tier3[0] = new Mod("Killer Focus", "+25% Focused Shot Multiplier", drgIcons.directDamage, 3, 0);
+		tier3[1] = new Mod("Extended Clip", "+6 Magazine Size", drgIcons.magSize, 3, 1);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Super Blowthrough Rounds", "+3 Penetrations", 4, 0);
-		tier4[1] = new Mod("Hollow-Point Bullets", "+25% Weakpoint Bonus", 4, 1);
-		tier4[2] = new Mod("Hardened Rounds", "+220% Armor Breaking", 4, 2);
+		tier4[0] = new Mod("Super Blowthrough Rounds", "+3 Penetrations", drgIcons.blowthrough, 4, 0);
+		tier4[1] = new Mod("Hollow-Point Bullets", "+25% Weakpoint Bonus", drgIcons.weakpointBonus, 4, 1);
+		tier4[2] = new Mod("Hardened Rounds", "+220% Armor Breaking", drgIcons.armorBreaking, 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Hitting Where it Hurts", "Focused shots Stun enemies for 3 seconds", 5, 0);
-		tier5[1] = new Mod("Precision Terror", "Killing an enemy with a focused shot to a weakspot will inflict Fear on enemies within 2m of the kill", 5, 1);
-		tier5[2] = new Mod("Killing Machine", "Manually reloading within 1 second after a kill reduces reload time by 0.75 seconds", 5, 2);
+		tier5[0] = new Mod("Hitting Where it Hurts", "Focused shots Stun enemies for 3 seconds", drgIcons.stun, 5, 0);
+		tier5[1] = new Mod("Precision Terror", "Killing an enemy with a focused shot to a weakspot will inflict Fear on enemies within 2m of the kill", drgIcons.fear, 5, 1);
+		tier5[2] = new Mod("Killing Machine", "Manually reloading within 1 second after a kill reduces reload time by 0.75 seconds", drgIcons.reloadSpeed, 5, 2);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Hoverclock", "Your movement slows down for a few seconds while using focus mode in the air.", 0);

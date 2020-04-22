@@ -11,15 +11,14 @@ public class Mod {
 	private int index;
 	private boolean implemented;
 	
-	public Mod(String modName, String modText, int tierNumber, int arrayIndex) {
-		this(modName, modText, tierNumber, arrayIndex, true);
+	public Mod(String modName, String modText, drgIcons upgradeType, int tierNumber, int arrayIndex) {
+		this(modName, modText, upgradeType, tierNumber, arrayIndex, true);
 	}
 	
-	public Mod(String modName, String modText, int tierNumber, int arrayIndex, boolean modImplemented) {
+	public Mod(String modName, String modText, drgIcons upgradeType, int tierNumber, int arrayIndex, boolean modImplemented) {
 		name = modName;
 		text = modText;
-		// TODO: make this a parameter eventually
-		icon = drgIcons.aim;
+		icon = upgradeType;
 		tier = tierNumber;
 		index = arrayIndex;
 		implemented = modImplemented;

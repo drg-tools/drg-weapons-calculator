@@ -3,6 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.ButtonIcons.drgIcons;
 import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
@@ -74,27 +75,27 @@ public class BurstPistol extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
-		tier1[0] = new Mod("High Velocity Rounds", "+3 Direct Damage", 1, 0);
-		tier1[1] = new Mod("Floating Barrel", "x0.6 Spread per Shot, -30% Base Spread", 1, 1);
-		tier1[2] = new Mod("Blowthrough Rounds", "+1 Penetration", 1, 2);
+		tier1[0] = new Mod("High Velocity Rounds", "+3 Direct Damage", drgIcons.directDamage, 1, 0);
+		tier1[1] = new Mod("Floating Barrel", "x0.6 Spread per Shot, -30% Base Spread", drgIcons.baseSpread, 1, 1);
+		tier1[2] = new Mod("Blowthrough Rounds", "+1 Penetration", drgIcons.blowthrough, 1, 2);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Recoil Dampener", "x0.5 Recoil", 2, 0);
-		tier2[1] = new Mod("Quickfire Ejector", "-0.7 Reload Time", 2, 1);
-		tier2[2] = new Mod("Disabled Safety", "+3 Rate of Fire (translates to less time between bursts)", 2, 2);
+		tier2[0] = new Mod("Recoil Dampener", "x0.5 Recoil", drgIcons.recoil, 2, 0);
+		tier2[1] = new Mod("Quickfire Ejector", "-0.7 Reload Time", drgIcons.reloadSpeed, 2, 1);
+		tier2[2] = new Mod("Disabled Safety", "+3 Rate of Fire (translates to less time between bursts)", drgIcons.rateOfFire, 2, 2);
 		
 		tier3 = new Mod[2];
-		tier3[0] = new Mod("High Capacity Magazine", "+12 Magazine Size", 3, 0);
-		tier3[1] = new Mod("Increased Caliber Rounds", "+3 Direct Damage", 3, 1);
+		tier3[0] = new Mod("High Capacity Magazine", "+12 Magazine Size", drgIcons.magSize, 3, 0);
+		tier3[1] = new Mod("Increased Caliber Rounds", "+3 Direct Damage", drgIcons.directDamage, 3, 1);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Hardened Rounds", "+200% Armor Breaking", 4, 0);
-		tier4[1] = new Mod("Expanded Ammo Bags", "+72 Max Ammo", 4, 1);
-		tier4[2] = new Mod("Hollow-Point Bullets", "+40% Weakpoint Bonus", 4, 2);
+		tier4[0] = new Mod("Hardened Rounds", "+200% Armor Breaking", drgIcons.armorBreaking, 4, 0);
+		tier4[1] = new Mod("Expanded Ammo Bags", "+72 Max Ammo", drgIcons.carriedAmmo, 4, 1);
+		tier4[2] = new Mod("Hollow-Point Bullets", "+40% Weakpoint Bonus", drgIcons.weakpointBonus, 4, 2);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Burst Stun", "Stun an enemy for 4 seconds if all 3 shots in a burst hit", 5, 0);
-		tier5[1] = new Mod("Longer Burst", "+3 Bullets per Burst", 5, 1);
+		tier5[0] = new Mod("Burst Stun", "Stun an enemy for 4 seconds if all 3 shots in a burst hit", drgIcons.stun, 5, 0);
+		tier5[1] = new Mod("Longer Burst", "+3 Bullets per Burst", drgIcons.rateOfFire, 5, 1); // TODO: find the right icon
 		
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Casings", "+36 Max Ammo, +1 Rate of Fire", 0);

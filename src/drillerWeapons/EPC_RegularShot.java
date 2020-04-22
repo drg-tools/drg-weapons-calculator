@@ -3,6 +3,7 @@ package drillerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.ButtonIcons.drgIcons;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
@@ -106,28 +107,28 @@ public class EPC_RegularShot extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
-		tier1[0] = new Mod("Increased Particle Density", "+5 Regular Shot Direct Damage", 1, 0);
-		tier1[1] = new Mod("Larger Battery", "+24 Battery Size", 1, 1);
-		tier1[2] = new Mod("Higher Charged Plasma Energy", "+30 Charged Shot Direct Damage", 1, 2);
+		tier1[0] = new Mod("Increased Particle Density", "+5 Regular Shot Direct Damage", drgIcons.directDamage, 1, 0);
+		tier1[1] = new Mod("Larger Battery", "+24 Battery Size", drgIcons.carriedAmmo, 1, 1);
+		tier1[2] = new Mod("Higher Charged Plasma Energy", "+30 Charged Shot Direct Damage", drgIcons.directDamage, 1, 2);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Expanded Plasma Splash", "+1.5 Charged Shot AoE Radius", 2, 0);
-		tier2[1] = new Mod("Overcharged Plasma Accelerator", "+25% Regular Shot Velocity", 2, 1, false);
-		tier2[2] = new Mod("Reactive Shockwave", "+20 Charged Shot Area Damage", 2, 2);
+		tier2[0] = new Mod("Expanded Plasma Splash", "+1.5 Charged Shot AoE Radius", drgIcons.aoeRadius, 2, 0);
+		tier2[1] = new Mod("Overcharged Plasma Accelerator", "+25% Regular Shot Velocity", drgIcons.projectileVelocity, 2, 1, false);
+		tier2[2] = new Mod("Reactive Shockwave", "+20 Charged Shot Area Damage", drgIcons.areaDamage, 2, 2);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Improved Charge Efficiency", "-2 Ammo per Charged Shot", 3, 0);
-		tier3[1] = new Mod("Crystal Capacitors", "x3 Charge Speed", 3, 1);
-		tier3[2] = new Mod("Tweaked Radiator", "+50% Cooling Rate", 3, 2);
+		tier3[0] = new Mod("Improved Charge Efficiency", "-2 Ammo per Charged Shot", drgIcons.fuel, 3, 0);
+		tier3[1] = new Mod("Crystal Capacitors", "x3 Charge Speed", drgIcons.chargeSpeed, 3, 1);
+		tier3[2] = new Mod("Tweaked Radiator", "+50% Cooling Rate", drgIcons.coolingRate, 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Heat Shield", "x0.4 Heat per Second when fully charged", 4, 0);
-		tier4[1] = new Mod("High Density Battery", "+24 Battery Size", 4, 1);
+		tier4[0] = new Mod("Heat Shield", "x0.4 Heat per Second when fully charged", drgIcons.coolingRate, 4, 0);
+		tier4[1] = new Mod("High Density Battery", "+24 Battery Size", drgIcons.carriedAmmo, 4, 1);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Flying Nightmare", "Charged Shots now deal their Direct Damage to enemies hit by the AoE while in-flight. Additionally, x0.7 Charge Speed.", 5, 0);
-		tier5[1] = new Mod("Thin Containment Field", "Shoot the Charged Shot with a Regular Shot to make it detonate for an extra +240 Damage. Additionally, x0.7 Heat per Charged Shot.", 5, 1);
-		tier5[2] = new Mod("Bouncy Plasma", "Regular Shots now ricochet off of enemies and surfaces up to 3 times, and now ignore Light Armor.", 5, 2, false);
+		tier5[0] = new Mod("Flying Nightmare", "Charged Shots now deal their Direct Damage to enemies hit by the AoE while in-flight. Additionally, x0.7 Charge Speed.", drgIcons.special, 5, 0);
+		tier5[1] = new Mod("Thin Containment Field", "Shoot the Charged Shot with a Regular Shot to make it detonate for an extra +240 Damage. Additionally, x0.7 Heat per Charged Shot.", drgIcons.special, 5, 1);
+		tier5[2] = new Mod("Bouncy Plasma", "Regular Shots now ricochet off of enemies and surfaces up to 3 times, and now ignore Light Armor.", drgIcons.ricochet, 5, 2, false);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Energy Rerouting", "+16 Battery Size, x1.5 Charge Speed.", 0);
