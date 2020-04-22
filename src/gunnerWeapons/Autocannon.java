@@ -99,7 +99,7 @@ public class Autocannon extends Weapon {
 		tier4[1] = new Mod("Shrapnel Rounds", "+0.6 AoE Radius", drgIcons.aoeRadius, 4, 1);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Feedback Loop", "x1.2 Direct and Area Damage when at Max Rate of Fire", drgIcons.directDamage, 5, 0);  // TODO: find the right icon for this?
+		tier5[0] = new Mod("Feedback Loop", "x1.2 Direct and Area Damage when at Max Rate of Fire", drgIcons.directDamage, 5, 0);
 		tier5[1] = new Mod("Suppressive Fire", "Around 20% chance to inflict Fear to enemies within the AoE Radius on impact.", drgIcons.fear, 5, 1);
 		tier5[2] = new Mod("Damage Resistance At Full RoF", "33% Damage Resistance when at Max Rate of Fire", drgIcons.damageResistance, 5, 2);
 		

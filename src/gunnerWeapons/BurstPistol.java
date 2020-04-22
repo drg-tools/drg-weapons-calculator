@@ -95,7 +95,7 @@ public class BurstPistol extends Weapon {
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Burst Stun", "Stun an enemy for 4 seconds if all 3 shots in a burst hit", drgIcons.stun, 5, 0);
-		tier5[1] = new Mod("Longer Burst", "+3 Bullets per Burst", drgIcons.rateOfFire, 5, 1); // TODO: find the right icon
+		tier5[1] = new Mod("Longer Burst", "+3 Bullets per Burst", drgIcons.rateOfFire, 5, 1);
 		
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Casings", "+36 Max Ammo, +1 Rate of Fire", 0);
