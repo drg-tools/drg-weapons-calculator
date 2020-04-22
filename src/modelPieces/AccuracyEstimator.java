@@ -160,7 +160,6 @@ public class AccuracyEstimator {
 		return spreadAtEachShot;
 	}
 	
-	// TODO: change player recoil coefficent from scalar number to a function that decreases total recoil over time or something... how it is right now is way too sensitive (0.53 vs 0.54 changes Subata.T1.BaseSpread from 65% to 100% ?!) and doesn't make a difference in large-magazine guns
 	// This method returns an array of what the radians of deviation from the center of the target will be at the moment each bullet gets fired (will need to be converted from rads to meters)
 	private static double[] recoil(double RoF, int magSize, int burstSize, double recoilPerShotRads, double rUp, double rDown) {
 		double delta = 1.0 / RoF;

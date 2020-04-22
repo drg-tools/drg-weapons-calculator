@@ -28,7 +28,8 @@ import guiPieces.View;
 import gunnerWeapons.Autocannon;
 import gunnerWeapons.BurstPistol;
 import gunnerWeapons.Minigun;
-import gunnerWeapons.Revolver;
+import gunnerWeapons.Revolver_FullRoF;
+import gunnerWeapons.Revolver_Snipe;
 import modelPieces.EnemyInformation;
 import modelPieces.Weapon;
 import scoutWeapons.Boomstick;
@@ -58,7 +59,7 @@ public class GuiController implements ActionListener {
 	public static void main(String[] args) {
 		Weapon[] drillerWeapons = new Weapon[] {new Subata(), new EPC_RegularShot(), new EPC_ChargeShot()};
 		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new GrenadeLauncher()};
-		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new Revolver(), new BurstPistol()};
+		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new Revolver_Snipe(), new Revolver_FullRoF(), new BurstPistol()};
 		Weapon[] scoutWeapons = new Weapon[] {new Deepcore(), new Classic_Hipfire(), new Classic_FocusShot(), new Boomstick(), new Zhukov()};
 		View gui = new View(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons);
 		new GuiController(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons, gui);

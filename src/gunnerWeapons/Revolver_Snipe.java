@@ -13,7 +13,7 @@ import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
-public class Revolver extends Weapon {
+public class Revolver_Snipe extends Weapon {
 	
 	/****************************************************************************************
 	* Class Variables
@@ -33,17 +33,17 @@ public class Revolver extends Weapon {
 	****************************************************************************************/
 
 	// Shortcut constructor to get baseline data
-	public Revolver() {
+	public Revolver_Snipe() {
 		this(-1, -1, -1, -1, -1, -1);
 	}
 	
 	// Shortcut constructor to quickly get statistics about a specific build
-	public Revolver(String combination) {
+	public Revolver_Snipe(String combination) {
 		this(-1, -1, -1, -1, -1, -1);
 		buildFromCombination(combination);
 	}
 	
-	public Revolver(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
+	public Revolver_Snipe(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "\"Bulldog\" Heavy Revolver (Slow RoF)";
 		
 		// Base stats, before mods or overclocks alter them:
@@ -74,7 +74,7 @@ public class Revolver extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Quickfire Ejector", "-0.4 Reload Time", 1, 0);
+		tier1[0] = new Mod("Quickfire Ejector", "-0.7 Reload Time", 1, 0);
 		tier1[1] = new Mod("Perfect Weight Balance", "-70% Base Spread", 1, 1);
 		
 		tier2 = new Mod[3];
@@ -85,7 +85,7 @@ public class Revolver extends Weapon {
 		tier3 = new Mod[3];
 		tier3[0] = new Mod("Super Blowthrough Rounds", "+3 Penetrations", 3, 0);
 		tier3[1] = new Mod("Explosive Rounds", "+30 Area Damage in a 1.5m radius, x0.5 Direct Damage", 3, 1);
-		tier3[2] = new Mod("Hollow-Point Bullets", "+50% Weakpoint Bonus.", 3, 2);
+		tier3[2] = new Mod("Hollow-Point Bullets", "+50% Weakpoint Bonus", 3, 2);
 		
 		tier4 = new Mod[2];
 		tier4[0] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", 4, 0);
@@ -93,7 +93,7 @@ public class Revolver extends Weapon {
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Dead-Eye", "No aim penalty while moving", 5, 0, false);
-		tier5[1] = new Mod("Glyphid Neurotoxin Coating", "50% chance to inflict Neurotoxin DoT on all enemies hit by the Revolver. "
+		tier5[1] = new Mod("Glyphid Neurotoxin Coating", "50% chance to inflict Neurotoxin DoT on all enemies hit by the Revolver"
 				+ "Neurotoxin does an average of " + DoTInformation.Neuro_DPS + " DPS", 5, 1);  // It looks like whenever this procs for the main target, all splash targets get it too, instead of RNG/enemy.
 		
 		overclocks = new Overclock[6];
@@ -101,7 +101,7 @@ public class Revolver extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 33% chance to ricochet into a nearby enemy.", 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Bullets", "x4 Damage to Burning targets, -25 Direct Damage", 2, false);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Six Shooter", "+2 Magazine Size, +8 Max Ammo, +4 Rate of Fire, x1.5 Base Spread, +0.5 Reload Time", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -13 Max Ammo, +171% Spread per Shot, +150% Recoil, +0.5 Reload Time", 4);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -13 Max Ammo, +71% Spread per Shot, +150% Recoil, +0.5 Reload Time", 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Magic Bullets", "All bullets that impact terrain automatically ricochet to nearby enemies (effectively raising accuracy to 100%). +8 Max Ammo, -20 Direct Damage", 5);
 	}
 	
@@ -263,8 +263,8 @@ public class Revolver extends Weapon {
 	}
 	
 	@Override
-	public Revolver clone() {
-		return new Revolver(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
+	public Revolver_Snipe clone() {
+		return new Revolver_Snipe(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
 	public String getDwarfClass() {
@@ -510,21 +510,40 @@ public class Revolver extends Weapon {
 	*/
 	private double calculateAccurateRoF(double maxRoF) {
 		// Variables copied from estimatedAccuracy() to reverse-calculate the slow RoF needed for high accuracy
-		double spreadPerShot = 137 * getSpreadPerShot();
+		double spreadPerShot = 129;
 		double spreadRecoverySpeed = 109.1390954;
-		double recoilPerShot = 155 * getRecoil();
+		double recoilPerShot = 155;
+		
 		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
-		double recoilUpInterval = 2.0/9.0;
+		double recoilUpInterval = 1.0 / 6.0;
 		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		double recoilDownInterval = 8.0/9.0;
+		double recoilDownInterval = 1.0;
 		
-		double desiredNetSpreadPerShot = 40.0;
-		double minSpreadRoF = (desiredNetSpreadPerShot + spreadRecoverySpeed) / spreadPerShot;
+		// Elephant Rounds significantly reduces the recoil speeds in addition to increasing recoil per shot
+		double SpSModifier = getSpreadPerShot();
+		if (selectedOverclock == 4) {
+			
+			if (selectedTier2 != 1) {
+				// And if Floating Barrel isn't equipped, then the Spread per Shot takes it to Max Spread on first shot for some reason?
+				spreadPerShot = 389;
+				SpSModifier = 1.0;
+				
+			}
+			
+			recoilUpInterval = 16.0 / 60.0;
+			recoilDownInterval = 140.0 / 60.0;
+		}
 		
-		double desiredNetRecoilPerShot = 50.0;
-		double minRecoilRoF = 1.0 / (recoilUpInterval + (1.0 - desiredNetRecoilPerShot / recoilPerShot) * recoilDownInterval);
+		// These numbers are chosen arbitrarily.
+		double desiredIncreaseInSpread = 52;
+		double desiredIncreaseInRecoil = 62;
 		
-		return Math.min(Math.min(minSpreadRoF, minRecoilRoF), maxRoF);
+		double timeToRecoverSpread = (spreadPerShot * SpSModifier - desiredIncreaseInSpread) / (spreadRecoverySpeed * getSpreadRecoverySpeed());
+		double timeToRecoverRecoil = recoilUpInterval + (recoilPerShot * getRecoil() - desiredIncreaseInRecoil) * recoilDownInterval / (recoilPerShot * getRecoil());
+		
+		double longerTime = Math.max(timeToRecoverSpread, timeToRecoverRecoil);
+		
+		return Math.min(1.0 / longerTime, maxRoF);
 	}
 	
 	// Single-target calculations
@@ -570,7 +589,7 @@ public class Revolver extends Weapon {
 		int bulletsThatHitWeakpoint = (int) Math.round(magSize * weakpointAccuracy);
 		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
 		
-		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * getDirectDamage()) / duration + neuroDPS;
+		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * (getDirectDamage() + getAreaDamage())) / duration + neuroDPS;
 	}
 	
 	private double calculateDamagePerMagazine(boolean weakpointBonus, int numTargets) {
