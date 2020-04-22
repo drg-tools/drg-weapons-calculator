@@ -312,32 +312,17 @@ public class AccuracyEstimator {
 		}
 		
 		// Finally, reduce the predicted recoil as if the player was pulling the mouse downwards to compensate for the ever-increasing recoil.
-		double delayBeforePlayerReaction = 0.5;  // seconds
-		double timeElapsedThatPlayerHasBeenReducingRecoil = 0.0;
-		double currentRecoilCoefficient;
-		currentTime = 0;
+		// TODO: I'm not entirely satisfied with how this interacts with low RoF guns like Gunner/Revolver, Engie/Shotgun, Scout/M1k/Hipfire, or Gunner/BRT/-----2, but it's a fair enough approximation that I feel ok rolling it out for 1.0.
+		double delayBeforePlayerReaction = 0.2;  // seconds -- means that player reduction only applies at RoF 5+
+		double playerRecoilRecoveryPerSecond = 0.8;  // Percentage of max recoil that the player recovers per second -- arbitrarily chosen
+		double timeSpentReducingRecoil, totalReduction;
 		for (i = 1; i < magSize; i++) {
-			deltaTime = bulletFiredTimestamps[i] - currentTime;
-			currentTime += deltaTime;
-			
-			// If the delay between shots/bursts is greater than the reaction time, reset the timer to 0 so that the recoil isn't artificially decreased
-			if (deltaTime > delayBeforePlayerReaction) {
-				timeElapsedThatPlayerHasBeenReducingRecoil = 0;
+			if (bulletFiredTimestamps[i] > delayBeforePlayerReaction) {
+				timeSpentReducingRecoil = bulletFiredTimestamps[i] - delayBeforePlayerReaction;
+				totalReduction = Math.max(1.0 - timeSpentReducingRecoil * playerRecoilRecoveryPerSecond, 0);
+				recoilAtEachShot[i] = recoilAtEachShot[i] * totalReduction;
 			}
-			else {
-				timeElapsedThatPlayerHasBeenReducingRecoil += deltaTime;
-			}
-			
-			// The 0.45 is completely arbitrary -- I fiddled around with this number until I found one that gave accuracy predictions that I could believe.
-			currentRecoilCoefficient = 0.6;
-			if (timeElapsedThatPlayerHasBeenReducingRecoil > delayBeforePlayerReaction) {
-				// The goal is a 1/x function that starts at 1 when T == delay
-				currentRecoilCoefficient = currentRecoilCoefficient / (timeElapsedThatPlayerHasBeenReducingRecoil + (1.0 - delayBeforePlayerReaction));
-			}
-			recoilAtEachShot[i] *= currentRecoilCoefficient;
 		}
-		
-		// TODO: This 1/x player recoil reduction model is WAY too aggressive on large Magazines. Maybe change it to a static linear decrease?
 		
 		return recoilAtEachShot;
 	}

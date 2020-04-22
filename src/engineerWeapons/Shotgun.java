@@ -607,9 +607,15 @@ public class Shotgun extends Weapon {
 		// Because Stunner changes it from weakpoints to anywhere on the body, I'm making the Accuracy change to reflect that.
 		double stunAccuracy = estimatedAccuracy(selectedOverclock != 0) / 100.0;
 		int numPelletsThatHaveStunChance = (int) Math.round(getNumberOfPellets() * stunAccuracy);
-		// Only 1 pellet needs to succeed in order to stun the creature
-		double totalStunChancePerShot = MathUtils.cumulativeBinomialProbability(getWeakpointStunChance(), numPelletsThatHaveStunChance, 1);
-		utilityScores[5] = totalStunChancePerShot * getStunDuration() * UtilityInformation.Stun_Utility;
+		if (numPelletsThatHaveStunChance > 0) {
+			// Only 1 pellet needs to succeed in order to stun the creature
+			double totalStunChancePerShot = MathUtils.cumulativeBinomialProbability(getWeakpointStunChance(), numPelletsThatHaveStunChance, 1);
+			utilityScores[5] = totalStunChancePerShot * getStunDuration() * UtilityInformation.Stun_Utility;
+		}
+		else {
+			// This is a special case -- when the Accuracy is so low that none of the pellets are expected to hit a weakpoint, the cumulative binomial probability returns -1, which in turn destroys the Utility Score unnecessarily.
+			utilityScores[5] = 0.0;
+		}
 		
 		return MathUtils.sum(utilityScores);
 	}
