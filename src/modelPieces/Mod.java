@@ -1,9 +1,12 @@
 package modelPieces;
 
+import guiPieces.ButtonIcons.drgIcons;
+
 public class Mod {
 
 	private String name;
 	private String text;
+	private drgIcons icon;
 	private int tier;
 	private int index;
 	private boolean implemented;
@@ -15,6 +18,8 @@ public class Mod {
 	public Mod(String modName, String modText, int tierNumber, int arrayIndex, boolean modImplemented) {
 		name = modName;
 		text = modText;
+		// TODO: make this a parameter eventually
+		icon = drgIcons.aim;
 		tier = tierNumber;
 		index = arrayIndex;
 		implemented = modImplemented;
@@ -25,6 +30,9 @@ public class Mod {
 	}
 	public String getText() {
 		return text;
+	}
+	public drgIcons getIcon() {
+		return icon;
 	}
 	public int getTier() {
 		return tier;

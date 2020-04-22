@@ -27,7 +27,14 @@ public class ResourceLoader {
 	}
 	
 	// Use this method for virtually every other image type
-	public static BufferedImage loadImage(String relativeFilepath) throws IOException {
-		return ImageIO.read(load(relativeFilepath));
+	public static BufferedImage loadImage(String relativeFilepath) {
+		BufferedImage toReturn = null;
+		try {
+			toReturn = ImageIO.read(load(relativeFilepath));
+		}
+		catch (IOException e) {
+			
+		}
+		return toReturn;
 	}
 }

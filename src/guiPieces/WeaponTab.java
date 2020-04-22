@@ -136,7 +136,7 @@ public class WeaponTab extends JPanel {
 		for (i = 1; i < 6; i++) {
 			weaponMods = myWeapon.getModsAtTier(i);
 			for (j = 0; j < weaponMods.length; j++) {
-				mb = new ModButton(myWeapon, i, j, weaponMods[j].getName(), weaponMods[j].getText(), myWeapon.getSelectedModAtTier(i) == j, weaponMods[j].isImplemented());
+				mb = new ModButton(myWeapon, i, j, weaponMods[j].getName(), weaponMods[j].getText(), weaponMods[j].getIcon(), myWeapon.getSelectedModAtTier(i) == j, weaponMods[j].isImplemented());
 				toReturn.add(mb);
 			}
 			// Check to see if there are only two mods at this tier. If so, add an empty JLabel
