@@ -268,8 +268,15 @@ public abstract class Weapon extends Observable {
 	}
 	
 	protected void setAoEEfficiency() {
-		// This is a placeholder method that only gets overwritten by weapons that deal splash damage (EPC_ChargedShot, GrenadeLauncher, and Autocannon)
-		// It just exists here so that Weapon can reference the method when it changes mods or OCs
+		/* 
+			This is a placeholder method that only gets overwritten by weapons that deal splash damage (EPC_ChargedShot, GrenadeLauncher, and Autocannon)
+			It just exists here so that Weapon can reference the method when it changes mods or OCs
+			{
+				AoE Radius
+				AoE Efficiency Coefficient
+				Total num Grunts hit in AoE radius
+			}
+		*/
 		aoeEfficiency = new double[3];
 	}
 	
@@ -355,6 +362,25 @@ public abstract class Weapon extends Observable {
 	*/
 	public abstract StatsRow[] getStats();
 	public abstract Weapon clone();
+	
+	protected double calculateProbabilityToBreakLightArmor(double baseDamage) {
+		return calculateProbabilityToBreakLightArmor(baseDamage, 1.0);
+	}
+	protected double calculateProbabilityToBreakLightArmor(double baseDamage, double armorBreaking) {
+		// Input sanitization
+		if (baseDamage <= 0.0 || armorBreaking <= 0.0) {
+			return 0.0;
+		}
+		
+		// Due to its logarithmic formula, the probability to break an armor plate is 0% when Dmg * AB == 3.32
+		if (baseDamage * armorBreaking < 3.33) {
+			return 0.0;
+		}
+		
+		// Elythnwaen found this formula and shared it with me.
+		// Never let this return a probability less than 0.0 or higher than 1.0
+		return Math.max(Math.min(Math.log(armorBreaking * baseDamage)/3.0 - 0.4, 1.0), 0.0);
+	}
 	
 	protected double calculateRNGDoTDPSPerMagazine(double DoTProcChance, double DoTDPS, int magazineSize) {
 		/*

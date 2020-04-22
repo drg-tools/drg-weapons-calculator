@@ -890,8 +890,8 @@ public class Minigun extends Weapon {
 		// OC "Lead Storm" reduces Gunner's movement speed
 		utilityScores[0] = (getMovespeedWhileFiring() - MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
 		
-		// Armor Breaking
-		utilityScores[2] = (getArmorBreaking() - 1) * calculateMaxNumTargets() * UtilityInformation.ArmorBreak_Utility;
+		// Light Armor Breaking probability
+		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDamagePerPellet(), getArmorBreaking()) * UtilityInformation.ArmorBreak_Utility;
 		
 		// Mod Tier 5 "Aggressive Venting" induces Fear in a 3m radius (while also dealing 75 Heat Damage)
 		if (selectedTier5 == 0) {

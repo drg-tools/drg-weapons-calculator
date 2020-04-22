@@ -618,6 +618,7 @@ public class EPC_RegularShot extends Weapon {
 	@Override
 	public double utilityScore() {
 		// EPC doesn't have any utility
+		// EPC regular shots also cannot break Light Armor plates
 		return 0;
 	}
 }

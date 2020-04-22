@@ -816,6 +816,9 @@ public class Revolver extends Weapon {
 
 	@Override
 	public double utilityScore() {
+		// Light Armor Breaking probability
+		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDirectDamage() + getAreaDamage()) * UtilityInformation.ArmorBreak_Utility;
+		
 		// Neurotoxin Slow; 50% chance
 		if (selectedTier5 == 1) {
 			utilityScores[3] = 0.5 * calculateMaxNumTargets() * DoTInformation.Neuro_SecsDuration * UtilityInformation.Neuro_Slow_Utility;

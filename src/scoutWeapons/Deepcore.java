@@ -643,9 +643,8 @@ public class Deepcore extends Weapon {
 			utilityScores[0] = 0;
 		}
 		
-		// Armor Breaking
-		// Like Burst Pistol, this armor break bonus only applies to the bullets so it's not multiplied by max num targets
-		utilityScores[2] = (getArmorBreaking() - 1) * UtilityInformation.ArmorBreak_Utility;
+		// Light Armor Breaking probability
+		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDirectDamage(), getArmorBreaking()) * UtilityInformation.ArmorBreak_Utility;
 		
 		// OC "Electrifying Reload" = 100% chance to electrocute on reload
 		if (selectedOverclock == 6) {

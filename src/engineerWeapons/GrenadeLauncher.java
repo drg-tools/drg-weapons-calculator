@@ -600,18 +600,29 @@ public class GrenadeLauncher extends Weapon {
 			utilityScores[0] = 0;
 		}
 		
-		// Armor Breaking
-		utilityScores[2] = (getArmorBreaking() - 1) * calculateMaxNumTargets() * UtilityInformation.ArmorBreak_Utility;
+		// Light Armor Breaking probability
+		double AB = getArmorBreaking();
+		double directDamage = getDirectDamage();
+		double areaDamage = getAreaDamage();
+		double areaDamageAB = calculateProbabilityToBreakLightArmor(aoeEfficiency[1] * areaDamage, AB);
+		if (directDamage > 0) {
+			// Average out the Area Damage Breaking and Direct Damage Breaking
+			double directDamageAB = calculateProbabilityToBreakLightArmor(directDamage + areaDamage, AB);
+			utilityScores[2] = (directDamageAB + (aoeEfficiency[2] - 1) * areaDamageAB) * UtilityInformation.ArmorBreak_Utility / aoeEfficiency[2];
+		}
+		else {
+			utilityScores[2] = areaDamageAB * UtilityInformation.ArmorBreak_Utility;
+		}
 		
 		// Because the Stun from Concussive Blast keeps them immobolized while they're trying to run in Fear, I'm choosing to make the Stun/Fear Utility scores NOT additive.
 		if (selectedTier4 == 2) {
 			// Concussive Blast = 100% stun, 2 sec duration
 			utilityScores[4] = 0;
-			utilityScores[5] = getStunChance() * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
+			utilityScores[5] = getStunChance() * aoeEfficiency[2] * getStunDuration() * UtilityInformation.Stun_Utility;
 		}
 		else {
 			// Built-in Fear is 100%, but it doesn't seem to work 100% of the time... 
-			utilityScores[4] = fearChance * calculateMaxNumTargets() * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			utilityScores[4] = fearChance * aoeEfficiency[2] * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
 			utilityScores[5] = 0;
 		}
 		

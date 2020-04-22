@@ -598,8 +598,10 @@ public class Shotgun extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		// Armor Breaking
-		utilityScores[2] = (getArmorBreaking() - 1) * UtilityInformation.ArmorBreak_Utility;
+		// Light Armor Breaking probability
+		int numPelletsThatHitLightArmorPlate = (int) Math.round(getNumberOfPellets() * estimatedAccuracy(false) / 100.0);
+		double probabilityToBreakLightArmorPlatePerPellet = calculateProbabilityToBreakLightArmor(getDamagePerPellet() * numPelletsThatHitLightArmorPlate, getArmorBreaking());
+		utilityScores[2] = probabilityToBreakLightArmorPlatePerPellet * UtilityInformation.ArmorBreak_Utility;
 		
 		// Weakpoint = 10% stun chance per pellet, 2 sec duration (upgraded with Mod Tier 3 "Stun Duration")
 		// Because Stunner changes it from weakpoints to anywhere on the body, I'm making the Accuracy change to reflect that.

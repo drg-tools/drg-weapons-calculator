@@ -36,7 +36,6 @@ import scoutWeapons.Classic_FocusShot;
 import scoutWeapons.Classic_Hipfire;
 import scoutWeapons.Deepcore;
 import scoutWeapons.Zhukov;
-import utilities.MathUtils;
 
 /*
 	Benchmarks: 
@@ -63,32 +62,6 @@ public class GuiController implements ActionListener {
 		Weapon[] scoutWeapons = new Weapon[] {new Deepcore(), new Classic_Hipfire(), new Classic_FocusShot(), new Boomstick(), new Zhukov()};
 		View gui = new View(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons);
 		new GuiController(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons, gui);
-		
-		/*
-		double probability;
-		double cumulativeProb;
-		double totalNumTrials = 17;
-		int trialCounter;
-		probability = 0.54;
-		
-		trialCounter = 1;
-		cumulativeProb = MathUtils.cumulativeBinomialProbability(probability, trialCounter, 1);
-		System.out.println("Probability: " + probability + ", Num Shots: " + trialCounter + ", Cumulative Probability: " + cumulativeProb + ", Num shots That would break: " + cumulativeProb * totalNumTrials);
-		while (cumulativeProb < 0.99) {
-			trialCounter++;
-			cumulativeProb = MathUtils.cumulativeBinomialProbability(probability, trialCounter, 1);
-			System.out.println("Probability: " + probability + ", Num Shots: " + trialCounter + ", Cumulative Probability: " + cumulativeProb + ", Num shots That would break: " + cumulativeProb * totalNumTrials);
-		}
-		System.out.println();
-		
-		System.out.println("9 => " + 0.5*(0.3 + 9.0/75.0));
-		System.out.println("16 => " + 0.5*(0.3 + 16.0/75.0));
-		System.out.println("15 => " + (0.3 + 15.0/75.0));
-		System.out.println("18 => " + (0.3 + 18.0/75.0));
-		System.out.println("30 => " + (0.3 + 30.0/75.0));
-		System.out.println("50 - 70% => " + (0.3 + 50.0*0.3/75.0));
-		System.out.println("60 - 70% => " + (0.3 + 60.0*0.3/75.0));
-		*/
 	}
 	
 	public GuiController(Weapon[] dWeapons, Weapon[] eWeapons, Weapon[] gWeapons, Weapon[] sWeapons, View inputGui) {

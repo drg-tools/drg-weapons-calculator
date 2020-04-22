@@ -297,7 +297,7 @@ public class Boomstick extends Weapon {
 		
 		return toReturn;
 	}
-	private int getNumberOfPelletsPerShot() {
+	private int getNumberOfPellets() {
 		int toReturn = numberOfPellets;
 		
 		if (selectedTier3 == 2) {
@@ -426,7 +426,7 @@ public class Boomstick extends Weapon {
 		toReturn[0] = new StatsRow("Damage per Pellet:", getDamagePerPellet(), damageModified);
 		
 		boolean pelletsModified = selectedTier3 == 2 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 4;
-		toReturn[1] = new StatsRow("Number of Pellets/Shot:", getNumberOfPelletsPerShot(), pelletsModified);
+		toReturn[1] = new StatsRow("Number of Pellets/Shot:", getNumberOfPellets(), pelletsModified);
 		
 		toReturn[2] = new StatsRow("Blastwave Damage:", getBlastwaveDamage(), selectedTier4 == 2);
 		
@@ -469,10 +469,10 @@ public class Boomstick extends Weapon {
 		// This method gets used by the Tier 5 Mod "White Phosphorous Shells"
 		int numPelletsThatApplyHeat;
 		if (accuracy) {
-			numPelletsThatApplyHeat = (int) Math.round(estimatedAccuracy(false) * getNumberOfPelletsPerShot());
+			numPelletsThatApplyHeat = (int) Math.round(estimatedAccuracy(false) * getNumberOfPellets());
 		}
 		else {
-			numPelletsThatApplyHeat = getNumberOfPelletsPerShot();
+			numPelletsThatApplyHeat = getNumberOfPellets();
 		}
 		
 		// 50% of Direct Damage from the pellets gets added on as Heat Damage.
@@ -533,7 +533,7 @@ public class Boomstick extends Weapon {
 			}
 		}
 		
-		int numPelletsPerShot = getNumberOfPelletsPerShot();
+		int numPelletsPerShot = getNumberOfPellets();
 		int pelletsThatHitWeakpointPerShot = (int) Math.round(numPelletsPerShot * weakpointAccuracy);
 		int pelletsThatHitTargetPerShot = (int) Math.round(numPelletsPerShot * generalAccuracy) - pelletsThatHitWeakpointPerShot;
 		
@@ -544,11 +544,11 @@ public class Boomstick extends Weapon {
 		// TODO: I'd like to refactor this method out if possible
 		double damagePerShot;
 		if (weakpointBonus) {
-			damagePerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet() * getNumberOfPelletsPerShot()) + getBlastwaveDamage();
+			damagePerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet() * getNumberOfPellets()) + getBlastwaveDamage();
 			return (double) damagePerShot * getMagazineSize();
 		}
 		else {
-			damagePerShot = getDamagePerPellet() * getNumberOfPelletsPerShot() + getBlastwaveDamage();
+			damagePerShot = getDamagePerPellet() * getNumberOfPellets() + getBlastwaveDamage();
 			return (double) damagePerShot * getMagazineSize();
 		}
 	}
@@ -603,7 +603,7 @@ public class Boomstick extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		int directDamagePerShot = getDamagePerPellet() * getNumberOfPelletsPerShot();
+		int directDamagePerShot = getDamagePerPellet() * getNumberOfPellets();
 		// The frontal blastwave is a 20 degree isosceles triangle, 4m height; 1.41m base. 4 grunts can be hit in a 1-2-1 stack.
 		int gruntsHitByBlastwave = 4;
 		int blastwaveDamagePerShot = gruntsHitByBlastwave * getBlastwaveDamage();
@@ -660,7 +660,7 @@ public class Boomstick extends Weapon {
 
 	@Override
 	public double averageOverkill() {
-		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet() * getNumberOfPelletsPerShot());
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet() * getNumberOfPellets());
 		double enemyHP = EnemyInformation.averageHealthPool();
 		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
 		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
@@ -695,8 +695,10 @@ public class Boomstick extends Weapon {
 			utilityScores[0] = 0;
 		}
 		
-		// Armor Breaking bonuses
-		utilityScores[2] = (getArmorBreaking() - 1) * calculateMaxNumTargets() * UtilityInformation.ArmorBreak_Utility;
+		// Light Armor Breaking probability
+		int numPelletsThatHitLightArmorPlate = (int) Math.round(getNumberOfPellets() * estimatedAccuracy(false) / 100.0);
+		double probabilityToBreakLightArmorPlatePerPellet = calculateProbabilityToBreakLightArmor(getDamagePerPellet() * numPelletsThatHitLightArmorPlate, getArmorBreaking());
+		utilityScores[2] = probabilityToBreakLightArmorPlatePerPellet * UtilityInformation.ArmorBreak_Utility;
 		
 		// Mod Tier 5 "Fear the Boomstick" = 50% chance to Fear in same blast cone as the Blastwave damage
 		if (selectedTier5 == 1) {

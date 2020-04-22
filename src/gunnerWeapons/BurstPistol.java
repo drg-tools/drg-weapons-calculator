@@ -690,9 +690,8 @@ public class BurstPistol extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		// Armor Breaking
-		// Since only the bullets get the armor break bonus, this doesn't get multiplied by max num targets since the bullets don't have Blowthrough
-		utilityScores[2] = (getArmorBreaking() - 1.0) * UtilityInformation.ArmorBreak_Utility;
+		// Light Armor Breaking probability
+		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDirectDamage(), getArmorBreaking()) * UtilityInformation.ArmorBreak_Utility;
 		
 		// OC "Electro Minelets" = 100% Electrocute Chance, but only on bullets that miss... maybe (1.0 - Accuracy)?
 		if (selectedOverclock == 4) {

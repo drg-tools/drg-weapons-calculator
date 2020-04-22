@@ -633,6 +633,10 @@ public class Subata extends Weapon {
 
 	@Override
 	public double utilityScore() {
+		// Light Armor Breaking probability
+		// The Area damage from Explosive Reload doesn't affect the chance to break the Light Armor plates since it's not part of the initial projectile
+		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDirectDamage(), armorBreaking) * UtilityInformation.ArmorBreak_Utility;
+		
 		// Tranq rounds = 50% chance to stun, 5 second stun
 		if (selectedOverclock == 5) {
 			utilityScores[5] = getStunChance() * getStunDuration() * UtilityInformation.Stun_Utility;

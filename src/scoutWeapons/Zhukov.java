@@ -621,6 +621,9 @@ public class Zhukov extends Weapon {
 			utilityScores[0] += uptimeCoefficient * DwarfInformation.walkSpeed * UtilityInformation.Movespeed_Utility;
 		}
 		
+		// Light Armor Breaking probability
+		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDirectDamage()) * UtilityInformation.ArmorBreak_Utility;
+		
 		// OC "Cryo Minelets" applies Cryo damage to missed bullets
 		if (selectedOverclock == 2) {
 			// Cryo minelets: 1 placed per 2 ammo, minelets arm in 1 second, and detonate in 3 seconds if no enemy is around.

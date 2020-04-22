@@ -8,7 +8,9 @@ import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
+import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
+import utilities.MathUtils;
 
 public class EPC_ChargeShot extends Weapon {
 	
@@ -684,7 +686,10 @@ public class EPC_ChargeShot extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		// EPC doesn't have any utility
-		return 0;
+		// Light Armor Breaking probability
+		// EPC charged shot's AoE damage is 50% Explosive, so it does have a chance to break Light Armor plates
+		// Additionally, to average out this probability to break all Light Armor plates inside the AoE, multiply it by its AoE Efficiency coefficient, too.
+		utilityScores[2] = calculateProbabilityToBreakLightArmor(aoeEfficiency[1] * 0.5 * getChargedAreaDamage()) * UtilityInformation.ArmorBreak_Utility;
+		return MathUtils.sum(utilityScores);
 	}
 }
