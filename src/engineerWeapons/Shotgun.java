@@ -95,7 +95,7 @@ public class Shotgun extends Weapon {
 		tier5[1] = new Mod("Miner Adjustments", "Changes the Shotgun from semi-automatic to fully automatic, +0.5 Rate of Fire", 5, 1);
 		
 		overclocks = new Overclock[5];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Stunner", "Pellets now have a 10% chance to stun any time they damage an enemy, and any shots that hit a target that's already stunned deal extra damage.", 0, false);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Stunner", "Pellets now have a 10% chance to stun any time they damage an enemy, and any shots that hit a target that's already stunned deal x1.25 damage.", 0);  // This might be x1.3, but it's hard to tell...
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Light-Weight Magazines", "+20 Max Ammo, -0.2 Reload Time", 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Magnetic Pellet Alignment", "x0.5 Base Spread, +30% Weakpoint Bonus, x0.75 Rate of Fire", 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Cycle Overload", "+1 Damage per Pellet, +2 Rate of Fire, +0.5 Reload Time, x1.5 Base Spread", 3);
@@ -484,6 +484,20 @@ public class Shotgun extends Weapon {
 		return false;
 	}
 	
+	private double calculateCumulativeStunChancePerShot() {
+		// Because Stunner changes it from weakpoints to anywhere on the body, I'm making the Accuracy change to reflect that.
+		double stunAccuracy = estimatedAccuracy(selectedOverclock != 0) / 100.0;
+		int numPelletsThatHaveStunChance = (int) Math.round(getNumberOfPellets() * stunAccuracy);
+		if (numPelletsThatHaveStunChance > 0) {
+			// Only 1 pellet needs to succeed in order to stun the creature
+			return MathUtils.cumulativeBinomialProbability(getWeakpointStunChance(), numPelletsThatHaveStunChance, 1);
+		}
+		else {
+			// This is a special case -- when the Accuracy is so low that none of the pellets are expected to hit a weakpoint, the cumulative binomial probability returns -1, which in turn destroys the Utility Score unnecessarily.
+			return 0.0;
+		}
+	}
+	
 	// Single-target calculations
 	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
 		double generalAccuracy, duration, directWeakpointDamagePerPellet;
@@ -502,21 +516,33 @@ public class Shotgun extends Weapon {
 			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
 		}
 		
+		double dmgPerPellet = getDamagePerPellet();
+		if (selectedOverclock == 0) {
+			// Stunner OC damage multiplier
+			double stunChancePerShot = calculateCumulativeStunChancePerShot();
+			double numShotsBeforeStun = Math.round(MathUtils.meanRolls(stunChancePerShot));
+			double numShotsFiredWhileStunned = Math.min(Math.round(getStunDuration() * getRateOfFire()), getMagazineSize() - numShotsBeforeStun);
+			
+			double stunnerAverageDamageMultiplier = (numShotsBeforeStun + 1.25 * numShotsFiredWhileStunned) / (numShotsBeforeStun + numShotsFiredWhileStunned);
+			
+			dmgPerPellet *= stunnerAverageDamageMultiplier;
+		}
+		
 		double weakpointAccuracy;
 		if (weakpoint) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
-			directWeakpointDamagePerPellet = increaseBulletDamageForWeakpoints2(getDamagePerPellet(), getWeakpointBonus());
+			directWeakpointDamagePerPellet = increaseBulletDamageForWeakpoints2(dmgPerPellet, getWeakpointBonus());
 		}
 		else {
 			weakpointAccuracy = 0.0;
-			directWeakpointDamagePerPellet = getDamagePerPellet();
+			directWeakpointDamagePerPellet = dmgPerPellet;
 		}
 		
 		int numPelletsPerShot = getNumberOfPellets();
 		int pelletsThatHitWeakpointPerShot = (int) Math.round(numPelletsPerShot * weakpointAccuracy);
 		int pelletsThatHitTargetPerShot = (int) Math.round(numPelletsPerShot * generalAccuracy) - pelletsThatHitWeakpointPerShot;
 		
-		return (pelletsThatHitWeakpointPerShot * directWeakpointDamagePerPellet + pelletsThatHitTargetPerShot * getDamagePerPellet()) * getMagazineSize() / duration;
+		return (pelletsThatHitWeakpointPerShot * directWeakpointDamagePerPellet + pelletsThatHitTargetPerShot * dmgPerPellet) * getMagazineSize() / duration;
 	}
 
 	@Override
@@ -603,19 +629,8 @@ public class Shotgun extends Weapon {
 		double probabilityToBreakLightArmorPlatePerPellet = calculateProbabilityToBreakLightArmor(getDamagePerPellet() * numPelletsThatHitLightArmorPlate, getArmorBreaking());
 		utilityScores[2] = probabilityToBreakLightArmorPlatePerPellet * UtilityInformation.ArmorBreak_Utility;
 		
-		// Weakpoint = 10% stun chance per pellet, 2 sec duration (upgraded with Mod Tier 3 "Stun Duration")
-		// Because Stunner changes it from weakpoints to anywhere on the body, I'm making the Accuracy change to reflect that.
-		double stunAccuracy = estimatedAccuracy(selectedOverclock != 0) / 100.0;
-		int numPelletsThatHaveStunChance = (int) Math.round(getNumberOfPellets() * stunAccuracy);
-		if (numPelletsThatHaveStunChance > 0) {
-			// Only 1 pellet needs to succeed in order to stun the creature
-			double totalStunChancePerShot = MathUtils.cumulativeBinomialProbability(getWeakpointStunChance(), numPelletsThatHaveStunChance, 1);
-			utilityScores[5] = totalStunChancePerShot * getStunDuration() * UtilityInformation.Stun_Utility;
-		}
-		else {
-			// This is a special case -- when the Accuracy is so low that none of the pellets are expected to hit a weakpoint, the cumulative binomial probability returns -1, which in turn destroys the Utility Score unnecessarily.
-			utilityScores[5] = 0.0;
-		}
+		// Weakpoint = 10% stun chance per pellet, 3 sec duration (upgraded with Mod Tier 3 "Stun Duration", or OC "Stunner")
+		utilityScores[5] = calculateCumulativeStunChancePerShot() * getStunDuration() * UtilityInformation.Stun_Utility;
 		
 		return MathUtils.sum(utilityScores);
 	}
