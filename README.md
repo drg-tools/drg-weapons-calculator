@@ -12,3 +12,10 @@ ___
 Compiled on Java JRE 12.0.2, Class v56
 
 If you want to contribute to this project, feel free to make a Pull Request and I'll take a look at your suggested changes. I'm also open to adding people as Collaborators to this project.
+
+___
+According to CLOC, 0.9.4's metrics:
+41 .java files
+2398 blank lines
+1393 comment lines
+13085 code lines
