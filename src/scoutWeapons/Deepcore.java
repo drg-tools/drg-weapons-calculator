@@ -3,7 +3,8 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
-import guiPieces.ButtonIcons.drgIcons;
+import guiPieces.ButtonIcons.modIcons;
+import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.DwarfInformation;
@@ -76,37 +77,37 @@ public class Deepcore extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Gyro Stabilisation", "-100% Base Spread", drgIcons.baseSpread, 1, 0);
-		tier1[1] = new Mod("Supercharged Feed Mechanism", "+2 Rate of Fire", drgIcons.rateOfFire, 1, 1);
+		tier1[0] = new Mod("Gyro Stabilisation", "-100% Base Spread", modIcons.baseSpread, 1, 0);
+		tier1[1] = new Mod("Supercharged Feed Mechanism", "+2 Rate of Fire", modIcons.rateOfFire, 1, 1);
 		
 		tier2 = new Mod[2];
-		tier2[0] = new Mod("Increased Caliber Rounds", "+2 Direct Damage", drgIcons.directDamage, 2, 0);
-		tier2[1] = new Mod("Expanded Ammo Bags", "+100 Max Ammo", drgIcons.carriedAmmo, 2, 1);
+		tier2[0] = new Mod("Increased Caliber Rounds", "+2 Direct Damage", modIcons.directDamage, 2, 0);
+		tier2[1] = new Mod("Expanded Ammo Bags", "+100 Max Ammo", modIcons.carriedAmmo, 2, 1);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Floating Barrel", "x0.5 Recoil", drgIcons.recoil, 3, 0);
-		tier3[1] = new Mod("Improved Propellant", "+1 Direct Damage", drgIcons.directDamage, 3, 1);
-		tier3[2] = new Mod("High Capacity Magazine", "+10 Magazine Size", drgIcons.magSize, 3, 2);
+		tier3[0] = new Mod("Floating Barrel", "x0.5 Recoil", modIcons.recoil, 3, 0);
+		tier3[1] = new Mod("Improved Propellant", "+1 Direct Damage", modIcons.directDamage, 3, 1);
+		tier3[2] = new Mod("High Capacity Magazine", "+10 Magazine Size", modIcons.magSize, 3, 2);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Hollow-Point Bullets", "+20% Weakpoint Bonus", drgIcons.weakpointBonus, 4, 0);
-		tier4[1] = new Mod("Hardened Rounds", "+500% Armor Breaking", drgIcons.armorBreaking, 4, 1);
-		tier4[2] = new Mod("Improved Gas System", "+2 Rate of Fire", drgIcons.rateOfFire, 4, 2);
+		tier4[0] = new Mod("Hollow-Point Bullets", "+20% Weakpoint Bonus", modIcons.weakpointBonus, 4, 0);
+		tier4[1] = new Mod("Hardened Rounds", "+500% Armor Breaking", modIcons.armorBreaking, 4, 1);
+		tier4[2] = new Mod("Improved Gas System", "+2 Rate of Fire", modIcons.rateOfFire, 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Battle Frenzy", "After killing an enemy, gain +50% Movement Speed for 3 seconds", drgIcons.movespeed, 5, 0);
-		tier5[1] = new Mod("Battle Cool", "After killing an enemy, Spread per Shot is set to 0 for 1.5 seconds", drgIcons.baseSpread, 5, 1);
-		tier5[2] = new Mod("Stun", "+30% chance to Stun on Weakpoint hit", drgIcons.stun, 5, 2);
+		tier5[0] = new Mod("Battle Frenzy", "After killing an enemy, gain +50% Movement Speed for 3 seconds", modIcons.movespeed, 5, 0);
+		tier5[1] = new Mod("Battle Cool", "After killing an enemy, Spread per Shot is set to 0 for 1.5 seconds", modIcons.baseSpread, 5, 1);
+		tier5[2] = new Mod("Stun", "+30% chance to Stun on Weakpoint hit", modIcons.stun, 5, 2);
 		
 		overclocks = new Overclock[7];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Ammo", "+5 Magazine Size, x0.7 Recoil", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Gas Rerouting", "+1 Rate of Fire, -0.3 Reload Time", 1);
-		overclocks[2] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Overclocked Firing Mechanism", "+3 Rate of Fire, x2.5 Recoil", 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Bullets of Mercy", "+33% Damage dealt to enemies that are burning, electrocuted, poisoned, stunned, or frozen. Additionally, -5 Magazine Size", 4, false);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "AI Stability Engine", "x0 Recoil, x10 Spread Recovery Speed, -1 Direct Damage, -2 Rate of Fire", 5);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Ammo", "+5 Magazine Size, x0.7 Recoil", overclockIcons.magSize, 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Gas Rerouting", "+1 Rate of Fire, -0.3 Reload Time", overclockIcons.rateOfFire, 1);
+		overclocks[2] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, overclockIcons.homebrewPowder, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Overclocked Firing Mechanism", "+3 Rate of Fire, x2.5 Recoil", overclockIcons.rateOfFire, 3);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Bullets of Mercy", "+33% Damage dealt to enemies that are burning, electrocuted, poisoned, stunned, or frozen. Additionally, -5 Magazine Size", overclockIcons.directDamage, 4, false);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "AI Stability Engine", "x0 Recoil, x10 Spread Recovery Speed, -1 Direct Damage, -2 Rate of Fire", overclockIcons.baseSpread, 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Electrifying Reload", "If any bullets from a magazine damage an enemy's healthbar, then those enemies will have an Electrocute DoT applied when that "
-				+ "magazine gets reloaded. Electrocute does an average of " + DoTInformation.Electro_DPS + " DPS. -3 Direct Damage, -5 Magazine Size", 6);
+				+ "magazine gets reloaded. Electrocute does an average of " + DoTInformation.Electro_DPS + " DPS. -3 Direct Damage, -5 Magazine Size", overclockIcons.specialReload, 6);
 	}
 	
 	@Override

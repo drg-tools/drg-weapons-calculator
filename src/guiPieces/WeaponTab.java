@@ -161,7 +161,7 @@ public class WeaponTab extends JPanel {
 		
 		OverclockButton ocb;
 		for (int i = 0; i < weaponOverclocks.length; i++) {
-			ocb = new OverclockButton(myWeapon, i, weaponOverclocks[i].getName(), weaponOverclocks[i].getText(), myWeapon.getSelectedOverclock() == i, weaponOverclocks[i].isImplemented());
+			ocb = new OverclockButton(myWeapon, i, weaponOverclocks[i].getName(), weaponOverclocks[i].getText(), weaponOverclocks[i].getIcon(), myWeapon.getSelectedOverclock() == i, weaponOverclocks[i].isImplemented());
 			toReturn.add(ocb);
 		}
 		

@@ -3,7 +3,8 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
-import guiPieces.ButtonIcons.drgIcons;
+import guiPieces.ButtonIcons.modIcons;
+import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
@@ -75,35 +76,35 @@ public class Revolver_Snipe extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Quickfire Ejector", "-0.7 Reload Time", drgIcons.reloadSpeed, 1, 0);
-		tier1[1] = new Mod("Perfect Weight Balance", "-70% Base Spread", drgIcons.baseSpread, 1, 1);
+		tier1[0] = new Mod("Quickfire Ejector", "-0.7 Reload Time", modIcons.reloadSpeed, 1, 0);
+		tier1[1] = new Mod("Perfect Weight Balance", "-70% Base Spread", modIcons.baseSpread, 1, 1);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Increased Caliber Rounds", "+15 Direct Damage", drgIcons.directDamage, 2, 0);
-		tier2[1] = new Mod("Floating Barrel", "-80% Spread per Shot, x0.75 Recoil", drgIcons.recoil, 2, 1);
-		tier2[2] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", drgIcons.carriedAmmo, 2, 2);
+		tier2[0] = new Mod("Increased Caliber Rounds", "+15 Direct Damage", modIcons.directDamage, 2, 0);
+		tier2[1] = new Mod("Floating Barrel", "-80% Spread per Shot, x0.75 Recoil", modIcons.recoil, 2, 1);
+		tier2[2] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", modIcons.carriedAmmo, 2, 2);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Super Blowthrough Rounds", "+3 Penetrations", drgIcons.blowthrough, 3, 0);
-		tier3[1] = new Mod("Explosive Rounds", "+30 Area Damage in a 1.5m radius, x0.5 Direct Damage", drgIcons.addedExplosion, 3, 1);
-		tier3[2] = new Mod("Hollow-Point Bullets", "+50% Weakpoint Bonus", drgIcons.weakpointBonus, 3, 2);
+		tier3[0] = new Mod("Super Blowthrough Rounds", "+3 Penetrations", modIcons.blowthrough, 3, 0);
+		tier3[1] = new Mod("Explosive Rounds", "+30 Area Damage in a 1.5m radius, x0.5 Direct Damage", modIcons.addedExplosion, 3, 1);
+		tier3[2] = new Mod("Hollow-Point Bullets", "+50% Weakpoint Bonus", modIcons.weakpointBonus, 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", drgIcons.carriedAmmo, 4, 0);
-		tier4[1] = new Mod("High Velocity Rounds", "+15 Direct Damage", drgIcons.directDamage, 4, 1);
+		tier4[0] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", modIcons.carriedAmmo, 4, 0);
+		tier4[1] = new Mod("High Velocity Rounds", "+15 Direct Damage", modIcons.directDamage, 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Dead-Eye", "No aim penalty while moving", drgIcons.baseSpread, 5, 0, false);
+		tier5[0] = new Mod("Dead-Eye", "No aim penalty while moving", modIcons.baseSpread, 5, 0, false);
 		tier5[1] = new Mod("Glyphid Neurotoxin Coating", "50% chance to inflict Neurotoxin DoT on all enemies hit by the Revolver"
-				+ "Neurotoxin does an average of " + DoTInformation.Neuro_DPS + " DPS", drgIcons.neurotoxin, 5, 1);  // It looks like whenever this procs for the main target, all splash targets get it too, instead of RNG/enemy.
+				+ "Neurotoxin does an average of " + DoTInformation.Neuro_DPS + " DPS", modIcons.neurotoxin, 5, 1);  // It looks like whenever this procs for the main target, all splash targets get it too, instead of RNG/enemy.
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 33% chance to ricochet into a nearby enemy.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Bullets", "x4 Damage to Burning targets, -25 Direct Damage", 2, false);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Six Shooter", "+2 Magazine Size, +8 Max Ammo, +4 Rate of Fire, x1.5 Base Spread, +0.5 Reload Time", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -13 Max Ammo, +71% Spread per Shot, +150% Recoil, +0.5 Reload Time", 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Magic Bullets", "All bullets that impact terrain automatically ricochet to nearby enemies (effectively raising accuracy to 100%). +8 Max Ammo, -20 Direct Damage", 5);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, overclockIcons.homebrewPowder, 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 33% chance to ricochet into a nearby enemy.", overclockIcons.ricochet, 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Bullets", "x4 Damage to Burning targets, -25 Direct Damage", overclockIcons.heatDamage, 2, false);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Six Shooter", "+2 Magazine Size, +8 Max Ammo, +4 Rate of Fire, x1.5 Base Spread, +0.5 Reload Time", overclockIcons.magSize, 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -13 Max Ammo, +71% Spread per Shot, +150% Recoil, +0.5 Reload Time", overclockIcons.directDamage, 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Magic Bullets", "All bullets that impact terrain automatically ricochet to nearby enemies (effectively raising accuracy to 100%). +8 Max Ammo, -20 Direct Damage", overclockIcons.ricochet, 5);
 	}
 	
 	@Override

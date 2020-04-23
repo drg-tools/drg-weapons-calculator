@@ -3,7 +3,8 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
-import guiPieces.ButtonIcons.drgIcons;
+import guiPieces.ButtonIcons.modIcons;
+import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.AccuracyEstimator;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
@@ -71,34 +72,36 @@ public class Zhukov extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Expanded Ammo Bags", "+75 Max Ammo", drgIcons.carriedAmmo, 1, 0);
-		tier1[1] = new Mod("High Velocity Rounds", "+1 Direct Damage", drgIcons.directDamage, 1, 1);
+		tier1[0] = new Mod("Expanded Ammo Bags", "+75 Max Ammo", modIcons.carriedAmmo, 1, 0);
+		tier1[1] = new Mod("High Velocity Rounds", "+1 Direct Damage", modIcons.directDamage, 1, 1);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("High Capacity Magazine", "+10 Magazine Size", drgIcons.magSize, 2, 0);
-		tier2[1] = new Mod("Supercharged Feed Mechanism", "+8 Rate of Fire", drgIcons.rateOfFire, 2, 1);
-		tier2[2] = new Mod("Quickfire Ejector", "-0.6 Reload Time", drgIcons.reloadSpeed, 2, 2);
+		tier2[0] = new Mod("High Capacity Magazine", "+10 Magazine Size", modIcons.magSize, 2, 0);
+		tier2[1] = new Mod("Supercharged Feed Mechanism", "+8 Rate of Fire", modIcons.rateOfFire, 2, 1);
+		tier2[2] = new Mod("Quickfire Ejector", "-0.6 Reload Time", modIcons.reloadSpeed, 2, 2);
 		
 		tier3 = new Mod[2];
-		tier3[0] = new Mod("Increased Caliber Rounds", "+2 Direct Damage", drgIcons.directDamage, 3, 0);
-		tier3[1] = new Mod("Better Weight Balance", "x0.5 Base Spread", drgIcons.baseSpread, 3, 1);
+		tier3[0] = new Mod("Increased Caliber Rounds", "+2 Direct Damage", modIcons.directDamage, 3, 0);
+		tier3[1] = new Mod("Better Weight Balance", "x0.5 Base Spread", modIcons.baseSpread, 3, 1);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Blowthrough Rounds", "+1 Penetration", drgIcons.blowthrough, 4, 0);
-		tier4[1] = new Mod("Hollow-Point Bullets", "+30% Weakpoint Bonus", drgIcons.weakpointBonus, 4, 1);
-		tier4[2] = new Mod("Expanded Ammo Bags", "+150 Max Ammo", drgIcons.carriedAmmo, 4, 2);
+		tier4[0] = new Mod("Blowthrough Rounds", "+1 Penetration", modIcons.blowthrough, 4, 0);
+		tier4[1] = new Mod("Hollow-Point Bullets", "+30% Weakpoint Bonus", modIcons.weakpointBonus, 4, 1);
+		tier4[2] = new Mod("Expanded Ammo Bags", "+150 Max Ammo", modIcons.carriedAmmo, 4, 2);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Conductive Bullets", "+30% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", drgIcons.electricity, 5, 0, false);
-		tier5[1] = new Mod("Get In, Get Out", "+100% Movement Speed for 2 seconds after reloading an empty magazine", drgIcons.movespeed, 5, 1);
+		tier5[0] = new Mod("Conductive Bullets", "+30% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 5, 0, false);
+		tier5[1] = new Mod("Get In, Get Out", "+100% Movement Speed for 2 seconds after reloading an empty magazine", modIcons.movespeed, 5, 1);
 		
 		overclocks = new Overclock[5];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Minimal Magazines", "+2 Rate of Fire, -0.4 Reload Time", 0);
-		overclocks[1] = new Overclock(Overclock.classification.balanced, "Custom Casings", "+30 Mag Size, -1 Direct Damage", 1);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Minimal Magazines", "+2 Rate of Fire, -0.4 Reload Time", overclockIcons.reloadSpeed, 0);
+		overclocks[1] = new Overclock(Overclock.classification.balanced, "Custom Casings", "+30 Mag Size, -1 Direct Damage", overclockIcons.magSize, 1);
 		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "Any bullets that impact terrain get converted to Cryo Minelets. After 1 second of arming time they will explode on any "
-				+ "enemies that get close, dealing 8 Cold Damage each. They automatically explode after 3 seconds. -1 Direct Damage, -10 Magazine Size", 2);
-		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 10 Area Damage to the enemy upon reloading. -3 Direct Damage, -75 Max Ammo.", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Gas Recycling", "+5 Direct Damage, but it can no longer gain bonus damage from hitting a Weakpoint. Additionally, x1.5 Base Spread and -50% Movement Speed while firing.", 4);
+				+ "enemies that get close, dealing 8 Cold Damage each. They automatically explode after 3 seconds. -1 Direct Damage, -10 Magazine Size", overclockIcons.coldDamage, 2);
+		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 10 Area Damage to the enemy "
+				+ "upon reloading. -3 Direct Damage, -75 Max Ammo.", overclockIcons.specialReload, 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Gas Recycling", "+5 Direct Damage, but it can no longer gain bonus damage from hitting a Weakpoint. Additionally, x1.5 Base Spread "
+				+ "and -50% Movement Speed while firing.", overclockIcons.directDamage, 4);
 	}
 	
 	@Override

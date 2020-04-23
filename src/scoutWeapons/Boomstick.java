@@ -3,7 +3,8 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
-import guiPieces.ButtonIcons.drgIcons;
+import guiPieces.ButtonIcons.modIcons;
+import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
@@ -77,36 +78,36 @@ public class Boomstick extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", drgIcons.carriedAmmo, 1, 0);
-		tier1[1] = new Mod("Double-Sized Buckshot", "+3 Damage per Pellet", drgIcons.directDamage, 1, 1);
+		tier1[0] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", modIcons.carriedAmmo, 1, 0);
+		tier1[1] = new Mod("Double-Sized Buckshot", "+3 Damage per Pellet", modIcons.directDamage, 1, 1);
 		
 		tier2 = new Mod[2];
-		tier2[0] = new Mod("Double Trigger", "+7.5 Rate of Fire", drgIcons.rateOfFire, 2, 0);
-		tier2[1] = new Mod("Quickfire Ejector", "-0.7 Reload Time", drgIcons.reloadSpeed, 2, 1);
+		tier2[0] = new Mod("Double Trigger", "+7.5 Rate of Fire", modIcons.rateOfFire, 2, 0);
+		tier2[1] = new Mod("Quickfire Ejector", "-0.7 Reload Time", modIcons.reloadSpeed, 2, 1);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Stun Duration", "+2.5 seconds Stun duration", drgIcons.stun, 3, 0);
-		tier3[1] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", drgIcons.carriedAmmo, 3, 1);
-		tier3[2] = new Mod("High Capacity Shells", "+3 Pellets per Shot", drgIcons.pelletsPerShot, 3, 2);
+		tier3[0] = new Mod("Stun Duration", "+2.5 seconds Stun duration", modIcons.stun, 3, 0);
+		tier3[1] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", modIcons.carriedAmmo, 3, 1);
+		tier3[2] = new Mod("High Capacity Shells", "+3 Pellets per Shot", modIcons.pelletsPerShot, 3, 2);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Super Blowthrough Rounds", "+3 Penetratinos", drgIcons.blowthrough, 4, 0);
-		tier4[1] = new Mod("Tungsten Coated Buckshot", "+300% Armor Breaking", drgIcons.armorBreaking, 4, 1);
-		tier4[2] = new Mod("Improved Blast Wave", "+20 Blastwave Damage to any enemies in the area extending 4m infront of you.", drgIcons.special, 4, 2);
+		tier4[0] = new Mod("Super Blowthrough Rounds", "+3 Penetratinos", modIcons.blowthrough, 4, 0);
+		tier4[1] = new Mod("Tungsten Coated Buckshot", "+300% Armor Breaking", modIcons.armorBreaking, 4, 1);
+		tier4[2] = new Mod("Improved Blast Wave", "+20 Blastwave Damage to any enemies in the area extending 4m infront of you.", modIcons.special, 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Auto Reload", "Reloads automatically when unequipped for more than 5 seconds", drgIcons.reloadSpeed, 5, 0, false);
-		tier5[1] = new Mod("Fear The Boomstick", "50% Chance to inflict Fear on enemies caught within the Blastwave", drgIcons.fear, 5, 1);
-		tier5[2] = new Mod("White Phosphorous Shells", "Add 50% of the Damage per Pellet as Heat Damage, which can ignite enemies. Burn DoT does an average of " + DoTInformation.Burn_DPS + " DPS", drgIcons.heatDamage, 5, 2);
+		tier5[0] = new Mod("Auto Reload", "Reloads automatically when unequipped for more than 5 seconds", modIcons.reloadSpeed, 5, 0, false);
+		tier5[1] = new Mod("Fear The Boomstick", "50% Chance to inflict Fear on enemies caught within the Blastwave", modIcons.fear, 5, 1);
+		tier5[2] = new Mod("White Phosphorous Shells", "Add 50% of the Damage per Pellet as Heat Damage, which can ignite enemies. Burn DoT does an average of " + DoTInformation.Burn_DPS + " DPS", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Shells", "+6 Max Ammo, -0.2 Reload Time", 0);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Shells", "+6 Max Ammo, -0.2 Reload Time", overclockIcons.carriedAmmo, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Double Barrel", "Fire both barrels with a single tigger pull. As a result, both Magazine Size and Max Ammo are effectively halved, while the "
-				+ "number of Pellets per Shot gets doubled. Additionally, +1 Damage per Pellet.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.clean, "Special Powder", "Jump off of the ground and fire the shotgun to \"blast jump\" around the caves for increased mobility.", 2);
-		overclocks[3] = new Overclock(Overclock.classification.clean, "Stuffed Shells", "+1 Damage per Pellet, +1 Pellet per Shot", 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "-35% Base Spread, -2 Pellets per Shot", 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Jumbo Shells", "+8 Damage per Pellet, -10 Max Ammo, +0.5 Reload Time", 5);
+				+ "number of Pellets per Shot gets doubled. Additionally, +1 Damage per Pellet.", overclockIcons.rateOfFire, 1);
+		overclocks[2] = new Overclock(Overclock.classification.clean, "Special Powder", "Jump off of the ground and fire the shotgun to \"blast jump\" around the caves for increased mobility.", overclockIcons.shotgunJump, 2);
+		overclocks[3] = new Overclock(Overclock.classification.clean, "Stuffed Shells", "+1 Damage per Pellet, +1 Pellet per Shot", overclockIcons.pelletsPerShot, 3);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "-35% Base Spread, -2 Pellets per Shot", overclockIcons.baseSpread, 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Jumbo Shells", "+8 Damage per Pellet, -10 Max Ammo, +0.5 Reload Time", overclockIcons.directDamage, 5);
 	}
 	
 	@Override

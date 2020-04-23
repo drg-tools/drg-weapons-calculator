@@ -3,7 +3,8 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
-import guiPieces.ButtonIcons.drgIcons;
+import guiPieces.ButtonIcons.modIcons;
+import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.DwarfInformation;
@@ -86,37 +87,38 @@ public class Minigun extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
-		tier1[0] = new Mod("Magnetic Refrigeration", "+1.5 Cooling Rate", drgIcons.coolingRate, 1, 0);
-		tier1[1] = new Mod("Improved Motor", "+4 Rate of Fire", drgIcons.rateOfFire, 1, 1);
-		tier1[2] = new Mod("Improved Platform Stability", "x0.2 Base Spread", drgIcons.baseSpread, 1, 2);
+		tier1[0] = new Mod("Magnetic Refrigeration", "+1.5 Cooling Rate", modIcons.coolingRate, 1, 0);
+		tier1[1] = new Mod("Improved Motor", "+4 Rate of Fire", modIcons.rateOfFire, 1, 1);
+		tier1[2] = new Mod("Improved Platform Stability", "x0.2 Base Spread", modIcons.baseSpread, 1, 2);
 		
 		tier2 = new Mod[2];
-		tier2[0] = new Mod("Oversized Drum", "+600 Max Ammo", drgIcons.carriedAmmo, 2, 0);
-		tier2[1] = new Mod("High Velocity Rounds", "+2 Damage per Pellet", drgIcons.directDamage, 2, 1);
+		tier2[0] = new Mod("Oversized Drum", "+600 Max Ammo", modIcons.carriedAmmo, 2, 0);
+		tier2[1] = new Mod("High Velocity Rounds", "+2 Damage per Pellet", modIcons.directDamage, 2, 1);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Hardened Rounds", "+200% Armor Breaking", drgIcons.armorBreaking, 3, 0);
-		tier3[1] = new Mod("Stun Duration", "+1 second Stun duration", drgIcons.stun, 3, 1);
-		tier3[2] = new Mod("Blowthrough Rounds", "+1 Penetration", drgIcons.blowthrough, 3, 2);
+		tier3[0] = new Mod("Hardened Rounds", "+200% Armor Breaking", modIcons.armorBreaking, 3, 0);
+		tier3[1] = new Mod("Stun Duration", "+1 second Stun duration", modIcons.stun, 3, 1);
+		tier3[2] = new Mod("Blowthrough Rounds", "+1 Penetration", modIcons.blowthrough, 3, 2);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Variable Chamber Pressure", "+15% Damage per Pellet after reaching Base Spread", drgIcons.directDamage, 4, 0); // TODO: find the right icon
-		tier4[1] = new Mod("Lighter Barrel Assembly", "-0.4 seconds spinup time", drgIcons.chargeSpeed, 4, 1);
-		tier4[2] = new Mod("Magnetic Bearings", "+3 seconds spindown time", drgIcons.special, 4, 2);
+		tier4[0] = new Mod("Variable Chamber Pressure", "+15% Damage per Pellet after reaching Base Spread", modIcons.directDamage, 4, 0); // TODO: find the right icon
+		tier4[1] = new Mod("Lighter Barrel Assembly", "-0.4 seconds spinup time", modIcons.chargeSpeed, 4, 1);
+		tier4[2] = new Mod("Magnetic Bearings", "+3 seconds spindown time", modIcons.special, 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Aggressive Venting", "After overheating, deal 75 Heat Damage and 100% chance to apply Fear to all enemies within a 3m radius", drgIcons.addedExplosion, 5, 0);
-		tier5[1] = new Mod("Cold As The Grave", "Every kill reduces the current Heat Meter and thus increases the firing duration before overheating", drgIcons.coolingRate, 5, 1);
-		tier5[2] = new Mod("Hot Bullets", "After the Heat Meter turns red, 50% of the Damage per Pellet gets added as Heat Damage", drgIcons.heatDamage, 5, 2);
+		tier5[0] = new Mod("Aggressive Venting", "After overheating, deal 75 Heat Damage and 100% chance to apply Fear to all enemies within a 3m radius", modIcons.addedExplosion, 5, 0);
+		tier5[1] = new Mod("Cold As The Grave", "Every kill reduces the current Heat Meter and thus increases the firing duration before overheating", modIcons.coolingRate, 5, 1);
+		tier5[2] = new Mod("Hot Bullets", "After the Heat Meter turns red, 50% of the Damage per Pellet gets added as Heat Damage", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[7];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "A Little More Oomph!", "+1 Damage per Pellet, -0.2 spinup time", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Thinned Drum Walls", "+300 Max Ammo, +0.5 Cooling Rate", 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Burning Hell", "While firing, the Minigun deals 100 Heat per Second in a cone 6m in front of the muzzle. +50% heat accumulation in the gun's heat meter, which translates to 2/3 the firing period", 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Compact Feed Mechanism", "+800 Max Ammo, -4 Rate of Fire", 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Exhaust Vectoring", "+2 Damage per Pellet, x2.5 Base Spread", 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Bullet Hell", "50% for bullets that impact an enemy or terrain to ricochet into another enemy. -3 Damage per Pellet, x6 Base Spread", 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Storm", "+4 Damage per Pellet, x0 Movespeed while using, and the Minigun cannot stun enemies anymore.", 6);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "A Little More Oomph!", "+1 Damage per Pellet, -0.2 spinup time", overclockIcons.directDamage, 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Thinned Drum Walls", "+300 Max Ammo, +0.5 Cooling Rate", overclockIcons.coolingRate, 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Burning Hell", "While firing, the Minigun deals 100 Heat per Second in a cone 6m in front of the muzzle. +50% heat accumulation in the "
+				+ "gun's heat meter, which translates to 2/3 the firing period", overclockIcons.heatDamage, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Compact Feed Mechanism", "+800 Max Ammo, -4 Rate of Fire", overclockIcons.carriedAmmo, 3);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Exhaust Vectoring", "+2 Damage per Pellet, x2.5 Base Spread", overclockIcons.directDamage, 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Bullet Hell", "50% for bullets that impact an enemy or terrain to ricochet into another enemy. -3 Damage per Pellet, x6 Base Spread", overclockIcons.ricochet, 5);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Storm", "+4 Damage per Pellet, x0 Movespeed while using, and the Minigun cannot stun enemies anymore.", overclockIcons.directDamage, 6);
 	}
 	
 	@Override

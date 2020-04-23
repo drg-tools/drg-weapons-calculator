@@ -3,7 +3,8 @@ package engineerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
-import guiPieces.ButtonIcons.drgIcons;
+import guiPieces.ButtonIcons.modIcons;
+import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
@@ -73,36 +74,36 @@ public class GrenadeLauncher extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
-		tier1[0] = new Mod("Fragmentary Shell", "+1m AoE Radius", drgIcons.aoeRadius, 1, 0);
-		tier1[1] = new Mod("Expanded Ammo Bags", "+2 Max Ammo", drgIcons.carriedAmmo, 1, 1);
-		tier1[2] = new Mod("HE Compound", "+15 Area Damage", drgIcons.areaDamage, 1, 2);
+		tier1[0] = new Mod("Fragmentary Shell", "+1m AoE Radius", modIcons.aoeRadius, 1, 0);
+		tier1[1] = new Mod("Expanded Ammo Bags", "+2 Max Ammo", modIcons.carriedAmmo, 1, 1);
+		tier1[2] = new Mod("HE Compound", "+15 Area Damage", modIcons.areaDamage, 1, 2);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Extra Ammo", "+3 Max Ammo", drgIcons.carriedAmmo, 2, 0);
-		tier2[1] = new Mod("Larger Payload", "+20 Area Damage", drgIcons.areaDamage, 2, 1);
-		tier2[2] = new Mod("High Velocity Grenades", "+180% Projectile Velocity", drgIcons.projectileVelocity, 2, 2);
+		tier2[0] = new Mod("Extra Ammo", "+3 Max Ammo", modIcons.carriedAmmo, 2, 0);
+		tier2[1] = new Mod("Larger Payload", "+20 Area Damage", modIcons.areaDamage, 2, 1);
+		tier2[2] = new Mod("High Velocity Grenades", "+180% Projectile Velocity", modIcons.projectileVelocity, 2, 2);
 		
 		tier3 = new Mod[2];
-		tier3[0] = new Mod("Incendiary Compound", "Lose 50% of Direct and Area Damage, and convert it to Heat Damage that will ignite enemies, dealing " + DoTInformation.Burn_DPS + " DPS", drgIcons.heatDamage, 3, 0);
-		tier3[1] = new Mod("Pressure Wave", "+500% Armor Breaking", drgIcons.armorBreaking, 3, 1);
+		tier3[0] = new Mod("Incendiary Compound", "Lose 50% of Direct and Area Damage, and convert it to Heat Damage that will ignite enemies, dealing " + DoTInformation.Burn_DPS + " DPS", modIcons.heatDamage, 3, 0);
+		tier3[1] = new Mod("Pressure Wave", "+500% Armor Breaking", modIcons.armorBreaking, 3, 1);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Homebrew Explosive", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, drgIcons.homebrewPowder, 4, 0);
-		tier4[1] = new Mod("Nails + Tape", "+1.5m AoE Radius", drgIcons.aoeRadius, 4, 1);
-		tier4[2] = new Mod("Concussive Blast", "Stuns creatures within the blast radius for 3 seconds", drgIcons.stun, 4, 2);
+		tier4[0] = new Mod("Homebrew Explosive", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, modIcons.homebrewPowder, 4, 0);
+		tier4[1] = new Mod("Nails + Tape", "+1.5m AoE Radius", modIcons.aoeRadius, 4, 1);
+		tier4[2] = new Mod("Concussive Blast", "Stuns creatures within the blast radius for 3 seconds", modIcons.stun, 4, 2);
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Proximity Trigger", "Launched grenades will only detonate when they are in close proximity to an enemy or after the projectile comes to a complete stop. "
-				+ "Note: the trigger takes a moment to arm, indicated by a green light, and until then the grenade functions as usual.", drgIcons.special, 5, 0, false);
-		tier5[1] = new Mod("Spiky Grenade", "+60 Direct Damage to any target directly impacted by a grenade.", drgIcons.directDamage, 5, 1);
+				+ "Note: the trigger takes a moment to arm, indicated by a green light, and until then the grenade functions as usual.", modIcons.special, 5, 0, false);
+		tier5[1] = new Mod("Spiky Grenade", "+60 Direct Damage to any target directly impacted by a grenade.", modIcons.directDamage, 5, 1);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Clean Sweep", "+10 Area Damage, +0.5m AoE Radius", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Pack Rat", "+2 Max Ammo", 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Rounds", "+4 Max Ammo, -10 Area Damage, -0.5m AoE Radius", 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "RJ250 Compound", "Jump and shoot the ground beneath you to Grenade Jump. Can also be used on allies who are jumping. -25 Area Damage. (~33% self-damage)", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Fat Boy", "x4 Area Damage, +1m AoE Radius, x0.3 Max Ammo, x0.7 Projectile Velocity", 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Hyper Propellant", "+250 Direct Damage, +350% Projectile Velocity, x0.3 AoE Radius", 5);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Clean Sweep", "+10 Area Damage, +0.5m AoE Radius", overclockIcons.aoeRadius, 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Pack Rat", "+2 Max Ammo", overclockIcons.carriedAmmo, 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Rounds", "+4 Max Ammo, -10 Area Damage, -0.5m AoE Radius", overclockIcons.carriedAmmo, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "RJ250 Compound", "Jump and shoot the ground beneath you to Grenade Jump. Can also be used on allies who are jumping. -25 Area Damage. (~33% self-damage)", overclockIcons.grenadeJump, 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Fat Boy", "x4 Area Damage, +1m AoE Radius, x0.3 Max Ammo, x0.7 Projectile Velocity", overclockIcons.areaDamage, 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Hyper Propellant", "+250 Direct Damage, +350% Projectile Velocity, x0.3 AoE Radius", overclockIcons.projectileVelocity, 5);
 	}
 	
 	@Override

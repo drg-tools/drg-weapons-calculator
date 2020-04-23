@@ -3,7 +3,8 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
-import guiPieces.ButtonIcons.drgIcons;
+import guiPieces.ButtonIcons.modIcons;
+import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.DwarfInformation;
@@ -80,37 +81,37 @@ public class Autocannon extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
-		tier1[0] = new Mod("Increased Caliber Rounds", "+3 Direct Damage", drgIcons.directDamage, 1, 0);
-		tier1[1] = new Mod("High Capacity Magazine", "+110 Magazine Size", drgIcons.magSize, 1, 1);
-		tier1[2] = new Mod("Expanded Ammo Bags", "+220 Max Ammo", drgIcons.carriedAmmo, 1, 2);
+		tier1[0] = new Mod("Increased Caliber Rounds", "+3 Direct Damage", modIcons.directDamage, 1, 0);
+		tier1[1] = new Mod("High Capacity Magazine", "+110 Magazine Size", modIcons.magSize, 1, 1);
+		tier1[2] = new Mod("Expanded Ammo Bags", "+220 Max Ammo", modIcons.carriedAmmo, 1, 2);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Tighter Barrel Alignment", "-30% Base Spread", drgIcons.baseSpread, 2, 0);
-		tier2[1] = new Mod("Improved Gas System", "+1.5 Max Rate of Fire", drgIcons.rateOfFire, 2, 1);
-		tier2[2] = new Mod("Lighter Barrel Assembly", "-5 Bullets fired to reach Max Rate of Fire", drgIcons.rateOfFire, 2, 2);
+		tier2[0] = new Mod("Tighter Barrel Alignment", "-30% Base Spread", modIcons.baseSpread, 2, 0);
+		tier2[1] = new Mod("Improved Gas System", "+1.5 Max Rate of Fire", modIcons.rateOfFire, 2, 1);
+		tier2[2] = new Mod("Lighter Barrel Assembly", "-5 Bullets fired to reach Max Rate of Fire", modIcons.rateOfFire, 2, 2);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Supercharged Feed Mechanism", "+2 Max Rate of Fire", drgIcons.rateOfFire, 3, 0);
-		tier3[1] = new Mod("Loaded Rounds", "+2 Area Damage", drgIcons.areaDamage, 3, 1);
-		tier3[2] = new Mod("High Velocity Rounds", "+4 Direct Damage", drgIcons.directDamage, 3, 2);
+		tier3[0] = new Mod("Supercharged Feed Mechanism", "+2 Max Rate of Fire", modIcons.rateOfFire, 3, 0);
+		tier3[1] = new Mod("Loaded Rounds", "+2 Area Damage", modIcons.areaDamage, 3, 1);
+		tier3[2] = new Mod("High Velocity Rounds", "+4 Direct Damage", modIcons.directDamage, 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Penetrating Rounds", "+400% Armor Breaking", drgIcons.armorBreaking, 4, 0);
-		tier4[1] = new Mod("Shrapnel Rounds", "+0.6 AoE Radius", drgIcons.aoeRadius, 4, 1);
+		tier4[0] = new Mod("Penetrating Rounds", "+400% Armor Breaking", modIcons.armorBreaking, 4, 0);
+		tier4[1] = new Mod("Shrapnel Rounds", "+0.6 AoE Radius", modIcons.aoeRadius, 4, 1);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Feedback Loop", "x1.2 Direct and Area Damage when at Max Rate of Fire", drgIcons.directDamage, 5, 0);
-		tier5[1] = new Mod("Suppressive Fire", "Around 20% chance to inflict Fear to enemies within the AoE Radius on impact.", drgIcons.fear, 5, 1);
-		tier5[2] = new Mod("Damage Resistance At Full RoF", "33% Damage Resistance when at Max Rate of Fire", drgIcons.damageResistance, 5, 2);
+		tier5[0] = new Mod("Feedback Loop", "x1.2 Direct and Area Damage when at Max Rate of Fire", modIcons.directDamage, 5, 0);
+		tier5[1] = new Mod("Suppressive Fire", "Around 20% chance to inflict Fear to enemies within the AoE Radius on impact.", modIcons.fear, 5, 1);
+		tier5[2] = new Mod("Damage Resistance At Full RoF", "33% Damage Resistance when at Max Rate of Fire", modIcons.damageResistance, 5, 2);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Drums", "+110 Max Ammo, -0.5 Reload Time", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Splintering Shells", "+1 Area Damage, +0.3 AoE Radius", 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Carpet Bomber", "+3 Area Damage, +0.7 AoE Radius, -6 Direct Damage", 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Combat Mobility", "Incrreases movement speed while using from 50% to 65%, -2 Direct Damage", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Big Bertha", "+12 Direct Damage, -30% Base Spread, x0.5 Magazine Size, -110 Max Ammo, -1.5 Max Rate of Fire", 4);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Drums", "+110 Max Ammo, -0.5 Reload Time", overclockIcons.carriedAmmo, 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Splintering Shells", "+1 Area Damage, +0.3 AoE Radius", overclockIcons.aoeRadius, 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Carpet Bomber", "+3 Area Damage, +0.7 AoE Radius, -6 Direct Damage", overclockIcons.areaDamage, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Combat Mobility", "Incrreases movement speed while using from 50% to 65%, -2 Direct Damage", overclockIcons.movespeed, 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Big Bertha", "+12 Direct Damage, -30% Base Spread, x0.5 Magazine Size, -110 Max Ammo, -1.5 Max Rate of Fire", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neurotoxin Payload", "30% Chance to inflict a Neurotoxin DoT that deals an average of " + DoTInformation.Neuro_DPS + " DPS to all enemies "
-				+ "within the AoE Radius upon impact. +0.3 AoE Radius, -3 Direct Damage, -6 Area Damage", 5);
+				+ "within the AoE Radius upon impact. +0.3 AoE Radius, -3 Direct Damage, -6 Area Damage", overclockIcons.neurotoxin, 5);
 	}
 	
 	@Override

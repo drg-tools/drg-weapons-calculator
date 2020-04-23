@@ -34,11 +34,10 @@ public class ButtonIcons {
 	private static BufferedImage damageResistanceWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Resistance.png");
 	private static BufferedImage neurotoxinWhite = ResourceLoader.loadImage("images/mod/white/Icon_Overclock_Neuro.png");
 	private static BufferedImage movespeedWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_MovementSpeed.png");
-	/*
 	private static BufferedImage coldDamageWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Cold.png");
-	private static BufferedImage distanceWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Distance.png");
+	//private static BufferedImage distanceWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Distance.png");
 	private static BufferedImage durationWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Duration.png");
-	*/
+	//private static BufferedImage hourglassWhite;
 	
 	private static BufferedImage baseSpreadBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Aim_Black.png");
 	private static BufferedImage magSizeBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_ClipSize_Black.png");
@@ -68,14 +67,22 @@ public class ButtonIcons {
 	private static BufferedImage damageResistanceBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Resistance_Black.png");
 	private static BufferedImage neurotoxinBlack = ResourceLoader.loadImage("images/mod/black/Icon_Overclock_Neuro_Black.png");
 	private static BufferedImage movespeedBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_MovementSpeed_Black.png");
-	/*
-	private static BufferedImage coldDamageWhite = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Cold_Black.png");
-	private static BufferedImage distanceWhite = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Distance_Black.png");
-	private static BufferedImage durationWhite = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Duration_Black.png");
-	*/
+	//private static BufferedImage coldDamageBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Cold_Black.png");
+	//private static BufferedImage distanceBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Distance_Black.png");
+	//private static BufferedImage durationBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Duration_Black.png");
+	//private static BufferedImage hourglassBlack;
+	
+	public static BufferedImage cleanFrame = ResourceLoader.loadImage("images/overclock/Frame_Overclock_Clean.png");
+	public static BufferedImage balancedFrame = ResourceLoader.loadImage("images/overclock/Frame_Overclock_Balanced.png");
+	public static BufferedImage unstableFrame = ResourceLoader.loadImage("images/overclock/Frame_Overclock_Unstable.png");
+	private static BufferedImage specialReload = ResourceLoader.loadImage("images/overclock/Icon_Overclock_ExplosiveReload.png");
+	private static BufferedImage minishells = ResourceLoader.loadImage("images/overclock/Icon_Overclock_SmallBullets.png");
+	private static BufferedImage grenadeJump = ResourceLoader.loadImage("images/overclock/Icon_Overclock_ExplosionJump.png");
+	private static BufferedImage hoverclock = ResourceLoader.loadImage("images/overclock/Icon_Overclock_Hoverclock.png");
+	private static BufferedImage shotgunJump = ResourceLoader.loadImage("images/overclock/Icon_Overclock_ShotgunJump.png");
 	
 	// Use a large enum variable to keep track of which icon each Mod or OC needs
-	public enum drgIcons {
+	public enum modIcons {
 		baseSpread,
 		magSize,
 		reloadSpeed,
@@ -106,7 +113,7 @@ public class ButtonIcons {
 		movespeed
 	};
 	
-	public static BufferedImage getModIcon(drgIcons iconSelection, boolean getBlackVersion) {
+	public static BufferedImage getModIcon(modIcons iconSelection, boolean getBlackVersion) {
 		switch (iconSelection) {
 			case baseSpread: {
 				if (getBlackVersion) {
@@ -331,6 +338,125 @@ public class ButtonIcons {
 				else {
 					return movespeedWhite;
 				}
+			}
+			default: {
+				return null;
+			}
+		}
+	}
+	
+	public enum overclockIcons {
+		baseSpread,
+		magSize,
+		ricochet,
+		homebrewPowder,
+		rateOfFire,
+		specialReload,
+		stun,
+		coolingRate,
+		chargeSpeed,
+		fuel,
+		directDamage,
+		duration, // Will need an "hourglass" entry eventually
+		carriedAmmo,
+		miniShells,
+		electricity,
+		areaDamage,
+		aoeRadius,
+		grenadeJump,
+		projectileVelocity,
+		heatDamage,
+		movespeed,
+		neurotoxin,
+		hoverclock,
+		shotgunJump,
+		pelletsPerShot,
+		coldDamage,
+		reloadSpeed
+	}
+	
+	public static BufferedImage getOverclockIcon(overclockIcons iconSelection) {
+		switch (iconSelection) {
+			case baseSpread: {
+				return baseSpreadWhite;
+			}
+			case magSize: {
+				return magSizeWhite;
+			}
+			case ricochet: {
+				return ricochetWhite;
+			}
+			case homebrewPowder: {
+				return homebrewPowderWhite;
+			}
+			case rateOfFire: {
+				return rateOfFireWhite;
+			}
+			case specialReload: {
+				return specialReload;
+			}
+			case stun: {
+				return stunWhite;
+			}
+			case coolingRate: {
+				return coolingRateWhite;
+			}
+			case chargeSpeed: {
+				return chargeSpeedWhite;
+			}
+			case fuel: {
+				return fuelWhite;
+			}
+			case directDamage: {
+				return directDamageWhite;
+			}
+			case duration: {
+				return durationWhite;
+			}
+			case carriedAmmo: {
+				return carriedAmmoWhite;
+			}
+			case miniShells: {
+				return minishells;
+			}
+			case electricity: {
+				return electricityWhite;
+			}
+			case areaDamage: {
+				return areaDamageWhite;
+			}
+			case aoeRadius: {
+				return aoeRadiusWhite;
+			}
+			case grenadeJump: {
+				return grenadeJump;
+			}
+			case projectileVelocity: {
+				return projectileVelocityWhite;
+			}
+			case heatDamage: {
+				return heatDamageWhite;
+			}
+			case movespeed: {
+				return movespeedWhite;
+			}
+			case neurotoxin: {
+				return neurotoxinWhite;
+			}
+			case hoverclock: {
+				return hoverclock;
+			}
+			case shotgunJump: {
+				return shotgunJump;
+			}
+			case pelletsPerShot: {
+				return pelletsPerShotWhite;
+			}
+			case coldDamage: {
+				return coldDamageWhite;
+			}
+			case reloadSpeed: {
+				return reloadSpeedWhite;
 			}
 			default: {
 				return null;

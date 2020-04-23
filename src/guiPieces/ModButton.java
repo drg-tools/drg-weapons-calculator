@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.JButton;
 import javax.swing.JToolTip;
 
-import guiPieces.ButtonIcons.drgIcons;
+import guiPieces.ButtonIcons.modIcons;
 import modelPieces.Weapon;
 
 public class ModButton extends JButton implements ActionListener {
@@ -26,7 +26,7 @@ public class ModButton extends JButton implements ActionListener {
 	private boolean enabled;
 	private boolean implemented;
 	
-	public ModButton(Weapon inputWeapon, int tier, int position, String modName, String modText, drgIcons iconSelector, boolean modSelected, boolean modImplemented) {
+	public ModButton(Weapon inputWeapon, int tier, int position, String modName, String modText, modIcons iconSelector, boolean modSelected, boolean modImplemented) {
 		myWeapon = inputWeapon;
 		myTier = tier;
 		myIndex = position;
@@ -65,6 +65,7 @@ public class ModButton extends JButton implements ActionListener {
 		
 		Graphics2D g2 = (Graphics2D) g.create();
 		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
+		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		g2.setFont(GuiConstants.customFont);
 		g2.setStroke(new BasicStroke(GuiConstants.edgeWidth));
 		

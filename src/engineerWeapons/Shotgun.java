@@ -3,7 +3,8 @@ package engineerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
-import guiPieces.ButtonIcons.drgIcons;
+import guiPieces.ButtonIcons.modIcons;
+import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.AccuracyEstimator;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
@@ -74,33 +75,34 @@ public class Shotgun extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Supercharged Feed Mechanism", "+1 Rate of Fire", drgIcons.rateOfFire, 1, 0);
-		tier1[1] = new Mod("Overstuffed Magazine", "+2 Magazine Size", drgIcons.magSize, 1, 1);
+		tier1[0] = new Mod("Supercharged Feed Mechanism", "+1 Rate of Fire", modIcons.rateOfFire, 1, 0);
+		tier1[1] = new Mod("Overstuffed Magazine", "+2 Magazine Size", modIcons.magSize, 1, 1);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Expanded Ammo Bags", "+40 Max Ammo", drgIcons.carriedAmmo, 2, 0);
-		tier2[1] = new Mod("Loaded Shells", "+2 Pellets per Shot", drgIcons.pelletsPerShot, 2, 1);
-		tier2[2] = new Mod("Choke", "x0.5 Base Spread", drgIcons.baseSpread, 2, 2);
+		tier2[0] = new Mod("Expanded Ammo Bags", "+40 Max Ammo", modIcons.carriedAmmo, 2, 0);
+		tier2[1] = new Mod("Loaded Shells", "+2 Pellets per Shot", modIcons.pelletsPerShot, 2, 1);
+		tier2[2] = new Mod("Choke", "x0.5 Base Spread", modIcons.baseSpread, 2, 2);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Recoil Dampener", "x0.4 Recoil", drgIcons.recoil, 3, 0);
-		tier3[1] = new Mod("Quickfire Ejector", "-0.5 Reload Time", drgIcons.reloadSpeed, 3, 1);
-		tier3[2] = new Mod("High Capacity Magazine", "+3 Magazine Size", drgIcons.magSize, 3, 2);
+		tier3[0] = new Mod("Recoil Dampener", "x0.4 Recoil", modIcons.recoil, 3, 0);
+		tier3[1] = new Mod("Quickfire Ejector", "-0.5 Reload Time", modIcons.reloadSpeed, 3, 1);
+		tier3[2] = new Mod("High Capacity Magazine", "+3 Magazine Size", modIcons.magSize, 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Tungsten Coated Buckshot", "+400% Armor Breaking", drgIcons.armorBreaking, 4, 0);
-		tier4[1] = new Mod("Bigger Pellets", "+1 Damage per Pellet", drgIcons.directDamage, 4, 1);
+		tier4[0] = new Mod("Tungsten Coated Buckshot", "+400% Armor Breaking", modIcons.armorBreaking, 4, 0);
+		tier4[1] = new Mod("Bigger Pellets", "+1 Damage per Pellet", modIcons.directDamage, 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1m Radius. 3 second cooldown per turret.", drgIcons.special, 5, 0, false);
-		tier5[1] = new Mod("Miner Adjustments", "Changes the Shotgun from semi-automatic to fully automatic, +0.5 Rate of Fire", drgIcons.rateOfFire, 5, 1);
+		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1m Radius. 3 second cooldown per turret.", modIcons.special, 5, 0, false);
+		tier5[1] = new Mod("Miner Adjustments", "Changes the Shotgun from semi-automatic to fully automatic, +0.5 Rate of Fire", modIcons.rateOfFire, 5, 1);
 		
 		overclocks = new Overclock[5];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Stunner", "Pellets now have a 10% chance to stun any time they damage an enemy, and any shots that hit a target that's already stunned deal x1.25 damage.", 0);  // This might be x1.3, but it's hard to tell...
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Light-Weight Magazines", "+20 Max Ammo, -0.2 Reload Time", 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Magnetic Pellet Alignment", "x0.5 Base Spread, +30% Weakpoint Bonus, x0.75 Rate of Fire", 2);
-		overclocks[3] = new Overclock(Overclock.classification.unstable, "Cycle Overload", "+1 Damage per Pellet, +2 Rate of Fire, +0.5 Reload Time, x1.5 Base Spread", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Mini Shells", "+90 Max Ammo, +6 Magazine Size, x0.5 Recoil, -2 Damage per Pellet", 4);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Stunner", "Pellets now have a 10% chance to stun any time they damage an enemy, and any shots that hit a "
+				+ "target that's already stunned deal x1.25 damage.", overclockIcons.stun, 0);  // This might be x1.3, but it's hard to tell...
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Light-Weight Magazines", "+20 Max Ammo, -0.2 Reload Time", overclockIcons.carriedAmmo, 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Magnetic Pellet Alignment", "x0.5 Base Spread, +30% Weakpoint Bonus, x0.75 Rate of Fire", overclockIcons.baseSpread, 2);
+		overclocks[3] = new Overclock(Overclock.classification.unstable, "Cycle Overload", "+1 Damage per Pellet, +2 Rate of Fire, +0.5 Reload Time, x1.5 Base Spread", overclockIcons.rateOfFire, 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Mini Shells", "+90 Max Ammo, +6 Magazine Size, x0.5 Recoil, -2 Damage per Pellet", overclockIcons.miniShells, 4);
 	}
 	
 	@Override
