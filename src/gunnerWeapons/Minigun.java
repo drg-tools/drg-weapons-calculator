@@ -101,7 +101,7 @@ public class Minigun extends Weapon {
 		tier3[2] = new Mod("Blowthrough Rounds", "+1 Penetration", modIcons.blowthrough, 3, 2);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Variable Chamber Pressure", "+15% Damage per Pellet after reaching Base Spread", modIcons.directDamage, 4, 0); // TODO: find the right icon
+		tier4[0] = new Mod("Variable Chamber Pressure", "+15% Damage per Pellet after reaching Base Spread", modIcons.directDamage, 4, 0);
 		tier4[1] = new Mod("Lighter Barrel Assembly", "-0.4 seconds spinup time", modIcons.chargeSpeed, 4, 1);
 		tier4[2] = new Mod("Magnetic Bearings", "+3 seconds spindown time", modIcons.special, 4, 2);
 		
@@ -591,7 +591,7 @@ public class Minigun extends Weapon {
 		// Burning Hell only
 		else if (selectedTier5 != 2 && selectedOverclock == 2) {
 			// Burning Hell looks like it burns everything within 6m in a 20 degree arc in front of you at a rate of 100 heat/sec
-			// TODO: I would like for this to have its AoE damage reflected in max damage too like Aggressive Venting
+			// TODO: I would like for this to have its AoE damage reflected in max damage, like Aggressive Venting
 			return EnemyInformation.averageTimeToIgnite(burningHellHeatPerSec);
 		}
 		// Both Hot Bullets AND Burning Hell

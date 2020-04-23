@@ -273,7 +273,7 @@ public class Revolver_FullRoF extends Weapon {
 		return "Gunner";
 	}
 	public String getSimpleName() {
-		return "Revolver";
+		return "Revolver_FullRoF";
 	}
 	
 	/****************************************************************************************

@@ -111,7 +111,15 @@ public class OverclockButton extends JButton implements ActionListener {
 		double iconWidth = 31;
 		double iconHeight = (double) icon.getHeight() * iconWidth / (double) icon.getWidth();
 		int iconVerticalOffset = (int) Math.round((this.getHeight() - iconHeight) / 2.0);
+		// There's a weird interaction with the Clean Frame that makes the centered icons look too low.
+		if (overclockType == Overclock.classification.clean) {
+			iconVerticalOffset -= 3;
+		}
 		int iconHorizontalOffset = frameHorizontalOffset + (int) Math.round((frameWidth - iconWidth) / 2.0);
+		// Similarly, the Unstable Frame makes the icons look too far to the right
+		if (overclockType == Overclock.classification.unstable) {
+			iconHorizontalOffset -= 1;
+		}
 		g2.drawImage(icon, iconHorizontalOffset, iconVerticalOffset, (int) (iconWidth), (int) (iconHeight), null);
 		
 		// Set the font color
