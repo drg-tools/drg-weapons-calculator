@@ -13,6 +13,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -251,10 +252,15 @@ public class GuiController implements ActionListener {
 			String combination = currentlySelectedWeapon.getCombination();
 			JTextField output = new JTextField(combination);
 			output.setFont(new Font("Monospaced", Font.PLAIN, 18));
-			JOptionPane.showMessageDialog(null, output, "Current weapon combination:", JOptionPane.INFORMATION_MESSAGE);
+			
+			// Adapted from https://stackoverflow.com/a/13760416 and https://www.tutorialspoint.com/how-to-display-a-jframe-to-the-center-of-a-screen-in-java
+			JOptionPane a = new JOptionPane(output, JOptionPane.INFORMATION_MESSAGE);
+			JDialog d = a.createDialog(null, "Current weapon combination:");
+			d.setLocationRelativeTo(gui);
+			d.setVisible(true);
 		}
 		else if (e == gui.getMiscLoad()) {
-			String newCombination = JOptionPane.showInputDialog(null, "Enter the comination you want to load:");
+			String newCombination = JOptionPane.showInputDialog(gui, "Enter the comination you want to load:");
 			currentlySelectedWeapon.buildFromCombination(newCombination);
 		}
 		else if (e == gui.getMiscSuggestion()) {
