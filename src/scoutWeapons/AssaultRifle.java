@@ -3,6 +3,7 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.AccuracyEstimator;
@@ -16,7 +17,7 @@ import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
-public class Deepcore extends Weapon {
+public class AssaultRifle extends Weapon {
 	
 	/****************************************************************************************
 	* Class Variables
@@ -36,18 +37,19 @@ public class Deepcore extends Weapon {
 	****************************************************************************************/
 	
 	// Shortcut constructor to get baseline data
-	public Deepcore() {
+	public AssaultRifle() {
 		this(-1, -1, -1, -1, -1, -1);
 	}
 	
 	// Shortcut constructor to quickly get statistics about a specific build
-	public Deepcore(String combination) {
+	public AssaultRifle(String combination) {
 		this(-1, -1, -1, -1, -1, -1);
 		buildFromCombination(combination);
 	}
 	
-	public Deepcore(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
+	public AssaultRifle(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "Deepcore GK2";
+		weaponPic = WeaponPictures.assaultRifle;
 		
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 15;
@@ -272,8 +274,8 @@ public class Deepcore extends Weapon {
 	}
 	
 	@Override
-	public Deepcore clone() {
-		return new Deepcore(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
+	public AssaultRifle clone() {
+		return new AssaultRifle(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
 	public String getDwarfClass() {

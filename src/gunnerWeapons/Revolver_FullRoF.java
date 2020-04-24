@@ -3,6 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.AccuracyEstimator;
@@ -47,6 +48,7 @@ public class Revolver_FullRoF extends Weapon {
 	
 	public Revolver_FullRoF(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "\"Bulldog\" Heavy Revolver (Full RoF)";
+		weaponPic = WeaponPictures.revolver;
 		
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 50.0;

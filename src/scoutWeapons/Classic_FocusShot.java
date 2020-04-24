@@ -3,6 +3,7 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.DoTInformation;
@@ -50,6 +51,7 @@ public class Classic_FocusShot extends Weapon {
 	
 	public Classic_FocusShot(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "M1000 Classic (Focused Shots)";
+		weaponPic = WeaponPictures.classic;
 		
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 50;

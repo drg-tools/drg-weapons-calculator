@@ -3,6 +3,7 @@ package drillerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.UtilityInformation;
@@ -45,6 +46,7 @@ public class Subata extends Weapon {
 	
 	public Subata(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "Subata 120";
+		weaponPic = WeaponPictures.subata;
 		
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 12;

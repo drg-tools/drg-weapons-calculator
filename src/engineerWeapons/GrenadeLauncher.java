@@ -3,6 +3,7 @@ package engineerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.DoTInformation;
@@ -46,6 +47,7 @@ public class GrenadeLauncher extends Weapon {
 	
 	public GrenadeLauncher(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "Deepcore 40MM PGL";
+		weaponPic = WeaponPictures.grenadeLauncher;
 		
 		// Base stats, before mods or overclocks alter them:
 		areaDamage = 110;

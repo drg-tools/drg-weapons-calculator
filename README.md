@@ -17,8 +17,8 @@ by the .exe version installed.
 
 ___
 ### Tech Specs
-Compiled on Java JRE 12.0.2, Class v56
-Bundled using Launch4j 3.12 and Inno Setup 6.0.4
+* Compiled on Java JRE 12.0.2, Class v56
+* Bundled using Launch4j 3.12 and Inno Setup 6.0.4
 
 If you want to contribute to this project, feel free to make a Pull Request and I'll take a look at your suggested changes. I'm also open to adding people as Collaborators to this project.
 

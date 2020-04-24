@@ -3,6 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.AccuracyEstimator;
@@ -53,6 +54,7 @@ public class Minigun extends Weapon {
 	
 	public Minigun(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "\"Lead Storm\" Powered Minigun";
+		weaponPic = WeaponPictures.minigun;
 		
 		// Base stats, before mods or overclocks alter them:
 		damagePerPellet = 10;

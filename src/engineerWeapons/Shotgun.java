@@ -3,6 +3,7 @@ package engineerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.AccuracyEstimator;
@@ -46,6 +47,7 @@ public class Shotgun extends Weapon {
 	
 	public Shotgun(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "\"Warthog\" Auto 210";
+		weaponPic = WeaponPictures.shotgun;
 		
 		// Base stats, before mods or overclocks alter them:
 		damagePerPellet = 7;

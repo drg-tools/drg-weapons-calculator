@@ -3,6 +3,7 @@ package drillerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.DoTInformation;
@@ -76,6 +77,7 @@ public class EPC_ChargeShot extends Weapon {
 	
 	public EPC_ChargeShot(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "EPC (Charged Shots)";
+		weaponPic = WeaponPictures.EPC;
 		
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 20;

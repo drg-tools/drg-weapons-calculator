@@ -3,6 +3,7 @@ package engineerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.AccuracyEstimator;
@@ -46,6 +47,7 @@ public class SMG extends Weapon {
 	
 	public SMG(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "\"Stubby\" Voltaic SMG";
+		weaponPic = WeaponPictures.SMG;
 		
 		// Base stats, before mods or overclocks alter them:
 		electrocutionDoTChance = 0.2;

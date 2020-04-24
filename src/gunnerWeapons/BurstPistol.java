@@ -3,6 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.AccuracyEstimator;
@@ -47,6 +48,7 @@ public class BurstPistol extends Weapon {
 	
 	public BurstPistol(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "BRT7 Burst Fire Gun";
+		weaponPic = WeaponPictures.burstPistol;
 		
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 20;

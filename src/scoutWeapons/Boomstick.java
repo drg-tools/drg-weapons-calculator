@@ -3,6 +3,7 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.AccuracyEstimator;
@@ -48,6 +49,7 @@ public class Boomstick extends Weapon {
 	
 	public Boomstick(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "Jury-Rigged Boomstick";
+		weaponPic = WeaponPictures.boomstick;
 		
 		// Base stats, before mods or overclocks alter them:
 		damagePerPellet = 12;

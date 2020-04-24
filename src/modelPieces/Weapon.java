@@ -1,5 +1,6 @@
 package modelPieces;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Observable;
 
@@ -16,6 +17,7 @@ public abstract class Weapon extends Observable {
 	****************************************************************************************/
 	
 	protected String fullName;
+	protected BufferedImage weaponPic;
 	// Since several of the weapons have a Homebrew Powder mod or OC, I'm adding this coefficient in the parent class so that they can all be updated simultaneously.
 	// This number was calculated by adding up all numbers in the range [80, 140] and then dividing that sum by 60 to get the average value.
 	protected double homebrewPowderCoefficient = 1.11833;
@@ -291,6 +293,9 @@ public abstract class Weapon extends Observable {
 	// Stats page
 	public String getFullName() {
 		return fullName;
+	}
+	public BufferedImage getPicture() {
+		return weaponPic;
 	}
 	public String getCombination() {
 		String toReturn = "";
