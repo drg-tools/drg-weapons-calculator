@@ -41,6 +41,7 @@ public class OverclockButton extends JButton implements ActionListener {
 		this.setOpaque(false);
 		this.setContentAreaFilled(false);
 		this.setBorderPainted(false);
+		this.setCursor(CustomCursors.defaultCursorPlusQuestionMark);
 		
 		// Have each OverclockButton listen to itself for when it gets clicked to simplify the GuiController
 		this.addActionListener(this);

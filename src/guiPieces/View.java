@@ -68,11 +68,10 @@ public class View extends JFrame implements Observer {
 		setPreferredSize(new Dimension(1500, 780));
 		
 		// Add the icon
-		try {
-			setIconImages(ResourceLoader.loadIcoFile("/images/meatShield_composite.ico"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		setIconImages(ResourceLoader.loadIcoFile("/images/meatShield_composite.ico"));
+		
+		// Set the custom cursor
+		setCursor(CustomCursors.defaultCursor);
 		
 		constructMenu();
 		
