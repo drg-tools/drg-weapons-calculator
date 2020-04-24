@@ -4,7 +4,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -116,10 +115,6 @@ public class OverclockButton extends JButton implements ActionListener {
 			iconVerticalOffset -= 3;
 		}
 		int iconHorizontalOffset = frameHorizontalOffset + (int) Math.round((frameWidth - iconWidth) / 2.0);
-		// Similarly, the Unstable Frame makes the icons look too far to the right
-		if (overclockType == Overclock.classification.unstable) {
-			iconHorizontalOffset -= 1;
-		}
 		g2.drawImage(icon, iconHorizontalOffset, iconVerticalOffset, (int) (iconWidth), (int) (iconHeight), null);
 		
 		// Set the font color

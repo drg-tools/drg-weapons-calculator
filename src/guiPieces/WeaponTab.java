@@ -2,6 +2,7 @@ package guiPieces;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -88,17 +89,21 @@ public class WeaponTab extends JPanel {
 		toReturn.setBackground(GuiConstants.drgBackgroundBrown);
 		toReturn.setBorder(GuiConstants.blackLine);
 		toReturn.setLayout(new BoxLayout(toReturn, BoxLayout.Y_AXIS));
+		toReturn.setPreferredSize(new Dimension(200, 280));
 		
 		JPanel row;
 		JLabel statLabel, statValue;
 		int paddingPixels = 2*GuiConstants.paddingPixels;
+		String statLabelText;
 		for (int i = 0; i < weaponStats.length; i++) {
 			if (weaponStats[i].shouldBeDisplayed()) {
 				row = new JPanel();
 				row.setOpaque(false);
 				row.setLayout(new BorderLayout());
 				
-				statLabel = new JLabel(weaponStats[i].getName());
+				statLabelText = weaponStats[i].getName();
+				statLabelText = HoverText.breakLongToolTipString(statLabelText, 28);
+				statLabel = new JLabel(statLabelText);
 				statLabel.setFont(GuiConstants.customFont);
 				statLabel.setForeground(Color.white);
 				// Left-pad the label text
