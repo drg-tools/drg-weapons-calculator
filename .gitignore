@@ -2,5 +2,8 @@
 bin/*
 .classpath
 .project
-launch4j.log
-drg_dps.xml
+builds/jre8/*
+builds/DRG DPS Calculator.exe
+builds/launch4j.log
+builds/drg_dps.xml
+builds/drg_dps.iss
