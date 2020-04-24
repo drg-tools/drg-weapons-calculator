@@ -629,7 +629,7 @@ public abstract class Weapon extends Observable {
 		return new double[]{
 			calculateIdealBurstDPS(), calculateIdealSustainedDPS(), sustainedWeakpointDPS(), sustainedWeakpointAccuracyDPS(),
 			calculateAdditionalTargetDPS(), calculateMaxMultiTargetDamage(), calculateMaxNumTargets(), calculateFiringDuration(),
-			averageTimeToKill(), averageOverkill(), estimatedAccuracy(false), calculateIdealSustainedDPS()
+			averageTimeToKill(), averageOverkill(), estimatedAccuracy(false), utilityScore()
 		};
 	}
 }
