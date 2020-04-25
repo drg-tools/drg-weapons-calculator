@@ -92,7 +92,7 @@ public class Zhukov extends Weapon {
 		tier4[2] = new Mod("Expanded Ammo Bags", "+150 Max Ammo", modIcons.carriedAmmo, 4, 2);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Conductive Bullets", "+30% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 5, 0, false);
+		tier5[0] = new Mod("Conductive Bullets", "+30% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 5, 0);
 		tier5[1] = new Mod("Get In, Get Out", "+100% Movement Speed for 2 seconds after reloading an empty magazine", modIcons.movespeed, 5, 1);
 		
 		overclocks = new Overclock[5];
@@ -483,6 +483,12 @@ public class Zhukov extends Weapon {
 			duration = effectiveMagazineSize / effectiveRoF + getReloadTime();
 		}
 		
+		double directDamage = getDirectDamage();
+		// Conductive Bullets is x1.3 multiplier on Electrocuted targets or targets inside IFG field
+		if (selectedTier5 == 0 && (statusEffects[2] || statusEffects[3])) {
+			directDamage *= 1.3;
+		}
+		
 		double damagePerMagazine;
 		int bulletsThatHitTarget;
 		if (selectedOverclock == 2) {
@@ -491,18 +497,18 @@ public class Zhukov extends Weapon {
 			duration += 1;
 			double numBulletsMissedToBecomeCryoMinelets = calculateAvgNumBulletsNeededToFreeze();
 			bulletsThatHitTarget = (int) Math.round((effectiveMagazineSize - numBulletsMissedToBecomeCryoMinelets) * generalAccuracy);
-			damagePerMagazine = (getDirectDamage() * UtilityInformation.Frozen_Damage_Multiplier) * bulletsThatHitTarget;
+			damagePerMagazine = (directDamage * UtilityInformation.Frozen_Damage_Multiplier) * bulletsThatHitTarget;
 		}
 		else {
 			if (weakpoint && selectedOverclock != 4) {
 				double weakpointAccuracy = estimatedAccuracy(true) / 100.0;
 				int bulletsThatHitWeakpoint = (int) Math.round(effectiveMagazineSize * weakpointAccuracy);
 				bulletsThatHitTarget = (int) Math.round(effectiveMagazineSize * generalAccuracy) - bulletsThatHitWeakpoint;
-				damagePerMagazine = bulletsThatHitWeakpoint * increaseBulletDamageForWeakpoints2(getDirectDamage(), getWeakpointBonus()) + bulletsThatHitTarget * getDirectDamage() + (bulletsThatHitWeakpoint + bulletsThatHitTarget) * getAreaDamage();
+				damagePerMagazine = bulletsThatHitWeakpoint * increaseBulletDamageForWeakpoints2(directDamage, getWeakpointBonus()) + bulletsThatHitTarget * directDamage + (bulletsThatHitWeakpoint + bulletsThatHitTarget) * getAreaDamage();
 			}
 			else {
 				bulletsThatHitTarget = (int) Math.round(effectiveMagazineSize * generalAccuracy);
-				damagePerMagazine = (getDirectDamage() + getAreaDamage()) * bulletsThatHitTarget;
+				damagePerMagazine = (directDamage + getAreaDamage()) * bulletsThatHitTarget;
 			}
 		}
 		

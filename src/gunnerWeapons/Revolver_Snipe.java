@@ -103,7 +103,7 @@ public class Revolver_Snipe extends Weapon {
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, overclockIcons.homebrewPowder, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 33% chance to ricochet into a nearby enemy.", overclockIcons.ricochet, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Bullets", "x4 Damage to Burning targets, -25 Direct Damage", overclockIcons.heatDamage, 2, false);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Bullets", "x4 Damage to Burning targets, -25 Direct Damage", overclockIcons.heatDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Six Shooter", "+2 Magazine Size, +8 Max Ammo, +4 Rate of Fire, x1.5 Base Spread, +0.5 Reload Time", overclockIcons.magSize, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -13 Max Ammo, +71% Spread per Shot, +150% Recoil, +0.5 Reload Time", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Magic Bullets", "All bullets that impact terrain automatically ricochet to nearby enemies (effectively raising accuracy to 100%). +8 Max Ammo, -20 Direct Damage", overclockIcons.ricochet, 5);
@@ -568,14 +568,20 @@ public class Revolver_Snipe extends Weapon {
 			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
 		}
 		
+		double directDamage = getDirectDamage();
+		// OC Volatile Bullets deals x4 Direct Damage to Burning targets
+		if (selectedOverclock == 2 && statusEffects[0]) {
+			directDamage *= 4.0;
+		}
+		
 		double weakpointAccuracy;
 		if (weakpoint) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
-			directWeakpointDamage = increaseBulletDamageForWeakpoints2(getDirectDamage(), getWeakpointBonus());
+			directWeakpointDamage = increaseBulletDamageForWeakpoints2(directDamage, getWeakpointBonus());
 		}
 		else {
 			weakpointAccuracy = 0.0;
-			directWeakpointDamage = getDirectDamage();
+			directWeakpointDamage = directDamage;
 		}
 		
 		double neuroDPS = 0;
@@ -593,7 +599,7 @@ public class Revolver_Snipe extends Weapon {
 		int bulletsThatHitWeakpoint = (int) Math.round(magSize * weakpointAccuracy);
 		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
 		
-		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * (getDirectDamage() + getAreaDamage())) / duration + neuroDPS;
+		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * (directDamage + getAreaDamage())) / duration + neuroDPS;
 	}
 	
 	private double calculateDamagePerMagazine(boolean weakpointBonus, int numTargets) {

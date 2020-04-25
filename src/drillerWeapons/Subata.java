@@ -94,7 +94,7 @@ public class Subata extends Weapon {
 		tier4[1] = new Mod("High Velocity Rounds", "+3 Direct Damage", modIcons.directDamage, 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Volatile Bullets", "+50% Damage dealt to Burning enemies", modIcons.heatDamage, 5, 0, false);
+		tier5[0] = new Mod("Volatile Bullets", "+50% Damage dealt to Burning enemies", modIcons.heatDamage, 5, 0);
 		tier5[1] = new Mod("Mactera Neurotoxin Coating", "+20% Damage dealt to Mactera-type enemies", modIcons.special, 5, 1, false);
 		
 		overclocks = new Overclock[6];
@@ -515,21 +515,29 @@ public class Subata extends Weapon {
 			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
 		}
 		
+		double directDamage = getDirectDamage();
+		double areaDamage = getAreaDamage();
+		// T5.A Volatile Bullets adds 50% of the total damage per bullet as Fire damage (not Heat Damage) if the bullet hits a Burning target
+		if (selectedTier5 == 0 && statusEffects[0]) {
+			directDamage *= 1.5;
+			areaDamage *= 1.5;
+		}
+		
 		double weakpointAccuracy;
 		if (weakpoint) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
-			directWeakpointDamage = increaseBulletDamageForWeakpoints2(getDirectDamage(), getWeakpointBonus());
+			directWeakpointDamage = increaseBulletDamageForWeakpoints2(directDamage, getWeakpointBonus());
 		}
 		else {
 			weakpointAccuracy = 0.0;
-			directWeakpointDamage = getDirectDamage();
+			directWeakpointDamage = directDamage;
 		}
 		
 		int magSize = getMagazineSize();
 		int bulletsThatHitWeakpoint = (int) Math.round(magSize * weakpointAccuracy);
 		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
 		
-		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * getDirectDamage() + (bulletsThatHitWeakpoint + bulletsThatHitTarget) * getAreaDamage()) / duration;
+		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * directDamage + (bulletsThatHitWeakpoint + bulletsThatHitTarget) * areaDamage) / duration;
 	}
 
 	@Override

@@ -24,6 +24,7 @@ public class OverclockButton extends JButton implements ActionListener {
 	private BufferedImage icon;
 	private int myIndex;
 	private Overclock.classification overclockType;
+	private ButtonIcons.overclockIcons iconValue;
 	private boolean enabled;
 	private boolean implemented;
 	
@@ -32,7 +33,8 @@ public class OverclockButton extends JButton implements ActionListener {
 		myIndex = index;
 		overclockType = myWeapon.getOverclocks()[myIndex].getType();
 		enabled = overclockSelected;
-		icon = ButtonIcons.getOverclockIcon(iconSelector);
+		iconValue = iconSelector;
+		icon = ButtonIcons.getOverclockIcon(iconValue);
 		implemented = ocImplemented;
 		
 		this.setText(ocName);
@@ -116,6 +118,10 @@ public class OverclockButton extends JButton implements ActionListener {
 			iconVerticalOffset -= 3;
 		}
 		int iconHorizontalOffset = frameHorizontalOffset + (int) Math.round((frameWidth - iconWidth) / 2.0);
+		// The Damage skull and Ricochet icons are a little to the right; I'm going to move them to the left a little bit.
+		if (iconValue == ButtonIcons.overclockIcons.directDamage || iconValue == ButtonIcons.overclockIcons.ricochet) {
+			iconHorizontalOffset -= 1;
+		}
 		g2.drawImage(icon, iconHorizontalOffset, iconVerticalOffset, (int) (iconWidth), (int) (iconHeight), null);
 		
 		// Set the font color

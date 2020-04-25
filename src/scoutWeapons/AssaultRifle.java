@@ -106,7 +106,7 @@ public class AssaultRifle extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Gas Rerouting", "+1 Rate of Fire, -0.3 Reload Time", overclockIcons.rateOfFire, 1);
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, overclockIcons.homebrewPowder, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Overclocked Firing Mechanism", "+3 Rate of Fire, x2.5 Recoil", overclockIcons.rateOfFire, 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Bullets of Mercy", "+33% Damage dealt to enemies that are burning, electrocuted, poisoned, stunned, or frozen. Additionally, -5 Magazine Size", overclockIcons.directDamage, 4, false);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Bullets of Mercy", "+33% Damage dealt to enemies that are burning, electrocuted, poisoned, stunned, or frozen. Additionally, -5 Magazine Size", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "AI Stability Engine", "x0 Recoil, x10 Spread Recovery Speed, -1 Direct Damage, -2 Rate of Fire", overclockIcons.baseSpread, 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Electrifying Reload", "If any bullets from a magazine damage an enemy's healthbar, then those enemies will have an Electrocute DoT applied when that "
 				+ "magazine gets reloaded. Electrocute does an average of " + DoTInformation.Electro_DPS + " DPS. -3 Direct Damage, -5 Magazine Size", overclockIcons.specialReload, 6);
@@ -282,7 +282,7 @@ public class AssaultRifle extends Weapon {
 		return "Scout";
 	}
 	public String getSimpleName() {
-		return "Deepcore";
+		return "AssaultRifle";
 	}
 	
 	/****************************************************************************************
@@ -515,14 +515,33 @@ public class AssaultRifle extends Weapon {
 			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
 		}
 		
+		double directDamage = getDirectDamage();
+		// Bullets of Mercy OC damage increase
+		if (selectedOverclock == 4) {
+			double BoMDamageMultiplier = 1.33;
+			if (statusEffects[0] || statusEffects[1] || statusEffects[2] || statusEffects[3]) {
+				directDamage *= BoMDamageMultiplier;
+			}
+			else {
+				// If no Status Effects are active, then it only procs on the weapon's built-in Stun.
+				double stunChancePerShot = getWeakpointStunChance();
+				double numShotsBeforeStun = Math.round(MathUtils.meanRolls(stunChancePerShot));
+				double numShotsFiredWhileStunned = Math.min(Math.round(stunDuration * getRateOfFire()), getMagazineSize() - numShotsBeforeStun);
+				
+				double averageBoMDamageMultiplier = (numShotsBeforeStun + BoMDamageMultiplier * numShotsFiredWhileStunned) / (numShotsBeforeStun + numShotsFiredWhileStunned);
+				
+				directDamage *= averageBoMDamageMultiplier;
+			}
+		}
+		
 		double weakpointAccuracy;
 		if (weakpoint) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
-			directWeakpointDamage = increaseBulletDamageForWeakpoints2(getDirectDamage(), getWeakpointBonus());
+			directWeakpointDamage = increaseBulletDamageForWeakpoints2(directDamage, getWeakpointBonus());
 		}
 		else {
 			weakpointAccuracy = 0.0;
-			directWeakpointDamage = getDirectDamage();
+			directWeakpointDamage = directDamage;
 		}
 		
 		double electroDPS = 0;
@@ -535,7 +554,7 @@ public class AssaultRifle extends Weapon {
 		int bulletsThatHitWeakpoint = (int) Math.round(magSize * weakpointAccuracy);
 		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
 		
-		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * getDirectDamage()) / duration + electroDPS;
+		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * directDamage) / duration + electroDPS;
 	}
 
 	@Override

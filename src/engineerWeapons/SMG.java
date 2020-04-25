@@ -462,12 +462,18 @@ public class SMG extends Weapon {
 		double directDamage = getDirectDamage();
 		
 		if (selectedTier4 == 1) {
-			// To model a 30% physical damage increase to electrocuted targets, average out how many bullets/mag that would get the buff after a DoT proc, and then spread that bonus across every bullet.
-			double DoTChance = getElectrocutionDoTChance();
-			double meanBulletsFiredBeforeProc = MathUtils.meanRolls(DoTChance);
-			double numBulletsFiredAfterProc = getMagazineSize() - meanBulletsFiredBeforeProc;
-			
-			directDamage *= (meanBulletsFiredBeforeProc + numBulletsFiredAfterProc * 1.3) / getMagazineSize();
+			double conductiveBulletsDamageMultiplier = 1.3;
+			if (statusEffects[2] || statusEffects[3]) {
+				directDamage *= conductiveBulletsDamageMultiplier;
+			}
+			else {
+				// To model a 30% physical damage increase to electrocuted targets, average out how many bullets/mag that would get the buff after a DoT proc, and then spread that bonus across every bullet.
+				double DoTChance = getElectrocutionDoTChance();
+				double meanBulletsFiredBeforeProc = MathUtils.meanRolls(DoTChance);
+				double numBulletsFiredAfterProc = getMagazineSize() - meanBulletsFiredBeforeProc;
+				
+				directDamage *= (meanBulletsFiredBeforeProc + numBulletsFiredAfterProc * conductiveBulletsDamageMultiplier) / getMagazineSize();
+			}
 		}
 		
 		// According to the wiki, Electric damage gets bonus from Weakpoints too

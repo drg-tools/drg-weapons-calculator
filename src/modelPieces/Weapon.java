@@ -37,12 +37,14 @@ public abstract class Weapon extends Observable {
 	protected Overclock[] overclocks;
 	protected int selectedOverclock;
 	
-	protected double weakpointAccuracy;
-	protected double generalAccuracy;
+	//protected double weakpointAccuracy;
+	//protected double generalAccuracy;
 	protected double[] aoeEfficiency;
 	// Mobility, Damage Resist, Armor Break, Slow, Fear, Stun, Freeze
 	// Set them all to zero to start, then override values in child objects as necessary.
-	protected double[] utilityScores = {0,0,0,0,0,0,0};
+	protected double[] utilityScores = {0, 0, 0, 0, 0, 0, 0};
+	// Burning, Frozen, Electrocuted, IFG Grenade
+	protected boolean[] statusEffects = {false, false, false, false};
 	
 	protected double[] baselineCalculatedStats;
 	private AoEVisualizer illustration = null;
@@ -197,6 +199,15 @@ public abstract class Weapon extends Observable {
 		}
 		else {
 			System.out.println("Overclock choice is outside array bounds");
+		}
+	}
+	
+	public boolean[] getCurrentStatsEffects() {
+		return statusEffects;
+	}
+	public void setStatusEffect(int effectIndex, boolean newValue) {
+		if (effectIndex > -1 && effectIndex < statusEffects.length) {
+			statusEffects[effectIndex] = newValue;
 		}
 	}
 	
