@@ -202,12 +202,17 @@ public abstract class Weapon extends Observable {
 		}
 	}
 	
-	public boolean[] getCurrentStatsEffects() {
+	public boolean[] getCurrentStatusEffects() {
 		return statusEffects;
 	}
 	public void setStatusEffect(int effectIndex, boolean newValue) {
 		if (effectIndex > -1 && effectIndex < statusEffects.length) {
 			statusEffects[effectIndex] = newValue;
+			
+			if (countObservers() > 0) {
+				setChanged();
+				notifyObservers();
+			}
 		}
 	}
 	

@@ -10,8 +10,10 @@ import java.awt.GridLayout;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import modelPieces.DoTInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
@@ -37,49 +39,95 @@ public class WeaponTab extends JPanel {
 		gbc.fill = GridBagConstraints.BOTH;
 		this.setLayout(gbl);
 		
-		// Place the Stats panel so that it takes up the left sixth of the GUI
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 		gbc.gridwidth = 1;
-		gbc.gridheight = 5;
+		gbc.gridheight = 24;
 		gbc.weightx = 1.0/7.0;
-		gbc.weighty = 5.0/7.0;
+		gbc.weighty = 24.0/30.0;
 		JPanel weaponStats = constructWeaponStatsPanel();
 		gbl.setConstraints(weaponStats, gbc);
 		this.add(weaponStats);
 		
-		// Place the Mods panel so that it takes up the top 60% of the right two thirds
 		gbc.gridx = 1;
 		gbc.gridy = 0;
 		gbc.gridwidth = 6;
-		gbc.gridheight = 3;
+		gbc.gridheight = 15;
 		gbc.weightx = 6.0/7.0;
-		gbc.weighty = 3.0/7.0;
+		gbc.weighty = 15.0/30.0;
 		JPanel weaponMods = constructModsPanel();
 		gbl.setConstraints(weaponMods, gbc);
 		this.add(weaponMods);
 		
-		// Place the Overclocks pane so that it takes up the bottom 40% of the right two thirds
 		gbc.gridx = 1;
-		gbc.gridy = 3;
+		gbc.gridy = 15;
 		gbc.gridwidth = 6;
-		gbc.gridheight = 2;
+		gbc.gridheight = 7;
 		gbc.weightx = 6.0/7.0;
-		gbc.weighty = 2.0/7.0;
+		gbc.weighty = 7.0/30.0;
 		JPanel weaponOverclocks = constructOverclocksPanel();
 		gbl.setConstraints(weaponOverclocks, gbc);
 		this.add(weaponOverclocks);
 		
+		gbc.gridx = 1;
+		gbc.gridy = 22;
+		gbc.gridwidth = 6;
+		gbc.gridheight = 2;
+		gbc.weightx = 6.0/7.0;
+		gbc.weighty = 2.0/30.0;
+		JPanel statusEffectButtons = constructStatusEffectsPanel();
+		gbl.setConstraints(statusEffectButtons, gbc);
+		this.add(statusEffectButtons);
+		
 		// Place the calculated values in the bottom one-quarter
 		gbc.gridx = 0;
-		gbc.gridy = 5;
+		gbc.gridy = 24;
 		gbc.gridwidth = 7;
-		gbc.gridheight = 2;
+		gbc.gridheight = 6;
 		gbc.weightx = 1.0;
-		gbc.weighty = 2.0/7.0;
+		gbc.weighty = 6.0/30.0;
 		JPanel weaponCalculations = constructCalculationsPanel();
 		gbl.setConstraints(weaponCalculations, gbc);
 		this.add(weaponCalculations);
+	}
+	
+	// TODO: at some point down the line I'd like to add the picture for each weapon somewhere, but for now I'm leaving this snippet unused.
+	private JPanel constructWeaponPicturePanel() {
+		JPanel toReturn = new JPanel();
+		toReturn.setLayout(new GridLayout(0, 1));
+		toReturn.setBackground(GuiConstants.drgBackgroundBrown);
+		toReturn.setBorder(GuiConstants.blackLine);
+		
+		toReturn.add(new WeaponImagePanel(myWeapon.getPicture()));
+		
+		return toReturn;
+	}
+	
+	private JPanel constructStatusEffectsPanel() {
+		boolean[] currentStatusEffects = myWeapon.getCurrentStatusEffects();
+		
+		JPanel toReturn = new JPanel();
+		toReturn.setBackground(GuiConstants.drgBackgroundBrown);
+		toReturn.setBorder(GuiConstants.blackLine);
+		toReturn.setLayout(new GridLayout(1, 5));
+		//toReturn.setPreferredSize(new Dimension(200, 280));
+		
+		JLabel title = new JLabel("Toggle Status Effects:", SwingConstants.CENTER);
+		title.setFont(GuiConstants.customFontHeader);
+		title.setForeground(GuiConstants.drgRegularOrange);
+		toReturn.add(title);
+		
+		StatusEffectButton burning = new StatusEffectButton(myWeapon, 0, "Burning", "Enemies that are Burning take an average of " + DoTInformation.Burn_DPS + " Fire Damage per second", currentStatusEffects[0]);
+		StatusEffectButton frozen = new StatusEffectButton(myWeapon, 1, "Frozen", "Enemies that are Frozen cannot move, take 3x Direct Damage, normal Area Damage, but no Weakpoint Bonuses can be applied.", currentStatusEffects[1]);
+		StatusEffectButton electrocuted = new StatusEffectButton(myWeapon, 2, "Electrocuted", "Enemies that are Electrocuted take an average of " + DoTInformation.Electro_DPS + " Electric Damage per second and are slowed by 80%", currentStatusEffects[2]);
+		StatusEffectButton IFG = new StatusEffectButton(myWeapon, 3, "IFG Grenade", "Scout's IFG Grenade slows all enemy movement by 75% and increases the damage dealt to enemies by 30%.", currentStatusEffects[3]);
+		
+		toReturn.add(burning);
+		toReturn.add(frozen);
+		toReturn.add(electrocuted);
+		toReturn.add(IFG);
+		
+		return toReturn;
 	}
 	
 	private JPanel constructWeaponStatsPanel() {
