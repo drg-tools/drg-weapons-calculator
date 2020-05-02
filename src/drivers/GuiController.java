@@ -47,6 +47,7 @@ import scoutWeapons.Zhukov;
 		8000 Total Damage
 */
 
+// TODO: implement IFG's x1.3 dmg bonus and Frozen's x3 dmg bonus for those two effects when they get toggled
 public class GuiController implements ActionListener {
 	
 	private Weapon[] drillerWeapons;

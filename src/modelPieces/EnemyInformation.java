@@ -100,7 +100,7 @@ public class EnemyInformation {
 		90,    // Glyphid Grunt
 		270,   // Glyphid Grunt Guard
 		148,   // Glyphid Grunt Slasher
-		600,   // Glyphid Praetorian
+		750,   // Glyphid Praetorian
 		20,    // Glyphid Exploder
 		4000,  // Glyphid Bulk Detonator
 		6000,  // Glyphid Crassus Detonator

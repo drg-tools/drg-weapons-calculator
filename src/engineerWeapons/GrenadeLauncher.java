@@ -83,7 +83,7 @@ public class GrenadeLauncher extends Weapon {
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("Extra Ammo", "+3 Max Ammo", modIcons.carriedAmmo, 2, 0);
 		tier2[1] = new Mod("Larger Payload", "+20 Area Damage", modIcons.areaDamage, 2, 1);
-		tier2[2] = new Mod("High Velocity Grenades", "+180% Projectile Velocity", modIcons.projectileVelocity, 2, 2);
+		tier2[2] = new Mod("High Velocity Grenades", "+180% Projectile Velocity", modIcons.projectileVelocity, 2, 2, false);
 		
 		tier3 = new Mod[2];
 		tier3[0] = new Mod("Incendiary Compound", "Lose 50% of Direct and Area Damage, and convert it to Heat Damage that will ignite enemies, dealing " + DoTInformation.Burn_DPS + " DPS", modIcons.heatDamage, 3, 0);
