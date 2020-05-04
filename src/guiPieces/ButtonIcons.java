@@ -81,6 +81,10 @@ public class ButtonIcons {
 	private static BufferedImage hoverclock = ResourceLoader.loadImage("images/overclock/Icon_Overclock_Hoverclock.png");
 	private static BufferedImage shotgunJump = ResourceLoader.loadImage("images/overclock/Icon_Overclock_ShotgunJump.png");
 	
+	private static BufferedImage statusFire = ResourceLoader.loadImage("images/statusEffect/Status_fire.png");
+	private static BufferedImage statusFrozen = ResourceLoader.loadImage("images/statusEffect/Status_frozen.png");
+	private static BufferedImage statusElectricity = ResourceLoader.loadImage("images/statusEffect/Status_electricity.png");
+	
 	// Use a large enum variable to keep track of which icon each Mod or OC needs
 	public enum modIcons {
 		baseSpread,
@@ -457,6 +461,29 @@ public class ButtonIcons {
 			}
 			case reloadSpeed: {
 				return reloadSpeedWhite;
+			}
+			default: {
+				return null;
+			}
+		}
+	}
+	
+	public enum statusEffectIcons {
+		fire,
+		frozen,
+		electricity
+	}
+	
+	public static BufferedImage getStatusEffectIcon(statusEffectIcons iconSelection) {
+		switch (iconSelection) {
+			case fire: {
+				return statusFire;
+			}
+			case frozen: {
+				return statusFrozen;
+			}
+			case electricity: {
+				return statusElectricity;
 			}
 			default: {
 				return null;

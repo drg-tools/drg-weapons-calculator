@@ -117,10 +117,14 @@ public class WeaponTab extends JPanel {
 		title.setForeground(GuiConstants.drgRegularOrange);
 		toReturn.add(title);
 		
-		StatusEffectButton burning = new StatusEffectButton(myWeapon, 0, "Burning", "Enemies that are Burning take an average of " + DoTInformation.Burn_DPS + " Fire Damage per second", currentStatusEffects[0]);
-		StatusEffectButton frozen = new StatusEffectButton(myWeapon, 1, "Frozen", "Enemies that are Frozen cannot move, take 3x Direct Damage, normal Area Damage, but no Weakpoint Bonuses can be applied.", currentStatusEffects[1]);
-		StatusEffectButton electrocuted = new StatusEffectButton(myWeapon, 2, "Electrocuted", "Enemies that are Electrocuted take an average of " + DoTInformation.Electro_DPS + " Electric Damage per second and are slowed by 80%", currentStatusEffects[2]);
-		StatusEffectButton IFG = new StatusEffectButton(myWeapon, 3, "IFG Grenade", "Scout's IFG Grenade slows all enemy movement by 75% and increases the damage dealt to enemies by 30%.", currentStatusEffects[3]);
+		StatusEffectButton burning = new StatusEffectButton(myWeapon, 0, "Burning", "Enemies that are Burning take an average of " + DoTInformation.Burn_DPS + " Fire Damage per second", 
+				ButtonIcons.statusEffectIcons.fire, currentStatusEffects[0]);
+		StatusEffectButton frozen = new StatusEffectButton(myWeapon, 1, "Frozen", "Enemies that are Frozen cannot move, take 3x Direct Damage, normal Area Damage, but no Weakpoint Bonuses can be applied.", 
+				ButtonIcons.statusEffectIcons.frozen, currentStatusEffects[1]);
+		StatusEffectButton electrocuted = new StatusEffectButton(myWeapon, 2, "Electrocuted", "Enemies that are Electrocuted take an average of " + DoTInformation.Electro_DPS + " Electric Damage per second and are slowed by 80%", 
+				ButtonIcons.statusEffectIcons.electricity, currentStatusEffects[2]);
+		StatusEffectButton IFG = new StatusEffectButton(myWeapon, 3, "IFG Grenade", "Scout's IFG Grenade slows all enemy movement by 75% and increases the damage dealt to enemies by 30%.", 
+				ButtonIcons.statusEffectIcons.electricity, currentStatusEffects[3]);
 		
 		toReturn.add(burning);
 		toReturn.add(frozen);
