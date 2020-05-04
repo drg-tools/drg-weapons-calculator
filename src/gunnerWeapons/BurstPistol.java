@@ -522,7 +522,7 @@ public class BurstPistol extends Weapon {
 	// Single-target calculations
 	private double calculateDamagePerBurst(boolean weakpointBonus) {
 		// TODO: I'd like to refactor this method out
-		if (weakpointBonus) {
+		if (weakpointBonus && !statusEffects[1]) {
 			return increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) * getBurstSize();
 		}
 		else {
@@ -563,14 +563,25 @@ public class BurstPistol extends Weapon {
 			duration = calculateTimeToFireMagazine() + getReloadTime();
 		}
 		
+		double dmg = getDirectDamage();
+		
+		// Frozen
+		if (statusEffects[1]) {
+			dmg *= UtilityInformation.Frozen_Damage_Multiplier;
+		}
+		// IFG Grenade
+		if (statusEffects[3]) {
+			dmg *= UtilityInformation.IFG_Damage_Multiplier;
+		}
+		
 		double weakpointAccuracy;
-		if (weakpoint) {
+		if (weakpoint && !statusEffects[1]) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
-			directWeakpointDamage = increaseBulletDamageForWeakpoints2(getDirectDamage(), getWeakpointBonus());
+			directWeakpointDamage = increaseBulletDamageForWeakpoints2(dmg, getWeakpointBonus());
 		}
 		else {
 			weakpointAccuracy = 0.0;
-			directWeakpointDamage = getDirectDamage();
+			directWeakpointDamage = dmg;
 		}
 		
 		double electroDPS = 0;
@@ -589,7 +600,7 @@ public class BurstPistol extends Weapon {
 		int bulletsThatHitWeakpoint = (int) Math.round(magSize * weakpointAccuracy);
 		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
 		
-		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * getDirectDamage()) / duration + electroDPS;
+		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * dmg) / duration + electroDPS;
 	}
 
 	@Override

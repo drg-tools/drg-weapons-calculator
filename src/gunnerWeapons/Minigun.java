@@ -654,13 +654,22 @@ public class Minigun extends Weapon {
 		
 		int burstSize = (int) calculateMaxNumPelletsFiredWithoutOverheating();
 		double directDamage = getDamagePerPellet();
+		
+		// Frozen
+		if (statusEffects[1]) {
+			directDamage *= UtilityInformation.Frozen_Damage_Multiplier;
+		}
+		// IFG Grenade
+		if (statusEffects[3]) {
+			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
+		}
 		if (selectedTier4 == 0) {
 			double pelletsFiredWhileNotStabilized = bulletsFiredTilMaxStability / 2.0;
 			directDamage *= (pelletsFiredWhileNotStabilized + 1.15*(burstSize - pelletsFiredWhileNotStabilized)) / burstSize;
 		}
 		
 		double weakpointAccuracy;
-		if (weakpoint) {
+		if (weakpoint && !statusEffects[1]) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
 			directWeakpointDamage = increaseBulletDamageForWeakpoints2(directDamage);
 		}
@@ -670,7 +679,7 @@ public class Minigun extends Weapon {
 		}
 		
 		double burnDPS = 0;
-		if (selectedTier5 == 2 || selectedOverclock == 2) {
+		if ((selectedTier5 == 2 || selectedOverclock == 2) && !statusEffects[1]) {
 			if (burst) {
 				double ignitionTime = calculateIgnitionTime(accuracy);
 				double burnDoTUptime = (shortDuration - ignitionTime) / shortDuration;

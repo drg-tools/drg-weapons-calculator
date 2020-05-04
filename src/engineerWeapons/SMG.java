@@ -478,7 +478,17 @@ public class SMG extends Weapon {
 		
 		// According to the wiki, Electric damage gets bonus from Weakpoints too
 		double totalDamage = directDamage + getElectricDamage();
-		if (weakpointBonus) {
+		
+		// Frozen
+		if (statusEffects[1]) {
+			totalDamage *= UtilityInformation.Frozen_Damage_Multiplier;
+		}
+		// IFG Grenade
+		if (statusEffects[3]) {
+			totalDamage *= UtilityInformation.IFG_Damage_Multiplier;
+		}
+		
+		if (weakpointBonus && !statusEffects[1]) {
 			return increaseBulletDamageForWeakpoints2(totalDamage, getWeakpointBonus());
 		}
 		else {

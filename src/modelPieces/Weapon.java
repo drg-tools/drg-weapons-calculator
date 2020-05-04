@@ -207,6 +207,14 @@ public abstract class Weapon extends Observable {
 	}
 	public void setStatusEffect(int effectIndex, boolean newValue) {
 		if (effectIndex > -1 && effectIndex < statusEffects.length) {
+			// Special case: Burning and Frozen are mutually exclusive statuses, so make sure that if one gets set to true, the other is automatically set to false
+			if (effectIndex == 0 && newValue) {
+				statusEffects[1] = false;
+			}
+			else if (effectIndex == 1 && newValue) {
+				statusEffects[0] = false;
+			}
+			
 			statusEffects[effectIndex] = newValue;
 			
 			if (countObservers() > 0) {
@@ -605,6 +613,7 @@ public abstract class Weapon extends Observable {
 	public abstract double sustainedWeakpointAccuracyDPS();
 	
 	// Multi-target calculations (based on "ideal" sustained DPS calculations)
+	// I'm choosing not to implement Status Effects on the additional targets
 	public abstract double calculateAdditionalTargetDPS();
 	public abstract double calculateMaxMultiTargetDamage();
 	

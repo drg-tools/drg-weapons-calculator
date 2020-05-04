@@ -501,13 +501,27 @@ public class Autocannon extends Weapon {
 		
 		int magSize = getMagazineSize();
 		double directDamage = getDirectDamage();
+		double areaDamage = getAreaDamage();
+		
+		// Frozen
+		if (statusEffects[1]) {
+			directDamage *= UtilityInformation.Frozen_Damage_Multiplier;
+		}
+		// IFG Grenade
+		if (statusEffects[3]) {
+			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
+			areaDamage *= UtilityInformation.IFG_Damage_Multiplier;
+		}
+		
 		if (selectedTier5 == 0) {
 			double numBulletsRampup = (double) getNumBulletsRampup();
-			directDamage *= (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+			double feedbackLoopMultiplier = (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+			directDamage *= feedbackLoopMultiplier;
+			areaDamage *= feedbackLoopMultiplier;
 		}
 		
 		double weakpointAccuracy;
-		if (weakpoint) {
+		if (weakpoint && !statusEffects[1]) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
 			directWeakpointDamage = increaseBulletDamageForWeakpoints2(directDamage);
 		}
@@ -531,7 +545,7 @@ public class Autocannon extends Weapon {
 		}
 		
 		// I'm choosing to model this as if the splash damage from every bullet were to hit the primary target, even if the bullets themselves don't.
-		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * directDamage + magSize * getAreaDamage()) / duration + neuroDPS;
+		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * directDamage + magSize * areaDamage) / duration + neuroDPS;
 	}
 	
 	private double calculateDamagePerMagazine(boolean weakpointBonus, int numTargets) {
@@ -584,13 +598,14 @@ public class Autocannon extends Weapon {
 	public double calculateAdditionalTargetDPS() {
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getAverageRateOfFire()) + getReloadTime();
 		double magSize = (double) getMagazineSize();
-		double damageMultiplier = 1.0;
+		double areaDamage = getAreaDamage();
+		
 		if (selectedTier5 == 0) {
 			double numBulletsRampup = (double) getNumBulletsRampup();
-			damageMultiplier = (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+			areaDamage *= (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
 		}
-		double areaDamagePerMag = getAreaDamage() * aoeEfficiency[1] * magSize * damageMultiplier;
 		
+		double areaDamagePerMag = areaDamage * aoeEfficiency[1] * magSize;
 		double sustainedAdditionalDPS = areaDamagePerMag / timeToFireMagazineAndReload;
 		
 		if (selectedOverclock == 5) {

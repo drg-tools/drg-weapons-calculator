@@ -507,7 +507,17 @@ public class Classic_FocusShot extends Weapon {
 		}
 		
 		double directDamage = getDirectDamage() * getFocusedShotMultiplier();
-		if (weakpoint) {
+		
+		// Frozen
+		if (statusEffects[1]) {
+			directDamage *= UtilityInformation.Frozen_Damage_Multiplier;
+		}
+		// IFG Grenade
+		if (statusEffects[3]) {
+			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
+		}
+		
+		if (weakpoint && !statusEffects[1]) {
 			directDamage = increaseBulletDamageForWeakpoints(directDamage, getWeakpointBonus());
 		}
 		

@@ -108,6 +108,7 @@ public class UtilityInformation {
 			Glyphid Dreadnaught: -60% damage taken
 	*/
 	public static double Electric_Utility = 0;
+	public static double IFG_Damage_Multiplier = 1.3;
 	
 	/*
 		Armor Breaking

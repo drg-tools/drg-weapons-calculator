@@ -513,19 +513,29 @@ public class Boomstick extends Weapon {
 			duration = getReloadTime();
 		}
 		
+		double dmgPerPellet = getDamagePerPellet();
+		// Frozen
+		if (statusEffects[1]) {
+			dmgPerPellet *= UtilityInformation.Frozen_Damage_Multiplier;
+		}
+		// IFG Grenade
+		if (statusEffects[3]) {
+			dmgPerPellet *= UtilityInformation.IFG_Damage_Multiplier;
+		}
+		
 		double weakpointAccuracy;
-		if (weakpoint) {
+		if (weakpoint && !statusEffects[1]) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
-			directWeakpointDamagePerPellet = increaseBulletDamageForWeakpoints2(getDamagePerPellet());
+			directWeakpointDamagePerPellet = increaseBulletDamageForWeakpoints2(dmgPerPellet);
 		}
 		else {
 			weakpointAccuracy = 0.0;
-			directWeakpointDamagePerPellet = getDamagePerPellet();
+			directWeakpointDamagePerPellet = dmgPerPellet;
 		}
 		
 		// They way it's currently modeled, any time the WPS mod and Double Barrel OC are equipped simultaneously, then the Reload Time doesn't affect the Fire DoT Uptime.
 		double burnDPS = 0;
-		if (selectedTier5 == 2) {
+		if (selectedTier5 == 2 && !statusEffects[1]) {
 			if (burst) {
 				double timeToIgnite = calculateTimeToIgnite(accuracy);
 				double fireDoTUptimeCoefficient = (duration - timeToIgnite) / duration;

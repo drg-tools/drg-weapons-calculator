@@ -11,6 +11,7 @@ import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
+import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 
 public class EPC_RegularShot extends Weapon {
@@ -554,12 +555,21 @@ public class EPC_RegularShot extends Weapon {
 	// Single-target calculations
 	private double calculateSingleTargetDPS(boolean burst, boolean weakpoint) {
 		double damagePerProjectile;
-		if (weakpoint) {
+		if (weakpoint && !statusEffects[1]) {
 			// Because this weapon doesn't have its Accuracy handled like the other weapons, I'm choosing to just increase the damage by a weighted average.
 			damagePerProjectile = increaseBulletDamageForWeakpoints(getDirectDamage());
 		}
 		else {
 			damagePerProjectile = getDirectDamage();
+		}
+		
+		// Frozen
+		if (statusEffects[1]) {
+			damagePerProjectile *= UtilityInformation.Frozen_Damage_Multiplier;
+		}
+		// IFG Grenade
+		if (statusEffects[3]) {
+			damagePerProjectile *= UtilityInformation.IFG_Damage_Multiplier;
 		}
 		
 		int burstSize = getNumRegularShotsBeforeOverheat();
@@ -573,7 +583,7 @@ public class EPC_RegularShot extends Weapon {
 		}
 		
 		double burnDPS = 0;
-		if (selectedTier5 == 2) {
+		if (selectedTier5 == 2 && !statusEffects[1]) {
 			if (burst) {
 				// 50% of Direct Damage from the Regular Shots gets added on as Heat Damage.
 				double heatDamagePerShot = 0.5 * getDirectDamage();
@@ -614,7 +624,7 @@ public class EPC_RegularShot extends Weapon {
 	// Multi-target calculations
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		// Regular shots can only hit one enemy before disappearing. I'm choosing not to model Bouncy Plasma.
+		// Regular shots can only hit one enemy before disappearing.
 		return 0;
 	}
 

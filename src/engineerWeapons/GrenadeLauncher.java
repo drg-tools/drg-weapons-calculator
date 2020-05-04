@@ -465,20 +465,32 @@ public class GrenadeLauncher extends Weapon {
 	
 	private double calculateSingleTargetDPS(boolean burst, boolean weakpoint) {
 		double directDamage;
-		if (weakpoint) {
+		if (weakpoint && !statusEffects[1]) {
 			directDamage = increaseBulletDamageForWeakpoints(getDirectDamage());
 		}
 		else {
 			directDamage = getDirectDamage();
 		}
+		double areaDamage = getAreaDamage();
 		
-		double damagePerProjectile = directDamage + getAreaDamage();
+		// Frozen
+		if (statusEffects[1]) {
+			directDamage *= UtilityInformation.Frozen_Damage_Multiplier;
+		}
+		// IFG Grenade
+		if (statusEffects[3]) {
+			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
+			areaDamage *= UtilityInformation.IFG_Damage_Multiplier;
+		}
+		
+		double damagePerProjectile = directDamage + areaDamage;
 		double baseDPS = damagePerProjectile / reloadTime;
 		
 		double burnDPS = 0.0;
 		// Incendiary Compound
-		if (selectedTier3 == 0) {
+		if (selectedTier3 == 0 && !statusEffects[1]) {
 			if (burst) {
+				// Heat per Shot shouldn't be affected by IFG or Frozen
 				double heatPerGrenade = getDirectDamage() + getAreaDamage();
 				double percentageOfEnemiesIgnitedByOneGrenade = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(heatPerGrenade);
 				
@@ -524,7 +536,7 @@ public class GrenadeLauncher extends Weapon {
 	@Override
 	public double calculateAdditionalTargetDPS() {
 		double totalDPS = getAreaDamage() * aoeEfficiency[1] / reloadTime;
-		if (selectedTier3 == 0) {
+		if (selectedTier3 == 0 && !statusEffects[1]) {
 			totalDPS += DoTInformation.Burn_DPS;
 		}
 		if (selectedOverclock == 4) {

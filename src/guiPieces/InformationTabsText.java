@@ -169,7 +169,7 @@ public class InformationTabsText {
 			{"Gaming for the Recently Deceased", "Thank you for helping to promote this project and making a video about it. YouTube Channel: https://www.youtube.com/channel/UCL_8gMChYJD5ls7GaJtGmUw"},
 			{"Usteppin", "Thank you for collect some data and test weapon builds for me on Hazard 5. Twitch Channel: https://www.twitch.tv/usteppin"},
 			{"Elythnwaen", "Thank you for collecting data about elemental weaknesses, resistances, Burn/Freeze temperatures, and more! Also, thank you for letting me know about Subata's 50% Armor Breaking penalty and helping me figure out the correct Armor Breaking formula."},
-			{"Alpha and Beta testers", "Thank you Minomess, Royal, and CynicalAtropos for giving me feedback while this was still being developed and helping test out the builds."},
+			{"Alpha and Beta testers", "Thank you Minomess, Royal, CynicalAtropos, and ARobotWithCancer for giving me feedback while this was still being developed and helping test out the builds."},
 			// I'm intentionally adding blank lines below here so that the content gets pushed to the top of the page
 			{"", ""},
 			{"", ""},

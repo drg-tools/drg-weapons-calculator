@@ -522,6 +522,16 @@ public class Shotgun extends Weapon {
 		}
 		
 		double dmgPerPellet = getDamagePerPellet();
+		
+		// Frozen
+		if (statusEffects[1]) {
+			dmgPerPellet *= UtilityInformation.Frozen_Damage_Multiplier;
+		}
+		// IFG Grenade
+		if (statusEffects[3]) {
+			dmgPerPellet *= UtilityInformation.IFG_Damage_Multiplier;
+		}
+		
 		if (selectedOverclock == 0) {
 			// Stunner OC damage multiplier
 			double stunChancePerShot = calculateCumulativeStunChancePerShot();
@@ -534,7 +544,7 @@ public class Shotgun extends Weapon {
 		}
 		
 		double weakpointAccuracy;
-		if (weakpoint) {
+		if (weakpoint && !statusEffects[1]) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
 			directWeakpointDamagePerPellet = increaseBulletDamageForWeakpoints2(dmgPerPellet, getWeakpointBonus());
 		}

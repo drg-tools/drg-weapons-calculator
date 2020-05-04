@@ -569,13 +569,23 @@ public class Revolver_Snipe extends Weapon {
 		}
 		
 		double directDamage = getDirectDamage();
+		double areaDamage = getAreaDamage();
 		// OC Volatile Bullets deals x4 Direct Damage to Burning targets
 		if (selectedOverclock == 2 && statusEffects[0]) {
 			directDamage *= 4.0;
 		}
+		// Frozen
+		if (statusEffects[1]) {
+			directDamage *= UtilityInformation.Frozen_Damage_Multiplier;
+		}
+		// IFG Grenade
+		if (statusEffects[3]) {
+			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
+			areaDamage *= UtilityInformation.IFG_Damage_Multiplier;
+		}
 		
 		double weakpointAccuracy;
-		if (weakpoint) {
+		if (weakpoint && !statusEffects[1]) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
 			directWeakpointDamage = increaseBulletDamageForWeakpoints2(directDamage, getWeakpointBonus());
 		}
@@ -599,7 +609,7 @@ public class Revolver_Snipe extends Weapon {
 		int bulletsThatHitWeakpoint = (int) Math.round(magSize * weakpointAccuracy);
 		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
 		
-		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * (directDamage + getAreaDamage())) / duration + neuroDPS;
+		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * (directDamage + areaDamage)) / duration + neuroDPS;
 	}
 	
 	private double calculateDamagePerMagazine(boolean weakpointBonus, int numTargets) {
@@ -640,6 +650,9 @@ public class Revolver_Snipe extends Weapon {
 			the Overclocks "Chain Hit" and "Magic Bullets", and the Tier 3 Mods "Super Blowthrough Rounds" and "Explosive Rounds"
 		*/
 		double sustainedAdditionalDPS;
+		double directDamage = getDirectDamage();
+		double areaDamage = getAreaDamage();
+		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
 		
 		// If Super Blowthrough Rounds is equipped, then the ricochets from either "Chain Hit" or "Magic Bullets" won't affect the additional DPS
 		if (selectedTier3 == 0) {
@@ -650,8 +663,7 @@ public class Revolver_Snipe extends Weapon {
 		// Only Explosive
 		else if (selectedTier3 == 1 && selectedOverclock != 1 && selectedOverclock != 5) {
 			// Explosive Rounds are just the Area Damage, so I have to re-model the sustained DPS formula here
-			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-			sustainedAdditionalDPS = getMagazineSize() * getAreaDamage() / timeToFireMagazineAndReload;
+			sustainedAdditionalDPS = getMagazineSize() * areaDamage / timeToFireMagazineAndReload;
 			
 			if (selectedTier5 == 1) {
 				sustainedAdditionalDPS += DoTInformation.Neuro_DPS;
@@ -668,8 +680,7 @@ public class Revolver_Snipe extends Weapon {
 			double ricochetProbability = 0.33 * estimatedAccuracy(true) / 100.0;
 			double numBulletsRicochetPerMagazine = Math.round(ricochetProbability * getMagazineSize());
 			
-			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-			sustainedAdditionalDPS = numBulletsRicochetPerMagazine * (getDirectDamage() + getAreaDamage()) / timeToFireMagazineAndReload;
+			sustainedAdditionalDPS = numBulletsRicochetPerMagazine * (directDamage + areaDamage) / timeToFireMagazineAndReload;
 			
 			if (selectedTier5 == 1) {
 				sustainedAdditionalDPS += DoTInformation.Neuro_DPS;
@@ -682,8 +693,7 @@ public class Revolver_Snipe extends Weapon {
 		else if (selectedOverclock == 5 && selectedTier3 != 0 && selectedTier3 != 1) {
 			// "Magic Bullets" mean that any bullet that MISSES the primary target will try to automatically ricochet to a nearby enemy.
 			// This can be modeled by returning (1 - Accuracy) * Ideal Sustained DPS
-			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-			sustainedAdditionalDPS = (1.0 - estimatedAccuracy(false)/100.0) * calculateDamagePerMagazine(false, 1) / timeToFireMagazineAndReload;
+			sustainedAdditionalDPS = (1.0 - estimatedAccuracy(false)/100.0) * calculateIdealSustainedDPS();
 			
 			if (selectedTier5 == 1) {
 				sustainedAdditionalDPS += DoTInformation.Neuro_DPS;
@@ -696,8 +706,7 @@ public class Revolver_Snipe extends Weapon {
 		else if (selectedOverclock == 5 && selectedTier3 == 1) {
 			// This combination is the hardest to model: when a missed bullet ricochets, it still deals an explosion of damage on the ground before redirecting to the new target. This means that if you shoot the ground next to an
 			// enemy with this combination, they'll take the Area Damage, followed by the Direct + Area Damage of the bullet after it redirects.
-			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-			sustainedAdditionalDPS = getMagazineSize() * (getDirectDamage() + 2 * getAreaDamage()) / timeToFireMagazineAndReload;
+			sustainedAdditionalDPS = getMagazineSize() * (directDamage + 2 * areaDamage) / timeToFireMagazineAndReload;
 			
 			if (selectedTier5 == 1) {
 				sustainedAdditionalDPS += DoTInformation.Neuro_DPS;

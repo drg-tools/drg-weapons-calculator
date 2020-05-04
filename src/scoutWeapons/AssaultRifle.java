@@ -516,6 +516,15 @@ public class AssaultRifle extends Weapon {
 		}
 		
 		double directDamage = getDirectDamage();
+		// Frozen
+		if (statusEffects[1]) {
+			directDamage *= UtilityInformation.Frozen_Damage_Multiplier;
+		}
+		// IFG Grenade
+		if (statusEffects[3]) {
+			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
+		}
+		
 		// Bullets of Mercy OC damage increase
 		if (selectedOverclock == 4) {
 			double BoMDamageMultiplier = 1.33;
@@ -535,7 +544,7 @@ public class AssaultRifle extends Weapon {
 		}
 		
 		double weakpointAccuracy;
-		if (weakpoint) {
+		if (weakpoint && !statusEffects[1]) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
 			directWeakpointDamage = increaseBulletDamageForWeakpoints2(directDamage, getWeakpointBonus());
 		}
