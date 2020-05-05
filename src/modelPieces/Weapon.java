@@ -373,7 +373,7 @@ public abstract class Weapon extends Observable {
 		2. Number of projectiles per shot / Burst size
 		3. Area Damage per shot
 		4. Mechanics about how each shot gets fired (AoE radius, velocity, charge-time, etc)
-		5. Magazine size / number of shots fired per burst / ammo consumed per shot
+		5. Magazine size / ammo consumed per shot
 		6. Carried Ammo
 		7. Rate of Fire (and any relevant mechanics)
 		8. Reload Time / cooldown time and related mechanics or stats

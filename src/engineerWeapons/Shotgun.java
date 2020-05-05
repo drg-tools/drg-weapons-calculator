@@ -100,7 +100,7 @@ public class Shotgun extends Weapon {
 		
 		overclocks = new Overclock[5];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Stunner", "Pellets now have a 10% chance to stun any time they damage an enemy, and any shots that hit a "
-				+ "target that's already stunned deal x1.3 damage.", overclockIcons.stun, 0);  // This might be x1.3, but it's hard to tell...
+				+ "target that's already stunned deal x1.3 damage.", overclockIcons.stun, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Light-Weight Magazines", "+20 Max Ammo, -0.4 Reload Time", overclockIcons.carriedAmmo, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Magnetic Pellet Alignment", "x0.5 Base Spread, +30% Weakpoint Bonus, x0.75 Rate of Fire", overclockIcons.baseSpread, 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Cycle Overload", "+1 Damage per Pellet, +2 Rate of Fire, +0.5 Reload Time, x1.5 Base Spread", overclockIcons.rateOfFire, 3);

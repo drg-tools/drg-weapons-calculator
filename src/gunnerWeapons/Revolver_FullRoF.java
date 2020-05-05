@@ -3,6 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
@@ -97,8 +98,9 @@ public class Revolver_FullRoF extends Weapon {
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Dead-Eye", "No aim penalty while moving", modIcons.baseSpread, 5, 0, false);
+		// It looks like whenever this procs for the main target, all splash targets get it too, instead of RNG/enemy.
 		tier5[1] = new Mod("Glyphid Neurotoxin Coating", "50% chance to inflict Neurotoxin DoT on all enemies hit by the Revolver"
-				+ "Neurotoxin does an average of " + DoTInformation.Neuro_DPS + " DPS", modIcons.neurotoxin, 5, 1);  // It looks like whenever this procs for the main target, all splash targets get it too, instead of RNG/enemy.
+				+ "Neurotoxin does an average of " + MathUtils.round(DoTInformation.Neuro_DPS, GuiConstants.numDecimalPlaces) + " Poison Damage per Second", modIcons.neurotoxin, 5, 1);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, overclockIcons.homebrewPowder, 0);

@@ -3,6 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
@@ -110,10 +111,10 @@ public class Autocannon extends Weapon {
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Drums", "+110 Max Ammo, -0.5 Reload Time", overclockIcons.carriedAmmo, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Splintering Shells", "+1 Area Damage, +0.3 AoE Radius", overclockIcons.aoeRadius, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Carpet Bomber", "+3 Area Damage, +0.7 AoE Radius, -6 Direct Damage", overclockIcons.areaDamage, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Combat Mobility", "Incrreases movement speed while using from 50% to 65%, -2 Direct Damage", overclockIcons.movespeed, 3);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Combat Mobility", "Increases movement speed while using from 50% to 65% of normal walk speed, -2 Direct Damage", overclockIcons.movespeed, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Big Bertha", "+12 Direct Damage, -30% Base Spread, x0.5 Magazine Size, -110 Max Ammo, -1.5 Max Rate of Fire", overclockIcons.directDamage, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neurotoxin Payload", "30% Chance to inflict a Neurotoxin DoT that deals an average of " + DoTInformation.Neuro_DPS + " DPS to all enemies "
-				+ "within the AoE Radius upon impact. +0.3 AoE Radius, -3 Direct Damage, -6 Area Damage", overclockIcons.neurotoxin, 5);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neurotoxin Payload", "30% Chance to inflict a Neurotoxin DoT that deals an average of " + MathUtils.round(DoTInformation.Neuro_DPS, GuiConstants.numDecimalPlaces) + 
+				" Poison Damage per Second to all enemies within the AoE Radius upon impact. +0.3 AoE Radius, -3 Direct Damage, -6 Area Damage", overclockIcons.neurotoxin, 5);
 	}
 	
 	@Override

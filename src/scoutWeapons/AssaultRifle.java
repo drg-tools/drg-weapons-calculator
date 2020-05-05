@@ -3,6 +3,7 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
@@ -109,7 +110,7 @@ public class AssaultRifle extends Weapon {
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Bullets of Mercy", "+33% Damage dealt to enemies that are burning, electrocuted, poisoned, stunned, or frozen. Additionally, -5 Magazine Size", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "AI Stability Engine", "x0 Recoil, x10 Spread Recovery Speed, -1 Direct Damage, -2 Rate of Fire", overclockIcons.baseSpread, 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Electrifying Reload", "If any bullets from a magazine damage an enemy's healthbar, then those enemies will have an Electrocute DoT applied when that "
-				+ "magazine gets reloaded. Electrocute does an average of " + DoTInformation.Electro_DPS + " DPS. -3 Direct Damage, -5 Magazine Size", overclockIcons.specialReload, 6);
+				+ "magazine gets reloaded. Electrocute does an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per Second. -3 Direct Damage, -5 Magazine Size", overclockIcons.specialReload, 6);
 	}
 	
 	@Override

@@ -3,6 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
@@ -106,7 +107,8 @@ public class BurstPistol extends Weapon {
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Mags", "+84 Max Ammo, -1 Rate of Fire, +0.4 Reload Time", overclockIcons.carriedAmmo, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Experimental Rounds", "+9 Direct Damage, -6 Magazine Size, -36 Max Ammo", overclockIcons.directDamage, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Electro Minelets", "Any bullets that impact terrain get converted to Electro Minelets. After 1 second of arming time, "
-				+ "they inflict an Electrocute DoT to any enemies that pass within 1.5m of them. The Electrocute DoTs deal an average of " + DoTInformation.Electro_DPS + " DPS. -3 Direct Damage, -6 Magazine Size.", overclockIcons.electricity, 4);
+				+ "they inflict an Electrocute DoT to any enemies that pass within 1.5m of them. The Electrocute DoTs deal an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) 
+				+ " Electric Damage per Second. -3 Direct Damage, -6 Magazine Size.", overclockIcons.electricity, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Micro Fletchettes", "+30 Magazine Size, +120 Max Ammo, x0.5 Spread per Shot, x0.5 Recoil, x0.5 Damage per bullet", overclockIcons.miniShells, 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Spray", "x1.5 Direct Damage, x4 Base Spread", overclockIcons.miniShells, 6);
 	}

@@ -116,7 +116,7 @@ public class Minigun extends Weapon {
 		overclocks[0] = new Overclock(Overclock.classification.clean, "A Little More Oomph!", "+1 Damage per Pellet, -0.2 spinup time", overclockIcons.directDamage, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Thinned Drum Walls", "+300 Max Ammo, +0.5 Cooling Rate", overclockIcons.coolingRate, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Burning Hell", "While firing, the Minigun deals 100 Heat per Second in a cone 6m in front of the muzzle. +50% heat accumulation in the "
-				+ "gun's heat meter, which translates to 2/3 the firing period", overclockIcons.heatDamage, 2);
+				+ "weapon's heat meter, which translates to 2/3 the firing period", overclockIcons.heatDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Compact Feed Mechanism", "+800 Max Ammo, -4 Rate of Fire", overclockIcons.carriedAmmo, 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Exhaust Vectoring", "+2 Damage per Pellet, x2.5 Base Spread", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Bullet Hell", "50% for bullets that impact an enemy or terrain to ricochet into another enemy. -3 Damage per Pellet, x6 Base Spread", overclockIcons.ricochet, 5);

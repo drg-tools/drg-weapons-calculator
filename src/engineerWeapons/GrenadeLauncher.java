@@ -3,6 +3,7 @@ package engineerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
@@ -86,7 +87,7 @@ public class GrenadeLauncher extends Weapon {
 		tier2[2] = new Mod("High Velocity Grenades", "+180% Projectile Velocity", modIcons.projectileVelocity, 2, 2, false);
 		
 		tier3 = new Mod[2];
-		tier3[0] = new Mod("Incendiary Compound", "Lose 50% of Direct and Area Damage, and convert it to Heat Damage that will ignite enemies, dealing " + DoTInformation.Burn_DPS + " DPS", modIcons.heatDamage, 3, 0);
+		tier3[0] = new Mod("Incendiary Compound", "Lose 50% of Direct and Area Damage, and convert it to Heat Damage that will ignite enemies, dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 3, 0);
 		tier3[1] = new Mod("Pressure Wave", "+500% Armor Breaking", modIcons.armorBreaking, 3, 1);
 		
 		tier4 = new Mod[3];
@@ -104,7 +105,8 @@ public class GrenadeLauncher extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Pack Rat", "+2 Max Ammo", overclockIcons.carriedAmmo, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Rounds", "+4 Max Ammo, -10 Area Damage, -0.5m AoE Radius", overclockIcons.carriedAmmo, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "RJ250 Compound", "Jump and shoot the ground beneath you to Grenade Jump. Can also be used on allies who are jumping. -25 Area Damage. (~33% self-damage)", overclockIcons.grenadeJump, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Fat Boy", "x4 Area Damage, +1m AoE Radius, x0.3 Max Ammo, x0.7 Projectile Velocity", overclockIcons.areaDamage, 4);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Fat Boy", "x4 Area Damage, +1m AoE Radius, x0.3 Max Ammo, x0.7 Projectile Velocity. Also leaves behind an 8m radius field that does "
+				+ "an average of " + MathUtils.round(DoTInformation.Rad_FB_DPS, GuiConstants.numDecimalPlaces) + " Radiation Damage per Second for 15 seconds.", overclockIcons.areaDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Hyper Propellant", "+250 Direct Damage, +350% Projectile Velocity, x0.3 AoE Radius", overclockIcons.projectileVelocity, 5);
 	}
 	
