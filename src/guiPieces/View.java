@@ -119,6 +119,10 @@ public class View extends JFrame implements Observer {
 		add(mainTabs);
 		setContentPane(mainTabs);
 		pack();
+		
+		// Have this automatically open in the center of the screen
+		setLocationRelativeTo(null);
+		
 		setVisible(true);
 	}
 
