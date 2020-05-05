@@ -25,6 +25,7 @@ import drillerWeapons.Subata;
 import engineerWeapons.GrenadeLauncher;
 import engineerWeapons.SMG;
 import engineerWeapons.Shotgun;
+import guiPieces.HoverText;
 import guiPieces.View;
 import gunnerWeapons.Autocannon;
 import gunnerWeapons.BurstPistol;
@@ -260,7 +261,11 @@ public class GuiController implements ActionListener {
 			d.setVisible(true);
 		}
 		else if (e == gui.getMiscLoad()) {
-			String newCombination = JOptionPane.showInputDialog(gui, "Enter the comination you want to load:");
+			String instructions = "Enter the combination you want to load for this weapon. It should consist of 5 capital letters, A-C, and 1 number, 1-7. Each capital letter "
+					+ "corresponds to a mod tier and the number corresponds to the desired overclock. If you do not want to use a mod tier or overclock, substitute the "
+					+ "corresponding character with a hyphen.";
+			instructions = HoverText.breakLongToolTipString(instructions, 90);
+			String newCombination = JOptionPane.showInputDialog(gui, instructions);
 			currentlySelectedWeapon.buildFromCombination(newCombination);
 		}
 		else if (e == gui.getMiscSuggestion()) {
