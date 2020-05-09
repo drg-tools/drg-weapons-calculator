@@ -53,6 +53,8 @@ public class View extends JFrame implements Observer {
 	private JTabbedPane scoutTabs;
 	private JTabbedPane infoTabs;
 	
+	private ThinkingCursorAnimation TCA;
+	
 	/*
 		It looks like they use the paid-for font "Aktiv Grotesk Cd". However, to keep this free, I'm choosing to use font "Roboto Condensed" because it's an open-source font
 	*/
@@ -62,6 +64,8 @@ public class View extends JFrame implements Observer {
 		engineerWeapons = eWeapons;
 		gunnerWeapons = gWeapons;
 		scoutWeapons = sWeapons;
+		
+		TCA = new ThinkingCursorAnimation(this);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("MeatShield's DRG DPS Calculator (DRG Update 29.8)");
@@ -124,6 +128,15 @@ public class View extends JFrame implements Observer {
 		setLocationRelativeTo(null);
 		
 		setVisible(true);
+	}
+	
+	public void activateThinkingCursor() {
+		TCA.toggleAnimation();
+		new Thread(TCA).start();
+	}
+	
+	public void deactivateThinkingCursor() {
+		TCA.toggleAnimation();
 	}
 
 	private void constructMenu() {
