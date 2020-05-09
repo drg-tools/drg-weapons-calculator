@@ -3,6 +3,9 @@ package engineerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.WeaponPictures;
+import guiPieces.ButtonIcons.modIcons;
+import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
@@ -44,6 +47,7 @@ public class SMG extends Weapon {
 	
 	public SMG(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "\"Stubby\" Voltaic SMG";
+		weaponPic = WeaponPictures.SMG;
 		
 		// Base stats, before mods or overclocks alter them:
 		electrocutionDoTChance = 0.2;
@@ -74,34 +78,36 @@ public class SMG extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
-		tier1[0] = new Mod("Increased Caliber Rounds", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 1, 0);
-		tier1[1] = new Mod("Upgraded Capacitors", "Better chance to electrocute target", 1, 1);
-		tier1[2] = new Mod("Expanded Ammo Bags", "You had to give up some sandwich-storage, but your total ammo capacity is increased!", 1, 2);
+		tier1[0] = new Mod("Increased Caliber Rounds", "+2 Direct Damage", modIcons.directDamage, 1, 0);
+		tier1[1] = new Mod("Upgraded Capacitors", "+30% Chance to Electrocute an enemy", modIcons.electricity, 1, 1);
+		tier1[2] = new Mod("Expanded Ammo Bags", "+120 Max Ammo", modIcons.carriedAmmo, 1, 2);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("High Capacity Magazine", "The good thing about clips, magazines, ammo drums, fuel tanks... You can always get bigger variants.", 2, 0);
-		tier2[1] = new Mod("Recoil Dampener", "Quality engineering, the best lasercut parts, the tender loving care of a dedicated R&D Department. The recoil of your gun is drastically reduced.", 2, 1);
-		tier2[2] = new Mod("Improved Gas System", "We overclocked your gun. It fires faster. Don't ask. Just enjoy. Also probably don't tell Management, please.", 2, 2);
+		tier2[0] = new Mod("High Capacity Magazine", "+10 Magazine Size", modIcons.magSize, 2, 0);
+		tier2[1] = new Mod("Recoil Dampener", "x0.5 Recoil", modIcons.recoil, 2, 1);
+		tier2[2] = new Mod("Improved Gas System", "+3 Rate of Fire", modIcons.rateOfFire, 2, 2);
 		
 		tier3 = new Mod[2];
-		tier3[0] = new Mod("High Velocity Rounds", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 3, 0);
-		tier3[1] = new Mod("Expanded Ammo Bags", "You had to give up some sandwich-storage, but your total ammo capacity is increased!", 3, 1);
+		tier3[0] = new Mod("High Velocity Rounds", "+2 Direct Damage", modIcons.directDamage, 3, 0);
+		tier3[1] = new Mod("Expanded Ammo Bags", "+120 Max Ammo", modIcons.carriedAmmo, 3, 1);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Hollow-Point Bullets", "Hit 'em where it hurts! Literally! We've updated the damage you'll be able to do to any creatures fleshy bits. You're welcome.", 4, 0);
-		tier4[1] = new Mod("Conductive Bullets", "More damage to targets that are in an electric field.", 4, 1);
+		tier4[0] = new Mod("Hollow-Point Bullets", "+30% Weakpoint Bonus", modIcons.weakpointBonus, 4, 0);
+		tier4[1] = new Mod("Conductive Bullets", "+30% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Magazine Capacity Tweak", "Greatly increased magazine capacity", 5, 0);
-		tier5[1] = new Mod("Electric Arc", "Chance for electrocution to arc from one target to another", 5, 1);
+		tier5[0] = new Mod("Magazine Capacity Tweak", "+20 Magazine Size", modIcons.magSize, 5, 0);
+		tier5[1] = new Mod("Electric Arc", "Every time the SMG either applies or refreshes an Electrocute DoT, there's a 25% chance that enemies near the primary target will be electrocuted as well.", modIcons.electricity, 5, 1);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Super-Slim Rounds", "Same power but in a smaller package giving slightly better accuracay and letting you fit a few more rounds in each mag.", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Well Oiled Machine", "When you need a little more sustained damage.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "EM Refire Booster", "Use the electron circuit of the SMG to boost its fire rate and damage but the accuracy suffers as a result.", 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Light-Weight Rounds", "They don't hit quite as hard, and can't handle fast fire rates but you sure can carry a lot more of them!", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Turret Arc", "Use the gemini turrests as nodes in an electric arc. Zap! The downside is less ammo and a slower rate of fire.", 4, false);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Turret EM Discharge", "Use a turret as the epicenter of an electric explosion! The bullet modifications unfortunately also lower the direct damage and electrocution chance.", 5, false);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Super-Slim Rounds", "+5 Magazine Size, x0.8 Base Spread", overclockIcons.magSize, 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Well Oiled Machine", "+2 Rate of Fire, -0.2 Reload Time", overclockIcons.rateOfFire, 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "EM Refire Booster", "+2 Electric Damage per bullet, +4 Rate of Fire, x1.5 Base Spread", overclockIcons.rateOfFire, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Light-Weight Rounds", "+180 Max Ammo, -1 Direct Damage, -2 Rate of Fire", overclockIcons.carriedAmmo, 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Turret Arc", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, that turret deals constant Electric Damage in a small radius around it. "
+				+ "Additionally, if 2 turrets are less than 10m apart and both are electrocuted at the same time, then an electric arc will pass between them for 10 seconds. -120 Max Ammo, -2 Rate of Fire", overclockIcons.electricity, 4, false);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Turret EM Discharge", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, then an explosion deals electric damage to all enemies "
+				+ "with a 5m radius. -5% Chance to Electrocute an enemy, -3 Direct Damage", overclockIcons.areaDamage, 5, false);
 	}
 	
 	@Override
@@ -456,17 +462,33 @@ public class SMG extends Weapon {
 		double directDamage = getDirectDamage();
 		
 		if (selectedTier4 == 1) {
-			// To model a 30% physical damage increase to electrocuted targets, average out how many bullets/mag that would get the buff after a DoT proc, and then spread that bonus across every bullet.
-			double DoTChance = getElectrocutionDoTChance();
-			double meanBulletsFiredBeforeProc = MathUtils.meanRolls(DoTChance);
-			double numBulletsFiredAfterProc = getMagazineSize() - meanBulletsFiredBeforeProc;
-			
-			directDamage *= (meanBulletsFiredBeforeProc + numBulletsFiredAfterProc * 1.3) / getMagazineSize();
+			double conductiveBulletsDamageMultiplier = 1.3;
+			if (statusEffects[2] || statusEffects[3]) {
+				directDamage *= conductiveBulletsDamageMultiplier;
+			}
+			else {
+				// To model a 30% physical damage increase to electrocuted targets, average out how many bullets/mag that would get the buff after a DoT proc, and then spread that bonus across every bullet.
+				double DoTChance = getElectrocutionDoTChance();
+				double meanBulletsFiredBeforeProc = MathUtils.meanRolls(DoTChance);
+				double numBulletsFiredAfterProc = getMagazineSize() - meanBulletsFiredBeforeProc;
+				
+				directDamage *= (meanBulletsFiredBeforeProc + numBulletsFiredAfterProc * conductiveBulletsDamageMultiplier) / getMagazineSize();
+			}
 		}
 		
 		// According to the wiki, Electric damage gets bonus from Weakpoints too
 		double totalDamage = directDamage + getElectricDamage();
-		if (weakpointBonus) {
+		
+		// Frozen
+		if (statusEffects[1]) {
+			totalDamage *= UtilityInformation.Frozen_Damage_Multiplier;
+		}
+		// IFG Grenade
+		if (statusEffects[3]) {
+			totalDamage *= UtilityInformation.IFG_Damage_Multiplier;
+		}
+		
+		if (weakpointBonus && !statusEffects[1]) {
 			return increaseBulletDamageForWeakpoints2(totalDamage, getWeakpointBonus());
 		}
 		else {
@@ -607,23 +629,27 @@ public class SMG extends Weapon {
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		double unchangingBaseSpread = 59.5;
-		double changingBaseSpread = 33.5 * getBaseSpread();
+		double changingBaseSpread = 33.5;
 		double spreadVariance = 36;
 		double spreadPerShot = 12;
 		double spreadRecoverySpeed = 72;
-		double recoilPerShot = 41 * getRecoil();
+		double recoilPerShot = 41;
 		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
 		double recoilUpInterval = 5.0 / 64.0;
 		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
 		double recoilDownInterval = 5.0 / 16.0;
 		
+		double[] modifiers = {getBaseSpread(), 1.0, 1.0, 1.0, getRecoil()};
+		
 		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
-				recoilPerShot, recoilUpInterval, recoilDownInterval);
+				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
 	}
 
 	@Override
 	public double utilityScore() {
+		// Light Armor Breaking probability
+		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDirectDamage() + getElectricDamage()) * UtilityInformation.ArmorBreak_Utility;
 		
 		// Innate ability to Electrocute applies an 80% slow to enemies (proc chance increased/decreased by mods and OCs)
 		utilityScores[3] = getElectrocutionDoTChance() * calculateMaxNumTargets() * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;

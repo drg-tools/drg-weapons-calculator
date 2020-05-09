@@ -1,20 +1,24 @@
 package modelPieces;
 
+import guiPieces.ButtonIcons.modIcons;
+
 public class Mod {
 
 	private String name;
 	private String text;
+	private modIcons icon;
 	private int tier;
 	private int index;
 	private boolean implemented;
 	
-	public Mod(String modName, String modText, int tierNumber, int arrayIndex) {
-		this(modName, modText, tierNumber, arrayIndex, true);
+	public Mod(String modName, String modText, modIcons upgradeType, int tierNumber, int arrayIndex) {
+		this(modName, modText, upgradeType, tierNumber, arrayIndex, true);
 	}
 	
-	public Mod(String modName, String modText, int tierNumber, int arrayIndex, boolean modImplemented) {
+	public Mod(String modName, String modText, modIcons upgradeType, int tierNumber, int arrayIndex, boolean modImplemented) {
 		name = modName;
 		text = modText;
+		icon = upgradeType;
 		tier = tierNumber;
 		index = arrayIndex;
 		implemented = modImplemented;
@@ -25,6 +29,9 @@ public class Mod {
 	}
 	public String getText() {
 		return text;
+	}
+	public modIcons getIcon() {
+		return icon;
 	}
 	public int getTier() {
 		return tier;

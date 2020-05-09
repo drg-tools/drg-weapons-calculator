@@ -3,6 +3,9 @@ package engineerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.WeaponPictures;
+import guiPieces.ButtonIcons.modIcons;
+import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.AccuracyEstimator;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
@@ -44,6 +47,7 @@ public class Shotgun extends Weapon {
 	
 	public Shotgun(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "\"Warthog\" Auto 210";
+		weaponPic = WeaponPictures.shotgun;
 		
 		// Base stats, before mods or overclocks alter them:
 		damagePerPellet = 7;
@@ -73,33 +77,34 @@ public class Shotgun extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Supercharged Feed Mechanism", "We overclocked your gun. It fires faster. Don't ask, just enjoy. Also probably don't tell Management, please.", 1, 0);
-		tier1[1] = new Mod("Overstuffed Magazine", "The good thing about clips, magazines, ammo drums, fuel tanks... You can always get bigger variants.", 1, 1);
+		tier1[0] = new Mod("Supercharged Feed Mechanism", "+1 Rate of Fire", modIcons.rateOfFire, 1, 0);
+		tier1[1] = new Mod("Overstuffed Magazine", "+2 Magazine Size", modIcons.magSize, 1, 1);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Expanded Ammo Bags", "You had to give up some sandwich-storage, but your total ammo capacity is increased!", 2, 0);
-		tier2[1] = new Mod("Loaded Shells", "More pellets in each shell", 2, 1);
-		tier2[2] = new Mod("Choke", "Decreased shot spread", 2, 2);
+		tier2[0] = new Mod("Expanded Ammo Bags", "+40 Max Ammo", modIcons.carriedAmmo, 2, 0);
+		tier2[1] = new Mod("Loaded Shells", "+2 Pellets per Shot", modIcons.pelletsPerShot, 2, 1);
+		tier2[2] = new Mod("Choke", "x0.5 Base Spread", modIcons.baseSpread, 2, 2);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Recoil Dampener", "Quality engineering, the best lasercut parts, the tender loving care of a dedicated R&D Department, The recoil of your gun is drastically reduced.", 3, 0);
-		tier3[1] = new Mod("Quickfire Ejector", "Experience, training, and a couple of under-the-table \"adjustments\" means your gun can be reloaded significantly faster.", 3, 1);
-		tier3[2] = new Mod("High Capacity Magazine", "The good thing about clips, magazines, ammo drums, fuel tanks... You can always get bigger variants.", 3, 2);
+		tier3[0] = new Mod("Recoil Dampener", "x0.4 Recoil", modIcons.recoil, 3, 0);
+		tier3[1] = new Mod("Quickfire Ejector", "-0.5 Reload Time", modIcons.reloadSpeed, 3, 1);
+		tier3[2] = new Mod("High Capacity Magazine", "+3 Magazine Size", modIcons.magSize, 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Tungsten Coated Buckshot", "We're proud of this one. Armor shredding. Tear through that high-impact plating of those big buggers like butter. What could be finer?", 4, 0);
-		tier4[1] = new Mod("Bigger Pellets", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 4, 1);
+		tier4[0] = new Mod("Tungsten Coated Buckshot", "+400% Armor Breaking", modIcons.armorBreaking, 4, 0);
+		tier4[1] = new Mod("Bigger Pellets", "+1 Damage per Pellet", modIcons.directDamage, 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them create an overcharged shot", 5, 0, false);
-		tier5[1] = new Mod("Miner Adjustments", "Fully automatic with an increased rate of fire", 5, 1);
+		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1m Radius. 3 second cooldown per turret.", modIcons.special, 5, 0, false);
+		tier5[1] = new Mod("Miner Adjustments", "Changes the Shotgun from semi-automatic to fully automatic, +0.5 Rate of Fire", modIcons.rateOfFire, 5, 1);
 		
 		overclocks = new Overclock[5];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Shells", "Using these shells expands magazine capacity slightly and the weapon can fire them faster!", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Light-Weight Magazines", "It's amazing how much material can be removed without affecting anything and lighter magazines means more magazines and faster reloading.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Magnetic Pellet Alignment", "Electromagnets in the chamber help reduce shot spread at the cost of a reduced rate of fire and magazine capacity.", 2);
-		overclocks[3] = new Overclock(Overclock.classification.unstable, "Cycle Overload", "Heavy modification to the chamber greatly increases the maximum rate of fire but reduces the weapon's accuracy and reload speed as a consequence.", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Mini Shells", "Smaller shells designed around a new charge type reduce recoil and increase overall ammo and magazine capacity at the cost of raw damage.", 4);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Stunner", "Pellets now have a 10% chance to stun any time they damage an enemy, and any shots that hit a "
+				+ "target that's already stunned deal x1.3 damage.", overclockIcons.stun, 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Light-Weight Magazines", "+20 Max Ammo, -0.4 Reload Time", overclockIcons.carriedAmmo, 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Magnetic Pellet Alignment", "x0.5 Base Spread, +30% Weakpoint Bonus, x0.75 Rate of Fire", overclockIcons.baseSpread, 2);
+		overclocks[3] = new Overclock(Overclock.classification.unstable, "Cycle Overload", "+1 Damage per Pellet, +2 Rate of Fire, +0.5 Reload Time, x1.5 Base Spread", overclockIcons.rateOfFire, 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Mini Shells", "+90 Max Ammo, +6 Magazine Size, x0.5 Recoil, -2 Damage per Pellet", overclockIcons.miniShells, 4);
 	}
 	
 	@Override
@@ -318,18 +323,11 @@ public class Shotgun extends Weapon {
 		if (selectedTier1 == 1) {
 			toReturn += 2;
 		}
-		
 		if (selectedTier3 == 2) {
 			toReturn += 3;
 		}
 		
-		if (selectedOverclock == 0) {
-			toReturn += 1;
-		}
-		else if (selectedOverclock == 2) {
-			toReturn -= 2; 
-		}
-		else if (selectedOverclock == 4) {
+		if (selectedOverclock == 4) {
 			toReturn += 6;
 		}
 		
@@ -346,11 +344,8 @@ public class Shotgun extends Weapon {
 			toReturn += 0.5;
 		}
 		
-		if (selectedOverclock == 0) {
-			toReturn += 0.4;
-		}
-		else if (selectedOverclock == 2) {
-			toReturn -= 0.4;
+		if (selectedOverclock == 2) {
+			toReturn *= 0.75;
 		}
 		else if (selectedOverclock == 3) {
 			toReturn += 2.0;
@@ -366,7 +361,7 @@ public class Shotgun extends Weapon {
 		}
 		
 		if (selectedOverclock == 1) {
-			toReturn -= 0.2;
+			toReturn -= 0.4;
 		}
 		else if (selectedOverclock == 3) {
 			toReturn += 0.5;
@@ -394,6 +389,14 @@ public class Shotgun extends Weapon {
 		
 		return toReturn;
 	}
+	private double getWeakpointBonus() {
+		if (selectedOverclock == 2) {
+			return 0.3;
+		}
+		else {
+			return 0;
+		}
+	}
 	private double getArmorBreaking() {
 		if (selectedTier4 == 0) {
 			return 5.0;
@@ -405,7 +408,6 @@ public class Shotgun extends Weapon {
 	private double getBaseSpread() {
 		double toReturn = 1.0;
 		
-		// Although DRG has these stats multiply together as 25% Base Spread, it's more precise to represent them as additive bonuses in this model.
 		if (selectedTier2 == 2) {
 			toReturn *= 0.5;
 		}
@@ -435,36 +437,45 @@ public class Shotgun extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[11];
+		StatsRow[] toReturn = new StatsRow[12];
 		
 		boolean damageModified = selectedTier4 == 1 || selectedOverclock == 3 || selectedOverclock == 4;
 		toReturn[0] = new StatsRow("Damage per Pellet:", getDamagePerPellet(), damageModified);
 		
 		toReturn[1] = new StatsRow("Number of Pellets/Shot:", getNumberOfPellets(), selectedTier2 == 1);
 		
-		boolean magSizeModified = selectedTier1 == 1 || selectedTier3 == 2 || selectedOverclock % 2 == 0; // OCs 0, 2, & 4 all modify mag size, but -1, 1, & 3 do not.
+		boolean magSizeModified = selectedTier1 == 1 || selectedTier3 == 2 || selectedOverclock == 4;
 		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 4;
 		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		boolean RoFModified = selectedTier1 == 0 || selectedTier5 == 1 || selectedOverclock == 0 || selectedOverclock == 2 || selectedOverclock == 3;
+		boolean RoFModified = selectedTier1 == 0 || selectedTier5 == 1 || selectedOverclock == 2 || selectedOverclock == 3;
 		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), RoFModified);
 		
 		boolean reloadModified = selectedTier3 == 1 || selectedOverclock == 1 || selectedOverclock == 3;
 		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), reloadModified);
 		
-		toReturn[6] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[6] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedOverclock == 2, selectedOverclock == 2);
 		
-		toReturn[7] = new StatsRow("Weakpoint Stun Chance per Pellet:", convertDoubleToPercentage(getWeakpointStunChance()), selectedOverclock == 4);
+		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier4 == 0, selectedTier4 == 0);
 		
-		toReturn[8] = new StatsRow("Stun Duration:", getStunDuration(), selectedOverclock == 4);
+		String stunDescription;
+		if (selectedOverclock == 0) {
+			stunDescription = "Stun Chance per Pellet:";
+		}
+		else {
+			stunDescription = "Weakpoint Stun Chance per Pellet:";
+		}
+		toReturn[8] = new StatsRow(stunDescription, convertDoubleToPercentage(getWeakpointStunChance()), selectedOverclock == 0 || selectedOverclock == 4);
+		
+		toReturn[9] = new StatsRow("Stun Duration:", getStunDuration(), selectedOverclock == 4);
 		
 		boolean baseSpreadModified = selectedTier2 == 2 || selectedOverclock == 2 || selectedOverclock == 3;
-		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
+		toReturn[10] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
 		
 		boolean recoilModified = selectedTier3 == 0 || selectedOverclock == 4;
-		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
+		toReturn[11] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
 		
 		return toReturn;
 	}
@@ -476,6 +487,20 @@ public class Shotgun extends Weapon {
 	@Override
 	public boolean currentlyDealsSplashDamage() {
 		return false;
+	}
+	
+	private double calculateCumulativeStunChancePerShot() {
+		// Because Stunner changes it from weakpoints to anywhere on the body, I'm making the Accuracy change to reflect that.
+		double stunAccuracy = estimatedAccuracy(selectedOverclock != 0) / 100.0;
+		int numPelletsThatHaveStunChance = (int) Math.round(getNumberOfPellets() * stunAccuracy);
+		if (numPelletsThatHaveStunChance > 0) {
+			// Only 1 pellet needs to succeed in order to stun the creature
+			return MathUtils.cumulativeBinomialProbability(getWeakpointStunChance(), numPelletsThatHaveStunChance, 1);
+		}
+		else {
+			// This is a special case -- when the Accuracy is so low that none of the pellets are expected to hit a weakpoint, the cumulative binomial probability returns -1, which in turn destroys the Utility Score unnecessarily.
+			return 0.0;
+		}
 	}
 	
 	// Single-target calculations
@@ -496,21 +521,43 @@ public class Shotgun extends Weapon {
 			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
 		}
 		
+		double dmgPerPellet = getDamagePerPellet();
+		
+		// Frozen
+		if (statusEffects[1]) {
+			dmgPerPellet *= UtilityInformation.Frozen_Damage_Multiplier;
+		}
+		// IFG Grenade
+		if (statusEffects[3]) {
+			dmgPerPellet *= UtilityInformation.IFG_Damage_Multiplier;
+		}
+		
+		if (selectedOverclock == 0) {
+			// Stunner OC damage multiplier
+			double stunChancePerShot = calculateCumulativeStunChancePerShot();
+			double numShotsBeforeStun = Math.round(MathUtils.meanRolls(stunChancePerShot));
+			double numShotsFiredWhileStunned = Math.min(Math.round(getStunDuration() * getRateOfFire()), getMagazineSize() - numShotsBeforeStun);
+			
+			double stunnerAverageDamageMultiplier = (numShotsBeforeStun + 1.3 * numShotsFiredWhileStunned) / (numShotsBeforeStun + numShotsFiredWhileStunned);
+			
+			dmgPerPellet *= stunnerAverageDamageMultiplier;
+		}
+		
 		double weakpointAccuracy;
-		if (weakpoint) {
+		if (weakpoint && !statusEffects[1]) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
-			directWeakpointDamagePerPellet = increaseBulletDamageForWeakpoints2(getDamagePerPellet());
+			directWeakpointDamagePerPellet = increaseBulletDamageForWeakpoints2(dmgPerPellet, getWeakpointBonus());
 		}
 		else {
 			weakpointAccuracy = 0.0;
-			directWeakpointDamagePerPellet = getDamagePerPellet();
+			directWeakpointDamagePerPellet = dmgPerPellet;
 		}
 		
 		int numPelletsPerShot = getNumberOfPellets();
 		int pelletsThatHitWeakpointPerShot = (int) Math.round(numPelletsPerShot * weakpointAccuracy);
 		int pelletsThatHitTargetPerShot = (int) Math.round(numPelletsPerShot * generalAccuracy) - pelletsThatHitWeakpointPerShot;
 		
-		return (pelletsThatHitWeakpointPerShot * directWeakpointDamagePerPellet + pelletsThatHitTargetPerShot * getDamagePerPellet()) * getMagazineSize() / duration;
+		return (pelletsThatHitWeakpointPerShot * directWeakpointDamagePerPellet + pelletsThatHitTargetPerShot * dmgPerPellet) * getMagazineSize() / duration;
 	}
 
 	@Override
@@ -573,32 +620,32 @@ public class Shotgun extends Weapon {
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		double unchangingBaseSpread = 104;
-		double changingBaseSpread = 96 * getBaseSpread();
+		double changingBaseSpread = 96;
 		double spreadVariance = 0;
 		double spreadPerShot = 0;
 		double spreadRecoverySpeed = 0;
-		double recoilPerShot = 124.036285 * getRecoil();
+		double recoilPerShot = 124.036285;
 		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
 		double recoilUpInterval = 1.0 / 3.0;
 		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
 		double recoilDownInterval = 4.0 / 3.0;
 		
+		double[] modifiers = {getBaseSpread(), 1.0, 1.0, 1.0, getRecoil()};
+		
 		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, true, getRateOfFire(), getMagazineSize(), 1, 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
-				recoilPerShot, recoilUpInterval, recoilDownInterval);
+				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
 	}
 
 	@Override
 	public double utilityScore() {
-		// Armor Breaking
-		utilityScores[2] = (getArmorBreaking() - 1) * UtilityInformation.ArmorBreak_Utility;
+		// Light Armor Breaking probability
+		int numPelletsThatHitLightArmorPlate = (int) Math.round(getNumberOfPellets() * estimatedAccuracy(false) / 100.0);
+		double probabilityToBreakLightArmorPlatePerPellet = calculateProbabilityToBreakLightArmor(getDamagePerPellet() * numPelletsThatHitLightArmorPlate, getArmorBreaking());
+		utilityScores[2] = probabilityToBreakLightArmorPlatePerPellet * UtilityInformation.ArmorBreak_Utility;
 		
-		// Weakpoint = 10% stun chance per pellet, 2 sec duration (upgraded with Mod Tier 3 "Stun Duration")
-		double weakpointAccuracy = estimatedAccuracy(true) / 100.0;
-		int numPelletsThatHitWeakpoint = (int) Math.round(getNumberOfPellets() * weakpointAccuracy);
-		// Only 1 pellet needs to succeed in order to stun the creature
-		double totalStunChancePerShot = MathUtils.cumulativeBinomialProbability(getWeakpointStunChance(), numPelletsThatHitWeakpoint, 1);
-		utilityScores[5] = totalStunChancePerShot * getStunDuration() * UtilityInformation.Stun_Utility;
+		// Weakpoint = 10% stun chance per pellet, 3 sec duration (upgraded with Mod Tier 3 "Stun Duration", or OC "Stunner")
+		utilityScores[5] = calculateCumulativeStunChancePerShot() * getStunDuration() * UtilityInformation.Stun_Utility;
 		
 		return MathUtils.sum(utilityScores);
 	}

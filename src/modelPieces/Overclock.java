@@ -1,5 +1,7 @@
 package modelPieces;
 
+import guiPieces.ButtonIcons.overclockIcons;
+
 public class Overclock {
 
 	public enum classification{clean, balanced, unstable};
@@ -7,17 +9,19 @@ public class Overclock {
 	private classification overclockType;
 	private String name;
 	private String text;
+	private overclockIcons icon;
 	private int index;
 	private boolean implemented;
 	
-	public Overclock(classification type, String ocName, String ocText, int arrayIndex) {
-		this(type, ocName, ocText, arrayIndex, true);
+	public Overclock(classification type, String ocName, String ocText, overclockIcons upgradeType, int arrayIndex) {
+		this(type, ocName, ocText, upgradeType, arrayIndex, true);
 	}
 	
-	public Overclock(classification type, String ocName, String ocText, int arrayIndex, boolean ocImplemented) {
+	public Overclock(classification type, String ocName, String ocText, overclockIcons upgradeType, int arrayIndex, boolean ocImplemented) {
 		overclockType = type;
 		name = ocName;
 		text = ocText;
+		icon = upgradeType;
 		index = arrayIndex;
 		implemented = ocImplemented;
 	}
@@ -30,6 +34,9 @@ public class Overclock {
 	}
 	public String getText() {
 		return text;
+	}
+	public overclockIcons getIcon() {
+		return icon;
 	}
 	public boolean isImplemented() {
 		return implemented;

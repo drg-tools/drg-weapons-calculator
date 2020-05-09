@@ -1,5 +1,6 @@
 package modelPieces;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Observable;
 
@@ -16,6 +17,7 @@ public abstract class Weapon extends Observable {
 	****************************************************************************************/
 	
 	protected String fullName;
+	protected BufferedImage weaponPic;
 	// Since several of the weapons have a Homebrew Powder mod or OC, I'm adding this coefficient in the parent class so that they can all be updated simultaneously.
 	// This number was calculated by adding up all numbers in the range [80, 140] and then dividing that sum by 60 to get the average value.
 	protected double homebrewPowderCoefficient = 1.11833;
@@ -35,12 +37,14 @@ public abstract class Weapon extends Observable {
 	protected Overclock[] overclocks;
 	protected int selectedOverclock;
 	
-	protected double weakpointAccuracy;
-	protected double generalAccuracy;
+	//protected double weakpointAccuracy;
+	//protected double generalAccuracy;
 	protected double[] aoeEfficiency;
 	// Mobility, Damage Resist, Armor Break, Slow, Fear, Stun, Freeze
 	// Set them all to zero to start, then override values in child objects as necessary.
-	protected double[] utilityScores = {0,0,0,0,0,0,0};
+	protected double[] utilityScores = {0, 0, 0, 0, 0, 0, 0};
+	// Burning, Frozen, Electrocuted, IFG Grenade
+	protected boolean[] statusEffects = {false, false, false, false};
 	
 	protected double[] baselineCalculatedStats;
 	private AoEVisualizer illustration = null;
@@ -198,6 +202,28 @@ public abstract class Weapon extends Observable {
 		}
 	}
 	
+	public boolean[] getCurrentStatusEffects() {
+		return statusEffects;
+	}
+	public void setStatusEffect(int effectIndex, boolean newValue) {
+		if (effectIndex > -1 && effectIndex < statusEffects.length) {
+			// Special case: Burning and Frozen are mutually exclusive statuses, so make sure that if one gets set to true, the other is automatically set to false
+			if (effectIndex == 0 && newValue) {
+				statusEffects[1] = false;
+			}
+			else if (effectIndex == 1 && newValue) {
+				statusEffects[0] = false;
+			}
+			
+			statusEffects[effectIndex] = newValue;
+			
+			if (countObservers() > 0) {
+				setChanged();
+				notifyObservers();
+			}
+		}
+	}
+	
 	public abstract void buildFromCombination(String combination); 
 	
 	public Mod[] getModsAtTier(int tierNumber) {
@@ -268,8 +294,15 @@ public abstract class Weapon extends Observable {
 	}
 	
 	protected void setAoEEfficiency() {
-		// This is a placeholder method that only gets overwritten by weapons that deal splash damage (EPC_ChargedShot, GrenadeLauncher, and Autocannon)
-		// It just exists here so that Weapon can reference the method when it changes mods or OCs
+		/* 
+			This is a placeholder method that only gets overwritten by weapons that deal splash damage (EPC_ChargedShot, GrenadeLauncher, and Autocannon)
+			It just exists here so that Weapon can reference the method when it changes mods or OCs
+			{
+				AoE Radius
+				AoE Efficiency Coefficient
+				Total num Grunts hit in AoE radius
+			}
+		*/
 		aoeEfficiency = new double[3];
 	}
 	
@@ -284,6 +317,9 @@ public abstract class Weapon extends Observable {
 	// Stats page
 	public String getFullName() {
 		return fullName;
+	}
+	public BufferedImage getPicture() {
+		return weaponPic;
 	}
 	public String getCombination() {
 		String toReturn = "";
@@ -337,7 +373,7 @@ public abstract class Weapon extends Observable {
 		2. Number of projectiles per shot / Burst size
 		3. Area Damage per shot
 		4. Mechanics about how each shot gets fired (AoE radius, velocity, charge-time, etc)
-		5. Magazine size / number of shots fired per burst / ammo consumed per shot
+		5. Magazine size / ammo consumed per shot
 		6. Carried Ammo
 		7. Rate of Fire (and any relevant mechanics)
 		8. Reload Time / cooldown time and related mechanics or stats
@@ -355,6 +391,25 @@ public abstract class Weapon extends Observable {
 	*/
 	public abstract StatsRow[] getStats();
 	public abstract Weapon clone();
+	
+	protected double calculateProbabilityToBreakLightArmor(double baseDamage) {
+		return calculateProbabilityToBreakLightArmor(baseDamage, 1.0);
+	}
+	protected double calculateProbabilityToBreakLightArmor(double baseDamage, double armorBreaking) {
+		// Input sanitization
+		if (baseDamage <= 0.0 || armorBreaking <= 0.0) {
+			return 0.0;
+		}
+		
+		// Due to its logarithmic formula, the probability to break an armor plate is 0% when Dmg * AB == 3.32
+		if (baseDamage * armorBreaking < 3.33) {
+			return 0.0;
+		}
+		
+		// Elythnwaen found this formula and shared it with me.
+		// Never let this return a probability less than 0.0 or higher than 1.0
+		return Math.max(Math.min(Math.log(armorBreaking * baseDamage)/3.0 - 0.4, 1.0), 0.0);
+	}
 	
 	protected double calculateRNGDoTDPSPerMagazine(double DoTProcChance, double DoTDPS, int magazineSize) {
 		/*
@@ -558,6 +613,7 @@ public abstract class Weapon extends Observable {
 	public abstract double sustainedWeakpointAccuracyDPS();
 	
 	// Multi-target calculations (based on "ideal" sustained DPS calculations)
+	// I'm choosing not to implement Status Effects on the additional targets
 	public abstract double calculateAdditionalTargetDPS();
 	public abstract double calculateMaxMultiTargetDamage();
 	
@@ -603,7 +659,7 @@ public abstract class Weapon extends Observable {
 		return new double[]{
 			calculateIdealBurstDPS(), calculateIdealSustainedDPS(), sustainedWeakpointDPS(), sustainedWeakpointAccuracyDPS(),
 			calculateAdditionalTargetDPS(), calculateMaxMultiTargetDamage(), calculateMaxNumTargets(), calculateFiringDuration(),
-			averageTimeToKill(), averageOverkill(), estimatedAccuracy(false), calculateIdealSustainedDPS()
+			averageTimeToKill(), averageOverkill(), estimatedAccuracy(false), utilityScore()
 		};
 	}
 }

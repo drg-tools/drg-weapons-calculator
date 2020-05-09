@@ -2,7 +2,6 @@ package guiPieces;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.Insets;
 
 import javax.swing.BoxLayout;
@@ -24,7 +23,7 @@ public class InformationTabsText {
 		 
 		 JLabel header = new JLabel(title);
 		 header.setForeground(GuiConstants.drgRegularOrange);
-		 header.setFont(new Font("Dialogue", Font.PLAIN, 18));
+		 header.setFont(GuiConstants.customFontHeader);
 		 JPanel centerAlignHeader = new JPanel();
 		 centerAlignHeader.setLayout(new FlowLayout(FlowLayout.CENTER));
 		 centerAlignHeader.setBackground(GuiConstants.drgBackgroundBrown);
@@ -44,6 +43,7 @@ public class InformationTabsText {
 		toReturn.setLayout(new BoxLayout(toReturn, BoxLayout.PAGE_AXIS));
 		
 		JLabel questionOrTerm = new JLabel(question);
+		questionOrTerm.setFont(GuiConstants.customFontBold);
 		questionOrTerm.setForeground(GuiConstants.drgRegularOrange);
 		// Set the Label to be almost flush with the left side
 		JPanel leftAlignLabel = new JPanel();
@@ -53,6 +53,7 @@ public class InformationTabsText {
 		toReturn.add(leftAlignLabel);
 		
 		JTextArea answerOrDefinition = new JTextArea(answer);
+		answerOrDefinition.setFont(GuiConstants.customFont);
 		answerOrDefinition.setBackground(GuiConstants.drgBackgroundBrown);
 		answerOrDefinition.setForeground(GuiConstants.drgHighlightedYellow);
 		// Left-pad the answer a bit for visual clarity
@@ -67,22 +68,28 @@ public class InformationTabsText {
 	public static JPanel getFAQText() {
 		// TODO: add more FAQs
 		String[][] FAQtext = {
-			{"Where are the Flamethrower, Cryo Cannon, and Breach Cutter?", "Those weapons (Breach Cutter in particular) are substantially harder to accurately model, but I'm hoping to add them in a later release."},
+			{"Where are the Flamethrower, Cryo Cannon, and Breach Cutter?", "Those weapons (Breach Cutter in particular) are substantially harder to model accurately, but I'm hoping to add them in a later release."},
 			{"Why do some Mods and Overclocks have a Red outline?", "Mods or Overclocks with a Red outline either are not implemented yet, or how they work in-game can't be represented by the Weapon's stats."},
 			{"What's the point of this program?", "To help the DRG community compare and contrast their preferred builds for each weapon, and to provide more detail about how the weapons work than described in-game or on the wiki."},
 			{"How long should I wait for the program to calculate the best build?", "In this build, be ready to wait for a while. It doesn't have multi-threading implemented yet, so it can only chug through the 3000+ combinations as fast as a single core "
-					+ "of your processor can go. On the computer it's being developed on, it's taking anywhere from 3-10 seconds for each auto-calculation, with Engie/SMG taking the longest due to its high Rate of Fire and fast Recoil speeds slowing down "
-					+ "how quickly its Accuracy can be estimated."},
+					+ "of your processor can go. On the computer it's being developed on, it's taking anywhere from 3-10 seconds for each auto-calculation, with Gunner/Minigun taking the longest due to having the most combinations to test."},
 			{"I think something is wrong/missing, how do I communicate that to you?", "In the 'Misc. Actions' Menu, there's an option to suggest changes. That should automatically open up this project's GitHub issue creation page for you."},
 			{"Can I help improve to this project?", "Yes! This is an open-source, freeware fan project. Although it's started out as just one developer, I would love to have help."},
-			{"How frequently will this be updated?", "There are a couple features that I want to add (like the 3 missing weapons) before calling this 'stable', but I'm planning to update each weapon's stats as GSG devs update them in-game on their production build."},
-			{"What are some of the features going to be added in the future?", "Besides adding the last 3 weapons, I would also like to add Weakpoint Accuracy, Breakpoints, and Ammo Efficiency metrics, as well as add multi-threading to the auto-calculator process to improve its speed. "
-					+ "I'd also like to dynamically calculate the Armor Breaking probability for each weapon, rather than just have a static number."},
+			{"How frequently will this be updated?", "There are a couple features that I want to add (like the 3 missing weapons) before calling this 'done', but I'm planning to update each weapon's stats as GSG devs update them in-game on their production build."},
+			{"What are some of the features going to be added in the future?", "Besides adding the last 3 weapons, I would also like to add Weakpoint Accuracy, Breakpoints, and Ammo Efficiency metrics, as well as add multi-threading to the auto-calculator process to improve its speed."},
 			{"Will this be made available as a live website?", "Probably not. Thousands of lines of Java code do not port well into HTML/CSS/Javascript. There's a similar program already online at https://surmiran.github.io/karl/ but it has much less detail."},
 			{"How did you model [insert mechanic here]?", "This is an open-source project. Feel free to look around the source code and see how it was done. In general though: I chose to model everything like a continuous function instead of "
 					+ "discrete. Slight loss of precision, but significantly easier."},
 			{"How are Status Effect Utility scores calculated?", "The formula I chose to use is (% Chance to Proc) * (Number of Targets) * (Effect Duration) * (Utility Factor), where 'Utility Factor' is some scalar value assigned to each effect."},
 			// I'm intentionally adding blank lines below here so that the content gets pushed to the top of the page
+			{"", ""},
+			{"", ""},
+			{"", ""},
+			{"", ""},
+			{"", ""},
+			{"", ""},
+			{"", ""},
+			{"", ""},
 			{"", ""},
 			// {"", ""},
 		};
@@ -102,7 +109,7 @@ public class InformationTabsText {
 		// Perhaps these should be sorted alphabetically?
 		String[][] glossaryText = {
 			{"Armor", "Some of the enemies on Hoxxes IV have exterior armor plates to protect them. Grunts have Light Armor that reduces damage by 20%, but has a chance to break every time it gets damaged. Praetorians and "
-					+ "Shellbacks have Heavy Armor plates that negate all incoming Direct Damage, but break after absorbing 100 total damage. The third type of armor is found on Oppressors and Dreadnoughts: it makes them "
+					+ "Shellbacks have Heavy Armor plates that negate all incoming Direct Damage, but break after absorbing a set amount of damage. The third type of armor is found on Oppressors and Dreadnoughts: it makes them "
 					+ "immune to all Direct Damage from the front and can't be broken, so shoot their abdomen."},
 			{"Armor Breaking", "Increasing this stat above 100% means that it takes fewer shots to break Grunt and Praetorian armor plates, so you lose less damage to Armor. Doesn't affect the third type of Armor, though. "
 					+ "Likewise, if this is less than 100%, it means that damage is less effective vs Armor."},
@@ -125,16 +132,16 @@ public class InformationTabsText {
 			{"Status Effect", "A conditional effect that can be applied to enemies. Sometimes it's a DoT, other times it's a crowd control effect."},
 			{"Burn (DoT)", "When an enemy has its Temperature meter increased to maximum by taking sustained Heat Damage, it ignites and gains a Burn DoT. While Burning, enemies take an average of " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) 
 					+  " Fire Damage per second. If no more Heat Damage is applied, then their Temperature will steadily decrease until they are doused and the Burn DoT will end. On the other hand, sustaining even more Heat Damage will prolong the Burn duration. Applying "
-					+ "Cold Damage will significantly shorten the duration of the Burn."},
+					+ "Cold Damage will significantly shorten the duration of the Burn, but also inflict Temperature Shock."},
 			{"Frozen (Status Effect)", "Thematically the opposite of the Burn DoT, enemies become Frozen when their Temperature is lowered enough by sustained Cold Damage. Once Frozen, they receive x" + UtilityInformation.Frozen_Damage_Multiplier + " Direct Damage. Frozen enemies "
-					+ "cannot have the freeze duration increased; instead they will thaw over time. Once they have thawed, more Cold Damage can be applied to freeze them again. Applying Heat Damage will significantly shorten the duration of the Freeze."},
+					+ "cannot have the freeze duration increased; instead they will thaw over time. Once they have thawed, more Cold Damage can be applied to freeze them again. Applying Heat Damage will significantly shorten the duration of the Freeze, but also inflict Temperature Shock."},
 			{"Electrocute (DoT, Status Effect)", "Some of the Weapons and Overclocks have a chance to apply the Electrocute Status Effect. Once applied, enemies take an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per second for " 
 					+ DoTInformation.Electro_SecsDuration + " seconds, while also being slowed by 80%. Enemies can only have one Electrocute applied to them at once; if another shot were to apply a second Electrocute, the first one has its duration refreshed instead."},
 			{"Radiation (DoT)", "There are two types of Radiation: environmental hazards in the Radioactive Exclusion Zone which deal an average of " + MathUtils.round(DoTInformation.Rad_Env_DPS, GuiConstants.numDecimalPlaces) + " Radiation Damage per second to the player, and the Radiation field left behind by the "
 					+ "Overclock 'Fat Boy', which does an average of " + MathUtils.round(DoTInformation.Rad_FB_DPS, GuiConstants.numDecimalPlaces) + " Radiation Damage per second to enemies."},
 			{"Neurotoxin (DoT, Status Effect)", "Similar to Electrocute, a few weapons can have a chance to apply Neurotoxin. Enemies afflicted by Neurotoxin take an average of " + MathUtils.round(DoTInformation.Neuro_DPS, GuiConstants.numDecimalPlaces) + " Poison Damage per second for up to " 
 					+ DoTInformation.Neuro_SecsDuration + " seconds, while also being slowed by 30%. Also like Electrocute, enemies can only have one Neurotoxin DoT applied to them at once; anything that would apply a second effect instead refreshes the duration."},
-			{"Persistent Plasma (DoT)", "Similar to Radiation, "},
+			{"Persistent Plasma (DoT)", "Similar to Radiation, this is an area-of-effect DoT that gets left behind by certain mods and overclocks. It deals an average of " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per second."},
 			{"Stun (Status Effect)", "Stunning an enemy stops them from moving or attacking for a set duration. That duration changes from weapon to weapon, but it's typically around 2 seconds. Enemies that channel their attacks (like Praetorians) can have those attacks interrurpted by a Stun."},
 			{"Fear (Status Effect)", "Inflicting Fear on an enemy causes them to stop what they're doing and run from the source of the Fear as fast as they can move for about " + UtilityInformation.Fear_Duration + " seconds. After the Fear wears off, they return to normal behavior."},
 			{"Base Spread", "This stat affects how accurate the first shot will be. At 0%, that means the first shot is guaranteed to go exactly where your crosshair is pointing. As the percentage goes higher, the probability that the first shot will hit decreases."},
@@ -165,11 +172,19 @@ public class InformationTabsText {
 	
 	public static JPanel getAcknowledgementsText() {
 		String[][] acknowledgementsText = {
+			{"Ghost Ship Games", "Thank you for making the game Deep Rock Galactic and letting me use some images and artwork from the game in this program."},
 			{"Ian McDonagh", "Thank you for creating the open-source JAR 'image4j' that allows me to use .ico files natively."},
 			{"Gaming for the Recently Deceased", "Thank you for helping to promote this project and making a video about it. YouTube Channel: https://www.youtube.com/channel/UCL_8gMChYJD5ls7GaJtGmUw"},
 			{"Usteppin", "Thank you for collect some data and test weapon builds for me on Hazard 5. Twitch Channel: https://www.twitch.tv/usteppin"},
-			{"Alpha and Beta testers", "Thank you Minomess, Royal, and CynicalAtropos for giving me feedback while this was still being developed and helping test out the builds."},
+			{"Elythnwaen", "Thank you for collecting data about elemental weaknesses, resistances, Burn/Freeze temperatures, and more! Also, thank you for letting me know about Subata's 50% Armor Breaking penalty and helping me figure out the correct Armor Breaking formula."},
+			{"Alpha and Beta testers", "Thank you Minomess, Royal, CynicalAtropos, and ARobotWithCancer for giving me feedback while this was still being developed and helping test out the builds."},
 			// I'm intentionally adding blank lines below here so that the content gets pushed to the top of the page
+			{"", ""},
+			{"", ""},
+			{"", ""},
+			{"", ""},
+			{"", ""},
+			{"", ""},
 			{"", ""},
 			{"", ""},
 			{"", ""},

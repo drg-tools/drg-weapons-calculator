@@ -53,6 +53,8 @@ public class View extends JFrame implements Observer {
 	private JTabbedPane scoutTabs;
 	private JTabbedPane infoTabs;
 	
+	private ThinkingCursorAnimation TCA;
+	
 	/*
 		It looks like they use the paid-for font "Aktiv Grotesk Cd". However, to keep this free, I'm choosing to use font "Roboto Condensed" because it's an open-source font
 	*/
@@ -63,16 +65,17 @@ public class View extends JFrame implements Observer {
 		gunnerWeapons = gWeapons;
 		scoutWeapons = sWeapons;
 		
+		TCA = new ThinkingCursorAnimation(this);
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("MeatShield's DRG DPS Calculator (DRG Update 29.6)");
-		setPreferredSize(new Dimension(1620, 780));
+		setTitle("MeatShield's DRG DPS Calculator (DRG Update 29.8)");
+		setPreferredSize(new Dimension(1500, 900));
 		
 		// Add the icon
-		try {
-			setIconImages(ResourceLoader.loadIcoFile("/images/meatShield_composite.ico"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		setIconImages(ResourceLoader.loadIcoFile("/images/meatShield_composite.ico"));
+		
+		// Set the custom cursor
+		setCursor(CustomCursors.defaultCursor);
 		
 		constructMenu();
 		
@@ -120,7 +123,20 @@ public class View extends JFrame implements Observer {
 		add(mainTabs);
 		setContentPane(mainTabs);
 		pack();
+		
+		// Have this automatically open in the center of the screen
+		setLocationRelativeTo(null);
+		
 		setVisible(true);
+	}
+	
+	public void activateThinkingCursor() {
+		TCA.toggleAnimation();
+		new Thread(TCA).start();
+	}
+	
+	public void deactivateThinkingCursor() {
+		TCA.toggleAnimation();
 	}
 
 	private void constructMenu() {

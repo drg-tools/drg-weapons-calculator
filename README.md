@@ -9,6 +9,22 @@ if raw damage per bullet is more DPS than a faster reload. Once it's mostly fini
 so that everyone can make use of it. Maybe even the Developers, too -- who knows?
 
 ___
-Compiled on Java JRE 12.0.2, Class v56
+### Installation
+If you already have Java 8 or higher installed on your computer, then you can just download the most recent .jar file from /jars, 
+and double-click to run. If you don't have Java installed, go to /builds and download the latest installer. It should open up a 
+Windows Install Wizard which will install a local copy of JRE8 in the folder you choose for installation, which will then be used 
+by the .exe version installed.
+
+___
+### Tech Specs
+* Compiled on Java JRE 12.0.2, Class v56
+* Bundled using Launch4j 3.12 and Inno Setup 6.0.4
 
 If you want to contribute to this project, feel free to make a Pull Request and I'll take a look at your suggested changes. I'm also open to adding people as Collaborators to this project.
+
+___
+According to CLOC, 0.9.6's metrics:
+* 45 .java files
+* 2508 blank lines
+* 1480 comment lines
+* 13649 code lines

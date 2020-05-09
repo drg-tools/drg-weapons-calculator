@@ -3,6 +3,10 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.GuiConstants;
+import guiPieces.WeaponPictures;
+import guiPieces.ButtonIcons.modIcons;
+import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.DwarfInformation;
@@ -48,6 +52,7 @@ public class Autocannon extends Weapon {
 	
 	public Autocannon(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "\"Thunderhead\" Heavy Autocannon";
+		weaponPic = WeaponPictures.autocannon;
 		
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 14;
@@ -79,36 +84,37 @@ public class Autocannon extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
-		tier1[0] = new Mod("Increased Caliber Rounds", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 1, 0);
-		tier1[1] = new Mod("High Capacity Magazine", "The good thing about clips, magazines, ammo drums, fuel tanks ...you can always get bigger variants.", 1, 1);
-		tier1[2] = new Mod("Expanded Ammo Bags", "You had to give up some sandwich-space, but your total ammo capacity is increased!", 1, 2);
+		tier1[0] = new Mod("Increased Caliber Rounds", "+3 Direct Damage", modIcons.directDamage, 1, 0);
+		tier1[1] = new Mod("High Capacity Magazine", "+110 Magazine Size", modIcons.magSize, 1, 1);
+		tier1[2] = new Mod("Expanded Ammo Bags", "+220 Max Ammo", modIcons.carriedAmmo, 1, 2);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Tighter Barrel Alignment", "Improved accuracy", 2, 0);
-		tier2[1] = new Mod("Improved Gas System", "We overclocked your gun. It fires faster. Don't ask, just enjoy. Also probably don't tell Management, please.", 2, 1);
-		tier2[2] = new Mod("Lighter Barrel Assembly", "Reach the max rate of fire faster", 2, 2);
+		tier2[0] = new Mod("Tighter Barrel Alignment", "-30% Base Spread", modIcons.baseSpread, 2, 0);
+		tier2[1] = new Mod("Improved Gas System", "+1.5 Max Rate of Fire", modIcons.rateOfFire, 2, 1);
+		tier2[2] = new Mod("Lighter Barrel Assembly", "-5 Bullets fired to reach Max Rate of Fire", modIcons.rateOfFire, 2, 2);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Supercharged Feed Mechanism", "We overclocked your gun. It fires faster. Don't ask, just enjoy. Also probably don't tell Management, please.", 3, 0);
-		tier3[1] = new Mod("Loaded Rounds", "Increased splash damage", 3, 1);
-		tier3[2] = new Mod("High Velocity Rounds", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 3, 2);
+		tier3[0] = new Mod("Supercharged Feed Mechanism", "+2 Max Rate of Fire", modIcons.rateOfFire, 3, 0);
+		tier3[1] = new Mod("Loaded Rounds", "+2 Area Damage", modIcons.areaDamage, 3, 1);
+		tier3[2] = new Mod("High Velocity Rounds", "+4 Direct Damage", modIcons.directDamage, 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Penetrating Rounds", "We're proud of this one. Armor shredding. Tear through that high-impact plating of those bug buggers like butter. What could be finer?", 4, 0);
-		tier4[1] = new Mod("Shrapnel Rounds", "Greater splash damage radius", 4, 1);
+		tier4[0] = new Mod("Penetrating Rounds", "+400% Armor Breaking", modIcons.armorBreaking, 4, 0);
+		tier4[1] = new Mod("Shrapnel Rounds", "+0.6 AoE Radius", modIcons.aoeRadius, 4, 1);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Feedback Loop", "Increased damage when at max rate of fire", 5, 0);
-		tier5[1] = new Mod("Suppressive Fire", "Chance to scare enemies next to a bullet impact", 5, 1);
-		tier5[2] = new Mod("Damage Resistance At Full RoF", "Gain damage reduction when at max rate of fire", 5, 2);
+		tier5[0] = new Mod("Feedback Loop", "x1.2 Direct and Area Damage when at Max Rate of Fire", modIcons.directDamage, 5, 0);
+		tier5[1] = new Mod("Suppressive Fire", "Around 20% chance to inflict Fear to enemies within the AoE Radius on impact.", modIcons.fear, 5, 1);
+		tier5[2] = new Mod("Damage Resistance At Full RoF", "33% Damage Resistance when at Max Rate of Fire", modIcons.damageResistance, 5, 2);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Drums", "Lighter weight materials means you can carry even more ammo!", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Splintering Shells", "Specially designed shells splinter into smaller pieces increasing the splash damage range.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Carpet Bomber", "A few tweaks here and there and the autocannon can now shoot HE rounds! Direct damage is lower but the increased splash damage and range lets you saturate and area like no other weapon can.", 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Combat Mobility", "A slight reduction in the power of the rounds permits using a smaller chamber and a light-weight backplate with in turn allows extensive weight redistribution. The end result is a weapon that still packs a punch but is easier to handle on the move.", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Big Bertha", "Extensive tweaks give a huge bump in raw damage at the cost of ammo capacity and fire rate.", 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neurotoxin Payload", "Channel your inner war criminal by mixing some neurotoxin into the explosive compound. The rounds deal less direct damage and splash damage, but affected bugs move slower and take lots of damage over time.", 5);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Drums", "+110 Max Ammo, -0.5 Reload Time", overclockIcons.carriedAmmo, 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Splintering Shells", "+1 Area Damage, +0.3 AoE Radius", overclockIcons.aoeRadius, 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Carpet Bomber", "+3 Area Damage, +0.7 AoE Radius, -6 Direct Damage", overclockIcons.areaDamage, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Combat Mobility", "Increases movement speed while using from 50% to 65% of normal walk speed, -2 Direct Damage", overclockIcons.movespeed, 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Big Bertha", "+12 Direct Damage, -30% Base Spread, x0.5 Magazine Size, -110 Max Ammo, -1.5 Max Rate of Fire", overclockIcons.directDamage, 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neurotoxin Payload", "30% Chance to inflict a Neurotoxin DoT that deals an average of " + MathUtils.round(DoTInformation.Neuro_DPS, GuiConstants.numDecimalPlaces) + 
+				" Poison Damage per Second to all enemies within the AoE Radius upon impact. +0.3 AoE Radius, -3 Direct Damage, -6 Area Damage", overclockIcons.neurotoxin, 5);
 	}
 	
 	@Override
@@ -330,7 +336,7 @@ public class Autocannon extends Weapon {
 		if (selectedTier4 == 1) {
 			toReturn += 0.6;
 		}
-		if (selectedOverclock == 1) {
+		if (selectedOverclock == 1 || selectedOverclock == 5) {
 			toReturn += 0.3;
 		}
 		else if (selectedOverclock == 2) {
@@ -432,7 +438,7 @@ public class Autocannon extends Weapon {
 		boolean areaDamageModified = selectedTier3 == 1 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), areaDamageModified);
 		
-		boolean aoeRadiusModified = selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 2;
+		boolean aoeRadiusModified = selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[2] = new StatsRow("AoE Radius:", aoeEfficiency[0], aoeRadiusModified);
 		
 		toReturn[3] = new StatsRow("Magazine Size:", getMagazineSize(), selectedTier1 == 1 || selectedOverclock == 4);
@@ -496,13 +502,27 @@ public class Autocannon extends Weapon {
 		
 		int magSize = getMagazineSize();
 		double directDamage = getDirectDamage();
+		double areaDamage = getAreaDamage();
+		
+		// Frozen
+		if (statusEffects[1]) {
+			directDamage *= UtilityInformation.Frozen_Damage_Multiplier;
+		}
+		// IFG Grenade
+		if (statusEffects[3]) {
+			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
+			areaDamage *= UtilityInformation.IFG_Damage_Multiplier;
+		}
+		
 		if (selectedTier5 == 0) {
 			double numBulletsRampup = (double) getNumBulletsRampup();
-			directDamage *= (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+			double feedbackLoopMultiplier = (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+			directDamage *= feedbackLoopMultiplier;
+			areaDamage *= feedbackLoopMultiplier;
 		}
 		
 		double weakpointAccuracy;
-		if (weakpoint) {
+		if (weakpoint && !statusEffects[1]) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
 			directWeakpointDamage = increaseBulletDamageForWeakpoints2(directDamage);
 		}
@@ -516,9 +536,9 @@ public class Autocannon extends Weapon {
 		
 		double neuroDPS = 0;
 		if (selectedOverclock == 5) {
-			// Neurotoxin Payload has a 20% chance to inflict the DoT
+			// Neurotoxin Payload has a 30% chance to inflict the DoT
 			if (burst) {
-				neuroDPS = calculateRNGDoTDPSPerMagazine(0.2, DoTInformation.Neuro_DPS, getMagazineSize());
+				neuroDPS = calculateRNGDoTDPSPerMagazine(0.3, DoTInformation.Neuro_DPS, getMagazineSize());
 			}
 			else {
 				neuroDPS = DoTInformation.Neuro_DPS;
@@ -526,7 +546,7 @@ public class Autocannon extends Weapon {
 		}
 		
 		// I'm choosing to model this as if the splash damage from every bullet were to hit the primary target, even if the bullets themselves don't.
-		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * directDamage + magSize * getAreaDamage()) / duration + neuroDPS;
+		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * directDamage + magSize * areaDamage) / duration + neuroDPS;
 	}
 	
 	private double calculateDamagePerMagazine(boolean weakpointBonus, int numTargets) {
@@ -579,13 +599,14 @@ public class Autocannon extends Weapon {
 	public double calculateAdditionalTargetDPS() {
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getAverageRateOfFire()) + getReloadTime();
 		double magSize = (double) getMagazineSize();
-		double damageMultiplier = 1.0;
+		double areaDamage = getAreaDamage();
+		
 		if (selectedTier5 == 0) {
 			double numBulletsRampup = (double) getNumBulletsRampup();
-			damageMultiplier = (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+			areaDamage *= (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
 		}
-		double areaDamagePerMag = getAreaDamage() * aoeEfficiency[1] * magSize * damageMultiplier;
 		
+		double areaDamagePerMag = areaDamage * aoeEfficiency[1] * magSize;
 		double sustainedAdditionalDPS = areaDamagePerMag / timeToFireMagazineAndReload;
 		
 		if (selectedOverclock == 5) {
@@ -604,7 +625,7 @@ public class Autocannon extends Weapon {
 		
 		double neurotoxinDoTTotalDamage = 0;
 		if (selectedOverclock == 5) {
-			double timeBeforeNeuroProc = MathUtils.meanRolls(0.2) / getAverageRateOfFire();
+			double timeBeforeNeuroProc = MathUtils.meanRolls(0.3) / getAverageRateOfFire();
 			double neurotoxinDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeNeuroProc, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
 			
 			double estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
@@ -687,12 +708,18 @@ public class Autocannon extends Weapon {
 			utilityScores[1] = 0;
 		}
 		
-		// Mod Tier 4 "Pentrating Rounds" armor breaking bonus
-		utilityScores[2] = (getArmorBreaking() - 1) * calculateMaxNumTargets() * UtilityInformation.ArmorBreak_Utility;
+		// Light Armor Breaking probability
+		double AB = getArmorBreaking();
+		double directDamage = getDirectDamage();
+		double areaDamage = getAreaDamage();
+		double directDamageAB = calculateProbabilityToBreakLightArmor(directDamage + areaDamage, AB);
+		double areaDamageAB = calculateProbabilityToBreakLightArmor(aoeEfficiency[1] * areaDamage, AB);
+		// Average out the Area Damage Breaking and Direct Damage Breaking
+		utilityScores[2] = (directDamageAB + (aoeEfficiency[2] - 1) * areaDamageAB) * UtilityInformation.ArmorBreak_Utility / aoeEfficiency[2];
 		
 		// OC "Neurotoxin Payload" has a 20% chance to inflict a 30% slow by poisoning enemies
 		if (selectedOverclock == 5) {
-			utilityScores[3] = 0.2 * calculateMaxNumTargets() * DoTInformation.Neuro_SecsDuration * UtilityInformation.Neuro_Slow_Utility;
+			utilityScores[3] = 0.3 * calculateMaxNumTargets() * DoTInformation.Neuro_SecsDuration * UtilityInformation.Neuro_Slow_Utility;
 		}
 		else {
 			utilityScores[3] = 0;

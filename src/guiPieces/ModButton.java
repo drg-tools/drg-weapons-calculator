@@ -5,35 +5,42 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JButton;
 import javax.swing.JToolTip;
 
+import guiPieces.ButtonIcons.modIcons;
 import modelPieces.Weapon;
 
 public class ModButton extends JButton implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	
 	private Weapon myWeapon;
+	private BufferedImage icon;
 	private int myTier;
 	private int myIndex;
 	private boolean enabled;
 	private boolean implemented;
 	
-	public ModButton(Weapon inputWeapon, int tier, int position, String modName, String modText, boolean modSelected, boolean modImplemented) {
+	public ModButton(Weapon inputWeapon, int tier, int position, String modName, String modText, modIcons iconSelector, boolean modSelected, boolean modImplemented) {
 		myWeapon = inputWeapon;
 		myTier = tier;
 		myIndex = position;
 		enabled = modSelected;
+		icon = ButtonIcons.getModIcon(iconSelector, enabled);
 		implemented = modImplemented;
 		
 		this.setText(modName);
-		this.setToolTipText(modText);
+		this.setFont(GuiConstants.customFont);
+		this.setToolTipText(HoverText.breakLongToolTipString(modText, 50));
 		this.setOpaque(false);
 		this.setContentAreaFilled(false);
 		this.setBorderPainted(false);
+		this.setCursor(CustomCursors.defaultCursorPlusQuestionMark);
 		
 		// Have each ModButton listen to itself for when it gets clicked to simplify the GuiController
 		this.addActionListener(this);
@@ -58,6 +65,10 @@ public class ModButton extends JButton implements ActionListener {
 		Polygon p = createBackgroundHexagon();
 		
 		Graphics2D g2 = (Graphics2D) g.create();
+		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		g2.setFont(GuiConstants.customFont);
 		g2.setStroke(new BasicStroke(GuiConstants.edgeWidth));
 		
 		// If this mod hasn't yet been implemented in the Weapon, draw its border red.
@@ -78,6 +89,12 @@ public class ModButton extends JButton implements ActionListener {
 		}
 		g2.fillPolygon(p);
 		
+		// The icon and text have to be added at the same time since their position needs to be centered horizontally together
+		// Set this number to dynamically scale the icons to be the same size in all the buttons
+		double iconWidth = 32;
+		double iconHeight = (double) icon.getHeight() * iconWidth / (double) icon.getWidth();
+		int iconVerticalOffset = (int) Math.round((this.getHeight() - iconHeight) / 2.0);
+		
 		// Write with black text if enabled, or yellow text if not enabled
 		if (enabled) {
 			g2.setPaint(Color.black);
@@ -87,8 +104,13 @@ public class ModButton extends JButton implements ActionListener {
 		}
 		String myText = this.getText();
 		int textWidth = g2.getFontMetrics().stringWidth(myText);
-		int horizontalTextDisplacement = (int) Math.round((double)(this.getWidth()-textWidth)/2.0);
-		g2.drawString(myText, horizontalTextDisplacement, (int) Math.round((this.getHeight() + GuiConstants.fontHeight) / 2.0));
+		int textVerticalOffset = (int) Math.round((this.getHeight() + GuiConstants.fontHeight) / 2.0);
+		
+		int textHorizontalOffset = (this.getWidth() - textWidth + (int) iconWidth) / 2;
+		int iconHorizontalOffset = textHorizontalOffset - GuiConstants.paddingPixels - (int) iconWidth;
+		
+		g2.drawImage(icon, iconHorizontalOffset, iconVerticalOffset, (int) (iconWidth), (int) (iconHeight), null);
+		g2.drawString(myText, textHorizontalOffset, textVerticalOffset);
 		g2.dispose();
 	}
 	

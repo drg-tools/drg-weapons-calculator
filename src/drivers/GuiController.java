@@ -13,6 +13,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -24,23 +25,26 @@ import drillerWeapons.Subata;
 import engineerWeapons.GrenadeLauncher;
 import engineerWeapons.SMG;
 import engineerWeapons.Shotgun;
+import guiPieces.HoverText;
 import guiPieces.View;
 import gunnerWeapons.Autocannon;
 import gunnerWeapons.BurstPistol;
 import gunnerWeapons.Minigun;
-import gunnerWeapons.Revolver;
+import gunnerWeapons.Revolver_FullRoF;
+import gunnerWeapons.Revolver_Snipe;
 import modelPieces.EnemyInformation;
 import modelPieces.Weapon;
 import scoutWeapons.Boomstick;
 import scoutWeapons.Classic_FocusShot;
 import scoutWeapons.Classic_Hipfire;
-import scoutWeapons.Deepcore;
+import scoutWeapons.AssaultRifle;
 import scoutWeapons.Zhukov;
 
 /*
 	Benchmarks: 
 		150 Ideal Burst DPS
 		100 Ideal Sustained DPS
+		125 Sustained + Weakpoint
 		8000 Total Damage
 */
 
@@ -57,8 +61,8 @@ public class GuiController implements ActionListener {
 	public static void main(String[] args) {
 		Weapon[] drillerWeapons = new Weapon[] {new Subata(), new EPC_RegularShot(), new EPC_ChargeShot()};
 		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new GrenadeLauncher()};
-		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new Revolver(), new BurstPistol()};
-		Weapon[] scoutWeapons = new Weapon[] {new Deepcore(), new Classic_Hipfire(), new Classic_FocusShot(), new Boomstick(), new Zhukov()};
+		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new Revolver_Snipe(), new Revolver_FullRoF(), new BurstPistol()};
+		Weapon[] scoutWeapons = new Weapon[] {new AssaultRifle(), new Classic_Hipfire(), new Classic_FocusShot(), new Boomstick(), new Zhukov()};
 		View gui = new View(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons);
 		new GuiController(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons, gui);
 	}
@@ -133,40 +137,64 @@ public class GuiController implements ActionListener {
 		calculator.changeWeapon(currentlySelectedWeapon);
 		
 		if (e == gui.getBcmIdealBurst()) {
+			gui.activateThinkingCursor();
 			currentlySelectedWeapon.buildFromCombination(calculator.getBestIdealBurstDPSCombination());
+			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmIdealSustained()) {
+			gui.activateThinkingCursor();
 			currentlySelectedWeapon.buildFromCombination(calculator.getBestIdealSustainedDPSCombination());
+			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmSustainedWeakpoint()) {
+			gui.activateThinkingCursor();
 			currentlySelectedWeapon.buildFromCombination(calculator.getBestSustainedWeakpointDPSCombination());
+			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmSustainedWeakpointAccuracy()) {
+			gui.activateThinkingCursor();
 			currentlySelectedWeapon.buildFromCombination(calculator.getBestSustainedWeakpointAccuracyDPSCombination());
+			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmIdealAdditional()) {
+			gui.activateThinkingCursor();
 			currentlySelectedWeapon.buildFromCombination(calculator.getBestIdealAdditionalTargetDPSCombination());
+			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmMaxDmg()) {
+			gui.activateThinkingCursor();
 			currentlySelectedWeapon.buildFromCombination(calculator.getHighestMultiTargetDamageCombination());
+			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmMaxNumTargets()) {
+			gui.activateThinkingCursor();
 			currentlySelectedWeapon.buildFromCombination(calculator.getMostNumTargetsCombination());
+			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmDuration()) {
+			gui.activateThinkingCursor();
 			currentlySelectedWeapon.buildFromCombination(calculator.getLongestFiringDurationCombination());
+			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmTTK()) {
+			gui.activateThinkingCursor();
 			currentlySelectedWeapon.buildFromCombination(calculator.getShortestTimeToKillCombination());
+			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmOverkill()) {
+			gui.activateThinkingCursor();
 			currentlySelectedWeapon.buildFromCombination(calculator.getLowestOverkillCombination());
+			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmAccuracy()) {
+			gui.activateThinkingCursor();
 			currentlySelectedWeapon.buildFromCombination(calculator.getHighestAccuracyCombination());
+			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmUtility()) {
+			gui.activateThinkingCursor();
 			currentlySelectedWeapon.buildFromCombination(calculator.getMostUtilityCombination());
+			gui.deactivateThinkingCursor();
 		}
 		
 		else if (e == gui.getDSHaz1()) {
@@ -249,10 +277,19 @@ public class GuiController implements ActionListener {
 			String combination = currentlySelectedWeapon.getCombination();
 			JTextField output = new JTextField(combination);
 			output.setFont(new Font("Monospaced", Font.PLAIN, 18));
-			JOptionPane.showMessageDialog(null, output, "Current weapon combination:", JOptionPane.INFORMATION_MESSAGE);
+			
+			// Adapted from https://stackoverflow.com/a/13760416 and https://www.tutorialspoint.com/how-to-display-a-jframe-to-the-center-of-a-screen-in-java
+			JOptionPane a = new JOptionPane(output, JOptionPane.INFORMATION_MESSAGE);
+			JDialog d = a.createDialog(null, "Current weapon combination:");
+			d.setLocationRelativeTo(gui);
+			d.setVisible(true);
 		}
 		else if (e == gui.getMiscLoad()) {
-			String newCombination = JOptionPane.showInputDialog(null, "Enter the comination you want to load:");
+			String instructions = "Enter the combination you want to load for this weapon. It should consist of 5 capital letters, A-C, and 1 number, 1-7. Each capital letter "
+					+ "corresponds to a mod tier and the number corresponds to the desired overclock. If you do not want to use a mod tier or overclock, substitute the "
+					+ "corresponding character with a hyphen.";
+			instructions = HoverText.breakLongToolTipString(instructions, 90);
+			String newCombination = JOptionPane.showInputDialog(gui, instructions);
 			currentlySelectedWeapon.buildFromCombination(newCombination);
 		}
 		else if (e == gui.getMiscSuggestion()) {

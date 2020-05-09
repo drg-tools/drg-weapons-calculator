@@ -3,6 +3,10 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.GuiConstants;
+import guiPieces.WeaponPictures;
+import guiPieces.ButtonIcons.modIcons;
+import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.DoTInformation;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
@@ -29,7 +33,7 @@ public class Classic_FocusShot extends Weapon {
 	private double focusDuration;
 	private double movespeedWhileFocusing;
 	private double weakpointBonus;
-	private double armorBreakChance;
+	private double armorBreaking;
 	
 	/****************************************************************************************
 	* Constructors
@@ -48,6 +52,7 @@ public class Classic_FocusShot extends Weapon {
 	
 	public Classic_FocusShot(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "M1000 Classic (Focused Shots)";
+		weaponPic = WeaponPictures.classic;
 		
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 50;
@@ -60,7 +65,7 @@ public class Classic_FocusShot extends Weapon {
 		focusDuration = 0.6;  // seconds.
 		movespeedWhileFocusing = 0.3;
 		weakpointBonus = 0.1;
-		armorBreakChance = 0.3;
+		armorBreaking = 0.3;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -80,34 +85,35 @@ public class Classic_FocusShot extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Expanded Ammo Bags", "You had to give up some sandwich-storage, but your total ammo capacity is increased!", 1, 0);
-		tier1[1] = new Mod("Increased Caliber Rounds", "The good folk in R&D have been busy. The overall damage of your weapon is increased.", 1, 1);
+		tier1[0] = new Mod("Expanded Ammo Bags", "+32 Max Ammo", modIcons.carriedAmmo, 1, 0);
+		tier1[1] = new Mod("Increased Caliber Rounds", "x1.2 Direct Damage", modIcons.directDamage, 1, 1);
 		
 		tier2 = new Mod[2];
-		tier2[0] = new Mod("Fast-Charging Coils", "Faster focus when holding down the trigger.", 2, 0);
-		tier2[1] = new Mod("Better Weight Balance", "Improved hip-shot accuracy", 2, 1);
+		tier2[0] = new Mod("Fast-Charging Coils", "x1.6 Focus Speed", modIcons.chargeSpeed, 2, 0);
+		tier2[1] = new Mod("Better Weight Balance", "x0.8 Spread per Shot, x0.5 Recoil", modIcons.recoil, 2, 1);
 		
 		tier3 = new Mod[2];
-		tier3[0] = new Mod("Killer Focus", "Greater focus damage bonus", 3, 0);
-		tier3[1] = new Mod("Extended Clip", "The good thing about clips, magazines, ammo drums, fuel tanks... You can always get bigger variants.", 3, 1);
+		tier3[0] = new Mod("Killer Focus", "+25% Focused Shot Multiplier", modIcons.directDamage, 3, 0);
+		tier3[1] = new Mod("Extended Clip", "+6 Magazine Size", modIcons.magSize, 3, 1);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Super Blowthrough Rounds", "Shaped projectiles designed to over-penetrate targets with a minimal loss of energy. In other words: Fire straight through several enemies at once!", 4, 0);
-		tier4[1] = new Mod("Hollow-Point Bullets", "Hit 'em where it hurts! Literally! We've upped the damage you'll be able to do to any creatures fleshy bits. You're welcome.", 4, 1);
-		tier4[2] = new Mod("Hardened Rounds", "We're proud of this one. Armor shredding. Tear through that high-impact plating of those big buggers like butter. What could be finer?", 4, 2);
+		tier4[0] = new Mod("Super Blowthrough Rounds", "+3 Penetrations", modIcons.blowthrough, 4, 0);
+		tier4[1] = new Mod("Hollow-Point Bullets", "+25% Weakpoint Bonus", modIcons.weakpointBonus, 4, 1);
+		tier4[2] = new Mod("Hardened Rounds", "+220% Armor Breaking", modIcons.armorBreaking, 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Hitting Where it Hurts", "Focused shots stagger the target", 5, 0);
-		tier5[1] = new Mod("Precision Terror", "Killing your target with a focused shot to the weakspot will send nearby creatures fleeing with terror!", 5, 1);
-		tier5[2] = new Mod("Killing Machine", "You can perform a lightning-fast reload right after killing an enemy.", 5, 2);
+		tier5[0] = new Mod("Hitting Where it Hurts", "Focused shots Stun enemies for 3 seconds", modIcons.stun, 5, 0);
+		tier5[1] = new Mod("Precision Terror", "Killing an enemy with a focused shot to a weakspot will inflict Fear on enemies within 2m of the kill", modIcons.fear, 5, 1);
+		tier5[2] = new Mod("Killing Machine", "Manually reloading within 1 second after a kill reduces reload time by 0.75 seconds", modIcons.reloadSpeed, 5, 2);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Hoverclock", "Your movement slows down for a few seconds while using focus mode in the air.", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Minimal Clips", "Make space for more ammo and speed up reloads by getting rid of dead weight on the clips.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Active Stability System", "Focus without slowing down but the power drain from the coils lowers the power of the focused shots.", 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Hipster", "A rebalancing of weight distribution, enlarged vents and a reshaped grip result in a rifle that is more controllable when hip-firing in quick succession but at the cost of pure damage output.", 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Electrocuting Focus Shots", "Embedded capacitors in a copper core carry the electric charge from the EM coils used for focus shots and will electrocute the target at the cost of a reduced focus shot damage bonus.", 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Supercooling Chamber", "Take the M1000'S focus mode to the extreme by supercooling the rounds before firing to improve their acceleration through the coils, but the extra coolant in the clips limits how much ammo you can bring.", 5);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Hoverclock", "Your movement slows down for a few seconds while using focus mode in the air.", overclockIcons.hoverclock, 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Minimal Clips", "+16 Max Ammo, -0.2 Reload Time", overclockIcons.carriedAmmo, 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Active Stability System", "No movement penalty while Focusing, -25% Focused Shot Multiplier", overclockIcons.movespeed, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Hipster", "+3 Rate of Fire, x1.75 Max Ammo, x0.85 Spread per Shot, +75% Spread Recovery Speed, x0.5 Recoil, x0.6 Direct Damage", overclockIcons.baseSpread, 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Electrocuting Focus Shots", "Focused Shots apply an Electrocute DoT which does "
+				+ "an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per Second, -25% Focused Shot Multiplier", overclockIcons.electricity, 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Supercooling Chamber", "+125% Focused Shot Multiplier, x0.635 Max Ammo, x0.5 Focus Speed, no movement while focusing", overclockIcons.directDamage, 5);
 	}
 	
 	@Override
@@ -415,7 +421,7 @@ public class Classic_FocusShot extends Weapon {
 		return toReturn;
 	}
 	private double getArmorBreaking() {
-		double toReturn = armorBreakChance;
+		double toReturn = armorBreaking;
 		
 		if (selectedTier4 == 2) {
 			toReturn += 2.2;
@@ -503,7 +509,17 @@ public class Classic_FocusShot extends Weapon {
 		}
 		
 		double directDamage = getDirectDamage() * getFocusedShotMultiplier();
-		if (weakpoint) {
+		
+		// Frozen
+		if (statusEffects[1]) {
+			directDamage *= UtilityInformation.Frozen_Damage_Multiplier;
+		}
+		// IFG Grenade
+		if (statusEffects[3]) {
+			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
+		}
+		
+		if (weakpoint && !statusEffects[1]) {
 			directDamage = increaseBulletDamageForWeakpoints(directDamage, getWeakpointBonus());
 		}
 		
@@ -607,9 +623,8 @@ public class Classic_FocusShot extends Weapon {
 			utilityScores[0] += 10;
 		}
 		
-		// Armor Breaking
-		// Because Blowthrough Rounds are on the same tier as Armor Break, this bonus isn't multiplied by max num targets.
-		utilityScores[2] = (getArmorBreaking() - 1) * UtilityInformation.ArmorBreak_Utility;
+		// Light Armor Breaking probability
+		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDirectDamage() * getFocusedShotMultiplier(), getArmorBreaking()) * UtilityInformation.ArmorBreak_Utility;
 		
 		// OC "Electrocuting Focus Shots" = 100% chance to electrocute on focused shots
 		if (selectedOverclock == 4) {

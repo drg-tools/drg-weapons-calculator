@@ -3,6 +3,10 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import guiPieces.GuiConstants;
+import guiPieces.WeaponPictures;
+import guiPieces.ButtonIcons.modIcons;
+import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
@@ -46,6 +50,7 @@ public class Boomstick extends Weapon {
 	
 	public Boomstick(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "Jury-Rigged Boomstick";
+		weaponPic = WeaponPictures.boomstick;
 		
 		// Base stats, before mods or overclocks alter them:
 		damagePerPellet = 12;
@@ -76,35 +81,36 @@ public class Boomstick extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Expanded Ammo Bags", "You had to give up some sandwich-storage, but your total ammo capacity is increased!", 1, 0);
-		tier1[1] = new Mod("Double-Sized Buckshot", "Bigger and heavier handcrafted specialist dwarf buckshot. Accept no substitute.", 1, 1);
+		tier1[0] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", modIcons.carriedAmmo, 1, 0);
+		tier1[1] = new Mod("Double-Sized Buckshot", "+3 Damage per Pellet", modIcons.directDamage, 1, 1);
 		
 		tier2 = new Mod[2];
-		tier2[0] = new Mod("Double Trigger", "Tweaked trigger mechanism allows you to unload both barrels in quick succession dealing massive damage to anything in front of you.", 2, 0);
-		tier2[1] = new Mod("Quickfire Ejector", "Experience, training, and a couple of under-the-table design \"adjustments\" means your gun can be reloaded significantly faster.", 2, 1);
+		tier2[0] = new Mod("Double Trigger", "+7.5 Rate of Fire", modIcons.rateOfFire, 2, 0);
+		tier2[1] = new Mod("Quickfire Ejector", "-0.7 Reload Time", modIcons.reloadSpeed, 2, 1);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Stun Duration", "Stunned enemies are incapacitated for a longer period of time.", 3, 0);
-		tier3[1] = new Mod("Expanded Ammo Bags", "You had to give up some sandwich-storage, but your total ammo capacity is increased!", 3, 1);
-		tier3[2] = new Mod("High Capacity Shells", "It took some creating thinking, but we finally found out how to pack more buckshot into each shell. Just... Handle with care, they're liable to take your eye out.", 3, 2);
+		tier3[0] = new Mod("Stun Duration", "+2.5 seconds Stun duration", modIcons.stun, 3, 0);
+		tier3[1] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", modIcons.carriedAmmo, 3, 1);
+		tier3[2] = new Mod("High Capacity Shells", "+3 Pellets per Shot", modIcons.pelletsPerShot, 3, 2);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Super Blowthrough Rounds", "Shaped projectiles designed to over-penetrate targets with a minimal loss of energy. In other words: Fire straight through several enemies at once!", 4, 0);
-		tier4[1] = new Mod("Tungsten Coated Buckshot", "We're proud of this one. Armor shredding. Tear through that high-impact plating of those big buggers like butter. What could be finer?", 4, 1);
-		tier4[2] = new Mod("Improved Blast Wave", "The shockwave from the blast deals extra damage to any enemies unlucky enough to be in the area extending 4m infront of you.", 4, 2);
+		tier4[0] = new Mod("Super Blowthrough Rounds", "+3 Penetratinos", modIcons.blowthrough, 4, 0);
+		tier4[1] = new Mod("Tungsten Coated Buckshot", "+300% Armor Breaking", modIcons.armorBreaking, 4, 1);
+		tier4[2] = new Mod("Improved Blast Wave", "+20 Blastwave Damage to any enemies in the area extending 4m infront of you.", modIcons.special, 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Auto Reload", "Reloads automatically when unequipped for more than 5 seconds", 5, 0, false);
-		tier5[1] = new Mod("Fear The Boomstick", "Chance to scare nearby creatures whenever you shoot", 5, 1);
-		tier5[2] = new Mod("White Phosphorous Shells", "Convert some of the damage to fire damage", 5, 2);
+		tier5[0] = new Mod("Auto Reload", "Reloads automatically when unequipped for more than 5 seconds", modIcons.reloadSpeed, 5, 0, false);
+		tier5[1] = new Mod("Fear The Boomstick", "50% Chance to inflict Fear on enemies caught within the Blastwave", modIcons.fear, 5, 1);
+		tier5[2] = new Mod("White Phosphorous Shells", "Add 50% of the Damage per Pellet as Heat Damage, which can ignite enemies. Burn DoT does an average of " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Shells", "You can carry a few more of these compact shells in your pockets and they are a bit faster to reload with.", 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Double Barrel", "Unload both barrels at once, no regrets.", 1);
-		overclocks[2] = new Overclock(Overclock.classification.clean, "Special Powder", "Less like gunpowder and more like rocketfuel, this mixture gives a hell of a kick that you can use to get places.", 2);
-		overclocks[3] = new Overclock(Overclock.classification.clean, "Stuffed Shells", "With a bit of patience and some luck you can get one more pellet and a few more grains of powder into each shell without affecting the gun's performance or losing an eye in the process.", 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "Specially shaped shells result in a tighter shot but the number of pellets is reduced.", 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Jumbo Shells", "These large shells pack a lot more charge for a big increase in damage but they also take up more space so total ammo is limited.", 5);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Shells", "+6 Max Ammo, -0.2 Reload Time", overclockIcons.carriedAmmo, 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Double Barrel", "Fire both barrels with a single tigger pull. As a result, both Magazine Size and Max Ammo are effectively halved, while the "
+				+ "number of Pellets per Shot gets doubled. Additionally, +1 Damage per Pellet.", overclockIcons.rateOfFire, 1);
+		overclocks[2] = new Overclock(Overclock.classification.clean, "Special Powder", "Jump off of the ground and fire the shotgun to \"blast jump\" around the caves for increased mobility.", overclockIcons.shotgunJump, 2);
+		overclocks[3] = new Overclock(Overclock.classification.clean, "Stuffed Shells", "+1 Damage per Pellet, +1 Pellet per Shot", overclockIcons.pelletsPerShot, 3);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "-35% Base Spread, -2 Pellets per Shot", overclockIcons.baseSpread, 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Jumbo Shells", "+8 Damage per Pellet, -10 Max Ammo, +0.5 Reload Time", overclockIcons.directDamage, 5);
 	}
 	
 	@Override
@@ -296,7 +302,7 @@ public class Boomstick extends Weapon {
 		
 		return toReturn;
 	}
-	private int getNumberOfPelletsPerShot() {
+	private int getNumberOfPellets() {
 		int toReturn = numberOfPellets;
 		
 		if (selectedTier3 == 2) {
@@ -425,7 +431,7 @@ public class Boomstick extends Weapon {
 		toReturn[0] = new StatsRow("Damage per Pellet:", getDamagePerPellet(), damageModified);
 		
 		boolean pelletsModified = selectedTier3 == 2 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 4;
-		toReturn[1] = new StatsRow("Number of Pellets/Shot:", getNumberOfPelletsPerShot(), pelletsModified);
+		toReturn[1] = new StatsRow("Number of Pellets/Shot:", getNumberOfPellets(), pelletsModified);
 		
 		toReturn[2] = new StatsRow("Blastwave Damage:", getBlastwaveDamage(), selectedTier4 == 2);
 		
@@ -468,10 +474,10 @@ public class Boomstick extends Weapon {
 		// This method gets used by the Tier 5 Mod "White Phosphorous Shells"
 		int numPelletsThatApplyHeat;
 		if (accuracy) {
-			numPelletsThatApplyHeat = (int) Math.round(estimatedAccuracy(false) * getNumberOfPelletsPerShot());
+			numPelletsThatApplyHeat = (int) Math.round(estimatedAccuracy(false) * getNumberOfPellets());
 		}
 		else {
-			numPelletsThatApplyHeat = getNumberOfPelletsPerShot();
+			numPelletsThatApplyHeat = getNumberOfPellets();
 		}
 		
 		// 50% of Direct Damage from the pellets gets added on as Heat Damage.
@@ -508,19 +514,29 @@ public class Boomstick extends Weapon {
 			duration = getReloadTime();
 		}
 		
+		double dmgPerPellet = getDamagePerPellet();
+		// Frozen
+		if (statusEffects[1]) {
+			dmgPerPellet *= UtilityInformation.Frozen_Damage_Multiplier;
+		}
+		// IFG Grenade
+		if (statusEffects[3]) {
+			dmgPerPellet *= UtilityInformation.IFG_Damage_Multiplier;
+		}
+		
 		double weakpointAccuracy;
-		if (weakpoint) {
+		if (weakpoint && !statusEffects[1]) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
-			directWeakpointDamagePerPellet = increaseBulletDamageForWeakpoints2(getDamagePerPellet());
+			directWeakpointDamagePerPellet = increaseBulletDamageForWeakpoints2(dmgPerPellet);
 		}
 		else {
 			weakpointAccuracy = 0.0;
-			directWeakpointDamagePerPellet = getDamagePerPellet();
+			directWeakpointDamagePerPellet = dmgPerPellet;
 		}
 		
 		// They way it's currently modeled, any time the WPS mod and Double Barrel OC are equipped simultaneously, then the Reload Time doesn't affect the Fire DoT Uptime.
 		double burnDPS = 0;
-		if (selectedTier5 == 2) {
+		if (selectedTier5 == 2 && !statusEffects[1]) {
 			if (burst) {
 				double timeToIgnite = calculateTimeToIgnite(accuracy);
 				double fireDoTUptimeCoefficient = (duration - timeToIgnite) / duration;
@@ -532,7 +548,7 @@ public class Boomstick extends Weapon {
 			}
 		}
 		
-		int numPelletsPerShot = getNumberOfPelletsPerShot();
+		int numPelletsPerShot = getNumberOfPellets();
 		int pelletsThatHitWeakpointPerShot = (int) Math.round(numPelletsPerShot * weakpointAccuracy);
 		int pelletsThatHitTargetPerShot = (int) Math.round(numPelletsPerShot * generalAccuracy) - pelletsThatHitWeakpointPerShot;
 		
@@ -543,11 +559,11 @@ public class Boomstick extends Weapon {
 		// TODO: I'd like to refactor this method out if possible
 		double damagePerShot;
 		if (weakpointBonus) {
-			damagePerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet() * getNumberOfPelletsPerShot()) + getBlastwaveDamage();
+			damagePerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet() * getNumberOfPellets()) + getBlastwaveDamage();
 			return (double) damagePerShot * getMagazineSize();
 		}
 		else {
-			damagePerShot = getDamagePerPellet() * getNumberOfPelletsPerShot() + getBlastwaveDamage();
+			damagePerShot = getDamagePerPellet() * getNumberOfPellets() + getBlastwaveDamage();
 			return (double) damagePerShot * getMagazineSize();
 		}
 	}
@@ -602,7 +618,7 @@ public class Boomstick extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		int directDamagePerShot = getDamagePerPellet() * getNumberOfPelletsPerShot();
+		int directDamagePerShot = getDamagePerPellet() * getNumberOfPellets();
 		// The frontal blastwave is a 20 degree isosceles triangle, 4m height; 1.41m base. 4 grunts can be hit in a 1-2-1 stack.
 		int gruntsHitByBlastwave = 4;
 		int blastwaveDamagePerShot = gruntsHitByBlastwave * getBlastwaveDamage();
@@ -659,7 +675,7 @@ public class Boomstick extends Weapon {
 
 	@Override
 	public double averageOverkill() {
-		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet() * getNumberOfPelletsPerShot());
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet() * getNumberOfPellets());
 		double enemyHP = EnemyInformation.averageHealthPool();
 		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
 		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
@@ -694,8 +710,10 @@ public class Boomstick extends Weapon {
 			utilityScores[0] = 0;
 		}
 		
-		// Armor Breaking bonuses
-		utilityScores[2] = (getArmorBreaking() - 1) * calculateMaxNumTargets() * UtilityInformation.ArmorBreak_Utility;
+		// Light Armor Breaking probability
+		int numPelletsThatHitLightArmorPlate = (int) Math.round(getNumberOfPellets() * estimatedAccuracy(false) / 100.0);
+		double probabilityToBreakLightArmorPlatePerPellet = calculateProbabilityToBreakLightArmor(getDamagePerPellet() * numPelletsThatHitLightArmorPlate, getArmorBreaking());
+		utilityScores[2] = probabilityToBreakLightArmorPlatePerPellet * UtilityInformation.ArmorBreak_Utility;
 		
 		// Mod Tier 5 "Fear the Boomstick" = 50% chance to Fear in same blast cone as the Blastwave damage
 		if (selectedTier5 == 1) {

@@ -22,12 +22,26 @@ public class ResourceLoader {
 	}
 	
 	// Use this method for .ico files specifically
-	public static List<BufferedImage> loadIcoFile(String relativeFilepath) throws IOException {
-		return ICODecoder.read(load(relativeFilepath));
+	public static List<BufferedImage> loadIcoFile(String relativeFilepath){
+		List<BufferedImage> toReturn = null;
+		try {
+			toReturn = ICODecoder.read(load(relativeFilepath));
+		}
+		catch (IOException e) {
+			
+		}
+		return toReturn;
 	}
 	
 	// Use this method for virtually every other image type
-	public static BufferedImage loadImage(String relativeFilepath) throws IOException {
-		return ImageIO.read(load(relativeFilepath));
+	public static BufferedImage loadImage(String relativeFilepath) {
+		BufferedImage toReturn = null;
+		try {
+			toReturn = ImageIO.read(load(relativeFilepath));
+		}
+		catch (IOException e) {
+			
+		}
+		return toReturn;
 	}
 }
