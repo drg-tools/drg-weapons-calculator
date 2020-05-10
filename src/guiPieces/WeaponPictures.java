@@ -6,8 +6,8 @@ import utilities.ResourceLoader;
 
 public class WeaponPictures {
 	// Driller
-	//public static BufferedImage flamethrower = ResourceLoader.loadImage("images/weapons/GearGraphic_FlameThrower.png");
-	//public static BufferedImage cryoCannon = ResourceLoader.loadImage("images/weapons/GearGraphic_Cryospray.png");
+	public static BufferedImage flamethrower = ResourceLoader.loadImage("images/weapons/GearGraphic_FlameThrower.png");
+	public static BufferedImage cryoCannon = ResourceLoader.loadImage("images/weapons/GearGraphic_Cryospray.png");
 	public static BufferedImage subata = ResourceLoader.loadImage("images/weapons/GearGraphic_Pistol.png");
 	public static BufferedImage EPC = ResourceLoader.loadImage("images/weapons/GearGraphic_ChargeBlaster.png");
 	

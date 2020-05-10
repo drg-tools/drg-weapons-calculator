@@ -580,6 +580,24 @@ public abstract class Weapon extends Observable {
 		}
 	}
 	
+	// Used by Flamethrower and Cryo Cannon
+	protected int calculateNumGlyphidsInStream(double streamLength) {
+		// TODO
+		
+		double a = EnemyInformation.GlyphidGruntBodyRadius;
+		double b = EnemyInformation.GlyphidGruntBodyAndLegsRadius;
+		double A = a + b;
+		
+		double distanceToFirstPair = A * Math.sqrt(3.0) / 2.0 - Math.sqrt(Math.pow(b, 2.0) - (Math.pow(A, 2.0)/4.0));
+		double distanceToFirstSingle = A * Math.sqrt(3.0) - b;
+		double distanceBetweenRepeats = A * Math.sqrt(3.0);
+		
+		double singlesHit = 1 + Math.ceil((streamLength - distanceToFirstSingle) / distanceBetweenRepeats);
+		double pairsHit = Math.ceil((streamLength - distanceToFirstPair) / distanceBetweenRepeats);
+		
+		return (int) (singlesHit + 2.0 * pairsHit);
+	}
+	
 	protected double increaseBulletDamageForWeakpoints2(double preWeakpointBulletDamage) {
 		return increaseBulletDamageForWeakpoints2(preWeakpointBulletDamage, 0.0);
 	}

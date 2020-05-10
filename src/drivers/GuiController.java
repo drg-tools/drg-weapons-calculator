@@ -21,6 +21,7 @@ import javax.swing.JTextField;
 import dataGenerator.WeaponStatsGenerator;
 import drillerWeapons.EPC_ChargeShot;
 import drillerWeapons.EPC_RegularShot;
+import drillerWeapons.Flamethrower;
 import drillerWeapons.Subata;
 import engineerWeapons.GrenadeLauncher;
 import engineerWeapons.SMG;
@@ -59,7 +60,7 @@ public class GuiController implements ActionListener {
 	private JFileChooser folderChooser;
 	
 	public static void main(String[] args) {
-		Weapon[] drillerWeapons = new Weapon[] {new Subata(), new EPC_RegularShot(), new EPC_ChargeShot()};
+		Weapon[] drillerWeapons = new Weapon[] {new Flamethrower(), new Subata(), new EPC_RegularShot(), new EPC_ChargeShot()};
 		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new GrenadeLauncher()};
 		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new Revolver_Snipe(), new Revolver_FullRoF(), new BurstPistol()};
 		Weapon[] scoutWeapons = new Weapon[] {new AssaultRifle(), new Classic_Hipfire(), new Classic_FocusShot(), new Boomstick(), new Zhukov()};
