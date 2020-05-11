@@ -6,11 +6,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.JDialog;
@@ -18,6 +20,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import dataGenerator.DatabaseConstants;
 import dataGenerator.WeaponStatsGenerator;
 import drillerWeapons.CryoCannon;
 import drillerWeapons.EPC_ChargeShot;
@@ -104,6 +107,62 @@ public class GuiController implements ActionListener {
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File selectedFolder = folderChooser.getSelectedFile();
 			calculator.setCSVFolderPath(selectedFolder.getAbsolutePath());
+		}
+	}
+	
+	private void createMysqlFile() {
+		ArrayList<String> mysqlCommands = new ArrayList<String>();
+		mysqlCommands.add(String.format("USE `%s`;\n\n", DatabaseConstants.databaseName));
+		mysqlCommands.add(String.format("DROP TABLE IF EXISTS `%s`;\n\n", DatabaseConstants.tableName));
+		mysqlCommands.add(String.format("CREATE TABLE `%s` (\n", DatabaseConstants.tableName));
+		mysqlCommands.add("    buildStats_id INT NOT NULL AUTO_INCREMENT,\n");
+		mysqlCommands.add("    class VARCHAR(8) NOT NULL,\n");
+		mysqlCommands.add("    weaponShortName VARCHAR(20) NOT NULL,\n");
+		mysqlCommands.add("    buildCombination VARCHAR(6) NOT NULL,\n");
+		mysqlCommands.add("    idealBurstDPS DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    idealSustainedDPS DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    sustainedWeakpointDPS DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    sustainedWeakpointAccuracyDPS DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    idealAdditionalTargetDPS DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    maxMultiTargetDamage DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    maxNumTargetsPerShot INT NOT NULL,\n");
+		mysqlCommands.add("    firingDuration DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    averageTimeToKill DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    averageOverkill DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    generalAccuracy DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    utility DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    PRIMARY KEY (buildStats_id)\n");
+		mysqlCommands.add(");\n\n");
+		
+		int i;
+		for (i = 0; i < drillerWeapons.length; i++) {
+			calculator.changeWeapon(drillerWeapons[i]);
+			mysqlCommands.addAll(calculator.dumpToMySQL());
+		}
+		for (i = 0; i < engineerWeapons.length; i++) {
+			calculator.changeWeapon(engineerWeapons[i]);
+			mysqlCommands.addAll(calculator.dumpToMySQL());
+		}
+		for (i = 0; i < gunnerWeapons.length; i++) {
+			calculator.changeWeapon(gunnerWeapons[i]);
+			mysqlCommands.addAll(calculator.dumpToMySQL());
+		}
+		for (i = 0; i < scoutWeapons.length; i++) {
+			calculator.changeWeapon(scoutWeapons[i]);
+			mysqlCommands.addAll(calculator.dumpToMySQL());
+		}
+		
+		// Open the MySQL file once, then dump the accumulated ArrayList of lines all at once to minimize I/O time
+		try {
+			// Set append=False so that it clears out the old file
+			FileWriter MySQLwriter = new FileWriter(calculator.getCSVFolderPath() + "\\buildStatistics.sql", false);
+			for (String line: mysqlCommands) {
+				MySQLwriter.append(line);
+			}
+			MySQLwriter.flush();
+			MySQLwriter.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -259,6 +318,10 @@ public class GuiController implements ActionListener {
 				calculator.changeWeapon(scoutWeapons[i]);
 				calculator.runTest(false, true);
 			}
+		}
+		else if (e == gui.getExportMySQL()) {
+			chooseFolder();
+			createMysqlFile();
 		}
 		
 		else if (e == gui.getMiscScreenshot()) {

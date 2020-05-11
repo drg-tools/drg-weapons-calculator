@@ -37,7 +37,7 @@ public class View extends JFrame implements Observer {
 	private ButtonGroup dsHazGroup, dsPCGroup;
 	private JRadioButton dsHaz1, dsHaz2, dsHaz3, dsHaz4, dsHaz5, dsPC1, dsPC2, dsPC3, dsPC4;
 	private JMenu exportMenu;
-	private JMenuItem exportCurrent, exportAll;
+	private JMenuItem exportCurrent, exportAll, exportMySQL;
 	private JMenu miscMenu;	
 	private JMenuItem miscWeaponTabScreenshot, miscExportCombination, miscLoadCombination, miscSuggestion;
 	
@@ -223,11 +223,13 @@ public class View extends JFrame implements Observer {
 		menuBar.add(difficultyScalingMenu);
 		
 		// Export Stats to CSV menu
-		exportMenu = new JMenu("Export Stats to CSV");
-		exportCurrent = new JMenuItem("Export current weapon");
+		exportMenu = new JMenu("Export Data");
+		exportCurrent = new JMenuItem("Export current weapon to CSV");
 		exportMenu.add(exportCurrent);
-		exportAll = new JMenuItem("Export all weapons");
+		exportAll = new JMenuItem("Export all weapons to CSV");
 		exportMenu.add(exportAll);
+		exportMySQL = new JMenuItem("Export all weapons to MySQL");
+		exportMenu.add(exportMySQL);
 		menuBar.add(exportMenu);
 		
 		// Miscellaneous Actions menu
@@ -317,6 +319,9 @@ public class View extends JFrame implements Observer {
 	public JMenuItem getExportAll() {
 		return exportAll;
 	}
+	public JMenuItem getExportMySQL() {
+		return exportMySQL;
+	}
 	
 	public JMenuItem getMiscScreenshot() {
 		return miscWeaponTabScreenshot;
@@ -381,6 +386,7 @@ public class View extends JFrame implements Observer {
 		
 		exportCurrent.addActionListener(parent);
 		exportAll.addActionListener(parent);
+		exportMySQL.addActionListener(parent);
 		
 		miscWeaponTabScreenshot.addActionListener(parent);
 		miscExportCombination.addActionListener(parent);

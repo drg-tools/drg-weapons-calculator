@@ -82,6 +82,9 @@ public abstract class Weapon extends Observable {
 		}
 	}
 	public void setSelectedModAtTier(int tierNumber, int newSelection) {
+		setSelectedModAtTier(tierNumber, newSelection, true);
+	}
+	public void setSelectedModAtTier(int tierNumber, int newSelection, boolean updateGUI) {
 		if (tierNumber > 0 && tierNumber < 6) {
 			switch (tierNumber) {
 				case 1: {
@@ -165,7 +168,7 @@ public abstract class Weapon extends Observable {
 				setAoEEfficiency();
 			}
 			
-			if (countObservers() > 0) {
+			if (updateGUI && countObservers() > 0) {
 				setChanged();
 				notifyObservers();
 			}
@@ -179,6 +182,9 @@ public abstract class Weapon extends Observable {
 		return selectedOverclock;
 	}
 	public void setSelectedOverclock(int newSelection) {
+		setSelectedOverclock(newSelection, true);
+	}
+	public void setSelectedOverclock(int newSelection, boolean updateGUI) {
 		if (newSelection > -2 && newSelection < overclocks.length) {
 			if (newSelection == selectedOverclock) {
 				// If the same overclock is selected, that indicates that it's being unequipped. Set overclock = -1 to affect the math properly.
@@ -192,7 +198,7 @@ public abstract class Weapon extends Observable {
 				setAoEEfficiency();
 			}
 			
-			if (countObservers() > 0) {
+			if (updateGUI && countObservers() > 0) {
 				setChanged();
 				notifyObservers();
 			}
@@ -205,6 +211,7 @@ public abstract class Weapon extends Observable {
 	public boolean[] getCurrentStatusEffects() {
 		return statusEffects;
 	}
+	// Because this is only used by the GUI, I'm choosing not to add the "updateGUI" flag.
 	public void setStatusEffect(int effectIndex, boolean newValue) {
 		if (effectIndex > -1 && effectIndex < statusEffects.length) {
 			// Special case: Burning and Frozen are mutually exclusive statuses, so make sure that if one gets set to true, the other is automatically set to false
@@ -224,6 +231,7 @@ public abstract class Weapon extends Observable {
 		}
 	}
 	
+	// I'm choosing to have this method always update the GUI (for now)
 	public abstract void buildFromCombination(String combination); 
 	
 	public Mod[] getModsAtTier(int tierNumber) {

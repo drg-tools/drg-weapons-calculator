@@ -86,12 +86,12 @@ public class WeaponStatsGenerator {
 							  headers[5], headers[6], headers[7], headers[8], headers[9], headers[10], headers[11], headers[12]);
 		
 			// Section 1: baseline statistics
-			weaponToTest.setSelectedModAtTier(1, -1);
-			weaponToTest.setSelectedModAtTier(2, -1);
-			weaponToTest.setSelectedModAtTier(3, -1);
-			weaponToTest.setSelectedModAtTier(4, -1);
-			weaponToTest.setSelectedModAtTier(5, -1);
-			weaponToTest.setSelectedOverclock(-1);
+			weaponToTest.setSelectedModAtTier(1, -1, false);
+			weaponToTest.setSelectedModAtTier(2, -1, false);
+			weaponToTest.setSelectedModAtTier(3, -1, false);
+			weaponToTest.setSelectedModAtTier(4, -1, false);
+			weaponToTest.setSelectedModAtTier(5, -1, false);
+			weaponToTest.setSelectedOverclock(-1, false);
 			
 			calculateStatsAndPrint(printStatsToConsole, false);
 			System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
@@ -99,48 +99,48 @@ public class WeaponStatsGenerator {
 			// Section 2: stat changes of individual mods
 			int i;
 			for (i = 0; i < weaponToTest.getModsAtTier(1).length; i++) {
-				weaponToTest.setSelectedModAtTier(1, i);
+				weaponToTest.setSelectedModAtTier(1, i, false);
 				calculateStatsAndPrint(printStatsToConsole, false);
 			}
 			// Unselect the mod at this tier so it doesn't affect the next tier
-			weaponToTest.setSelectedModAtTier(1, -1);
+			weaponToTest.setSelectedModAtTier(1, -1, false);
 			
 			for (i = 0; i < weaponToTest.getModsAtTier(2).length; i++) {
-				weaponToTest.setSelectedModAtTier(2, i);
+				weaponToTest.setSelectedModAtTier(2, i, false);
 				calculateStatsAndPrint(printStatsToConsole, false);	
 			}
 			// Unselect the mod at this tier so it doesn't affect the next tier
-			weaponToTest.setSelectedModAtTier(2, -1);
+			weaponToTest.setSelectedModAtTier(2, -1, false);
 			
 			for (i = 0; i < weaponToTest.getModsAtTier(3).length; i++) {
-				weaponToTest.setSelectedModAtTier(3, i);
+				weaponToTest.setSelectedModAtTier(3, i, false);
 				calculateStatsAndPrint(printStatsToConsole, false);
 			}
 			// Unselect the mod at this tier so it doesn't affect the next tier
-			weaponToTest.setSelectedModAtTier(3, -1);
+			weaponToTest.setSelectedModAtTier(3, -1, false);
 			
 			for (i = 0; i < weaponToTest.getModsAtTier(4).length; i++) {
-				weaponToTest.setSelectedModAtTier(4, i);
+				weaponToTest.setSelectedModAtTier(4, i, false);
 				calculateStatsAndPrint(printStatsToConsole, false);
 			}
 			// Unselect the mod at this tier so it doesn't affect the next tier
-			weaponToTest.setSelectedModAtTier(4, -1);
+			weaponToTest.setSelectedModAtTier(4, -1, false);
 			
 			for (i = 0; i < weaponToTest.getModsAtTier(5).length; i++) {
-				weaponToTest.setSelectedModAtTier(5, i);
+				weaponToTest.setSelectedModAtTier(5, i, false);
 				calculateStatsAndPrint(printStatsToConsole, false);
 			}
 			// Unselect the mod at this tier so it doesn't affect the next tier
-			weaponToTest.setSelectedModAtTier(5, -1);
+			weaponToTest.setSelectedModAtTier(5, -1, false);
 			System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
 		
 			// Section 3: stat changes of individual overclocks
 			for (i = 0; i < weaponToTest.getOverclocks().length; i++) {
-				weaponToTest.setSelectedOverclock(i);
+				weaponToTest.setSelectedOverclock(i, false);
 				calculateStatsAndPrint(printStatsToConsole, false);
 			}
 			// Unselect the overclock so that weaponToTest will be at "baseline" before doing the 6 clone() calls
-			weaponToTest.setSelectedOverclock(-1);
+			weaponToTest.setSelectedOverclock(-1, false);
 			System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
 		}
 		
@@ -188,22 +188,22 @@ public class WeaponStatsGenerator {
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
+			weaponToTest.setSelectedOverclock(oc, false);
 			
 			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
+				weaponToTest.setSelectedModAtTier(5, t5, false);
 				
 				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
+					weaponToTest.setSelectedModAtTier(4, t4, false);
 					
 					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
+						weaponToTest.setSelectedModAtTier(3, t3, false);
 						
 						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
+							weaponToTest.setSelectedModAtTier(2, t2, false);
 							
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
+								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
 								// Because this will generate thousands of lines of data, never print to console.
 								calculateStatsAndPrint(false, exportStatsToCSV);
@@ -316,6 +316,47 @@ public class WeaponStatsGenerator {
 		weaponToTest.buildFromCombination(currentCombination);
 	}
 	
+	public ArrayList<String> dumpToMySQL() {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		
+		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
+		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
+			weaponToTest.setSelectedOverclock(oc, false);
+			
+			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
+				weaponToTest.setSelectedModAtTier(5, t5, false);
+				
+				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
+					weaponToTest.setSelectedModAtTier(4, t4, false);
+					
+					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
+						weaponToTest.setSelectedModAtTier(3, t3, false);
+						
+						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
+							weaponToTest.setSelectedModAtTier(2, t2, false);
+							
+							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
+								weaponToTest.setSelectedModAtTier(1, t1, false);
+								
+								toReturn.add(String.format("INSERT INTO `%s` VALUES(NULL, '%s', '%s', '%s', %f, %f, %f, %f, %f, %f, %d, %f, %f, %f, %f, %f);\n", 
+										DatabaseConstants.tableName, weaponToTest.getDwarfClass(), weaponToTest.getSimpleName(), weaponToTest.getCombination(),
+										weaponToTest.calculateIdealBurstDPS(), weaponToTest.calculateIdealSustainedDPS(),
+										weaponToTest.sustainedWeakpointDPS(), weaponToTest.sustainedWeakpointAccuracyDPS(),
+										weaponToTest.calculateAdditionalTargetDPS(), weaponToTest.calculateMaxMultiTargetDamage(),
+										weaponToTest.calculateMaxNumTargets(), weaponToTest.calculateFiringDuration(),
+										weaponToTest.averageTimeToKill(), weaponToTest.averageOverkill(),
+										weaponToTest.estimatedAccuracy(false), weaponToTest.utilityScore()
+								));
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		return toReturn;
+	}
+	
 	private void calculateStatsAndPrint(boolean console, boolean csv) {
 		// There is a niche where both console and csv can be false; in the 6 nested for-loops in runTest() console will always be false, 
 		// and csv could be false because of the run parameters. If they're both false, don't do anything in this method to save some CPU time.
@@ -354,22 +395,22 @@ public class WeaponStatsGenerator {
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
+			weaponToTest.setSelectedOverclock(oc, false);
 			
 			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
+				weaponToTest.setSelectedModAtTier(5, t5, false);
 				
 				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
+					weaponToTest.setSelectedModAtTier(4, t4, false);
 					
 					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
+						weaponToTest.setSelectedModAtTier(3, t3, false);
 						
 						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
+							weaponToTest.setSelectedModAtTier(2, t2, false);
 							
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
+								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
 								currentBurstDPS = weaponToTest.calculateIdealBurstDPS();
 								if (currentBurstDPS > bestBurstDPS) {
@@ -393,22 +434,22 @@ public class WeaponStatsGenerator {
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
+			weaponToTest.setSelectedOverclock(oc, false);
 			
 			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
+				weaponToTest.setSelectedModAtTier(5, t5, false);
 				
 				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
+					weaponToTest.setSelectedModAtTier(4, t4, false);
 					
 					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
+						weaponToTest.setSelectedModAtTier(3, t3, false);
 						
 						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
+							weaponToTest.setSelectedModAtTier(2, t2, false);
 							
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
+								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
 								currentSustainedDPS = weaponToTest.calculateIdealSustainedDPS();
 								if (currentSustainedDPS > bestSustainedDPS) {
@@ -432,22 +473,22 @@ public class WeaponStatsGenerator {
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
+			weaponToTest.setSelectedOverclock(oc, false);
 			
 			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
+				weaponToTest.setSelectedModAtTier(5, t5, false);
 				
 				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
+					weaponToTest.setSelectedModAtTier(4, t4, false);
 					
 					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
+						weaponToTest.setSelectedModAtTier(3, t3, false);
 						
 						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
+							weaponToTest.setSelectedModAtTier(2, t2, false);
 							
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
+								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
 								currentWeakpointSustainedDPS = weaponToTest.sustainedWeakpointDPS();
 								if (currentWeakpointSustainedDPS > bestWeakpointSustainedDPS) {
@@ -471,22 +512,22 @@ public class WeaponStatsGenerator {
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
+			weaponToTest.setSelectedOverclock(oc, false);
 			
 			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
+				weaponToTest.setSelectedModAtTier(5, t5, false);
 				
 				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
+					weaponToTest.setSelectedModAtTier(4, t4, false);
 					
 					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
+						weaponToTest.setSelectedModAtTier(3, t3, false);
 						
 						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
+							weaponToTest.setSelectedModAtTier(2, t2, false);
 							
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
+								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
 								currentWeakpointAccuracySustainedDPS = weaponToTest.sustainedWeakpointAccuracyDPS();
 								if (currentWeakpointAccuracySustainedDPS > bestWeakpointAccuracySustainedDPS) {
@@ -510,22 +551,22 @@ public class WeaponStatsGenerator {
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
+			weaponToTest.setSelectedOverclock(oc, false);
 			
 			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
+				weaponToTest.setSelectedModAtTier(5, t5, false);
 				
 				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
+					weaponToTest.setSelectedModAtTier(4, t4, false);
 					
 					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
+						weaponToTest.setSelectedModAtTier(3, t3, false);
 						
 						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
+							weaponToTest.setSelectedModAtTier(2, t2, false);
 							
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
+								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
 								currentAdditionalTargetDPS = weaponToTest.calculateAdditionalTargetDPS();
 								if (currentAdditionalTargetDPS > bestAdditionalTargetDPS) {
@@ -549,22 +590,22 @@ public class WeaponStatsGenerator {
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
+			weaponToTest.setSelectedOverclock(oc, false);
 			
 			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
+				weaponToTest.setSelectedModAtTier(5, t5, false);
 				
 				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
+					weaponToTest.setSelectedModAtTier(4, t4, false);
 					
 					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
+						weaponToTest.setSelectedModAtTier(3, t3, false);
 						
 						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
+							weaponToTest.setSelectedModAtTier(2, t2, false);
 							
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
+								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
 								currentMultiTargetDamage = weaponToTest.calculateMaxMultiTargetDamage();
 								if (currentMultiTargetDamage > mostMultiTargetDamage) {
@@ -588,22 +629,22 @@ public class WeaponStatsGenerator {
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
+			weaponToTest.setSelectedOverclock(oc, false);
 			
 			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
+				weaponToTest.setSelectedModAtTier(5, t5, false);
 				
 				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
+					weaponToTest.setSelectedModAtTier(4, t4, false);
 					
 					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
+						weaponToTest.setSelectedModAtTier(3, t3, false);
 						
 						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
+							weaponToTest.setSelectedModAtTier(2, t2, false);
 							
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
+								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
 								currentNumTargets = weaponToTest.calculateMaxNumTargets();
 								if (currentNumTargets > mostNumTargets) {
@@ -627,22 +668,22 @@ public class WeaponStatsGenerator {
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
+			weaponToTest.setSelectedOverclock(oc, false);
 			
 			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
+				weaponToTest.setSelectedModAtTier(5, t5, false);
 				
 				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
+					weaponToTest.setSelectedModAtTier(4, t4, false);
 					
 					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
+						weaponToTest.setSelectedModAtTier(3, t3, false);
 						
 						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
+							weaponToTest.setSelectedModAtTier(2, t2, false);
 							
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
+								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
 								currentFiringDuration = weaponToTest.calculateFiringDuration();
 								if (currentFiringDuration > longestFiringDuration) {
@@ -666,22 +707,22 @@ public class WeaponStatsGenerator {
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
+			weaponToTest.setSelectedOverclock(oc, false);
 			
 			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
+				weaponToTest.setSelectedModAtTier(5, t5, false);
 				
 				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
+					weaponToTest.setSelectedModAtTier(4, t4, false);
 					
 					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
+						weaponToTest.setSelectedModAtTier(3, t3, false);
 						
 						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
+							weaponToTest.setSelectedModAtTier(2, t2, false);
 							
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
+								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
 								currentTTK = weaponToTest.averageTimeToKill();
 								if (currentTTK < fastestTTK) {
@@ -705,22 +746,22 @@ public class WeaponStatsGenerator {
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
+			weaponToTest.setSelectedOverclock(oc, false);
 			
 			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
+				weaponToTest.setSelectedModAtTier(5, t5, false);
 				
 				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
+					weaponToTest.setSelectedModAtTier(4, t4, false);
 					
 					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
+						weaponToTest.setSelectedModAtTier(3, t3, false);
 						
 						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
+							weaponToTest.setSelectedModAtTier(2, t2, false);
 							
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
+								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
 								currentOverkill = weaponToTest.averageOverkill();
 								if (currentOverkill < lowestOverkill) {
@@ -744,22 +785,22 @@ public class WeaponStatsGenerator {
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
+			weaponToTest.setSelectedOverclock(oc, false);
 			
 			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
+				weaponToTest.setSelectedModAtTier(5, t5, false);
 				
 				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
+					weaponToTest.setSelectedModAtTier(4, t4, false);
 					
 					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
+						weaponToTest.setSelectedModAtTier(3, t3, false);
 						
 						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
+							weaponToTest.setSelectedModAtTier(2, t2, false);
 							
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
+								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
 								currentAccuracy = weaponToTest.estimatedAccuracy(false);
 								if (currentAccuracy > bestAccuracy) {
@@ -783,22 +824,22 @@ public class WeaponStatsGenerator {
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
+			weaponToTest.setSelectedOverclock(oc, false);
 			
 			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
+				weaponToTest.setSelectedModAtTier(5, t5, false);
 				
 				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
+					weaponToTest.setSelectedModAtTier(4, t4, false);
 					
 					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
+						weaponToTest.setSelectedModAtTier(3, t3, false);
 						
 						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
+							weaponToTest.setSelectedModAtTier(2, t2, false);
 							
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
+								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
 								currentUtility = weaponToTest.utilityScore();
 								if (currentUtility > bestUtility) {
