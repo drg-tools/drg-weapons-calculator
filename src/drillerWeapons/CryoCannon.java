@@ -116,7 +116,7 @@ public class CryoCannon extends Weapon {
 				+ "In exchange, +1 sec Repressurization Delay", overclockIcons.projectileVelocity, 3, false);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Ice Storm", "x2 Damage per Particle, -3 Cold per Particle, -50 Tank Size, x1.5 Pressure Drop Rate", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Snowball", "Press the Reload button to consume 50 ammo and fire a Snowball that does 100 Cold Damage in a 3.5m radius, which will freeze most enemies instantly. "
-				+ "In exchange, -100 Tank Size, +1 sec Repressurization Delay", overclockIcons.aoeRadius, 5, false);
+				+ "In exchange, -100 Tank Size, +1 sec Repressurization Delay", overclockIcons.aoeRadius, 5);
 	}
 	
 	@Override
@@ -691,6 +691,11 @@ public class CryoCannon extends Weapon {
 		double freezeDuration = EnemyInformation.averageFreezeDuration();
 		double freezeUptime = freezeDuration / (EnemyInformation.averageTimeToFreeze(getParticleCold() * getFlowRate() + icePathColdPerTick * icePathTicksPerSec) + freezeDuration);
 		utilityScores[6] = freezeUptime * numTargets * UtilityInformation.Frozen_Utility;
+		
+		// Snowball does 100 Cold Damage in a 3.5m radius. Add the score for how many enemies that would freeze.
+		if (selectedOverclock == 5) {
+			utilityScores[6] += calculateNumGlyphidsInRadius(3.5) * EnemyInformation.percentageEnemiesFrozenBySingleBurstOfCold(-100) * UtilityInformation.Frozen_Utility;
+		}
 		
 		return MathUtils.sum(utilityScores);
 	}

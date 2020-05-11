@@ -342,8 +342,7 @@ public class EnemyInformation {
 		return (avgIgniteTemp - avgDouseTemp) / avgHeatLossRate;
 	}
 	
-	// This method is currently only used by Gunner/Minigun/Mod/5/Aggressive Venting in maxDamage()
-	// However, this might be able to be adapted to Engineer/GrenadeLauncher/Mod/3/Incendiary Compound, and for sure Scout's Cryo Grenade if it ever gets added.
+	// This method is currently only used by Gunner/Minigun/Mod/5/Aggressive Venting in maxDamage() and Engineer/GrenadeLauncher/Mod/3/Incendiary Compound single-target DPS
 	public static double percentageEnemiesIgnitedBySingleBurstOfHeat(double heatPerBurst) {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
@@ -427,6 +426,21 @@ public class EnemyInformation {
 		
 		// Because every Freeze temp is negative and is strictly less than the corresponding Thaw temp, subtracting Freeze from Thaw guarantees a positive number.
 		return (avgThawTemp - avgFreezeTemp) / avgHeatGainRate;
+	}
+	// This method is currently only used by Driller/CryoCannon/OC/Snowball in Utility
+	public static double percentageEnemiesFrozenBySingleBurstOfCold(double coldPerBurst) {
+		if (!verifySpawnRatesTotalIsOne()) {
+			return -1.0;
+		}
+		
+		double sum = 0;
+		for (int i = 0; i < spawnRates.length; i++) {
+			if (enemyTemperatures[i][3] > coldPerBurst) {
+				sum += spawnRates[i];
+			}
+		}
+		
+		return MathUtils.round(sum, 4);
 	}
 	
 	/* 
