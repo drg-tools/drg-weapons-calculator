@@ -72,8 +72,7 @@ public class InformationTabsText {
 					+ "how many times per second the line does damage, and how much damage per tick it does."},
 			{"Why do some Mods and Overclocks have a Red outline?", "Mods or Overclocks with a Red outline either are not implemented yet, or how they work in-game can't be represented by the Weapon's stats."},
 			{"What's the point of this program?", "To help the DRG community compare and contrast their preferred builds for each weapon, and to provide more detail about how the weapons work than described in-game or on the wiki."},
-			{"How long should I wait for the program to calculate the best build?", "In this build, be ready to wait for a while. It doesn't have multi-threading implemented yet, so it can only chug through the 3000+ combinations as fast as a single core "
-					+ "of your processor can go. On the computer it's being developed on, it's taking anywhere from 3-10 seconds for each auto-calculation, with Gunner/Minigun taking the longest due to having the most combinations to test."},
+			{"How long should I wait for the program to calculate the best build?", "This should run pretty fast. I would expect it to be done in a second or two, five at most."},
 			{"I think something is wrong/missing, how do I communicate that to you?", "In the 'Misc. Actions' Menu, there's an option to suggest changes. That should automatically open up this project's GitHub issue creation page for you."},
 			{"Can I help improve to this project?", "Yes! This is an open-source, freeware fan project. Although it's started out as just one developer, I would love to have help."},
 			{"How frequently will this be updated?", "There are a couple features that I want to add (like the 3 missing weapons) before calling this 'done', but I'm planning to update each weapon's stats as GSG devs update them in-game on their production build."},

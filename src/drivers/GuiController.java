@@ -297,10 +297,13 @@ public class GuiController implements ActionListener {
 		
 		else if (e == gui.getExportCurrent()) {
 			chooseFolder();
+			gui.activateThinkingCursor();
 			calculator.runTest(false, true);
+			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getExportAll()) {
 			chooseFolder();
+			gui.activateThinkingCursor();
 			int i;
 			for (i = 0; i < drillerWeapons.length; i++) {
 				calculator.changeWeapon(drillerWeapons[i]);
@@ -318,10 +321,13 @@ public class GuiController implements ActionListener {
 				calculator.changeWeapon(scoutWeapons[i]);
 				calculator.runTest(false, true);
 			}
+			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getExportMySQL()) {
 			chooseFolder();
+			gui.activateThinkingCursor();
 			createMysqlFile();
+			gui.deactivateThinkingCursor();
 		}
 		
 		else if (e == gui.getMiscScreenshot()) {
