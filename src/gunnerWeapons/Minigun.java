@@ -627,9 +627,11 @@ public class Minigun extends Weapon {
 			generalAccuracy = Math.min(generalAccuracy + 0.5, 1.0);
 		}
 		
+		double burstSize = calculateMaxNumPelletsFiredWithoutOverheating();
+		
 		if (burst) {
-			shortDuration = calculateFiringPeriod();
-			longDuration = calculateFiringPeriod();
+			shortDuration = 2.0 * burstSize / getRateOfFire();
+			longDuration = shortDuration;
 			// I've considered adding the spinup time to the burst duration, but seeing it in the metrics was very counter-intuitive -- it made the burst DPS not the intuitively expected 150.
 			// longDuration = getSpinupTime() + calculateFiringPeriod();
 		}
@@ -652,7 +654,6 @@ public class Minigun extends Weapon {
 			longDuration = firingPeriod + cooldownPeriod + spinup;
 		}
 		
-		int burstSize = (int) calculateMaxNumPelletsFiredWithoutOverheating();
 		double directDamage = getDamagePerPellet();
 		
 		// Frozen
@@ -693,7 +694,6 @@ public class Minigun extends Weapon {
 		int pelletsThatHitWeakpoint = (int) Math.round(burstSize * weakpointAccuracy);
 		int pelletsThatHitTarget = (int) Math.round(burstSize * generalAccuracy) - pelletsThatHitWeakpoint;
 		
-		// TODO: I'm not satisfied with how this turned out, because Ideal Burst DPS always turns out JUST shy of its true value. This is because the num pellets is always one less than what would make it overheat.
 		return (pelletsThatHitWeakpoint * directWeakpointDamage + pelletsThatHitTarget * directDamage) / longDuration + burnDPS;
 	}
 	
