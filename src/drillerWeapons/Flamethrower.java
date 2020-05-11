@@ -59,14 +59,14 @@ public class Flamethrower extends Weapon {
 		particleDamage = 10;
 		particleHeat = 10;
 		carriedFuel = 300;
-		fuelTankSize = 75;
+		fuelTankSize = 50;
 		flowRate = 6.0;
 		reloadTime = 3.0;
 		flameReach = 10;
 		
 		stickyFlamesDamagePerTick = 15;
 		stickyFlamesHeatPerTick = 5;
-		stickyFlamesTicksPerSec = (0.25 + 0.75) / 2.0;
+		stickyFlamesTicksPerSec = 2.0 / (0.25 + 0.75);
 		stickyFlamesDuration = 2.0;
 		stickyFlamesSlow = 0.1;
 		
@@ -573,7 +573,6 @@ public class Flamethrower extends Weapon {
 
 	@Override
 	public int calculateMaxNumTargets() {
-		// Expecting 9 for 5m
 		return calculateNumGlyphidsInStream(getFlameReach());
 	}
 

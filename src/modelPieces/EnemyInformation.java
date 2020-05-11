@@ -385,6 +385,26 @@ public class EnemyInformation {
 		// Negative Freeze temps divided by negative cold per seconds results in a positive number of seconds
 		return avgFreezeTemp / coldPerSecond;
 	}
+	public static double averageTimeToRefreeze(double coldPerSecond) {
+		if (!verifySpawnRatesTotalIsOne()) {
+			return -1.0;
+		}
+		
+		int numEnemyTypes = spawnRates.length;
+		double[] freezeTemps = new double[numEnemyTypes];
+		double[] thawTemps = new double[numEnemyTypes];
+		
+		for (int i = 0; i < numEnemyTypes; i++) {
+			freezeTemps[i] = enemyTemperatures[i][3];
+			thawTemps[i] = enemyTemperatures[i][4];
+		}
+		
+		double avgFreezeTemp = MathUtils.vectorDotProduct(spawnRates, freezeTemps);
+		double avgThawTemp = MathUtils.vectorDotProduct(spawnRates, thawTemps);
+		
+		// Negative Freeze temps divided by negative cold per seconds results in a positive number of seconds
+		return (avgFreezeTemp - avgThawTemp) / coldPerSecond;
+	}
 	public static double averageFreezeDuration() {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;

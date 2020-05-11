@@ -581,8 +581,8 @@ public abstract class Weapon extends Observable {
 	}
 	
 	// Used by Flamethrower and Cryo Cannon
+	// TODO: This seems to be returning too high of a number. Refactor it a little bit.
 	protected int calculateNumGlyphidsInStream(double streamLength) {
-		// TODO
 		
 		double a = EnemyInformation.GlyphidGruntBodyRadius;
 		double b = EnemyInformation.GlyphidGruntBodyAndLegsRadius;
