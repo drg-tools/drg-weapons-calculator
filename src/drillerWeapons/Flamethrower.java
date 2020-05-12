@@ -497,8 +497,8 @@ public class Flamethrower extends Weapon {
 		
 		double directHeatPerSec = getParticleHeat() * getFlowRate();
 		
-		double stickyFlamesDPS = getSFDamagePerTick() * stickyFlamesTicksPerSec;
-		double stickyFlamesHeatPerSec = stickyFlamesHeatPerTick * stickyFlamesTicksPerSec;
+		double stickyFlamesDPS = getSFDamagePerTick() * stickyFlamesTicksPerSec / 2.0;
+		double stickyFlamesHeatPerSec = stickyFlamesHeatPerTick * stickyFlamesTicksPerSec / 2.0;
 		
 		if (burst) {
 			duration = ((double) getFuelTankSize()) / getFlowRate();
@@ -564,13 +564,13 @@ public class Flamethrower extends Weapon {
 		double directTotalDamage = numTargets * getParticleDamage() * (getFuelTankSize() + getCarriedFuel());
 		
 		// Total Sticky Flames Damage
-		double stickyFlamesDPS = getSFDamagePerTick() * stickyFlamesTicksPerSec;
+		double stickyFlamesDPS = getSFDamagePerTick() * stickyFlamesTicksPerSec / 2.0;
 		double stickyFlamesDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, getSFDuration(), stickyFlamesDPS);
 		double stickyFlamesTotalDamage = stickyFlamesDamagePerEnemy * estimatedNumEnemiesKilled;
 		
 		// Total Burn Damage
 		double directHeatPerSec = getParticleHeat() * getFlowRate();
-		double stickyFlamesHeatPerSec = stickyFlamesHeatPerTick * stickyFlamesTicksPerSec;
+		double stickyFlamesHeatPerSec = stickyFlamesHeatPerTick * stickyFlamesTicksPerSec / 2.0;
 		double timeToIgnite = EnemyInformation.averageTimeToIgnite(directHeatPerSec + stickyFlamesHeatPerSec);
 		double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
 		double fireDoTTotalDamage = fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;

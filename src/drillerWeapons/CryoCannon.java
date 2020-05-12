@@ -489,7 +489,7 @@ public class CryoCannon extends Weapon {
 	
 	private double averageTimeToFreeze(boolean refreeze) {
 		double streamColdPerSec = getParticleCold() * getFlowRate();
-		double icePathColdPerSec = icePathColdPerTick * icePathTicksPerSec;
+		double icePathColdPerSec = icePathColdPerTick * icePathTicksPerSec / 2.0;
 		double totalColdPerSec = streamColdPerSec + icePathColdPerSec;
 		
 		if (refreeze) {
@@ -500,6 +500,7 @@ public class CryoCannon extends Weapon {
 		}
 	}
 	
+	// TODO: This feels like it's returning the wrong values... +1 Cold means a LOWER damage multiplier?! Seems wrong...
 	private double averageFreezeMultiplier(boolean burst) {
 		double avgTimeToFreeze = averageTimeToFreeze(false);
 		double avgFreezeDuration = EnemyInformation.averageFreezeDuration();
@@ -659,7 +660,7 @@ public class CryoCannon extends Weapon {
 	public double calculateMaxMultiTargetDamage() {
 		// Every other weapon I've modeled so far is just raw damage, without any increases from weakpoints or Cryo Minelets. 
 		// I'm choosing to make Cryo Cannon the exception because it relies so much on freezing enemies.
-		return getTankSize() * getParticleDamage() * averageFreezeMultiplier(false) * calculateMaxNumTargets();
+		return getTankSize() * getParticleDamage() * averageFreezeMultiplier(true) * calculateMaxNumTargets();
 	}
 
 	@Override
@@ -709,7 +710,7 @@ public class CryoCannon extends Weapon {
 		
 		// Freeze
 		double freezeDuration = EnemyInformation.averageFreezeDuration();
-		double freezeUptime = freezeDuration / (EnemyInformation.averageTimeToFreeze(getParticleCold() * getFlowRate() + icePathColdPerTick * icePathTicksPerSec) + freezeDuration);
+		double freezeUptime = freezeDuration / (EnemyInformation.averageTimeToFreeze(getParticleCold() * getFlowRate() + icePathColdPerTick * icePathTicksPerSec / 2.0) + freezeDuration);
 		utilityScores[6] = freezeUptime * numTargets * UtilityInformation.Frozen_Utility;
 		
 		// Snowball does 100 Cold Damage in a 3.5m radius. Add the score for how many enemies that would freeze.
