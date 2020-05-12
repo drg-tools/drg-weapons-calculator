@@ -3,6 +3,7 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import dataGenerator.DatabaseConstants;
 import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
@@ -283,6 +284,12 @@ public class Classic_FocusShot extends Weapon {
 	}
 	public String getSimpleName() {
 		return "Classic_FocusShot";
+	}
+	public int getDwarfClassID() {
+		return DatabaseConstants.scoutCharacterID;
+	}
+	public int getWeaponID() {
+		return DatabaseConstants.classicGunsID;
 	}
 	
 	/****************************************************************************************

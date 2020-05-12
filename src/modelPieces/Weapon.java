@@ -322,6 +322,10 @@ public abstract class Weapon extends Observable {
 	public abstract String getDwarfClass();
 	public abstract String getSimpleName();
 	
+	// Used by the MySQL dump to establish the foreign-key relationships
+	public abstract int getDwarfClassID();
+	public abstract int getWeaponID();
+	
 	// Stats page
 	public String getFullName() {
 		return fullName;
@@ -590,7 +594,7 @@ public abstract class Weapon extends Observable {
 	
 	// Used by Flamethrower and Cryo Cannon
 	protected int calculateNumGlyphidsInStream(double streamLength) {
-		return (int) Math.ceil(streamLength / (EnemyInformation.GlyphidGruntBodyRadius + EnemyInformation.GlyphidGruntBodyAndLegsRadius));
+		return (int) Math.ceil(streamLength / (2 * EnemyInformation.GlyphidGruntBodyRadius + EnemyInformation.GlyphidGruntBodyAndLegsRadius));
 	}
 	
 	protected double increaseBulletDamageForWeakpoints2(double preWeakpointBulletDamage) {

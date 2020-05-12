@@ -3,6 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import dataGenerator.DatabaseConstants;
 import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
@@ -287,6 +288,12 @@ public class Autocannon extends Weapon {
 	}
 	public String getSimpleName() {
 		return "Autocannon";
+	}
+	public int getDwarfClassID() {
+		return DatabaseConstants.gunnerCharacterID;
+	}
+	public int getWeaponID() {
+		return DatabaseConstants.autocannonGunsID;
 	}
 	
 	/****************************************************************************************

@@ -115,23 +115,28 @@ public class GuiController implements ActionListener {
 		mysqlCommands.add(String.format("USE `%s`;\n\n", DatabaseConstants.databaseName));
 		mysqlCommands.add(String.format("DROP TABLE IF EXISTS `%s`;\n\n", DatabaseConstants.tableName));
 		mysqlCommands.add(String.format("CREATE TABLE `%s` (\n", DatabaseConstants.tableName));
-		mysqlCommands.add("    buildStats_id INT NOT NULL AUTO_INCREMENT,\n");
-		mysqlCommands.add("    class VARCHAR(8) NOT NULL,\n");
-		mysqlCommands.add("    weaponShortName VARCHAR(20) NOT NULL,\n");
-		mysqlCommands.add("    buildCombination VARCHAR(6) NOT NULL,\n");
-		mysqlCommands.add("    idealBurstDPS DOUBLE NOT NULL,\n");
-		mysqlCommands.add("    idealSustainedDPS DOUBLE NOT NULL,\n");
-		mysqlCommands.add("    sustainedWeakpointDPS DOUBLE NOT NULL,\n");
-		mysqlCommands.add("    sustainedWeakpointAccuracyDPS DOUBLE NOT NULL,\n");
-		mysqlCommands.add("    idealAdditionalTargetDPS DOUBLE NOT NULL,\n");
-		mysqlCommands.add("    maxMultiTargetDamage DOUBLE NOT NULL,\n");
-		mysqlCommands.add("    maxNumTargetsPerShot INT NOT NULL,\n");
-		mysqlCommands.add("    firingDuration DOUBLE NOT NULL,\n");
-		mysqlCommands.add("    averageTimeToKill DOUBLE NOT NULL,\n");
-		mysqlCommands.add("    averageOverkill DOUBLE NOT NULL,\n");
-		mysqlCommands.add("    generalAccuracy DOUBLE NOT NULL,\n");
-		mysqlCommands.add("    utility DOUBLE NOT NULL,\n");
-		mysqlCommands.add("    PRIMARY KEY (buildStats_id)\n");
+		mysqlCommands.add("    `id` INT NOT NULL AUTO_INCREMENT,\n");
+		mysqlCommands.add("    `characters_id` INT NOT NULL,\n");
+		mysqlCommands.add("    `guns_id` INT NOT NULL,\n");
+		mysqlCommands.add("    `weaponShortName` VARCHAR(20) NOT NULL,\n");
+		mysqlCommands.add("    `buildCombination` VARCHAR(6) NOT NULL,\n");
+		mysqlCommands.add("    `idealBurstDPS` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `idealSustainedDPS` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `sustainedWeakpointDPS` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `sustainedWeakpointAccuracyDPS` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `idealAdditionalTargetDPS` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `maxMultiTargetDamage` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `maxNumTargetsPerShot` INT NOT NULL,\n");
+		mysqlCommands.add("    `firingDuration` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `averageTimeToKill` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `averageOverkill` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `generalAccuracy` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `utility` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    PRIMARY KEY (`id`),\n\n");
+		mysqlCommands.add("    FOREIGN KEY (`characters_id`)\n");
+		mysqlCommands.add("        REFERENCES characters(`id`),\n\n");
+		mysqlCommands.add("    FOREIGN KEY (`guns_id`)\n");
+		mysqlCommands.add("        REFERENCES guns(`id`)\n");
 		mysqlCommands.add(");\n\n");
 		
 		int i;
@@ -364,7 +369,7 @@ public class GuiController implements ActionListener {
 			currentlySelectedWeapon.buildFromCombination(newCombination);
 		}
 		else if (e == gui.getMiscSuggestion()) {
-			openWebpage("https://github.com/phg49389/drg-weapons-calculator/issues/new/choose");
+			openWebpage("https://github.com/drg-tools/drg-weapons-calculator/issues/new/choose");
 		}
 	}
 	

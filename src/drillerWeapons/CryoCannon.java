@@ -3,6 +3,7 @@ package drillerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import dataGenerator.DatabaseConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
@@ -287,6 +288,12 @@ public class CryoCannon extends Weapon {
 	public String getSimpleName() {
 		return "CryoCannon";
 	}
+	public int getDwarfClassID() {
+		return DatabaseConstants.drillerCharacterID;
+	}
+	public int getWeaponID() {
+		return DatabaseConstants.cryCannonGunsID;
+	}
 	
 	/****************************************************************************************
 	* Setters and Getters
@@ -426,7 +433,7 @@ public class CryoCannon extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[14];
+		StatsRow[] toReturn = new StatsRow[16];
 		
 		// Stats about the direct stream's DPS
 		toReturn[0] = new StatsRow("Damage per Particle:", getParticleDamage(), selectedTier4 == 0 || selectedOverclock == 4);
@@ -435,34 +442,38 @@ public class CryoCannon extends Weapon {
 		// Again, choosing to display Cold as positive even though it's a negative value.
 		toReturn[1] = new StatsRow("Cold per Particle:", -1 * getParticleCold(), coldModified);
 		
-		toReturn[2] = new StatsRow("Cold Stream Reach:", getColdStreamReach(), selectedTier2 == 1);
+		boolean freezingTimeModified = false;
+		toReturn[2] = new StatsRow("Avg Time to Freeze:", averageTimeToFreeze(false), freezingTimeModified);
+		toReturn[3] = new StatsRow("Avg Freeze Multiplier:", averageFreezeMultiplier(false), freezingTimeModified);
+		
+		toReturn[4] = new StatsRow("Cold Stream Reach:", getColdStreamReach(), selectedTier2 == 1);
 		
 		boolean tankSizeModified = selectedTier2 == 0 || selectedTier4 == 2 || selectedOverclock == 0 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[3] = new StatsRow("Tank Size:", getTankSize(), tankSizeModified);
+		toReturn[5] = new StatsRow("Tank Size:", getTankSize(), tankSizeModified);
 		
-		toReturn[4] = new StatsRow("Chargeup Time:", getChargeupTime(), selectedTier1 == 1);
+		toReturn[6] = new StatsRow("Chargeup Time:", getChargeupTime(), selectedTier1 == 1);
 		
 		boolean pressureDropModified = selectedTier1 == 0 || selectedOverclock % 2 == 0 ;
-		toReturn[5] = new StatsRow("Pressure Drop Rate:", convertDoubleToPercentage(getPressureDropModifier()), pressureDropModified);
-		toReturn[6] = new StatsRow("Pressure Drop Duration:", pressureDropDuration / getPressureDropModifier(), pressureDropModified);
+		toReturn[7] = new StatsRow("Pressure Drop Rate:", convertDoubleToPercentage(getPressureDropModifier()), pressureDropModified);
+		toReturn[8] = new StatsRow("Pressure Drop Duration:", pressureDropDuration / getPressureDropModifier(), pressureDropModified);
 		
 		boolean flowRateModified = selectedTier3 == 1 || selectedOverclock == 1 || selectedOverclock == 2;
-		toReturn[7] = new StatsRow("Flow Rate:", getFlowRate(), flowRateModified);
+		toReturn[9] = new StatsRow("Flow Rate:", getFlowRate(), flowRateModified);
 		
 		boolean delayModified = selectedTier2 == 2 || selectedOverclock == 3 || selectedOverclock == 5;
-		toReturn[8] = new StatsRow("Repressurization Delay:", getRepressurizationDelay(), delayModified);
+		toReturn[10] = new StatsRow("Repressurization Delay:", getRepressurizationDelay(), delayModified);
 		
 		boolean pressureGainModified = selectedTier3 == 0 || selectedOverclock == 2;
-		toReturn[9] = new StatsRow("Pressure Gain Rate:", convertDoubleToPercentage(getPressureGainModifier()), pressureGainModified);
-		toReturn[10] = new StatsRow("Pressure Gain Duration:", pressureGainDuration / getPressureGainModifier(), pressureGainModified);
+		toReturn[11] = new StatsRow("Pressure Gain Rate:", convertDoubleToPercentage(getPressureGainModifier()), pressureGainModified);
+		toReturn[12] = new StatsRow("Pressure Gain Duration:", pressureGainDuration / getPressureGainModifier(), pressureGainModified);
 		
 		// Stats about the Ice Path
 		// I'm choosing to display this as a positive number, even though internally it's negative.
-		toReturn[11] = new StatsRow("Ice Path Cold per Tick:", -1 * icePathColdPerTick, false);
+		toReturn[13] = new StatsRow("Ice Path Cold per Tick:", -1 * icePathColdPerTick, false);
 		
-		toReturn[12] = new StatsRow("Ice Path Ticks per Sec:", icePathTicksPerSec, false);
+		toReturn[14] = new StatsRow("Ice Path Ticks per Sec:", icePathTicksPerSec, false);
 		
-		toReturn[13] = new StatsRow("Ice Path Duration", icePathDuration, false);
+		toReturn[15] = new StatsRow("Ice Path Duration", icePathDuration, false);
 		
 		return toReturn;
 	}
@@ -476,14 +487,23 @@ public class CryoCannon extends Weapon {
 		return false;
 	}
 	
-	private double averageFreezeMultiplier(boolean burst) {
+	private double averageTimeToFreeze(boolean refreeze) {
 		double streamColdPerSec = getParticleCold() * getFlowRate();
 		double icePathColdPerSec = icePathColdPerTick * icePathTicksPerSec;
 		double totalColdPerSec = streamColdPerSec + icePathColdPerSec;
 		
-		double avgTimeToFreeze = EnemyInformation.averageTimeToFreeze(totalColdPerSec);
+		if (refreeze) {
+			return EnemyInformation.averageTimeToRefreeze(totalColdPerSec);
+		}
+		else {
+			return EnemyInformation.averageTimeToFreeze(totalColdPerSec);
+		}
+	}
+	
+	private double averageFreezeMultiplier(boolean burst) {
+		double avgTimeToFreeze = averageTimeToFreeze(false);
 		double avgFreezeDuration = EnemyInformation.averageFreezeDuration();
-		double avgTimeToRefreeze = EnemyInformation.averageTimeToRefreeze(totalColdPerSec);
+		double avgTimeToRefreeze = averageTimeToFreeze(true);
 		
 		double firingTime = pressureDropDuration / getPressureDropModifier();
 		

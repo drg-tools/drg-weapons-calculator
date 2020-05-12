@@ -3,6 +3,7 @@ package drillerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import dataGenerator.DatabaseConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
@@ -286,6 +287,12 @@ public class Flamethrower extends Weapon {
 	}
 	public String getSimpleName() {
 		return "Flamethrower";
+	}
+	public int getDwarfClassID() {
+		return DatabaseConstants.drillerCharacterID;
+	}
+	public int getWeaponID() {
+		return DatabaseConstants.flamethrowerGunsID;
 	}
 	
 	/****************************************************************************************

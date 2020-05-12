@@ -3,6 +3,7 @@ package drillerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import dataGenerator.DatabaseConstants;
 import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
@@ -317,6 +318,12 @@ public class EPC_ChargeShot extends Weapon {
 	}
 	public String getSimpleName() {
 		return "EPC_ChargeShot";
+	}
+	public int getDwarfClassID() {
+		return DatabaseConstants.drillerCharacterID;
+	}
+	public int getWeaponID() {
+		return DatabaseConstants.EPCGunsID;
 	}
 	
 	/****************************************************************************************

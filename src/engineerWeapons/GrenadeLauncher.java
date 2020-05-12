@@ -3,6 +3,7 @@ package engineerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import dataGenerator.DatabaseConstants;
 import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
@@ -280,6 +281,12 @@ public class GrenadeLauncher extends Weapon {
 	}
 	public String getSimpleName() {
 		return "GrenadeLauncher";
+	}
+	public int getDwarfClassID() {
+		return DatabaseConstants.engineerCharacterID;
+	}
+	public int getWeaponID() {
+		return DatabaseConstants.grenadeLauncherGunsID;
 	}
 	
 	/****************************************************************************************

@@ -338,8 +338,8 @@ public class WeaponStatsGenerator {
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
 								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
-								toReturn.add(String.format("INSERT INTO `%s` VALUES(NULL, '%s', '%s', '%s', %f, %f, %f, %f, %f, %f, %d, %f, %f, %f, %f, %f);\n", 
-										DatabaseConstants.tableName, weaponToTest.getDwarfClass(), weaponToTest.getSimpleName(), weaponToTest.getCombination(),
+								toReturn.add(String.format("INSERT INTO `%s` VALUES(NULL, %d, %d, '%s', '%s', %f, %f, %f, %f, %f, %f, %d, %f, %f, %f, %f, %f);\n", 
+										DatabaseConstants.tableName, weaponToTest.getDwarfClassID(), weaponToTest.getWeaponID(), weaponToTest.getSimpleName(), weaponToTest.getCombination(),
 										weaponToTest.calculateIdealBurstDPS(), weaponToTest.calculateIdealSustainedDPS(),
 										weaponToTest.sustainedWeakpointDPS(), weaponToTest.sustainedWeakpointAccuracyDPS(),
 										weaponToTest.calculateAdditionalTargetDPS(), weaponToTest.calculateMaxMultiTargetDamage(),
