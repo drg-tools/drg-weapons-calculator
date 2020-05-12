@@ -23,8 +23,8 @@ ___
 If you want to contribute to this project, feel free to make a Pull Request and I'll take a look at your suggested changes. I'm also open to adding people as Collaborators to this project.
 
 ___
-According to CLOC, 0.9.8's metrics:
+According to CLOC, 0.9.9's metrics:
 * 49 .java files
-* 2761 blank lines
-* 1562 comment lines
-* 14966 code lines
+* 2770 blank lines
+* 1556 comment lines
+* 15152 code lines
