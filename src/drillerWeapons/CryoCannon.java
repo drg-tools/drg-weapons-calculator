@@ -444,7 +444,7 @@ public class CryoCannon extends Weapon {
 		
 		boolean freezingTimeModified = false;
 		toReturn[2] = new StatsRow("Avg Time to Freeze:", averageTimeToFreeze(false), freezingTimeModified);
-		toReturn[3] = new StatsRow("Avg Freeze Multiplier:", averageFreezeMultiplier(false), freezingTimeModified);
+		toReturn[3] = new StatsRow("Avg Freeze Multiplier:", averageFreezeMultiplier(), freezingTimeModified);
 		
 		toReturn[4] = new StatsRow("Cold Stream Reach:", getColdStreamReach(), selectedTier2 == 1);
 		
@@ -500,94 +500,125 @@ public class CryoCannon extends Weapon {
 		}
 	}
 	
-	// TODO: This feels like it's returning the wrong values... +1 Cold means a LOWER damage multiplier?! Seems wrong...
-	private double averageFreezeMultiplier(boolean burst) {
-		double avgTimeToFreeze = averageTimeToFreeze(false);
-		double avgFreezeDuration = EnemyInformation.averageFreezeDuration();
-		double avgTimeToRefreeze = averageTimeToFreeze(true);
-		
+	private double totalDamageDealtPerBurst(boolean primaryTarget) {
+		double dmgPerParticle = getParticleDamage();
 		double firingTime = pressureDropDuration / getPressureDropModifier();
+		double flowRate = getFlowRate();
 		
-		double timeUnfrozen = 0;
-		double timeFrozen = 0;
-		boolean targetCurrentlyFrozen = false;
+		double timeToFreeze = averageTimeToFreeze(false);
+		double freezeDuration = EnemyInformation.averageFreezeDuration();
+		double timeToRefreeze = averageTimeToFreeze(true);
 		
-		if (burst) {
-			boolean targetHasBeenPreviouslyFrozen = false;
-			
-			while (firingTime > 0) {
-				if (targetCurrentlyFrozen) {
-					// Step 2: Enemy is frozen until they thaw out; adding more Cold Damage has no effect.
-					if (avgFreezeDuration < firingTime) {
-						timeFrozen += avgFreezeDuration;
-						targetCurrentlyFrozen = false;
-					}
-					else {
-						timeFrozen += firingTime;
-					}
-					firingTime -= avgFreezeDuration;
-				}
-				else {
-					if (targetHasBeenPreviouslyFrozen) {
-						// Step 3: Refreeze them. Goes back to Step 2 and repeat 2-3 until out of time.
-						if (avgTimeToRefreeze < firingTime) {
-							timeUnfrozen += avgTimeToRefreeze;
-							targetCurrentlyFrozen = true;
-						}
-						else {
-							timeUnfrozen += firingTime;
-						}
-						firingTime -= avgTimeToRefreeze;
-					}
-					else {
-						// Step 1: Freeze them for the first time
-						if (avgTimeToFreeze < firingTime) {
-							timeUnfrozen += avgTimeToFreeze;
-							targetCurrentlyFrozen = true;
-							targetHasBeenPreviouslyFrozen = true;
-						}
-						else {
-							timeUnfrozen += firingTime;
-						}
-						firingTime -= avgTimeToFreeze;
-					}
-				}
-			}
+		// Status Effects
+		double frozenMultiplier;
+		if (primaryTarget && statusEffects[0]) {
+			// Burning cancels Frozen
+			frozenMultiplier = 1.0;
+		}
+		else if (primaryTarget && statusEffects[1]) {
+			// Already Frozen
+			dmgPerParticle *= UtilityInformation.Frozen_Damage_Multiplier;
+			// Don't multiply by 3 two times!
+			frozenMultiplier = 1.0;
 		}
 		else {
-			double waitingTime = getRepressurizationDelay() + pressureGainDuration / getPressureGainModifier() + getChargeupTime();
-			
-			while (firingTime > 0) {
-				if (targetCurrentlyFrozen) {
-					// Step 2: Enemy is frozen until they thaw out; adding more Cold Damage has no effect. Go back to step 1 and repeat.
-					// Because this is sustained, the Freeze can last longer than firingTime.
-					timeFrozen += avgFreezeDuration;
-					firingTime -= avgTimeToFreeze;
-					targetCurrentlyFrozen = false;
+			frozenMultiplier = UtilityInformation.Frozen_Damage_Multiplier;
+		}
+		
+		if (primaryTarget && statusEffects[3]) {
+			dmgPerParticle *= UtilityInformation.IFG_Damage_Multiplier;
+		}
+		
+		if (firingTime <= timeToFreeze) {
+			return firingTime * flowRate * dmgPerParticle;
+		}
+		
+		double totalDamage = 0;
+		double particlesFired = Math.round(timeToFreeze * flowRate);
+		totalDamage += particlesFired * dmgPerParticle;
+		firingTime -= timeToFreeze;
+		boolean currentlyFrozen = true;
+		while (firingTime > 0) {
+			if (currentlyFrozen) {
+				if (firingTime > freezeDuration) {
+					particlesFired = Math.round(freezeDuration * flowRate);
+					totalDamage += particlesFired * dmgPerParticle * frozenMultiplier;
+					firingTime -= freezeDuration;
+					currentlyFrozen = false;
 				}
 				else {
-					// Step 1: Refreeze them
-					if (avgTimeToRefreeze < firingTime) {
-						timeUnfrozen += avgTimeToRefreeze;
-						targetCurrentlyFrozen = true;
-					}
-					else {
-						timeUnfrozen += firingTime;
-					}
-					firingTime -= avgTimeToRefreeze;
+					totalDamage += firingTime * flowRate * dmgPerParticle * frozenMultiplier;
+					firingTime = 0;
 				}
 			}
-			
-			// Because firingTime will be <= 0 after the while loop ends, add it to waitingTime to make sure those seconds don't get double-counted
-			waitingTime += firingTime;
-			
-			// At this point, no matter whether firingTime ended with the target being frozen or not, they should be unfrozen now.
-			if (waitingTime > 0) {
-				timeUnfrozen += waitingTime;
+			else {
+				if (firingTime > timeToRefreeze) {
+					particlesFired = Math.round(timeToRefreeze * flowRate);
+					totalDamage += particlesFired * dmgPerParticle;
+					firingTime -= timeToRefreeze;
+					currentlyFrozen = true;
+				}
+				else {
+					totalDamage += firingTime * flowRate * dmgPerParticle;
+					firingTime = 0;
+				}
 			}
 		}
 		
-		return (timeUnfrozen + timeFrozen * UtilityInformation.Frozen_Damage_Multiplier) / (timeUnfrozen + timeFrozen);
+		return totalDamage;
+	}
+	
+	private double averageFreezeMultiplier() {
+		double firingTime = pressureDropDuration / getPressureDropModifier();
+		double flowRate = getFlowRate();
+		
+		double timeToFreeze = averageTimeToFreeze(false);
+		double freezeDuration = EnemyInformation.averageFreezeDuration();
+		double timeToRefreeze = averageTimeToFreeze(true);
+		
+		if (firingTime <= timeToFreeze) {
+			return 1.0;
+		}
+		
+		double totalDamage = 0;
+		double totalParticles = 0;
+		double particlesFired = Math.round(timeToFreeze * flowRate);
+		totalDamage += particlesFired;
+		totalParticles += particlesFired;
+		firingTime -= timeToFreeze;
+		boolean currentlyFrozen = true;
+		while (firingTime > 0) {
+			if (currentlyFrozen) {
+				if (firingTime > freezeDuration) {
+					particlesFired = Math.round(freezeDuration * flowRate);
+					totalDamage += particlesFired * UtilityInformation.Frozen_Damage_Multiplier;
+					totalParticles += particlesFired;
+					firingTime -= freezeDuration;
+					currentlyFrozen = false;
+				}
+				else {
+					totalDamage += firingTime * flowRate * UtilityInformation.Frozen_Damage_Multiplier;
+					totalParticles += firingTime * flowRate;
+					firingTime = 0;
+				}
+			}
+			else {
+				if (firingTime > timeToRefreeze) {
+					particlesFired = Math.round(timeToRefreeze * flowRate);
+					totalDamage += particlesFired;
+					totalParticles += particlesFired;
+					firingTime -= timeToRefreeze;
+					currentlyFrozen = true;
+				}
+				else {
+					totalDamage += firingTime * flowRate;
+					totalParticles += firingTime * flowRate;
+					firingTime = 0;
+				}
+			}
+		}
+		
+		return totalDamage / totalParticles;
 	}
 	
 	// Because the Cryo Cannon hits multiple targets with its stream, bypasses armor, and doesn't get weakpoint bonuses, this one method should be usable for all the DPS categories.
@@ -603,30 +634,7 @@ public class CryoCannon extends Weapon {
 			duration = firingTime + waitingTime;
 		}
 		
-		double directDamagePerParticle = getParticleDamage();
-		
-		double frozenDamageMultiplier;
-		// A Burning primary target can't get damage bonuses from being Frozen
-		if (primaryTarget && statusEffects[0]) {
-			frozenDamageMultiplier = 1.0;
-		}
-		// A primary target that's already Frozen gets the full x3 multiplier
-		else if (primaryTarget && statusEffects[1]) {
-			frozenDamageMultiplier = UtilityInformation.Frozen_Damage_Multiplier;
-		}
-		else {
-			frozenDamageMultiplier = averageFreezeMultiplier(burst);
-		}
-		directDamagePerParticle *= frozenDamageMultiplier;
-		
-		// IFG Grenade
-		if (primaryTarget && statusEffects[3]) {
-			directDamagePerParticle *= UtilityInformation.IFG_Damage_Multiplier;
-		}
-		
-		double numParticlesFired = Math.floor(firingTime * getFlowRate());
-		
-		return directDamagePerParticle * numParticlesFired / duration;
+		return totalDamageDealtPerBurst(primaryTarget) / duration;
 	}
 
 	// Single-target calculations
@@ -660,7 +668,14 @@ public class CryoCannon extends Weapon {
 	public double calculateMaxMultiTargetDamage() {
 		// Every other weapon I've modeled so far is just raw damage, without any increases from weakpoints or Cryo Minelets. 
 		// I'm choosing to make Cryo Cannon the exception because it relies so much on freezing enemies.
-		return getTankSize() * getParticleDamage() * averageFreezeMultiplier(true) * calculateMaxNumTargets();
+		double firingTime = pressureDropDuration / getPressureDropModifier();
+		double flowRate = getFlowRate();
+		double numParticlesFiredPerBurst = Math.floor(firingTime * flowRate);
+		
+		double tankSize = getTankSize();
+		double numFullBursts = Math.floor(tankSize / numParticlesFiredPerBurst);
+		
+		return (numFullBursts  + ((tankSize - numFullBursts * numParticlesFiredPerBurst) / numParticlesFiredPerBurst)) * totalDamageDealtPerBurst(false) * calculateMaxNumTargets();
 	}
 
 	@Override
@@ -688,7 +703,7 @@ public class CryoCannon extends Weapon {
 
 	@Override
 	public double averageOverkill() {
-		double dmgPerShot = getParticleDamage() * averageFreezeMultiplier(false);
+		double dmgPerShot = getParticleDamage() * averageFreezeMultiplier();
 		double enemyHP = EnemyInformation.averageHealthPool();
 		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
 		return ((dmgToKill / enemyHP) - 1.0) * 100.0;

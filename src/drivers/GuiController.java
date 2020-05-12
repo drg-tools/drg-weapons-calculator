@@ -115,9 +115,9 @@ public class GuiController implements ActionListener {
 		mysqlCommands.add(String.format("USE `%s`;\n\n", DatabaseConstants.databaseName));
 		mysqlCommands.add(String.format("DROP TABLE IF EXISTS `%s`;\n\n", DatabaseConstants.tableName));
 		mysqlCommands.add(String.format("CREATE TABLE `%s` (\n", DatabaseConstants.tableName));
-		mysqlCommands.add("    `id` INT NOT NULL AUTO_INCREMENT,\n");
-		mysqlCommands.add("    `characters_id` INT NOT NULL,\n");
-		mysqlCommands.add("    `guns_id` INT NOT NULL,\n");
+		mysqlCommands.add("    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,\n");
+		mysqlCommands.add("    `characters_id` BIGINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `guns_id` BIGINT UNSIGNED NOT NULL,\n");
 		mysqlCommands.add("    `weaponShortName` VARCHAR(20) NOT NULL,\n");
 		mysqlCommands.add("    `buildCombination` VARCHAR(6) NOT NULL,\n");
 		mysqlCommands.add("    `idealBurstDPS` DOUBLE NOT NULL,\n");
