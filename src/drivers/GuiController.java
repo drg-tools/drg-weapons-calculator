@@ -204,62 +204,62 @@ public class GuiController implements ActionListener {
 		
 		if (e == gui.getBcmIdealBurst()) {
 			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestIdealBurstDPSCombination());
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(0));
 			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmIdealSustained()) {
 			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestIdealSustainedDPSCombination());
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(1));
 			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmSustainedWeakpoint()) {
 			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestSustainedWeakpointDPSCombination());
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(2));
 			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmSustainedWeakpointAccuracy()) {
 			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestSustainedWeakpointAccuracyDPSCombination());
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(3));
 			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmIdealAdditional()) {
 			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestIdealAdditionalTargetDPSCombination());
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(4));
 			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmMaxDmg()) {
 			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getHighestMultiTargetDamageCombination());
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(5));
 			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmMaxNumTargets()) {
 			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getMostNumTargetsCombination());
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(6));
 			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmDuration()) {
 			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getLongestFiringDurationCombination());
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(7));
 			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmTTK()) {
 			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getShortestTimeToKillCombination());
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(8));
 			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmOverkill()) {
 			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getLowestOverkillCombination());
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(9));
 			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmAccuracy()) {
 			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getHighestAccuracyCombination());
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(10));
 			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getBcmUtility()) {
 			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getMostUtilityCombination());
+			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(11));
 			gui.deactivateThinkingCursor();
 		}
 		
