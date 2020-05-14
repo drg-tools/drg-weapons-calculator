@@ -504,4 +504,168 @@ public class WeaponStatsGenerator {
 		
 		return bestCombination;
 	}
+	
+	// This method is currently used only for finding best builds using a pre-selected partial build from the GUI, but it would have also been used for multi-threading if I hadn't fixed that "many times updating GUI" bug last patch.
+	public String getBestMetricCombination(int metricIndex, int[] tier1Subset, int[] tier2Subset, int[] tier3Subset, int[] tier4Subset, int[] tier5Subset, int[] overclocksSubset) {
+		if (metricIndex < 0 || metricIndex > headers.length - 2) {
+			return "------";
+		}
+		
+		if (tier1Subset.length != 2 || tier2Subset.length != 2 || tier3Subset.length != 2 || tier4Subset.length != 2 || tier5Subset.length != 2 || overclocksSubset.length != 2) {
+			return "------";
+		}
+		
+		if (tier1Subset[0] > tier1Subset[1] || tier1Subset[0] < -1 || tier1Subset[0] > weaponToTest.getModsAtTier(1).length - 1 || tier1Subset[1] < -1 || tier1Subset[1] > weaponToTest.getModsAtTier(1).length - 1) {
+			return "------";
+		}
+		if (tier2Subset[0] > tier2Subset[1] || tier2Subset[0] < -1 || tier2Subset[0] > weaponToTest.getModsAtTier(2).length - 1 || tier2Subset[1] < -1 || tier2Subset[1] > weaponToTest.getModsAtTier(2).length - 1) {
+			return "------";
+		}
+		if (tier3Subset[0] > tier3Subset[1] || tier3Subset[0] < -1 || tier3Subset[0] > weaponToTest.getModsAtTier(3).length - 1 || tier3Subset[1] < -1 || tier3Subset[1] > weaponToTest.getModsAtTier(3).length - 1) {
+			return "------";
+		}
+		if (tier4Subset[0] > tier4Subset[1] || tier4Subset[0] < -1 || tier4Subset[0] > weaponToTest.getModsAtTier(4).length - 1 || tier4Subset[1] < -1 || tier4Subset[1] > weaponToTest.getModsAtTier(4).length - 1) {
+			return "------";
+		}
+		if (tier5Subset[0] > tier5Subset[1] || tier5Subset[0] < -1 || tier5Subset[0] > weaponToTest.getModsAtTier(5).length - 1 || tier5Subset[1] < -1 || tier5Subset[1] > weaponToTest.getModsAtTier(5).length - 1) {
+			return "------";
+		}
+		if (overclocksSubset[0] > overclocksSubset[1] || overclocksSubset[0] < -1 || overclocksSubset[0] > weaponToTest.getOverclocks().length - 1 || overclocksSubset[1] < -1 || overclocksSubset[1] > weaponToTest.getOverclocks().length - 1) {
+			return "------";
+		}
+		
+		// Set these boolean values once instead of evaluating tier 1 about 3000 times
+		boolean onlyOneTier1 = tier1Subset[0] == tier1Subset[1];
+		boolean onlyOneTier2 = tier2Subset[0] == tier2Subset[1];
+		boolean onlyOneTier3 = tier3Subset[0] == tier3Subset[1];
+		boolean onlyOneTier4 = tier4Subset[0] == tier4Subset[1];
+		boolean onlyOneTier5 = tier5Subset[0] == tier5Subset[1];
+		boolean onlyOneOC = overclocksSubset[0] == overclocksSubset[1];
+		
+		/*
+			This is important: because the current Weapon ALREADY has the wanted partial combination pre-selected when the menu for "Best Metric" gets called,
+			DO NOT, I repeat, DO NOT set the mod or overclock again, because that just un-sets it.
+		*/
+		
+		// Fastest TTK, Lowest Overkill both should be lowest-possible values
+		Integer[] indexesThatShouldUseLessThan = new Integer[] {8, 9};
+		boolean comparatorShouldBeLessThan = new HashSet<Integer>(Arrays.asList(indexesThatShouldUseLessThan)).contains(metricIndex);
+		
+		String bestCombination = weaponToTest.getCombination();
+		double bestValue, currentValue;
+		// To the best of my knowledge, none of these values goes above 200k, so setting the starting "best" value at 1 million should automatically make the first combination tried the best
+		if (comparatorShouldBeLessThan) {
+			bestValue = 1000000;
+		}
+		else {
+			bestValue = -1000000;
+		}
+		
+		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
+		for (int oc = overclocksSubset[0]; oc <= overclocksSubset[1]; oc++) {
+			if (!onlyOneOC) {
+				weaponToTest.setSelectedOverclock(oc, false);
+			}
+			
+			for (int t5 = tier5Subset[0]; t5 <= tier5Subset[1]; t5++) {
+				if (!onlyOneTier5) {
+					weaponToTest.setSelectedModAtTier(5, t5, false);
+				}
+				
+				for (int t4 = tier4Subset[0]; t4 <= tier4Subset[1]; t4++) {
+					if (!onlyOneTier4) {
+						weaponToTest.setSelectedModAtTier(4, t4, false);
+					}
+					
+					for (int t3 = tier3Subset[0]; t3 <= tier3Subset[1]; t3++) {
+						if (!onlyOneTier3) {
+							weaponToTest.setSelectedModAtTier(3, t3, false);
+						}
+						
+						for (int t2 = tier2Subset[0]; t2 <= tier2Subset[1]; t2++) {
+							if (!onlyOneTier2) {
+								weaponToTest.setSelectedModAtTier(2, t2, false);
+							}
+							
+							for (int t1 = tier1Subset[0]; t1 <= tier1Subset[1]; t1++) {
+								if (!onlyOneTier1) {
+									weaponToTest.setSelectedModAtTier(1, t1, false);
+								}
+								
+								switch (metricIndex) {
+									case 0:{
+										currentValue = weaponToTest.calculateIdealBurstDPS();
+										break;
+									}
+									case 1:{
+										currentValue = weaponToTest.calculateIdealSustainedDPS();
+										break;
+									}
+									case 2:{
+										currentValue = weaponToTest.sustainedWeakpointDPS();
+										break;
+									}
+									case 3:{
+										currentValue = weaponToTest.sustainedWeakpointAccuracyDPS();
+										break;
+									}
+									case 4:{
+										currentValue = weaponToTest.calculateAdditionalTargetDPS();
+										break;
+									}
+									case 5:{
+										currentValue = weaponToTest.calculateMaxMultiTargetDamage();
+										break;
+									}
+									case 6:{
+										currentValue = weaponToTest.calculateMaxNumTargets();
+										break;
+									}
+									case 7:{
+										currentValue = weaponToTest.calculateFiringDuration();
+										break;
+									}
+									case 8:{
+										currentValue = weaponToTest.averageTimeToKill();
+										break;
+									}
+									case 9:{
+										currentValue = weaponToTest.averageOverkill();
+										break;
+									}
+									case 10:{
+										currentValue = weaponToTest.estimatedAccuracy(false);
+										break;
+									}
+									case 11:{
+										currentValue = weaponToTest.utilityScore();
+										break;
+									}
+									default: {
+										currentValue = 0;
+										break;
+									}
+								}
+								
+								if (comparatorShouldBeLessThan) {
+									if (currentValue < bestValue) {
+										bestCombination = weaponToTest.getCombination();
+										bestValue = currentValue;
+									}
+								}
+								else {
+									if (currentValue > bestValue) {
+										bestCombination = weaponToTest.getCombination();
+										bestValue = currentValue;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		return bestCombination;
+	}
 }
