@@ -613,11 +613,6 @@ public class Zhukov extends Weapon {
 	}
 
 	@Override
-	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
-	}
-
-	@Override
 	public double averageOverkill() {
 		// Because the Overclock "Gas Recycling" removes the ability to get any weakpoint bonus damage, that has to be modeled here.
 		double dmgPerShot;

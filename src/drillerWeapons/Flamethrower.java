@@ -592,11 +592,6 @@ public class Flamethrower extends Weapon {
 	}
 
 	@Override
-	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
-	}
-
-	@Override
 	public double averageOverkill() {
 		double dmgPerShot = getParticleDamage();
 		double enemyHP = EnemyInformation.averageHealthPool();

@@ -671,11 +671,6 @@ public class EPC_RegularShot extends Weapon {
 	}
 
 	@Override
-	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / calculateIdealSustainedDPS();
-	}
-
-	@Override
 	public double averageOverkill() {
 		double dmgPerShot = getDirectDamage();
 		double enemyHP = EnemyInformation.averageHealthPool();

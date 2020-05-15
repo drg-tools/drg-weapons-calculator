@@ -595,11 +595,6 @@ public class GrenadeLauncher extends Weapon {
 	}
 
 	@Override
-	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
-	}
-
-	@Override
 	public double averageOverkill() {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage()) + getAreaDamage();
 		double enemyHP = EnemyInformation.averageHealthPool();

@@ -729,11 +729,6 @@ public class EPC_ChargeShot extends Weapon {
 	}
 
 	@Override
-	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / calculateIdealSustainedDPS();
-	}
-
-	@Override
 	public double averageOverkill() {
 		double dmgPerShot = getChargedDirectDamage() + getChargedAreaDamage();
 		double enemyHP = EnemyInformation.averageHealthPool();

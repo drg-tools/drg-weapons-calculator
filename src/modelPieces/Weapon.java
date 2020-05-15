@@ -651,7 +651,9 @@ public abstract class Weapon extends Observable {
 	}
 	
 	public abstract double calculateFiringDuration();
-	public abstract double averageTimeToKill();  // Average health of an enemy divided by weakpoint sustained DPS
+	public double averageTimeToKill() {
+		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
+	}
 	public abstract double averageOverkill();  // (Total Damage done / Avg Health) - 1.0
 	public abstract double estimatedAccuracy(boolean weakpointAccuracy); // -1 means manual or N/A; [0.00, 1.00] otherwise
 	public abstract double utilityScore();

@@ -621,11 +621,6 @@ public class SMG extends Weapon {
 	}
 
 	@Override
-	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
-	}
-
-	@Override
 	public double averageOverkill() {
 		double dmgPerShot = calculateDamagePerBullet(true);
 		double enemyHP = EnemyInformation.averageHealthPool();

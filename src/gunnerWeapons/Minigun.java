@@ -844,11 +844,6 @@ public class Minigun extends Weapon {
 	}
 
 	@Override
-	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
-	}
-
-	@Override
 	public double averageOverkill() {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet());
 		double enemyHP = EnemyInformation.averageHealthPool();

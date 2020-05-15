@@ -680,11 +680,6 @@ public class BurstPistol extends Weapon {
 	}
 
 	@Override
-	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
-	}
-
-	@Override
 	public double averageOverkill() {
 		double dmgPerShot = calculateDamagePerBurst(true);
 		double enemyHP = EnemyInformation.averageHealthPool();
