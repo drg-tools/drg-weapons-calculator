@@ -674,13 +674,11 @@ public class Boomstick extends Weapon {
 			return getCarriedAmmo() * getReloadTime();
 		}
 	}
-
+	
 	@Override
-	public double averageOverkill() {
-		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet() * getNumberOfPellets());
-		double enemyHP = EnemyInformation.averageHealthPool();
-		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
-		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
+	protected double averageDamageToKillEnemy() {
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet()) * getNumberOfPellets();
+		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
 	@Override
@@ -699,6 +697,12 @@ public class Boomstick extends Weapon {
 			crosshairWidthPixels = 468;
 		}
 		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, true, crosshairWidthPixels, crosshairHeightPixels);
+	}
+	
+	@Override
+	public int breakpoints() {
+		
+		return 0;
 	}
 
 	@Override

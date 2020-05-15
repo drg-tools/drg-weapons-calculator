@@ -669,18 +669,23 @@ public class EPC_RegularShot extends Weapon {
 		double numBursts = (double) getBatterySize() / (double) burstSize;
 		return numBursts * timeToFireBurst + numReloads(getBatterySize(), burstSize) * getCooldownDuration();
 	}
-
+	
 	@Override
-	public double averageOverkill() {
+	protected double averageDamageToKillEnemy() {
+		// TODO: should this be increased by Weakpoint bonus?
 		double dmgPerShot = getDirectDamage();
-		double enemyHP = EnemyInformation.averageHealthPool();
-		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
-		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
+		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		return -1.0;
+	}
+	
+	@Override
+	public int breakpoints() {
+		
+		return 0;
 	}
 
 	@Override

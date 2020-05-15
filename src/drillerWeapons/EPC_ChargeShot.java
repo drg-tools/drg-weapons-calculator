@@ -727,19 +727,22 @@ public class EPC_ChargeShot extends Weapon {
 		int numChargedShots = (int) Math.ceil(getBatterySize() / getAmmoPerChargedShot());
 		return numChargedShots * firingInterval;
 	}
-
+	
 	@Override
-	public double averageOverkill() {
+	protected double averageDamageToKillEnemy() {
 		double dmgPerShot = getChargedDirectDamage() + getChargedAreaDamage();
-		double enemyHP = EnemyInformation.averageHealthPool();
-		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
-		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
+		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		// Manually aimed; return -1
 		return -1.0;
+	}
+	
+	@Override
+	public int breakpoints() {
+		
+		return 0;
 	}
 
 	@Override

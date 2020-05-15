@@ -593,19 +593,23 @@ public class GrenadeLauncher extends Weapon {
 		// This is equivalent to counting how many times it has to reload, which is one less than the carried ammo + 1 in the chamber
 		return getCarriedAmmo() * reloadTime;
 	}
-
+	
 	@Override
-	public double averageOverkill() {
+	protected double averageDamageToKillEnemy() {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage()) + getAreaDamage();
-		double enemyHP = EnemyInformation.averageHealthPool();
-		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
-		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
+		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		// Manually aimed; return -1
+		// This stat is only applicable to "gun"-type weapons
 		return -1.0;
+	}
+	
+	@Override
+	public int breakpoints() {
+		
+		return 0;
 	}
 
 	@Override

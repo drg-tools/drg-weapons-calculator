@@ -654,8 +654,15 @@ public abstract class Weapon extends Observable {
 	public double averageTimeToKill() {
 		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
 	}
-	public abstract double averageOverkill();  // (Total Damage done / Avg Health) - 1.0
+	protected abstract double averageDamageToKillEnemy();
+	public double averageOverkill() {
+		return ((averageDamageToKillEnemy() / EnemyInformation.averageHealthPool()) - 1.0) * 100.0;
+	}
+	public double ammoEfficiency() {
+		return calculateMaxMultiTargetDamage() / averageDamageToKillEnemy();
+	}
 	public abstract double estimatedAccuracy(boolean weakpointAccuracy); // -1 means manual or N/A; [0.00, 1.00] otherwise
+	public abstract int breakpoints();
 	public abstract double utilityScore();
 	
 	// This method is used to explain how the Utility Scores are calculated for the UtilityBreakdownButton

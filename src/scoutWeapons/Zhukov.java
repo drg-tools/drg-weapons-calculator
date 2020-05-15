@@ -611,9 +611,9 @@ public class Zhukov extends Weapon {
 		double timeToFireMagazine = ((double) effectiveMagazineSize) / effectiveRoF;
 		return numMagazines(effectiveCarriedAmmo, effectiveMagazineSize) * timeToFireMagazine + numReloads(effectiveCarriedAmmo, effectiveMagazineSize) * getReloadTime();
 	}
-
+	
 	@Override
-	public double averageOverkill() {
+	protected double averageDamageToKillEnemy() {
 		// Because the Overclock "Gas Recycling" removes the ability to get any weakpoint bonus damage, that has to be modeled here.
 		double dmgPerShot;
 		if (selectedOverclock == 4) {
@@ -623,9 +623,7 @@ public class Zhukov extends Weapon {
 			dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus());
 		}
 		
-		double enemyHP = EnemyInformation.averageHealthPool();
-		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
-		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
+		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
 	@Override
@@ -637,6 +635,12 @@ public class Zhukov extends Weapon {
 		double crosshairWidthPixels = unchangingWidth + changingWidth * getBaseSpread();
 		
 		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, true, crosshairWidthPixels, crosshairHeightPixels);
+	}
+	
+	@Override
+	public int breakpoints() {
+		
+		return 0;
 	}
 
 	@Override
