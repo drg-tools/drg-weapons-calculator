@@ -144,34 +144,40 @@ public class View extends JFrame implements Observer {
 		menuBar = new JMenuBar();
 		
 		// Overall Best Combinations menu
-		overallBestCombinations = new JMenuItem[12];
+		overallBestCombinations = new JMenuItem[15];
 		overallBestCombinations[0] = new JMenuItem("Best Ideal Burst DPS");
 		overallBestCombinations[1] = new JMenuItem("Best Ideal Sustained DPS");
 		overallBestCombinations[2] = new JMenuItem("Best Sustained + Weakpoint DPS");
 		overallBestCombinations[3] = new JMenuItem("Best Sustained + Weakpoint + Accuracy DPS");
 		overallBestCombinations[4] = new JMenuItem("Best Additional Target DPS");
-		overallBestCombinations[5] = new JMenuItem("Most Multi-Target Damage");
-		overallBestCombinations[6] = new JMenuItem("Most Number of Targets Hit");
-		overallBestCombinations[7] = new JMenuItem("Longest Firing Duration");
-		overallBestCombinations[8] = new JMenuItem("Fastest Avg Time To Kill");
-		overallBestCombinations[9] = new JMenuItem("Lowest Avg Overkill");
-		overallBestCombinations[10] = new JMenuItem("Highest Accuracy");
-		overallBestCombinations[11] = new JMenuItem("Most Utility");
+		overallBestCombinations[5] = new JMenuItem("Most Number of Targets Hit");
+		overallBestCombinations[6] = new JMenuItem("Most Multi-Target Damage");
+		overallBestCombinations[7] = new JMenuItem("Most Ammo Efficient");
+		overallBestCombinations[8] = new JMenuItem("Highest General Accuracy");
+		overallBestCombinations[9] = new JMenuItem("Highest Weakpoint Accuracy");
+		overallBestCombinations[10] = new JMenuItem("Longest Firing Duration");
+		overallBestCombinations[11] = new JMenuItem("Lowest Avg Overkill");
+		overallBestCombinations[12] = new JMenuItem("Fastest Avg Time To Kill");
+		overallBestCombinations[13] = new JMenuItem("Lowest Breakpoints");
+		overallBestCombinations[14] = new JMenuItem("Most Utility");
 		
 		// Subset Best Combinations menu
-		subsetBestCombinations = new JMenuItem[12];
+		subsetBestCombinations = new JMenuItem[15];
 		subsetBestCombinations[0] = new JMenuItem("Best Ideal Burst DPS");
 		subsetBestCombinations[1] = new JMenuItem("Best Ideal Sustained DPS");
 		subsetBestCombinations[2] = new JMenuItem("Best Sustained + Weakpoint DPS");
 		subsetBestCombinations[3] = new JMenuItem("Best Sustained + Weakpoint + Accuracy DPS");
 		subsetBestCombinations[4] = new JMenuItem("Best Additional Target DPS");
-		subsetBestCombinations[5] = new JMenuItem("Most Multi-Target Damage");
-		subsetBestCombinations[6] = new JMenuItem("Most Number of Targets Hit");
-		subsetBestCombinations[7] = new JMenuItem("Longest Firing Duration");
-		subsetBestCombinations[8] = new JMenuItem("Fastest Avg Time To Kill");
-		subsetBestCombinations[9] = new JMenuItem("Lowest Avg Overkill");
-		subsetBestCombinations[10] = new JMenuItem("Highest Accuracy");
-		subsetBestCombinations[11] = new JMenuItem("Most Utility");
+		subsetBestCombinations[5] = new JMenuItem("Most Number of Targets Hit");
+		subsetBestCombinations[6] = new JMenuItem("Most Multi-Target Damage");
+		subsetBestCombinations[7] = new JMenuItem("Most Ammo Efficient");
+		subsetBestCombinations[8] = new JMenuItem("Highest General Accuracy");
+		subsetBestCombinations[9] = new JMenuItem("Highest Weakpoint Accuracy");
+		subsetBestCombinations[10] = new JMenuItem("Longest Firing Duration");
+		subsetBestCombinations[11] = new JMenuItem("Lowest Avg Overkill");
+		subsetBestCombinations[12] = new JMenuItem("Fastest Avg Time To Kill");
+		subsetBestCombinations[13] = new JMenuItem("Lowest Breakpoints");
+		subsetBestCombinations[14] = new JMenuItem("Most Utility");
 		
 		overallBestCombinationsMenu = new JMenu("Best Combinations (All)");
 		subsetBestCombinationsMenu = new JMenu("Best Combinations (Subset)");

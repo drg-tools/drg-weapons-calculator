@@ -277,18 +277,9 @@ public abstract class Weapon extends Observable {
 		}
 		
 		baselineCalculatedStats = new double[] {
-			calculateIdealBurstDPS(),
-			calculateIdealSustainedDPS(),
-			sustainedWeakpointDPS(),
-			sustainedWeakpointAccuracyDPS(),
-			calculateAdditionalTargetDPS(),
-			calculateMaxMultiTargetDamage(),
-			(double) calculateMaxNumTargets(),
-			calculateFiringDuration(),
-			averageTimeToKill(),
-			averageOverkill(),
-			estimatedAccuracy(false),
-			utilityScore()
+			calculateIdealBurstDPS(), calculateIdealSustainedDPS(), sustainedWeakpointDPS(), sustainedWeakpointAccuracyDPS(), calculateAdditionalTargetDPS(), 
+			calculateMaxNumTargets(), calculateMaxMultiTargetDamage(), ammoEfficiency(), estimatedAccuracy(false), estimatedAccuracy(true),
+			calculateFiringDuration(), averageOverkill(), averageTimeToKill(), breakpoints(), utilityScore()
 		};
 		selectedTier1 = oldT1;
 		selectedTier2 = oldT2;
@@ -683,9 +674,9 @@ public abstract class Weapon extends Observable {
 	// Shortcut method for WeaponStatsGenerator
 	public double[] getMetrics() {
 		return new double[]{
-			calculateIdealBurstDPS(), calculateIdealSustainedDPS(), sustainedWeakpointDPS(), sustainedWeakpointAccuracyDPS(),
-			calculateAdditionalTargetDPS(), calculateMaxMultiTargetDamage(), calculateMaxNumTargets(), calculateFiringDuration(),
-			averageTimeToKill(), averageOverkill(), estimatedAccuracy(false), utilityScore()
+			calculateIdealBurstDPS(), calculateIdealSustainedDPS(), sustainedWeakpointDPS(), sustainedWeakpointAccuracyDPS(), calculateAdditionalTargetDPS(), 
+			calculateMaxNumTargets(), calculateMaxMultiTargetDamage(), ammoEfficiency(), estimatedAccuracy(false), estimatedAccuracy(true),
+			calculateFiringDuration(), averageOverkill(), averageTimeToKill(), breakpoints(), utilityScore()
 		};
 	}
 }

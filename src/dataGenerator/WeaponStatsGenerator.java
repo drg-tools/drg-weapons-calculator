@@ -25,8 +25,9 @@ public class WeaponStatsGenerator {
 		csvFilePath = csvFolderPath + "\\" + weaponPackage + "_" + weaponClassName + ".csv";
 		
 		headers = new String[] {"Mods/OC", "Ideal Burst DPS", "Ideal Sustained DPS", "Sustained DPS (+Weakpoints)", 
-								"Sustained DPS (+Weakpoints, +Accuracy)", "Ideal Additional Target DPS", "Max Multi-Target Dmg", 
-								"Max Num Targets", "Firing Duration", "Avg TTK", "Avg Overkill", "Accuracy", "Utility"};
+								"Sustained DPS (+Weakpoints, +Accuracy)", "Ideal Additional Target DPS", "Max Num Targets", 
+								"Max Multi-Target Dmg", "Ammo Efficiency", "General Accuracy", "Weakpoint Accuracy", 
+								"Firing Duration", "Avg Overkill", "Avg TTK", "Breakpoints", "Utility"};
 		csvLinesToWrite = new ArrayList<String>();
 	}
 	
@@ -35,16 +36,16 @@ public class WeaponStatsGenerator {
 	}
 	public void setCSVFolderPath(String newPath) {
 		csvFolderPath = newPath;
-		String weaponPackage = weaponToTest.getDwarfClass();
-		String weaponClassName = weaponToTest.getSimpleName();
-		csvFilePath = csvFolderPath + "\\" + weaponPackage + "_" + weaponClassName + ".csv";
+		String weaponClass = weaponToTest.getDwarfClass();
+		String weaponName = weaponToTest.getSimpleName();
+		csvFilePath = csvFolderPath + "\\" + weaponClass + "_" + weaponName + ".csv";
 	}
 	
 	public void changeWeapon(Weapon newWeaponToCalculate) {
 		weaponToTest = newWeaponToCalculate;
-		String weaponPackage = weaponToTest.getDwarfClass();
-		String weaponClassName = weaponToTest.getSimpleName();
-		csvFilePath = csvFolderPath + "\\" + weaponPackage + "_" + weaponClassName + ".csv";
+		String weaponClass = weaponToTest.getDwarfClass();
+		String weaponName = weaponToTest.getSimpleName();
+		csvFilePath = csvFolderPath + "\\" + weaponClass + "_" + weaponName + ".csv";
 		
 		// Proactively clear out the old CSV lines, since they won't be applicable to the new Weapon
 		csvLinesToWrite = new ArrayList<String>();
@@ -395,13 +396,13 @@ public class WeaponStatsGenerator {
 			return "------";
 		}
 		
-		// Fastest TTK, Lowest Overkill both should be lowest-possible values
-		Integer[] indexesThatShouldUseLessThan = new Integer[] {8, 9};
+		// Lowest Overkill, Fastest TTK, and Breakpoints should all be lowest-possible values
+		Integer[] indexesThatShouldUseLessThan = new Integer[] {11, 12, 13};
 		boolean comparatorShouldBeLessThan = new HashSet<Integer>(Arrays.asList(indexesThatShouldUseLessThan)).contains(metricIndex);
 		
-		String bestCombination = weaponToTest.getCombination();
+		String bestCombination = "------";
 		double bestValue, currentValue;
-		// To the best of my knowledge, none of these values goes above 200k, so setting the starting "best" value at 1 million should automatically make the first combination tried the best
+		// To the best of my knowledge, none of these values goes above 200k, so setting the starting "best" value at 1 million should automatically make the first combination tried the new best
 		if (comparatorShouldBeLessThan) {
 			bestValue = 1000000;
 		}
@@ -450,30 +451,42 @@ public class WeaponStatsGenerator {
 										break;
 									}
 									case 5:{
-										currentValue = weaponToTest.calculateMaxMultiTargetDamage();
-										break;
-									}
-									case 6:{
 										currentValue = weaponToTest.calculateMaxNumTargets();
 										break;
 									}
+									case 6:{
+										currentValue = weaponToTest.calculateMaxMultiTargetDamage();
+										break;
+									}
 									case 7:{
-										currentValue = weaponToTest.calculateFiringDuration();
+										currentValue = weaponToTest.ammoEfficiency();
 										break;
 									}
 									case 8:{
-										currentValue = weaponToTest.averageTimeToKill();
-										break;
-									}
-									case 9:{
-										currentValue = weaponToTest.averageOverkill();
-										break;
-									}
-									case 10:{
 										currentValue = weaponToTest.estimatedAccuracy(false);
 										break;
 									}
+									case 9:{
+										currentValue = weaponToTest.estimatedAccuracy(true);
+										break;
+									}
+									case 10:{
+										currentValue = weaponToTest.calculateFiringDuration();
+										break;
+									}
 									case 11:{
+										currentValue = weaponToTest.averageOverkill();
+										break;
+									}
+									case 12:{
+										currentValue = weaponToTest.averageTimeToKill();
+										break;
+									}
+									case 13:{
+										currentValue = weaponToTest.breakpoints();
+										break;
+									}
+									case 14:{
 										currentValue = weaponToTest.utilityScore();
 										break;
 									}
@@ -547,13 +560,13 @@ public class WeaponStatsGenerator {
 			DO NOT, I repeat, DO NOT set the mod or overclock again, because that just un-sets it.
 		*/
 		
-		// Fastest TTK, Lowest Overkill both should be lowest-possible values
-		Integer[] indexesThatShouldUseLessThan = new Integer[] {8, 9};
+		// Lowest Overkill, Fastest TTK, and Breakpoints should all be lowest-possible values
+		Integer[] indexesThatShouldUseLessThan = new Integer[] {11, 12, 13};
 		boolean comparatorShouldBeLessThan = new HashSet<Integer>(Arrays.asList(indexesThatShouldUseLessThan)).contains(metricIndex);
 		
-		String bestCombination = weaponToTest.getCombination();
+		String bestCombination = "------";
 		double bestValue, currentValue;
-		// To the best of my knowledge, none of these values goes above 200k, so setting the starting "best" value at 1 million should automatically make the first combination tried the best
+		// To the best of my knowledge, none of these values goes above 200k, so setting the starting "best" value at 1 million should automatically make the first combination tried the new best
 		if (comparatorShouldBeLessThan) {
 			bestValue = 1000000;
 		}
@@ -614,30 +627,42 @@ public class WeaponStatsGenerator {
 										break;
 									}
 									case 5:{
-										currentValue = weaponToTest.calculateMaxMultiTargetDamage();
-										break;
-									}
-									case 6:{
 										currentValue = weaponToTest.calculateMaxNumTargets();
 										break;
 									}
+									case 6:{
+										currentValue = weaponToTest.calculateMaxMultiTargetDamage();
+										break;
+									}
 									case 7:{
-										currentValue = weaponToTest.calculateFiringDuration();
+										currentValue = weaponToTest.ammoEfficiency();
 										break;
 									}
 									case 8:{
-										currentValue = weaponToTest.averageTimeToKill();
-										break;
-									}
-									case 9:{
-										currentValue = weaponToTest.averageOverkill();
-										break;
-									}
-									case 10:{
 										currentValue = weaponToTest.estimatedAccuracy(false);
 										break;
 									}
+									case 9:{
+										currentValue = weaponToTest.estimatedAccuracy(true);
+										break;
+									}
+									case 10:{
+										currentValue = weaponToTest.calculateFiringDuration();
+										break;
+									}
 									case 11:{
+										currentValue = weaponToTest.averageOverkill();
+										break;
+									}
+									case 12:{
+										currentValue = weaponToTest.averageTimeToKill();
+										break;
+									}
+									case 13:{
+										currentValue = weaponToTest.breakpoints();
+										break;
+									}
+									case 14:{
 										currentValue = weaponToTest.utilityScore();
 										break;
 									}
