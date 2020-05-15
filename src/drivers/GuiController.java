@@ -252,68 +252,26 @@ public class GuiController implements ActionListener {
 			ocsSubset = new int[] {-1, currentlySelectedWeapon.getOverclocks().length - 1};
 		}
 		
-		if (e == gui.getBcmIdealBurst()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(0));
-			gui.deactivateThinkingCursor();
-		}
-		else if (e == gui.getBcmIdealSustained()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(1));
-			gui.deactivateThinkingCursor();
-		}
-		else if (e == gui.getBcmSustainedWeakpoint()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(2));
-			gui.deactivateThinkingCursor();
-		}
-		else if (e == gui.getBcmSustainedWeakpointAccuracy()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(3));
-			gui.deactivateThinkingCursor();
-		}
-		else if (e == gui.getBcmIdealAdditional()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(4));
-			gui.deactivateThinkingCursor();
-		}
-		else if (e == gui.getBcmMaxDmg()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(5));
-			gui.deactivateThinkingCursor();
-		}
-		else if (e == gui.getBcmMaxNumTargets()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(6));
-			gui.deactivateThinkingCursor();
-		}
-		else if (e == gui.getBcmDuration()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(7));
-			gui.deactivateThinkingCursor();
-		}
-		else if (e == gui.getBcmTTK()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(8));
-			gui.deactivateThinkingCursor();
-		}
-		else if (e == gui.getBcmOverkill()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(9));
-			gui.deactivateThinkingCursor();
-		}
-		else if (e == gui.getBcmAccuracy()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(10));
-			gui.deactivateThinkingCursor();
-		}
-		else if (e == gui.getBcmUtility()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(11));
-			gui.deactivateThinkingCursor();
+		for (int i = 0; i < currentlySelectedWeapon.getBaselineStats().length; i++) {
+			if (e == gui.getOverallBestCombination(i)) {
+				gui.activateThinkingCursor();
+				currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(i));
+				gui.deactivateThinkingCursor();
+				
+				// Empty return so that this method doesn't have to finish this for loop or evaluate the if/else block below afterwards
+				return;
+			}
+			else if (e == gui.getSubsetBestCombination(i)) {
+				gui.activateThinkingCursor();
+				currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(i, tier1Subset, tier2Subset, tier3Subset, tier4Subset, tier5Subset, ocsSubset));
+				gui.deactivateThinkingCursor();
+				
+				// Empty return so that this method doesn't have to finish this for loop or evaluate the if/else block below afterwards
+				return;
+			}
 		}
 		
-		else if (e == gui.getDSHaz1()) {
+		if (e == gui.getDSHaz1()) {
 			EnemyInformation.setHazardLevel(1);
 			gui.updateDifficultyScaling();
 		}

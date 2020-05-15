@@ -30,9 +30,10 @@ import utilities.ResourceLoader;
 public class View extends JFrame implements Observer {
 	
 	private JMenuBar menuBar;
-	private JMenu bestCombinationsMenu;
-	private JMenuItem bcmIdealBurst, bcmIdealSustained, bcmSustainedWeakpoint, bcmSustainedWeakpointAccuracy, bcmIdealAdditional, bcmMaxDmg, 
-					bcmMaxNumTargets, bcmDuration, bcmTTK, bcmOverkill, bcmAccuracy, bcmUtility;
+	private JMenu overallBestCombinationsMenu;
+	private JMenuItem[] overallBestCombinations;
+	private JMenu subsetBestCombinationsMenu;
+	private JMenuItem[] subsetBestCombinations;
 	private JMenu difficultyScalingMenu;
 	private ButtonGroup dsHazGroup, dsPCGroup;
 	private JRadioButton dsHaz1, dsHaz2, dsHaz3, dsHaz4, dsHaz5, dsPC1, dsPC2, dsPC3, dsPC4;
@@ -142,33 +143,46 @@ public class View extends JFrame implements Observer {
 	private void constructMenu() {
 		menuBar = new JMenuBar();
 		
-		// Best Combinations menu
-		bestCombinationsMenu = new JMenu("Best Combinations");
-		bcmIdealBurst = new JMenuItem("Best Ideal Burst DPS");
-		bestCombinationsMenu.add(bcmIdealBurst);
-		bcmIdealSustained = new JMenuItem("Best Ideal Sustained DPS");
-		bestCombinationsMenu.add(bcmIdealSustained);
-		bcmSustainedWeakpoint = new JMenuItem("Best Sustained + Weakpoint DPS");
-		bestCombinationsMenu.add(bcmSustainedWeakpoint);
-		bcmSustainedWeakpointAccuracy = new JMenuItem("Best Sustained + Weakpoint + Accuracy DPS");
-		bestCombinationsMenu.add(bcmSustainedWeakpointAccuracy);
-		bcmIdealAdditional = new JMenuItem("Best Additional Target DPS");
-		bestCombinationsMenu.add(bcmIdealAdditional);
-		bcmMaxDmg = new JMenuItem("Most Multi-Target Damage");
-		bestCombinationsMenu.add(bcmMaxDmg);
-		bcmMaxNumTargets = new JMenuItem("Most Number of Targets Hit");
-		bestCombinationsMenu.add(bcmMaxNumTargets);
-		bcmDuration = new JMenuItem("Longest Firing Duration");
-		bestCombinationsMenu.add(bcmDuration);
-		bcmTTK = new JMenuItem("Fastest Avg Time To Kill");
-		bestCombinationsMenu.add(bcmTTK);
-		bcmOverkill = new JMenuItem("Lowest Avg Overkill");
-		bestCombinationsMenu.add(bcmOverkill);
-		bcmAccuracy = new JMenuItem("Highest Accuracy");
-		bestCombinationsMenu.add(bcmAccuracy);
-		bcmUtility = new JMenuItem("Most Utility");
-		bestCombinationsMenu.add(bcmUtility);
-		menuBar.add(bestCombinationsMenu);
+		// Overall Best Combinations menu
+		overallBestCombinations = new JMenuItem[12];
+		overallBestCombinations[0] = new JMenuItem("Best Ideal Burst DPS");
+		overallBestCombinations[1] = new JMenuItem("Best Ideal Sustained DPS");
+		overallBestCombinations[2] = new JMenuItem("Best Sustained + Weakpoint DPS");
+		overallBestCombinations[3] = new JMenuItem("Best Sustained + Weakpoint + Accuracy DPS");
+		overallBestCombinations[4] = new JMenuItem("Best Additional Target DPS");
+		overallBestCombinations[5] = new JMenuItem("Most Multi-Target Damage");
+		overallBestCombinations[6] = new JMenuItem("Most Number of Targets Hit");
+		overallBestCombinations[7] = new JMenuItem("Longest Firing Duration");
+		overallBestCombinations[8] = new JMenuItem("Fastest Avg Time To Kill");
+		overallBestCombinations[9] = new JMenuItem("Lowest Avg Overkill");
+		overallBestCombinations[10] = new JMenuItem("Highest Accuracy");
+		overallBestCombinations[11] = new JMenuItem("Most Utility");
+		
+		// Subset Best Combinations menu
+		subsetBestCombinations = new JMenuItem[12];
+		subsetBestCombinations[0] = new JMenuItem("Best Ideal Burst DPS");
+		subsetBestCombinations[1] = new JMenuItem("Best Ideal Sustained DPS");
+		subsetBestCombinations[2] = new JMenuItem("Best Sustained + Weakpoint DPS");
+		subsetBestCombinations[3] = new JMenuItem("Best Sustained + Weakpoint + Accuracy DPS");
+		subsetBestCombinations[4] = new JMenuItem("Best Additional Target DPS");
+		subsetBestCombinations[5] = new JMenuItem("Most Multi-Target Damage");
+		subsetBestCombinations[6] = new JMenuItem("Most Number of Targets Hit");
+		subsetBestCombinations[7] = new JMenuItem("Longest Firing Duration");
+		subsetBestCombinations[8] = new JMenuItem("Fastest Avg Time To Kill");
+		subsetBestCombinations[9] = new JMenuItem("Lowest Avg Overkill");
+		subsetBestCombinations[10] = new JMenuItem("Highest Accuracy");
+		subsetBestCombinations[11] = new JMenuItem("Most Utility");
+		
+		overallBestCombinationsMenu = new JMenu("Best Combinations (All)");
+		subsetBestCombinationsMenu = new JMenu("Best Combinations (Subset)");
+		
+		// This for loop depends on overallBestCombinations and subsetBestCombinations being the same length
+		for (int i = 0; i < overallBestCombinations.length; i++) {
+			overallBestCombinationsMenu.add(overallBestCombinations[i]);
+			subsetBestCombinationsMenu.add(subsetBestCombinations[i]);
+		}
+		menuBar.add(overallBestCombinationsMenu);
+		menuBar.add(subsetBestCombinationsMenu);
 		
 		// Difficulty Scaling menu
 		difficultyScalingMenu = new JMenu("Difficulty Scaling");
@@ -248,42 +262,22 @@ public class View extends JFrame implements Observer {
 	}
 	
 	// Getters used by GuiController
-	public JMenuItem getBcmIdealBurst() {
-		return bcmIdealBurst;
+	public JMenuItem getOverallBestCombination(int index) {
+		if (index < 0 || index > overallBestCombinations.length - 1) {
+			return null;
+		}
+		
+		return overallBestCombinations[index];
 	}
-	public JMenuItem getBcmIdealSustained() {
-		return bcmIdealSustained;
+	
+	public JMenuItem getSubsetBestCombination(int index) {
+		if (index < 0 || index > subsetBestCombinations.length - 1) {
+			return null;
+		}
+		
+		return subsetBestCombinations[index];
 	}
-	public JMenuItem getBcmSustainedWeakpoint() {
-		return bcmSustainedWeakpoint;
-	}
-	public JMenuItem getBcmSustainedWeakpointAccuracy() {
-		return bcmSustainedWeakpointAccuracy;
-	}
-	public JMenuItem getBcmIdealAdditional() {
-		return bcmIdealAdditional;
-	}
-	public JMenuItem getBcmMaxDmg() {
-		return bcmMaxDmg;
-	}
-	public JMenuItem getBcmMaxNumTargets() {
-		return bcmMaxNumTargets;
-	}
-	public JMenuItem getBcmDuration() {
-		return bcmDuration;
-	}
-	public JMenuItem getBcmTTK() {
-		return bcmTTK;
-	}
-	public JMenuItem getBcmOverkill() {
-		return bcmOverkill;
-	}
-	public JMenuItem getBcmAccuracy() {
-		return bcmAccuracy;
-	}
-	public JMenuItem getBcmUtility() {
-		return bcmUtility;
-	}
+	
 	
 	public JRadioButton getDSHaz1() {
 		return dsHaz1;
@@ -361,18 +355,10 @@ public class View extends JFrame implements Observer {
 	
 	// This method gets called by GuiController; I use it to add it as an ActionListener to all buttons and menu items in the GUI
 	public void activateButtonsAndMenus(ActionListener parent) {
-		bcmIdealBurst.addActionListener(parent);
-		bcmIdealSustained.addActionListener(parent);
-		bcmSustainedWeakpoint.addActionListener(parent);
-		bcmSustainedWeakpointAccuracy.addActionListener(parent);
-		bcmIdealAdditional.addActionListener(parent);
-		bcmMaxDmg.addActionListener(parent);
-		bcmMaxNumTargets.addActionListener(parent);
-		bcmDuration.addActionListener(parent);
-		bcmTTK.addActionListener(parent);
-		bcmOverkill.addActionListener(parent);
-		bcmAccuracy.addActionListener(parent);
-		bcmUtility.addActionListener(parent);
+		for (int i = 0; i < overallBestCombinations.length; i++) {
+			overallBestCombinations[i].addActionListener(parent);
+			subsetBestCombinations[i].addActionListener(parent);
+		}
 		
 		dsHaz1.addActionListener(parent);
 		dsHaz2.addActionListener(parent);
