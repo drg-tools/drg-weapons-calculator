@@ -4,10 +4,13 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JButton;
@@ -16,13 +19,15 @@ import javax.swing.JToolTip;
 import guiPieces.ButtonIcons.statusEffectIcons;
 import modelPieces.Weapon;
 
-public class StatusEffectButton extends JButton implements ActionListener  {
+public class StatusEffectButton extends JButton implements ActionListener, MouseMotionListener {
 	private static final long serialVersionUID = 1L;
 	
 	private Weapon myWeapon;
 	private BufferedImage icon;
 	private int myIndex;
 	private boolean enabled;
+	
+	private Polygon border;
 	
 	public StatusEffectButton(Weapon inputWeapon, int effectIndex, String effectName, String effectText, statusEffectIcons iconSelector, boolean effectEnabled) {
 		myWeapon = inputWeapon;
@@ -36,10 +41,12 @@ public class StatusEffectButton extends JButton implements ActionListener  {
 		this.setOpaque(false);
 		this.setContentAreaFilled(false);
 		this.setBorderPainted(false);
-		this.setCursor(CustomCursors.defaultCursorPlusQuestionMark);
 		
 		// Have each ModButton listen to itself for when it gets clicked to simplify the GuiController
 		this.addActionListener(this);
+		
+		// Have this button listen to itself for Mouse Movement too to add the question mark to the cursor when within the border
+		this.addMouseMotionListener(this);
 	}
 	
 	private Polygon createBackgroundHexagon() {
@@ -86,7 +93,7 @@ public class StatusEffectButton extends JButton implements ActionListener  {
 			hexagon width gets set, and then the hexagon's height gets calculated, and finally the icon's height/width gets scaled accordingly.
 			It's ok for now, but it should be done sooner rather than later.
 		 */
-		Polygon p = createBackgroundHexagon();
+		border = createBackgroundHexagon();
 		
 		Graphics2D g2 = (Graphics2D) g.create();
 		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
@@ -96,7 +103,7 @@ public class StatusEffectButton extends JButton implements ActionListener  {
 		g2.setStroke(new BasicStroke(GuiConstants.edgeWidth));
 		
 		g2.setPaint(GuiConstants.drgHighlightedYellow);
-		g2.drawPolygon(p);
+		g2.drawPolygon(border);
 		
 		// If this Mod isn't enabled, fill the background with black.
 		if (enabled) {
@@ -105,7 +112,7 @@ public class StatusEffectButton extends JButton implements ActionListener  {
 		else {
 			g2.setPaint(Color.black);
 		}
-		g2.fillPolygon(p);
+		g2.fillPolygon(border);
 		
 		// The icon and text have to be added at the same time since their position needs to be centered horizontally together
 		// Set this number to dynamically scale the icons to be the same size in all the buttons
@@ -121,7 +128,7 @@ public class StatusEffectButton extends JButton implements ActionListener  {
 		int iconHorizontalOffset = textHorizontalOffset - GuiConstants.paddingPixels - (int) iconWidth - 4;
 		
 		// Draw a black regular hexagon around the colored status effect icons so that when the button gets pressed, the yellow background doesn't have bad contrast.
-		p = createIconHexagon((int) iconHeight + 6, iconHorizontalOffset - 6, iconVerticalOffset - 3);
+		Polygon p = createIconHexagon((int) iconHeight + 6, iconHorizontalOffset - 6, iconVerticalOffset - 3);
 		g2.setPaint(Color.black);
 		g2.fillPolygon(p);
 				
@@ -136,17 +143,6 @@ public class StatusEffectButton extends JButton implements ActionListener  {
 		}
 		g2.drawString(myText, textHorizontalOffset, textVerticalOffset);
 		g2.dispose();
-		
-		
-		
-		/*
-		String myText = this.getText();
-		int textWidth = g2.getFontMetrics().stringWidth(myText);
-		int textVerticalOffset = (int) Math.round((this.getHeight() + GuiConstants.fontHeight) / 2.0);
-		int textHorizontalOffset = (this.getWidth() - textWidth) / 2;
-		g2.drawString(myText, textHorizontalOffset, textVerticalOffset);
-		g2.dispose();
-		*/
 	}
 	
 	@Override
@@ -159,5 +155,22 @@ public class StatusEffectButton extends JButton implements ActionListener  {
 		// Because this button is only listening to itself, I'm skipping the standard "figure out what button got clicked" stuff.
 		// When this changes, the underlying Weapon will trigger a refresh of the overall GUI due to the Observable/Observer dynamic
 		myWeapon.setStatusEffect(myIndex, !enabled);
+	}
+	
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		// Do nothing if it's dragged
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		Point cursorHotspotLocation = e.getPoint();
+		
+		if (border.contains(cursorHotspotLocation)) {
+			this.setCursor(CustomCursors.defaultCursorPlusQuestionMark);
+		}
+		else {
+			this.setCursor(CustomCursors.defaultCursor);
+		}
 	}
 }

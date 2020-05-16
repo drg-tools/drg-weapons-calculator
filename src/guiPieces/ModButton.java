@@ -4,10 +4,13 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JButton;
@@ -16,7 +19,7 @@ import javax.swing.JToolTip;
 import guiPieces.ButtonIcons.modIcons;
 import modelPieces.Weapon;
 
-public class ModButton extends JButton implements ActionListener {
+public class ModButton extends JButton implements ActionListener, MouseMotionListener {
 	private static final long serialVersionUID = 1L;
 	
 	private Weapon myWeapon;
@@ -25,6 +28,8 @@ public class ModButton extends JButton implements ActionListener {
 	private int myIndex;
 	private boolean enabled;
 	private boolean implemented;
+	
+	private Polygon border;
 	
 	public ModButton(Weapon inputWeapon, int tier, int position, String modName, String modText, modIcons iconSelector, boolean modSelected, boolean modImplemented) {
 		myWeapon = inputWeapon;
@@ -40,10 +45,12 @@ public class ModButton extends JButton implements ActionListener {
 		this.setOpaque(false);
 		this.setContentAreaFilled(false);
 		this.setBorderPainted(false);
-		this.setCursor(CustomCursors.defaultCursorPlusQuestionMark);
 		
 		// Have each ModButton listen to itself for when it gets clicked to simplify the GuiController
 		this.addActionListener(this);
+		
+		// Have this button listen to itself for Mouse Movement too to add the question mark to the cursor when within the border
+		this.addMouseMotionListener(this);
 	}
 	
 	private Polygon createBackgroundHexagon() {
@@ -62,7 +69,7 @@ public class ModButton extends JButton implements ActionListener {
 	}
 	
 	public void paintComponent(Graphics g) {
-		Polygon p = createBackgroundHexagon();
+		border = createBackgroundHexagon();
 		
 		Graphics2D g2 = (Graphics2D) g.create();
 		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
@@ -78,7 +85,7 @@ public class ModButton extends JButton implements ActionListener {
 		else {
 			g2.setPaint(GuiConstants.drgOverclockUnstableRed);
 		}
-		g2.drawPolygon(p);
+		g2.drawPolygon(border);
 		
 		// If this Mod isn't enabled, fill the background with black.
 		if (enabled) {
@@ -87,7 +94,7 @@ public class ModButton extends JButton implements ActionListener {
 		else {
 			g2.setPaint(Color.black);
 		}
-		g2.fillPolygon(p);
+		g2.fillPolygon(border);
 		
 		// The icon and text have to be added at the same time since their position needs to be centered horizontally together
 		// Set this number to dynamically scale the icons to be the same size in all the buttons
@@ -124,5 +131,22 @@ public class ModButton extends JButton implements ActionListener {
 		// Because this button is only listening to itself, I'm skipping the standard "figure out what button got clicked" stuff.
 		// When this changes, the underlying Weapon will trigger a refresh of the overall GUI due to the Observable/Observer dynamic
 		myWeapon.setSelectedModAtTier(myTier, myIndex);
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		// Do nothing if it's dragged
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		Point cursorHotspotLocation = e.getPoint();
+		
+		if (border.contains(cursorHotspotLocation)) {
+			this.setCursor(CustomCursors.defaultCursorPlusQuestionMark);
+		}
+		else {
+			this.setCursor(CustomCursors.defaultCursor);
+		}
 	}
 }
