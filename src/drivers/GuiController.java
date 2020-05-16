@@ -159,8 +159,9 @@ public class GuiController implements ActionListener {
 		
 		// Open the MySQL file once, then dump the accumulated ArrayList of lines all at once to minimize I/O time
 		try {
+			File sqlOut = new File(calculator.getCSVFolderPath(), "buildStatistics.sql");
 			// Set append=False so that it clears out the old file
-			FileWriter MySQLwriter = new FileWriter(calculator.getCSVFolderPath() + "\\buildStatistics.sql", false);
+			FileWriter MySQLwriter = new FileWriter(sqlOut.getAbsolutePath(), false);
 			for (String line: mysqlCommands) {
 				MySQLwriter.append(line);
 			}
@@ -345,14 +346,14 @@ public class GuiController implements ActionListener {
 		
 		else if (e == gui.getMiscScreenshot()) {
 			chooseFolder();
-			String weaponPackage = currentlySelectedWeapon.getDwarfClass();
-			String weaponClassName = currentlySelectedWeapon.getSimpleName();
-			String filePath = calculator.getCSVFolderPath() + "\\" + weaponPackage + "_" + weaponClassName + "_" + currentlySelectedWeapon.getCombination() +".png";
+			String weaponClass = currentlySelectedWeapon.getDwarfClass();
+			String weaponName = currentlySelectedWeapon.getSimpleName();
+			File pngOut = new File(calculator.getCSVFolderPath(), weaponClass + "_" + weaponName + "_" + currentlySelectedWeapon.getCombination() +".png");
 			
 			// Sourced from https://stackoverflow.com/a/44019372
 			BufferedImage screenshot = gui.getScreenshot();
 			try {
-				ImageIO.write(screenshot, "png", new File(filePath));
+				ImageIO.write(screenshot, "png", pngOut);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}

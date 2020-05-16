@@ -1,5 +1,6 @@
 package dataGenerator;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,9 +21,10 @@ public class WeaponStatsGenerator {
 		weaponToTest = testingWeapon;
 		csvFolderPath = "";
 		
-		String weaponPackage = weaponToTest.getDwarfClass();
-		String weaponClassName = weaponToTest.getSimpleName();
-		csvFilePath = csvFolderPath + "\\" + weaponPackage + "_" + weaponClassName + ".csv";
+		String weaponClass = weaponToTest.getDwarfClass();
+		String weaponName = weaponToTest.getSimpleName();
+		File csvOut = new File(csvFolderPath, weaponClass + "_" + weaponName + ".csv");
+		csvFilePath = csvOut.getAbsolutePath();
 		
 		headers = new String[] {"Mods/OC", "Ideal Burst DPS", "Ideal Sustained DPS", "Sustained DPS (+Weakpoints)", 
 								"Sustained DPS (+Weakpoints, +Accuracy)", "Ideal Additional Target DPS", "Max Num Targets", 
@@ -38,14 +40,16 @@ public class WeaponStatsGenerator {
 		csvFolderPath = newPath;
 		String weaponClass = weaponToTest.getDwarfClass();
 		String weaponName = weaponToTest.getSimpleName();
-		csvFilePath = csvFolderPath + "\\" + weaponClass + "_" + weaponName + ".csv";
+		File csvOut = new File(csvFolderPath, weaponClass + "_" + weaponName + ".csv");
+		csvFilePath = csvOut.getAbsolutePath();
 	}
 	
 	public void changeWeapon(Weapon newWeaponToCalculate) {
 		weaponToTest = newWeaponToCalculate;
 		String weaponClass = weaponToTest.getDwarfClass();
 		String weaponName = weaponToTest.getSimpleName();
-		csvFilePath = csvFolderPath + "\\" + weaponClass + "_" + weaponName + ".csv";
+		File csvOut = new File(csvFolderPath, weaponClass + "_" + weaponName + ".csv");
+		csvFilePath = csvOut.getAbsolutePath();
 		
 		// Proactively clear out the old CSV lines, since they won't be applicable to the new Weapon
 		csvLinesToWrite = new ArrayList<String>();
