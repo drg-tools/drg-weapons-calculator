@@ -345,14 +345,11 @@ public class WeaponStatsGenerator {
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
 								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
-								toReturn.add(String.format("INSERT INTO `%s` VALUES(NULL, %d, %d, '%s', '%s', %f, %f, %f, %f, %f, %f, %d, %f, %f, %f, %f, %f);\n", 
+								toReturn.add(String.format("INSERT INTO `%s` VALUES(NULL, %d, %d, '%s', '%s', %f, %f, %f, %f, %f, %d, %f, %f, %f, %f, %f, %f, %f, %d, %f);\n", 
 										DatabaseConstants.tableName, weaponToTest.getDwarfClassID(), weaponToTest.getWeaponID(), weaponToTest.getSimpleName(), weaponToTest.getCombination(),
-										weaponToTest.calculateIdealBurstDPS(), weaponToTest.calculateIdealSustainedDPS(),
-										weaponToTest.sustainedWeakpointDPS(), weaponToTest.sustainedWeakpointAccuracyDPS(),
-										weaponToTest.calculateAdditionalTargetDPS(), weaponToTest.calculateMaxMultiTargetDamage(),
-										weaponToTest.calculateMaxNumTargets(), weaponToTest.calculateFiringDuration(),
-										weaponToTest.averageTimeToKill(), weaponToTest.averageOverkill(),
-										weaponToTest.estimatedAccuracy(false), weaponToTest.utilityScore()
+										weaponToTest.calculateIdealBurstDPS(), weaponToTest.calculateIdealSustainedDPS(), weaponToTest.sustainedWeakpointDPS(), weaponToTest.sustainedWeakpointAccuracyDPS(), weaponToTest.calculateAdditionalTargetDPS(), 
+										weaponToTest.calculateMaxNumTargets(), weaponToTest.calculateMaxMultiTargetDamage(), weaponToTest.ammoEfficiency(), weaponToTest.estimatedAccuracy(false), weaponToTest.estimatedAccuracy(true),
+										weaponToTest.calculateFiringDuration(), weaponToTest.averageOverkill(), weaponToTest.averageTimeToKill(), weaponToTest.breakpoints(), weaponToTest.utilityScore()
 								));
 							}
 						}
