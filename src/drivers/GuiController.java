@@ -136,9 +136,9 @@ public class GuiController implements ActionListener {
 		mysqlCommands.add("    `breakpoints` INT NOT NULL,\n");
 		mysqlCommands.add("    `utility` DOUBLE NOT NULL,\n\n");
 		mysqlCommands.add("    PRIMARY KEY (`id`),\n\n");
-		mysqlCommands.add("    FOREIGN KEY (`characters_id`)\n");
+		mysqlCommands.add("    FOREIGN KEY (`character_id`)\n");
 		mysqlCommands.add("        REFERENCES characters(`id`),\n\n");
-		mysqlCommands.add("    FOREIGN KEY (`guns_id`)\n");
+		mysqlCommands.add("    FOREIGN KEY (`gun_id`)\n");
 		mysqlCommands.add("        REFERENCES guns(`id`)\n");
 		mysqlCommands.add(");\n\n");
 		
@@ -220,7 +220,6 @@ public class GuiController implements ActionListener {
 			tier2Subset = new int[] {t2, t2};
 		}
 		else {
-			// Have to subtract 1 from the length since the for loop this gets fed to uses <= instead of just <
 			tier2Subset = new int[] {-1, currentlySelectedWeapon.getModsAtTier(2).length - 1};
 		}
 		int t3 = currentlySelectedWeapon.getSelectedModAtTier(3);
@@ -228,7 +227,6 @@ public class GuiController implements ActionListener {
 			tier3Subset = new int[] {t3, t3};
 		}
 		else {
-			// Have to subtract 1 from the length since the for loop this gets fed to uses <= instead of just <
 			tier3Subset = new int[] {-1, currentlySelectedWeapon.getModsAtTier(3).length - 1};
 		}
 		int t4 = currentlySelectedWeapon.getSelectedModAtTier(4);
@@ -236,7 +234,6 @@ public class GuiController implements ActionListener {
 			tier4Subset = new int[] {t4, t4};
 		}
 		else {
-			// Have to subtract 1 from the length since the for loop this gets fed to uses <= instead of just <
 			tier4Subset = new int[] {-1, currentlySelectedWeapon.getModsAtTier(4).length - 1};
 		}
 		int t5 = currentlySelectedWeapon.getSelectedModAtTier(5);
@@ -244,7 +241,6 @@ public class GuiController implements ActionListener {
 			tier5Subset = new int[] {t5, t5};
 		}
 		else {
-			// Have to subtract 1 from the length since the for loop this gets fed to uses <= instead of just <
 			tier5Subset = new int[] {-1, currentlySelectedWeapon.getModsAtTier(5).length - 1};
 		}
 		int oc = currentlySelectedWeapon.getSelectedOverclock();
@@ -252,7 +248,6 @@ public class GuiController implements ActionListener {
 			ocsSubset = new int[] {oc, oc};
 		}
 		else {
-			// Have to subtract 1 from the length since the for loop this gets fed to uses <= instead of just <
 			ocsSubset = new int[] {-1, currentlySelectedWeapon.getOverclocks().length - 1};
 		}
 		
