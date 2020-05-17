@@ -360,6 +360,9 @@ public class WeaponStatsGenerator {
 	public ArrayList<String> dumpToMySQL() {
 		ArrayList<String> toReturn = new ArrayList<String>();
 		
+		// Grab the current combination for the weapon to restore after this is done
+		String currentCombination = weaponToTest.getCombination();
+		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
 			weaponToTest.setSelectedOverclock(oc, false);
@@ -391,6 +394,9 @@ public class WeaponStatsGenerator {
 				}
 			}
 		}
+		
+		// Return the weapon to the combination it had before
+		weaponToTest.buildFromCombination(currentCombination);
 		
 		return toReturn;
 	}
