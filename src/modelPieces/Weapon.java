@@ -37,12 +37,15 @@ public abstract class Weapon extends Observable {
 	protected Overclock[] overclocks;
 	protected int selectedOverclock;
 	
-	//protected double weakpointAccuracy;
-	//protected double generalAccuracy;
 	protected double[] aoeEfficiency;
+	
+	// Glyphid Swarmer, Webspitter through Light Armor, Grunt Weakpoint, Grunt through Light Armor, Praetorian Mouth, Praetorian Abdomen, and Mactera Spawn
+	protected int[] breakpoints = {0, 0, 0, 0, 0, 0, 0};
+	
 	// Mobility, Damage Resist, Armor Break, Slow, Fear, Stun, Freeze
 	// Set them all to zero to start, then override values in child objects as necessary.
 	protected double[] utilityScores = {0, 0, 0, 0, 0, 0, 0};
+	
 	// Burning, Frozen, Electrocuted, IFG Grenade
 	protected boolean[] statusEffects = {false, false, false, false};
 	
@@ -654,6 +657,22 @@ public abstract class Weapon extends Observable {
 	}
 	public abstract double estimatedAccuracy(boolean weakpointAccuracy); // -1 means manual or N/A; [0.00, 1.00] otherwise
 	public abstract int breakpoints();
+	
+	// This method is used to explain what the individual numbers of the Breakpoints
+	public StatsRow[] breakpointsExplanation() {
+		StatsRow[] toReturn = new StatsRow[breakpoints.length];
+		
+		toReturn[0] = new StatsRow("Glypid Swarmer:", breakpoints[0], false);
+		toReturn[1] = new StatsRow("Glyphid Webspitter (through Light Armor):", breakpoints[1], false);
+		toReturn[2] = new StatsRow("Glyphid Grunt (Weakpoint):", breakpoints[2], false);
+		toReturn[3] = new StatsRow("Glyphid Grunt (through Light Armor):", breakpoints[3], false);
+		toReturn[4] = new StatsRow("Glyphid Praetorian (Mouth):", breakpoints[4], false);
+		toReturn[5] = new StatsRow("Glyphid Praetorian (Abdomen):", breakpoints[5], false);
+		toReturn[6] = new StatsRow("Mactera Spawn (Weakpoint):", breakpoints[6], false);
+		
+		return toReturn;
+	}
+	
 	public abstract double utilityScore();
 	
 	// This method is used to explain how the Utility Scores are calculated for the UtilityBreakdownButton

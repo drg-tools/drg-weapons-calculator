@@ -2,6 +2,7 @@ package guiPieces;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -38,11 +39,11 @@ public class BreakpointsButton extends JButton implements ActionListener {
 		this.addActionListener(this);
 	}
 	
-	// TODO
 	private JPanel getBreakpointsPanel() {
-		StatsRow[] utilityStats = toDisplay.utilityExplanation();
+		StatsRow[] breakpoints = toDisplay.breakpointsExplanation();
 		
 		JPanel toReturn = new JPanel();
+		toReturn.setPreferredSize(new Dimension(300, 160));
 		toReturn.setBackground(GuiConstants.drgBackgroundBrown);
 		toReturn.setBorder(GuiConstants.blackLine);
 		toReturn.setLayout(new BoxLayout(toReturn, BoxLayout.Y_AXIS));
@@ -50,26 +51,21 @@ public class BreakpointsButton extends JButton implements ActionListener {
 		JPanel row;
 		JLabel statLabel, statValue;
 		int paddingPixels = 2*GuiConstants.paddingPixels;
-		for (int i = 0; i < utilityStats.length; i++) {
+		for (int i = 0; i < breakpoints.length; i++) {
 			row = new JPanel();
 			row.setOpaque(false);
 			row.setLayout(new BorderLayout());
 			
-			statLabel = new JLabel(utilityStats[i].getName());
+			statLabel = new JLabel(breakpoints[i].getName());
 			statLabel.setFont(GuiConstants.customFont);
 			statLabel.setForeground(Color.white);
 			// Left-pad the label text
 			statLabel.setBorder(new EmptyBorder(0, paddingPixels, 0, 0));
 			row.add(statLabel, BorderLayout.LINE_START);
 			
-			statValue = new JLabel(utilityStats[i].getValue());
+			statValue = new JLabel(breakpoints[i].getValue());
 			statValue.setFont(GuiConstants.customFont);
-			if (utilityStats[i].shouldValueBeHighlighted()) {
-				statValue.setForeground(GuiConstants.drgHighlightedYellow);
-			}
-			else {
-				statValue.setForeground(GuiConstants.drgRegularOrange);
-			}
+			statValue.setForeground(GuiConstants.drgRegularOrange);
 			// Right-pad the value text
 			statValue.setBorder(new EmptyBorder(0, 0, 0, paddingPixels));
 			row.add(statValue, BorderLayout.LINE_END);

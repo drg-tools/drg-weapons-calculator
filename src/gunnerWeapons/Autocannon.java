@@ -687,8 +687,8 @@ public class Autocannon extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		
-		return 0;
+		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), getAreaDamage(), 0);
+		return MathUtils.sum(breakpoints);
 	}
 
 	@Override

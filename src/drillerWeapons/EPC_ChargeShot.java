@@ -741,8 +741,8 @@ public class EPC_ChargeShot extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		
-		return 0;
+		breakpoints = EnemyInformation.calculateBreakpoints(getChargedDirectDamage(), getChargedAreaDamage(), -1.0);
+		return MathUtils.sum(breakpoints);
 	}
 
 	@Override

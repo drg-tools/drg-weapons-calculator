@@ -613,8 +613,8 @@ public class Classic_FocusShot extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		
-		return 0;
+		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage() * getFocusedShotMultiplier(), 0, getWeakpointBonus());
+		return MathUtils.sum(breakpoints);
 	}
 
 	@Override

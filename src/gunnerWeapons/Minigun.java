@@ -902,8 +902,8 @@ public class Minigun extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		
-		return 0;
+		breakpoints = EnemyInformation.calculateBreakpoints(getDamagePerPellet(), 0, 0);
+		return MathUtils.sum(breakpoints);
 	}
 
 	@Override

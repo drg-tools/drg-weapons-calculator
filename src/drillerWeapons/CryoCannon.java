@@ -710,7 +710,7 @@ public class CryoCannon extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		
+		// Cryo Cannon particles don't need to be counted for Breakpoint calculations
 		return 0;
 	}
 

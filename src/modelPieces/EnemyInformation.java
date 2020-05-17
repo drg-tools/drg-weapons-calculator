@@ -443,6 +443,67 @@ public class EnemyInformation {
 		return MathUtils.round(sum, 4);
 	}
 	
+	public static int[] calculateBreakpoints(double directDamagePerShot, double areaDamagePerShot, double weakpointModifier) {
+		// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
+		double[] normalEnemyResistances = {
+			0.7,  // Haz1
+			1.0,  // Haz2
+			1.1,  // Haz3
+			1.2,  // Haz4
+			1.2   // Haz5
+		};
+		double normalResistance = normalEnemyResistances[hazardLevel - 1];
+		
+		// On the other hand, large and extra-large enemies have their health scale by both player count and Hazard Level for all 20 combinations.
+		// Currently, it looks like the only extra-large enemy is a Dreadnought which I've chosen not to model for now.
+		double[][] largeEnemyResistances = {
+			{0.45, 0.55, 0.70, 0.85},  // Haz1
+			{0.65, 0.75, 0.90, 1.00},  // Haz2
+			{0.80, 0.90, 1.00, 1.10},  // Haz3
+			{1.00, 1.00, 1.20, 1.30},  // Haz4
+			{1.20, 1.20, 1.40, 1.50}   // Haz5
+		};
+		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
+		
+		// Glyphid Swarmer, Webspitter through Light Armor, Grunt Weakpoint, Grunt through Light Armor, Praetorian Mouth, Praetorian Abdomen, and Mactera Spawn
+		double swarmerHp = enemyHealthPools[0] * normalResistance;
+		double webspitterHp = enemyHealthPools[8] * normalResistance;
+		double gruntHp = enemyHealthPools[1] * normalResistance;
+		double praetorianHp = enemyHealthPools[4] * largeResistance;
+		double macteraSpawnHp = enemyHealthPools[14] * normalResistance;
+		
+		double reducedArmorDirectDamage = directDamagePerShot * UtilityInformation.LightArmor_DamageReduction;
+		double increasedWeakpointDirectDamage, gruntWeakpointMultiplier, macteraWeakpointMultiplier;
+		if (weakpointModifier < 0) {
+			increasedWeakpointDirectDamage = directDamagePerShot;
+			gruntWeakpointMultiplier = 1.0;
+			macteraWeakpointMultiplier = 1.0;
+		}
+		else {
+			increasedWeakpointDirectDamage = directDamagePerShot * (1.0 + weakpointModifier);
+			gruntWeakpointMultiplier = 2.0;
+			macteraWeakpointMultiplier = 3.0;
+		}
+		
+		// TODO: someday, it might be nice to have this factor in things like Engineer/GrenadeLauncher/Mod/3/Incendiary Compound adding total damage via Burn DoT
+		return new int[] {
+			// Glyphid Swarmer
+			(int) Math.ceil(swarmerHp / (directDamagePerShot + areaDamagePerShot)),
+			// Glyphid Webspitter hitting body through Light Armor
+			(int) Math.ceil(webspitterHp / (reducedArmorDirectDamage + areaDamagePerShot)),
+			// Glyphid Grunt hitting Mouth for Weakpoint Bonus
+			(int) Math.ceil(gruntHp / (increasedWeakpointDirectDamage * gruntWeakpointMultiplier + areaDamagePerShot)),
+			// Glyphid Grunt hitting body through Light Armor
+			(int) Math.ceil(gruntHp / (reducedArmorDirectDamage + areaDamagePerShot)),
+			// Praetorian hitting Mouth
+			(int) Math.ceil(praetorianHp / (directDamagePerShot + areaDamagePerShot)),
+			// Praetorian hitting Abdomen for Weakpoint Bonus
+			(int) Math.ceil(praetorianHp / (increasedWeakpointDirectDamage + areaDamagePerShot)),
+			// Mactera Spawn hitting stomach for Weakpoint Bonus
+			(int) Math.ceil(macteraSpawnHp / (increasedWeakpointDirectDamage * macteraWeakpointMultiplier + areaDamagePerShot))
+		};
+	}
+	
 	/* 
 		Dimensions of a Glyphid Grunt used for estimating how many grunts would be hit by AoE damage of a certain radius 
 		(see method Weapon.calculateNumGlyphidsInRadius())

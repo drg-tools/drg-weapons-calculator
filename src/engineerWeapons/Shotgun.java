@@ -639,8 +639,8 @@ public class Shotgun extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		
-		return 0;
+		breakpoints = EnemyInformation.calculateBreakpoints(getDamagePerPellet() * getNumberOfPellets(), 0, getWeakpointBonus());
+		return MathUtils.sum(breakpoints);
 	}
 
 	@Override

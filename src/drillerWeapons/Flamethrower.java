@@ -605,7 +605,7 @@ public class Flamethrower extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		
+		// Flamethrower particles don't need to be counted for Breakpoint calculations
 		return 0;
 	}
 

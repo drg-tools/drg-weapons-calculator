@@ -524,20 +524,29 @@ public class WeaponTab extends JPanel {
 		}
 		toReturn.add(value);
 		
-		int breakpoints = 0;
+		int breakpoints = myWeapon.breakpoints();
 		roundedNumber = leftPadSpaces + breakpoints;
-		BreakpointsButton breakButton = new BreakpointsButton(this, roundedNumber, myWeapon);
-		if (breakpoints < originalStats[13]) {
-			breakButton.setForeground(GuiConstants.drgOverclockUnstableRed);
-		}
-		else if (breakpoints > originalStats[13]) {
-			breakButton.setForeground(GuiConstants.drgOverclockCleanGreen);
+		if (breakpoints > 0) {
+			BreakpointsButton breakButton = new BreakpointsButton(this, roundedNumber, myWeapon);
+			if (breakpoints > originalStats[13]) {
+				breakButton.setForeground(GuiConstants.drgOverclockUnstableRed);
+			}
+			else if (breakpoints < originalStats[13]) {
+				breakButton.setForeground(GuiConstants.drgOverclockCleanGreen);
+			}
+			else {
+				// Implicitly means that they're equal
+				breakButton.setForeground(GuiConstants.drgHighlightedYellow);
+			}
+			toReturn.add(breakButton);
 		}
 		else {
-			// Implicitly means that they're equal
-			breakButton.setForeground(GuiConstants.drgHighlightedYellow);
+			// Flamethrower and Cryo Cannon don't have the Breakpoint metric calculated
+			value = new JLabel("Not needed");
+			value.setFont(GuiConstants.customFontBold);
+			value.setForeground(GuiConstants.drgHighlightedYellow);
+			toReturn.add(value);
 		}
-		toReturn.add(breakButton);
 		
 		double utility = myWeapon.utilityScore();
 		roundedNumber = leftPadSpaces + MathUtils.round(utility, GuiConstants.numDecimalPlaces);

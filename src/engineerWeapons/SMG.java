@@ -648,8 +648,8 @@ public class SMG extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		
-		return 0;
+		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), 0, getWeakpointBonus());
+		return MathUtils.sum(breakpoints);
 	}
 
 	@Override

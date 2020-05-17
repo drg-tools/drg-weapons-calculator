@@ -63,12 +63,7 @@ public class UtilityBreakdownButton extends JButton implements ActionListener {
 			
 			statValue = new JLabel(utilityStats[i].getValue());
 			statValue.setFont(GuiConstants.customFont);
-			if (utilityStats[i].shouldValueBeHighlighted()) {
-				statValue.setForeground(GuiConstants.drgHighlightedYellow);
-			}
-			else {
-				statValue.setForeground(GuiConstants.drgRegularOrange);
-			}
+			statValue.setForeground(GuiConstants.drgRegularOrange);
 			// Right-pad the value text
 			statValue.setBorder(new EmptyBorder(0, 0, 0, paddingPixels));
 			row.add(statValue, BorderLayout.LINE_END);

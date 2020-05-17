@@ -54,6 +54,18 @@ public class MathUtils {
 		return sum;
 	}
 	
+	public static int sum(int[] A) {
+		if (A.length == 0) {
+			return 0;
+		}
+		
+		int sum = 0;
+		for (int i = 0; i < A.length; i++) {
+			sum += A[i];
+		}
+		return sum;
+	}
+	
 	private static double erf(double x) {
 		// erf can't be expressed precisely, so I'm using a quick-and-dirty numerical approximation.
 		// Sourced from https://en.wikipedia.org/wiki/Error_function#Numerical_approximations

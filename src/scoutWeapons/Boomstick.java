@@ -701,8 +701,8 @@ public class Boomstick extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		
-		return 0;
+		breakpoints = EnemyInformation.calculateBreakpoints(getDamagePerPellet() * getNumberOfPellets(), 0, 0);
+		return MathUtils.sum(breakpoints);
 	}
 
 	@Override

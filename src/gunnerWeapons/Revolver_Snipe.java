@@ -856,8 +856,8 @@ public class Revolver_Snipe extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		
-		return 0;
+		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), getAreaDamage(), getWeakpointBonus());
+		return MathUtils.sum(breakpoints);
 	}
 
 	@Override

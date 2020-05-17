@@ -136,6 +136,7 @@ public class UtilityInformation {
 		For both of those enemies, their abdomen can be damaged while the rest of their body is immune.
 	*/
 	public static double ArmorBreak_Utility = 1.0;
+	public static double LightArmor_DamageReduction = 0.8;
 	
 	/*
 		Stun
