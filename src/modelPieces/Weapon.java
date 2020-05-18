@@ -407,14 +407,22 @@ public abstract class Weapon extends Observable {
 			return 0.0;
 		}
 		
-		// Due to its logarithmic formula, the probability to break an armor plate is 0% when Dmg * AB == 3.32
-		if (baseDamage * armorBreaking < 3.33) {
-			return 0.0;
-		}
+		// This information comes straight from MikeGSG -- Thanks, Mike!
+		double averageArmorStrength = EnemyInformation.averageLightArmorStrength();
+		double lookupValue = baseDamage * armorBreaking / averageArmorStrength;
 		
-		// Elythnwaen found this formula and shared it with me.
-		// Never let this return a probability less than 0.0 or higher than 1.0
-		return Math.max(Math.min(Math.log(armorBreaking * baseDamage)/3.0 - 0.4, 1.0), 0.0);
+		if (lookupValue < 1.0) {
+			return lookupValue / 2.0;
+		}
+		else if (lookupValue < 2.0) {
+			return 0.5 + (lookupValue - 1.0) / 4.0;
+		}
+		else if (lookupValue < 4.0) {
+			return 0.75 + (lookupValue - 2.0) / 8.0;
+		}
+		else {
+			return 1.0;
+		}
 	}
 	
 	protected double calculateRNGDoTDPSPerMagazine(double DoTProcChance, double DoTDPS, int magazineSize) {

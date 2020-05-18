@@ -42,6 +42,9 @@ public class OverclockButton extends JButton implements ActionListener, MouseMot
 		icon = ButtonIcons.getOverclockIcon(iconValue);
 		implemented = ocImplemented;
 		
+		int bufferPixels = GuiConstants.paddingPixels;
+		border = new RoundRectangle2D.Double(bufferPixels, bufferPixels, getWidth() - 2*bufferPixels, getHeight() - 2*bufferPixels, 50, 50);
+		
 		this.setText(ocName);
 		this.setFont(GuiConstants.customFont);
 		this.setToolTipText(HoverText.breakLongToolTipString(ocText, 50));
@@ -165,7 +168,7 @@ public class OverclockButton extends JButton implements ActionListener, MouseMot
 	public void mouseMoved(MouseEvent e) {
 		Point cursorHotspotLocation = e.getPoint();
 		
-		if (border.contains(cursorHotspotLocation)) {
+		if (cursorHotspotLocation != null && border.contains(cursorHotspotLocation)) {
 			this.setCursor(CustomCursors.defaultCursorPlusQuestionMark);
 		}
 		else {

@@ -35,6 +35,8 @@ public class StatusEffectButton extends JButton implements ActionListener, Mouse
 		icon = ButtonIcons.getStatusEffectIcon(iconSelector);
 		enabled = effectEnabled;
 		
+		border = createBackgroundHexagon();
+		
 		this.setText(effectName);
 		this.setFont(GuiConstants.customFont);
 		this.setToolTipText(HoverText.breakLongToolTipString(effectText, 50));
@@ -166,7 +168,7 @@ public class StatusEffectButton extends JButton implements ActionListener, Mouse
 	public void mouseMoved(MouseEvent e) {
 		Point cursorHotspotLocation = e.getPoint();
 		
-		if (border.contains(cursorHotspotLocation)) {
+		if (cursorHotspotLocation != null && border.contains(cursorHotspotLocation)) {
 			this.setCursor(CustomCursors.defaultCursorPlusQuestionMark);
 		}
 		else {

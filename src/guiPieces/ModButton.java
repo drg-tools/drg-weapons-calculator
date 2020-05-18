@@ -39,6 +39,8 @@ public class ModButton extends JButton implements ActionListener, MouseMotionLis
 		icon = ButtonIcons.getModIcon(iconSelector, enabled);
 		implemented = modImplemented;
 		
+		border = createBackgroundHexagon();
+		
 		this.setText(modName);
 		this.setFont(GuiConstants.customFont);
 		this.setToolTipText(HoverText.breakLongToolTipString(modText, 50));
@@ -142,7 +144,7 @@ public class ModButton extends JButton implements ActionListener, MouseMotionLis
 	public void mouseMoved(MouseEvent e) {
 		Point cursorHotspotLocation = e.getPoint();
 		
-		if (border.contains(cursorHotspotLocation)) {
+		if (cursorHotspotLocation != null && border.contains(cursorHotspotLocation)) {
 			this.setCursor(CustomCursors.defaultCursorPlusQuestionMark);
 		}
 		else {

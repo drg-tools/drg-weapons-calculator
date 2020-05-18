@@ -176,6 +176,16 @@ public class EnemyInformation {
 		{5, 0, 1, -20, 0, 4}			// Cave Leech
 	};
 	
+	// This information comes straight from MikeGSG -- Thanks, Mike!
+	private static double[] enemyLightArmorStrengthValues = {
+		// TODO: once Mike replies, update these 5 values
+		15,  // Glyphid Grunt
+		30,  // Glyphid Grunt Guard
+		15,  // Glyphid Grunt Slasher
+		10,  // Glyphid Webspitter
+		10,  // Glyphid Acidspitter
+	};
+	
 	private static boolean verifySpawnRatesTotalIsOne() {
 		double sum = 0.0;
 		for (int i = 0; i < spawnRates.length; i++) {
@@ -441,6 +451,16 @@ public class EnemyInformation {
 		}
 		
 		return MathUtils.round(sum, 4);
+	}
+	
+	public static double averageLightArmorStrength() {
+		int[] indexesOfEnemiesWithLightArmor = new int[] {1, 2, 3, 8, 9};
+		double[] subsetSpawnRates = new double[indexesOfEnemiesWithLightArmor.length];
+		for (int i = 0; i < indexesOfEnemiesWithLightArmor.length; i++) {
+			subsetSpawnRates[i] = spawnRates[indexesOfEnemiesWithLightArmor[i]];
+		}
+		
+		return MathUtils.vectorDotProduct(enemyLightArmorStrengthValues, subsetSpawnRates) / MathUtils.sum(subsetSpawnRates);
 	}
 	
 	public static int[] calculateBreakpoints(double directDamagePerShot, double areaDamagePerShot, double weakpointModifier) {
