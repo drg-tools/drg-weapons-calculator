@@ -53,6 +53,7 @@ import scoutWeapons.Zhukov;
 		8000 Total Damage
 */
 
+// TODO: write up explanations of the 15 stats (+2 mag stats) for the rest of the DRG Tool Team to read and reference
 public class GuiController implements ActionListener {
 	
 	private Weapon[] drillerWeapons;

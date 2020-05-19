@@ -402,27 +402,8 @@ public abstract class Weapon extends Observable {
 		return calculateProbabilityToBreakLightArmor(baseDamage, 1.0);
 	}
 	protected double calculateProbabilityToBreakLightArmor(double baseDamage, double armorBreaking) {
-		// Input sanitization
-		if (baseDamage <= 0.0 || armorBreaking <= 0.0) {
-			return 0.0;
-		}
-		
-		// This information comes straight from MikeGSG -- Thanks, Mike!
 		double averageArmorStrength = EnemyInformation.averageLightArmorStrength();
-		double lookupValue = baseDamage * armorBreaking / averageArmorStrength;
-		
-		if (lookupValue < 1.0) {
-			return lookupValue / 2.0;
-		}
-		else if (lookupValue < 2.0) {
-			return 0.5 + (lookupValue - 1.0) / 4.0;
-		}
-		else if (lookupValue < 4.0) {
-			return 0.75 + (lookupValue - 2.0) / 8.0;
-		}
-		else {
-			return 1.0;
-		}
+		return EnemyInformation.lightArmorBreakProbabilityLookup(baseDamage, armorBreaking, averageArmorStrength);
 	}
 	
 	protected double calculateRNGDoTDPSPerMagazine(double DoTProcChance, double DoTDPS, int magazineSize) {

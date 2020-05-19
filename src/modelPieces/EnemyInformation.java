@@ -178,9 +178,8 @@ public class EnemyInformation {
 	
 	// This information comes straight from MikeGSG -- Thanks, Mike!
 	private static double[] enemyLightArmorStrengthValues = {
-		// TODO: once Mike replies, update these 5 values
 		15,  // Glyphid Grunt
-		30,  // Glyphid Grunt Guard
+		15,  // Glyphid Grunt Guard
 		15,  // Glyphid Grunt Slasher
 		10,  // Glyphid Webspitter
 		10,  // Glyphid Acidspitter
@@ -462,6 +461,29 @@ public class EnemyInformation {
 		
 		return MathUtils.vectorDotProduct(enemyLightArmorStrengthValues, subsetSpawnRates) / MathUtils.sum(subsetSpawnRates);
 	}
+	public static double lightArmorBreakProbabilityLookup(double damage, double armorBreakingModifier, double armorStrength) {
+		// Input sanitization
+		if (damage <= 0.0 || armorBreakingModifier <= 0.0 || armorStrength <= 0.0) {
+			return 0.0;
+		}
+		
+		// This information comes straight from MikeGSG -- Thanks, Mike!
+		double lookupValue = damage * armorBreakingModifier / armorStrength;
+		
+		if (lookupValue < 1.0) {
+			return lookupValue / 2.0;
+		}
+		else if (lookupValue < 2.0) {
+			return 0.5 + (lookupValue - 1.0) / 4.0;
+		}
+		else if (lookupValue < 4.0) {
+			return 0.75 + (lookupValue - 2.0) / 8.0;
+		}
+		else {
+			return 1.0;
+		}
+	}
+	
 	
 	public static int[] calculateBreakpoints(double directDamagePerShot, double areaDamagePerShot, double weakpointModifier) {
 		// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
