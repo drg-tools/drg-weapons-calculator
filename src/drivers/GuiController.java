@@ -135,7 +135,9 @@ public class GuiController implements ActionListener {
 		mysqlCommands.add("    `average_overkill` DOUBLE NOT NULL,\n");
 		mysqlCommands.add("    `average_time_to_kill` DOUBLE NOT NULL,\n");
 		mysqlCommands.add("    `breakpoints` INT NOT NULL,\n");
-		mysqlCommands.add("    `utility` DOUBLE NOT NULL,\n\n");
+		mysqlCommands.add("    `utility` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `damage_per_magazine` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `time_to_fire_magazine` DOUBLE NOT NULL,\n\n");
 		mysqlCommands.add("    PRIMARY KEY (`id`),\n\n");
 		mysqlCommands.add("    FOREIGN KEY (`character_id`)\n");
 		mysqlCommands.add("        REFERENCES characters(`id`),\n\n");
