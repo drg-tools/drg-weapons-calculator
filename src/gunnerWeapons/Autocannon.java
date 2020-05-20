@@ -742,4 +742,20 @@ public class Autocannon extends Weapon {
 		return MathUtils.sum(utilityScores);
 	}
 
+	@Override
+	public double damagePerMagazine() {
+		double damagePerBullet = getDirectDamage() + getAreaDamage() * aoeEfficiency[1] * aoeEfficiency[2];
+		double magSize = getMagazineSize();
+		double damageMultiplier = 1.0;
+		if (selectedTier5 == 0) {
+			double numBulletsRampup = (double) getNumBulletsRampup();
+			damageMultiplier = (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+		}
+		return damagePerBullet * magSize * damageMultiplier;
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getMagazineSize() / getAverageRateOfFire();
+	}
 }

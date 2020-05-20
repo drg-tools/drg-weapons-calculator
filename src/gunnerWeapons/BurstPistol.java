@@ -547,14 +547,6 @@ public class BurstPistol extends Weapon {
 		return damagePerBurst * numBurstsPerMagazine;
 	}
 	
-	private double calculateTimeToFireMagazine() {
-		double timeToFireBurst = (getBurstSize() - 1) * delayBetweenBulletsDuringBurst;
-		double delayBetweenBursts = 1.0 / getRateOfFire();
-		int numBurstsPerMagazine = getMagazineSize() / getBurstSize();
-		
-		return numBurstsPerMagazine * timeToFireBurst + (numBurstsPerMagazine - 1) * delayBetweenBursts;
-	}
-	
 	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
 		double generalAccuracy, duration, directWeakpointDamage;
 		
@@ -566,10 +558,10 @@ public class BurstPistol extends Weapon {
 		}
 		
 		if (burst) {
-			duration = calculateTimeToFireMagazine();
+			duration = timeToFireMagazine();
 		}
 		else {
-			duration = calculateTimeToFireMagazine() + getReloadTime();
+			duration = timeToFireMagazine() + getReloadTime();
 		}
 		
 		double dmg = getDirectDamage();
@@ -676,7 +668,7 @@ public class BurstPistol extends Weapon {
 	public double calculateFiringDuration() {
 		int magSize = getMagazineSize();
 		int carriedAmmo = getCarriedAmmo();
-		return numMagazines(carriedAmmo, magSize) * calculateTimeToFireMagazine() + numReloads(carriedAmmo, magSize) * getReloadTime();
+		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine() + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
 	
 	@Override
@@ -736,5 +728,19 @@ public class BurstPistol extends Weapon {
 		}
 		
 		return MathUtils.sum(utilityScores);
+	}
+	
+	@Override
+	public double damagePerMagazine() {
+		return calculateDamagePerMagazine(false);
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		double timeToFireBurst = (getBurstSize() - 1) * delayBetweenBulletsDuringBurst;
+		double delayBetweenBursts = 1.0 / getRateOfFire();
+		int numBurstsPerMagazine = getMagazineSize() / getBurstSize();
+		
+		return numBurstsPerMagazine * timeToFireBurst + (numBurstsPerMagazine - 1) * delayBetweenBursts;
 	}
 }

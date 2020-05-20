@@ -662,4 +662,15 @@ public class SMG extends Weapon {
 		
 		return MathUtils.sum(utilityScores);
 	}
+	
+	@Override
+	public double damagePerMagazine() {
+		double timeBeforeElectrocute = MathUtils.meanRolls(getElectrocutionDoTChance()) / getRateOfFire();
+		return (getDirectDamage() + getElectricDamage()) * getMagazineSize() + calculateAverageDoTDamagePerEnemy(timeBeforeElectrocute, DoTInformation.Electro_SecsDuration, DoTInformation.Electro_DPS);
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getMagazineSize() / getRateOfFire();
+	}
 }

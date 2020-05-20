@@ -734,4 +734,14 @@ public class CryoCannon extends Weapon {
 		
 		return MathUtils.sum(utilityScores);
 	}
+	
+	@Override
+	public double damagePerMagazine() {
+		return totalDamageDealtPerBurst(false) * calculateMaxNumTargets();
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return pressureDropDuration / getPressureDropModifier();
+	}
 }

@@ -680,4 +680,15 @@ public class Zhukov extends Weapon {
 		
 		return MathUtils.sum(utilityScores);
 	}
+	
+	@Override
+	public double damagePerMagazine() {
+		double effectiveMagazineSize = getMagazineSize() / 2.0;
+		return effectiveMagazineSize * (getDirectDamage() + getAreaDamage()) * calculateMaxNumTargets();
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getMagazineSize() / getRateOfFire();
+	}
 }

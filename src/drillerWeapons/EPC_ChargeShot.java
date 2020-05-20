@@ -753,4 +753,23 @@ public class EPC_ChargeShot extends Weapon {
 		utilityScores[2] = calculateProbabilityToBreakLightArmor(aoeEfficiency[1] * 0.5 * getChargedAreaDamage()) * UtilityInformation.ArmorBreak_Utility;
 		return MathUtils.sum(utilityScores);
 	}
+	
+	@Override
+	public double damagePerMagazine() {
+		// Instead of damage per mag, this will be damage per Charged Shot
+		if (selectedTier5 == 0) {
+			// Special case: Flying Nightmare does the Charged Direct Damage to any enemies it passes through, but it no longer explodes for its Area Damage upon impact. As a result, it also cannot proc Persistent Plasma
+			double directDamage = getChargedDirectDamage();
+			double numTargetsHitPerShot = calculateMaxNumTargets();
+			return directDamage * numTargetsHitPerShot;
+		}
+		else {
+			return getChargedDirectDamage() + getChargedAreaDamage() * aoeEfficiency[1] * aoeEfficiency[2];
+		}
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getChargedShotWindup();
+	}
 }

@@ -633,4 +633,24 @@ public class Flamethrower extends Weapon {
 		
 		return MathUtils.sum(utilityScores);
 	}
+	
+	@Override
+	public double damagePerMagazine() {
+		double numTargets = calculateMaxNumTargets();
+		
+		// Total Direct Damage
+		double directTotalDamage = numTargets * getParticleDamage() * getFuelTankSize();
+		
+		// Total Burn Damage
+		double timeToIgnite = EnemyInformation.averageTimeToIgnite(getParticleHeat(), getFlowRate());
+		double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+		double fireDoTTotalDamage = fireDoTDamagePerEnemy * numTargets;
+		
+		return directTotalDamage + fireDoTTotalDamage;
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getFuelTankSize() / getFlowRate();
+	}
 }

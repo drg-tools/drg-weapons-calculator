@@ -679,6 +679,10 @@ public abstract class Weapon extends Observable {
 		return toReturn;
 	}
 	
+	// These two methods will be added as columns to the MySQL dump, but I have no plans to add them to the 15 metrics in the bottom panel.
+	public abstract double damagePerMagazine();
+	public abstract double timeToFireMagazine();
+	
 	// Shortcut method for WeaponStatsGenerator
 	public double[] getMetrics() {
 		return new double[]{

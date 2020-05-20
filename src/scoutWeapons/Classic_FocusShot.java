@@ -660,4 +660,22 @@ public class Classic_FocusShot extends Weapon {
 		
 		return MathUtils.sum(utilityScores);
 	}
+	
+	@Override
+	public double damagePerMagazine() {
+		double bulletDamage = getDirectDamage() * getFocusedShotMultiplier() * getMagazineSize();
+		
+		double electrocuteDamage = 0;
+		if (selectedOverclock == 4) {
+			// OC "Electrocuting Focus Shots" has 100% chance to proc
+			electrocuteDamage = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Electro_SecsDuration, DoTInformation.Electro_DPS);
+		}
+		
+		return (bulletDamage + electrocuteDamage) * calculateMaxNumTargets();
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getMagazineSize() / getRateOfFire();
+	}
 }

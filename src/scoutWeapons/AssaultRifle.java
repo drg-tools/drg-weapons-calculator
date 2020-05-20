@@ -700,4 +700,21 @@ public class AssaultRifle extends Weapon {
 		
 		return MathUtils.sum(utilityScores);
 	}
+	
+	@Override
+	public double damagePerMagazine() {
+		double baseDamage = getMagazineSize() * getDirectDamage();
+		
+		double electrocutionDoTDamage = 0;
+		if (selectedOverclock == 6) {
+			electrocutionDoTDamage = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Electro_SecsDuration, DoTInformation.Electro_DPS);
+		}
+		
+		return baseDamage + electrocutionDoTDamage;
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getMagazineSize() / getRateOfFire();
+	}
 }

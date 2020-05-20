@@ -694,4 +694,21 @@ public class EPC_RegularShot extends Weapon {
 		// EPC regular shots also cannot break Light Armor plates
 		return 0;
 	}
+	
+	@Override
+	public double damagePerMagazine() {
+		double baseDamage = getNumRegularShotsBeforeOverheat() * getDirectDamage();
+		double fireDoTDamage = 0;
+		if (selectedTier5 == 2) {
+			double heatDamagePerShot = 0.5 * getDirectDamage();
+			double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatDamagePerShot, rateOfFire);
+			fireDoTDamage = calculateAverageDoTDamagePerEnemy(timeToIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+		}
+		return baseDamage + fireDoTDamage;
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getNumRegularShotsBeforeOverheat() / rateOfFire;
+	}
 }

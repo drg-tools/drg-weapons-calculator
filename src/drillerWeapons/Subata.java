@@ -678,4 +678,14 @@ public class Subata extends Weapon {
 		
 		return MathUtils.sum(utilityScores);
 	}
+	
+	@Override
+	public double damagePerMagazine() {
+		return getMagazineSize() * (getDirectDamage() + getAreaDamage());
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getMagazineSize() / getRateOfFire();
+	}
 }

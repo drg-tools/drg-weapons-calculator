@@ -652,4 +652,33 @@ public class GrenadeLauncher extends Weapon {
 		
 		return MathUtils.sum(utilityScores);
 	}
+	
+	@Override
+	public double damagePerMagazine() {
+		// Instead of damage per mag, this will be damage per grenade
+		double burnDoTDamagePerEnemy = 0;
+		if (selectedTier3 == 0) {
+			double singleTargetHeatPerGrenade = getDirectDamage() + getAreaDamage();
+			double percentageEnemiesIgnitedByDirectImpact = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(singleTargetHeatPerGrenade);
+			double multiTargetHeatPerGrenade = getAreaDamage() * aoeEfficiency[1];
+			double percentageOfEnemiesIgnitedByAreaDamage = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(multiTargetHeatPerGrenade);
+			
+			double avgPercentageIgnited = (percentageEnemiesIgnitedByDirectImpact + (aoeEfficiency[2] - 1) * percentageOfEnemiesIgnitedByAreaDamage) / aoeEfficiency[2];
+			burnDoTDamagePerEnemy = avgPercentageIgnited * calculateAverageDoTDamagePerEnemy(0, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+		}
+		
+		double radiationDoTDamagePerEnemy = 0;
+		if (selectedOverclock == 4) {
+			// I'm guessing that it takes about 4 seconds for enemies to move out of the 8m radius field
+			radiationDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, 4, DoTInformation.Rad_FB_DPS);
+		}
+		
+		return getDirectDamage() + (getAreaDamage() * aoeEfficiency[1] + burnDoTDamagePerEnemy + radiationDoTDamagePerEnemy) * aoeEfficiency[2];
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		// Grenade Launcher fires its projectile instantly, and then reloads.
+		return 0;
+	}
 }

@@ -834,4 +834,27 @@ public class Revolver_FullRoF extends Weapon {
 		
 		return MathUtils.sum(utilityScores);
 	}
+	
+	@Override
+	public double damagePerMagazine() {
+		double damagePerShot;
+		if (selectedTier3 == 0) {
+			// Blowthrough Rounds
+			damagePerShot = getDirectDamage() * (1 + getMaxPenetrations());
+		}
+		else if (selectedTier3 == 1) {
+			// Explosive Rounds
+			damagePerShot = getDirectDamage() + getAreaDamage() * calculateNumGlyphidsInRadius(getAoERadius());
+		}
+		else {
+			damagePerShot = getDirectDamage();
+		}
+		
+		return damagePerShot * getMagazineSize();
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getMagazineSize() / getRateOfFire();
+	}
 }

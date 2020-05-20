@@ -669,4 +669,14 @@ public class Classic_Hipfire extends Weapon {
 		
 		return MathUtils.sum(utilityScores);
 	}
+	
+	@Override
+	public double damagePerMagazine() {
+		return getDirectDamage() * getMagazineSize() * calculateMaxNumTargets();
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getMagazineSize() / getRateOfFire();
+	}
 }

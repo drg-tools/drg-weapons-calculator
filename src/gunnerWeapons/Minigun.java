@@ -928,4 +928,14 @@ public class Minigun extends Weapon {
 		
 		return MathUtils.sum(utilityScores);
 	}
+	
+	@Override
+	public double damagePerMagazine() {
+		return calculateDamagePerBurst(false);
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return calculateFiringPeriod();
+	}
 }

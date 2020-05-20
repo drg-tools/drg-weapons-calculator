@@ -656,4 +656,14 @@ public class Shotgun extends Weapon {
 		
 		return MathUtils.sum(utilityScores);
 	}
+	
+	@Override
+	public double damagePerMagazine() {
+		return getDamagePerPellet() * getNumberOfPellets() * getMagazineSize();
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getMagazineSize() / getRateOfFire();
+	}
 }
