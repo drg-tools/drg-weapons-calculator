@@ -439,15 +439,8 @@ public abstract class Weapon extends Observable {
 		return timeWhileAfflictedByDoT * DoTDPS;
 	}
 	
-	protected double[] calculateAverageAreaDamage(double radius, double fullDamageRadius, double falloffStart, double falloffEnd) {
-		/* 
-			This method is based off of the hypothesis that the innnermost 50% of the radius gets full damage,
-			and then the damage drops to 50%, and then linearly decreases to 33% at the furthest edge of the radius
-			
-			Theoretically it that should average around 71% of the initial damage, but due to how it's been modeled I highly doubt it will be that precise.
-		*/
-		
-		// Want to test the halfway radius and every radius in +0.1m increments, and finally the outermost radius
+	protected double[] calculateAverageAreaDamage(double radius, double fullDamageRadius, double falloffPercentageAtOuterEdge) {
+		// Want to test the fullDamageRadius radius and every radius in +0.05m increments, and finally the outermost radius
 		int numRadiiToTest = (int) Math.floor((radius - fullDamageRadius) * 20.0) + 1;
 		
 		// Add an extra tuple at the start for the return values
@@ -458,7 +451,7 @@ public abstract class Weapon extends Observable {
 		for (int i = 0; i < numRadiiToTest - 1; i++) {
 			currentRadius = fullDamageRadius + i * 0.05;
 			if (i > 0) {
-				currentDamage = falloffStart - (falloffStart - falloffEnd) * (i - 1) / (numRadiiToTest - 2);
+				currentDamage = 1.0 - (1.0 - falloffPercentageAtOuterEdge) * (i - 1) / (numRadiiToTest - 2);
 			}
 			else {
 				currentDamage = 1.0;
@@ -473,7 +466,7 @@ public abstract class Weapon extends Observable {
 		}
 		toReturn[numRadiiToTest] = new double[3];
 		toReturn[numRadiiToTest][0] = radius;
-		toReturn[numRadiiToTest][1] = falloffEnd;
+		toReturn[numRadiiToTest][1] = falloffPercentageAtOuterEdge;
 		currentGlyphids = calculateNumGlyphidsInRadius(radius) - totalNumGlyphids;
 		toReturn[numRadiiToTest][2] = currentGlyphids;
 		totalNumGlyphids += currentGlyphids;
@@ -484,7 +477,7 @@ public abstract class Weapon extends Observable {
 		
 		double avgDmg = 0.0;
 		for (int i = 1; i < toReturn.length; i++) {
-			//System.out.println(toReturn[i][0] + " " + toReturn[i][1] + " " + toReturn[i][2] + " ");
+			// System.out.println(toReturn[i][0] + " " + toReturn[i][1] + " " + toReturn[i][2] + " ");
 			avgDmg += toReturn[i][1] * toReturn[i][2];
 		}
 		toReturn[0][1] = avgDmg / totalNumGlyphids;

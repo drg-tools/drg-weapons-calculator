@@ -467,9 +467,10 @@ public class GrenadeLauncher extends Weapon {
 		return true;
 	}
 	
+	@Override
 	protected void setAoEEfficiency() {
-		double radius = getAoERadius();
-		aoeEfficiency = calculateAverageAreaDamage(radius, radius/2.0, 0.75, 0.33);
+		// According to Elythnwaen, PGL has a full damage radius of 1.5m, and 15% damage at full radius
+		aoeEfficiency = calculateAverageAreaDamage(getAoERadius(), 1.5, 0.15);
 	}
 	
 	private double calculateSingleTargetDPS(boolean burst, boolean weakpoint) {

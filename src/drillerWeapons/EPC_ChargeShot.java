@@ -611,9 +611,10 @@ public class EPC_ChargeShot extends Weapon {
 		return true;
 	}
 	
+	@Override
 	protected void setAoEEfficiency() {
-		double radius = getChargedAoERadius();
-		aoeEfficiency = calculateAverageAreaDamage(radius, radius*0.75, 5.0/6.0, 5.0/6.0);
+		// According to Elythnwaen, EPC has a 1.25m full damage radius, and 33% damage falloff at full radius
+		aoeEfficiency = calculateAverageAreaDamage(getChargedAoERadius(), 1.25, 0.33);
 	}
 
 	// Single-target calculations

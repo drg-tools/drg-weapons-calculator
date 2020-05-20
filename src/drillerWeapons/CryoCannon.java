@@ -727,9 +727,11 @@ public class CryoCannon extends Weapon {
 		double freezeUptime = freezeDuration / (EnemyInformation.averageTimeToFreeze(getParticleCold() * getFlowRate() + icePathColdPerTick * icePathTicksPerSec / 2.0) + freezeDuration);
 		utilityScores[6] = freezeUptime * numTargets * UtilityInformation.Frozen_Utility;
 		
-		// Snowball does 100 Cold Damage in a 3.5m radius. Add the score for how many enemies that would freeze.
+		// According to Elythnwaen, Snowball does 200 Cold Damage in a 4m radius, 2m full damage, 50% falloff at edge
 		if (selectedOverclock == 5) {
-			utilityScores[6] += calculateNumGlyphidsInRadius(3.5) * EnemyInformation.percentageEnemiesFrozenBySingleBurstOfCold(-100) * UtilityInformation.Frozen_Utility;
+			double[] snowballAoEEfficiency = calculateAverageAreaDamage(4, 2, 0.5);
+			double avgColdDamage = -200 * snowballAoEEfficiency[1];
+			utilityScores[6] += snowballAoEEfficiency[2] * EnemyInformation.percentageEnemiesFrozenBySingleBurstOfCold(avgColdDamage) * UtilityInformation.Frozen_Utility;
 		}
 		
 		return MathUtils.sum(utilityScores);

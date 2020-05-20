@@ -484,9 +484,10 @@ public class Autocannon extends Weapon {
 		return true;
 	}
 	
+	@Override
 	protected void setAoEEfficiency() {
-		double radius = getAoERadius();
-		aoeEfficiency =  calculateAverageAreaDamage(radius, radius/2.0, 0.75, 0.5);
+		// TODO: Elythnwaen doesn't have access to the full damage radius and damage fall-off of the Autocannon, so ask MikeGSG for those 2 values.
+		aoeEfficiency =  calculateAverageAreaDamage(getAoERadius(), 1.0, 0.25);
 	}
 	
 	// Single-target calculations
