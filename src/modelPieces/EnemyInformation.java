@@ -150,30 +150,31 @@ public class EnemyInformation {
 		{0, 0, 0, 0}   				// Cave Leech
 	};
 	
+	// This info comes from Elythnwaen's Temperatures spreadsheet, and many of those values were seeded from MikeGSG giving us the values for the 5 "base" creature types.
 	// TODO: update this chart once Elythnwaen finishes that spreadsheet.
 	private static double[][] enemyTemperatures = {
 		// Ignite Temp, Douse Temp, Heat Loss Rate, Freeze Temp, Thaw Temp, Heat Gain Rate
 		{5, 0, 1, -20, 0, 4},			// Glyphid Swarmer
-		{25, 10, 3, -30, 0, 6},			// Glyphid Grunt
-		{100, 40, 10, -150, -100, 10},	// Glyphid Grunt Guard
-		{25, 10, 3, -30, 0, 6},			// Glyphid Grunt Slasher
+		{30, 10, 6, -30, 0, 6},			// Glyphid Grunt
+		{60, 30, 6, -100, -70, 6},		// Glyphid Grunt Guard TODO
+		{30, 10, 6, -30, 0, 6},			// Glyphid Grunt Slasher
 		{100, 40, 10, -150, -100, 10},	// Glyphid Praetorian
-		{5, 0, 1, -10, 0, 12},			// Glyphid Exploder
-		{100, 40, 10, -250, -200, 50},	// Glyphid Bulk Detonator
-		{100, 40, 10, -250, -200, 50},	// Glyphid Crassus Detonator
-		{25, 10, 3, -30, 0, 6},			// Glyphid Webspitter
-		{25, 10, 3, -30, 0, 6},			// Glyphid Acidspitter
-		{25, 10, 3, -30, 0, 6},			// Glyphid Menace
-		{50, 25, 5, -70, -30, 8},		// Glyphid Warden
-		{100, 40, 10, -150, -100, 10},	// Glyphid Oppressor
-		{100, 40, 10, -150, -100, 10},	// Q'ronar Shellback
-		{25, 10, 3, -30, 0, 0},			// Mactera Spawn
-		{25, 10, 3, -180, 0, 0},		// Mactera Grabber
-		{25, 10, 3, -30, 0, 0},			// Mactera Bomber
-		{60, 30, 6, -150, 1, 0},		// Naedocyte Breeder
-		{10, 0, 4, -20, 0, 4},			// Glyphid Brood Nexus
-		{25, 10, 3, -30, 0, 6},			// Spitball Infector
-		{5, 0, 1, -20, 0, 4}			// Cave Leech
+		{10, 0, 6, -10, 0, 12},			// Glyphid Exploder
+		{50, 25, 6, -70, -30, 6},		// Glyphid Bulk Detonator TODO
+		{50, 25, 6, -70, -30, 6},		// Glyphid Crassus Detonator TODO
+		{30, 0, 6, -75, 0, 10},			// Glyphid Webspitter
+		{50, 25, 6, -50, 0, 6},			// Glyphid Acidspitter TODO
+		{30, 0, 6, -50, 0, 6},			// Glyphid Menace
+		{50, 25, 6, -70, -30, 6},		// Glyphid Warden
+		{100, 40, 10, -300, -200, 20},	// Glyphid Oppressor TODO
+		{100, 40, 10, -150, -100, 10},	// Q'ronar Shellback TODO
+		{35, 5, 10, -100, 0, 40},		// Mactera Spawn
+		{30, 0, 10, -180, 0, 40},		// Mactera Grabber
+		{50, 25, 6, -200, 0, 40},		// Mactera Bomber TODO
+		{60, 30, 10, -150, 1, 0},		// Naedocyte Breeder
+		{7.5, 0, 4, -7.5, 0, 4},		// Glyphid Brood Nexus
+		{30, 0, 10, -30, 0, 6},			// Spitball Infector
+		{30, 0, 10, -30, 0, 6}			// Cave Leech
 	};
 	
 	// This information comes straight from MikeGSG -- Thanks, Mike!
@@ -319,14 +320,17 @@ public class EnemyInformation {
 		
 		int numEnemyTypes = spawnRates.length;
 		double[] igniteTemps = new double[numEnemyTypes];
+		double[] heatLossRates = new double[numEnemyTypes];
 		
 		for (int i = 0; i < numEnemyTypes; i++) {
 			igniteTemps[i] = enemyTemperatures[i][0];
+			heatLossRates[i] = enemyTemperatures[i][2];
 		}
 		
 		double avgIgniteTemp = MathUtils.vectorDotProduct(spawnRates, igniteTemps);
+		double avgHeatLossRate = MathUtils.vectorDotProduct(spawnRates, heatLossRates);
 		
-		return avgIgniteTemp / heatPerSecond;
+		return avgIgniteTemp / (heatPerSecond - avgHeatLossRate);
 	}
 	public static double averageBurnDuration() {
 		if (!verifySpawnRatesTotalIsOne()) {
@@ -369,8 +373,8 @@ public class EnemyInformation {
 	
 	// Cold per shot should be a negative number to indicate that the enemy's temperature is being decreased
 	public static double averageTimeToFreeze(double coldPerShot, double RoF) {
-		// Early exit: if Cold/Sec > 150, then all enemies get frozen instantly since the largest Freeze Temp is 150.
-		if (coldPerShot <= -150) {
+		// Early exit: if Cold/Shot > 300, then all enemies get frozen instantly since the largest Freeze Temp is 300.
+		if (coldPerShot <= -300) {
 			return 0;
 		}
 		
@@ -383,15 +387,18 @@ public class EnemyInformation {
 		
 		int numEnemyTypes = spawnRates.length;
 		double[] freezeTemps = new double[numEnemyTypes];
+		double[] heatGainRates = new double[numEnemyTypes];
 		
 		for (int i = 0; i < numEnemyTypes; i++) {
 			freezeTemps[i] = enemyTemperatures[i][3];
+			heatGainRates[i] = enemyTemperatures[i][5];
 		}
 		
 		double avgFreezeTemp = MathUtils.vectorDotProduct(spawnRates, freezeTemps);
+		double avgHeatGainRate = MathUtils.vectorDotProduct(spawnRates, heatGainRates);
 		
 		// Negative Freeze temps divided by negative cold per seconds results in a positive number of seconds
-		return avgFreezeTemp / coldPerSecond;
+		return avgFreezeTemp / (coldPerSecond + avgHeatGainRate);
 	}
 	public static double averageTimeToRefreeze(double coldPerSecond) {
 		if (!verifySpawnRatesTotalIsOne()) {
@@ -401,17 +408,20 @@ public class EnemyInformation {
 		int numEnemyTypes = spawnRates.length;
 		double[] freezeTemps = new double[numEnemyTypes];
 		double[] thawTemps = new double[numEnemyTypes];
+		double[] heatGainRates = new double[numEnemyTypes];
 		
 		for (int i = 0; i < numEnemyTypes; i++) {
 			freezeTemps[i] = enemyTemperatures[i][3];
 			thawTemps[i] = enemyTemperatures[i][4];
+			heatGainRates[i] = enemyTemperatures[i][5];
 		}
 		
 		double avgFreezeTemp = MathUtils.vectorDotProduct(spawnRates, freezeTemps);
 		double avgThawTemp = MathUtils.vectorDotProduct(spawnRates, thawTemps);
+		double avgHeatGainRate = MathUtils.vectorDotProduct(spawnRates, heatGainRates);
 		
 		// Negative Freeze temps divided by negative cold per seconds results in a positive number of seconds
-		return (avgFreezeTemp - avgThawTemp) / coldPerSecond;
+		return (avgFreezeTemp - avgThawTemp) / (coldPerSecond + avgHeatGainRate);
 	}
 	public static double averageFreezeDuration() {
 		if (!verifySpawnRatesTotalIsOne()) {
