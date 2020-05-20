@@ -116,6 +116,7 @@ public class View extends JFrame implements Observer {
 		
 		// Information
 		infoTabs = new JTabbedPane();
+		infoTabs.addTab("Metrics Explanation", InformationTabsText.getMetricsExplanation());
 		infoTabs.addTab("F.A.Q.", InformationTabsText.getFAQText());
 		infoTabs.addTab("Glossary", InformationTabsText.getGlossaryText());
 		infoTabs.addTab("Acknowledgements", InformationTabsText.getAcknowledgementsText());
