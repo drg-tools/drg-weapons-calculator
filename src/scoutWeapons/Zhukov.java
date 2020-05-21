@@ -18,7 +18,8 @@ import modelPieces.Weapon;
 import utilities.MathUtils;
 
 // Embedded Detonators does 5 damage per ammo (10/bullet) on reload
-
+// TODO: Find out Cryo Minelets' real Cold Damage per mine. Originally thought it was 8 due to tests on Brood Nexus that I thought was 80% of 10,
+// but due to MikeGSG's temperature values we now know that Brood Nexus freezes at 7.5, which scales it down to 6.
 public class Zhukov extends Weapon {
 	
 	/****************************************************************************************
@@ -100,7 +101,7 @@ public class Zhukov extends Weapon {
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Minimal Magazines", "+2 Rate of Fire, -0.4 Reload Time", overclockIcons.reloadSpeed, 0);
 		overclocks[1] = new Overclock(Overclock.classification.balanced, "Custom Casings", "+30 Mag Size, -1 Direct Damage", overclockIcons.magSize, 1);
 		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "Any bullets that impact terrain get converted to Cryo Minelets. After 1 second of arming time they will explode on any "
-				+ "enemies that get close, dealing 8 Cold Damage each. They automatically explode after 3 seconds. -1 Direct Damage, -10 Magazine Size", overclockIcons.coldDamage, 2);
+				+ "enemies that get close, dealing 6 Cold Damage each. They automatically explode after 3 seconds. -1 Direct Damage, -10 Magazine Size", overclockIcons.coldDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 10 Area Damage to the enemy "
 				+ "upon reloading. -3 Direct Damage, -75 Max Ammo.", overclockIcons.specialReload, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Gas Recycling", "+5 Direct Damage, but it can no longer gain bonus damage from hitting a Weakpoint. Additionally, x1.5 Base Spread "
