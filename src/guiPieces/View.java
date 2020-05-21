@@ -225,7 +225,7 @@ public class View extends JFrame implements Observer {
 		radioButtonsPanel.add(dsHaz5);
 		
 		dsPCGroup = new ButtonGroup();
-		dsPC1 = new JRadioButton("1", true);
+		dsPC1 = new JRadioButton("1");
 		dsPCGroup.add(dsPC1);
 		radioButtonsPanel.add(dsPC1);
 		dsPC2 = new JRadioButton("2");
@@ -234,7 +234,7 @@ public class View extends JFrame implements Observer {
 		dsPC3 = new JRadioButton("3");
 		dsPCGroup.add(dsPC3);
 		radioButtonsPanel.add(dsPC3);
-		dsPC4 = new JRadioButton("4");
+		dsPC4 = new JRadioButton("4", true);
 		dsPCGroup.add(dsPC4);
 		radioButtonsPanel.add(dsPC4);
 		radioButtonsPanel.add(new JLabel());

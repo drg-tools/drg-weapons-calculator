@@ -5,7 +5,7 @@ import utilities.MathUtils;
 public class EnemyInformation {
 	
 	private static int hazardLevel = 4;
-	private static int playerCount = 1;
+	private static int playerCount = 4;
 	public static void setHazardLevel(int newHazLevel) {
 		if (newHazLevel > 0 && newHazLevel < 6) {
 			hazardLevel = newHazLevel;

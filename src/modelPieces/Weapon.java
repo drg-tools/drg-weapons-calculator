@@ -440,6 +440,11 @@ public abstract class Weapon extends Observable {
 	}
 	
 	protected double[] calculateAverageAreaDamage(double radius, double fullDamageRadius, double falloffPercentageAtOuterEdge) {
+		// Special condition: if fullDamageRadius >= radius, then return with 100% efficiency
+		if (fullDamageRadius >= radius) {
+			return new double[] {radius, 1.0, calculateNumGlyphidsInRadius(radius)};
+		}
+		
 		// Want to test the fullDamageRadius radius and every radius in +0.05m increments, and finally the outermost radius
 		int numRadiiToTest = (int) Math.floor((radius - fullDamageRadius) * 20.0) + 1;
 		
