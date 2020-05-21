@@ -3,6 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import dataGenerator.DatabaseConstants;
 import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
@@ -288,6 +289,12 @@ public class Autocannon extends Weapon {
 	public String getSimpleName() {
 		return "Autocannon";
 	}
+	public int getDwarfClassID() {
+		return DatabaseConstants.gunnerCharacterID;
+	}
+	public int getWeaponID() {
+		return DatabaseConstants.autocannonGunsID;
+	}
 	
 	/****************************************************************************************
 	* Setters and Getters
@@ -477,9 +484,10 @@ public class Autocannon extends Weapon {
 		return true;
 	}
 	
+	@Override
 	protected void setAoEEfficiency() {
-		double radius = getAoERadius();
-		aoeEfficiency =  calculateAverageAreaDamage(radius, radius/2.0, 0.75, 0.5);
+		// TODO: Elythnwaen doesn't have access to the full damage radius and damage fall-off of the Autocannon, so ask MikeGSG for those 2 values.
+		aoeEfficiency =  calculateAverageAreaDamage(getAoERadius(), 1.0, 0.25);
 	}
 	
 	// Single-target calculations
@@ -648,18 +656,11 @@ public class Autocannon extends Weapon {
 		double timeToFireMagazine = ((double) magSize) / getAverageRateOfFire();
 		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
-
+	
 	@Override
-	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
-	}
-
-	@Override
-	public double averageOverkill() {
+	protected double averageDamageToKillEnemy() {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage()) + getAreaDamage();
-		double enemyHP = EnemyInformation.averageHealthPool();
-		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
-		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
+		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
 	@Override
@@ -683,6 +684,12 @@ public class Autocannon extends Weapon {
 		}
 		
 		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, false, crosshairWidthPixels, crosshairHeightPixels);
+	}
+	
+	@Override
+	public int breakpoints() {
+		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), getAreaDamage(), 0);
+		return MathUtils.sum(breakpoints);
 	}
 
 	@Override
@@ -736,4 +743,20 @@ public class Autocannon extends Weapon {
 		return MathUtils.sum(utilityScores);
 	}
 
+	@Override
+	public double damagePerMagazine() {
+		double damagePerBullet = getDirectDamage() + getAreaDamage() * aoeEfficiency[1] * aoeEfficiency[2];
+		double magSize = getMagazineSize();
+		double damageMultiplier = 1.0;
+		if (selectedTier5 == 0) {
+			double numBulletsRampup = (double) getNumBulletsRampup();
+			damageMultiplier = (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+		}
+		return damagePerBullet * magSize * damageMultiplier;
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getMagazineSize() / getAverageRateOfFire();
+	}
 }

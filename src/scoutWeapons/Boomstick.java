@@ -3,6 +3,7 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import dataGenerator.DatabaseConstants;
 import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
@@ -280,6 +281,12 @@ public class Boomstick extends Weapon {
 	}
 	public String getSimpleName() {
 		return "Boomstick";
+	}
+	public int getDwarfClassID() {
+		return DatabaseConstants.scoutCharacterID;
+	}
+	public int getWeaponID() {
+		return DatabaseConstants.boomstickGunsID;
 	}
 	
 	/****************************************************************************************
@@ -667,18 +674,11 @@ public class Boomstick extends Weapon {
 			return getCarriedAmmo() * getReloadTime();
 		}
 	}
-
+	
 	@Override
-	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
-	}
-
-	@Override
-	public double averageOverkill() {
-		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet() * getNumberOfPellets());
-		double enemyHP = EnemyInformation.averageHealthPool();
-		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
-		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
+	protected double averageDamageToKillEnemy() {
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet()) * getNumberOfPellets();
+		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
 	@Override
@@ -698,6 +698,12 @@ public class Boomstick extends Weapon {
 		}
 		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, true, crosshairWidthPixels, crosshairHeightPixels);
 	}
+	
+	@Override
+	public int breakpoints() {
+		breakpoints = EnemyInformation.calculateBreakpoints(getDamagePerPellet() * getNumberOfPellets(), 0, 0);
+		return MathUtils.sum(breakpoints);
+	}
 
 	@Override
 	public double utilityScore() {
@@ -711,6 +717,7 @@ public class Boomstick extends Weapon {
 		}
 		
 		// Light Armor Breaking probability
+		// TODO: Should this probability be calculated like its stun/pellet chance?
 		int numPelletsThatHitLightArmorPlate = (int) Math.round(getNumberOfPellets() * estimatedAccuracy(false) / 100.0);
 		double probabilityToBreakLightArmorPlatePerPellet = calculateProbabilityToBreakLightArmor(getDamagePerPellet() * numPelletsThatHitLightArmorPlate, getArmorBreaking());
 		utilityScores[2] = probabilityToBreakLightArmorPlatePerPellet * UtilityInformation.ArmorBreak_Utility;
@@ -730,5 +737,23 @@ public class Boomstick extends Weapon {
 		utilityScores[5] = stunChance * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
 		
 		return MathUtils.sum(utilityScores);
+	}
+	
+	@Override
+	public double damagePerMagazine() {
+		// 20 degree isosceles triangle, 4m height; 1.41m base. 4 grunts can be hit in a 1-2-1 stack.
+		int gruntsHitByBlastwave = 4;
+		return getMagazineSize() * (getDamagePerPellet() * getNumberOfPellets() * calculateMaxNumTargets() + getBlastwaveDamage() * gruntsHitByBlastwave);
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		int magSize = getMagazineSize();
+		if (magSize > 1) {
+			return magSize / getRateOfFire();
+		}
+		else {
+			return 0;
+		}
 	}
 }

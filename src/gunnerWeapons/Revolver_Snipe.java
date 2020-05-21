@@ -3,6 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import dataGenerator.DatabaseConstants;
 import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
@@ -278,6 +279,12 @@ public class Revolver_Snipe extends Weapon {
 	}
 	public String getSimpleName() {
 		return "Revolver_Snipe";
+	}
+	public int getDwarfClassID() {
+		return DatabaseConstants.gunnerCharacterID;
+	}
+	public int getWeaponID() {
+		return DatabaseConstants.revolverGunsID;
 	}
 	
 	/****************************************************************************************
@@ -802,18 +809,11 @@ public class Revolver_Snipe extends Weapon {
 		double timeToFireMagazine = ((double) magSize) / getRateOfFire();
 		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
-
+	
 	@Override
-	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
-	}
-
-	@Override
-	public double averageOverkill() {
+	protected double averageDamageToKillEnemy() {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) + getAreaDamage();
-		double enemyHP = EnemyInformation.averageHealthPool();
-		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
-		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
+		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
 	@Override
@@ -853,6 +853,12 @@ public class Revolver_Snipe extends Weapon {
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
 				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
 	}
+	
+	@Override
+	public int breakpoints() {
+		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), getAreaDamage(), getWeakpointBonus());
+		return MathUtils.sum(breakpoints);
+	}
 
 	@Override
 	public double utilityScore() {
@@ -871,5 +877,28 @@ public class Revolver_Snipe extends Weapon {
 		utilityScores[5] = stunChance * calculateMaxNumTargets() * stunDuration * UtilityInformation.Stun_Utility;
 		
 		return MathUtils.sum(utilityScores);
+	}
+	
+	@Override
+	public double damagePerMagazine() {
+		double damagePerShot;
+		if (selectedTier3 == 0) {
+			// Blowthrough Rounds
+			damagePerShot = getDirectDamage() * (1 + getMaxPenetrations());
+		}
+		else if (selectedTier3 == 1) {
+			// Explosive Rounds
+			damagePerShot = getDirectDamage() + getAreaDamage() * calculateNumGlyphidsInRadius(getAoERadius());
+		}
+		else {
+			damagePerShot = getDirectDamage();
+		}
+		
+		return damagePerShot * getMagazineSize();
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getMagazineSize() / calculateAccurateRoF(getRateOfFire());
 	}
 }

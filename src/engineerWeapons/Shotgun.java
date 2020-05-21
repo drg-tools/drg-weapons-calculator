@@ -3,6 +3,7 @@ package engineerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import dataGenerator.DatabaseConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
@@ -270,6 +271,12 @@ public class Shotgun extends Weapon {
 	}
 	public String getSimpleName() {
 		return "Shotgun";
+	}
+	public int getDwarfClassID() {
+		return DatabaseConstants.engineerCharacterID;
+	}
+	public int getWeaponID() {
+		return DatabaseConstants.shotgunGunsID;
 	}
 	
 	/****************************************************************************************
@@ -603,18 +610,11 @@ public class Shotgun extends Weapon {
 		double timeToFireMagazine = ((double) magSize) / getRateOfFire();
 		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
-
+	
 	@Override
-	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
-	}
-
-	@Override
-	public double averageOverkill() {
+	protected double averageDamageToKillEnemy() {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(increaseBulletDamageForWeakpoints(getDamagePerPellet()) * getNumberOfPellets());
-		double enemyHP = EnemyInformation.averageHealthPool();
-		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
-		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
+		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
 	@Override
@@ -636,10 +636,17 @@ public class Shotgun extends Weapon {
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
 				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
 	}
+	
+	@Override
+	public int breakpoints() {
+		breakpoints = EnemyInformation.calculateBreakpoints(getDamagePerPellet() * getNumberOfPellets(), 0, getWeakpointBonus());
+		return MathUtils.sum(breakpoints);
+	}
 
 	@Override
 	public double utilityScore() {
 		// Light Armor Breaking probability
+		// TODO: Should this probability be calculated like its stun/pellet chance?
 		int numPelletsThatHitLightArmorPlate = (int) Math.round(getNumberOfPellets() * estimatedAccuracy(false) / 100.0);
 		double probabilityToBreakLightArmorPlatePerPellet = calculateProbabilityToBreakLightArmor(getDamagePerPellet() * numPelletsThatHitLightArmorPlate, getArmorBreaking());
 		utilityScores[2] = probabilityToBreakLightArmorPlatePerPellet * UtilityInformation.ArmorBreak_Utility;
@@ -648,5 +655,15 @@ public class Shotgun extends Weapon {
 		utilityScores[5] = calculateCumulativeStunChancePerShot() * getStunDuration() * UtilityInformation.Stun_Utility;
 		
 		return MathUtils.sum(utilityScores);
+	}
+	
+	@Override
+	public double damagePerMagazine() {
+		return getDamagePerPellet() * getNumberOfPellets() * getMagazineSize();
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getMagazineSize() / getRateOfFire();
 	}
 }

@@ -1,11 +1,16 @@
 package dataGenerator;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import modelPieces.Weapon;
 
+// TODO: I think it would be possible to refactor this class a little bit to only get the metrics for a particular combination once per loop per weapon
+// but it would take a couple days to do that refactor.
 public class WeaponStatsGenerator {
 	
 	private Weapon weaponToTest;
@@ -18,13 +23,15 @@ public class WeaponStatsGenerator {
 		weaponToTest = testingWeapon;
 		csvFolderPath = "";
 		
-		String weaponPackage = weaponToTest.getDwarfClass();
-		String weaponClassName = weaponToTest.getSimpleName();
-		csvFilePath = csvFolderPath + "\\" + weaponPackage + "_" + weaponClassName + ".csv";
+		String weaponClass = weaponToTest.getDwarfClass();
+		String weaponName = weaponToTest.getSimpleName();
+		File csvOut = new File(csvFolderPath, weaponClass + "_" + weaponName + ".csv");
+		csvFilePath = csvOut.getAbsolutePath();
 		
 		headers = new String[] {"Mods/OC", "Ideal Burst DPS", "Ideal Sustained DPS", "Sustained DPS (+Weakpoints)", 
-								"Sustained DPS (+Weakpoints, +Accuracy)", "Ideal Additional Target DPS", "Max Multi-Target Dmg", 
-								"Max Num Targets", "Firing Duration", "Avg TTK", "Avg Overkill", "Accuracy", "Utility"};
+								"Sustained DPS (+Weakpoints, +Accuracy)", "Ideal Additional Target DPS", "Max Num Targets", 
+								"Max Multi-Target Dmg", "Ammo Efficiency", "General Accuracy", "Weakpoint Accuracy", 
+								"Firing Duration", "Avg Overkill", "Avg TTK", "Breakpoints", "Utility"};
 		csvLinesToWrite = new ArrayList<String>();
 	}
 	
@@ -33,16 +40,18 @@ public class WeaponStatsGenerator {
 	}
 	public void setCSVFolderPath(String newPath) {
 		csvFolderPath = newPath;
-		String weaponPackage = weaponToTest.getDwarfClass();
-		String weaponClassName = weaponToTest.getSimpleName();
-		csvFilePath = csvFolderPath + "\\" + weaponPackage + "_" + weaponClassName + ".csv";
+		String weaponClass = weaponToTest.getDwarfClass();
+		String weaponName = weaponToTest.getSimpleName();
+		File csvOut = new File(csvFolderPath, weaponClass + "_" + weaponName + ".csv");
+		csvFilePath = csvOut.getAbsolutePath();
 	}
 	
 	public void changeWeapon(Weapon newWeaponToCalculate) {
 		weaponToTest = newWeaponToCalculate;
-		String weaponPackage = weaponToTest.getDwarfClass();
-		String weaponClassName = weaponToTest.getSimpleName();
-		csvFilePath = csvFolderPath + "\\" + weaponPackage + "_" + weaponClassName + ".csv";
+		String weaponClass = weaponToTest.getDwarfClass();
+		String weaponName = weaponToTest.getSimpleName();
+		File csvOut = new File(csvFolderPath, weaponClass + "_" + weaponName + ".csv");
+		csvFilePath = csvOut.getAbsolutePath();
 		
 		// Proactively clear out the old CSV lines, since they won't be applicable to the new Weapon
 		csvLinesToWrite = new ArrayList<String>();
@@ -82,66 +91,72 @@ public class WeaponStatsGenerator {
 		
 		if (printStatsToConsole) {
 			System.out.printf("******** %s ********\n", weaponToTest.getFullName());
-			System.out.printf("%s\t\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t\t%s\t%s\t%s\n", headers[0], headers[1], headers[2], headers[3], headers[4], 
-							  headers[5], headers[6], headers[7], headers[8], headers[9], headers[10], headers[11], headers[12]);
+			System.out.printf("%s\t\t%s\t%s\t%s\t%s\t%s\t%s\t\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t\t%s\t%s\n", headers[0], headers[1], headers[2], headers[3], headers[4], 
+							  headers[5], headers[6], headers[7], headers[8], headers[9], headers[10], headers[11], headers[12], headers[13], headers[14], headers[15]);
 		
 			// Section 1: baseline statistics
-			weaponToTest.setSelectedModAtTier(1, -1);
-			weaponToTest.setSelectedModAtTier(2, -1);
-			weaponToTest.setSelectedModAtTier(3, -1);
-			weaponToTest.setSelectedModAtTier(4, -1);
-			weaponToTest.setSelectedModAtTier(5, -1);
-			weaponToTest.setSelectedOverclock(-1);
+			weaponToTest.setSelectedModAtTier(1, -1, false);
+			weaponToTest.setSelectedModAtTier(2, -1, false);
+			weaponToTest.setSelectedModAtTier(3, -1, false);
+			weaponToTest.setSelectedModAtTier(4, -1, false);
+			weaponToTest.setSelectedModAtTier(5, -1, false);
+			weaponToTest.setSelectedOverclock(-1, false);
 			
 			calculateStatsAndPrint(printStatsToConsole, false);
-			System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+			System.out.println("------------------------------------------------------------------------------------------------------------------------------------"
+					+ "---------------------------------------------------------------------------------------------------------------------------------------------"
+					+ "------------------------------------------------------------------------");
 		
 			// Section 2: stat changes of individual mods
 			int i;
 			for (i = 0; i < weaponToTest.getModsAtTier(1).length; i++) {
-				weaponToTest.setSelectedModAtTier(1, i);
+				weaponToTest.setSelectedModAtTier(1, i, false);
 				calculateStatsAndPrint(printStatsToConsole, false);
 			}
 			// Unselect the mod at this tier so it doesn't affect the next tier
-			weaponToTest.setSelectedModAtTier(1, -1);
+			weaponToTest.setSelectedModAtTier(1, -1, false);
 			
 			for (i = 0; i < weaponToTest.getModsAtTier(2).length; i++) {
-				weaponToTest.setSelectedModAtTier(2, i);
+				weaponToTest.setSelectedModAtTier(2, i, false);
 				calculateStatsAndPrint(printStatsToConsole, false);	
 			}
 			// Unselect the mod at this tier so it doesn't affect the next tier
-			weaponToTest.setSelectedModAtTier(2, -1);
+			weaponToTest.setSelectedModAtTier(2, -1, false);
 			
 			for (i = 0; i < weaponToTest.getModsAtTier(3).length; i++) {
-				weaponToTest.setSelectedModAtTier(3, i);
+				weaponToTest.setSelectedModAtTier(3, i, false);
 				calculateStatsAndPrint(printStatsToConsole, false);
 			}
 			// Unselect the mod at this tier so it doesn't affect the next tier
-			weaponToTest.setSelectedModAtTier(3, -1);
+			weaponToTest.setSelectedModAtTier(3, -1, false);
 			
 			for (i = 0; i < weaponToTest.getModsAtTier(4).length; i++) {
-				weaponToTest.setSelectedModAtTier(4, i);
+				weaponToTest.setSelectedModAtTier(4, i, false);
 				calculateStatsAndPrint(printStatsToConsole, false);
 			}
 			// Unselect the mod at this tier so it doesn't affect the next tier
-			weaponToTest.setSelectedModAtTier(4, -1);
+			weaponToTest.setSelectedModAtTier(4, -1, false);
 			
 			for (i = 0; i < weaponToTest.getModsAtTier(5).length; i++) {
-				weaponToTest.setSelectedModAtTier(5, i);
+				weaponToTest.setSelectedModAtTier(5, i, false);
 				calculateStatsAndPrint(printStatsToConsole, false);
 			}
 			// Unselect the mod at this tier so it doesn't affect the next tier
-			weaponToTest.setSelectedModAtTier(5, -1);
-			System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+			weaponToTest.setSelectedModAtTier(5, -1, false);
+			System.out.println("------------------------------------------------------------------------------------------------------------------------------------"
+					+ "---------------------------------------------------------------------------------------------------------------------------------------------"
+					+ "------------------------------------------------------------------------");
 		
 			// Section 3: stat changes of individual overclocks
 			for (i = 0; i < weaponToTest.getOverclocks().length; i++) {
-				weaponToTest.setSelectedOverclock(i);
+				weaponToTest.setSelectedOverclock(i, false);
 				calculateStatsAndPrint(printStatsToConsole, false);
 			}
 			// Unselect the overclock so that weaponToTest will be at "baseline" before doing the 6 clone() calls
-			weaponToTest.setSelectedOverclock(-1);
-			System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+			weaponToTest.setSelectedOverclock(-1, false);
+			System.out.println("------------------------------------------------------------------------------------------------------------------------------------"
+					+ "---------------------------------------------------------------------------------------------------------------------------------------------"
+					+ "------------------------------------------------------------------------");
 		}
 		
 		// Section 4: COMBINATORICS
@@ -161,119 +176,142 @@ public class WeaponStatsGenerator {
 		String bestAdditionalTargetDPSCombination = bestIdealBurstDPSCombination;
 		double bestAdditionalTargetDPS = weaponToTest.calculateAdditionalTargetDPS();
 		
+		String mostNumTargetsCombination = bestIdealBurstDPSCombination;
+		double mostNumTargets = weaponToTest.calculateMaxNumTargets();
+		
 		String mostMultiTargetDamageCombination = bestIdealBurstDPSCombination;
 		double mostMultiTargetDamage = weaponToTest.calculateMaxMultiTargetDamage();
 		
-		String mostNumTargetsCombination = bestIdealBurstDPSCombination;
-		double mostNumTargets = weaponToTest.calculateMaxNumTargets();
+		String mostAmmoEfficientCombination = bestIdealBurstDPSCombination;
+		double mostAmmoEfficient = weaponToTest.ammoEfficiency();
+		
+		String bestGeneralAccuracyCombination = bestIdealBurstDPSCombination;
+		double bestGeneralAccuracy = weaponToTest.estimatedAccuracy(false);
+		
+		String bestWeakpointAccuracyCombination = bestIdealBurstDPSCombination;
+		double bestWeakpointAccuracy = weaponToTest.estimatedAccuracy(true);
 		
 		String longestFiringDurationCombination = bestIdealBurstDPSCombination;
 		double longestFiringDuration = weaponToTest.calculateFiringDuration();
 		
-		String fastestTTKCombination = bestIdealBurstDPSCombination;
-		double fastestTTK = weaponToTest.averageTimeToKill();
-		
 		String lowestOverkillCombination = bestIdealBurstDPSCombination;
 		double lowestOverkill = weaponToTest.averageOverkill();
 		
-		String bestAccuracyCombination = bestIdealBurstDPSCombination;
-		double bestAccuracy = weaponToTest.estimatedAccuracy(false);
+		String fastestTTKCombination = bestIdealBurstDPSCombination;
+		double fastestTTK = weaponToTest.averageTimeToKill();
+		
+		String fewestBreakpointsCombination = bestIdealBurstDPSCombination;
+		double fewestBreakpoints = weaponToTest.breakpoints();
 		
 		String bestUtilityCombination = bestIdealBurstDPSCombination;
 		double bestUtility = weaponToTest.utilityScore();
 		
-		double currentBurst, currentSustained, currentSustainedWeakpoint, currentSustainedWeakpointAccuracy, currentAdditional, currentMaxDamage, 
-				currentNumTargets, currentFiringDuration, currentTTK, currentOverkill, currentAccuracy, currentUtility;
+		double currentValue;
 		String forLoopsCombination;
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
+			weaponToTest.setSelectedOverclock(oc, false);
 			
 			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
+				weaponToTest.setSelectedModAtTier(5, t5, false);
 				
 				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
+					weaponToTest.setSelectedModAtTier(4, t4, false);
 					
 					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
+						weaponToTest.setSelectedModAtTier(3, t3, false);
 						
 						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
+							weaponToTest.setSelectedModAtTier(2, t2, false);
 							
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
+								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
 								// Because this will generate thousands of lines of data, never print to console.
 								calculateStatsAndPrint(false, exportStatsToCSV);
 								
 								forLoopsCombination = weaponToTest.getCombination();
 								
-								// Single-target calculations
-								currentBurst = weaponToTest.calculateIdealBurstDPS();
-								if (currentBurst > bestIdealBurstDPS) {
+								// Row 1
+								currentValue = weaponToTest.calculateIdealBurstDPS();
+								if (currentValue > bestIdealBurstDPS) {
 									bestIdealBurstDPSCombination = forLoopsCombination;
-									bestIdealBurstDPS = currentBurst;
+									bestIdealBurstDPS = currentValue;
 								}
-								currentSustained = weaponToTest.calculateIdealSustainedDPS();
-								if (currentSustained > bestIdealSustainedDPS) {
+								currentValue = weaponToTest.calculateIdealSustainedDPS();
+								if (currentValue > bestIdealSustainedDPS) {
 									bestIdealSustainedDPSCombination = forLoopsCombination;
-									bestIdealSustainedDPS = currentSustained;
+									bestIdealSustainedDPS = currentValue;
 								}
-								currentSustainedWeakpoint = weaponToTest.sustainedWeakpointDPS();
-								if (currentSustainedWeakpoint > bestWeakpointSustainedDPS) {
+								currentValue = weaponToTest.sustainedWeakpointDPS();
+								if (currentValue > bestWeakpointSustainedDPS) {
 									bestWeakpointSustainedDPSCombination = forLoopsCombination;
-									bestWeakpointSustainedDPS = currentSustainedWeakpoint;
+									bestWeakpointSustainedDPS = currentValue;
 								}
-								currentSustainedWeakpointAccuracy = weaponToTest.sustainedWeakpointAccuracyDPS();
-								if (currentSustainedWeakpointAccuracy > bestWeakpointAccuracySustainedDPS) {
+								currentValue = weaponToTest.sustainedWeakpointAccuracyDPS();
+								if (currentValue > bestWeakpointAccuracySustainedDPS) {
 									bestWeakpointAccuracySustainedDPSCombination = forLoopsCombination;
-									bestWeakpointAccuracySustainedDPS = currentSustainedWeakpointAccuracy;
+									bestWeakpointAccuracySustainedDPS = currentValue;
 								}
-								
-								// Multi-target calculations
-								currentAdditional = weaponToTest.calculateAdditionalTargetDPS();
-								if (currentAdditional > bestAdditionalTargetDPS) {
+								currentValue = weaponToTest.calculateAdditionalTargetDPS();
+								if (currentValue > bestAdditionalTargetDPS) {
 									bestAdditionalTargetDPSCombination = forLoopsCombination;
-									bestAdditionalTargetDPS = currentAdditional;
-								}
-								currentMaxDamage = weaponToTest.calculateMaxMultiTargetDamage();
-								if (currentMaxDamage > mostMultiTargetDamage) {
-									mostMultiTargetDamageCombination = forLoopsCombination;
-									mostMultiTargetDamage = currentMaxDamage;
+									bestAdditionalTargetDPS = currentValue;
 								}
 								
-								// Non-damage calculations
-								currentNumTargets = weaponToTest.calculateMaxNumTargets();
-								if (currentNumTargets > mostNumTargets) {
+								// Row 2
+								currentValue = weaponToTest.calculateMaxNumTargets();
+								if (currentValue > mostNumTargets) {
 									mostNumTargetsCombination = forLoopsCombination;
-									mostNumTargets = currentNumTargets;
+									mostNumTargets = currentValue;
 								}
-								currentFiringDuration = weaponToTest.calculateFiringDuration();
-								if (currentFiringDuration > longestFiringDuration) {
+								currentValue = weaponToTest.calculateMaxMultiTargetDamage();
+								if (currentValue > mostMultiTargetDamage) {
+									mostMultiTargetDamageCombination = forLoopsCombination;
+									mostMultiTargetDamage = currentValue;
+								}
+								currentValue = weaponToTest.ammoEfficiency();
+								if (currentValue > mostAmmoEfficient) {
+									mostAmmoEfficientCombination = forLoopsCombination;
+									mostAmmoEfficient = currentValue;
+								}
+								currentValue = weaponToTest.estimatedAccuracy(false);
+								if (currentValue > bestGeneralAccuracy) {
+									bestGeneralAccuracyCombination = forLoopsCombination;
+									bestGeneralAccuracy = currentValue;
+								}
+								currentValue = weaponToTest.estimatedAccuracy(true);
+								if (currentValue > bestWeakpointAccuracy) {
+									bestWeakpointAccuracyCombination = forLoopsCombination;
+									bestWeakpointAccuracy = currentValue;
+								}
+								
+								// Row 3
+								currentValue = weaponToTest.calculateFiringDuration();
+								if (currentValue > longestFiringDuration) {
 									longestFiringDurationCombination = forLoopsCombination;
-									longestFiringDuration = currentFiringDuration;
+									longestFiringDuration = currentValue;
 								}
-								currentTTK = weaponToTest.averageTimeToKill();
-								if (currentTTK < fastestTTK) {
-									fastestTTKCombination = forLoopsCombination;
-									fastestTTK = currentTTK;
-								}
-								currentOverkill = weaponToTest.averageOverkill();
-								if (currentOverkill < lowestOverkill) {
+								currentValue = weaponToTest.averageOverkill();
+								if (currentValue < lowestOverkill) {
 									lowestOverkillCombination = forLoopsCombination;
-									lowestOverkill = currentOverkill;
+									lowestOverkill = currentValue;
 								}
-								currentAccuracy = weaponToTest.estimatedAccuracy(false);
-								if (currentAccuracy > bestAccuracy) {
-									bestAccuracyCombination = forLoopsCombination;
-									bestAccuracy = currentAccuracy;
+								currentValue = weaponToTest.averageTimeToKill();
+								if (currentValue < fastestTTK) {
+									fastestTTKCombination = forLoopsCombination;
+									fastestTTK = currentValue;
 								}
-								currentUtility = weaponToTest.utilityScore();
-								if (currentUtility > bestUtility) {
+								currentValue = weaponToTest.breakpoints();
+								if (currentValue < fewestBreakpoints) {
+									fewestBreakpointsCombination = forLoopsCombination;
+									fewestBreakpoints = currentValue;
+								}
+								currentValue = weaponToTest.utilityScore();
+								if (currentValue > bestUtility) {
 									bestUtilityCombination = forLoopsCombination;
-									bestUtility = currentUtility;
+									bestUtility = currentValue;
 								}
 							}
 						}
@@ -289,12 +327,15 @@ public class WeaponStatsGenerator {
 			System.out.println("	Best Sustained + Weakpoint DPS: " + bestWeakpointSustainedDPSCombination + " at " + bestWeakpointSustainedDPS + " DPS");
 			System.out.println("	Best Sustained + Weakpoint + Accuracy DPS: " + bestWeakpointAccuracySustainedDPSCombination + " at " + bestWeakpointAccuracySustainedDPS + " DPS");
 			System.out.println("	Best Additional Target DPS: " + bestAdditionalTargetDPSCombination + " at " + bestAdditionalTargetDPS + " extra DPS per additional target");
-			System.out.println("	Most damage dealt to multiple targets: " + mostMultiTargetDamageCombination + " at " + mostMultiTargetDamage + " damage");
 			System.out.println("	Most number of targets hit per projectile: " + mostNumTargetsCombination + " at " + mostNumTargets + " targets per projectile");
+			System.out.println("	Most damage dealt to multiple targets: " + mostMultiTargetDamageCombination + " at " + mostMultiTargetDamage + " damage");
+			System.out.println("	Most ammo efficient: " + mostAmmoEfficientCombination + " at " + mostAmmoEfficient);
+			System.out.println("	Highest General Accuracy: " + bestGeneralAccuracyCombination + " at " + bestGeneralAccuracy + "%");
+			System.out.println("	Highest Weakpoint Accuracy: " + bestWeakpointAccuracyCombination + " at " + bestWeakpointAccuracy + "%");
 			System.out.println("	Longest time to fire all projectiles: " + longestFiringDurationCombination + " at " + longestFiringDuration + " sec");
-			System.out.println("	Shortest average Time To Kill: " + fastestTTKCombination + " at " + fastestTTK + " sec");
 			System.out.println("	Lowest average Overkill: " + lowestOverkillCombination + " at " + lowestOverkill + "%");
-			System.out.println("	Most Accurate: " + bestAccuracyCombination + " at " + bestAccuracy + "%");
+			System.out.println("	Shortest average Time To Kill: " + fastestTTKCombination + " at " + fastestTTK + " sec");
+			System.out.println("	Fewest Breakpoints: " + fewestBreakpointsCombination + " at " + fewestBreakpoints);
 			System.out.println("	Most Utility: " + bestUtilityCombination + " at " + bestUtility);
 		}
 		if (exportStatsToCSV) {
@@ -314,6 +355,51 @@ public class WeaponStatsGenerator {
 		
 		// Finally, set the Weapon back to the mods/oc combination that it started at before the test.
 		weaponToTest.buildFromCombination(currentCombination);
+	}
+	
+	public ArrayList<String> dumpToMySQL() {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		
+		// Grab the current combination for the weapon to restore after this is done
+		String currentCombination = weaponToTest.getCombination();
+		
+		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
+		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
+			weaponToTest.setSelectedOverclock(oc, false);
+			
+			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
+				weaponToTest.setSelectedModAtTier(5, t5, false);
+				
+				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
+					weaponToTest.setSelectedModAtTier(4, t4, false);
+					
+					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
+						weaponToTest.setSelectedModAtTier(3, t3, false);
+						
+						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
+							weaponToTest.setSelectedModAtTier(2, t2, false);
+							
+							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
+								weaponToTest.setSelectedModAtTier(1, t1, false);
+								
+								toReturn.add(String.format("INSERT INTO `%s` VALUES(NULL, %d, %d, '%s', '%s', %f, %f, %f, %f, %f, %d, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %f);\n", 
+										DatabaseConstants.tableName, weaponToTest.getDwarfClassID(), weaponToTest.getWeaponID(), weaponToTest.getSimpleName(), weaponToTest.getCombination(),
+										weaponToTest.calculateIdealBurstDPS(), weaponToTest.calculateIdealSustainedDPS(), weaponToTest.sustainedWeakpointDPS(), weaponToTest.sustainedWeakpointAccuracyDPS(), weaponToTest.calculateAdditionalTargetDPS(), 
+										weaponToTest.calculateMaxNumTargets(), weaponToTest.calculateMaxMultiTargetDamage(), weaponToTest.ammoEfficiency(), weaponToTest.estimatedAccuracy(false), weaponToTest.estimatedAccuracy(true),
+										weaponToTest.calculateFiringDuration(), weaponToTest.averageOverkill(), weaponToTest.averageTimeToKill(), weaponToTest.breakpoints(), weaponToTest.utilityScore(),
+										weaponToTest.damagePerMagazine(), weaponToTest.timeToFireMagazine()
+								));
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		// Return the weapon to the combination it had before
+		weaponToTest.buildFromCombination(currentCombination);
+		
+		return toReturn;
 	}
 	
 	private void calculateStatsAndPrint(boolean console, boolean csv) {
@@ -336,45 +422,133 @@ public class WeaponStatsGenerator {
 	}
 	
 	private void printStatsToConsole(String combination, double[] metrics) {
-		String format = "%s,\t\t%f,\t%f,\t\t%f,\t\t\t%f,\t\t\t\t%f,\t\t\t%f,\t\t%f,\t%f,\t%f,\t%f,\t%f,\t%f\n";
+		String format = "%s,\t\t%f,\t%f,\t\t%f,\t\t\t%f,\t\t\t\t%f,\t\t\t%f,\t\t%f,\t\t%f,\t%f,\t\t%f,\t\t%f,\t%f,\t%f,\t%f,\t%f\n";
 		System.out.printf(format, combination, metrics[0], metrics[1], metrics[2], metrics[3], metrics[4], metrics[5], 
-						  metrics[6], metrics[7], metrics[8], metrics[9], metrics[10], metrics[11]);
+						  metrics[6], metrics[7], metrics[8], metrics[9], metrics[10], metrics[11], metrics[12], metrics[13], metrics[14]);
 	}
 	
 	private void printStatsToCSV(String combination, double[] metrics) {
-		String format = "%s, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,\n";
+		String format = "%s, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f,\n";
 		csvLinesToWrite.add((String.format(format, combination, metrics[0], metrics[1], metrics[2], metrics[3], metrics[4], metrics[5], 
-				  			 metrics[6], metrics[7], metrics[8], metrics[9], metrics[10], metrics[11])));
+				  			 metrics[6], metrics[7], metrics[8], metrics[9], metrics[10], metrics[11], metrics[12], metrics[13], metrics[14])));
 	}
 	
-	public String getBestIdealBurstDPSCombination() {
-		String bestBurstDPSCombination = weaponToTest.getCombination();
-		double bestBurstDPS = weaponToTest.calculateIdealBurstDPS();
-		double currentBurstDPS;
+	public String getBestMetricCombination(int metricIndex) {
+		if (metricIndex < 0 || metricIndex > headers.length - 2) {
+			return "------";
+		}
+		
+		// Lowest Overkill, Fastest TTK, and Breakpoints should all be lowest-possible values
+		Integer[] indexesThatShouldUseLessThan = new Integer[] {11, 12, 13};
+		boolean comparatorShouldBeLessThan = new HashSet<Integer>(Arrays.asList(indexesThatShouldUseLessThan)).contains(metricIndex);
+		
+		String bestCombination = "------";
+		double bestValue, currentValue;
+		// To the best of my knowledge, none of these values goes above 200k, so setting the starting "best" value at 1 million should automatically make the first combination tried the new best
+		if (comparatorShouldBeLessThan) {
+			bestValue = 1000000;
+		}
+		else {
+			bestValue = -1000000;
+		}
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
+			weaponToTest.setSelectedOverclock(oc, false);
 			
 			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
+				weaponToTest.setSelectedModAtTier(5, t5, false);
 				
 				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
+					weaponToTest.setSelectedModAtTier(4, t4, false);
 					
 					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
+						weaponToTest.setSelectedModAtTier(3, t3, false);
 						
 						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
+							weaponToTest.setSelectedModAtTier(2, t2, false);
 							
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
+								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
-								currentBurstDPS = weaponToTest.calculateIdealBurstDPS();
-								if (currentBurstDPS > bestBurstDPS) {
-									bestBurstDPSCombination = weaponToTest.getCombination();
-									bestBurstDPS = currentBurstDPS;
+								switch (metricIndex) {
+									case 0:{
+										currentValue = weaponToTest.calculateIdealBurstDPS();
+										break;
+									}
+									case 1:{
+										currentValue = weaponToTest.calculateIdealSustainedDPS();
+										break;
+									}
+									case 2:{
+										currentValue = weaponToTest.sustainedWeakpointDPS();
+										break;
+									}
+									case 3:{
+										currentValue = weaponToTest.sustainedWeakpointAccuracyDPS();
+										break;
+									}
+									case 4:{
+										currentValue = weaponToTest.calculateAdditionalTargetDPS();
+										break;
+									}
+									case 5:{
+										currentValue = weaponToTest.calculateMaxNumTargets();
+										break;
+									}
+									case 6:{
+										currentValue = weaponToTest.calculateMaxMultiTargetDamage();
+										break;
+									}
+									case 7:{
+										currentValue = weaponToTest.ammoEfficiency();
+										break;
+									}
+									case 8:{
+										currentValue = weaponToTest.estimatedAccuracy(false);
+										break;
+									}
+									case 9:{
+										currentValue = weaponToTest.estimatedAccuracy(true);
+										break;
+									}
+									case 10:{
+										currentValue = weaponToTest.calculateFiringDuration();
+										break;
+									}
+									case 11:{
+										currentValue = weaponToTest.averageOverkill();
+										break;
+									}
+									case 12:{
+										currentValue = weaponToTest.averageTimeToKill();
+										break;
+									}
+									case 13:{
+										currentValue = weaponToTest.breakpoints();
+										break;
+									}
+									case 14:{
+										currentValue = weaponToTest.utilityScore();
+										break;
+									}
+									default: {
+										currentValue = 0;
+										break;
+									}
+								}
+								
+								if (comparatorShouldBeLessThan) {
+									if (currentValue < bestValue) {
+										bestCombination = weaponToTest.getCombination();
+										bestValue = currentValue;
+									}
+								}
+								else {
+									if (currentValue > bestValue) {
+										bestCombination = weaponToTest.getCombination();
+										bestValue = currentValue;
+									}
 								}
 							}
 						}
@@ -383,37 +557,174 @@ public class WeaponStatsGenerator {
 			}
 		}
 		
-		return bestBurstDPSCombination;
+		return bestCombination;
 	}
 	
-	public String getBestIdealSustainedDPSCombination() {
-		String bestSustainedDPSCombination = weaponToTest.getCombination();
-		double bestSustainedDPS = weaponToTest.calculateIdealSustainedDPS();
-		double currentSustainedDPS;
+	// This method is currently used only for finding best builds using a pre-selected partial build from the GUI, but it would have also been used for multi-threading if I hadn't fixed that "many times updating GUI" bug last patch.
+	public String getBestMetricCombination(int metricIndex, int[] tier1Subset, int[] tier2Subset, int[] tier3Subset, int[] tier4Subset, int[] tier5Subset, int[] overclocksSubset) {
+		if (metricIndex < 0 || metricIndex > headers.length - 2) {
+			return "------";
+		}
+		
+		if (tier1Subset.length != 2 || tier2Subset.length != 2 || tier3Subset.length != 2 || tier4Subset.length != 2 || tier5Subset.length != 2 || overclocksSubset.length != 2) {
+			return "------";
+		}
+		
+		if (tier1Subset[0] > tier1Subset[1] || tier1Subset[0] < -1 || tier1Subset[0] > weaponToTest.getModsAtTier(1).length - 1 || tier1Subset[1] < -1 || tier1Subset[1] > weaponToTest.getModsAtTier(1).length - 1) {
+			return "------";
+		}
+		if (tier2Subset[0] > tier2Subset[1] || tier2Subset[0] < -1 || tier2Subset[0] > weaponToTest.getModsAtTier(2).length - 1 || tier2Subset[1] < -1 || tier2Subset[1] > weaponToTest.getModsAtTier(2).length - 1) {
+			return "------";
+		}
+		if (tier3Subset[0] > tier3Subset[1] || tier3Subset[0] < -1 || tier3Subset[0] > weaponToTest.getModsAtTier(3).length - 1 || tier3Subset[1] < -1 || tier3Subset[1] > weaponToTest.getModsAtTier(3).length - 1) {
+			return "------";
+		}
+		if (tier4Subset[0] > tier4Subset[1] || tier4Subset[0] < -1 || tier4Subset[0] > weaponToTest.getModsAtTier(4).length - 1 || tier4Subset[1] < -1 || tier4Subset[1] > weaponToTest.getModsAtTier(4).length - 1) {
+			return "------";
+		}
+		if (tier5Subset[0] > tier5Subset[1] || tier5Subset[0] < -1 || tier5Subset[0] > weaponToTest.getModsAtTier(5).length - 1 || tier5Subset[1] < -1 || tier5Subset[1] > weaponToTest.getModsAtTier(5).length - 1) {
+			return "------";
+		}
+		if (overclocksSubset[0] > overclocksSubset[1] || overclocksSubset[0] < -1 || overclocksSubset[0] > weaponToTest.getOverclocks().length - 1 || overclocksSubset[1] < -1 || overclocksSubset[1] > weaponToTest.getOverclocks().length - 1) {
+			return "------";
+		}
+		
+		// Set these boolean values once instead of evaluating tier 1 about 3000 times
+		boolean onlyOneTier1 = tier1Subset[0] == tier1Subset[1];
+		boolean onlyOneTier2 = tier2Subset[0] == tier2Subset[1];
+		boolean onlyOneTier3 = tier3Subset[0] == tier3Subset[1];
+		boolean onlyOneTier4 = tier4Subset[0] == tier4Subset[1];
+		boolean onlyOneTier5 = tier5Subset[0] == tier5Subset[1];
+		boolean onlyOneOC = overclocksSubset[0] == overclocksSubset[1];
+		
+		/*
+			This is important: because the current Weapon ALREADY has the wanted partial combination pre-selected when the menu for "Best Metric" gets called,
+			DO NOT, I repeat, DO NOT set the mod or overclock again, because that just un-sets it.
+		*/
+		
+		// Lowest Overkill, Fastest TTK, and Breakpoints should all be lowest-possible values
+		Integer[] indexesThatShouldUseLessThan = new Integer[] {11, 12, 13};
+		boolean comparatorShouldBeLessThan = new HashSet<Integer>(Arrays.asList(indexesThatShouldUseLessThan)).contains(metricIndex);
+		
+		String bestCombination = "------";
+		double bestValue, currentValue;
+		// To the best of my knowledge, none of these values goes above 200k, so setting the starting "best" value at 1 million should automatically make the first combination tried the new best
+		if (comparatorShouldBeLessThan) {
+			bestValue = 1000000;
+		}
+		else {
+			bestValue = -1000000;
+		}
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
-		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
+		for (int oc = overclocksSubset[0]; oc <= overclocksSubset[1]; oc++) {
+			if (!onlyOneOC) {
+				weaponToTest.setSelectedOverclock(oc, false);
+			}
 			
-			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
+			for (int t5 = tier5Subset[0]; t5 <= tier5Subset[1]; t5++) {
+				if (!onlyOneTier5) {
+					weaponToTest.setSelectedModAtTier(5, t5, false);
+				}
 				
-				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
+				for (int t4 = tier4Subset[0]; t4 <= tier4Subset[1]; t4++) {
+					if (!onlyOneTier4) {
+						weaponToTest.setSelectedModAtTier(4, t4, false);
+					}
 					
-					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
+					for (int t3 = tier3Subset[0]; t3 <= tier3Subset[1]; t3++) {
+						if (!onlyOneTier3) {
+							weaponToTest.setSelectedModAtTier(3, t3, false);
+						}
 						
-						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
+						for (int t2 = tier2Subset[0]; t2 <= tier2Subset[1]; t2++) {
+							if (!onlyOneTier2) {
+								weaponToTest.setSelectedModAtTier(2, t2, false);
+							}
 							
-							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
+							for (int t1 = tier1Subset[0]; t1 <= tier1Subset[1]; t1++) {
+								if (!onlyOneTier1) {
+									weaponToTest.setSelectedModAtTier(1, t1, false);
+								}
 								
-								currentSustainedDPS = weaponToTest.calculateIdealSustainedDPS();
-								if (currentSustainedDPS > bestSustainedDPS) {
-									bestSustainedDPSCombination = weaponToTest.getCombination();
-									bestSustainedDPS = currentSustainedDPS;
+								switch (metricIndex) {
+									case 0:{
+										currentValue = weaponToTest.calculateIdealBurstDPS();
+										break;
+									}
+									case 1:{
+										currentValue = weaponToTest.calculateIdealSustainedDPS();
+										break;
+									}
+									case 2:{
+										currentValue = weaponToTest.sustainedWeakpointDPS();
+										break;
+									}
+									case 3:{
+										currentValue = weaponToTest.sustainedWeakpointAccuracyDPS();
+										break;
+									}
+									case 4:{
+										currentValue = weaponToTest.calculateAdditionalTargetDPS();
+										break;
+									}
+									case 5:{
+										currentValue = weaponToTest.calculateMaxNumTargets();
+										break;
+									}
+									case 6:{
+										currentValue = weaponToTest.calculateMaxMultiTargetDamage();
+										break;
+									}
+									case 7:{
+										currentValue = weaponToTest.ammoEfficiency();
+										break;
+									}
+									case 8:{
+										currentValue = weaponToTest.estimatedAccuracy(false);
+										break;
+									}
+									case 9:{
+										currentValue = weaponToTest.estimatedAccuracy(true);
+										break;
+									}
+									case 10:{
+										currentValue = weaponToTest.calculateFiringDuration();
+										break;
+									}
+									case 11:{
+										currentValue = weaponToTest.averageOverkill();
+										break;
+									}
+									case 12:{
+										currentValue = weaponToTest.averageTimeToKill();
+										break;
+									}
+									case 13:{
+										currentValue = weaponToTest.breakpoints();
+										break;
+									}
+									case 14:{
+										currentValue = weaponToTest.utilityScore();
+										break;
+									}
+									default: {
+										currentValue = 0;
+										break;
+									}
+								}
+								
+								if (comparatorShouldBeLessThan) {
+									if (currentValue < bestValue) {
+										bestCombination = weaponToTest.getCombination();
+										bestValue = currentValue;
+									}
+								}
+								else {
+									if (currentValue > bestValue) {
+										bestCombination = weaponToTest.getCombination();
+										bestValue = currentValue;
+									}
 								}
 							}
 						}
@@ -422,396 +733,6 @@ public class WeaponStatsGenerator {
 			}
 		}
 		
-		return bestSustainedDPSCombination;
-	}
-	
-	public String getBestSustainedWeakpointDPSCombination() {
-		String bestWeakpointSustainedDPSCombination = weaponToTest.getCombination();
-		double bestWeakpointSustainedDPS = weaponToTest.sustainedWeakpointDPS();
-		double currentWeakpointSustainedDPS;
-		
-		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
-		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
-			
-			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
-				
-				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
-					
-					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
-						
-						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
-							
-							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
-								
-								currentWeakpointSustainedDPS = weaponToTest.sustainedWeakpointDPS();
-								if (currentWeakpointSustainedDPS > bestWeakpointSustainedDPS) {
-									bestWeakpointSustainedDPSCombination = weaponToTest.getCombination();
-									bestWeakpointSustainedDPS = currentWeakpointSustainedDPS;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		return bestWeakpointSustainedDPSCombination;
-	}
-	
-	public String getBestSustainedWeakpointAccuracyDPSCombination() {
-		String bestWeakpointAccuracySustainedDPSCombination = weaponToTest.getCombination();
-		double bestWeakpointAccuracySustainedDPS = weaponToTest.sustainedWeakpointAccuracyDPS();
-		double currentWeakpointAccuracySustainedDPS;
-		
-		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
-		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
-			
-			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
-				
-				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
-					
-					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
-						
-						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
-							
-							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
-								
-								currentWeakpointAccuracySustainedDPS = weaponToTest.sustainedWeakpointAccuracyDPS();
-								if (currentWeakpointAccuracySustainedDPS > bestWeakpointAccuracySustainedDPS) {
-									bestWeakpointAccuracySustainedDPSCombination = weaponToTest.getCombination();
-									bestWeakpointAccuracySustainedDPS = currentWeakpointAccuracySustainedDPS;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		return bestWeakpointAccuracySustainedDPSCombination;
-	}
-	
-	public String getBestIdealAdditionalTargetDPSCombination() {
-		String bestAdditionalTargetDPSCombination = weaponToTest.getCombination();
-		double bestAdditionalTargetDPS = weaponToTest.calculateAdditionalTargetDPS();
-		double currentAdditionalTargetDPS;
-		
-		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
-		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
-			
-			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
-				
-				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
-					
-					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
-						
-						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
-							
-							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
-								
-								currentAdditionalTargetDPS = weaponToTest.calculateAdditionalTargetDPS();
-								if (currentAdditionalTargetDPS > bestAdditionalTargetDPS) {
-									bestAdditionalTargetDPSCombination = weaponToTest.getCombination();
-									bestAdditionalTargetDPS = currentAdditionalTargetDPS;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		return bestAdditionalTargetDPSCombination;
-	}
-	
-	public String getHighestMultiTargetDamageCombination() {
-		String mostMultiTargetDamageCombination = weaponToTest.getCombination();
-		double mostMultiTargetDamage = weaponToTest.calculateMaxMultiTargetDamage();
-		double currentMultiTargetDamage;
-		
-		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
-		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
-			
-			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
-				
-				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
-					
-					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
-						
-						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
-							
-							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
-								
-								currentMultiTargetDamage = weaponToTest.calculateMaxMultiTargetDamage();
-								if (currentMultiTargetDamage > mostMultiTargetDamage) {
-									mostMultiTargetDamageCombination = weaponToTest.getCombination();
-									mostMultiTargetDamage = currentMultiTargetDamage;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		return mostMultiTargetDamageCombination;
-	}
-	
-	public String getMostNumTargetsCombination() {
-		String mostNumTargetsCombination = weaponToTest.getCombination();
-		double mostNumTargets = weaponToTest.calculateMaxNumTargets();
-		double currentNumTargets;
-		
-		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
-		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
-			
-			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
-				
-				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
-					
-					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
-						
-						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
-							
-							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
-								
-								currentNumTargets = weaponToTest.calculateMaxNumTargets();
-								if (currentNumTargets > mostNumTargets) {
-									mostNumTargetsCombination = weaponToTest.getCombination();
-									mostNumTargets = currentNumTargets;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		return mostNumTargetsCombination;
-	}
-	
-	public String getLongestFiringDurationCombination() {
-		String longestFiringDurationCombination = weaponToTest.getCombination();
-		double longestFiringDuration = weaponToTest.calculateFiringDuration();
-		double currentFiringDuration;
-		
-		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
-		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
-			
-			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
-				
-				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
-					
-					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
-						
-						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
-							
-							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
-								
-								currentFiringDuration = weaponToTest.calculateFiringDuration();
-								if (currentFiringDuration > longestFiringDuration) {
-									longestFiringDurationCombination = weaponToTest.getCombination();
-									longestFiringDuration = currentFiringDuration;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		return longestFiringDurationCombination;
-	}
-	
-	public String getShortestTimeToKillCombination() {
-		String fastestTTKCombination = weaponToTest.getCombination();
-		double fastestTTK = weaponToTest.averageTimeToKill();
-		double currentTTK;
-		
-		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
-		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
-			
-			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
-				
-				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
-					
-					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
-						
-						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
-							
-							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
-								
-								currentTTK = weaponToTest.averageTimeToKill();
-								if (currentTTK < fastestTTK) {
-									fastestTTKCombination = weaponToTest.getCombination();
-									fastestTTK = currentTTK;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		return fastestTTKCombination;
-	}
-	
-	public String getLowestOverkillCombination() {
-		String lowestOverkillCombination = weaponToTest.getCombination();
-		double lowestOverkill = weaponToTest.averageOverkill();
-		double currentOverkill;
-		
-		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
-		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
-			
-			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
-				
-				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
-					
-					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
-						
-						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
-							
-							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
-								
-								currentOverkill = weaponToTest.averageOverkill();
-								if (currentOverkill < lowestOverkill) {
-									lowestOverkillCombination = weaponToTest.getCombination();
-									lowestOverkill = currentOverkill;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		return lowestOverkillCombination;
-	}
-	
-	public String getHighestAccuracyCombination() {
-		String bestAccuracyCombination = weaponToTest.getCombination();
-		double bestAccuracy = weaponToTest.estimatedAccuracy(false);
-		double currentAccuracy;
-		
-		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
-		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
-			
-			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
-				
-				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
-					
-					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
-						
-						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
-							
-							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
-								
-								currentAccuracy = weaponToTest.estimatedAccuracy(false);
-								if (currentAccuracy > bestAccuracy) {
-									bestAccuracyCombination = weaponToTest.getCombination();
-									bestAccuracy = currentAccuracy;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		return bestAccuracyCombination;
-	}
-	
-	public String getMostUtilityCombination() {
-		String bestUtilityCombination = weaponToTest.getCombination();
-		double bestUtility = weaponToTest.utilityScore();
-		double currentUtility;
-		
-		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
-		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc);
-			
-			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5);
-				
-				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4);
-					
-					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3);
-						
-						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2);
-							
-							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1);
-								
-								currentUtility = weaponToTest.utilityScore();
-								if (currentUtility > bestUtility) {
-									bestUtilityCombination = weaponToTest.getCombination();
-									bestUtility = currentUtility;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		return bestUtilityCombination;
+		return bestCombination;
 	}
 }

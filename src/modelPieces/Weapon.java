@@ -37,12 +37,15 @@ public abstract class Weapon extends Observable {
 	protected Overclock[] overclocks;
 	protected int selectedOverclock;
 	
-	//protected double weakpointAccuracy;
-	//protected double generalAccuracy;
 	protected double[] aoeEfficiency;
+	
+	// Glyphid Swarmer, Webspitter through Light Armor, Grunt Weakpoint, Grunt through Light Armor, Praetorian Mouth, Praetorian Abdomen, and Mactera Spawn
+	protected int[] breakpoints = {0, 0, 0, 0, 0, 0, 0};
+	
 	// Mobility, Damage Resist, Armor Break, Slow, Fear, Stun, Freeze
 	// Set them all to zero to start, then override values in child objects as necessary.
 	protected double[] utilityScores = {0, 0, 0, 0, 0, 0, 0};
+	
 	// Burning, Frozen, Electrocuted, IFG Grenade
 	protected boolean[] statusEffects = {false, false, false, false};
 	
@@ -82,6 +85,9 @@ public abstract class Weapon extends Observable {
 		}
 	}
 	public void setSelectedModAtTier(int tierNumber, int newSelection) {
+		setSelectedModAtTier(tierNumber, newSelection, true);
+	}
+	public void setSelectedModAtTier(int tierNumber, int newSelection, boolean updateGUI) {
 		if (tierNumber > 0 && tierNumber < 6) {
 			switch (tierNumber) {
 				case 1: {
@@ -165,7 +171,7 @@ public abstract class Weapon extends Observable {
 				setAoEEfficiency();
 			}
 			
-			if (countObservers() > 0) {
+			if (updateGUI && countObservers() > 0) {
 				setChanged();
 				notifyObservers();
 			}
@@ -179,6 +185,9 @@ public abstract class Weapon extends Observable {
 		return selectedOverclock;
 	}
 	public void setSelectedOverclock(int newSelection) {
+		setSelectedOverclock(newSelection, true);
+	}
+	public void setSelectedOverclock(int newSelection, boolean updateGUI) {
 		if (newSelection > -2 && newSelection < overclocks.length) {
 			if (newSelection == selectedOverclock) {
 				// If the same overclock is selected, that indicates that it's being unequipped. Set overclock = -1 to affect the math properly.
@@ -192,7 +201,7 @@ public abstract class Weapon extends Observable {
 				setAoEEfficiency();
 			}
 			
-			if (countObservers() > 0) {
+			if (updateGUI && countObservers() > 0) {
 				setChanged();
 				notifyObservers();
 			}
@@ -205,6 +214,7 @@ public abstract class Weapon extends Observable {
 	public boolean[] getCurrentStatusEffects() {
 		return statusEffects;
 	}
+	// Because this is only used by the GUI, I'm choosing not to add the "updateGUI" flag.
 	public void setStatusEffect(int effectIndex, boolean newValue) {
 		if (effectIndex > -1 && effectIndex < statusEffects.length) {
 			// Special case: Burning and Frozen are mutually exclusive statuses, so make sure that if one gets set to true, the other is automatically set to false
@@ -224,6 +234,7 @@ public abstract class Weapon extends Observable {
 		}
 	}
 	
+	// I'm choosing to have this method always update the GUI (for now)
 	public abstract void buildFromCombination(String combination); 
 	
 	public Mod[] getModsAtTier(int tierNumber) {
@@ -269,18 +280,9 @@ public abstract class Weapon extends Observable {
 		}
 		
 		baselineCalculatedStats = new double[] {
-			calculateIdealBurstDPS(),
-			calculateIdealSustainedDPS(),
-			sustainedWeakpointDPS(),
-			sustainedWeakpointAccuracyDPS(),
-			calculateAdditionalTargetDPS(),
-			calculateMaxMultiTargetDamage(),
-			(double) calculateMaxNumTargets(),
-			calculateFiringDuration(),
-			averageTimeToKill(),
-			averageOverkill(),
-			estimatedAccuracy(false),
-			utilityScore()
+			calculateIdealBurstDPS(), calculateIdealSustainedDPS(), sustainedWeakpointDPS(), sustainedWeakpointAccuracyDPS(), calculateAdditionalTargetDPS(), 
+			calculateMaxNumTargets(), calculateMaxMultiTargetDamage(), ammoEfficiency(), estimatedAccuracy(false), estimatedAccuracy(true),
+			calculateFiringDuration(), averageOverkill(), averageTimeToKill(), breakpoints(), utilityScore()
 		};
 		selectedTier1 = oldT1;
 		selectedTier2 = oldT2;
@@ -313,6 +315,10 @@ public abstract class Weapon extends Observable {
 	// Used by GUI and Auto-Calculator
 	public abstract String getDwarfClass();
 	public abstract String getSimpleName();
+	
+	// Used by the MySQL dump to establish the foreign-key relationships
+	public abstract int getDwarfClassID();
+	public abstract int getWeaponID();
 	
 	// Stats page
 	public String getFullName() {
@@ -396,19 +402,8 @@ public abstract class Weapon extends Observable {
 		return calculateProbabilityToBreakLightArmor(baseDamage, 1.0);
 	}
 	protected double calculateProbabilityToBreakLightArmor(double baseDamage, double armorBreaking) {
-		// Input sanitization
-		if (baseDamage <= 0.0 || armorBreaking <= 0.0) {
-			return 0.0;
-		}
-		
-		// Due to its logarithmic formula, the probability to break an armor plate is 0% when Dmg * AB == 3.32
-		if (baseDamage * armorBreaking < 3.33) {
-			return 0.0;
-		}
-		
-		// Elythnwaen found this formula and shared it with me.
-		// Never let this return a probability less than 0.0 or higher than 1.0
-		return Math.max(Math.min(Math.log(armorBreaking * baseDamage)/3.0 - 0.4, 1.0), 0.0);
+		double averageArmorStrength = EnemyInformation.averageLightArmorStrength();
+		return EnemyInformation.lightArmorBreakProbabilityLookup(baseDamage, armorBreaking, averageArmorStrength);
 	}
 	
 	protected double calculateRNGDoTDPSPerMagazine(double DoTProcChance, double DoTDPS, int magazineSize) {
@@ -444,15 +439,13 @@ public abstract class Weapon extends Observable {
 		return timeWhileAfflictedByDoT * DoTDPS;
 	}
 	
-	protected double[] calculateAverageAreaDamage(double radius, double fullDamageRadius, double falloffStart, double falloffEnd) {
-		/* 
-			This method is based off of the hypothesis that the innnermost 50% of the radius gets full damage,
-			and then the damage drops to 50%, and then linearly decreases to 33% at the furthest edge of the radius
-			
-			Theoretically it that should average around 71% of the initial damage, but due to how it's been modeled I highly doubt it will be that precise.
-		*/
+	protected double[] calculateAverageAreaDamage(double radius, double fullDamageRadius, double falloffPercentageAtOuterEdge) {
+		// Special condition: if fullDamageRadius >= radius, then return with 100% efficiency
+		if (fullDamageRadius >= radius) {
+			return new double[] {radius, 1.0, calculateNumGlyphidsInRadius(radius)};
+		}
 		
-		// Want to test the halfway radius and every radius in +0.1m increments, and finally the outermost radius
+		// Want to test the fullDamageRadius radius and every radius in +0.05m increments, and finally the outermost radius
 		int numRadiiToTest = (int) Math.floor((radius - fullDamageRadius) * 20.0) + 1;
 		
 		// Add an extra tuple at the start for the return values
@@ -463,7 +456,7 @@ public abstract class Weapon extends Observable {
 		for (int i = 0; i < numRadiiToTest - 1; i++) {
 			currentRadius = fullDamageRadius + i * 0.05;
 			if (i > 0) {
-				currentDamage = falloffStart - (falloffStart - falloffEnd) * (i - 1) / (numRadiiToTest - 2);
+				currentDamage = 1.0 - (1.0 - falloffPercentageAtOuterEdge) * (i - 1) / (numRadiiToTest - 2);
 			}
 			else {
 				currentDamage = 1.0;
@@ -478,7 +471,7 @@ public abstract class Weapon extends Observable {
 		}
 		toReturn[numRadiiToTest] = new double[3];
 		toReturn[numRadiiToTest][0] = radius;
-		toReturn[numRadiiToTest][1] = falloffEnd;
+		toReturn[numRadiiToTest][1] = falloffPercentageAtOuterEdge;
 		currentGlyphids = calculateNumGlyphidsInRadius(radius) - totalNumGlyphids;
 		toReturn[numRadiiToTest][2] = currentGlyphids;
 		totalNumGlyphids += currentGlyphids;
@@ -489,7 +482,7 @@ public abstract class Weapon extends Observable {
 		
 		double avgDmg = 0.0;
 		for (int i = 1; i < toReturn.length; i++) {
-			//System.out.println(toReturn[i][0] + " " + toReturn[i][1] + " " + toReturn[i][2] + " ");
+			// System.out.println(toReturn[i][0] + " " + toReturn[i][1] + " " + toReturn[i][2] + " ");
 			avgDmg += toReturn[i][1] * toReturn[i][2];
 		}
 		toReturn[0][1] = avgDmg / totalNumGlyphids;
@@ -580,6 +573,11 @@ public abstract class Weapon extends Observable {
 		}
 	}
 	
+	// Used by Flamethrower and Cryo Cannon
+	protected int calculateNumGlyphidsInStream(double streamLength) {
+		return (int) Math.ceil(streamLength / (2 * EnemyInformation.GlyphidGruntBodyRadius + EnemyInformation.GlyphidGruntBodyAndLegsRadius));
+	}
+	
 	protected double increaseBulletDamageForWeakpoints2(double preWeakpointBulletDamage) {
 		return increaseBulletDamageForWeakpoints2(preWeakpointBulletDamage, 0.0);
 	}
@@ -634,9 +632,34 @@ public abstract class Weapon extends Observable {
 	}
 	
 	public abstract double calculateFiringDuration();
-	public abstract double averageTimeToKill();  // Average health of an enemy divided by weakpoint sustained DPS
-	public abstract double averageOverkill();  // (Total Damage done / Avg Health) - 1.0
+	public double averageTimeToKill() {
+		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
+	}
+	protected abstract double averageDamageToKillEnemy();
+	public double averageOverkill() {
+		return ((averageDamageToKillEnemy() / EnemyInformation.averageHealthPool()) - 1.0) * 100.0;
+	}
+	public double ammoEfficiency() {
+		return calculateMaxMultiTargetDamage() / averageDamageToKillEnemy();
+	}
 	public abstract double estimatedAccuracy(boolean weakpointAccuracy); // -1 means manual or N/A; [0.00, 1.00] otherwise
+	public abstract int breakpoints();
+	
+	// This method is used to explain what the individual numbers of the Breakpoints
+	public StatsRow[] breakpointsExplanation() {
+		StatsRow[] toReturn = new StatsRow[breakpoints.length];
+		
+		toReturn[0] = new StatsRow("Glypid Swarmer:", breakpoints[0], false);
+		toReturn[1] = new StatsRow("Glyphid Webspitter (through Light Armor):", breakpoints[1], false);
+		toReturn[2] = new StatsRow("Glyphid Grunt (Weakpoint):", breakpoints[2], false);
+		toReturn[3] = new StatsRow("Glyphid Grunt (through Light Armor):", breakpoints[3], false);
+		toReturn[4] = new StatsRow("Glyphid Praetorian (Mouth):", breakpoints[4], false);
+		toReturn[5] = new StatsRow("Glyphid Praetorian (Abdomen):", breakpoints[5], false);
+		toReturn[6] = new StatsRow("Mactera Spawn (Weakpoint):", breakpoints[6], false);
+		
+		return toReturn;
+	}
+	
 	public abstract double utilityScore();
 	
 	// This method is used to explain how the Utility Scores are calculated for the UtilityBreakdownButton
@@ -654,12 +677,16 @@ public abstract class Weapon extends Observable {
 		return toReturn;
 	}
 	
+	// These two methods will be added as columns to the MySQL dump, but I have no plans to add them to the 15 metrics in the bottom panel.
+	public abstract double damagePerMagazine();
+	public abstract double timeToFireMagazine();
+	
 	// Shortcut method for WeaponStatsGenerator
 	public double[] getMetrics() {
 		return new double[]{
-			calculateIdealBurstDPS(), calculateIdealSustainedDPS(), sustainedWeakpointDPS(), sustainedWeakpointAccuracyDPS(),
-			calculateAdditionalTargetDPS(), calculateMaxMultiTargetDamage(), calculateMaxNumTargets(), calculateFiringDuration(),
-			averageTimeToKill(), averageOverkill(), estimatedAccuracy(false), utilityScore()
+			calculateIdealBurstDPS(), calculateIdealSustainedDPS(), sustainedWeakpointDPS(), sustainedWeakpointAccuracyDPS(), calculateAdditionalTargetDPS(), 
+			calculateMaxNumTargets(), calculateMaxMultiTargetDamage(), ammoEfficiency(), estimatedAccuracy(false), estimatedAccuracy(true),
+			calculateFiringDuration(), averageOverkill(), averageTimeToKill(), breakpoints(), utilityScore()
 		};
 	}
 }

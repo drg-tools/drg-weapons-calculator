@@ -3,6 +3,7 @@ package drillerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import dataGenerator.DatabaseConstants;
 import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
@@ -314,6 +315,12 @@ public class EPC_RegularShot extends Weapon {
 	}
 	public String getSimpleName() {
 		return "EPC_RegularShot";
+	}
+	public int getDwarfClassID() {
+		return DatabaseConstants.drillerCharacterID;
+	}
+	public int getWeaponID() {
+		return DatabaseConstants.EPCGunsID;
 	}
 	
 	/****************************************************************************************
@@ -662,23 +669,23 @@ public class EPC_RegularShot extends Weapon {
 		double numBursts = (double) getBatterySize() / (double) burstSize;
 		return numBursts * timeToFireBurst + numReloads(getBatterySize(), burstSize) * getCooldownDuration();
 	}
-
+	
 	@Override
-	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / calculateIdealSustainedDPS();
-	}
-
-	@Override
-	public double averageOverkill() {
+	protected double averageDamageToKillEnemy() {
+		// TODO: should this be increased by Weakpoint bonus?
 		double dmgPerShot = getDirectDamage();
-		double enemyHP = EnemyInformation.averageHealthPool();
-		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
-		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
+		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		return -1.0;
+	}
+	
+	@Override
+	public int breakpoints() {
+		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), 0, 0);
+		return MathUtils.sum(breakpoints);
 	}
 
 	@Override
@@ -686,5 +693,22 @@ public class EPC_RegularShot extends Weapon {
 		// EPC doesn't have any utility
 		// EPC regular shots also cannot break Light Armor plates
 		return 0;
+	}
+	
+	@Override
+	public double damagePerMagazine() {
+		double baseDamage = getNumRegularShotsBeforeOverheat() * getDirectDamage();
+		double fireDoTDamage = 0;
+		if (selectedTier5 == 2) {
+			double heatDamagePerShot = 0.5 * getDirectDamage();
+			double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatDamagePerShot, rateOfFire);
+			fireDoTDamage = calculateAverageDoTDamagePerEnemy(timeToIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+		}
+		return baseDamage + fireDoTDamage;
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getNumRegularShotsBeforeOverheat() / rateOfFire;
 	}
 }

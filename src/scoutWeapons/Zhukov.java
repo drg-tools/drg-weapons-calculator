@@ -3,6 +3,7 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import dataGenerator.DatabaseConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
@@ -17,7 +18,8 @@ import modelPieces.Weapon;
 import utilities.MathUtils;
 
 // Embedded Detonators does 5 damage per ammo (10/bullet) on reload
-
+// TODO: Find out Cryo Minelets' real Cold Damage per mine. Originally thought it was 8 due to tests on Brood Nexus that I thought was 80% of 10,
+// but due to MikeGSG's temperature values we now know that Brood Nexus freezes at 7.5, which scales it down to 6.
 public class Zhukov extends Weapon {
 	
 	/****************************************************************************************
@@ -99,7 +101,7 @@ public class Zhukov extends Weapon {
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Minimal Magazines", "+2 Rate of Fire, -0.4 Reload Time", overclockIcons.reloadSpeed, 0);
 		overclocks[1] = new Overclock(Overclock.classification.balanced, "Custom Casings", "+30 Mag Size, -1 Direct Damage", overclockIcons.magSize, 1);
 		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "Any bullets that impact terrain get converted to Cryo Minelets. After 1 second of arming time they will explode on any "
-				+ "enemies that get close, dealing 8 Cold Damage each. They automatically explode after 3 seconds. -1 Direct Damage, -10 Magazine Size", overclockIcons.coldDamage, 2);
+				+ "enemies that get close, dealing 6 Cold Damage each. They automatically explode after 3 seconds. -1 Direct Damage, -10 Magazine Size", overclockIcons.coldDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 10 Area Damage to the enemy "
 				+ "upon reloading. -3 Direct Damage, -75 Max Ammo.", overclockIcons.specialReload, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Gas Recycling", "+5 Direct Damage, but it can no longer gain bonus damage from hitting a Weakpoint. Additionally, x1.5 Base Spread "
@@ -269,6 +271,12 @@ public class Zhukov extends Weapon {
 	}
 	public String getSimpleName() {
 		return "Zhukov";
+	}
+	public int getDwarfClassID() {
+		return DatabaseConstants.scoutCharacterID;
+	}
+	public int getWeaponID() {
+		return DatabaseConstants.zhukovsGunsID;
 	}
 	
 	/****************************************************************************************
@@ -456,10 +464,10 @@ public class Zhukov extends Weapon {
 	}
 	
 	private double calculateAvgNumBulletsNeededToFreeze() {
-		// Minelets do 8 Cold Damage upon detonation, but they have to take 1 second to arm first.
+		// Minelets do 6 Cold Damage upon detonation, but they have to take 1 second to arm first.
 		// While Frozen, bullets do x3 Direct Damage.
 		double effectiveRoF = getRateOfFire() / 2.0;
-		double timeToFreeze = EnemyInformation.averageTimeToFreeze(-8, effectiveRoF);
+		double timeToFreeze = EnemyInformation.averageTimeToFreeze(-6, effectiveRoF);
 		return Math.ceil(timeToFreeze * effectiveRoF);
 	}
 	
@@ -604,14 +612,9 @@ public class Zhukov extends Weapon {
 		double timeToFireMagazine = ((double) effectiveMagazineSize) / effectiveRoF;
 		return numMagazines(effectiveCarriedAmmo, effectiveMagazineSize) * timeToFireMagazine + numReloads(effectiveCarriedAmmo, effectiveMagazineSize) * getReloadTime();
 	}
-
+	
 	@Override
-	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
-	}
-
-	@Override
-	public double averageOverkill() {
+	protected double averageDamageToKillEnemy() {
 		// Because the Overclock "Gas Recycling" removes the ability to get any weakpoint bonus damage, that has to be modeled here.
 		double dmgPerShot;
 		if (selectedOverclock == 4) {
@@ -621,9 +624,7 @@ public class Zhukov extends Weapon {
 			dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus());
 		}
 		
-		double enemyHP = EnemyInformation.averageHealthPool();
-		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
-		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
+		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
 	@Override
@@ -635,6 +636,12 @@ public class Zhukov extends Weapon {
 		double crosshairWidthPixels = unchangingWidth + changingWidth * getBaseSpread();
 		
 		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, true, crosshairWidthPixels, crosshairHeightPixels);
+	}
+	
+	@Override
+	public int breakpoints() {
+		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), getAreaDamage(), getWeakpointBonus());
+		return MathUtils.sum(breakpoints);
 	}
 
 	@Override
@@ -661,7 +668,7 @@ public class Zhukov extends Weapon {
 		// OC "Cryo Minelets" applies Cryo damage to missed bullets
 		if (selectedOverclock == 2) {
 			// Cryo minelets: 1 placed per 2 ammo, minelets arm in 1 second, and detonate in 3 seconds if no enemy is around.
-			// Minelets seem to do 8 Cold Damage each, and they don't explode in a radius -- instead it seems that they spurt off in a random direction for 2.5m.
+			// Minelets seem to do 6 Cold Damage each, and they don't explode in a radius -- instead it seems that they spurt off in a random direction for 2.5m.
 			int estimatedNumTargetsSlowedOrFrozen = 3;  // This is a pure, unadulterated guess.
 			
 			utilityScores[3] = estimatedNumTargetsSlowedOrFrozen * UtilityInformation.Cold_Utility;
@@ -673,5 +680,16 @@ public class Zhukov extends Weapon {
 		}
 		
 		return MathUtils.sum(utilityScores);
+	}
+	
+	@Override
+	public double damagePerMagazine() {
+		double effectiveMagazineSize = getMagazineSize() / 2.0;
+		return effectiveMagazineSize * (getDirectDamage() + getAreaDamage()) * calculateMaxNumTargets();
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getMagazineSize() / getRateOfFire();
 	}
 }

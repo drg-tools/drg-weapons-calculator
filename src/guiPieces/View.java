@@ -30,14 +30,15 @@ import utilities.ResourceLoader;
 public class View extends JFrame implements Observer {
 	
 	private JMenuBar menuBar;
-	private JMenu bestCombinationsMenu;
-	private JMenuItem bcmIdealBurst, bcmIdealSustained, bcmSustainedWeakpoint, bcmSustainedWeakpointAccuracy, bcmIdealAdditional, bcmMaxDmg, 
-					bcmMaxNumTargets, bcmDuration, bcmTTK, bcmOverkill, bcmAccuracy, bcmUtility;
+	private JMenu overallBestCombinationsMenu;
+	private JMenuItem[] overallBestCombinations;
+	private JMenu subsetBestCombinationsMenu;
+	private JMenuItem[] subsetBestCombinations;
 	private JMenu difficultyScalingMenu;
 	private ButtonGroup dsHazGroup, dsPCGroup;
 	private JRadioButton dsHaz1, dsHaz2, dsHaz3, dsHaz4, dsHaz5, dsPC1, dsPC2, dsPC3, dsPC4;
 	private JMenu exportMenu;
-	private JMenuItem exportCurrent, exportAll;
+	private JMenuItem exportCurrent, exportAll, exportMySQL;
 	private JMenu miscMenu;	
 	private JMenuItem miscWeaponTabScreenshot, miscExportCombination, miscLoadCombination, miscSuggestion;
 	
@@ -68,8 +69,8 @@ public class View extends JFrame implements Observer {
 		TCA = new ThinkingCursorAnimation(this);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("MeatShield's DRG DPS Calculator (DRG Update 29.8)");
-		setPreferredSize(new Dimension(1500, 900));
+		setTitle("MeatShield's DRG DPS Calculator (DRG Update 30.2)");
+		setPreferredSize(new Dimension(1500, 950));
 		
 		// Add the icon
 		setIconImages(ResourceLoader.loadIcoFile("/images/meatShield_composite.ico"));
@@ -115,6 +116,7 @@ public class View extends JFrame implements Observer {
 		
 		// Information
 		infoTabs = new JTabbedPane();
+		infoTabs.addTab("Metrics Explanation", InformationTabsText.getMetricsExplanation());
 		infoTabs.addTab("F.A.Q.", InformationTabsText.getFAQText());
 		infoTabs.addTab("Glossary", InformationTabsText.getGlossaryText());
 		infoTabs.addTab("Acknowledgements", InformationTabsText.getAcknowledgementsText());
@@ -142,33 +144,52 @@ public class View extends JFrame implements Observer {
 	private void constructMenu() {
 		menuBar = new JMenuBar();
 		
-		// Best Combinations menu
-		bestCombinationsMenu = new JMenu("Best Combinations");
-		bcmIdealBurst = new JMenuItem("Best Ideal Burst DPS");
-		bestCombinationsMenu.add(bcmIdealBurst);
-		bcmIdealSustained = new JMenuItem("Best Ideal Sustained DPS");
-		bestCombinationsMenu.add(bcmIdealSustained);
-		bcmSustainedWeakpoint = new JMenuItem("Best Sustained + Weakpoint DPS");
-		bestCombinationsMenu.add(bcmSustainedWeakpoint);
-		bcmSustainedWeakpointAccuracy = new JMenuItem("Best Sustained + Weakpoint + Accuracy DPS");
-		bestCombinationsMenu.add(bcmSustainedWeakpointAccuracy);
-		bcmIdealAdditional = new JMenuItem("Best Additional Target DPS");
-		bestCombinationsMenu.add(bcmIdealAdditional);
-		bcmMaxDmg = new JMenuItem("Most Multi-Target Damage");
-		bestCombinationsMenu.add(bcmMaxDmg);
-		bcmMaxNumTargets = new JMenuItem("Most Number of Targets Hit");
-		bestCombinationsMenu.add(bcmMaxNumTargets);
-		bcmDuration = new JMenuItem("Longest Firing Duration");
-		bestCombinationsMenu.add(bcmDuration);
-		bcmTTK = new JMenuItem("Fastest Avg Time To Kill");
-		bestCombinationsMenu.add(bcmTTK);
-		bcmOverkill = new JMenuItem("Lowest Avg Overkill");
-		bestCombinationsMenu.add(bcmOverkill);
-		bcmAccuracy = new JMenuItem("Highest Accuracy");
-		bestCombinationsMenu.add(bcmAccuracy);
-		bcmUtility = new JMenuItem("Most Utility");
-		bestCombinationsMenu.add(bcmUtility);
-		menuBar.add(bestCombinationsMenu);
+		// Overall Best Combinations menu
+		overallBestCombinations = new JMenuItem[15];
+		overallBestCombinations[0] = new JMenuItem("Best Ideal Burst DPS");
+		overallBestCombinations[1] = new JMenuItem("Best Ideal Sustained DPS");
+		overallBestCombinations[2] = new JMenuItem("Best Sustained + Weakpoint DPS");
+		overallBestCombinations[3] = new JMenuItem("Best Sustained + Weakpoint + Accuracy DPS");
+		overallBestCombinations[4] = new JMenuItem("Best Additional Target DPS");
+		overallBestCombinations[5] = new JMenuItem("Most Number of Targets Hit");
+		overallBestCombinations[6] = new JMenuItem("Most Multi-Target Damage");
+		overallBestCombinations[7] = new JMenuItem("Most Ammo Efficient");
+		overallBestCombinations[8] = new JMenuItem("Highest General Accuracy");
+		overallBestCombinations[9] = new JMenuItem("Highest Weakpoint Accuracy");
+		overallBestCombinations[10] = new JMenuItem("Longest Firing Duration");
+		overallBestCombinations[11] = new JMenuItem("Lowest Avg Overkill");
+		overallBestCombinations[12] = new JMenuItem("Fastest Avg Time To Kill");
+		overallBestCombinations[13] = new JMenuItem("Lowest Breakpoints");
+		overallBestCombinations[14] = new JMenuItem("Most Utility");
+		
+		// Subset Best Combinations menu
+		subsetBestCombinations = new JMenuItem[15];
+		subsetBestCombinations[0] = new JMenuItem("Best Ideal Burst DPS");
+		subsetBestCombinations[1] = new JMenuItem("Best Ideal Sustained DPS");
+		subsetBestCombinations[2] = new JMenuItem("Best Sustained + Weakpoint DPS");
+		subsetBestCombinations[3] = new JMenuItem("Best Sustained + Weakpoint + Accuracy DPS");
+		subsetBestCombinations[4] = new JMenuItem("Best Additional Target DPS");
+		subsetBestCombinations[5] = new JMenuItem("Most Number of Targets Hit");
+		subsetBestCombinations[6] = new JMenuItem("Most Multi-Target Damage");
+		subsetBestCombinations[7] = new JMenuItem("Most Ammo Efficient");
+		subsetBestCombinations[8] = new JMenuItem("Highest General Accuracy");
+		subsetBestCombinations[9] = new JMenuItem("Highest Weakpoint Accuracy");
+		subsetBestCombinations[10] = new JMenuItem("Longest Firing Duration");
+		subsetBestCombinations[11] = new JMenuItem("Lowest Avg Overkill");
+		subsetBestCombinations[12] = new JMenuItem("Fastest Avg Time To Kill");
+		subsetBestCombinations[13] = new JMenuItem("Lowest Breakpoints");
+		subsetBestCombinations[14] = new JMenuItem("Most Utility");
+		
+		overallBestCombinationsMenu = new JMenu("Best Combinations (All)");
+		subsetBestCombinationsMenu = new JMenu("Best Combinations (Subset)");
+		
+		// This for loop depends on overallBestCombinations and subsetBestCombinations being the same length
+		for (int i = 0; i < overallBestCombinations.length; i++) {
+			overallBestCombinationsMenu.add(overallBestCombinations[i]);
+			subsetBestCombinationsMenu.add(subsetBestCombinations[i]);
+		}
+		menuBar.add(overallBestCombinationsMenu);
+		menuBar.add(subsetBestCombinationsMenu);
 		
 		// Difficulty Scaling menu
 		difficultyScalingMenu = new JMenu("Difficulty Scaling");
@@ -204,7 +225,7 @@ public class View extends JFrame implements Observer {
 		radioButtonsPanel.add(dsHaz5);
 		
 		dsPCGroup = new ButtonGroup();
-		dsPC1 = new JRadioButton("1", true);
+		dsPC1 = new JRadioButton("1");
 		dsPCGroup.add(dsPC1);
 		radioButtonsPanel.add(dsPC1);
 		dsPC2 = new JRadioButton("2");
@@ -213,7 +234,7 @@ public class View extends JFrame implements Observer {
 		dsPC3 = new JRadioButton("3");
 		dsPCGroup.add(dsPC3);
 		radioButtonsPanel.add(dsPC3);
-		dsPC4 = new JRadioButton("4");
+		dsPC4 = new JRadioButton("4", true);
 		dsPCGroup.add(dsPC4);
 		radioButtonsPanel.add(dsPC4);
 		radioButtonsPanel.add(new JLabel());
@@ -223,11 +244,13 @@ public class View extends JFrame implements Observer {
 		menuBar.add(difficultyScalingMenu);
 		
 		// Export Stats to CSV menu
-		exportMenu = new JMenu("Export Stats to CSV");
-		exportCurrent = new JMenuItem("Export current weapon");
+		exportMenu = new JMenu("Export Data");
+		exportCurrent = new JMenuItem("Export current weapon to CSV");
 		exportMenu.add(exportCurrent);
-		exportAll = new JMenuItem("Export all weapons");
+		exportAll = new JMenuItem("Export all weapons to CSV");
 		exportMenu.add(exportAll);
+		exportMySQL = new JMenuItem("Export all weapons to MySQL");
+		exportMenu.add(exportMySQL);
 		menuBar.add(exportMenu);
 		
 		// Miscellaneous Actions menu
@@ -246,42 +269,22 @@ public class View extends JFrame implements Observer {
 	}
 	
 	// Getters used by GuiController
-	public JMenuItem getBcmIdealBurst() {
-		return bcmIdealBurst;
+	public JMenuItem getOverallBestCombination(int index) {
+		if (index < 0 || index > overallBestCombinations.length - 1) {
+			return null;
+		}
+		
+		return overallBestCombinations[index];
 	}
-	public JMenuItem getBcmIdealSustained() {
-		return bcmIdealSustained;
+	
+	public JMenuItem getSubsetBestCombination(int index) {
+		if (index < 0 || index > subsetBestCombinations.length - 1) {
+			return null;
+		}
+		
+		return subsetBestCombinations[index];
 	}
-	public JMenuItem getBcmSustainedWeakpoint() {
-		return bcmSustainedWeakpoint;
-	}
-	public JMenuItem getBcmSustainedWeakpointAccuracy() {
-		return bcmSustainedWeakpointAccuracy;
-	}
-	public JMenuItem getBcmIdealAdditional() {
-		return bcmIdealAdditional;
-	}
-	public JMenuItem getBcmMaxDmg() {
-		return bcmMaxDmg;
-	}
-	public JMenuItem getBcmMaxNumTargets() {
-		return bcmMaxNumTargets;
-	}
-	public JMenuItem getBcmDuration() {
-		return bcmDuration;
-	}
-	public JMenuItem getBcmTTK() {
-		return bcmTTK;
-	}
-	public JMenuItem getBcmOverkill() {
-		return bcmOverkill;
-	}
-	public JMenuItem getBcmAccuracy() {
-		return bcmAccuracy;
-	}
-	public JMenuItem getBcmUtility() {
-		return bcmUtility;
-	}
+	
 	
 	public JRadioButton getDSHaz1() {
 		return dsHaz1;
@@ -316,6 +319,9 @@ public class View extends JFrame implements Observer {
 	}
 	public JMenuItem getExportAll() {
 		return exportAll;
+	}
+	public JMenuItem getExportMySQL() {
+		return exportMySQL;
 	}
 	
 	public JMenuItem getMiscScreenshot() {
@@ -356,18 +362,10 @@ public class View extends JFrame implements Observer {
 	
 	// This method gets called by GuiController; I use it to add it as an ActionListener to all buttons and menu items in the GUI
 	public void activateButtonsAndMenus(ActionListener parent) {
-		bcmIdealBurst.addActionListener(parent);
-		bcmIdealSustained.addActionListener(parent);
-		bcmSustainedWeakpoint.addActionListener(parent);
-		bcmSustainedWeakpointAccuracy.addActionListener(parent);
-		bcmIdealAdditional.addActionListener(parent);
-		bcmMaxDmg.addActionListener(parent);
-		bcmMaxNumTargets.addActionListener(parent);
-		bcmDuration.addActionListener(parent);
-		bcmTTK.addActionListener(parent);
-		bcmOverkill.addActionListener(parent);
-		bcmAccuracy.addActionListener(parent);
-		bcmUtility.addActionListener(parent);
+		for (int i = 0; i < overallBestCombinations.length; i++) {
+			overallBestCombinations[i].addActionListener(parent);
+			subsetBestCombinations[i].addActionListener(parent);
+		}
 		
 		dsHaz1.addActionListener(parent);
 		dsHaz2.addActionListener(parent);
@@ -381,6 +379,7 @@ public class View extends JFrame implements Observer {
 		
 		exportCurrent.addActionListener(parent);
 		exportAll.addActionListener(parent);
+		exportMySQL.addActionListener(parent);
 		
 		miscWeaponTabScreenshot.addActionListener(parent);
 		miscExportCombination.addActionListener(parent);

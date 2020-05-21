@@ -3,6 +3,7 @@ package gunnerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import dataGenerator.DatabaseConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
@@ -294,6 +295,12 @@ public class Minigun extends Weapon {
 	}
 	public String getSimpleName() {
 		return "Minigun";
+	}
+	public int getDwarfClassID() {
+		return DatabaseConstants.gunnerCharacterID;
+	}
+	public int getWeaponID() {
+		return DatabaseConstants.minigunGunsID;
 	}
 	
 	/****************************************************************************************
@@ -627,9 +634,11 @@ public class Minigun extends Weapon {
 			generalAccuracy = Math.min(generalAccuracy + 0.5, 1.0);
 		}
 		
+		double burstSize = calculateMaxNumPelletsFiredWithoutOverheating();
+		
 		if (burst) {
-			shortDuration = calculateFiringPeriod();
-			longDuration = calculateFiringPeriod();
+			shortDuration = 2.0 * burstSize / getRateOfFire();
+			longDuration = shortDuration;
 			// I've considered adding the spinup time to the burst duration, but seeing it in the metrics was very counter-intuitive -- it made the burst DPS not the intuitively expected 150.
 			// longDuration = getSpinupTime() + calculateFiringPeriod();
 		}
@@ -652,7 +661,6 @@ public class Minigun extends Weapon {
 			longDuration = firingPeriod + cooldownPeriod + spinup;
 		}
 		
-		int burstSize = (int) calculateMaxNumPelletsFiredWithoutOverheating();
 		double directDamage = getDamagePerPellet();
 		
 		// Frozen
@@ -693,7 +701,6 @@ public class Minigun extends Weapon {
 		int pelletsThatHitWeakpoint = (int) Math.round(burstSize * weakpointAccuracy);
 		int pelletsThatHitTarget = (int) Math.round(burstSize * generalAccuracy) - pelletsThatHitWeakpoint;
 		
-		// TODO: I'm not satisfied with how this turned out, because Ideal Burst DPS always turns out JUST shy of its true value. This is because the num pellets is always one less than what would make it overheat.
 		return (pelletsThatHitWeakpoint * directWeakpointDamage + pelletsThatHitTarget * directDamage) / longDuration + burnDPS;
 	}
 	
@@ -835,18 +842,12 @@ public class Minigun extends Weapon {
 		
 		return (numberOfBursts * calculateFiringPeriod()) + (numberOfCooldowns * calculateCooldownPeriod());
 	}
-
+	
 	@Override
-	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
-	}
-
-	@Override
-	public double averageOverkill() {
+	protected double averageDamageToKillEnemy() {
+		// TODO: Should this and all other weapons increase based on the weighted average, or just straight increase due to having Accuracy modeled now?
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet());
-		double enemyHP = EnemyInformation.averageHealthPool();
-		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
-		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
+		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
 	@Override
@@ -898,6 +899,12 @@ public class Minigun extends Weapon {
 		
 		return sumOfAllProbabilities / numPelletsFired * 100.0;
 	}
+	
+	@Override
+	public int breakpoints() {
+		breakpoints = EnemyInformation.calculateBreakpoints(getDamagePerPellet(), 0, 0);
+		return MathUtils.sum(breakpoints);
+	}
 
 	@Override
 	public double utilityScore() {
@@ -920,5 +927,15 @@ public class Minigun extends Weapon {
 		utilityScores[5] = getStunChancePerPellet() * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
 		
 		return MathUtils.sum(utilityScores);
+	}
+	
+	@Override
+	public double damagePerMagazine() {
+		return calculateDamagePerBurst(false);
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return calculateFiringPeriod();
 	}
 }

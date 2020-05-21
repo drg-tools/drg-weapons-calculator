@@ -5,7 +5,7 @@ import utilities.MathUtils;
 public class EnemyInformation {
 	
 	private static int hazardLevel = 4;
-	private static int playerCount = 1;
+	private static int playerCount = 4;
 	public static void setHazardLevel(int newHazLevel) {
 		if (newHazLevel > 0 && newHazLevel < 6) {
 			hazardLevel = newHazLevel;
@@ -150,30 +150,40 @@ public class EnemyInformation {
 		{0, 0, 0, 0}   				// Cave Leech
 	};
 	
+	// This info comes from Elythnwaen's Temperatures spreadsheet, and many of those values were seeded from MikeGSG giving us the values for the 5 "base" creature types.
 	// TODO: update this chart once Elythnwaen finishes that spreadsheet.
 	private static double[][] enemyTemperatures = {
 		// Ignite Temp, Douse Temp, Heat Loss Rate, Freeze Temp, Thaw Temp, Heat Gain Rate
 		{5, 0, 1, -20, 0, 4},			// Glyphid Swarmer
-		{25, 10, 3, -30, 0, 6},			// Glyphid Grunt
-		{100, 40, 10, -150, -100, 10},	// Glyphid Grunt Guard
-		{25, 10, 3, -30, 0, 6},			// Glyphid Grunt Slasher
+		{30, 10, 6, -30, 0, 6},			// Glyphid Grunt
+		{60, 30, 6, -100, -70, 6},		// Glyphid Grunt Guard TODO
+		{30, 10, 6, -30, 0, 6},			// Glyphid Grunt Slasher
 		{100, 40, 10, -150, -100, 10},	// Glyphid Praetorian
-		{5, 0, 1, -10, 0, 12},			// Glyphid Exploder
-		{100, 40, 10, -250, -200, 50},	// Glyphid Bulk Detonator
-		{100, 40, 10, -250, -200, 50},	// Glyphid Crassus Detonator
-		{25, 10, 3, -30, 0, 6},			// Glyphid Webspitter
-		{25, 10, 3, -30, 0, 6},			// Glyphid Acidspitter
-		{25, 10, 3, -30, 0, 6},			// Glyphid Menace
-		{50, 25, 5, -70, -30, 8},		// Glyphid Warden
-		{100, 40, 10, -150, -100, 10},	// Glyphid Oppressor
-		{100, 40, 10, -150, -100, 10},	// Q'ronar Shellback
-		{25, 10, 3, -30, 0, 0},			// Mactera Spawn
-		{25, 10, 3, -180, 0, 0},		// Mactera Grabber
-		{25, 10, 3, -30, 0, 0},			// Mactera Bomber
-		{60, 30, 6, -150, 1, 0},		// Naedocyte Breeder
-		{10, 0, 4, -20, 0, 4},			// Glyphid Brood Nexus
-		{25, 10, 3, -30, 0, 6},			// Spitball Infector
-		{5, 0, 1, -20, 0, 4}			// Cave Leech
+		{10, 0, 6, -10, 0, 12},			// Glyphid Exploder
+		{50, 25, 6, -70, -30, 6},		// Glyphid Bulk Detonator TODO
+		{50, 25, 6, -70, -30, 6},		// Glyphid Crassus Detonator TODO
+		{30, 0, 6, -75, 0, 10},			// Glyphid Webspitter
+		{50, 25, 6, -50, 0, 6},			// Glyphid Acidspitter TODO
+		{30, 0, 6, -50, 0, 6},			// Glyphid Menace
+		{50, 25, 6, -70, -30, 6},		// Glyphid Warden
+		{100, 40, 10, -300, -200, 20},	// Glyphid Oppressor TODO
+		{100, 40, 10, -150, -100, 10},	// Q'ronar Shellback TODO
+		{35, 5, 10, -100, 0, 40},		// Mactera Spawn
+		{30, 0, 10, -180, 0, 40},		// Mactera Grabber
+		{50, 25, 6, -200, 0, 40},		// Mactera Bomber TODO
+		{60, 30, 10, -150, 1, 0},		// Naedocyte Breeder
+		{7.5, 0, 4, -7.5, 0, 4},		// Glyphid Brood Nexus
+		{30, 0, 10, -30, 0, 6},			// Spitball Infector
+		{30, 0, 10, -30, 0, 6}			// Cave Leech
+	};
+	
+	// This information comes straight from MikeGSG -- Thanks, Mike!
+	private static double[] enemyLightArmorStrengthValues = {
+		15,  // Glyphid Grunt
+		15,  // Glyphid Grunt Guard
+		15,  // Glyphid Grunt Slasher
+		10,  // Glyphid Webspitter
+		10,  // Glyphid Acidspitter
 	};
 	
 	private static boolean verifySpawnRatesTotalIsOne() {
@@ -310,14 +320,17 @@ public class EnemyInformation {
 		
 		int numEnemyTypes = spawnRates.length;
 		double[] igniteTemps = new double[numEnemyTypes];
+		double[] heatLossRates = new double[numEnemyTypes];
 		
 		for (int i = 0; i < numEnemyTypes; i++) {
 			igniteTemps[i] = enemyTemperatures[i][0];
+			heatLossRates[i] = enemyTemperatures[i][2];
 		}
 		
 		double avgIgniteTemp = MathUtils.vectorDotProduct(spawnRates, igniteTemps);
+		double avgHeatLossRate = MathUtils.vectorDotProduct(spawnRates, heatLossRates);
 		
-		return avgIgniteTemp / heatPerSecond;
+		return avgIgniteTemp / (heatPerSecond - avgHeatLossRate);
 	}
 	public static double averageBurnDuration() {
 		if (!verifySpawnRatesTotalIsOne()) {
@@ -342,8 +355,7 @@ public class EnemyInformation {
 		return (avgIgniteTemp - avgDouseTemp) / avgHeatLossRate;
 	}
 	
-	// This method is currently only used by Gunner/Minigun/Mod/5/Aggressive Venting in maxDamage()
-	// However, this might be able to be adapted to Engineer/GrenadeLauncher/Mod/3/Incendiary Compound, and for sure Scout's Cryo Grenade if it ever gets added.
+	// This method is currently only used by Gunner/Minigun/Mod/5/Aggressive Venting in maxDamage() and Engineer/GrenadeLauncher/Mod/3/Incendiary Compound single-target DPS
 	public static double percentageEnemiesIgnitedBySingleBurstOfHeat(double heatPerBurst) {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
@@ -361,8 +373,8 @@ public class EnemyInformation {
 	
 	// Cold per shot should be a negative number to indicate that the enemy's temperature is being decreased
 	public static double averageTimeToFreeze(double coldPerShot, double RoF) {
-		// Early exit: if Cold/Sec > 150, then all enemies get frozen instantly since the largest Freeze Temp is 150.
-		if (coldPerShot <= -150) {
+		// Early exit: if Cold/Shot > 300, then all enemies get frozen instantly since the largest Freeze Temp is 300.
+		if (coldPerShot <= -300) {
 			return 0;
 		}
 		
@@ -375,15 +387,41 @@ public class EnemyInformation {
 		
 		int numEnemyTypes = spawnRates.length;
 		double[] freezeTemps = new double[numEnemyTypes];
+		double[] heatGainRates = new double[numEnemyTypes];
 		
 		for (int i = 0; i < numEnemyTypes; i++) {
 			freezeTemps[i] = enemyTemperatures[i][3];
+			heatGainRates[i] = enemyTemperatures[i][5];
 		}
 		
 		double avgFreezeTemp = MathUtils.vectorDotProduct(spawnRates, freezeTemps);
+		double avgHeatGainRate = MathUtils.vectorDotProduct(spawnRates, heatGainRates);
 		
 		// Negative Freeze temps divided by negative cold per seconds results in a positive number of seconds
-		return avgFreezeTemp / coldPerSecond;
+		return avgFreezeTemp / (coldPerSecond + avgHeatGainRate);
+	}
+	public static double averageTimeToRefreeze(double coldPerSecond) {
+		if (!verifySpawnRatesTotalIsOne()) {
+			return -1.0;
+		}
+		
+		int numEnemyTypes = spawnRates.length;
+		double[] freezeTemps = new double[numEnemyTypes];
+		double[] thawTemps = new double[numEnemyTypes];
+		double[] heatGainRates = new double[numEnemyTypes];
+		
+		for (int i = 0; i < numEnemyTypes; i++) {
+			freezeTemps[i] = enemyTemperatures[i][3];
+			thawTemps[i] = enemyTemperatures[i][4];
+			heatGainRates[i] = enemyTemperatures[i][5];
+		}
+		
+		double avgFreezeTemp = MathUtils.vectorDotProduct(spawnRates, freezeTemps);
+		double avgThawTemp = MathUtils.vectorDotProduct(spawnRates, thawTemps);
+		double avgHeatGainRate = MathUtils.vectorDotProduct(spawnRates, heatGainRates);
+		
+		// Negative Freeze temps divided by negative cold per seconds results in a positive number of seconds
+		return (avgFreezeTemp - avgThawTemp) / (coldPerSecond + avgHeatGainRate);
 	}
 	public static double averageFreezeDuration() {
 		if (!verifySpawnRatesTotalIsOne()) {
@@ -407,6 +445,115 @@ public class EnemyInformation {
 		
 		// Because every Freeze temp is negative and is strictly less than the corresponding Thaw temp, subtracting Freeze from Thaw guarantees a positive number.
 		return (avgThawTemp - avgFreezeTemp) / avgHeatGainRate;
+	}
+	// This method is currently only used by Driller/CryoCannon/OC/Snowball in Utility
+	public static double percentageEnemiesFrozenBySingleBurstOfCold(double coldPerBurst) {
+		if (!verifySpawnRatesTotalIsOne()) {
+			return -1.0;
+		}
+		
+		double sum = 0;
+		for (int i = 0; i < spawnRates.length; i++) {
+			if (enemyTemperatures[i][3] > coldPerBurst) {
+				sum += spawnRates[i];
+			}
+		}
+		
+		return MathUtils.round(sum, 4);
+	}
+	
+	public static double averageLightArmorStrength() {
+		int[] indexesOfEnemiesWithLightArmor = new int[] {1, 2, 3, 8, 9};
+		double[] subsetSpawnRates = new double[indexesOfEnemiesWithLightArmor.length];
+		for (int i = 0; i < indexesOfEnemiesWithLightArmor.length; i++) {
+			subsetSpawnRates[i] = spawnRates[indexesOfEnemiesWithLightArmor[i]];
+		}
+		
+		return MathUtils.vectorDotProduct(enemyLightArmorStrengthValues, subsetSpawnRates) / MathUtils.sum(subsetSpawnRates);
+	}
+	public static double lightArmorBreakProbabilityLookup(double damage, double armorBreakingModifier, double armorStrength) {
+		// Input sanitization
+		if (damage <= 0.0 || armorBreakingModifier <= 0.0 || armorStrength <= 0.0) {
+			return 0.0;
+		}
+		
+		// This information comes straight from MikeGSG -- Thanks, Mike!
+		double lookupValue = damage * armorBreakingModifier / armorStrength;
+		
+		if (lookupValue < 1.0) {
+			return lookupValue / 2.0;
+		}
+		else if (lookupValue < 2.0) {
+			return 0.5 + (lookupValue - 1.0) / 4.0;
+		}
+		else if (lookupValue < 4.0) {
+			return 0.75 + (lookupValue - 2.0) / 8.0;
+		}
+		else {
+			return 1.0;
+		}
+	}
+	
+	
+	public static int[] calculateBreakpoints(double directDamagePerShot, double areaDamagePerShot, double weakpointModifier) {
+		// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
+		double[] normalEnemyResistances = {
+			0.7,  // Haz1
+			1.0,  // Haz2
+			1.1,  // Haz3
+			1.2,  // Haz4
+			1.2   // Haz5
+		};
+		double normalResistance = normalEnemyResistances[hazardLevel - 1];
+		
+		// On the other hand, large and extra-large enemies have their health scale by both player count and Hazard Level for all 20 combinations.
+		// Currently, it looks like the only extra-large enemy is a Dreadnought which I've chosen not to model for now.
+		double[][] largeEnemyResistances = {
+			{0.45, 0.55, 0.70, 0.85},  // Haz1
+			{0.65, 0.75, 0.90, 1.00},  // Haz2
+			{0.80, 0.90, 1.00, 1.10},  // Haz3
+			{1.00, 1.00, 1.20, 1.30},  // Haz4
+			{1.20, 1.20, 1.40, 1.50}   // Haz5
+		};
+		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
+		
+		// Glyphid Swarmer, Webspitter through Light Armor, Grunt Weakpoint, Grunt through Light Armor, Praetorian Mouth, Praetorian Abdomen, and Mactera Spawn
+		double swarmerHp = enemyHealthPools[0] * normalResistance;
+		double webspitterHp = enemyHealthPools[8] * normalResistance;
+		double gruntHp = enemyHealthPools[1] * normalResistance;
+		double praetorianHp = enemyHealthPools[4] * largeResistance;
+		double macteraSpawnHp = enemyHealthPools[14] * normalResistance;
+		
+		double reducedArmorDirectDamage = directDamagePerShot * UtilityInformation.LightArmor_DamageReduction;
+		double increasedWeakpointDirectDamage, gruntWeakpointMultiplier, macteraWeakpointMultiplier;
+		if (weakpointModifier < 0) {
+			increasedWeakpointDirectDamage = directDamagePerShot;
+			gruntWeakpointMultiplier = 1.0;
+			macteraWeakpointMultiplier = 1.0;
+		}
+		else {
+			increasedWeakpointDirectDamage = directDamagePerShot * (1.0 + weakpointModifier);
+			gruntWeakpointMultiplier = 2.0;
+			macteraWeakpointMultiplier = 3.0;
+		}
+		
+		// TODO: someday, it might be nice to have this factor in things like Engineer/GrenadeLauncher/Mod/3/Incendiary Compound adding total damage via Burn DoT
+		return new int[] {
+			// Glyphid Swarmer
+			(int) Math.ceil(swarmerHp / (directDamagePerShot + areaDamagePerShot)),
+			// Glyphid Webspitter hitting body through Light Armor
+			(int) Math.ceil(webspitterHp / (reducedArmorDirectDamage + areaDamagePerShot)),
+			// Glyphid Grunt hitting Mouth for Weakpoint Bonus
+			(int) Math.ceil(gruntHp / (increasedWeakpointDirectDamage * gruntWeakpointMultiplier + areaDamagePerShot)),
+			// Glyphid Grunt hitting body through Light Armor
+			(int) Math.ceil(gruntHp / (reducedArmorDirectDamage + areaDamagePerShot)),
+			// Praetorian hitting Mouth
+			(int) Math.ceil(praetorianHp / (directDamagePerShot + areaDamagePerShot)),
+			// Praetorian hitting Abdomen for Weakpoint Bonus
+			(int) Math.ceil(praetorianHp / (increasedWeakpointDirectDamage + areaDamagePerShot)),
+			// Mactera Spawn hitting stomach for Weakpoint Bonus
+			(int) Math.ceil(macteraSpawnHp / (increasedWeakpointDirectDamage * macteraWeakpointMultiplier + areaDamagePerShot))
+		};
 	}
 	
 	/* 

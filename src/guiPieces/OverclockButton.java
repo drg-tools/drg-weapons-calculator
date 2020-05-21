@@ -4,9 +4,12 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 
@@ -17,7 +20,7 @@ import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.Overclock;
 import modelPieces.Weapon;
 
-public class OverclockButton extends JButton implements ActionListener {
+public class OverclockButton extends JButton implements ActionListener, MouseMotionListener {
 	private static final long serialVersionUID = 1L;
 	
 	private Weapon myWeapon;
@@ -28,6 +31,8 @@ public class OverclockButton extends JButton implements ActionListener {
 	private boolean enabled;
 	private boolean implemented;
 	
+	private RoundRectangle2D border;
+	
 	public OverclockButton(Weapon inputWeapon, int index, String ocName, String ocText, overclockIcons iconSelector, boolean overclockSelected, boolean ocImplemented) {
 		myWeapon = inputWeapon;
 		myIndex = index;
@@ -37,16 +42,21 @@ public class OverclockButton extends JButton implements ActionListener {
 		icon = ButtonIcons.getOverclockIcon(iconValue);
 		implemented = ocImplemented;
 		
+		int bufferPixels = GuiConstants.paddingPixels;
+		border = new RoundRectangle2D.Double(bufferPixels, bufferPixels, getWidth() - 2*bufferPixels, getHeight() - 2*bufferPixels, 50, 50);
+		
 		this.setText(ocName);
 		this.setFont(GuiConstants.customFont);
 		this.setToolTipText(HoverText.breakLongToolTipString(ocText, 50));
 		this.setOpaque(false);
 		this.setContentAreaFilled(false);
 		this.setBorderPainted(false);
-		this.setCursor(CustomCursors.defaultCursorPlusQuestionMark);
 		
 		// Have each OverclockButton listen to itself for when it gets clicked to simplify the GuiController
 		this.addActionListener(this);
+		
+		// Have this button listen to itself for Mouse Movement too to add the question mark to the cursor when within the border
+		this.addMouseMotionListener(this);
 	}
 	
 	public void paintComponent(Graphics g) {
@@ -57,7 +67,7 @@ public class OverclockButton extends JButton implements ActionListener {
 		g2.setFont(GuiConstants.customFont);
 		
 		int bufferPixels = GuiConstants.paddingPixels;
-		RoundRectangle2D border = new RoundRectangle2D.Double(bufferPixels, bufferPixels, getWidth() - 2*bufferPixels, getHeight() - 2*bufferPixels, 50, 50);
+		border = new RoundRectangle2D.Double(bufferPixels, bufferPixels, getWidth() - 2*bufferPixels, getHeight() - 2*bufferPixels, 50, 50);
 		
 		// If this overclock hasn't been implemented in the model, draw its border red.
 		if (implemented) {
@@ -149,4 +159,20 @@ public class OverclockButton extends JButton implements ActionListener {
 		myWeapon.setSelectedOverclock(myIndex);
 	}
 
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		// Do nothing if it's dragged
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		Point cursorHotspotLocation = e.getPoint();
+		
+		if (cursorHotspotLocation != null && border.contains(cursorHotspotLocation)) {
+			this.setCursor(CustomCursors.defaultCursorPlusQuestionMark);
+		}
+		else {
+			this.setCursor(CustomCursors.defaultCursor);
+		}
+	}
 }

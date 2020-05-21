@@ -65,23 +65,79 @@ public class InformationTabsText {
 		return toReturn;
 	}
 	
+	public static JPanel getMetricsExplanation() {
+		String[][] metricsExplanationtext = {
+			{"Ideal Burst DPS", "For weapons with a magazine size larger than 1, this metric represents what the DPS would be of emptying an entire magazine at max rate of fire into an enemy, "
+					+ "modeled as if every projectile hits flesh (not Armor or a Weakpoint). DoTs have their DPS added to this metric multiplied by the coefficient of how long the DoT afflicts the "
+					+ "enemy divided by how long it takes to empty the magazine. If the weapon only fires 1 projectile before reloading, then this is the damage of that single shot divided by "
+					+ "reload time, and DoTs are multiplied by the estimated percentage of enemies that the single shot would ignite."},
+			{"Ideal Sustained DPS", "Very similar to Ideal Burst DPS, this metric models what the DPS would be if you were to start firing the weapon and not let go of the trigger until the "
+					+ "weapon ran out of ammo. Again, this is modeled as if every bullet hits flesh, instead of Armor or a Weakpoint, and DoTs have their full DPS added to this value."},
+			{"Sustained DPS + Weakpoints", "This metric is virtually identical to Ideal Sustained DPS, with the key difference being that the weapon's Weakpoint Accuracy is used to estimate "
+					+ "how many projectiles would hit an enemy's Weakpoint and thus would have their Direct Damage increased. If the weapon is Manually Aimed, then the Weakpoint Accuracy is "
+					+ "instead just an estimate how what percentage of enemies' bodies are weakpoints. If a weapon deals Direct Damage and can score a Weakpoint hit, this should always be a "
+					+ "higher value than Ideal Sustained DPS. Keep in mind that Freezing an enemy removes Weakpoint multipliers and instead makes the whole enemy take x3 damage."},
+			{"Sustained DPS + Weakpoints + Accuracy", "Adding another layer on top of Sustained DPS + Weakpoints, this metric models how projectiles can be missed due to General Accuracy. "
+					+ "A low General Accuracy will result in a low value for this metric since so many projectiles will miss. If a weapon is Manually Aimed, then this metric will be identical "
+					+ "to Sustained DPS + Weakpoints."},
+			{"Ideal Additional Target DPS", "If the currently selected weapon can hit more than one enemy per projectile, then this metric will represent what the Ideal Sustained DPS dealt to "
+					+ "non-primary targets would be. Again, modeled as if it doesn't hit Armor or Weakpoints."},
+			{"Max Num Targets", "This metric represents the theoretical maximum number of Glyphid Grunts that take damage from a single projectile fired by the current weapon. For weapons "
+					+ "that deal splash damage, like Engineer's Grenade Launcher or Gunner's Autocannon, you can click on this metric to see a visualization of how this program estimates "
+					+ "enemies hit by a splash radius."},
+			{"Max Multi-Target Damage", "As the name implies, this metric is used to show how much damage can be dealt by this weapon without having to resupply. This is modeled as if every "
+					+ "single projectile hits a primary target and all possible secondary targets, and DoT damage dealt to individual enemies contributes to this value as well. As a result, "
+					+ "getting a higher number of Max Num Targets will scale this number just as strongly as carrying more ammo."},
+			{"Ammo Efficiency", "Ammo Efficiency is a bit more abstract of a metric, and technically doesn't have any units associated with it (unlike DPS, num targets, max damage, etc). "
+					+ "The current formula used to calculate Ammo Efficiency is (Max Multi-Target Damage / Math.ceil(Number of bullets needed to kill one enemy, including Weakpoint Bonuses)). "
+					+ "As a result of that formula, higher damage per bullet and higher Weakpoint bonus will yield a smaller denominator, while higher damage per bullet, more targets per shot, "
+					+ "and more carried ammo will result in a higher numerator. Using a combination of those 4 upgrades will result in a very high AE score."},
+			{"General Accuracy", "A pretty straight-forward metric to understand, General Accuracy is an estimate of what percentage of projectiles would hit a target from 7m away using sustained "
+					+ "fire. For the two shotguns, the distance has been reduced to 5m. Some weapons like both of Driller's primary weapons, Engineer's Grenade Launcher, or Scout's M1000 "
+					+ "Classic (Focused Shots) can't have their accuracy modeled and will instead say \"Manually Aimed\"."},
+			{"Weakpoint Accuracy", "Just like General Accuracy, this metric represents what percentage of projectiles would hit an enemy's Weakpoint from 7m away (5m for the two shotguns). "
+					+ "For weapons that can't have their accuracy modeled, it will instead say \"Manually Aimed\"."},
+			{"Firing Duration", "This answers the question of how long it will take to fire every projectile from the weapon if you were to fire continuously, even through reloads or cooldowns. "
+					+ "Slower rates of fire and large carried ammo capacities increase the duration, whereas faster rates of fire and faster reloads decrease duration."},
+			{"Avg Overkill", "This is an estimate of how much damage gets \"wasted\" by bullets when enemies have lower health than the damage per projectile. Because different creatures have "
+					+ "different healthpools that scale with Hazard Level and Player Count, this uses a weighted average of all enemies' healthpools for its Overkill calculations."},
+			{"Avg Time to Kill", "A very simple metric; all this does is divide the weighted average healthpool of all enemies by the current Sustained + Weakpoint DPS to get an estimate of "
+					+ "how quickly the current weapon and build can kill an enemy."},
+			{"Breakpoints", "Although the number displayed is pretty meaningless by itself, clicking on this metric will have a small window pop up that shows you the fewest number of projectiles "
+					+ "needed to kill various enemies under different conditions. At the moment, it does not factor in elemental resistances, vulnerabilities, or DoTs, but I'm hoping to implement "
+					+ "those things in the future."},
+			{"Utility", "Another abstract metric, this tries to numerically represent the value of certain mods that don't affect DPS or total damage, but do things like slow or stun enemies. "
+					+ "Additionally, if the weapon can break Light Armor Plates, then the average probability that each shot can break a Light Armor plate will be listed."},
+			// {"", ""},
+		};
+		
+		JPanel panelContainedWithinScrollPane = new JPanel();
+		panelContainedWithinScrollPane.setBackground(GuiConstants.drgBackgroundBrown);
+		panelContainedWithinScrollPane.setLayout(new BoxLayout(panelContainedWithinScrollPane, BoxLayout.PAGE_AXIS));
+		
+		for (int i = 0; i < metricsExplanationtext.length; i++) {
+			panelContainedWithinScrollPane.add(createQandAPanel(metricsExplanationtext[i][0], metricsExplanationtext[i][1]));
+		}
+		
+		return createScrollableTextPanel("What do each of the calculated metrics mean?", panelContainedWithinScrollPane);
+	}
+	
 	public static JPanel getFAQText() {
-		// TODO: add more FAQs
 		String[][] FAQtext = {
-			{"Where are the Flamethrower, Cryo Cannon, and Breach Cutter?", "Those weapons (Breach Cutter in particular) are substantially harder to model accurately, but I'm hoping to add them in a later release."},
+			{"Where is the Breach Cutter?", "The Breach Cutter is substantially harder to model accurately due to how it works. I would need to know the sizes of each enemy, the m/sec that the Breach Cutter line moves at, "
+					+ "how many times per second the line does damage, and how much damage per tick it does."},
 			{"Why do some Mods and Overclocks have a Red outline?", "Mods or Overclocks with a Red outline either are not implemented yet, or how they work in-game can't be represented by the Weapon's stats."},
 			{"What's the point of this program?", "To help the DRG community compare and contrast their preferred builds for each weapon, and to provide more detail about how the weapons work than described in-game or on the wiki."},
-			{"How long should I wait for the program to calculate the best build?", "In this build, be ready to wait for a while. It doesn't have multi-threading implemented yet, so it can only chug through the 3000+ combinations as fast as a single core "
-					+ "of your processor can go. On the computer it's being developed on, it's taking anywhere from 3-10 seconds for each auto-calculation, with Gunner/Minigun taking the longest due to having the most combinations to test."},
+			{"How long should I wait for the program to calculate the best build?", "This should run pretty fast. I would expect it to be done in a second or two, five at most."},
 			{"I think something is wrong/missing, how do I communicate that to you?", "In the 'Misc. Actions' Menu, there's an option to suggest changes. That should automatically open up this project's GitHub issue creation page for you."},
 			{"Can I help improve to this project?", "Yes! This is an open-source, freeware fan project. Although it's started out as just one developer, I would love to have help."},
-			{"How frequently will this be updated?", "There are a couple features that I want to add (like the 3 missing weapons) before calling this 'done', but I'm planning to update each weapon's stats as GSG devs update them in-game on their production build."},
-			{"What are some of the features going to be added in the future?", "Besides adding the last 3 weapons, I would also like to add Weakpoint Accuracy, Breakpoints, and Ammo Efficiency metrics, as well as add multi-threading to the auto-calculator process to improve its speed."},
-			{"Will this be made available as a live website?", "Probably not. Thousands of lines of Java code do not port well into HTML/CSS/Javascript. There's a similar program already online at https://surmiran.github.io/karl/ but it has much less detail."},
+			{"How frequently will this be updated?", "There are a couple features that I want to add before calling this 'done', but I'm planning to update each weapon's stats as GSG devs update them in-game on their production build."},
+			{"Will this be made available as a live website?", "Probably not. Thousands of lines of Java code do not port well into HTML/CSS/Javascript. The data generated by this program will be available on drg-builds.com at some point in the future."},
 			{"How did you model [insert mechanic here]?", "This is an open-source project. Feel free to look around the source code and see how it was done. In general though: I chose to model everything like a continuous function instead of "
 					+ "discrete. Slight loss of precision, but significantly easier."},
 			{"How are Status Effect Utility scores calculated?", "The formula I chose to use is (% Chance to Proc) * (Number of Targets) * (Effect Duration) * (Utility Factor), where 'Utility Factor' is some scalar value assigned to each effect."},
 			// I'm intentionally adding blank lines below here so that the content gets pushed to the top of the page
+			{"", ""},
 			{"", ""},
 			{"", ""},
 			{"", ""},
@@ -173,13 +229,13 @@ public class InformationTabsText {
 	public static JPanel getAcknowledgementsText() {
 		String[][] acknowledgementsText = {
 			{"Ghost Ship Games", "Thank you for making the game Deep Rock Galactic and letting me use some images and artwork from the game in this program."},
+			{"Mike @ GSG / Dagadegatto", "Thank you for being willing to answer so many of my technical questions about DRG and helping to improve the quality of this program's models."},
+			{"Elythnwaen", "Thank you for collecting data about elemental weaknesses, resistances, Burn/Freeze temperatures, and more! Also, thank you for letting me know about Subata's 50% Armor Breaking penalty."},
 			{"Ian McDonagh", "Thank you for creating the open-source JAR 'image4j' that allows me to use .ico files natively."},
 			{"Gaming for the Recently Deceased", "Thank you for helping to promote this project and making a video about it. YouTube Channel: https://www.youtube.com/channel/UCL_8gMChYJD5ls7GaJtGmUw"},
 			{"Usteppin", "Thank you for collect some data and test weapon builds for me on Hazard 5. Twitch Channel: https://www.twitch.tv/usteppin"},
-			{"Elythnwaen", "Thank you for collecting data about elemental weaknesses, resistances, Burn/Freeze temperatures, and more! Also, thank you for letting me know about Subata's 50% Armor Breaking penalty and helping me figure out the correct Armor Breaking formula."},
 			{"Alpha and Beta testers", "Thank you Minomess, Royal, CynicalAtropos, and ARobotWithCancer for giving me feedback while this was still being developed and helping test out the builds."},
 			// I'm intentionally adding blank lines below here so that the content gets pushed to the top of the page
-			{"", ""},
 			{"", ""},
 			{"", ""},
 			{"", ""},

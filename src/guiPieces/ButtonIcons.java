@@ -35,8 +35,9 @@ public class ButtonIcons {
 	private static BufferedImage neurotoxinWhite = ResourceLoader.loadImage("images/mod/white/Icon_Overclock_Neuro.png");
 	private static BufferedImage movespeedWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_MovementSpeed.png");
 	private static BufferedImage coldDamageWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Cold.png");
-	//private static BufferedImage distanceWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Distance.png");
+	private static BufferedImage distanceWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Distance.png");
 	private static BufferedImage durationWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Duration.png");
+	private static BufferedImage slowdownWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Sticky.png");
 	//private static BufferedImage hourglassWhite;
 	
 	private static BufferedImage baseSpreadBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Aim_Black.png");
@@ -67,9 +68,10 @@ public class ButtonIcons {
 	private static BufferedImage damageResistanceBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Resistance_Black.png");
 	private static BufferedImage neurotoxinBlack = ResourceLoader.loadImage("images/mod/black/Icon_Overclock_Neuro_Black.png");
 	private static BufferedImage movespeedBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_MovementSpeed_Black.png");
-	//private static BufferedImage coldDamageBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Cold_Black.png");
-	//private static BufferedImage distanceBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Distance_Black.png");
-	//private static BufferedImage durationBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Duration_Black.png");
+	private static BufferedImage coldDamageBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Cold_Black.png");
+	private static BufferedImage distanceBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Distance_Black.png");
+	private static BufferedImage durationBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Duration_Black.png");
+	private static BufferedImage slowdownBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Sticky_Black.png");
 	//private static BufferedImage hourglassBlack;
 	
 	public static BufferedImage cleanFrame = ResourceLoader.loadImage("images/overclock/Frame_Overclock_Clean.png");
@@ -114,7 +116,11 @@ public class ButtonIcons {
 		fear,
 		damageResistance,
 		neurotoxin,
-		movespeed
+		movespeed,
+		coldDamage,
+		distance,
+		duration,
+		slowdown
 	};
 	
 	public static BufferedImage getModIcon(modIcons iconSelection, boolean getBlackVersion) {
@@ -343,6 +349,38 @@ public class ButtonIcons {
 					return movespeedWhite;
 				}
 			}
+			case coldDamage: {
+				if (getBlackVersion) {
+					return coldDamageBlack;
+				}
+				else {
+					return coldDamageWhite;
+				}
+			}
+			case distance: {
+				if (getBlackVersion) {
+					return distanceBlack;
+				}
+				else {
+					return distanceWhite;
+				}
+			}
+			case duration: {
+				if (getBlackVersion) {
+					return durationBlack;
+				}
+				else {
+					return durationWhite;
+				}
+			}
+			case slowdown: {
+				if (getBlackVersion) {
+					return slowdownBlack;
+				}
+				else {
+					return slowdownWhite;
+				}
+			}
 			default: {
 				return null;
 			}
@@ -376,7 +414,8 @@ public class ButtonIcons {
 		shotgunJump,
 		pelletsPerShot,
 		coldDamage,
-		reloadSpeed
+		reloadSpeed,
+		distance
 	}
 	
 	public static BufferedImage getOverclockIcon(overclockIcons iconSelection) {
@@ -462,6 +501,8 @@ public class ButtonIcons {
 			case reloadSpeed: {
 				return reloadSpeedWhite;
 			}
+			case distance:
+				return distanceWhite;
 			default: {
 				return null;
 			}

@@ -3,6 +3,7 @@ package drillerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import dataGenerator.DatabaseConstants;
 import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
@@ -318,6 +319,12 @@ public class EPC_ChargeShot extends Weapon {
 	public String getSimpleName() {
 		return "EPC_ChargeShot";
 	}
+	public int getDwarfClassID() {
+		return DatabaseConstants.drillerCharacterID;
+	}
+	public int getWeaponID() {
+		return DatabaseConstants.EPCGunsID;
+	}
 	
 	/****************************************************************************************
 	* Setters and Getters
@@ -604,9 +611,10 @@ public class EPC_ChargeShot extends Weapon {
 		return true;
 	}
 	
+	@Override
 	protected void setAoEEfficiency() {
-		double radius = getChargedAoERadius();
-		aoeEfficiency = calculateAverageAreaDamage(radius, radius*0.75, 5.0/6.0, 5.0/6.0);
+		// According to Elythnwaen, EPC has a 1.25m full damage radius, and 33% damage falloff at full radius
+		aoeEfficiency = calculateAverageAreaDamage(getChargedAoERadius(), 1.25, 0.33);
 	}
 
 	// Single-target calculations
@@ -720,24 +728,22 @@ public class EPC_ChargeShot extends Weapon {
 		int numChargedShots = (int) Math.ceil(getBatterySize() / getAmmoPerChargedShot());
 		return numChargedShots * firingInterval;
 	}
-
+	
 	@Override
-	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / calculateIdealSustainedDPS();
-	}
-
-	@Override
-	public double averageOverkill() {
+	protected double averageDamageToKillEnemy() {
 		double dmgPerShot = getChargedDirectDamage() + getChargedAreaDamage();
-		double enemyHP = EnemyInformation.averageHealthPool();
-		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
-		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
+		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		// Manually aimed; return -1
 		return -1.0;
+	}
+	
+	@Override
+	public int breakpoints() {
+		breakpoints = EnemyInformation.calculateBreakpoints(getChargedDirectDamage(), getChargedAreaDamage(), -1.0);
+		return MathUtils.sum(breakpoints);
 	}
 
 	@Override
@@ -747,5 +753,24 @@ public class EPC_ChargeShot extends Weapon {
 		// Additionally, to average out this probability to break all Light Armor plates inside the AoE, multiply it by its AoE Efficiency coefficient, too.
 		utilityScores[2] = calculateProbabilityToBreakLightArmor(aoeEfficiency[1] * 0.5 * getChargedAreaDamage()) * UtilityInformation.ArmorBreak_Utility;
 		return MathUtils.sum(utilityScores);
+	}
+	
+	@Override
+	public double damagePerMagazine() {
+		// Instead of damage per mag, this will be damage per Charged Shot
+		if (selectedTier5 == 0) {
+			// Special case: Flying Nightmare does the Charged Direct Damage to any enemies it passes through, but it no longer explodes for its Area Damage upon impact. As a result, it also cannot proc Persistent Plasma
+			double directDamage = getChargedDirectDamage();
+			double numTargetsHitPerShot = calculateMaxNumTargets();
+			return directDamage * numTargetsHitPerShot;
+		}
+		else {
+			return getChargedDirectDamage() + getChargedAreaDamage() * aoeEfficiency[1] * aoeEfficiency[2];
+		}
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getChargedShotWindup();
 	}
 }

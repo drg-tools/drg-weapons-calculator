@@ -3,6 +3,7 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import dataGenerator.DatabaseConstants;
 import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
@@ -284,6 +285,12 @@ public class Classic_Hipfire extends Weapon {
 	}
 	public String getSimpleName() {
 		return "Classic_Hipfire";
+	}
+	public int getDwarfClassID() {
+		return DatabaseConstants.scoutCharacterID;
+	}
+	public int getWeaponID() {
+		return DatabaseConstants.classicGunsID;
 	}
 	
 	/****************************************************************************************
@@ -620,18 +627,11 @@ public class Classic_Hipfire extends Weapon {
 		double timeToFireMagazine = ((double) magSize) / getRateOfFire();
 		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
-
+	
 	@Override
-	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
-	}
-
-	@Override
-	public double averageOverkill() {
+	protected double averageDamageToKillEnemy() {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus());
-		double enemyHP = EnemyInformation.averageHealthPool();
-		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
-		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
+		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
 	@Override
@@ -653,6 +653,12 @@ public class Classic_Hipfire extends Weapon {
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
 				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
 	}
+	
+	@Override
+	public int breakpoints() {
+		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), 0, getWeakpointBonus());
+		return MathUtils.sum(breakpoints);
+	}
 
 	@Override
 	public double utilityScore() {
@@ -662,5 +668,15 @@ public class Classic_Hipfire extends Weapon {
 		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDirectDamage(), getArmorBreaking()) * UtilityInformation.ArmorBreak_Utility;
 		
 		return MathUtils.sum(utilityScores);
+	}
+	
+	@Override
+	public double damagePerMagazine() {
+		return getDirectDamage() * getMagazineSize() * calculateMaxNumTargets();
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getMagazineSize() / getRateOfFire();
 	}
 }

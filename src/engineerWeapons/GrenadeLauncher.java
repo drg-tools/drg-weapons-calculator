@@ -3,6 +3,7 @@ package engineerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import dataGenerator.DatabaseConstants;
 import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
@@ -281,6 +282,12 @@ public class GrenadeLauncher extends Weapon {
 	public String getSimpleName() {
 		return "GrenadeLauncher";
 	}
+	public int getDwarfClassID() {
+		return DatabaseConstants.engineerCharacterID;
+	}
+	public int getWeaponID() {
+		return DatabaseConstants.grenadeLauncherGunsID;
+	}
 	
 	/****************************************************************************************
 	* Setters and Getters
@@ -460,9 +467,10 @@ public class GrenadeLauncher extends Weapon {
 		return true;
 	}
 	
+	@Override
 	protected void setAoEEfficiency() {
-		double radius = getAoERadius();
-		aoeEfficiency = calculateAverageAreaDamage(radius, radius/2.0, 0.75, 0.33);
+		// According to Elythnwaen, PGL has a full damage radius of 1.5m, and 15% damage at full radius
+		aoeEfficiency = calculateAverageAreaDamage(getAoERadius(), 1.5, 0.15);
 	}
 	
 	private double calculateSingleTargetDPS(boolean burst, boolean weakpoint) {
@@ -553,13 +561,10 @@ public class GrenadeLauncher extends Weapon {
 		
 		double burnDoTTotalDamage = 0;
 		if (selectedTier3 == 0) {
-			double singleTargetHeatPerGrenade = getDirectDamage() + getAreaDamage();
-			double percentageEnemiesIgnitedByDirectImpact = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(singleTargetHeatPerGrenade);
-			double multiTargetHeatPerGrenade = getAreaDamage() * aoeEfficiency[1];
-			double percentageOfEnemiesIgnitedByAreaDamage = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(multiTargetHeatPerGrenade);
-			
-			double avgPercentageIgnited = (percentageEnemiesIgnitedByDirectImpact + (aoeEfficiency[2] - 1) * percentageOfEnemiesIgnitedByAreaDamage) / aoeEfficiency[2];
-			double burnDoTDamagePerEnemy = avgPercentageIgnited * calculateAverageDoTDamagePerEnemy(0, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			// Technically this is an over-estimation, since the Grenade Launcher can only ignite 74-94% of enemies. However, I'm choosing to artificially increase the 
+			// damage dealt by Incendiary Compound to reflect how it would be used as "trash clear" instead of "large enemy killer".
+			// I'm also choosing to model this as if the player lets the enemies burn for the full duration, instead of continuing to fire grenades until they die.
+			double burnDoTDamagePerEnemy = EnemyInformation.averageBurnDuration() * DoTInformation.Burn_DPS;
 			
 			// I'm choosing to model this as if the player lets the enemies burn for the full duration, instead of continuing to fire grenades until they die.
 			burnDoTTotalDamage = numShots * aoeEfficiency[2] * burnDoTDamagePerEnemy;
@@ -586,24 +591,23 @@ public class GrenadeLauncher extends Weapon {
 		// This is equivalent to counting how many times it has to reload, which is one less than the carried ammo + 1 in the chamber
 		return getCarriedAmmo() * reloadTime;
 	}
-
+	
 	@Override
-	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
-	}
-
-	@Override
-	public double averageOverkill() {
+	protected double averageDamageToKillEnemy() {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage()) + getAreaDamage();
-		double enemyHP = EnemyInformation.averageHealthPool();
-		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
-		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
+		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		// Manually aimed; return -1
+		// This stat is only applicable to "gun"-type weapons
 		return -1.0;
+	}
+	
+	@Override
+	public int breakpoints() {
+		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), getAreaDamage(), 0);
+		return MathUtils.sum(breakpoints);
 	}
 
 	@Override
@@ -645,5 +649,29 @@ public class GrenadeLauncher extends Weapon {
 		}
 		
 		return MathUtils.sum(utilityScores);
+	}
+	
+	@Override
+	public double damagePerMagazine() {
+		// Instead of damage per mag, this will be damage per grenade
+		double burnDoTDamagePerEnemy = 0;
+		if (selectedTier3 == 0) {
+			// Again, this is an intentional overestimation.
+			burnDoTDamagePerEnemy = EnemyInformation.averageBurnDuration() * DoTInformation.Burn_DPS;
+		}
+		
+		double radiationDoTDamagePerEnemy = 0;
+		if (selectedOverclock == 4) {
+			// I'm guessing that it takes about 4 seconds for enemies to move out of the 8m radius field
+			radiationDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, 4, DoTInformation.Rad_FB_DPS);
+		}
+		
+		return getDirectDamage() + (getAreaDamage() * aoeEfficiency[1] + burnDoTDamagePerEnemy + radiationDoTDamagePerEnemy) * aoeEfficiency[2];
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		// Grenade Launcher fires its projectile instantly, and then reloads.
+		return 0;
 	}
 }

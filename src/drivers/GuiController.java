@@ -6,11 +6,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.JDialog;
@@ -18,9 +20,12 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import dataGenerator.DatabaseConstants;
 import dataGenerator.WeaponStatsGenerator;
+import drillerWeapons.CryoCannon;
 import drillerWeapons.EPC_ChargeShot;
 import drillerWeapons.EPC_RegularShot;
+import drillerWeapons.Flamethrower;
 import drillerWeapons.Subata;
 import engineerWeapons.GrenadeLauncher;
 import engineerWeapons.SMG;
@@ -59,7 +64,7 @@ public class GuiController implements ActionListener {
 	private JFileChooser folderChooser;
 	
 	public static void main(String[] args) {
-		Weapon[] drillerWeapons = new Weapon[] {new Subata(), new EPC_RegularShot(), new EPC_ChargeShot()};
+		Weapon[] drillerWeapons = new Weapon[] {new Flamethrower(), new CryoCannon(), new Subata(), new EPC_RegularShot(), new EPC_ChargeShot()};
 		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new GrenadeLauncher()};
 		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new Revolver_Snipe(), new Revolver_FullRoF(), new BurstPistol()};
 		Weapon[] scoutWeapons = new Weapon[] {new AssaultRifle(), new Classic_Hipfire(), new Classic_FocusShot(), new Boomstick(), new Zhukov()};
@@ -104,6 +109,73 @@ public class GuiController implements ActionListener {
 			calculator.setCSVFolderPath(selectedFolder.getAbsolutePath());
 		}
 	}
+	
+	private void createMysqlFile() {
+		ArrayList<String> mysqlCommands = new ArrayList<String>();
+		mysqlCommands.add(String.format("USE `%s`;\n\n", DatabaseConstants.databaseName));
+		mysqlCommands.add(String.format("DROP TABLE IF EXISTS `%s`;\n\n", DatabaseConstants.tableName));
+		mysqlCommands.add(String.format("CREATE TABLE `%s` (\n", DatabaseConstants.tableName));
+		mysqlCommands.add("    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,\n");
+		mysqlCommands.add("    `character_id` BIGINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `gun_id` BIGINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `weapon_short_name` VARCHAR(20) NOT NULL,\n");
+		mysqlCommands.add("    `build_combination` VARCHAR(6) NOT NULL,\n");
+		mysqlCommands.add("    `ideal_burst_dps` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `ideal_sustained_dps` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `sustained_weakpoint_dps` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `sustained_weakpoint_accuracy_dps` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `ideal_additional_target_dps` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `max_num_targets_per_shot` INT NOT NULL,\n");
+		mysqlCommands.add("    `max_multi_target_damage` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `ammo_efficiency` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `general_accuracy` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `weakpoint_accuracy` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `firing_duration` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `average_overkill` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `average_time_to_kill` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `breakpoints` INT NOT NULL,\n");
+		mysqlCommands.add("    `utility` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `damage_per_magazine` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `time_to_fire_magazine` DOUBLE NOT NULL,\n\n");
+		mysqlCommands.add("    PRIMARY KEY (`id`),\n\n");
+		mysqlCommands.add("    FOREIGN KEY (`character_id`)\n");
+		mysqlCommands.add("        REFERENCES characters(`id`),\n\n");
+		mysqlCommands.add("    FOREIGN KEY (`gun_id`)\n");
+		mysqlCommands.add("        REFERENCES guns(`id`)\n");
+		mysqlCommands.add(");\n\n");
+		
+		int i;
+		for (i = 0; i < drillerWeapons.length; i++) {
+			calculator.changeWeapon(drillerWeapons[i]);
+			mysqlCommands.addAll(calculator.dumpToMySQL());
+		}
+		for (i = 0; i < engineerWeapons.length; i++) {
+			calculator.changeWeapon(engineerWeapons[i]);
+			mysqlCommands.addAll(calculator.dumpToMySQL());
+		}
+		for (i = 0; i < gunnerWeapons.length; i++) {
+			calculator.changeWeapon(gunnerWeapons[i]);
+			mysqlCommands.addAll(calculator.dumpToMySQL());
+		}
+		for (i = 0; i < scoutWeapons.length; i++) {
+			calculator.changeWeapon(scoutWeapons[i]);
+			mysqlCommands.addAll(calculator.dumpToMySQL());
+		}
+		
+		// Open the MySQL file once, then dump the accumulated ArrayList of lines all at once to minimize I/O time
+		try {
+			File sqlOut = new File(calculator.getCSVFolderPath(), "buildStatistics.sql");
+			// Set append=False so that it clears out the old file
+			FileWriter MySQLwriter = new FileWriter(sqlOut.getAbsolutePath(), false);
+			for (String line: mysqlCommands) {
+				MySQLwriter.append(line);
+			}
+			MySQLwriter.flush();
+			MySQLwriter.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
@@ -136,68 +208,71 @@ public class GuiController implements ActionListener {
 		}
 		calculator.changeWeapon(currentlySelectedWeapon);
 		
-		if (e == gui.getBcmIdealBurst()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestIdealBurstDPSCombination());
-			gui.deactivateThinkingCursor();
+		int[] tier1Subset, tier2Subset, tier3Subset, tier4Subset, tier5Subset, ocsSubset;
+		int t1 = currentlySelectedWeapon.getSelectedModAtTier(1);
+		if (t1 > -1) {
+			tier1Subset = new int[] {t1, t1};
 		}
-		else if (e == gui.getBcmIdealSustained()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestIdealSustainedDPSCombination());
-			gui.deactivateThinkingCursor();
+		else {
+			// Have to subtract 1 from the length since the for loop this gets fed to uses <= instead of just <
+			tier1Subset = new int[] {-1, currentlySelectedWeapon.getModsAtTier(1).length - 1};
 		}
-		else if (e == gui.getBcmSustainedWeakpoint()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestSustainedWeakpointDPSCombination());
-			gui.deactivateThinkingCursor();
+		int t2 = currentlySelectedWeapon.getSelectedModAtTier(2);
+		if (t2 > -1) {
+			tier2Subset = new int[] {t2, t2};
 		}
-		else if (e == gui.getBcmSustainedWeakpointAccuracy()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestSustainedWeakpointAccuracyDPSCombination());
-			gui.deactivateThinkingCursor();
+		else {
+			tier2Subset = new int[] {-1, currentlySelectedWeapon.getModsAtTier(2).length - 1};
 		}
-		else if (e == gui.getBcmIdealAdditional()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getBestIdealAdditionalTargetDPSCombination());
-			gui.deactivateThinkingCursor();
+		int t3 = currentlySelectedWeapon.getSelectedModAtTier(3);
+		if (t3 > -1) {
+			tier3Subset = new int[] {t3, t3};
 		}
-		else if (e == gui.getBcmMaxDmg()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getHighestMultiTargetDamageCombination());
-			gui.deactivateThinkingCursor();
+		else {
+			tier3Subset = new int[] {-1, currentlySelectedWeapon.getModsAtTier(3).length - 1};
 		}
-		else if (e == gui.getBcmMaxNumTargets()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getMostNumTargetsCombination());
-			gui.deactivateThinkingCursor();
+		int t4 = currentlySelectedWeapon.getSelectedModAtTier(4);
+		if (t4 > -1) {
+			tier4Subset = new int[] {t4, t4};
 		}
-		else if (e == gui.getBcmDuration()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getLongestFiringDurationCombination());
-			gui.deactivateThinkingCursor();
+		else {
+			tier4Subset = new int[] {-1, currentlySelectedWeapon.getModsAtTier(4).length - 1};
 		}
-		else if (e == gui.getBcmTTK()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getShortestTimeToKillCombination());
-			gui.deactivateThinkingCursor();
+		int t5 = currentlySelectedWeapon.getSelectedModAtTier(5);
+		if (t5 > -1) {
+			tier5Subset = new int[] {t5, t5};
 		}
-		else if (e == gui.getBcmOverkill()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getLowestOverkillCombination());
-			gui.deactivateThinkingCursor();
+		else {
+			tier5Subset = new int[] {-1, currentlySelectedWeapon.getModsAtTier(5).length - 1};
 		}
-		else if (e == gui.getBcmAccuracy()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getHighestAccuracyCombination());
-			gui.deactivateThinkingCursor();
+		int oc = currentlySelectedWeapon.getSelectedOverclock();
+		if (oc > -1) {
+			ocsSubset = new int[] {oc, oc};
 		}
-		else if (e == gui.getBcmUtility()) {
-			gui.activateThinkingCursor();
-			currentlySelectedWeapon.buildFromCombination(calculator.getMostUtilityCombination());
-			gui.deactivateThinkingCursor();
+		else {
+			ocsSubset = new int[] {-1, currentlySelectedWeapon.getOverclocks().length - 1};
 		}
 		
-		else if (e == gui.getDSHaz1()) {
+		for (int i = 0; i < currentlySelectedWeapon.getBaselineStats().length; i++) {
+			if (e == gui.getOverallBestCombination(i)) {
+				gui.activateThinkingCursor();
+				currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(i));
+				gui.deactivateThinkingCursor();
+				
+				// Empty return so that this method doesn't have to finish this for loop or evaluate the if/else block below afterwards
+				return;
+			}
+			else if (e == gui.getSubsetBestCombination(i)) {
+				gui.activateThinkingCursor();
+				currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(i, tier1Subset, tier2Subset, tier3Subset, tier4Subset, tier5Subset, ocsSubset));
+				gui.deactivateThinkingCursor();
+				
+				// Empty return so that this method doesn't have to finish this for loop or evaluate the if/else block below afterwards
+				return;
+			}
+		}
+		
+		if (e == gui.getDSHaz1()) {
 			EnemyInformation.setHazardLevel(1);
 			gui.updateDifficultyScaling();
 		}
@@ -236,10 +311,13 @@ public class GuiController implements ActionListener {
 		
 		else if (e == gui.getExportCurrent()) {
 			chooseFolder();
+			gui.activateThinkingCursor();
 			calculator.runTest(false, true);
+			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getExportAll()) {
 			chooseFolder();
+			gui.activateThinkingCursor();
 			int i;
 			for (i = 0; i < drillerWeapons.length; i++) {
 				calculator.changeWeapon(drillerWeapons[i]);
@@ -257,18 +335,25 @@ public class GuiController implements ActionListener {
 				calculator.changeWeapon(scoutWeapons[i]);
 				calculator.runTest(false, true);
 			}
+			gui.deactivateThinkingCursor();
+		}
+		else if (e == gui.getExportMySQL()) {
+			chooseFolder();
+			gui.activateThinkingCursor();
+			createMysqlFile();
+			gui.deactivateThinkingCursor();
 		}
 		
 		else if (e == gui.getMiscScreenshot()) {
 			chooseFolder();
-			String weaponPackage = currentlySelectedWeapon.getDwarfClass();
-			String weaponClassName = currentlySelectedWeapon.getSimpleName();
-			String filePath = calculator.getCSVFolderPath() + "\\" + weaponPackage + "_" + weaponClassName + "_" + currentlySelectedWeapon.getCombination() +".png";
+			String weaponClass = currentlySelectedWeapon.getDwarfClass();
+			String weaponName = currentlySelectedWeapon.getSimpleName();
+			File pngOut = new File(calculator.getCSVFolderPath(), weaponClass + "_" + weaponName + "_" + currentlySelectedWeapon.getCombination() +".png");
 			
 			// Sourced from https://stackoverflow.com/a/44019372
 			BufferedImage screenshot = gui.getScreenshot();
 			try {
-				ImageIO.write(screenshot, "png", new File(filePath));
+				ImageIO.write(screenshot, "png", pngOut);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -293,7 +378,7 @@ public class GuiController implements ActionListener {
 			currentlySelectedWeapon.buildFromCombination(newCombination);
 		}
 		else if (e == gui.getMiscSuggestion()) {
-			openWebpage("https://github.com/phg49389/drg-weapons-calculator/issues/new/choose");
+			openWebpage("https://github.com/drg-tools/drg-weapons-calculator/issues/new/choose");
 		}
 	}
 	

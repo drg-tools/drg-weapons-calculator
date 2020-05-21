@@ -3,6 +3,7 @@ package scoutWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import dataGenerator.DatabaseConstants;
 import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
@@ -283,6 +284,12 @@ public class Classic_FocusShot extends Weapon {
 	}
 	public String getSimpleName() {
 		return "Classic_FocusShot";
+	}
+	public int getDwarfClassID() {
+		return DatabaseConstants.scoutCharacterID;
+	}
+	public int getWeaponID() {
+		return DatabaseConstants.classicGunsID;
 	}
 	
 	/****************************************************************************************
@@ -591,24 +598,23 @@ public class Classic_FocusShot extends Weapon {
 		double timeToFireMagazine = ((double) magSize) / getRateOfFire();
 		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
-
+	
 	@Override
-	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
-	}
-
-	@Override
-	public double averageOverkill() {
+	protected double averageDamageToKillEnemy() {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage() * getFocusedShotMultiplier(), getWeakpointBonus());
-		double enemyHP = EnemyInformation.averageHealthPool();
-		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
-		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
+		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		// Manually aimed
 		return -1.0;
+	}
+	
+	@Override
+	public int breakpoints() {
+		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage() * getFocusedShotMultiplier(), 0, getWeakpointBonus());
+		return MathUtils.sum(breakpoints);
 	}
 
 	@Override
@@ -653,5 +659,23 @@ public class Classic_FocusShot extends Weapon {
 		}
 		
 		return MathUtils.sum(utilityScores);
+	}
+	
+	@Override
+	public double damagePerMagazine() {
+		double bulletDamage = getDirectDamage() * getFocusedShotMultiplier() * getMagazineSize();
+		
+		double electrocuteDamage = 0;
+		if (selectedOverclock == 4) {
+			// OC "Electrocuting Focus Shots" has 100% chance to proc
+			electrocuteDamage = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Electro_SecsDuration, DoTInformation.Electro_DPS);
+		}
+		
+		return (bulletDamage + electrocuteDamage) * calculateMaxNumTargets();
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getMagazineSize() / getRateOfFire();
 	}
 }

@@ -3,6 +3,7 @@ package engineerWeapons;
 import java.util.Arrays;
 import java.util.List;
 
+import dataGenerator.DatabaseConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
@@ -277,6 +278,12 @@ public class SMG extends Weapon {
 	}
 	public String getSimpleName() {
 		return "SMG";
+	}
+	public int getDwarfClassID() {
+		return DatabaseConstants.engineerCharacterID;
+	}
+	public int getWeaponID() {
+		return DatabaseConstants.SMGGunsID;
 	}
 	
 	/****************************************************************************************
@@ -612,18 +619,11 @@ public class SMG extends Weapon {
 		double timeToFireMagazine = ((double) magSize) / getRateOfFire();
 		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
-
+	
 	@Override
-	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
-	}
-
-	@Override
-	public double averageOverkill() {
+	protected double averageDamageToKillEnemy() {
 		double dmgPerShot = calculateDamagePerBullet(true);
-		double enemyHP = EnemyInformation.averageHealthPool();
-		double dmgToKill = Math.ceil(enemyHP / dmgPerShot) * dmgPerShot;
-		return ((dmgToKill / enemyHP) - 1.0) * 100.0;
+		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
 	@Override
@@ -645,6 +645,12 @@ public class SMG extends Weapon {
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
 				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
 	}
+	
+	@Override
+	public int breakpoints() {
+		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), 0, getWeakpointBonus());
+		return MathUtils.sum(breakpoints);
+	}
 
 	@Override
 	public double utilityScore() {
@@ -655,5 +661,16 @@ public class SMG extends Weapon {
 		utilityScores[3] = getElectrocutionDoTChance() * calculateMaxNumTargets() * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
 		
 		return MathUtils.sum(utilityScores);
+	}
+	
+	@Override
+	public double damagePerMagazine() {
+		double timeBeforeElectrocute = MathUtils.meanRolls(getElectrocutionDoTChance()) / getRateOfFire();
+		return (getDirectDamage() + getElectricDamage()) * getMagazineSize() + calculateAverageDoTDamagePerEnemy(timeBeforeElectrocute, DoTInformation.Electro_SecsDuration, DoTInformation.Electro_DPS);
+	}
+	
+	@Override
+	public double timeToFireMagazine() {
+		return getMagazineSize() / getRateOfFire();
 	}
 }
