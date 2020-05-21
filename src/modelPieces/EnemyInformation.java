@@ -172,9 +172,9 @@ public class EnemyInformation {
 		{30, 0, 10, -180, 0, 40},		// Mactera Grabber
 		{50, 25, 6, -200, 0, 40},		// Mactera Bomber TODO
 		{60, 30, 10, -150, 1, 0},		// Naedocyte Breeder
-		{7.5, 0, 4, -7.5, 0, 4},		// Glyphid Brood Nexus
-		{30, 0, 10, -30, 0, 6},			// Spitball Infector
-		{30, 0, 10, -30, 0, 6}			// Cave Leech
+		{7.5, 0, 4, -12.5, 0, 4},		// Glyphid Brood Nexus
+		{30, 0, 10, -50, 0, 6},			// Spitball Infector
+		{30, 0, 10, -50, 0, 6}			// Cave Leech
 	};
 	
 	// This information comes straight from MikeGSG -- Thanks, Mike!
