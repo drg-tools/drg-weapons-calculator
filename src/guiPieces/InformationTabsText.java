@@ -99,7 +99,7 @@ public class InformationTabsText {
 					+ "For weapons that can't have their accuracy modeled, it will instead say \"Manually Aimed\"."},
 			{"Firing Duration", "This answers the question of how long it will take to fire every projectile from the weapon if you were to fire continuously, even through reloads or cooldowns. "
 					+ "Slower rates of fire and large carried ammo capacities increase the duration, whereas faster rates of fire and faster reloads decrease duration."},
-			{"Avg Overkill", "This is an estimate of how much damage gets \"wasted\" by bullets when enemies have lower health than the damage per projectile. Because different creatures have "
+			{"Avg Overkill", "This is an estimate of how much damage gets \"wasted\" by bullets when enemies have lower remaining health than the damage per projectile. Because different creatures have "
 					+ "different healthpools that scale with Hazard Level and Player Count, this uses a weighted average of all enemies' healthpools for its Overkill calculations."},
 			{"Avg Time to Kill", "A very simple metric; all this does is divide the weighted average healthpool of all enemies by the current Sustained + Weakpoint DPS to get an estimate of "
 					+ "how quickly the current weapon and build can kill an enemy."},
@@ -233,7 +233,7 @@ public class InformationTabsText {
 			{"Elythnwaen", "Thank you for collecting data about elemental weaknesses, resistances, Burn/Freeze temperatures, and more! Also, thank you for letting me know about Subata's 50% Armor Breaking penalty."},
 			{"Ian McDonagh", "Thank you for creating the open-source JAR 'image4j' that allows me to use .ico files natively."},
 			{"Gaming for the Recently Deceased", "Thank you for helping to promote this project and making a video about it. YouTube Channel: https://www.youtube.com/channel/UCL_8gMChYJD5ls7GaJtGmUw"},
-			{"Usteppin", "Thank you for collect some data and test weapon builds for me on Hazard 5. Twitch Channel: https://www.twitch.tv/usteppin"},
+			{"Usteppin", "Thank you for collecting some data and testing weapon builds for me on Hazard 5. Twitch Channel: https://www.twitch.tv/usteppin"},
 			{"Alpha and Beta testers", "Thank you Minomess, Royal, CynicalAtropos, and ARobotWithCancer for giving me feedback while this was still being developed and helping test out the builds."},
 			// I'm intentionally adding blank lines below here so that the content gets pushed to the top of the page
 			{"", ""},
