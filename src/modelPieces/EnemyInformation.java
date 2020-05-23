@@ -151,30 +151,29 @@ public class EnemyInformation {
 	};
 	
 	// This info comes from Elythnwaen's Temperatures spreadsheet, and many of those values were seeded from MikeGSG giving us the values for the 5 "base" creature types.
-	// TODO: update this chart once Elythnwaen finishes that spreadsheet.
 	private static double[][] enemyTemperatures = {
 		// Ignite Temp, Douse Temp, Heat Loss Rate, Freeze Temp, Thaw Temp, Heat Gain Rate
 		{5, 0, 1, -20, 0, 4},			// Glyphid Swarmer
 		{30, 10, 6, -30, 0, 6},			// Glyphid Grunt
-		{60, 30, 6, -100, -70, 6},		// Glyphid Grunt Guard TODO
+		{60, 40, 6, -80, -40, 6},		// Glyphid Grunt Guard
 		{30, 10, 6, -30, 0, 6},			// Glyphid Grunt Slasher
 		{100, 40, 10, -150, -100, 10},	// Glyphid Praetorian
 		{10, 0, 6, -10, 0, 12},			// Glyphid Exploder
-		{50, 25, 6, -70, -30, 6},		// Glyphid Bulk Detonator TODO
-		{50, 25, 6, -70, -30, 6},		// Glyphid Crassus Detonator TODO
+		{60, 30, 10, -490, -200, 300},	// Glyphid Bulk Detonator
+		{60, 30, 10, -490, -200, 300},	// Glyphid Crassus Detonator
 		{30, 0, 6, -75, 0, 10},			// Glyphid Webspitter
-		{50, 25, 6, -50, 0, 6},			// Glyphid Acidspitter TODO
+		{35, 5, 6, -50, 0, 6},			// Glyphid Acidspitter
 		{30, 0, 6, -50, 0, 6},			// Glyphid Menace
 		{50, 25, 6, -70, -30, 6},		// Glyphid Warden
-		{100, 40, 10, -300, -200, 20},	// Glyphid Oppressor TODO
-		{100, 40, 10, -150, -100, 10},	// Q'ronar Shellback TODO
+		{100, 40, 20, -300, -200, 100},	// Glyphid Oppressor
+		{100, 70, 10, -120, 0, 10},		// Q'ronar Shellback
 		{35, 5, 10, -100, 0, 40},		// Mactera Spawn
 		{30, 0, 10, -180, 0, 40},		// Mactera Grabber
-		{50, 25, 6, -200, 0, 40},		// Mactera Bomber TODO
-		{60, 30, 10, -150, 1, 0},		// Naedocyte Breeder
-		{7.5, 0, 4, -12.5, 0, 4},		// Glyphid Brood Nexus
-		{30, 0, 10, -50, 0, 6},			// Spitball Infector
-		{30, 0, 10, -50, 0, 6}			// Cave Leech
+		{35, 5, 10, -320, 0, 50},		// Mactera Bomber
+		{60, 30, 10, -150, 0, 0},		// Naedocyte Breeder
+		{30/4.0, 0, 4, -50/4.0, 0, 4},	// Glyphid Brood Nexus
+		{30, 0, 10, -50, 0, 10},		// Spitball Infector
+		{30, 0, 10, -50, 0, 10}			// Cave Leech
 	};
 	
 	// This information comes straight from MikeGSG -- Thanks, Mike!
