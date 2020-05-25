@@ -111,7 +111,7 @@ public class Minigun extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Aggressive Venting", "After overheating, deal 75 Heat Damage and 100% chance to apply Fear to all enemies within a 3m radius", modIcons.addedExplosion, 5, 0);
-		tier5[1] = new Mod("Cold As The Grave", "Every kill reduces the current Heat Meter and thus increases the firing duration before overheating", modIcons.coolingRate, 5, 1);
+		tier5[1] = new Mod("Cold As The Grave", "Every kill subtracts 0.8 Heat from the Heat Meter (max of 9.5 Heat) and thus increases the firing duration before overheating", modIcons.coolingRate, 5, 1);
 		tier5[2] = new Mod("Hot Bullets", "After the Heat Meter turns red, 50% of the Damage per Pellet gets added as Heat Damage", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[7];
@@ -563,7 +563,6 @@ public class Minigun extends Weapon {
 	}
 	
 	private double calculateIgnitionTime(boolean accuracy) {
-		// It looks like Hot Bullets and Burning Hell both have -50% Burn DoT Durations?
 		double burningHellHeatPerSec = 100;
 		
 		double generalAccuracy;
@@ -580,14 +579,25 @@ public class Minigun extends Weapon {
 			generalAccuracy = Math.min(generalAccuracy + 0.5, 1.0);
 		}
 		
+		/*
+			MikeGSG shared with me that the Heat Meter displayed on the Minigun is the output of UE4 function that maps the current Heat value [0, 9.5]
+			to [0, 100]. It doesn't use a proper equation, but I found a polynomial approximation:
+			
+				17x - 0.256x^2 - 0.0449x^3
+				
+			Additionally, the Heat Meter turns red when the output of that function is >= 60. Using WolframAlpha to solve for what Heat Value: 3.91988 Heat
+			
+			Unless Burning Hell is equipped, that's functionally the time before bullets have Heat Damage added to them.
+		*/
+		double timeBeforeHotBullets = 3.91988;
+		
 		// Hot Bullets only
 		if (selectedTier5 == 2 && selectedOverclock != 2) {
 			// Hot Bullets adds 50% of of each pellet's Direct Damage as Heat Damage while the Heat Meter on the Minigun is red.
-			// In practice, the meter turns red after 4 seconds of sustained firing, meaning that the last 5.5 seconds of the burst will have Hot Bullets.
 			// I'm choosing to reduce the heatPerPellet by the Accuracy of the gun to imitate when pellets miss the target
 			double heatPerPellet = ((double) getDamagePerPellet()) * generalAccuracy / 2.0;
 			double RoF = getRateOfFire() / 2.0;
-			return 4 + EnemyInformation.averageTimeToIgnite(heatPerPellet, RoF);
+			return timeBeforeHotBullets + EnemyInformation.averageTimeToIgnite(heatPerPellet, RoF);
 		}
 		// Burning Hell only
 		else if (selectedTier5 != 2 && selectedOverclock == 2) {
@@ -597,10 +607,15 @@ public class Minigun extends Weapon {
 		}
 		// Both Hot Bullets AND Burning Hell
 		else if (selectedTier5 == 2 && selectedOverclock == 2) {
-			// Because Burning Hell reduces the Firing Period from 9.5 sec to 6.33 sec, this means that Hot Bullets gets activated after 2.66 seconds instead of 4.
+			// Because Burning Hell reduces the Firing Period from 9.5 sec to 6.33 sec, this means that Hot Bullets gets activated sooner too
+			double heatGain = getHeatPerSecond();
+			double firingPeriod = maxHeat / heatGain;
+			timeBeforeHotBullets /= heatGain;
+			double timeAfterHotBullets = firingPeriod - timeBeforeHotBullets;
+			
 			double heatPerPellet = ((double) getDamagePerPellet()) * generalAccuracy / 2.0;
 			double RoF = getRateOfFire() / 2.0;
-			double avgHeatPerSec = (2.66 * burningHellHeatPerSec + 3.66 * (heatPerPellet * RoF + burningHellHeatPerSec)) / 6.33;
+			double avgHeatPerSec = (timeBeforeHotBullets * burningHellHeatPerSec + timeAfterHotBullets * (heatPerPellet * RoF + burningHellHeatPerSec)) / firingPeriod;
 			return EnemyInformation.averageTimeToIgnite(avgHeatPerSec);
 		}
 		// Neither are equipped.
@@ -766,15 +781,18 @@ public class Minigun extends Weapon {
 		double totalDamage = numberOfBursts * calculateDamagePerBurst(false) * numTargets;
 		
 		double fireDoTTotalDamage = 0;
+		double heatGainPerSec = getHeatPerSecond();
+		double timeBeforeHotBullets = 3.91988 / heatGainPerSec;
+		double defaultFiringPeriod = maxHeat / heatGainPerSec;
+		double timeAfterHotBullets = defaultFiringPeriod - timeBeforeHotBullets;
 		double timeBeforeFireProc, fireDoTDamagePerEnemy, estimatedNumEnemiesKilled;
-		// Both Hot Bullets and Burning Hell are penalized with -50% DoT duration
 		// Because of how Hot Bullets' ignition time is calculated, it returns (4 + the ignition time). As a result, it would end up subtracting from the total damage.
 		if (selectedTier5 == 2 && selectedOverclock != 2) {
-			timeBeforeFireProc = calculateIgnitionTime(false) - 4;
-			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, 0.5 * EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			timeBeforeFireProc = calculateIgnitionTime(false) - timeBeforeHotBullets;
+			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
 			
 			// Because Hot Bullets only starts igniting enemies after 4 seconds, reduce this damage by the uptime coefficient.
-			fireDoTDamagePerEnemy *= (5.5/9.5);
+			fireDoTDamagePerEnemy *= (timeAfterHotBullets / defaultFiringPeriod);
 			
 			estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
 			
@@ -783,7 +801,7 @@ public class Minigun extends Weapon {
 		// Burning Hell, on the other hand, works great with this. Even with Hot Bullets stacked on top of it, it doesn't do negative damage.
 		else if (selectedOverclock == 2) {
 			timeBeforeFireProc = calculateIgnitionTime(false);
-			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, 0.5 * EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
 			
 			// TODO: change numTargets to reflect the 6m 20* cone AoE igniting more than just the primary target and sometimes the blowthroughs
 			estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
