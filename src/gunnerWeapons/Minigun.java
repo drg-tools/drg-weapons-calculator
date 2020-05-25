@@ -62,12 +62,13 @@ public class Minigun extends Weapon {
 		stunChancePerPellet = 0.3;
 		stunDuration = 1;
 		maxAmmo = 2400; // equal to 1200 pellets
+		// MikeGSG confirmed that 9.5 is the max Heat, and the default Heat gain rate is 1 Heat/sec, so this translates into 9.5 seconds of firing before Overheat.
 		maxHeat = 9.5;
 		heatPerSecond = 1.0;
 		coolingRate = 1.5;
 		rateOfFire = 30;  // equal to 15 pellets/sec
 		spinupTime = 0.7;
-		spindownTime = 3;  // seconds for the stability to decay full rotational speed down to stationary barrels
+		spindownTime = 3;  // seconds for the barrels to stop spinning -- does not affect the stability
 		movespeedWhileFiring = 0.5;
 		bulletsFiredTilMaxStability = 40;  // equals 20 pellets
 		cooldownAfterOverheat = 10;
@@ -451,42 +452,16 @@ public class Minigun extends Weapon {
 	}
 	
 	private double calculateFiringPeriod() {
-		double firingPeriod = maxHeat / getHeatPerSecond();
+		double heatPerSecond = getHeatPerSecond();
+		double RoF = getRateOfFire();
+		double firingPeriod = maxHeat / heatPerSecond;
 		
-		// Cold as the Grave removes a set amount of Heat from the Minigun's meter every time that the Minigun gets the killing blow on an enemy.
-		// TODO: Although the way it's implemented avoids the infinite loop of methods calling each other, I'm not satisfied with how CATG is modeled currently.
+		// Cold as the Grave removes 0.8 Heat from the Minigun's meter every time that the Minigun gets the killing blow on an enemy.
 		if (selectedTier5 == 1) {
-			// Amount of Heat removed per kill, depending on enemy size. (pure guesses)
-			double smallEnemy = 0.1;
-			double mediumEnemy = 0.5;
-			double largeEnemy = 1.0;
-			double [] heatRemovalVector = {
-				smallEnemy,  // Glyphid Swarmer
-				mediumEnemy,  // Glyphid Grunt
-				mediumEnemy,  // Glyphid Grunt Guard
-				mediumEnemy,  // Glyphid Grunt Slasher
-				largeEnemy,  // Glyphid Praetorian
-				smallEnemy,  // Glyphid Exploder
-				largeEnemy,  // Glyphid Bulk Detonator
-				largeEnemy,  // Glyphid Crassus Detonator
-				mediumEnemy,  // Glyphid Webspitter
-				mediumEnemy,  // Glyphid Acidspitter
-				largeEnemy,  // Glyphid Menace
-				largeEnemy,  // Glyphid Warden
-				largeEnemy,  // Glyphid Oppressor
-				largeEnemy,  // Q'ronar Shellback
-				mediumEnemy,  // Mactera Spawn
-				mediumEnemy,  // Mactera Grabber
-				largeEnemy,  // Mactera Bomber
-				largeEnemy,  // Naedocyte Breeder
-				largeEnemy,  // Glyphid Brood Nexus
-				largeEnemy,  // Spitball Infector
-				smallEnemy   // Cave Leech
-			};
-			double averageHeatRemovedOnKill = EnemyInformation.dotProductWithSpawnRates(heatRemovalVector);
+			double heatRemovedPerKill = 0.8;
 			
 			// This is a quick-and-dirty way to guess what the Ideal Burst DPS will be when it's all said and done without calculating Firing Period and causing an infinite loop.
-			double estimatedBurstDPS = getDamagePerPellet() * getRateOfFire() / 2.0;
+			double estimatedBurstDPS = getDamagePerPellet() * RoF / 2.0;
 			if (selectedTier4 == 0) {
 				// Slight overestimation
 				estimatedBurstDPS *= 1.13;
@@ -494,11 +469,28 @@ public class Minigun extends Weapon {
 			if (selectedOverclock == 2) {
 				// Slight overestimation
 				estimatedBurstDPS += 0.95 * DoTInformation.Burn_DPS;
+				
+				// To account for the increased Heat Gain Rate from Burning Hell, I'm proportionally scaling down the Heat removed per kill
+				heatRemovedPerKill = heatRemovedPerKill / heatPerSecond;
 			}
 			
 			double estimatedBurstTTK = EnemyInformation.averageHealthPool() / estimatedBurstDPS;
-			double estimatedNumKillsDuringDefaultPeriod = firingPeriod / estimatedBurstTTK;
-			firingPeriod += estimatedNumKillsDuringDefaultPeriod * averageHeatRemovedOnKill;
+			double timeAddedByCATG = (firingPeriod / estimatedBurstTTK) * heatRemovedPerKill;
+			firingPeriod += timeAddedByCATG;
+			
+			// I'm using this while loop to model how getting a kill enables the Minigun to get more kills without Overheating, but also the diminishing returns. If I modeled it correctly,
+			// then this will be less and less effective as the average healthpool goes up with Difficulty Scaling
+			double maxFiringPeriod = getMaxAmmo() / RoF;
+			while (timeAddedByCATG > heatRemovedPerKill) {
+				timeAddedByCATG = (timeAddedByCATG / estimatedBurstTTK) * heatRemovedPerKill;
+				firingPeriod += timeAddedByCATG;
+				
+				// On Haz1 1Player, this is an infinite while loop. As such, I'm adding a second exit condtion: it can't return a firing period longer than it takes to fire all ammo.
+				if (firingPeriod > maxFiringPeriod) {
+					firingPeriod = maxFiringPeriod;
+					break;
+				}
+			}
 		}
 		
 		return firingPeriod;

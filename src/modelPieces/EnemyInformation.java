@@ -195,11 +195,6 @@ public class EnemyInformation {
 		return sum == 1.0;
 	}
 	
-	// This gets used in Gunner/Minigun/Mod/5/Cold as the Grave
-	public static double dotProductWithSpawnRates(double[] A) {
-		return MathUtils.vectorDotProduct(A, spawnRates);
-	}
-	
 	public static double probabilityBulletWillHitWeakpoint() {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
