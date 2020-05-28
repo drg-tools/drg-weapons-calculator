@@ -129,19 +129,19 @@ public class EnemyInformation {
 		// Explosive, Fire, Frost, Electric
 		{0, 0, 0, 0},  				// Glyphid Swarmer
 		{0, 0, 0, 0},  				// Glyphid Grunt
-		{0.3, 0.3, 0.3, 0.3},  		// Glyphid Grunt Guard
+		{0.3, 0.25, 0.3, 0},  		// Glyphid Grunt Guard
 		{-0.3, 0, 0, 0},  			// Glyphid Grunt Slasher
 		{0, 0, 0, 0},  				// Glyphid Praetorian
 		{0, 0, 0, 0},  				// Glyphid Exploder
-		{0.5, 0, -1, 0},  			// Glyphid Bulk Detonator
-		{0.5, 0, -1, 0},  			// Glyphid Crassus Detonator
+		{0.5, 0, 0, 0},  			// Glyphid Bulk Detonator
+		{0.5, 0, 0, 0},  			// Glyphid Crassus Detonator
 		{0, 0, 0, 0},  				// Glyphid Webspitter
-		{0, 0, 0, 0},  				// Glyphid Acidspitter
+		{0, 0, 0, -0.1},  			// Glyphid Acidspitter
 		{0, 0, 0, 0},  				// Glyphid Menace
-		{0, 0, -1, 0},  			// Glyphid Warden
-		{0.66, 0.66, 0.66, 0.3},  	// Glyphid Oppressor
+		{0, 0, 0, 0},  			// Glyphid Warden
+		{0.66, 0.66, 0.5, 0.25},  	// Glyphid Oppressor
 		{qronarShellbackRolling*0.8, qronarShellbackRolling*0.3 + qronarShellbackUnolled*-0.5, qronarShellbackRolling*0.3 + qronarShellbackUnolled*-0.7, qronarShellbackRolling*1.0},  // Q'ronar Shellback
-		{-1, -1, 0, 0},  			// Mactera Spawn
+		{-1, -1, 0, -0.5},  		// Mactera Spawn
 		{0, 0, 0, 0},  				// Mactera Grabber
 		{0, -0.2, 0, 0},  			// Mactera Bomber
 		{0, 0, 0, 0},  				// Naedocyte Breeder
