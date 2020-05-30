@@ -38,7 +38,7 @@ public class ButtonIcons {
 	private static BufferedImage distanceWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Distance.png");
 	private static BufferedImage durationWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Duration.png");
 	private static BufferedImage slowdownWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Sticky.png");
-	//private static BufferedImage hourglassWhite;
+	private static BufferedImage hourglassWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Duration_V2.png");
 	
 	private static BufferedImage baseSpreadBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Aim_Black.png");
 	private static BufferedImage magSizeBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_ClipSize_Black.png");
@@ -72,7 +72,7 @@ public class ButtonIcons {
 	private static BufferedImage distanceBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Distance_Black.png");
 	private static BufferedImage durationBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Duration_Black.png");
 	private static BufferedImage slowdownBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Sticky_Black.png");
-	//private static BufferedImage hourglassBlack;
+	private static BufferedImage hourglassBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Duration_V2_Black.png");
 	
 	public static BufferedImage cleanFrame = ResourceLoader.loadImage("images/overclock/Frame_Overclock_Clean.png");
 	public static BufferedImage balancedFrame = ResourceLoader.loadImage("images/overclock/Frame_Overclock_Balanced.png");
@@ -120,7 +120,8 @@ public class ButtonIcons {
 		coldDamage,
 		distance,
 		duration,
-		slowdown
+		slowdown,
+		hourglass
 	};
 	
 	public static BufferedImage getModIcon(modIcons iconSelection, boolean getBlackVersion) {
@@ -381,6 +382,14 @@ public class ButtonIcons {
 					return slowdownWhite;
 				}
 			}
+			case hourglass: {
+				if (getBlackVersion) {
+					return hourglassBlack;
+				}
+				else {
+					return hourglassWhite;
+				}
+			}
 			default: {
 				return null;
 			}
@@ -399,7 +408,7 @@ public class ButtonIcons {
 		chargeSpeed,
 		fuel,
 		directDamage,
-		duration, // Will need an "hourglass" entry eventually
+		duration,
 		carriedAmmo,
 		miniShells,
 		electricity,
@@ -415,7 +424,8 @@ public class ButtonIcons {
 		pelletsPerShot,
 		coldDamage,
 		reloadSpeed,
-		distance
+		distance,
+		hourglass
 	}
 	
 	public static BufferedImage getOverclockIcon(overclockIcons iconSelection) {
@@ -501,8 +511,12 @@ public class ButtonIcons {
 			case reloadSpeed: {
 				return reloadSpeedWhite;
 			}
-			case distance:
+			case distance: {
 				return distanceWhite;
+			}
+			case hourglass: {
+				return hourglassWhite;
+			}
 			default: {
 				return null;
 			}
