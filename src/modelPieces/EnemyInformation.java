@@ -1,5 +1,11 @@
 package modelPieces;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+
 import utilities.MathUtils;
 
 public class EnemyInformation {
@@ -271,34 +277,6 @@ public class EnemyInformation {
 		return normalEnemyHealth + largeEnemyHealth;
 	}
 	
-	public static double averageResistanceCoefficient(int resistanceIndex) {
-		/*
-			0. Explosive
-			1. Fire
-			2. Frost
-			3. Electric
-		*/
-		if (!verifySpawnRatesTotalIsOne()) {
-			return -1.0;
-		}
-		
-		if (resistanceIndex < 0 || resistanceIndex > 3) {
-			return -1.0;
-		}
-		
-		int vectorLength = enemyResistances.length;
-		double[] weightedResistancesVector = new double[vectorLength];
-		for (int i = 0; i < vectorLength; i++) {
-			weightedResistancesVector[i] = enemyResistances[i][resistanceIndex];
-		}
-		
-		double toReturn = MathUtils.vectorDotProduct(spawnRates, weightedResistancesVector);
-		toReturn = MathUtils.round(toReturn, 3);
-		// System.out.println("Average resistance/weakness of an enemy to element #" + resistanceIndex + ": " + toReturn);
-		// Subtract the value from 1 so that this method returns a static coefficient to multiply damage taken by enemies
-		return 1.0 - toReturn;
-	}
-	
 	public static double averageTimeToIgnite(double heatPerShot, double RoF) {
 		// Early exit: if Heat/Shot > 100, then all enemies get ignited instantly since the largest Ignite Temp is 100.
 		if (heatPerShot >= 100) {
@@ -348,7 +326,6 @@ public class EnemyInformation {
 		
 		return (avgIgniteTemp - avgDouseTemp) / avgHeatLossRate;
 	}
-	
 	// This method is currently only used by Gunner/Minigun/Mod/5/Aggressive Venting in maxDamage() and Engineer/GrenadeLauncher/Mod/3/Incendiary Compound single-target DPS
 	public static double percentageEnemiesIgnitedBySingleBurstOfHeat(double heatPerBurst) {
 		if (!verifySpawnRatesTotalIsOne()) {
@@ -488,8 +465,25 @@ public class EnemyInformation {
 		}
 	}
 	
-	
-	public static int[] calculateBreakpoints(double directDamagePerShot, double areaDamagePerShot, double weakpointModifier) {
+	/*
+		This method is used to quickly show how many shots it would take for projectile-based weapons to kill the 21 modeled creatures under various conditions. It models 
+		Elemental resistances, DoTs, Light Armor resistance, Weakpoint bonus damage, and Subata's T5.B +20% vs Mactera
+		
+		The first three arguments are arrays of how much damage is being done of the three types (direct, area, and DoT) split between the elements in this order:
+			1. Kinetic
+			2. Explosive
+			3. Fire
+			4. Frost
+			5. Electric
+			6. Poison
+			7. Radiation
+			
+		It should be noted that Direct Damage is never Poison or Radiation, Area Damage is never Kinetic, and DoTs are never Kinetic, Explosive, or Frost, so none of the three types
+		of damage will have all seven elements.
+		
+		This method does NOT model Frozen x3 Direct Damage, IFG +30% damage, or Heavy Armor plates.
+	*/
+	public static int[] calculateBreakpoints(double[] directDamageByType, double[] areaDamageByType, double[] DoTDamageByType, double weakpointModifier, double macteraModifier) {
 		// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
 		double[] normalEnemyResistances = {
 			0.7,  // Haz1
@@ -511,43 +505,79 @@ public class EnemyInformation {
 		};
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
-		// Glyphid Swarmer, Webspitter through Light Armor, Grunt Weakpoint, Grunt through Light Armor, Praetorian Mouth, Praetorian Abdomen, and Mactera Spawn
-		double swarmerHp = enemyHealthPools[0] * normalResistance;
-		double webspitterHp = enemyHealthPools[8] * normalResistance;
-		double gruntHp = enemyHealthPools[1] * normalResistance;
-		double praetorianHp = enemyHealthPools[4] * largeResistance;
-		double macteraSpawnHp = enemyHealthPools[14] * normalResistance;
+		double avgHP = averageHealthPool();
+		ArrayList<Integer> toReturn = new ArrayList<Integer>();
 		
-		double reducedArmorDirectDamage = directDamagePerShot * UtilityInformation.LightArmor_DamageReduction;
-		double increasedWeakpointDirectDamage, gruntWeakpointMultiplier, macteraWeakpointMultiplier;
-		if (weakpointModifier < 0) {
-			increasedWeakpointDirectDamage = directDamagePerShot;
-			gruntWeakpointMultiplier = 1.0;
-			macteraWeakpointMultiplier = 1.0;
-		}
-		else {
-			increasedWeakpointDirectDamage = directDamagePerShot * (1.0 + weakpointModifier);
-			gruntWeakpointMultiplier = 2.0;
-			macteraWeakpointMultiplier = 3.0;
-		}
+		HashSet<Integer> normalEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 1, 2, 3, 5, 8, 9, 14, 20}));
+		HashSet<Integer> largeEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {4, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19}));
+		HashSet<Integer> indexesWithLightArmor = new HashSet<Integer>(Arrays.asList(new Integer[] {1, 2, 3, 8, 9}));
+		HashSet<Integer> indexesWithoutWeakpoints = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 20}));
+		HashSet<Integer> indexesOfMacteras = new HashSet<Integer>(Arrays.asList(new Integer[] {14, 15, 16}));
 		
-		// TODO: someday, it might be nice to have this factor in things like Engineer/GrenadeLauncher/Mod/3/Incendiary Compound adding total damage via Burn DoT
-		return new int[] {
-			// Glyphid Swarmer
-			(int) Math.ceil(swarmerHp / (directDamagePerShot + areaDamagePerShot)),
-			// Glyphid Webspitter hitting body through Light Armor
-			(int) Math.ceil(webspitterHp / (reducedArmorDirectDamage + areaDamagePerShot)),
-			// Glyphid Grunt hitting Mouth for Weakpoint Bonus
-			(int) Math.ceil(gruntHp / (increasedWeakpointDirectDamage * gruntWeakpointMultiplier + areaDamagePerShot)),
-			// Glyphid Grunt hitting body through Light Armor
-			(int) Math.ceil(gruntHp / (reducedArmorDirectDamage + areaDamagePerShot)),
-			// Praetorian hitting Mouth
-			(int) Math.ceil(praetorianHp / (directDamagePerShot + areaDamagePerShot)),
-			// Praetorian hitting Abdomen for Weakpoint Bonus
-			(int) Math.ceil(praetorianHp / (increasedWeakpointDirectDamage + areaDamagePerShot)),
-			// Mactera Spawn hitting stomach for Weakpoint Bonus
-			(int) Math.ceil(macteraSpawnHp / (increasedWeakpointDirectDamage * macteraWeakpointMultiplier + areaDamagePerShot))
-		};
+		double creatureHP, creatureWeakpointModifier, totalDirectDamage, totalAreaDamage, totalDoTDamage;
+		double[] creatureResistances;
+		for (int creatureIndex = 0; creatureIndex < enemyHealthPools.length; creatureIndex++) {
+			if (normalEnemyScalingIndexes.contains(creatureIndex)) {
+				creatureHP = enemyHealthPools[creatureIndex] * normalResistance;
+			}
+			else if (largeEnemyScalingIndexes.contains(creatureIndex)) {
+				creatureHP = enemyHealthPools[creatureIndex] * largeResistance;
+			}
+			else {
+				creatureHP = enemyHealthPools[creatureIndex];
+			}
+			
+			creatureResistances = new double[] {
+				1.0 - enemyResistances[creatureIndex][0],
+				1.0 - enemyResistances[creatureIndex][1],
+				1.0 - enemyResistances[creatureIndex][2],
+				1.0 - enemyResistances[creatureIndex][3],
+			};
+			
+			creatureWeakpointModifier = defaultWeakpointDamageBonusPerEnemyType[creatureIndex];
+			if (weakpointModifier < 0) {
+				creatureWeakpointModifier = 1.0;
+			}
+			else {
+				creatureWeakpointModifier *= (1.0 + weakpointModifier);
+			}
+			
+			totalDirectDamage = directDamageByType[0] + directDamageByType[1] * creatureResistances[0] + directDamageByType[2] * creatureResistances[1] + directDamageByType[3] * creatureResistances[2] + directDamageByType[4] * creatureResistances[3];
+			totalAreaDamage = areaDamageByType[0] * creatureResistances[0] + areaDamageByType[1] * creatureResistances[1] + areaDamageByType[2] * creatureResistances[2] + areaDamageByType[3] * creatureResistances[3];
+			// Technically Radioactive variant enemies have Radiation Resistance, but since I've chosen not to model biome-specific enemies I'm also choosing not to model Radiation Resistance.
+			// Additionally, I'm scaling the DoT damage up and down proportional to the creature's health to the average HP used to calculate DoT damage. It's not accurate, but it is intuitive.
+			totalDoTDamage = (DoTDamageByType[0] * creatureResistances[1] + DoTDamageByType[1] * creatureResistances[3] + DoTDamageByType[2] + DoTDamageByType[3]) * (creatureHP / avgHP);
+			
+			// Driller/Subata/Mod/5/B "Mactera Neurotoxin Coating" makes the Subata's Direct Damage do x1.2 more to Mactera-type enemies
+			if (indexesOfMacteras.contains(creatureIndex)) {
+				totalDirectDamage *= (1.0 + macteraModifier);
+			}
+			
+			// Normal Damage
+			toReturn.add((int) Math.ceil((creatureHP - totalDoTDamage) / (totalDirectDamage + totalAreaDamage)));
+			
+			// Light Armor
+			if (indexesWithLightArmor.contains(creatureIndex)) {
+				toReturn.add((int) Math.ceil((creatureHP - totalDoTDamage) / (totalDirectDamage * UtilityInformation.LightArmor_DamageReduction + totalAreaDamage)));
+			}
+			
+			// Weakpoint
+			if (!indexesWithoutWeakpoints.contains(creatureIndex)) {
+				toReturn.add((int) Math.ceil((creatureHP - totalDoTDamage) / (totalDirectDamage * creatureWeakpointModifier + totalAreaDamage)));
+			}
+		}
+				
+		return convertIntegers(toReturn);
+	}
+	
+	// Sourced from https://stackoverflow.com/a/718558
+	private static int[] convertIntegers(List<Integer> integers) {
+	    int[] ret = new int[integers.size()];
+	    Iterator<Integer> iterator = integers.iterator();
+	    for (int i = 0; i < ret.length; i++) {
+	        ret[i] = iterator.next().intValue();
+	    }
+	    return ret;
 	}
 	
 	/* 
