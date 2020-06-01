@@ -39,11 +39,9 @@ public abstract class Weapon extends Observable {
 	
 	protected double[] aoeEfficiency;
 	
-	// There are 44 breakpoints: 20 normal damage, 19 weakpoints, and 5 Light Armor. They're in the same order as the enemy indexes in EnemyInformation.
-	protected int[] breakpoints = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-								   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-								   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-								   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	// There are 24 breakpoints: 7 normal damage, 12 weakpoints, and 5 Light Armor. They're in the same order as the enemy indexes in EnemyInformation.
+	protected int[] breakpoints = {0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,
+								   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	
 	// Mobility, Damage Resist, Armor Break, Slow, Fear, Stun, Freeze
 	// Set them all to zero to start, then override values in child objects as necessary.
@@ -653,49 +651,29 @@ public abstract class Weapon extends Observable {
 		StatsRow[] toReturn = new StatsRow[breakpoints.length];
 		
 		toReturn[0] = new StatsRow("Glypid Swarmer:", breakpoints[0], false);
-		toReturn[1] = new StatsRow("Glypid Grunt:", breakpoints[1], false);
-		toReturn[2] = new StatsRow("Glypid Grunt (Light Armor):", breakpoints[2], false);
-		toReturn[3] = new StatsRow("Glypid Grunt (Weakpoint):", breakpoints[3], false);
-		toReturn[4] = new StatsRow("Glypid Grunt Guard:", breakpoints[4], false);
-		toReturn[5] = new StatsRow("Glypid Grunt Guard (Light Armor):", breakpoints[5], false);
-		toReturn[6] = new StatsRow("Glypid Grunt Guard (Weakpoint):", breakpoints[6], false);
-		toReturn[7] = new StatsRow("Glypid Grunt Slasher:", breakpoints[7], false);
-		toReturn[8] = new StatsRow("Glypid Grunt Slasher (Light Armor):", breakpoints[8], false);
-		toReturn[9] = new StatsRow("Glypid Grunt Slasher (Weakpoint):", breakpoints[9], false);
-		toReturn[10] = new StatsRow("Glypid Praetorian (Mouth):", breakpoints[10], false);
-		toReturn[11] = new StatsRow("Glypid Praetorian (Weakpoint):", breakpoints[11], false);
-		toReturn[12] = new StatsRow("Glypid Exploder:", breakpoints[12], false);
-		toReturn[13] = new StatsRow("Glypid Exploder (Weakpoint):", breakpoints[13], false);
-		toReturn[14] = new StatsRow("Glypid Bulk Detonator:", breakpoints[14], false);
-		toReturn[15] = new StatsRow("Glypid Bulk Detonator (Weakpoint):", breakpoints[15], false);
-		toReturn[16] = new StatsRow("Glypid Crassus Detonator:", breakpoints[16], false);
-		toReturn[17] = new StatsRow("Glypid Crassus Detonator (Weakpoint):    ", breakpoints[17], false);  // Adding spaces to give some whitespace in the JPanel
-		toReturn[18] = new StatsRow("Glypid Webspitter:", breakpoints[18], false);
-		toReturn[19] = new StatsRow("Glypid Webspitter (Light Armor):", breakpoints[19], false);
-		toReturn[20] = new StatsRow("Glypid Webspitter (Weakpoint):", breakpoints[20], false);
-		toReturn[21] = new StatsRow("Glypid Acidspitter:", breakpoints[21], false);
-		toReturn[22] = new StatsRow("Glypid Acidspitter (Light Armor):", breakpoints[22], false);
-		toReturn[23] = new StatsRow("Glypid Acidspitter (Weakpoint):", breakpoints[23], false);
-		toReturn[24] = new StatsRow("Glypid Menace:", breakpoints[24], false);
-		toReturn[25] = new StatsRow("Glypid Menace (Weakpoint):", breakpoints[25], false);
-		toReturn[26] = new StatsRow("Glypid Warden:", breakpoints[26], false);
-		toReturn[27] = new StatsRow("Glypid Warden (Weakpoint):", breakpoints[27], false);
-		toReturn[28] = new StatsRow("Glypid Oppressor (Weakpoint):", breakpoints[28], false);
-		toReturn[29] = new StatsRow("Q'ronar Shellback:", breakpoints[29], false);
-		toReturn[30] = new StatsRow("Q'ronar Shellback (Weakpoint):", breakpoints[30], false);
-		toReturn[31] = new StatsRow("Mactera Spawn:", breakpoints[31], false);
-		toReturn[32] = new StatsRow("Mactera Spawn (Weakpoint):", breakpoints[32], false);
-		toReturn[33] = new StatsRow("Mactera Grabber:", breakpoints[33], false);
-		toReturn[34] = new StatsRow("Mactera Grabber (Weakpoint):", breakpoints[34], false);
-		toReturn[35] = new StatsRow("Mactera Goo Bomber:", breakpoints[35], false);
-		toReturn[36] = new StatsRow("Mactera Goo Bomber (Weakpoint):", breakpoints[36], false);
-		toReturn[37] = new StatsRow("Naedocyte Breeder:", breakpoints[37], false);
-		toReturn[38] = new StatsRow("Naedocyte Breeder (Weakpoint):", breakpoints[38], false);
-		toReturn[39] = new StatsRow("Glyphid Brood Nexus:", breakpoints[39], false);
-		toReturn[40] = new StatsRow("Glyphid Brood Nexus (Weakpoint):", breakpoints[40], false);
-		toReturn[41] = new StatsRow("Spitball Infector:", breakpoints[41], false);
-		toReturn[42] = new StatsRow("Spitball Infector (Weakpoint):", breakpoints[42], false);
-		toReturn[43] = new StatsRow("Cave Leech:", breakpoints[43], false);
+		toReturn[1] = new StatsRow("Glypid Grunt (Light Armor):", breakpoints[1], false);
+		toReturn[2] = new StatsRow("Glypid Grunt (Weakpoint):", breakpoints[2], false);
+		toReturn[3] = new StatsRow("Glypid Grunt Guard (Light Armor):", breakpoints[3], false);
+		toReturn[4] = new StatsRow("Glypid Grunt Guard (Weakpoint):", breakpoints[4], false);
+		toReturn[5] = new StatsRow("Glypid Grunt Slasher (Light Armor):", breakpoints[5], false);
+		toReturn[6] = new StatsRow("Glypid Grunt Slasher (Weakpoint):", breakpoints[6], false);
+		toReturn[7] = new StatsRow("Glypid Praetorian (Mouth):", breakpoints[7], false);
+		toReturn[8] = new StatsRow("Glypid Praetorian (Weakpoint):", breakpoints[8], false);
+		toReturn[9] = new StatsRow("Glypid Exploder:", breakpoints[9], false);
+		toReturn[10] = new StatsRow("Glypid Exploder (Weakpoint):", breakpoints[10], false);
+		toReturn[11] = new StatsRow("Glypid Webspitter (Light Armor):", breakpoints[11], false);
+		toReturn[12] = new StatsRow("Glypid Webspitter (Weakpoint):", breakpoints[12], false);
+		toReturn[13] = new StatsRow("Glypid Acidspitter (Light Armor):", breakpoints[13], false);
+		toReturn[14] = new StatsRow("Glypid Acidspitter (Weakpoint):", breakpoints[14], false);
+		toReturn[15] = new StatsRow("Glypid Warden:", breakpoints[15], false);
+		toReturn[16] = new StatsRow("Glypid Warden (Orb):", breakpoints[16], false);
+		toReturn[17] = new StatsRow("Glypid Oppressor (Weakpoint):", breakpoints[17], false);
+		toReturn[18] = new StatsRow("Mactera Spawn:", breakpoints[18], false);
+		toReturn[19] = new StatsRow("Mactera Spawn (Weakpoint):", breakpoints[19], false);
+		toReturn[20] = new StatsRow("Mactera Grabber:", breakpoints[20], false);
+		toReturn[21] = new StatsRow("Mactera Grabber (Weakpoint):", breakpoints[21], false);
+		toReturn[22] = new StatsRow("Mactera Goo Bomber:", breakpoints[22], false);
+		toReturn[23] = new StatsRow("Mactera Goo Bomber (Weakpoint):    ", breakpoints[23], false);  // Added spaces at the end to create some whitespace in the JPanel
 		
 		return toReturn;
 	}

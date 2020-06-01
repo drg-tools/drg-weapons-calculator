@@ -484,9 +484,7 @@ public class EnemyInformation {
 		This method does NOT model Frozen x3 Direct Damage, IFG +30% damage, or Heavy Armor plates.
 	*/
 	public static int[] calculateBreakpoints(double[] directDamageByType, double[] areaDamageByType, double[] DoTDamageByType, double weakpointModifier, double macteraModifier) {
-		// I can use this variable to switch between modeling all 21 creatures' breakpoints and only the 8 that TriggerHappyBro is interested in for Karl's frontend.
-		int[] creaturesToModel = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
-		// int[] creaturesToModel = {0, 1, 2, 3, 4, 8, 9, 14};
+		int[] creaturesToModel = {0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 14, 15, 16};
 		
 		// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
 		double[] normalEnemyResistances = {
@@ -514,9 +512,12 @@ public class EnemyInformation {
 		
 		HashSet<Integer> normalEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 1, 2, 3, 5, 8, 9, 14, 20}));
 		HashSet<Integer> largeEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {4, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19}));
+		// Grunts, Guards, Slashers, Webspitters, and Acidspitters intentionally neglected from this list since they are entirely covered by Light Armor except for their Weakpoints
+		HashSet<Integer> indexesWithNormalHealth = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 4, 5, 6, 7, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20}));
 		HashSet<Integer> indexesWithLightArmor = new HashSet<Integer>(Arrays.asList(new Integer[] {1, 2, 3, 8, 9}));
 		HashSet<Integer> indexesWithoutWeakpoints = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 20}));
 		HashSet<Integer> indexesOfMacteras = new HashSet<Integer>(Arrays.asList(new Integer[] {14, 15, 16}));
+		// Glyphid Swarmers and Exploders have so little HP, it's not practical to model DoTs on them for Breakpoints
 		HashSet<Integer> indexesOfEnemiesShouldNotHaveDoTs = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 5}));
 		
 		double creatureHP, creatureWeakpointModifier, totalDirectDamage, totalAreaDamage, totalDoTDamage;
@@ -559,14 +560,12 @@ public class EnemyInformation {
 				totalAreaDamage *= (1.0 + macteraModifier);
 			}
 			
-			// Glyphid Swarmers and Exploders have so little HP, it's not practical to model DoTs on them for Breakpoints
 			if (!indexesOfEnemiesShouldNotHaveDoTs.contains(creatureIndex)) {
 				creatureHP -= totalDoTDamage;
 			}
 			
 			// Normal Damage
-			// Glyphid Oppressors only have Weakpoint damage
-			if (creatureIndex != 12) {
+			if (indexesWithNormalHealth.contains(creatureIndex)) {
 				toReturn.add((int) Math.ceil(creatureHP / (totalDirectDamage + totalAreaDamage)));
 			}
 			
