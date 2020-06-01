@@ -43,7 +43,6 @@ public class BreakpointsButton extends JButton implements ActionListener {
 		StatsRow[] breakpoints = toDisplay.breakpointsExplanation();
 		
 		JPanel toReturn = new JPanel();
-		toReturn.setPreferredSize(new Dimension(300, 160));
 		toReturn.setBackground(GuiConstants.drgBackgroundBrown);
 		toReturn.setBorder(GuiConstants.blackLine);
 		toReturn.setLayout(new BoxLayout(toReturn, BoxLayout.Y_AXIS));
