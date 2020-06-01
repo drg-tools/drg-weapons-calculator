@@ -742,7 +742,33 @@ public class EPC_ChargeShot extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		breakpoints = EnemyInformation.calculateBreakpoints(getChargedDirectDamage(), getChargedAreaDamage(), -1.0);
+		double[] directDamage = {
+			0,  // Kinetic
+			0,  // Explosive
+			0.5 * getChargedDirectDamage(),  // Fire
+			0,  // Frost
+			0.5 * getChargedDirectDamage()  // Electric
+		};
+		
+		double[] areaDamage = {
+			0.5 * getChargedAreaDamage(),  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0.5 * getChargedAreaDamage(),  // Electric
+		};
+		
+		double persistentPlasmaDamage = 0;
+		if (selectedOverclock == 5) {
+			persistentPlasmaDamage = calculateAverageDoTDamagePerEnemy(0, 5, DoTInformation.Plasma_DPS);
+		}
+		double[] DoTDamage = {
+			0,  // Fire
+			persistentPlasmaDamage,  // Electric
+			0,  // Poison
+			0  // Radiation
+		};
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, -1.0, 0.0);
 		return MathUtils.sum(breakpoints);
 	}
 

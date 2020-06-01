@@ -606,7 +606,39 @@ public class GrenadeLauncher extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), getAreaDamage(), 0);
+		double[] directDamage = {
+			0,  // Kinetic
+			getDirectDamage(),  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double[] areaDamage = {
+			getAreaDamage(),  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double burnDamage = 0;
+		if (selectedTier3 == 0) {
+			burnDamage = calculateAverageDoTDamagePerEnemy(0, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+		}
+		
+		double radDamage = 0;
+		if (selectedOverclock == 4) {
+			radDamage = calculateAverageDoTDamagePerEnemy(0, 4, DoTInformation.Rad_FB_DPS);
+		}
+		
+		double[] DoTDamage = {
+			burnDamage,  // Fire
+			0,  // Electric
+			0,  // Poison
+			radDamage  // Radiation
+		};
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0);
 		return MathUtils.sum(breakpoints);
 	}
 

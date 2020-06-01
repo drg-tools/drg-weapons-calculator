@@ -656,7 +656,28 @@ public class Classic_Hipfire extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), 0, getWeakpointBonus());
+		double[] directDamage = {
+			getDirectDamage(),  // Kinetic
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double[] areaDamage = {
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		double[] DoTDamage = {
+			0,  // Fire
+			0,  // Electric
+			0,  // Poison
+			0  // Radiation
+		};
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0);
 		return MathUtils.sum(breakpoints);
 	}
 

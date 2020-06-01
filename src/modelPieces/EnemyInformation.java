@@ -484,6 +484,10 @@ public class EnemyInformation {
 		This method does NOT model Frozen x3 Direct Damage, IFG +30% damage, or Heavy Armor plates.
 	*/
 	public static int[] calculateBreakpoints(double[] directDamageByType, double[] areaDamageByType, double[] DoTDamageByType, double weakpointModifier, double macteraModifier) {
+		// I can use this variable to switch between modeling all 21 creatures' breakpoints and only the 8 that TriggerHappyBro is interested in for Karl's frontend.
+		int[] creaturesToModel = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
+		// int[] creaturesToModel = {0, 1, 2, 3, 4, 8, 9, 14};
+		
 		// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
 		double[] normalEnemyResistances = {
 			0.7,  // Haz1
@@ -513,10 +517,11 @@ public class EnemyInformation {
 		HashSet<Integer> indexesWithLightArmor = new HashSet<Integer>(Arrays.asList(new Integer[] {1, 2, 3, 8, 9}));
 		HashSet<Integer> indexesWithoutWeakpoints = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 20}));
 		HashSet<Integer> indexesOfMacteras = new HashSet<Integer>(Arrays.asList(new Integer[] {14, 15, 16}));
+		HashSet<Integer> indexesOfEnemiesShouldNotHaveDoTs = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 5}));
 		
 		double creatureHP, creatureWeakpointModifier, totalDirectDamage, totalAreaDamage, totalDoTDamage;
 		double[] creatureResistances;
-		for (int creatureIndex = 0; creatureIndex < enemyHealthPools.length; creatureIndex++) {
+		for (int creatureIndex: creaturesToModel) {
 			if (normalEnemyScalingIndexes.contains(creatureIndex)) {
 				creatureHP = enemyHealthPools[creatureIndex] * normalResistance;
 			}
@@ -548,22 +553,31 @@ public class EnemyInformation {
 			// Additionally, I'm scaling the DoT damage up and down proportional to the creature's health to the average HP used to calculate DoT damage. It's not accurate, but it is intuitive.
 			totalDoTDamage = (DoTDamageByType[0] * creatureResistances[1] + DoTDamageByType[1] * creatureResistances[3] + DoTDamageByType[2] + DoTDamageByType[3]) * (creatureHP / avgHP);
 			
-			// Driller/Subata/Mod/5/B "Mactera Neurotoxin Coating" makes the Subata's Direct Damage do x1.2 more to Mactera-type enemies
+			// Driller/Subata/Mod/5/B "Mactera Neurotoxin Coating" makes the Subata's damage do x1.2 more to Mactera-type enemies
 			if (indexesOfMacteras.contains(creatureIndex)) {
 				totalDirectDamage *= (1.0 + macteraModifier);
+				totalAreaDamage *= (1.0 + macteraModifier);
+			}
+			
+			// Glyphid Swarmers and Exploders have so little HP, it's not practical to model DoTs on them for Breakpoints
+			if (!indexesOfEnemiesShouldNotHaveDoTs.contains(creatureIndex)) {
+				creatureHP -= totalDoTDamage;
 			}
 			
 			// Normal Damage
-			toReturn.add((int) Math.ceil((creatureHP - totalDoTDamage) / (totalDirectDamage + totalAreaDamage)));
+			// Glyphid Oppressors only have Weakpoint damage
+			if (creatureIndex != 12) {
+				toReturn.add((int) Math.ceil(creatureHP / (totalDirectDamage + totalAreaDamage)));
+			}
 			
 			// Light Armor
 			if (indexesWithLightArmor.contains(creatureIndex)) {
-				toReturn.add((int) Math.ceil((creatureHP - totalDoTDamage) / (totalDirectDamage * UtilityInformation.LightArmor_DamageReduction + totalAreaDamage)));
+				toReturn.add((int) Math.ceil(creatureHP / (totalDirectDamage * UtilityInformation.LightArmor_DamageReduction + totalAreaDamage)));
 			}
 			
 			// Weakpoint
 			if (!indexesWithoutWeakpoints.contains(creatureIndex)) {
-				toReturn.add((int) Math.ceil((creatureHP - totalDoTDamage) / (totalDirectDamage * creatureWeakpointModifier + totalAreaDamage)));
+				toReturn.add((int) Math.ceil(creatureHP / (totalDirectDamage * creatureWeakpointModifier + totalAreaDamage)));
 			}
 		}
 				

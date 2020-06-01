@@ -639,7 +639,29 @@ public class Shotgun extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		breakpoints = EnemyInformation.calculateBreakpoints(getDamagePerPellet() * getNumberOfPellets(), 0, getWeakpointBonus());
+		double[] directDamage = {
+			getDamagePerPellet() * getNumberOfPellets(),  // Kinetic
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double[] areaDamage = {
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double[] DoTDamage = {
+			0,  // Fire
+			0,  // Electric
+			0,  // Poison
+			0  // Radiation
+		};
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0);
 		return MathUtils.sum(breakpoints);
 	}
 

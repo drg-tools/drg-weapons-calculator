@@ -699,7 +699,33 @@ public class BurstPistol extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), 0, getWeakpointBonus());
+		double[] directDamage = {
+			getDirectDamage(),  // Kinetic
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double[] areaDamage = {
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double electroDmg = 0;
+		if (selectedOverclock == 4) {
+			electroDmg = calculateAverageDoTDamagePerEnemy(0, 0.5 * DoTInformation.Electro_SecsDuration, DoTInformation.Electro_DPS);
+		}
+		double[] DoTDamage = {
+			0,  // Fire
+			electroDmg,  // Electric
+			0,  // Poison
+			0  // Radiation
+		};
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0);
 		return MathUtils.sum(breakpoints);
 	}
 

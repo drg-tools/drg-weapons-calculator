@@ -96,7 +96,7 @@ public class Subata extends Weapon {
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Volatile Bullets", "+50% Damage dealt to Burning enemies", modIcons.heatDamage, 5, 0);
-		tier5[1] = new Mod("Mactera Neurotoxin Coating", "+20% Damage dealt to Mactera-type enemies", modIcons.special, 5, 1, false);
+		tier5[1] = new Mod("Mactera Neurotoxin Coating", "+20% Damage dealt to Mactera-type enemies", modIcons.special, 5, 1);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 50% chance to ricochet into a nearby enemy.", overclockIcons.ricochet, 0);
@@ -658,7 +658,34 @@ public class Subata extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), getAreaDamage(), getWeakpointBonus());
+		double[] directDamage = {
+			getDirectDamage(),  // Kinetic
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double[] areaDamage = {
+			getAreaDamage(),  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double[] DoTDamage = {
+			0,  // Fire
+			0,  // Electric
+			0,  // Poison
+			0  // Radiation
+		};
+		
+		double macteraBonus = 0;
+		if (selectedTier5 == 1) {
+			macteraBonus = 0.2;
+		}
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), macteraBonus);
 		return MathUtils.sum(breakpoints);
 	}
 

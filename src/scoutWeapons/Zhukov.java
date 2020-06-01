@@ -638,7 +638,29 @@ public class Zhukov extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), getAreaDamage(), getWeakpointBonus());
+		double[] directDamage = {
+			getDirectDamage(),  // Kinetic
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double[] areaDamage = {
+			getAreaDamage(),  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double[] DoTDamage = {
+			0,  // Fire
+			0,  // Electric
+			0,  // Poison
+			0  // Radiation
+		};
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0);
 		return MathUtils.sum(breakpoints);
 	}
 

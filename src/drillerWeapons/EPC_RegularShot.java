@@ -684,7 +684,33 @@ public class EPC_RegularShot extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), 0, 0);
+		double[] directDamage = {
+			0.5 * getDirectDamage(),  // Kinetic
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0.5 * getDirectDamage()  // Electric
+		};
+		
+		double[] areaDamage = {
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double burnDmg = 0;
+		if (selectedTier5 == 2) {
+			burnDmg = calculateAverageDoTDamagePerEnemy(EnemyInformation.averageTimeToIgnite(0.5 * getDirectDamage(), rateOfFire), EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+		}
+		double[] DoTDamage = {
+			burnDmg,  // Fire
+			0,  // Electric
+			0,  // Poison
+			0  // Radiation
+		};
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0);
 		return MathUtils.sum(breakpoints);
 	}
 

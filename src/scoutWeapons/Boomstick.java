@@ -701,10 +701,35 @@ public class Boomstick extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		breakpoints = EnemyInformation.calculateBreakpoints(getDamagePerPellet() * getNumberOfPellets(), 0, 0);
+		double[] directDamage = {
+			getDamagePerPellet() * getNumberOfPellets(),  // Kinetic
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double[] areaDamage = {
+			getBlastwaveDamage(),  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double burnDmg = 0;
+		if (selectedTier5 == 2) {
+			burnDmg = calculateAverageDoTDamagePerEnemy(calculateTimeToIgnite(false), EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+		}
+		double[] DoTDamage = {
+			burnDmg,  // Fire
+			0,  // Electric
+			0,  // Poison
+			0  // Radiation
+		};
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0);
 		return MathUtils.sum(breakpoints);
 	}
-
 	@Override
 	public double utilityScore() {
 		// OC "Special Powder" gives a lot of Mobility (7.8m vertical per shot, 13m horizontal per shot)

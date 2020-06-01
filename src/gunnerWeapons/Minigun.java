@@ -912,7 +912,40 @@ public class Minigun extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		breakpoints = EnemyInformation.calculateBreakpoints(getDamagePerPellet(), 0, 0);
+		double[] directDamage = {
+			getDamagePerPellet(),  // Kinetic
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double[] areaDamage = {
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double burnDmg = 0;
+		// Because Hot Bullets takes almost 4 seconds to start working, I'm choosing to not model when Burning Hell and Hot Bullets are combined.
+		if (selectedOverclock == 2) {
+			burnDmg = calculateAverageDoTDamagePerEnemy(calculateIgnitionTime(false), EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+		}
+		else if (selectedTier5 == 2) {
+			// To model the fact that this won't start igniting enemies until 4 seconds of firing, I'm choosing to only use 1/4 of the Burn DoT damage
+			// This is not in any way an accurate representation, since every enemy except Bulks, Breeders, and Nexuses would die before they started Burning.
+			burnDmg = 0.25 * calculateAverageDoTDamagePerEnemy(calculateIgnitionTime(false) - 4, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+		}
+		
+		double[] DoTDamage = {
+			burnDmg,  // Fire
+			0,  // Electric
+			0,  // Poison
+			0  // Radiation
+		};
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0);
 		return MathUtils.sum(breakpoints);
 	}
 

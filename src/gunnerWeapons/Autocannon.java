@@ -687,7 +687,31 @@ public class Autocannon extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), getAreaDamage(), 0);
+		double[] directDamage = {
+			getDirectDamage(),  // Kinetic
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double[] areaDamage = {
+			getAreaDamage(),  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double timeToNeurotoxin = MathUtils.meanRolls(0.3) / getAverageRateOfFire();
+		double ntDoTDmg = calculateAverageDoTDamagePerEnemy(timeToNeurotoxin, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
+		double[] DoTDamage = {
+			0,  // Fire
+			0,  // Electric
+			ntDoTDmg,  // Poison
+			0  // Radiation
+		};
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -723,7 +747,7 @@ public class Autocannon extends Weapon {
 		// Average out the Area Damage Breaking and Direct Damage Breaking
 		utilityScores[2] = (directDamageAB + (aoeEfficiency[2] - 1) * areaDamageAB) * UtilityInformation.ArmorBreak_Utility / aoeEfficiency[2];
 		
-		// OC "Neurotoxin Payload" has a 20% chance to inflict a 30% slow by poisoning enemies
+		// OC "Neurotoxin Payload" has a 30% chance to inflict a 30% slow by poisoning enemies
 		if (selectedOverclock == 5) {
 			utilityScores[3] = 0.3 * calculateMaxNumTargets() * DoTInformation.Neuro_SecsDuration * UtilityInformation.Neuro_Slow_Utility;
 		}
