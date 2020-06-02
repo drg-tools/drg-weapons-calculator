@@ -621,9 +621,10 @@ public class GrenadeLauncher extends Weapon {
 			0  // Electric
 		};
 		
-		double burnDamage = 0;
+		// Incendiary Compound is a burst of Heat, and gets modeled differently than Radiation
+		double heatPerGrenade = 0;
 		if (selectedTier3 == 0) {
-			burnDamage = calculateAverageDoTDamagePerEnemy(0, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			heatPerGrenade = getAreaDamage();
 		}
 		
 		double radDamage = 0;
@@ -632,13 +633,13 @@ public class GrenadeLauncher extends Weapon {
 		}
 		
 		double[] DoTDamage = {
-			burnDamage,  // Fire
+			0,  // Fire
 			0,  // Electric
 			0,  // Poison
 			radDamage  // Radiation
 		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, heatPerGrenade);
 		return MathUtils.sum(breakpoints);
 	}
 

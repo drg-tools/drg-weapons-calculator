@@ -483,7 +483,7 @@ public class EnemyInformation {
 		
 		This method does NOT model Frozen x3 Direct Damage, IFG +30% damage, or Heavy Armor plates.
 	*/
-	public static int[] calculateBreakpoints(double[] directDamageByType, double[] areaDamageByType, double[] DoTDamageByType, double weakpointModifier, double macteraModifier) {
+	public static int[] calculateBreakpoints(double[] directDamageByType, double[] areaDamageByType, double[] DoTDamageByType, double weakpointModifier, double macteraModifier, double singleBurstOfHeat) {
 		int[] creaturesToModel = {0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 14, 15, 16};
 		
 		// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
@@ -508,6 +508,7 @@ public class EnemyInformation {
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
 		double avgHP = averageHealthPool();
+		double burnDPS = DoTInformation.Burn_DPS;
 		ArrayList<Integer> toReturn = new ArrayList<Integer>();
 		
 		HashSet<Integer> normalEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 1, 2, 3, 5, 8, 9, 14, 20}));
@@ -554,6 +555,11 @@ public class EnemyInformation {
 			// Additionally, I'm scaling the DoT damage up and down proportional to the creature's health to the average HP used to calculate DoT damage. It's not accurate, but it is intuitive.
 			totalDoTDamage = (DoTDamageByType[0] * creatureResistances[1] + DoTDamageByType[1] * creatureResistances[3] + DoTDamageByType[2] + DoTDamageByType[3]) * (creatureHP / avgHP);
 			
+			// Enemies can have Temperatures above their Ignite temperatures, and that makes them Burn longer than the "avg Burn duration" I have modeled. This is important for Grunts and Mactera Spawns on Engie/GL/Mod/3/Incendiary Compound and Scout/Boomstick/Mod/5/WPS
+			if (singleBurstOfHeat >= enemyTemperatures[creatureIndex][0]) {
+				totalDoTDamage += creatureResistances[1] * burnDPS * (singleBurstOfHeat - enemyTemperatures[creatureIndex][1]) / enemyTemperatures[creatureIndex][2];
+			}
+			
 			// Driller/Subata/Mod/5/B "Mactera Neurotoxin Coating" makes the Subata's damage do x1.2 more to Mactera-type enemies
 			if (indexesOfMacteras.contains(creatureIndex)) {
 				totalDirectDamage *= (1.0 + macteraModifier);
@@ -561,7 +567,8 @@ public class EnemyInformation {
 			}
 			
 			if (!indexesOfEnemiesShouldNotHaveDoTs.contains(creatureIndex)) {
-				creatureHP -= totalDoTDamage;
+				// For Webspitters vs Grenade Launcher Incendiary Compound, this subtracted more HP than they had. As such this now sets their HP down to a minumum of 1 hp so that everything one-shots as intended.
+				creatureHP = Math.max(creatureHP - totalDoTDamage, 1);
 			}
 			
 			// Normal Damage

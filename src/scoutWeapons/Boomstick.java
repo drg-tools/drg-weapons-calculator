@@ -716,18 +716,20 @@ public class Boomstick extends Weapon {
 			0  // Electric
 		};
 		
-		double burnDmg = 0;
+		// Because White Phosphorus Shells is a burst of Heat, it's not modeled like other DoTs are
+		double burstOfHeatPerShot = 0;
 		if (selectedTier5 == 2) {
-			burnDmg = calculateAverageDoTDamagePerEnemy(calculateTimeToIgnite(false), EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			burstOfHeatPerShot = 0.5 * getDamagePerPellet() * getNumberOfPellets();
 		}
+		
 		double[] DoTDamage = {
-			burnDmg,  // Fire
+			0,  // Fire
 			0,  // Electric
 			0,  // Poison
 			0  // Radiation
 		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, burstOfHeatPerShot);
 		return MathUtils.sum(breakpoints);
 	}
 	@Override
