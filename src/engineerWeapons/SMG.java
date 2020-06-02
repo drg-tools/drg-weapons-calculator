@@ -24,6 +24,7 @@ public class SMG extends Weapon {
 	****************************************************************************************/
 	
 	private double electrocutionDoTChance;
+	private double electrocutionDoTDuration;
 	private int directDamage;
 	private int electricDamage;
 	private int magazineSize;
@@ -52,6 +53,8 @@ public class SMG extends Weapon {
 		
 		// Base stats, before mods or overclocks alter them:
 		electrocutionDoTChance = 0.2;
+		// SMG only does a 3 second Electrocute instead of the default 4 second
+		electrocutionDoTDuration = 3.0;
 		// Electrocution DoTs do not stack; it only refreshes the duration.
 		directDamage = 9;
 		electricDamage = 0; 
@@ -667,7 +670,7 @@ public class SMG extends Weapon {
 		
 		double[] DoTDamage = {
 			0,  // Fire
-			calculateAverageDoTDamagePerEnemy(timeToElectrocute, DoTInformation.Electro_SecsDuration, DoTInformation.Electro_DPS),  // Electric
+			calculateAverageDoTDamagePerEnemy(timeToElectrocute, electrocutionDoTDuration, DoTInformation.Electro_DPS),  // Electric
 			0,  // Poison
 			0  // Radiation
 		};
@@ -682,7 +685,7 @@ public class SMG extends Weapon {
 		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDirectDamage() + getElectricDamage()) * UtilityInformation.ArmorBreak_Utility;
 		
 		// Innate ability to Electrocute applies an 80% slow to enemies (proc chance increased/decreased by mods and OCs)
-		utilityScores[3] = getElectrocutionDoTChance() * calculateMaxNumTargets() * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+		utilityScores[3] = getElectrocutionDoTChance() * calculateMaxNumTargets() * electrocutionDoTDuration * UtilityInformation.Electrocute_Slow_Utility;
 		
 		return MathUtils.sum(utilityScores);
 	}
@@ -690,7 +693,7 @@ public class SMG extends Weapon {
 	@Override
 	public double damagePerMagazine() {
 		double timeBeforeElectrocute = MathUtils.meanRolls(getElectrocutionDoTChance()) / getRateOfFire();
-		return (getDirectDamage() + getElectricDamage()) * getMagazineSize() + calculateAverageDoTDamagePerEnemy(timeBeforeElectrocute, DoTInformation.Electro_SecsDuration, DoTInformation.Electro_DPS);
+		return (getDirectDamage() + getElectricDamage()) * getMagazineSize() + calculateAverageDoTDamagePerEnemy(timeBeforeElectrocute, electrocutionDoTDuration, DoTInformation.Electro_DPS);
 	}
 	
 	@Override
