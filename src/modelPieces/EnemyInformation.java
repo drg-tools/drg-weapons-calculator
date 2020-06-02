@@ -23,7 +23,7 @@ public class EnemyInformation {
 		}
 	}
 	
-	// These are educated guesses about the enemies' spawn rates. Biome-specific enemies, "hatchling" enemy types, and Dreadnaughts not included.
+	// These are educated guesses about the enemies' spawn rates. Biome-specific enemies, "hatchling" enemy types, and Dreadnoughts not included.
 	// All of these numbers must sum up to exactly 1.0 for it to be a probability vector.
 	// TODO: verify these spawn rate numbers; I think there are more grunts and fewer swarmers.
 	private static double[] spawnRates = {
@@ -125,8 +125,9 @@ public class EnemyInformation {
 		100    // Cave Leech
 	};
 	
-	// Resistance/weakness values taken from wiki
+	// Resistance/weakness values taken from Elythnwaen's Spreadsheet
 	// Positive number means that the creature resists that element; negative means it's weak to that element.
+	// None of the enemies I'm modeling resist Poison or Radiation damage
 	
 	// Weighted Q'Ronar Shellback rolling state at 2/3 and non-rolling state at 1/3
 	private static double qronarShellbackRolling = 0.66;
@@ -225,16 +226,6 @@ public class EnemyInformation {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
 		}
-		
-		/*
-		// Seems like Acidspitters spawn in pairs, and Webspitters spawn in groups of 2-4? Swarmers seem like 6-10? Exploders 4-6?
-		double numerator = 25;
-		double predictedSpawnRate;
-		for (int i = 0; i < enemyHealthPools.length; i++) {
-			predictedSpawnRate = numerator / enemyHealthPools[i];
-			System.out.println("Health Pool: " + enemyHealthPools[i] + " Estimated Spawn Rate: " + spawnRates[i] + " Predicted Spawn Rate: " + predictedSpawnRate);
-		}
- 		*/
 		
 		int i, enemyIndex;
 
@@ -555,7 +546,8 @@ public class EnemyInformation {
 			// Additionally, I'm scaling the DoT damage up and down proportional to the creature's health to the average HP used to calculate DoT damage. It's not accurate, but it is intuitive.
 			totalDoTDamage = (DoTDamageByType[0] * creatureResistances[1] + DoTDamageByType[1] * creatureResistances[3] + DoTDamageByType[2] + DoTDamageByType[3]) * (creatureHP / avgHP);
 			
-			// Enemies can have Temperatures above their Ignite temperatures, and that makes them Burn longer than the "avg Burn duration" I have modeled. This is important for Grunts and Mactera Spawns on Engie/GL/Mod/3/Incendiary Compound and Scout/Boomstick/Mod/5/WPS
+			// Enemies can have Temperatures above their Ignite temperatures, and that makes them Burn longer than the "avg Burn duration" I have modeled. This is important for Grunts and 
+			// Mactera Spawns on Engie/GL/Mod/3/Incendiary Compound and Scout/Boomstick/Mod/5/WPS
 			if (singleBurstOfHeat >= enemyTemperatures[creatureIndex][0]) {
 				totalDoTDamage += creatureResistances[1] * burnDPS * (singleBurstOfHeat - enemyTemperatures[creatureIndex][1]) / enemyTemperatures[creatureIndex][2];
 			}
@@ -567,7 +559,7 @@ public class EnemyInformation {
 			}
 			
 			if (!indexesOfEnemiesShouldNotHaveDoTs.contains(creatureIndex)) {
-				// For Webspitters vs Grenade Launcher Incendiary Compound, this subtracted more HP than they had. As such this now sets their HP down to a minumum of 1 hp so that everything one-shots as intended.
+				// For Webspitters vs Grenade Launcher/Incendiary Compound, this subtracted more HP than they had. As such this now sets their HP down to a minimum of 1 hp so that everything one-shots as intended.
 				creatureHP = Math.max(creatureHP - totalDoTDamage, 1);
 			}
 			

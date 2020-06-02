@@ -638,7 +638,7 @@ public class AssaultRifle extends Weapon {
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		/*
-			Scout's Assault Rifle seems to use a different model of accuracy than the other guns do. Speficially, it does the following things differently:
+			Scout's Assault Rifle seems to use a different model of accuracy than the other guns do. Specifically, it does the following things differently:
 			1. The Spread Recovery Speed seems to be non-linear; it seems to be more powerful at the start of the magazine and get weaker near the end
 			2. The Spread Recovery starts getting applied on the first shot, whereas all the other guns have it applied on every shot after the first.
 			3. When its Base Spread is reduced to 0, the Max Spread doesn't decrease as well (every other gun has Max Spread = Base Spread + Spread Variance)

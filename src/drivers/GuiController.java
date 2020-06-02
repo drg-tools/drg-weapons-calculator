@@ -113,8 +113,8 @@ public class GuiController implements ActionListener {
 	private void createMysqlFile() {
 		ArrayList<String> mysqlCommands = new ArrayList<String>();
 		mysqlCommands.add(String.format("USE `%s`;\n\n", DatabaseConstants.databaseName));
-		mysqlCommands.add(String.format("DROP TABLE IF EXISTS `%s`;\n\n", DatabaseConstants.tableName));
-		mysqlCommands.add(String.format("CREATE TABLE `%s` (\n", DatabaseConstants.tableName));
+		mysqlCommands.add(String.format("DROP TABLE IF EXISTS `%s`;\n\n", DatabaseConstants.statsTableName));
+		mysqlCommands.add(String.format("CREATE TABLE `%s` (\n", DatabaseConstants.statsTableName));
 		mysqlCommands.add("    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,\n");
 		mysqlCommands.add("    `character_id` BIGINT UNSIGNED NOT NULL,\n");
 		mysqlCommands.add("    `gun_id` BIGINT UNSIGNED NOT NULL,\n");
@@ -147,19 +147,19 @@ public class GuiController implements ActionListener {
 		int i;
 		for (i = 0; i < drillerWeapons.length; i++) {
 			calculator.changeWeapon(drillerWeapons[i]);
-			mysqlCommands.addAll(calculator.dumpToMySQL());
+			mysqlCommands.addAll(calculator.dumpMetricsToMySQL());
 		}
 		for (i = 0; i < engineerWeapons.length; i++) {
 			calculator.changeWeapon(engineerWeapons[i]);
-			mysqlCommands.addAll(calculator.dumpToMySQL());
+			mysqlCommands.addAll(calculator.dumpMetricsToMySQL());
 		}
 		for (i = 0; i < gunnerWeapons.length; i++) {
 			calculator.changeWeapon(gunnerWeapons[i]);
-			mysqlCommands.addAll(calculator.dumpToMySQL());
+			mysqlCommands.addAll(calculator.dumpMetricsToMySQL());
 		}
 		for (i = 0; i < scoutWeapons.length; i++) {
 			calculator.changeWeapon(scoutWeapons[i]);
-			mysqlCommands.addAll(calculator.dumpToMySQL());
+			mysqlCommands.addAll(calculator.dumpMetricsToMySQL());
 		}
 		
 		// Open the MySQL file once, then dump the accumulated ArrayList of lines all at once to minimize I/O time

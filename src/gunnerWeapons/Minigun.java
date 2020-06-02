@@ -485,7 +485,7 @@ public class Minigun extends Weapon {
 				timeAddedByCATG = (timeAddedByCATG / estimatedBurstTTK) * heatRemovedPerKill;
 				firingPeriod += timeAddedByCATG;
 				
-				// On Haz1 1Player, this is an infinite while loop. As such, I'm adding a second exit condtion: it can't return a firing period longer than it takes to fire all ammo.
+				// On Haz1 1Player, this is an infinite while loop. As such, I'm adding a second exit condition: it can't return a firing period longer than it takes to fire all ammo.
 				if (firingPeriod > maxFiringPeriod) {
 					firingPeriod = maxFiringPeriod;
 					break;
@@ -811,7 +811,7 @@ public class Minigun extends Weapon {
 		
 		// Aggressive Venting does one burst of 75 Heat Damage in a 3m radius around the Gunner
 		if (selectedTier5 == 0) {
-			// I'm choosing to model Aggressive Venting as Fire DoT max damage without affecting DPS stats, since the 11 sec cooldown penalty would TANK all of those stats.
+			// I'm choosing to model Aggressive Venting as Fire DoT max damage without affecting DPS stats, since the 10 sec cooldown penalty would TANK all of those stats.
 			// Additionally, I'm choosing to not combine its burst of 75 Heat Damage with the Heat/sec dealt by Hot Bullets or Burning Hell. It gets its own section, all to itself.
 			double percentageOfEnemiesIgnitedByAV = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(75);
 			double numGlyphidsHitByHeatBurst = 20;  // this.calculateNumGlyphidsInRadius(3);

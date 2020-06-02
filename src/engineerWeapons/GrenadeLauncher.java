@@ -27,7 +27,6 @@ public class GrenadeLauncher extends Weapon {
 	private double aoeRadius;
 	private int carriedAmmo;
 	private int magazineSize;
-	//private double rateOfFire;
 	private double reloadTime;
 	private double fearChance;
 	private double armorBreaking;

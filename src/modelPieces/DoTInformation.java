@@ -2,13 +2,12 @@ package modelPieces;
 
 /*
 	This class will be a standardized location for all Damage Over Time mechanics that can be applied
-	by DRG weapons. Most of these numbers will be educated guesses based on personal testing, since the 
-	Wiki doesn't have very much information about these mechanics. For all of these DoTs, they cannot be 
-	stacked on themselves (e.g. 2 Electrocute DoTs and 3 Fire DoTs), but they do stack with each other.
-	If a second DoT of the same type would be applied before the DoT duration is done, its duration is refreshed 
-	instead.
+	by DRG weapons. Most of these numbers will be sourced from the Wiki or from Elythnwaen. For all of 
+	these DoTs, they cannot be stacked on themselves (e.g. 2 Electrocute DoTs and 3 Fire DoTs), but they 
+	do stack with each other. If a second DoT of the same type would be applied before the DoT duration 
+	is done, its duration is refreshed instead.
 	
-	Wiki page just added: https://deeprockgalactic.gamepedia.com/Status_Effects
+	Wiki page being referenced: https://deeprockgalactic.gamepedia.com/Status_Effects
 */
 public class DoTInformation {
 	/*
@@ -28,10 +27,10 @@ public class DoTInformation {
 		Electrocution
 		
 		Weapons that can apply this DoT:
-			Engineer - "Stubby" SMG (built into weapon, proc chance ranges from 5 - 30% depending on Mods and OC)
-			Engineer - Breach Cutter (Overclock, High Voltage Crossover, 100% chance to proc?)
+			Engineer - "Stubby" SMG (built into weapon, proc chance ranges from 20 - 50% depending on Mods and OC)
+			Engineer - Breach Cutter (Overclock, High Voltage Crossover, 100% chance to proc)
 			Gunner - Burst Pistol (Overclock, Electro Minelets, 100% chance to proc)
-			Scout - Deepcore AR (Overclock, Electrifying Reload, 5% proc chance/bullet hit upon reload)
+			Scout - Deepcore AR (Overclock, Electrifying Reload, 100% proc chance upon reload even if only one bullet hits)
 			Scout - M1000 Classic (Overclock, Electrocuting Focus Shots, 100% chance to proc on focused shots)
 			All dwarves - Armor (Tier 4, Static Discharge, around 50% chance to proc?)
 			Bosco - Tier 5 upgrade, Overcharged Rounds, 30% chance to proc
@@ -54,7 +53,7 @@ public class DoTInformation {
 			Gunner - Minigun (Mod Tier 5, Aggressive Overheat)
 			Gunner - Minigun (Overclock, Burning Hell)
 			Gunner - Incendiary Grenade
-			Scout - Boomstick (Mod Tier 5, White Phosphorous Shells)
+			Scout - Boomstick (Mod Tier 5, White Phosphorus Shells)
 	*/
 	public static double Burn_DmgPerTick = 5;
 	public static double Burn_TicksPerSec = 2 / (0.25 + 0.5);
@@ -69,7 +68,7 @@ public class DoTInformation {
 		Radioactive Praetorians and Exploders leave behind Radioactive fields for 4-5 seconds on death.
 		
 		Weapons that can apply this DoT:
-			Engineer - Grenade Launcher (Overclock, Fat Boy, 15 sec field duration)
+			Engineer - Grenade Launcher (Overclock, Fat Boy, 15 sec field duration in an 8m radius)
 	*/
 	public static double Rad_Env_DmgPerTick = 6;
 	public static double Rad_Env_TicksPerSec = 2 / (0.5 + 1.0);

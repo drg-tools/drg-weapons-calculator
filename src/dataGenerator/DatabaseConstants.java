@@ -2,7 +2,7 @@ package dataGenerator;
 
 public class DatabaseConstants {
 	public static String databaseName = "drgbuilds";
-	public static String tableName = "build_statistics";
+	public static String statsTableName = "build_statistics";
 	
 	public static int drillerCharacterID = 3;
 	public static int engineerCharacterID = 1;

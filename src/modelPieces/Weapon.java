@@ -428,8 +428,6 @@ public abstract class Weapon extends Observable {
 		/*
 			I'm choosing to model the DoT total damage as "How much damage does the DoT do to the average enemy while it's still alive?"
 		*/
-		
-
 		double timeWhileAfflictedByDoT = averageTimeToKill() - timeBeforeProc;
 		
 		// Don't let this math create a DoT that lasts longer than the default DoT duration.
@@ -591,7 +589,7 @@ public abstract class Weapon extends Observable {
 	}
 	protected double increaseBulletDamageForWeakpoints(double preWeakpointBulletDamage, double weakpointBonusModifier) {
 		/*
-			Before weakpoint bonus modifier, weakpoint damage is roughly a 38% increase per bullet.
+			Before weakpoint bonus modifier, weakpoint damage is roughly a 40% increase per bullet.
 			As a rule of thumb, the weakpointBonusModifier is roughly a (2/3 * bonus damage) additional increase per bullet. 
 			30% bonus modifier => ~20% increase to DPS
 		*/
@@ -643,7 +641,7 @@ public abstract class Weapon extends Observable {
 	public double ammoEfficiency() {
 		return calculateMaxMultiTargetDamage() / averageDamageToKillEnemy();
 	}
-	public abstract double estimatedAccuracy(boolean weakpointAccuracy); // -1 means manual or N/A; [0.00, 1.00] otherwise
+	public abstract double estimatedAccuracy(boolean weakpointAccuracy); // -1 means manual or N/A; [0.0, 100.0] otherwise
 	public abstract int breakpoints();
 	
 	// This method is used to explain what the individual numbers of the Breakpoints
@@ -695,7 +693,7 @@ public abstract class Weapon extends Observable {
 		return toReturn;
 	}
 	
-	// These two methods will be added as columns to the MySQL dump, but I have no plans to add them to the 15 metrics in the bottom panel.
+	// These two methods will be added as columns to the MySQL metrics dump, but I have no plans to add them to the 15 metrics in the bottom panel.
 	public abstract double damagePerMagazine();
 	public abstract double timeToFireMagazine();
 	

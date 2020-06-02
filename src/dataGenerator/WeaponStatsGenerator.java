@@ -357,7 +357,7 @@ public class WeaponStatsGenerator {
 		weaponToTest.buildFromCombination(currentCombination);
 	}
 	
-	public ArrayList<String> dumpToMySQL() {
+	public ArrayList<String> dumpMetricsToMySQL() {
 		ArrayList<String> toReturn = new ArrayList<String>();
 		
 		// Grab the current combination for the weapon to restore after this is done
@@ -383,7 +383,7 @@ public class WeaponStatsGenerator {
 								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
 								toReturn.add(String.format("INSERT INTO `%s` VALUES(NULL, %d, %d, '%s', '%s', %f, %f, %f, %f, %f, %d, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %f);\n", 
-										DatabaseConstants.tableName, weaponToTest.getDwarfClassID(), weaponToTest.getWeaponID(), weaponToTest.getSimpleName(), weaponToTest.getCombination(),
+										DatabaseConstants.statsTableName, weaponToTest.getDwarfClassID(), weaponToTest.getWeaponID(), weaponToTest.getSimpleName(), weaponToTest.getCombination(),
 										weaponToTest.calculateIdealBurstDPS(), weaponToTest.calculateIdealSustainedDPS(), weaponToTest.sustainedWeakpointDPS(), weaponToTest.sustainedWeakpointAccuracyDPS(), weaponToTest.calculateAdditionalTargetDPS(), 
 										weaponToTest.calculateMaxNumTargets(), weaponToTest.calculateMaxMultiTargetDamage(), weaponToTest.ammoEfficiency(), weaponToTest.estimatedAccuracy(false), weaponToTest.estimatedAccuracy(true),
 										weaponToTest.calculateFiringDuration(), weaponToTest.averageOverkill(), weaponToTest.averageTimeToKill(), weaponToTest.breakpoints(), weaponToTest.utilityScore(),

@@ -127,7 +127,7 @@ public class AccuracyEstimator {
 		}
 	}
 	
-	// This method returns an array of what the crosshair width will be at the moment each bullet gets fired (will need to be converted from Spread Pixels to rads to meters)
+	// This method returns an array of what the crosshair width will be at the moment each bullet gets fired (will need to be converted from Spread Pixels to meters)
 	private static double[] spread(double RoF, int magSize, int burstSize, double baseSpreadPixels, double spreadPerShotPixels, double spreadRecoverySpeedPixels, double maxSpreadPixels) {
 		double[] spreadAtEachShot = new double[magSize];
 		double currentSpreadPixels = baseSpreadPixels;
