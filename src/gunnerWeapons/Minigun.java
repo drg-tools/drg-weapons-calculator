@@ -18,6 +18,14 @@ import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
+/*
+	Extracted via UUU:
+	Heat Damage per Burning Hell Tick: 5 ?!?! But it also lists Aggressive Venting's 75 Heat per burst as 5 Damage too?
+	Time between Burning Hell ticks: 0.25
+	Burning Hell Length/Radius: 150 (1.5m I think?)
+	Burning Hell distance: 300 (3m I think?)
+*/
+
 public class Minigun extends Weapon {
 
 	/****************************************************************************************

@@ -18,6 +18,13 @@ import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
+/*
+	Extracted via UUU:
+	Min Charge: 0.56
+	Charge speed: 1.25
+	
+*/
+
 public class Classic_FocusShot extends Weapon {
 	
 	/****************************************************************************************

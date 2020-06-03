@@ -17,6 +17,15 @@ import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
+/*
+	Extracted via UUU:
+		Heat per regular shot: 0.13   (TCF .104)
+		Heat per charged shot: 1    (TCF 0.25?????) 	
+		2 Heat/Sec while charged
+		Cooling Rate 0.4
+		Charge Speed 0.7
+*/
+
 public class EPC_RegularShot extends Weapon {
 	
 	/****************************************************************************************

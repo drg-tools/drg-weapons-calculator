@@ -31,9 +31,9 @@ public class Autocannon extends Weapon {
 	private int magazineSize;
 	private int carriedAmmo;
 	private double movespeedWhileFiring;
+	private double increaseScalingRate;
 	private double minRateOfFire;
 	private double maxRateOfFire;
-	private int numBulletsFiredDuringRampup;
 	private double reloadTime;
 	
 	/****************************************************************************************
@@ -62,9 +62,9 @@ public class Autocannon extends Weapon {
 		magazineSize = 110;
 		carriedAmmo = 440;
 		movespeedWhileFiring = 0.5;
-		minRateOfFire = 1.0;
-		maxRateOfFire = 5.5;  // Before 5.5 was listed in-game this was measured to be 5.25
-		numBulletsFiredDuringRampup = 10;
+		increaseScalingRate = 0.3;
+		minRateOfFire = 3.0;
+		maxRateOfFire = 5.5;
 		reloadTime = 5.0;  // seconds
 		
 		initializeModsAndOverclocks();
@@ -91,11 +91,11 @@ public class Autocannon extends Weapon {
 		
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("Tighter Barrel Alignment", "-30% Base Spread", modIcons.baseSpread, 2, 0);
-		tier2[1] = new Mod("Improved Gas System", "+1.5 Max Rate of Fire", modIcons.rateOfFire, 2, 1);
-		tier2[2] = new Mod("Lighter Barrel Assembly", "-5 Bullets fired to reach Max Rate of Fire", modIcons.rateOfFire, 2, 2);
+		tier2[1] = new Mod("Improved Gas System", "+0.2 Min Rate of Fire, +1.5 Max Rate of Fire", modIcons.rateOfFire, 2, 1);
+		tier2[2] = new Mod("Lighter Barrel Assembly", "+1 Min Rate of Fire, x2 RoF Scaling Rate", modIcons.rateOfFire, 2, 2);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Supercharged Feed Mechanism", "+2 Max Rate of Fire", modIcons.rateOfFire, 3, 0);
+		tier3[0] = new Mod("Supercharged Feed Mechanism", "+0.6 Min Rate of Fire, +2 Max Rate of Fire", modIcons.rateOfFire, 3, 0);
 		tier3[1] = new Mod("Loaded Rounds", "+2 Area Damage", modIcons.areaDamage, 3, 1);
 		tier3[2] = new Mod("High Velocity Rounds", "+4 Direct Damage", modIcons.directDamage, 3, 2);
 		
@@ -382,32 +382,65 @@ public class Autocannon extends Weapon {
 		}
 		return MathUtils.round(modifier * DwarfInformation.walkSpeed, 2);
 	}
-	private int getNumBulletsRampup() {
+	private double getIncreaseScalingRate() {
+		double toReturn = increaseScalingRate;
 		if (selectedTier2 == 2) {
-			return numBulletsFiredDuringRampup / 2;
+			toReturn += 0.3;
 		}
-		else {
-			return numBulletsFiredDuringRampup;
+		return toReturn;
+	}
+	private double getMinRateOfFire() {
+		double toReturn = minRateOfFire;
+		if (selectedTier2 == 1) {
+			toReturn += 0.2;
 		}
+		else if (selectedTier2 == 2) {
+			toReturn += 1.0;
+		}
+		
+		if (selectedTier3 == 0) {
+			toReturn += 0.6;
+		}
+		return toReturn;
 	}
 	private double getMaxRateOfFire() {
 		double toReturn = maxRateOfFire;
 		if (selectedTier2 == 1) {
-			toReturn += 1.5;  // Before being listed in-game, this used to be a +15% modifier
+			toReturn += 1.5;
 		}
 		if (selectedTier3 == 0) {
-			toReturn += 2;  // Before being listed in-game, this used to be a +35% modifier
+			toReturn += 2;
 		}
 		if (selectedOverclock == 4) {
-			toReturn -= 1.5;  // Before being listed in-game, this used to be a -25% modifier
+			toReturn -= 1.5;
 		}
 		return toReturn;
 	}
+	private double avgRoFDuringRampup() {
+		double startRoF = getMinRateOfFire();
+		double maxRoF = getMaxRateOfFire();
+		double scalingRate = getIncreaseScalingRate();
+		double timeToFullRoF = Math.log(maxRoF / startRoF) / scalingRate;
+		double exactNumBullets = (startRoF / scalingRate) * (Math.pow(Math.E, scalingRate * timeToFullRoF) - 1);
+		return exactNumBullets / timeToFullRoF;
+	}
+	private int getNumBulletsRampup() {
+		double startRoF = getMinRateOfFire();
+		double maxRoF = getMaxRateOfFire();
+		double scalingRate = getIncreaseScalingRate();
+		double timeToFullRoF = Math.log(maxRoF / startRoF) / scalingRate;
+		double exactNumBullets = (startRoF / scalingRate) * (Math.pow(Math.E, scalingRate * timeToFullRoF) - 1);
+		return (int) Math.round(exactNumBullets);
+	}
 	private double getAverageRateOfFire() {
+		// Special case: When T2.C and OC Big Bertha get combined, the Min RoF == Max RoF
+		if (selectedTier2 == 2 && selectedOverclock == 4) {
+			return getMaxRateOfFire();
+		}
+		
 		int numBulletsRampup = getNumBulletsRampup();
 		int magSize = getMagazineSize();
-		double maxRoF = getMaxRateOfFire();
-		return ((minRateOfFire + maxRoF) / 2.0 * numBulletsRampup + maxRoF * (magSize - numBulletsRampup)) / magSize;
+		return (avgRoFDuringRampup() * numBulletsRampup + getMaxRateOfFire() * (magSize - numBulletsRampup)) / magSize;
 	}
 	private double getReloadTime() {
 		double toReturn = reloadTime;
@@ -437,7 +470,7 @@ public class Autocannon extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[13];
+		StatsRow[] toReturn = new StatsRow[15];
 		
 		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 2 || (selectedOverclock > 1 && selectedOverclock < 6);
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
@@ -453,24 +486,28 @@ public class Autocannon extends Weapon {
 		boolean carriedAmmoModified = selectedTier1 == 2 || selectedOverclock == 0 || selectedOverclock == 4;
 		toReturn[4] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[5] = new StatsRow("Number of Bullets Fired Before Max RoF:", getNumBulletsRampup(), selectedTier2 == 2);
+		boolean minRoFModified = selectedTier2 > 0 || selectedTier3 == 0;
+		toReturn[5] = new StatsRow("Starting Rate of Fire:", getMinRateOfFire(), minRoFModified);
 		
-		// tier2 indexes 1 & 2 both increase RoF
-		boolean RoFModified = selectedTier2 > 0 || selectedTier3 == 0 || selectedOverclock == 4;
-		toReturn[6] = new StatsRow("Average Rate of Fire:", getAverageRateOfFire(), RoFModified);
+		boolean maxRoFModified = selectedTier2 == 1 || selectedTier3 == 0 || selectedOverclock == 4;
+		toReturn[6] = new StatsRow("Max Rate of Fire:", getMaxRateOfFire(), maxRoFModified);
 		
-		toReturn[7] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 0);
+		toReturn[7] = new StatsRow("Number of Bullets Fired Before Max RoF:", getNumBulletsRampup(), false);
 		
-		toReturn[8] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[8] = new StatsRow("Average Rate of Fire:", getAverageRateOfFire(), minRoFModified || maxRoFModified);
 		
-		toReturn[9] = new StatsRow("Fear Chance:", "20% (?)", selectedTier5 == 1, selectedTier5 == 1);
+		toReturn[9] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 0);
+		
+		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier4 == 0, selectedTier4 == 0);
+		
+		toReturn[11] = new StatsRow("Fear Chance:", "20% (?)", selectedTier5 == 1, selectedTier5 == 1);
 		
 		boolean baseSpreadModified = selectedTier2 == 0 || selectedOverclock == 4;
-		toReturn[10] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
+		toReturn[12] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
 		
-		toReturn[11] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 3);
+		toReturn[13] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 3);
 		
-		toReturn[12] = new StatsRow("Damage Resistance at Full RoF:", "33%", selectedTier5 == 2, selectedTier5 == 2);
+		toReturn[14] = new StatsRow("Damage Resistance at Full RoF:", "33%", selectedTier5 == 2, selectedTier5 == 2);
 		
 		return toReturn;
 	}
@@ -727,7 +764,7 @@ public class Autocannon extends Weapon {
 			int numBulletsRampup = getNumBulletsRampup();
 			int magSize = getMagazineSize();
 			double maxRoF = getMaxRateOfFire();
-			double timeRampingUp = numBulletsRampup / ((minRateOfFire + maxRoF) / 2.0); 
+			double timeRampingUp = numBulletsRampup / Math.log(maxRoF / getMinRateOfFire()) / getIncreaseScalingRate(); 
 			double timeAtMaxRoF = (magSize - numBulletsRampup) / maxRoF;
 			
 			double fullRoFUptime = timeAtMaxRoF / (timeRampingUp + timeAtMaxRoF);

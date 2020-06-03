@@ -18,6 +18,16 @@ import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
+/*
+	Extracted via UUU:
+		ShockWaveLength: 150
+		Radius: 150
+		Distance: 250
+		
+		ShotgunJump Force: 1000
+		Fear Factor Radius: 500
+*/
+
 public class Boomstick extends Weapon {
 	
 	/****************************************************************************************
