@@ -30,8 +30,7 @@ public class EPC_ChargeShot extends Weapon {
 	private int batterySize;
 	private double rateOfFire;
 	private double maxHeat;
-	private double regularCoolingRate;
-	private double overheatedCoolingRate;
+	private double coolingRate;
 	private int ammoPerChargedShot;
 	private double chargeShotWindup;
 	private double heatPerRegularShot;
@@ -87,14 +86,13 @@ public class EPC_ChargeShot extends Weapon {
 		chargedAreaDamage = 60;
 		chargedAoERadius = 2.0;
 		batterySize = 120;
-		rateOfFire = 7.0;
-		maxHeat = 8.0;
-		regularCoolingRate = 13.0 / 6.0;  // A lot of math, trial, and error went into finding this number.
-		overheatedCoolingRate = 3.2;  // Want this to work out to 2.5 sec overheat cooldown by default
+		rateOfFire = 8.0;
+		maxHeat = 1.0;
+		coolingRate = 0.4;
 		ammoPerChargedShot = 8;
 		chargeShotWindup = 1.5;  // seconds
-		heatPerRegularShot = 1.0;
-		heatPerSecondWhileCharged = maxHeat * 2.0;  // Want this to work out to 0.5 sec of heat buildup before overheating by default
+		heatPerRegularShot = 0.13;
+		heatPerSecondWhileCharged = 2.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -544,7 +542,7 @@ public class EPC_ChargeShot extends Weapon {
 		double k = getCoolingRateModifier();
 		double h = getHeatPerRegularShot();
 		
-		double exactAnswer = (maxHeat * rateOfFire) / (rateOfFire * h - k * regularCoolingRate);
+		double exactAnswer = (maxHeat * rateOfFire) / (rateOfFire * h - k * coolingRate);
 		
 		return (int) Math.ceil(exactAnswer);
 	}
@@ -554,10 +552,10 @@ public class EPC_ChargeShot extends Weapon {
 	private double getCooldownDuration() {
 		// If they have Thin Containment Field equipped, then each Charged Shot only fills the meter to 80% plus the one Regular Shot
 		if (selectedTier5 == 1) {
-			return getHeatPerChargedShot() / (regularCoolingRate * getCoolingRateModifier());
+			return getHeatPerChargedShot() / (coolingRate * getCoolingRateModifier());
 		}
 		else {
-			return maxHeat / (overheatedCoolingRate * getCoolingRateModifier());
+			return maxHeat / (coolingRate * getCoolingRateModifier());
 		}
 	}
 

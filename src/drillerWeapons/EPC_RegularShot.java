@@ -19,10 +19,6 @@ import utilities.MathUtils;
 
 /*
 	Extracted via UUU:
-		Heat per regular shot: 0.13   (TCF .104)
-		Heat per charged shot: 1    (TCF 0.25?????) 	
-		2 Heat/Sec while charged
-		Cooling Rate 0.4
 		Charge Speed 0.7
 */
 
@@ -39,8 +35,7 @@ public class EPC_RegularShot extends Weapon {
 	private int batterySize;
 	private double rateOfFire;
 	private double maxHeat;
-	private double regularCoolingRate;
-	private double overheatedCoolingRate;
+	private double coolingRate;
 	private int ammoPerChargedShot;
 	private double chargeShotWindup;
 	private double heatPerRegularShot;
@@ -96,14 +91,13 @@ public class EPC_RegularShot extends Weapon {
 		chargedAreaDamage = 60;
 		chargedAoERadius = 2.0;
 		batterySize = 120;
-		rateOfFire = 7.0;
-		maxHeat = 8.0;
-		regularCoolingRate = 13.0 / 6.0;  // A lot of math, trial, and error went into finding this number.
-		overheatedCoolingRate = 3.2;  // Want this to work out to 2.5 sec overheat cooldown by default
+		rateOfFire = 8.0;
+		maxHeat = 1.0;
+		coolingRate = 0.4;
 		ammoPerChargedShot = 8;
 		chargeShotWindup = 1.5;  // seconds
-		heatPerRegularShot = 1.0;
-		heatPerSecondWhileCharged = maxHeat * 2.0;  // Want this to work out to 0.5 sec of heat buildup before overheating by default
+		heatPerRegularShot = 0.13;
+		heatPerSecondWhileCharged = 2.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -489,6 +483,7 @@ public class EPC_RegularShot extends Weapon {
 	private double getHeatPerChargedShot() {
 		// Unless they have Mod Tier 5 "Thin Containment Field" equipped, charged shots guarantee an overheat.
 		if (selectedTier5 == 1) {
+			// UUU indicates this is 0.25, but that seems wrong to me. I could believe 0.75...
 			return maxHeat * 0.8;
 		}
 		else {
@@ -522,7 +517,7 @@ public class EPC_RegularShot extends Weapon {
 		double k = getCoolingRateModifier();
 		double h = getHeatPerRegularShot();
 		
-		double exactAnswer = (maxHeat * rateOfFire) / (rateOfFire * h - k * regularCoolingRate);
+		double exactAnswer = (maxHeat * rateOfFire) / (rateOfFire * h - k * coolingRate);
 		
 		return (int) Math.ceil(exactAnswer);
 	}
@@ -530,7 +525,7 @@ public class EPC_RegularShot extends Weapon {
 		return maxHeat / getHeatPerSecondWhileCharged();
 	}
 	private double getCooldownDuration() {
-		return maxHeat / (overheatedCoolingRate * getCoolingRateModifier());
+		return maxHeat / (coolingRate * getCoolingRateModifier());
 	}
 
 	@Override
@@ -544,7 +539,7 @@ public class EPC_RegularShot extends Weapon {
 		toReturn[1] = new StatsRow("Projectile Velocity:", convertDoubleToPercentage(getRegularShotVelocity()), selectedTier2 == 1, selectedTier2 == 1);
 		
 		boolean heatPerShotModified = selectedTier5 == 1 || selectedOverclock == 2 || selectedOverclock == 3;
-		toReturn[2] = new StatsRow("Heat/Shot:", getHeatPerRegularShot(), heatPerShotModified, heatPerShotModified);
+		toReturn[2] = new StatsRow("Heat/Shot:", getHeatPerRegularShot(), heatPerShotModified);
 		
 		toReturn[3] = new StatsRow("Shots Fired Before Overheating:", getNumRegularShotsBeforeOverheat(), coolingRateModified || heatPerShotModified);
 		
