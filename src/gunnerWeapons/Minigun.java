@@ -20,10 +20,7 @@ import utilities.MathUtils;
 
 /*
 	Extracted via UUU:
-	Heat Damage per Burning Hell Tick: 5 ?!?! But it also lists Aggressive Venting's 75 Heat per burst as 5 Damage too?
 	Time between Burning Hell ticks: 0.25
-	Burning Hell Length/Radius: 150 (1.5m I think?)
-	Burning Hell distance: 300 (3m I think?)
 */
 
 public class Minigun extends Weapon {
@@ -125,7 +122,8 @@ public class Minigun extends Weapon {
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "A Little More Oomph!", "+1 Damage per Pellet, -0.2 spinup time", overclockIcons.directDamage, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Thinned Drum Walls", "+300 Max Ammo, +0.5 Cooling Rate", overclockIcons.coolingRate, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Burning Hell", "While firing, the Minigun deals 100 Heat per Second in a cone 6m in front of the muzzle. +50% heat accumulation in the "
+		// Burning Hell info comes straight from MikeGSG -- thanks Mike!
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Burning Hell", "While firing, the Minigun deals 20 Area Damage per second and 80 Heat per Second in a cone 5m in front of the muzzle. +50% heat accumulation in the "
 				+ "weapon's heat meter, which translates to 2/3 the firing period", overclockIcons.heatDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Compact Feed Mechanism", "+800 Max Ammo, -4 Rate of Fire", overclockIcons.carriedAmmo, 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Exhaust Vectoring", "+2 Damage per Pellet, x2.5 Base Spread", overclockIcons.directDamage, 4);
@@ -459,6 +457,11 @@ public class Minigun extends Weapon {
 		}
 	}
 	
+	private double variableChamberPressureMultiplier() {
+		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
+		double pelletsFiredWhileNotStabilized = bulletsFiredTilMaxStability / 2.0;
+		return (pelletsFiredWhileNotStabilized + 1.15*(numPelletsFiredBeforeOverheat - pelletsFiredWhileNotStabilized)) / numPelletsFiredBeforeOverheat;
+	}
 	private double calculateFiringPeriod() {
 		double heatPerSecond = getHeatPerSecond();
 		double RoF = getRateOfFire();
@@ -571,7 +574,7 @@ public class Minigun extends Weapon {
 	}
 	
 	private double calculateIgnitionTime(boolean accuracy) {
-		double burningHellHeatPerSec = 100;
+		double burningHellHeatPerSec = 80;
 		
 		double generalAccuracy;
 		if (accuracy) {
@@ -609,7 +612,7 @@ public class Minigun extends Weapon {
 		}
 		// Burning Hell only
 		else if (selectedTier5 != 2 && selectedOverclock == 2) {
-			// Burning Hell looks like it burns everything within 6m in a 20 degree arc in front of you at a rate of 100 heat/sec
+			// Burning Hell burns everything within 5m in a 20 degree arc in front of you at a rate of 80 heat/sec
 			// TODO: I would like for this to have its AoE damage reflected in max damage, like Aggressive Venting
 			return EnemyInformation.averageTimeToIgnite(burningHellHeatPerSec);
 		}
@@ -687,8 +690,7 @@ public class Minigun extends Weapon {
 			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
 		}
 		if (selectedTier4 == 0) {
-			double pelletsFiredWhileNotStabilized = bulletsFiredTilMaxStability / 2.0;
-			directDamage *= (pelletsFiredWhileNotStabilized + 1.15*(burstSize - pelletsFiredWhileNotStabilized)) / burstSize;
+			directDamage *= variableChamberPressureMultiplier();
 		}
 		
 		double weakpointAccuracy;
@@ -713,10 +715,15 @@ public class Minigun extends Weapon {
 			}
 		}
 		
+		double burningHellAreaDPS = 0;
+		if (selectedOverclock == 2) {
+			burningHellAreaDPS = 20;
+		}
+		
 		int pelletsThatHitWeakpoint = (int) Math.round(burstSize * weakpointAccuracy);
 		int pelletsThatHitTarget = (int) Math.round(burstSize * generalAccuracy) - pelletsThatHitWeakpoint;
 		
-		return (pelletsThatHitWeakpoint * directWeakpointDamage + pelletsThatHitTarget * directDamage) / longDuration + burnDPS;
+		return (pelletsThatHitWeakpoint * directWeakpointDamage + pelletsThatHitTarget * directDamage) / longDuration + burningHellAreaDPS + burnDPS;
 	}
 	
 	private double calculateDamagePerBurst(boolean weakpointBonus) {
@@ -729,8 +736,7 @@ public class Minigun extends Weapon {
 		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
 		double damageMultiplier = 1.0;
 		if (selectedTier4 == 0) {
-			double pelletsFiredWhileNotStabilized = bulletsFiredTilMaxStability / 2.0;
-			damageMultiplier = (pelletsFiredWhileNotStabilized + 1.15*(numPelletsFiredBeforeOverheat - pelletsFiredWhileNotStabilized)) / numPelletsFiredBeforeOverheat;
+			damageMultiplier = variableChamberPressureMultiplier();
 		}
 		
 		if (weakpointBonus) {
@@ -770,7 +776,8 @@ public class Minigun extends Weapon {
 			return idealSustained;
 		}
 		else if (selectedOverclock == 2) {
-			return DoTInformation.Burn_DPS;
+			// Burning Hell does 20 Area Damage per second in addition to lighting things on fire at a rate of 80 Heat/sec
+			return 20 + DoTInformation.Burn_DPS;
 		}
 		else if (selectedOverclock == 5) {
 			// Bullet Hell has a 50% chance to ricochet
@@ -787,6 +794,8 @@ public class Minigun extends Weapon {
 		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
 		double numberOfBursts = (double) getMaxAmmo() / (2.0 * numPelletsFiredBeforeOverheat);
 		double totalDamage = numberOfBursts * calculateDamagePerBurst(false) * numTargets;
+		
+		double burningHellAoEDamage = 0;
 		
 		double fireDoTTotalDamage = 0;
 		double heatGainPerSec = getHeatPerSecond();
@@ -811,10 +820,14 @@ public class Minigun extends Weapon {
 			timeBeforeFireProc = calculateIgnitionTime(false);
 			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
 			
-			// TODO: change numTargets to reflect the 6m 20* cone AoE igniting more than just the primary target and sometimes the blowthroughs
+			// TODO: change numTargets to reflect the 5m 20* cone AoE igniting more than just the primary target and sometimes the blowthroughs
 			estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
 			
 			fireDoTTotalDamage += fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
+			
+			// Additionally, model the 20 Area Damage per second dealt by Burning Hell
+			// Arbitrarily using 4 targets hit in the AoE in front of the muzzle, no real math behind it.
+			burningHellAoEDamage = numberOfBursts * defaultFiringPeriod * 20 * 4;
 		}
 		
 		// Aggressive Venting does one burst of 75 Heat Damage in a 3m radius around the Gunner
@@ -920,8 +933,12 @@ public class Minigun extends Weapon {
 	
 	@Override
 	public int breakpoints() {
+		double dmgPerPellet = getDamagePerPellet();
+		if (selectedTier4 == 0) {
+			dmgPerPellet *= variableChamberPressureMultiplier();
+		}
 		double[] directDamage = {
-			getDamagePerPellet(),  // Kinetic
+			dmgPerPellet,  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
@@ -937,8 +954,10 @@ public class Minigun extends Weapon {
 		
 		double burnDmg = 0;
 		// Because Hot Bullets takes almost 4 seconds to start working, I'm choosing to not model when Burning Hell and Hot Bullets are combined.
+		// I'm also choosing to model Burning Hell's 20 Area Damage per second as another Fire DoT
 		if (selectedOverclock == 2) {
 			burnDmg = calculateAverageDoTDamagePerEnemy(calculateIgnitionTime(false), EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			burnDmg += calculateAverageDoTDamagePerEnemy(0, EnemyInformation.averageBurnDuration(), 20);
 		}
 		else if (selectedTier5 == 2) {
 			// To model the fact that this won't start igniting enemies until 4 seconds of firing, I'm choosing to only use 1/4 of the Burn DoT damage

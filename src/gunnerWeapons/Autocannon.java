@@ -468,6 +468,12 @@ public class Autocannon extends Weapon {
 		}
 	}
 	
+	private double feedbackLoopMultiplier() {
+		double magSize = getMagazineSize();
+		double numBulletsRampup = getNumBulletsRampup();
+		return (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+	}
+	
 	@Override
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[15];
@@ -559,8 +565,7 @@ public class Autocannon extends Weapon {
 		}
 		
 		if (selectedTier5 == 0) {
-			double numBulletsRampup = (double) getNumBulletsRampup();
-			double feedbackLoopMultiplier = (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+			double feedbackLoopMultiplier = feedbackLoopMultiplier();
 			directDamage *= feedbackLoopMultiplier;
 			areaDamage *= feedbackLoopMultiplier;
 		}
@@ -613,8 +618,7 @@ public class Autocannon extends Weapon {
 		double magSize = (double) getMagazineSize();
 		double damageMultiplier = 1.0;
 		if (selectedTier5 == 0) {
-			double numBulletsRampup = (double) getNumBulletsRampup();
-			damageMultiplier = (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+			damageMultiplier = feedbackLoopMultiplier();
 		}
 		return damagePerBullet * magSize * damageMultiplier;
 	}
@@ -646,8 +650,7 @@ public class Autocannon extends Weapon {
 		double areaDamage = getAreaDamage();
 		
 		if (selectedTier5 == 0) {
-			double numBulletsRampup = (double) getNumBulletsRampup();
-			areaDamage *= (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+			areaDamage *= feedbackLoopMultiplier();
 		}
 		
 		double areaDamagePerMag = areaDamage * aoeEfficiency[1] * magSize;
@@ -724,8 +727,14 @@ public class Autocannon extends Weapon {
 	
 	@Override
 	public int breakpoints() {
+		double dmgMultiplier = 1.0;
+		
+		if (selectedTier5 == 0) {
+			dmgMultiplier = feedbackLoopMultiplier();
+		}
+		
 		double[] directDamage = {
-			getDirectDamage(),  // Kinetic
+			getDirectDamage() * dmgMultiplier,  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
@@ -733,7 +742,7 @@ public class Autocannon extends Weapon {
 		};
 		
 		double[] areaDamage = {
-			getAreaDamage(),  // Explosive
+			getAreaDamage() * dmgMultiplier,  // Explosive
 			0,  // Fire
 			0,  // Frost
 			0  // Electric
@@ -809,8 +818,7 @@ public class Autocannon extends Weapon {
 		double magSize = getMagazineSize();
 		double damageMultiplier = 1.0;
 		if (selectedTier5 == 0) {
-			double numBulletsRampup = (double) getNumBulletsRampup();
-			damageMultiplier = (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+			damageMultiplier = feedbackLoopMultiplier();
 		}
 		return damagePerBullet * magSize * damageMultiplier;
 	}
