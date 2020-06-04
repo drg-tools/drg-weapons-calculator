@@ -806,7 +806,7 @@ public class Minigun extends Weapon {
 		// Because of how Hot Bullets' ignition time is calculated, it returns (4 + the ignition time). As a result, it would end up subtracting from the total damage.
 		if (selectedTier5 == 2 && selectedOverclock != 2) {
 			timeBeforeFireProc = calculateIgnitionTime(false) - timeBeforeHotBullets;
-			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 			
 			// Because Hot Bullets only starts igniting enemies after 4 seconds, reduce this damage by the uptime coefficient.
 			fireDoTDamagePerEnemy *= (timeAfterHotBullets / defaultFiringPeriod);
@@ -818,7 +818,7 @@ public class Minigun extends Weapon {
 		// Burning Hell, on the other hand, works great with this. Even with Hot Bullets stacked on top of it, it doesn't do negative damage.
 		else if (selectedOverclock == 2) {
 			timeBeforeFireProc = calculateIgnitionTime(false);
-			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 			
 			// TODO: change numTargets to reflect the 5m 20* cone AoE igniting more than just the primary target and sometimes the blowthroughs
 			estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
@@ -837,7 +837,7 @@ public class Minigun extends Weapon {
 			double percentageOfEnemiesIgnitedByAV = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(75);
 			double numGlyphidsHitByHeatBurst = 20;  // this.calculateNumGlyphidsInRadius(3);
 			int numTimesAVcanTrigger = (int) Math.floor(numberOfBursts);
-			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 			
 			fireDoTTotalDamage += numTimesAVcanTrigger * (percentageOfEnemiesIgnitedByAV * numGlyphidsHitByHeatBurst) * fireDoTDamagePerEnemy;
 		}
@@ -956,13 +956,13 @@ public class Minigun extends Weapon {
 		// Because Hot Bullets takes almost 4 seconds to start working, I'm choosing to not model when Burning Hell and Hot Bullets are combined.
 		// I'm also choosing to model Burning Hell's 20 Area Damage per second as another Fire DoT
 		if (selectedOverclock == 2) {
-			burnDmg = calculateAverageDoTDamagePerEnemy(calculateIgnitionTime(false), EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
-			burnDmg += calculateAverageDoTDamagePerEnemy(0, EnemyInformation.averageBurnDuration(), 20);
+			burnDmg = calculateAverageDoTDamagePerEnemy(calculateIgnitionTime(false), DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
+			burnDmg += calculateAverageDoTDamagePerEnemy(0, DoTInformation.Burn_SecsDuration, 20);
 		}
 		else if (selectedTier5 == 2) {
 			// To model the fact that this won't start igniting enemies until 4 seconds of firing, I'm choosing to only use 1/4 of the Burn DoT damage
 			// This is not in any way an accurate representation, since every enemy except Bulks, Breeders, and Nexuses would die before they started Burning.
-			burnDmg = 0.25 * calculateAverageDoTDamagePerEnemy(calculateIgnitionTime(false) - 4, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			burnDmg = 0.25 * calculateAverageDoTDamagePerEnemy(calculateIgnitionTime(false) - 4, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 		}
 		
 		double[] DoTDamage = {

@@ -650,13 +650,13 @@ public class Boomstick extends Weapon {
 			double fireDoTDamagePerEnemy;
 			if (getMagazineSize() > 1) {
 				double timeBeforeIgnite = calculateTimeToIgnite(false);
-				fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+				fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 				
 				fireDoTTotalDamage = fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 			}
 			else {
 				double percentageOfEnemiesIgnitedPerShot = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(0.5 * directDamagePerShot);
-				fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+				fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 				
 				fireDoTTotalDamage += numShots * (percentageOfEnemiesIgnitedPerShot * numTargets) * fireDoTDamagePerEnemy;
 			}

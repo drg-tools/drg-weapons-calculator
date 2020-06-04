@@ -651,7 +651,7 @@ public class EPC_RegularShot extends Weapon {
 			double estimatedNumEnemiesKilled = calculateFiringDuration() / averageTimeToKill();
 			double heatDamagePerShot = 0.5 * getDirectDamage();
 			double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatDamagePerShot, rateOfFire);
-			double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 			
 			fireDoTTotalDamage = fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		}
@@ -705,7 +705,7 @@ public class EPC_RegularShot extends Weapon {
 		
 		double burnDmg = 0;
 		if (selectedTier5 == 2) {
-			burnDmg = calculateAverageDoTDamagePerEnemy(EnemyInformation.averageTimeToIgnite(0.5 * getDirectDamage(), rateOfFire), EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			burnDmg = calculateAverageDoTDamagePerEnemy(EnemyInformation.averageTimeToIgnite(0.5 * getDirectDamage(), rateOfFire), DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 		}
 		double[] DoTDamage = {
 			burnDmg,  // Fire
@@ -732,7 +732,7 @@ public class EPC_RegularShot extends Weapon {
 		if (selectedTier5 == 2) {
 			double heatDamagePerShot = 0.5 * getDirectDamage();
 			double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatDamagePerShot, rateOfFire);
-			fireDoTDamage = calculateAverageDoTDamagePerEnemy(timeToIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			fireDoTDamage = calculateAverageDoTDamagePerEnemy(timeToIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 		}
 		return baseDamage + fireDoTDamage;
 	}

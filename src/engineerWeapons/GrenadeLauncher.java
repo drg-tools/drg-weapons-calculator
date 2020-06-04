@@ -563,7 +563,7 @@ public class GrenadeLauncher extends Weapon {
 			// Technically this is an over-estimation, since the Grenade Launcher can only ignite 74-94% of enemies. However, I'm choosing to artificially increase the 
 			// damage dealt by Incendiary Compound to reflect how it would be used as "trash clear" instead of "large enemy killer".
 			// I'm also choosing to model this as if the player lets the enemies burn for the full duration, instead of continuing to fire grenades until they die.
-			double burnDoTDamagePerEnemy = EnemyInformation.averageBurnDuration() * DoTInformation.Burn_DPS;
+			double burnDoTDamagePerEnemy = DoTInformation.Burn_SecsDuration * DoTInformation.Burn_DPS;
 			
 			// I'm choosing to model this as if the player lets the enemies burn for the full duration, instead of continuing to fire grenades until they die.
 			burnDoTTotalDamage = numShots * aoeEfficiency[2] * burnDoTDamagePerEnemy;
@@ -689,7 +689,7 @@ public class GrenadeLauncher extends Weapon {
 		double burnDoTDamagePerEnemy = 0;
 		if (selectedTier3 == 0) {
 			// Again, this is an intentional overestimation.
-			burnDoTDamagePerEnemy = EnemyInformation.averageBurnDuration() * DoTInformation.Burn_DPS;
+			burnDoTDamagePerEnemy = DoTInformation.Burn_SecsDuration * DoTInformation.Burn_DPS;
 		}
 		
 		double radiationDoTDamagePerEnemy = 0;
