@@ -362,6 +362,9 @@ public class WeaponStatsGenerator {
 		
 		// Grab the current combination for the weapon to restore after this is done
 		String currentCombination = weaponToTest.getCombination();
+		int dwarfClassID = weaponToTest.getDwarfClassID();
+		int weaponID = weaponToTest.getWeaponID();
+		String simpleName = weaponToTest.getSimpleName();
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
@@ -383,7 +386,7 @@ public class WeaponStatsGenerator {
 								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
 								toReturn.add(String.format("INSERT INTO `%s` VALUES(NULL, %d, %d, '%s', '%s', %f, %f, %f, %f, %f, %d, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %f);\n", 
-										DatabaseConstants.statsTableName, weaponToTest.getDwarfClassID(), weaponToTest.getWeaponID(), weaponToTest.getSimpleName(), weaponToTest.getCombination(),
+										DatabaseConstants.statsTableName, dwarfClassID, weaponID, simpleName, weaponToTest.getCombination(),
 										weaponToTest.calculateIdealBurstDPS(), weaponToTest.calculateIdealSustainedDPS(), weaponToTest.sustainedWeakpointDPS(), weaponToTest.sustainedWeakpointAccuracyDPS(), weaponToTest.calculateAdditionalTargetDPS(), 
 										weaponToTest.calculateMaxNumTargets(), weaponToTest.calculateMaxMultiTargetDamage(), weaponToTest.ammoEfficiency(), weaponToTest.estimatedAccuracy(false), weaponToTest.estimatedAccuracy(true),
 										weaponToTest.calculateFiringDuration(), weaponToTest.averageOverkill(), weaponToTest.averageTimeToKill(), weaponToTest.breakpoints(), weaponToTest.utilityScore(),

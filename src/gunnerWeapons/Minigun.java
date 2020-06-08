@@ -115,7 +115,7 @@ public class Minigun extends Weapon {
 		tier4[2] = new Mod("Magnetic Bearings", "+3 seconds spindown time", modIcons.special, 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Aggressive Venting", "After overheating, deal 75 Heat Damage and 100% chance to apply Fear to all enemies within a 3m radius", modIcons.addedExplosion, 5, 0);
+		tier5[0] = new Mod("Aggressive Venting", "After overheating, deal 60 Heat Damage and 100% chance to apply Fear to all enemies within a 10m radius", modIcons.addedExplosion, 5, 0);
 		tier5[1] = new Mod("Cold As The Grave", "Every kill subtracts 0.8 Heat from the Heat Meter (max of 9.5 Heat) and thus increases the firing duration before overheating", modIcons.coolingRate, 5, 1);
 		tier5[2] = new Mod("Hot Bullets", "After the Heat Meter turns red, 50% of the Damage per Pellet gets added as Heat Damage", modIcons.heatDamage, 5, 2);
 		
@@ -830,12 +830,13 @@ public class Minigun extends Weapon {
 			burningHellAoEDamage = numberOfBursts * defaultFiringPeriod * 20 * 4;
 		}
 		
-		// Aggressive Venting does one burst of 75 Heat Damage in a 3m radius around the Gunner
+		// According to MikeGSG, AV does 60 Heat Damage in a 6m radius that falls off to 15 Heat Damage at 10m. It also inflicts 10 Fear on all enemies within that 10m radius.
 		if (selectedTier5 == 0) {
 			// I'm choosing to model Aggressive Venting as Fire DoT max damage without affecting DPS stats, since the 10 sec cooldown penalty would TANK all of those stats.
-			// Additionally, I'm choosing to not combine its burst of 75 Heat Damage with the Heat/sec dealt by Hot Bullets or Burning Hell. It gets its own section, all to itself.
-			double percentageOfEnemiesIgnitedByAV = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(75);
-			double numGlyphidsHitByHeatBurst = 20;  // this.calculateNumGlyphidsInRadius(3);
+			// Additionally, I'm choosing to not combine its burst of 60 Heat Damage with the Heat/sec dealt by Hot Bullets or Burning Hell. It gets its own section, all to itself.
+			double[] aggressiveVentingAoeEfficiency = calculateAverageAreaDamage(10, 6, 15.0/60.0);
+			double percentageOfEnemiesIgnitedByAV = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(60 * aggressiveVentingAoeEfficiency[1]);
+			double numGlyphidsHitByHeatBurst = aggressiveVentingAoeEfficiency[2];
 			int numTimesAVcanTrigger = (int) Math.floor(numberOfBursts);
 			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 			
@@ -984,9 +985,12 @@ public class Minigun extends Weapon {
 		// Light Armor Breaking probability
 		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDamagePerPellet(), getArmorBreaking()) * UtilityInformation.ArmorBreak_Utility;
 		
-		// Mod Tier 5 "Aggressive Venting" induces Fear in a 3m radius (while also dealing 75 Heat Damage)
+		// Mod Tier 5 "Aggressive Venting" induces Fear in a 10m radius (while also dealing 60 Heat Damage)
 		if (selectedTier5 == 0) {
-			int numGlyphidsFeared = 20;  // this.calculateNumGlyphidsInRadius(3);
+			// This returns 135 Grunts with radus 10, so I'm choosing to reduce the number by the AoE Efficiency (about 76%) which brings the number feared down to 103.
+			// That still might be too high?
+			double[] aggressiveVentingAoeEfficiency = calculateAverageAreaDamage(10, 6, 0.25);
+			int numGlyphidsFeared = (int) Math.round(aggressiveVentingAoeEfficiency[1] * aggressiveVentingAoeEfficiency[2]);
 			utilityScores[4] = numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
 		}
 		else {

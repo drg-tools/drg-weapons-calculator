@@ -772,11 +772,20 @@ public class Autocannon extends Weapon {
 			
 			int numBulletsRampup = getNumBulletsRampup();
 			int magSize = getMagazineSize();
+			double minRoF = getMinRateOfFire();
 			double maxRoF = getMaxRateOfFire();
-			double timeRampingUp = numBulletsRampup / Math.log(maxRoF / getMinRateOfFire()) / getIncreaseScalingRate(); 
-			double timeAtMaxRoF = (magSize - numBulletsRampup) / maxRoF;
 			
-			double fullRoFUptime = timeAtMaxRoF / (timeRampingUp + timeAtMaxRoF);
+			double fullRoFUptime;
+			// Special case: when Min RoF == Max RoF the timeRampingUp is zero due to numBulletsRampup == 0.
+			if (minRoF == maxRoF) {
+				fullRoFUptime = 1;
+			}
+			else {
+				double timeRampingUp = numBulletsRampup / Math.log(maxRoF / getMinRateOfFire()) / getIncreaseScalingRate(); 
+				double timeAtMaxRoF = (magSize - numBulletsRampup) / maxRoF;
+				
+				fullRoFUptime = timeAtMaxRoF / (timeRampingUp + timeAtMaxRoF);
+			}
 			
 			utilityScores[1] = fullRoFUptime * EHPmultiplier * UtilityInformation.DamageResist_Utility;
 		}
