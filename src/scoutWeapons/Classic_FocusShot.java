@@ -111,7 +111,7 @@ public class Classic_FocusShot extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Hitting Where it Hurts", "Focused shots Stun enemies for 3 seconds", modIcons.stun, 5, 0);
-		tier5[1] = new Mod("Precision Terror", "Killing an enemy with a focused shot to a weakspot will inflict Fear on enemies within 2m of the kill", modIcons.fear, 5, 1);
+		tier5[1] = new Mod("Precision Terror", "Killing an enemy with a focused shot to a weakspot will inflict Fear on enemies within 3.5m of the kill", modIcons.fear, 5, 1);
 		tier5[2] = new Mod("Killing Machine", "Manually reloading within 1 second after a kill reduces reload time by 0.75 seconds", modIcons.reloadSpeed, 5, 2);
 		
 		overclocks = new Overclock[6];
@@ -120,7 +120,7 @@ public class Classic_FocusShot extends Weapon {
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Active Stability System", "No movement penalty while Focusing, -25% Focused Shot Multiplier", overclockIcons.movespeed, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Hipster", "+3 Rate of Fire, x1.75 Max Ammo, x0.85 Spread per Shot, +75% Spread Recovery Speed, x0.5 Recoil, x0.6 Direct Damage", overclockIcons.baseSpread, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Electrocuting Focus Shots", "Focused Shots apply an Electrocute DoT which does "
-				+ "an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per Second, -25% Focused Shot Multiplier", overclockIcons.electricity, 4);
+				+ "an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per Second for 4 seconds, -25% Focused Shot Multiplier", overclockIcons.electricity, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Supercooling Chamber", "+125% Focused Shot Multiplier, x0.635 Max Ammo, x0.5 Focus Speed, no movement while focusing", overclockIcons.directDamage, 5);
 	}
 	
@@ -583,7 +583,8 @@ public class Classic_FocusShot extends Weapon {
 		
 		double electrocuteDoTTotalDamage = 0;
 		if (selectedOverclock == 4) {
-			double electrocuteDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Electro_SecsDuration, DoTInformation.Electro_DPS);
+			// OC "Electrocuting Focus Shots" has an increased duration of 4 seconds
+			double electrocuteDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, 4, DoTInformation.Electro_DPS);
 			
 			double estimatedNumEnemiesKilled = calculateMaxNumTargets() * (calculateFiringDuration() / averageTimeToKill());
 			
@@ -637,7 +638,8 @@ public class Classic_FocusShot extends Weapon {
 		
 		double electroDmg = 0;
 		if (selectedOverclock == 4) {
-			electroDmg = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Electro_SecsDuration, DoTInformation.Electro_DPS);
+			// OC "Electrocuting Focus Shots" has an increased duration of 4 seconds
+			electroDmg = calculateAverageDoTDamagePerEnemy(0, 4, DoTInformation.Electro_DPS);
 		}
 		double[] DoTDamage = {
 			0,  // Fire
@@ -667,16 +669,17 @@ public class Classic_FocusShot extends Weapon {
 		
 		// OC "Electrocuting Focus Shots" = 100% chance to electrocute on focused shots
 		if (selectedOverclock == 4) {
-			utilityScores[3] = calculateMaxNumTargets() * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+			// OC "Electrocuting Focus Shots" has an increased duration of 4 seconds
+			utilityScores[3] = calculateMaxNumTargets() * 4 * UtilityInformation.Electrocute_Slow_Utility;
 		}
 		else {
 			utilityScores[3] = 0;
 		}
 		
-		// Mod Tier 5 "Precision Terror" = 100% chance to Fear in 2m AoE
+		// According to MikeGSG, Mod Tier 5 "Precision Terror" does 1 Fear in a 3.5m radius
 		if (selectedTier5 == 1) {
 			double uptimeCoefficient = Math.min(UtilityInformation.Fear_Duration / averageTimeToKill(), 1);
-			int numGlyphidsFeared = 12;  // calculateNumGlyphidsInRadius(2);
+			int numGlyphidsFeared = 22;  // calculateNumGlyphidsInRadius(3.5);
 			utilityScores[4] = uptimeCoefficient * numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
 		}
 		else {
@@ -700,8 +703,8 @@ public class Classic_FocusShot extends Weapon {
 		
 		double electrocuteDamage = 0;
 		if (selectedOverclock == 4) {
-			// OC "Electrocuting Focus Shots" has 100% chance to proc
-			electrocuteDamage = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Electro_SecsDuration, DoTInformation.Electro_DPS);
+			// OC "Electrocuting Focus Shots" has 100% chance to proc and an increased duration of 4 seconds
+			electrocuteDamage = calculateAverageDoTDamagePerEnemy(0, 4, DoTInformation.Electro_DPS);
 		}
 		
 		return (bulletDamage + electrocuteDamage) * calculateMaxNumTargets();

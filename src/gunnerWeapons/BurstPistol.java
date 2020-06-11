@@ -108,8 +108,8 @@ public class BurstPistol extends Weapon {
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Mags", "+84 Max Ammo, -1 Rate of Fire, +0.4 Reload Time", overclockIcons.carriedAmmo, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Experimental Rounds", "+9 Direct Damage, -6 Magazine Size, -36 Max Ammo", overclockIcons.directDamage, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Electro Minelets", "Any bullets that impact terrain get converted to Electro Minelets. After 1 second of arming time, "
-				+ "they inflict an Electrocute DoT to any enemies that pass within 1.5m of them. The Electrocute DoTs deal an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) 
-				+ " Electric Damage per Second. -3 Direct Damage, -6 Magazine Size.", overclockIcons.electricity, 4);
+				+ "they inflict an Electrocute DoT to any enemies that pass within 1.5m of them. The Electrocute DoTs deal an average of " + MathUtils.round(DoTInformation.Electro_TicksPerSec * 2, GuiConstants.numDecimalPlaces) 
+				+ " Electric Damage per Second for 2 seconds. -3 Direct Damage, -6 Magazine Size.", overclockIcons.electricity, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Micro Fletchettes", "+30 Magazine Size, +120 Max Ammo, x0.5 Spread per Shot, x0.5 Recoil, x0.5 Damage per bullet", overclockIcons.miniShells, 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Spray", "x1.5 Direct Damage, x4 Base Spread", overclockIcons.miniShells, 6);
 	}
@@ -589,11 +589,12 @@ public class BurstPistol extends Weapon {
 		if (selectedOverclock == 4) {
 			if (burst) {
 				// Because the Electro Minelets don't arm for 1 second, the Burst DPS needs to be reduced by an uptime coefficient
+				// Additionally, they only do 2 dmg per tick for 2 secs
 				double electroMinesUptimeCoefficient = (duration - 1) / duration;
-				electroDPS = electroMinesUptimeCoefficient * DoTInformation.Electro_DPS;
+				electroDPS = electroMinesUptimeCoefficient * DoTInformation.Electro_TicksPerSec * 2;
 			}
 			else {
-				electroDPS = DoTInformation.Electro_DPS;
+				electroDPS = DoTInformation.Electro_TicksPerSec * 2;
 			}
 		}
 		
@@ -628,7 +629,8 @@ public class BurstPistol extends Weapon {
 	public double calculateAdditionalTargetDPS() {
 		double electroDPS = 0;
 		if (selectedOverclock == 4) {
-			electroDPS = DoTInformation.Electro_DPS;
+			// OC "Electro Minelets" only does 2 dmg/tick for 2 secs
+			electroDPS = DoTInformation.Electro_TicksPerSec * 2;
 		}
 		
 		double blowthroughDPS = 0;
@@ -647,8 +649,8 @@ public class BurstPistol extends Weapon {
 		if (selectedOverclock == 4) {
 			double accuracy = estimatedAccuracy(false) / 100.0;
 			int numBulletsThatMiss = (int) Math.ceil((1 - accuracy) * (getCarriedAmmo() + getMagazineSize()));
-			// The DoT applied by Electro Minelets only has 50% duration in comparison to other mods/OCs.
-			totalDamage += numBulletsThatMiss * DoTInformation.Electro_DPS * (0.5 * DoTInformation.Electro_SecsDuration);
+			// OC "Electro Minelets" only does 2 dmg/tick for 2 secs
+			totalDamage += numBulletsThatMiss * DoTInformation.Electro_TicksPerSec * 2 * 2;
 		}
 		
 		return totalDamage;
@@ -716,7 +718,8 @@ public class BurstPistol extends Weapon {
 		
 		double electroDmg = 0;
 		if (selectedOverclock == 4) {
-			electroDmg = calculateAverageDoTDamagePerEnemy(0, 0.5 * DoTInformation.Electro_SecsDuration, DoTInformation.Electro_DPS);
+			// OC "Electro Minelets" only does 2 dmg/tick for 2 secs
+			electroDmg = calculateAverageDoTDamagePerEnemy(0, 2, DoTInformation.Electro_TicksPerSec * 2);
 		}
 		double[] DoTDamage = {
 			0,  // Fire
@@ -736,10 +739,10 @@ public class BurstPistol extends Weapon {
 		
 		// OC "Electro Minelets" = 100% Electrocute Chance, but only on bullets that miss... maybe (1.0 - Accuracy)?
 		if (selectedOverclock == 4) {
-			// Electro Minelets arm in 1 second, detonate on any enemies that come within ~1.5m, and then explode after 3 seconds. 100% chance to apply Electrocute for 50% duration.
+			// Electro Minelets arm in 1 second, detonate on any enemies that come within ~1.5m, and then explode after 3 seconds. 100% chance to apply Electrocute for 2 sec.
 			double probabilityBulletsMiss = 1.0 - estimatedAccuracy(false) / 100.0;
 			int numGlyphidsInMineletRadius = 8;  // calculateNumGlyphidsInRadius(1.5);
-			utilityScores[3] = probabilityBulletsMiss * numGlyphidsInMineletRadius * (0.5 * DoTInformation.Electro_SecsDuration) * UtilityInformation.Electrocute_Slow_Utility;
+			utilityScores[3] = probabilityBulletsMiss * numGlyphidsInMineletRadius * 2 * UtilityInformation.Electrocute_Slow_Utility;
 		}
 		else {
 			utilityScores[3] = 0;

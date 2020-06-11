@@ -37,7 +37,7 @@ public class DoTInformation {
 	*/
 	public static double Electro_DmgPerTick = 3;
 	public static double Electro_TicksPerSec = 4;
-	public static double Electro_SecsDuration = 4;
+	public static double Electro_SecsDuration = 3;
 	public static double Electro_DPS = Electro_DmgPerTick * Electro_TicksPerSec;
 	
 	/*
@@ -84,8 +84,8 @@ public class DoTInformation {
 		its damage over time in an area, and after a couple of seconds it goes away
 		
 		Weapons that can apply this DoT:
-			Driller - EPC (Overclock, Persistent Plasma, 6 sec duration)
-			Engineer - Breach Cutter (Tier 5 Mod, Persistent Plasma, ???)
+			Driller - EPC (Overclock, Persistent Plasma, 7 + 0.6 sec duration)
+			Engineer - Breach Cutter (Tier 5 Mod, Persistent Plasma, 4 + 0.6 sec duration)
 	*/
 	public static double Plasma_DmgPerTick = 5;
 	public static double Plasma_TicksPerSec = 2 / (0.25 + 0.5);

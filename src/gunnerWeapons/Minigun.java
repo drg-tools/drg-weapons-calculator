@@ -41,6 +41,7 @@ public class Minigun extends Weapon {
 	private int spindownTime;
 	private double movespeedWhileFiring;
 	private int bulletsFiredTilMaxStability;
+	private double secondsBeforeHotBullets;
 	private int cooldownAfterOverheat;
 	
 	/****************************************************************************************
@@ -76,6 +77,7 @@ public class Minigun extends Weapon {
 		spindownTime = 3;  // seconds for the barrels to stop spinning -- does not affect the stability
 		movespeedWhileFiring = 0.5;
 		bulletsFiredTilMaxStability = 40;  // equals 20 pellets
+		secondsBeforeHotBullets = 3.17805;  // See explanation in calculateIgnitionTime() 
 		cooldownAfterOverheat = 10;
 		
 		initializeModsAndOverclocks();
@@ -595,12 +597,14 @@ public class Minigun extends Weapon {
 			to [0, 100]. It doesn't use a proper equation, but I found a polynomial approximation:
 			
 				17x - 0.256x^2 - 0.0449x^3
-				
-			Additionally, the Heat Meter turns red when the output of that function is >= 60. Using WolframAlpha to solve for what Heat Value: 3.91988 Heat
+			
+			Additionally, according to UUU, Hot Bullets activates when the output value of the Heat Meter is > 50. Using WolframAlpha to solve for what Heat Value: 3.17805 Heat
+				GetAll GatlingGun HotShellsTemperatureRequired
+				GetAll GatlingHotShellsBonusUpgrade TemperatureRequired
 			
 			Unless Burning Hell is equipped, that's functionally the time before bullets have Heat Damage added to them.
 		*/
-		double timeBeforeHotBullets = 3.91988;
+		double timeBeforeHotBullets = secondsBeforeHotBullets;
 		
 		// Hot Bullets only
 		if (selectedTier5 == 2 && selectedOverclock != 2) {
@@ -795,11 +799,12 @@ public class Minigun extends Weapon {
 		double numberOfBursts = (double) getMaxAmmo() / (2.0 * numPelletsFiredBeforeOverheat);
 		double totalDamage = numberOfBursts * calculateDamagePerBurst(false) * numTargets;
 		
+		// TODO
 		double burningHellAoEDamage = 0;
 		
 		double fireDoTTotalDamage = 0;
 		double heatGainPerSec = getHeatPerSecond();
-		double timeBeforeHotBullets = 3.91988 / heatGainPerSec;
+		double timeBeforeHotBullets = secondsBeforeHotBullets / heatGainPerSec;
 		double defaultFiringPeriod = maxHeat / heatGainPerSec;
 		double timeAfterHotBullets = defaultFiringPeriod - timeBeforeHotBullets;
 		double timeBeforeFireProc, fireDoTDamagePerEnemy, estimatedNumEnemiesKilled;

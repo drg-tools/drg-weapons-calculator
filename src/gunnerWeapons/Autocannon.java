@@ -105,7 +105,7 @@ public class Autocannon extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Feedback Loop", "x1.2 Direct and Area Damage when at Max Rate of Fire", modIcons.directDamage, 5, 0);
-		tier5[1] = new Mod("Suppressive Fire", "Around 20% chance to inflict Fear to enemies within the AoE Radius on impact.", modIcons.fear, 5, 1);
+		tier5[1] = new Mod("Suppressive Fire", "50% chance to inflict Fear to enemies within a 1m radius on impact.", modIcons.fear, 5, 1);
 		tier5[2] = new Mod("Damage Resistance At Full RoF", "33% Damage Resistance when at Max Rate of Fire", modIcons.damageResistance, 5, 2);
 		
 		overclocks = new Overclock[6];
@@ -810,9 +810,10 @@ public class Autocannon extends Weapon {
 			utilityScores[3] = 0;
 		}
 		
-		// Mod Tier 5 "Suppressive Fire" induces Fear (20-50% chance maybe?)
+		// According to MikeGSG, Mod Tier 5 "Suppressive Fire" does 0.5 Fear in a 1m radius
 		if (selectedTier5 == 1) {
-			utilityScores[4] = 0.2 * calculateMaxNumTargets() * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			int numGlyphidsFeared = 5;  // calculateNumGlyphidsInRadius(1.0);
+			utilityScores[4] = 0.5 * numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;
