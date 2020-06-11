@@ -19,10 +19,10 @@ import modelPieces.Weapon;
 import utilities.MathUtils;
 
 /*
-	Extracted via UUU:
-	Min Charge: 0.56
-	Charge speed: 1.25
-	
+	The way MikeGSG explained it to me, the M1000 waits 0.2 seconds before beginning a Focused Shot to prevent it from "jittering".
+	Once it starts charging, by default it only takes 0.8 seconds to fully charge, for what feels like a 1 second period to the user.
+	The 0.8 duration is what gets affected by Charge Speed, not the 0.2 sec delay. Additionally, the crosshair animation doesn't begin
+	until a minimum charge has been gained, so by the time the crosshair starts moving the Focus Shot has already been charging for a short time.
 */
 
 public class Classic_FocusShot extends Weapon {
@@ -69,8 +69,8 @@ public class Classic_FocusShot extends Weapon {
 		magazineSize = 8;
 		// rateOfFire = 4.0;
 		reloadTime = 2.5;
-		delayBeforeFocusing = 0.4;  // seconds
-		focusDuration = 0.6;  // seconds.
+		delayBeforeFocusing = 0.2;  // seconds
+		focusDuration = 0.8;  // seconds.
 		movespeedWhileFocusing = 0.3;
 		weakpointBonus = 0.1;
 		armorBreaking = 0.3;

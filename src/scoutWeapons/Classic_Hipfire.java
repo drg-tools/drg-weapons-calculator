@@ -63,8 +63,8 @@ public class Classic_Hipfire extends Weapon {
 		magazineSize = 8;
 		rateOfFire = 4.0;
 		reloadTime = 2.5;
-		delayBeforeFocusing = 0.4;  // seconds
-		focusDuration = 0.6;  // seconds
+		delayBeforeFocusing = 0.2;  // seconds
+		focusDuration = 0.8;  // seconds
 		movespeedWhileFocusing = 0.3;
 		weakpointBonus = 0.1;
 		armorBreaking = 0.3;
