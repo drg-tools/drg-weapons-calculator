@@ -105,8 +105,7 @@ public class GuiController implements ActionListener {
 		int returnVal = folderChooser.showOpenDialog(null);
 		
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File selectedFolder = folderChooser.getSelectedFile();
-			calculator.setCSVFolderPath(selectedFolder.getAbsolutePath());
+			calculator.changeOutputFolder(folderChooser.getSelectedFile());
 		}
 	}
 	
@@ -163,18 +162,8 @@ public class GuiController implements ActionListener {
 		}
 		
 		// Open the MySQL file once, then dump the accumulated ArrayList of lines all at once to minimize I/O time
-		try {
-			File sqlOut = new File(calculator.getCSVFolderPath(), "buildStatistics.sql");
-			// Set append=False so that it clears out the old file
-			FileWriter MySQLwriter = new FileWriter(sqlOut.getAbsolutePath(), false);
-			for (String line: mysqlCommands) {
-				MySQLwriter.append(line);
-			}
-			MySQLwriter.flush();
-			MySQLwriter.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		// Set append=False so that it clears out the old file
+		calculator.writeFile(mysqlCommands, DatabaseConstants.statsTableName + ".sql", false);
 	}
 
 	@Override
@@ -348,7 +337,7 @@ public class GuiController implements ActionListener {
 			chooseFolder();
 			String weaponClass = currentlySelectedWeapon.getDwarfClass();
 			String weaponName = currentlySelectedWeapon.getSimpleName();
-			File pngOut = new File(calculator.getCSVFolderPath(), weaponClass + "_" + weaponName + "_" + currentlySelectedWeapon.getCombination() +".png");
+			File pngOut = new File(calculator.getOutputFolder(), weaponClass + "_" + weaponName + "_" + currentlySelectedWeapon.getCombination() + ".png");
 			
 			// Sourced from https://stackoverflow.com/a/44019372
 			BufferedImage screenshot = gui.getScreenshot();
