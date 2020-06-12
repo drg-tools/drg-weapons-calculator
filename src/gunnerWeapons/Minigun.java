@@ -617,7 +617,6 @@ public class Minigun extends Weapon {
 		// Burning Hell only
 		else if (selectedTier5 != 2 && selectedOverclock == 2) {
 			// Burning Hell burns everything within 5m in a 20 degree arc in front of you at a rate of 80 heat/sec
-			// TODO: I would like for this to have its AoE damage reflected in max damage, like Aggressive Venting
 			return EnemyInformation.averageTimeToIgnite(burningHellHeatPerSec);
 		}
 		// Both Hot Bullets AND Burning Hell
@@ -799,7 +798,6 @@ public class Minigun extends Weapon {
 		double numberOfBursts = (double) getMaxAmmo() / (2.0 * numPelletsFiredBeforeOverheat);
 		double totalDamage = numberOfBursts * calculateDamagePerBurst(false) * numTargets;
 		
-		// TODO
 		double burningHellAoEDamage = 0;
 		
 		double fireDoTTotalDamage = 0;
@@ -808,7 +806,7 @@ public class Minigun extends Weapon {
 		double defaultFiringPeriod = maxHeat / heatGainPerSec;
 		double timeAfterHotBullets = defaultFiringPeriod - timeBeforeHotBullets;
 		double timeBeforeFireProc, fireDoTDamagePerEnemy, estimatedNumEnemiesKilled;
-		// Because of how Hot Bullets' ignition time is calculated, it returns (4 + the ignition time). As a result, it would end up subtracting from the total damage.
+		// Because of how Hot Bullets' ignition time is calculated, it returns (3.17 + the ignition time). As a result, it would end up subtracting from the total damage.
 		if (selectedTier5 == 2 && selectedOverclock != 2) {
 			timeBeforeFireProc = calculateIgnitionTime(false) - timeBeforeHotBullets;
 			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
@@ -825,14 +823,12 @@ public class Minigun extends Weapon {
 			timeBeforeFireProc = calculateIgnitionTime(false);
 			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 			
-			// TODO: change numTargets to reflect the 5m 20* cone AoE igniting more than just the primary target and sometimes the blowthroughs
-			estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
-			
-			fireDoTTotalDamage += fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
+			// Arbitrarily using 4 targets hit in the AoE in front of the muzzle, no real math behind it.
+			int numTargetsHitByBurningHellAoE = 4;
+			fireDoTTotalDamage += numberOfBursts * defaultFiringPeriod * fireDoTDamagePerEnemy * numTargetsHitByBurningHellAoE;
 			
 			// Additionally, model the 20 Area Damage per second dealt by Burning Hell
-			// Arbitrarily using 4 targets hit in the AoE in front of the muzzle, no real math behind it.
-			burningHellAoEDamage = numberOfBursts * defaultFiringPeriod * 20 * 4;
+			burningHellAoEDamage = numberOfBursts * defaultFiringPeriod * 20 * numTargetsHitByBurningHellAoE;
 		}
 		
 		// According to MikeGSG, AV does 60 Heat Damage in a 6m radius that falls off to 15 Heat Damage at 10m. It also inflicts 10 Fear on all enemies within that 10m radius.
@@ -848,7 +844,7 @@ public class Minigun extends Weapon {
 			fireDoTTotalDamage += numTimesAVcanTrigger * (percentageOfEnemiesIgnitedByAV * numGlyphidsHitByHeatBurst) * fireDoTDamagePerEnemy;
 		}
 		
-		return totalDamage + fireDoTTotalDamage;
+		return totalDamage + fireDoTTotalDamage + burningHellAoEDamage;
 	}
 
 	@Override
