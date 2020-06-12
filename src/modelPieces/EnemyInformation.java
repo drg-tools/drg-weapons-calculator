@@ -333,7 +333,14 @@ public class EnemyInformation {
 		return MathUtils.round(sum, 4);
 	}
 	
-	// Cold per shot should be a negative number to indicate that the enemy's temperature is being decreased
+	/*
+		From what Elythnwaen and I have been able to figure out, creatures with positive temperatures lose Heat constantly. 
+		However, when creatures have negative temperatures, they all have 1-2 second "WarmingCooldown" windows before they 
+		start gaining Heat. Most of these Freeze temperatures are achieved in less than 2 seconds, so I'm choosing to model 
+		this as if the Heat Gain rate has no effect on the average Freeze time.
+		
+		Cold per shot should be a negative number to indicate that the enemy's temperature is being decreased
+	*/
 	public static double averageTimeToFreeze(double coldPerShot, double RoF) {
 		// Early exit: if Cold/Shot > 300, then all enemies get frozen instantly since the largest Freeze Temp is 300.
 		if (coldPerShot <= -300) {
@@ -349,19 +356,17 @@ public class EnemyInformation {
 		
 		int numEnemyTypes = spawnRates.length;
 		double[] freezeTemps = new double[numEnemyTypes];
-		double[] heatGainRates = new double[numEnemyTypes];
 		
 		for (int i = 0; i < numEnemyTypes; i++) {
 			freezeTemps[i] = enemyTemperatures[i][3];
-			heatGainRates[i] = enemyTemperatures[i][5];
 		}
 		
 		double avgFreezeTemp = MathUtils.vectorDotProduct(spawnRates, freezeTemps);
-		double avgHeatGainRate = MathUtils.vectorDotProduct(spawnRates, heatGainRates);
 		
 		// Negative Freeze temps divided by negative cold per seconds results in a positive number of seconds
-		return avgFreezeTemp / (coldPerSecond + avgHeatGainRate);
+		return avgFreezeTemp / coldPerSecond;
 	}
+	// Because the creatures have had a negative temperature for longer than 2 seconds (due to being Frozen already) I'm keeping heatGainRate in the refreeze method
 	public static double averageTimeToRefreeze(double coldPerSecond) {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
