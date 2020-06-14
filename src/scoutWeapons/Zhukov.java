@@ -101,7 +101,7 @@ public class Zhukov extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.balanced, "Custom Casings", "+30 Mag Size, -1 Direct Damage", overclockIcons.magSize, 1);
 		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "Any bullets that impact terrain get converted to Cryo Minelets. After 1 second of arming time they will explode on any "
 				+ "enemies that get close, dealing 10 Cold Damage each. They automatically explode after 3 seconds. -1 Direct Damage, -10 Magazine Size", overclockIcons.coldDamage, 2);
-		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 10 Area Damage to the enemy "
+		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 10 Explosive Damage to the enemy "
 				+ "upon reloading. -3 Direct Damage, -75 Max Ammo.", overclockIcons.specialReload, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Gas Recycling", "+5 Direct Damage, but it can no longer gain bonus damage from hitting a Weakpoint. Additionally, x1.5 Base Spread "
 				+ "and -50% Movement Speed while firing.", overclockIcons.directDamage, 4);

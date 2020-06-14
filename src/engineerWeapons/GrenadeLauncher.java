@@ -105,7 +105,7 @@ public class GrenadeLauncher extends Weapon {
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Clean Sweep", "+10 Area Damage, +0.5m AoE Radius", overclockIcons.aoeRadius, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Pack Rat", "+2 Max Ammo", overclockIcons.carriedAmmo, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Rounds", "+4 Max Ammo, -10 Area Damage, -0.5m AoE Radius", overclockIcons.carriedAmmo, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "RJ250 Compound", "Jump and shoot the ground beneath you to Grenade Jump. Can also be used on allies who are jumping. -25 Area Damage. (~33% self-damage)", overclockIcons.grenadeJump, 3);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "RJ250 Compound", "Jump and shoot the ground beneath you to Grenade Jump. Can also be used on allies who are jumping. In exchange, -25 Area Damage.", overclockIcons.grenadeJump, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Fat Boy", "x4 Area Damage, +1m AoE Radius, x0.3 Max Ammo, x0.7 Projectile Velocity. Also leaves behind an 8m radius field that does "
 				+ "an average of " + MathUtils.round(DoTInformation.Rad_FB_DPS, GuiConstants.numDecimalPlaces) + " Radiation Damage per Second for 15 seconds.", overclockIcons.areaDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Hyper Propellant", "+250 Direct Damage, +350% Projectile Velocity, x0.3 AoE Radius", overclockIcons.projectileVelocity, 5);

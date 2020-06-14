@@ -97,11 +97,11 @@ public class Shotgun extends Weapon {
 		tier4[1] = new Mod("Bigger Pellets", "+1 Damage per Pellet", modIcons.directDamage, 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1m Radius. 3 second cooldown per turret.", modIcons.special, 5, 0, false);
+		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1m Radius. 10 Sentry ammo per shot, 3 second cooldown per Sentry.", modIcons.special, 5, 0, false);
 		tier5[1] = new Mod("Miner Adjustments", "Changes the Shotgun from semi-automatic to fully automatic, +0.5 Rate of Fire", modIcons.rateOfFire, 5, 1);
 		
 		overclocks = new Overclock[5];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Stunner", "Pellets now have a 10% chance to stun any time they damage an enemy, and any shots that hit a "
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Stunner", "Pellets can now stun an enemy on any body part instead of just weakpoints, and any shots that hit a "
 				+ "target that's already stunned deal x1.3 damage.", overclockIcons.stun, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Light-Weight Magazines", "+20 Max Ammo, -0.4 Reload Time", overclockIcons.carriedAmmo, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Magnetic Pellet Alignment", "x0.5 Base Spread, +30% Weakpoint Bonus, x0.75 Rate of Fire", overclockIcons.baseSpread, 2);

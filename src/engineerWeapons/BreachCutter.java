@@ -85,7 +85,7 @@ public class BreachCutter extends Weapon {
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Stronger Plasma Current", "+50 Beam DPS, +0.5 Projectile Lifetime", overclockIcons.directDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Return to Sender", "Holding down the trigger after line leaves the gun activates a remote connection with on the release of the trigger causes "
 				+ "the line to change direction and move back towards the gun. Additionally, -4 Max Ammo", overclockIcons.directDamage, 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "High Voltage Crossover", "100% chance to electrocute enemies, which deals 16 DPS for 4 seconds. In exchange, -2 Magazine Size.", overclockIcons.electricity, 4);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "High Voltage Crossover", "100% chance to electrocute enemies, which deals an average of 16.0 Electric Damage per Second for 4 seconds. In exchange, -2 Magazine Size.", overclockIcons.electricity, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Spinning Death", "Spinning Death, x2.5 Projectile Lifetime, x0.2 Beam DPS, x0.5 Max Ammo x0.25 Magazine Size", overclockIcons.directDamage, 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "Ignites most enemies immediately in exchange for -175 Beam DPS, -4 Max Ammo, and x0.25 Armor Breaking", overclockIcons.directDamage, 6);
 	}

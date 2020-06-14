@@ -98,7 +98,7 @@ public class SMG extends Weapon {
 		
 		tier4 = new Mod[2];
 		tier4[0] = new Mod("Hollow-Point Bullets", "+30% Weakpoint Bonus", modIcons.weakpointBonus, 4, 0);
-		tier4[1] = new Mod("Conductive Bullets", "+30% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 4, 1);
+		tier4[1] = new Mod("Conductive Bullets", "+30% Kinetic Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 4, 1);
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Magazine Capacity Tweak", "+20 Magazine Size", modIcons.magSize, 5, 0);
