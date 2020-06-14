@@ -28,7 +28,17 @@ public class Mod {
 		return name;
 	}
 	public String getText() {
-		return text;
+		return getText(false);
+	}
+	public String getText(boolean replaceApostrophes) {
+		if (replaceApostrophes) {
+			// For writing these mod descriptions into the database, I have to prepend all apostrophes with backslashes so that they don't mess up the INSERT statements.
+			// Have to use an escaped backslash so that the literal backslash character gets inserted, which escapes the apostrophe in the INSERTs. It's messy.
+			return text.replaceAll("'", "\\\\'");
+		}
+		else {
+			return text;
+		}
 	}
 	public modIcons getIcon() {
 		return icon;

@@ -27,6 +27,7 @@ import drillerWeapons.EPC_ChargeShot;
 import drillerWeapons.EPC_RegularShot;
 import drillerWeapons.Flamethrower;
 import drillerWeapons.Subata;
+import engineerWeapons.BreachCutter;
 import engineerWeapons.GrenadeLauncher;
 import engineerWeapons.SMG;
 import engineerWeapons.Shotgun;
@@ -196,6 +197,8 @@ public class GuiController implements ActionListener {
 		mysqlCommands.add("        REFERENCES guns(`id`)\n");
 		mysqlCommands.add(");\n\n");
 		
+		// Breach Cutter isn't fully fleshed out; I just have a skeleton written for mod/OC costs used in this method.
+		Weapon bc = new BreachCutter();
 		int i;
 		for (i = 0; i < drillerWeapons.length; i++) {
 			// Skip the EPC Charge Shot since it would have identical info as EPC Regular Shot
@@ -206,6 +209,7 @@ public class GuiController implements ActionListener {
 		for (i = 0; i < engineerWeapons.length; i++) {
 			mysqlCommands.addAll(engineerWeapons[i].exportModsToMySQL());
 		}
+		mysqlCommands.addAll(bc.exportModsToMySQL());
 		for (i = 0; i < gunnerWeapons.length; i++) {
 			// Skip Revolver Snipe since it would have identical info as Revolver Max RoF
 			if (i != 2) {
@@ -261,6 +265,7 @@ public class GuiController implements ActionListener {
 		for (i = 0; i < engineerWeapons.length; i++) {
 			mysqlCommands.addAll(engineerWeapons[i].exportOCsToMySQL());
 		}
+		mysqlCommands.addAll(bc.exportOCsToMySQL());
 		for (i = 0; i < gunnerWeapons.length; i++) {
 			// Skip Revolver Snipe since it would have identical info as Revolver Max RoF
 			if (i != 2) {
@@ -437,10 +442,16 @@ public class GuiController implements ActionListener {
 			}
 			gui.deactivateThinkingCursor();
 		}
-		else if (e == gui.getExportMySQL()) {
+		else if (e == gui.getExportMetricsMySQL()) {
 			chooseFolder();
 			gui.activateThinkingCursor();
 			createMetricsMysqlFile();
+			gui.deactivateThinkingCursor();
+		}
+		else if (e == gui.getExportCostsMySQL()) {
+			chooseFolder();
+			gui.activateThinkingCursor();
+			createModsOCsMysqlFiles();
 			gui.deactivateThinkingCursor();
 		}
 		
