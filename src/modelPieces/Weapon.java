@@ -705,4 +705,7 @@ public abstract class Weapon extends Observable {
 			calculateFiringDuration(), averageOverkill(), averageTimeToKill(), breakpoints(), utilityScore()
 		};
 	}
+	
+	public abstract ArrayList<String> exportModsToMySQL();
+	public abstract ArrayList<String> exportOCsToMySQL();
 }

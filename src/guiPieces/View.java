@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 
+import dataGenerator.DatabaseConstants;
 import modelPieces.Weapon;
 import utilities.ResourceLoader;
 
@@ -69,7 +70,7 @@ public class View extends JFrame implements Observer {
 		TCA = new ThinkingCursorAnimation(this);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("MeatShield's DRG DPS Calculator (DRG Update 31.0)");
+		setTitle("MeatShield's DRG DPS Calculator (DRG Update " + DatabaseConstants.patchNumber + ")");
 		setPreferredSize(new Dimension(1500, 950));
 		
 		// Add the icon

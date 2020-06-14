@@ -15,7 +15,7 @@ public class WeaponPictures {
 	public static BufferedImage shotgun = ResourceLoader.loadImage("images/weapons/GearGraphic_CombatShotgun.png");
 	public static BufferedImage SMG = ResourceLoader.loadImage("images/weapons/GearGraphic_SMG.png");
 	public static BufferedImage grenadeLauncher = ResourceLoader.loadImage("images/weapons/GearGraphic_GrenadeLauncher.png");
-	//public static BufferedImage breachCutter = ResourceLoader.loadImage("images/weapons/GearGraphic_LineCutter.png");
+	public static BufferedImage breachCutter = ResourceLoader.loadImage("images/weapons/GearGraphic_LineCutter.png");
 	
 	// Gunner
 	public static BufferedImage minigun = ResourceLoader.loadImage("images/weapons/GearGraphic_GatlingGun.png");

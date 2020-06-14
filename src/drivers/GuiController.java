@@ -109,7 +109,7 @@ public class GuiController implements ActionListener {
 		}
 	}
 	
-	private void createMysqlFile() {
+	private void createMetricsMysqlFile() {
 		ArrayList<String> mysqlCommands = new ArrayList<String>();
 		mysqlCommands.add(String.format("USE `%s`;\n\n", DatabaseConstants.databaseName));
 		mysqlCommands.add(String.format("DROP TABLE IF EXISTS `%s`;\n\n", DatabaseConstants.statsTableName));
@@ -164,6 +164,117 @@ public class GuiController implements ActionListener {
 		// Open the MySQL file once, then dump the accumulated ArrayList of lines all at once to minimize I/O time
 		// Set append=False so that it clears out the old file
 		calculator.writeFile(mysqlCommands, DatabaseConstants.statsTableName + ".sql", false);
+	}
+	
+	private void createModsOCsMysqlFiles() {
+		ArrayList<String> mysqlCommands = new ArrayList<String>();
+		mysqlCommands.add(String.format("USE `%s`;\n\n", DatabaseConstants.databaseName));
+		mysqlCommands.add(String.format("DROP TABLE IF EXISTS `%s`;\n\n", DatabaseConstants.modsTableName));
+		mysqlCommands.add(String.format("CREATE TABLE `%s` (\n", DatabaseConstants.modsTableName));
+		mysqlCommands.add("    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,\n");
+		mysqlCommands.add("    `character_id` BIGINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `gun_id` BIGINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `mod_tier` TINYINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `mod_index` VARCHAR(1) NOT NULL,\n");
+		mysqlCommands.add("    `mod_name` VARCHAR(50) NOT NULL,\n");
+		mysqlCommands.add("    `credits_cost` SMALLINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `magnite_cost` TINYINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `bismor_cost` TINYINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `umanite_cost` TINYINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `croppa_cost` TINYINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `enor_pearl_cost` TINYINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `jadiz_cost` TINYINT UNSIGNED NOT NULL,\n");
+		
+		mysqlCommands.add("    `text_description` VARCHAR(1000) NOT NULL,\n");
+		mysqlCommands.add("    `json_changes` VARCHAR(1000) NOT NULL,\n");
+		
+		mysqlCommands.add("    `patch_number_index` BIGINT UNSIGNED NOT NULL,\n\n");
+		mysqlCommands.add("    PRIMARY KEY (`id`),\n\n");
+		mysqlCommands.add("    FOREIGN KEY (`character_id`)\n");
+		mysqlCommands.add("        REFERENCES characters(`id`),\n\n");
+		mysqlCommands.add("    FOREIGN KEY (`gun_id`)\n");
+		mysqlCommands.add("        REFERENCES guns(`id`)\n");
+		mysqlCommands.add(");\n\n");
+		
+		int i;
+		for (i = 0; i < drillerWeapons.length; i++) {
+			// Skip the EPC Charge Shot since it would have identical info as EPC Regular Shot
+			if (i != 4) {
+				mysqlCommands.addAll(drillerWeapons[i].exportModsToMySQL());
+			}
+		}
+		for (i = 0; i < engineerWeapons.length; i++) {
+			mysqlCommands.addAll(engineerWeapons[i].exportModsToMySQL());
+		}
+		for (i = 0; i < gunnerWeapons.length; i++) {
+			// Skip Revolver Snipe since it would have identical info as Revolver Max RoF
+			if (i != 2) {
+				mysqlCommands.addAll(gunnerWeapons[i].exportModsToMySQL());
+			}
+		}
+		for (i = 0; i < scoutWeapons.length; i++) {
+			// Skip M1000 Hipfire since it would have identical info as M1000 Focused Shots
+			if (i != 1) {
+				mysqlCommands.addAll(scoutWeapons[i].exportModsToMySQL());
+			}
+		}
+		
+		// Open the MySQL file once, then dump the accumulated ArrayList of lines all at once to minimize I/O time
+		// Set append=False so that it clears out the old file
+		calculator.writeFile(mysqlCommands, DatabaseConstants.modsTableName + ".sql", false);
+		
+		mysqlCommands = new ArrayList<String>();
+		mysqlCommands.add(String.format("USE `%s`;\n\n", DatabaseConstants.databaseName));
+		mysqlCommands.add(String.format("DROP TABLE IF EXISTS `%s`;\n\n", DatabaseConstants.OCsTableName));
+		mysqlCommands.add(String.format("CREATE TABLE `%s` (\n", DatabaseConstants.OCsTableName));
+		mysqlCommands.add("    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,\n");
+		mysqlCommands.add("    `character_id` BIGINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `gun_id` BIGINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `overclock_type` VARCHAR(20) NOT NULL,\n");
+		mysqlCommands.add("    `overclock_index` TINYINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `overclock_name` VARCHAR(50) NOT NULL,\n");
+		mysqlCommands.add("    `credits_cost` SMALLINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `magnite_cost` TINYINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `bismor_cost` TINYINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `umanite_cost` TINYINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `croppa_cost` TINYINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `enor_pearl_cost` TINYINT UNSIGNED NOT NULL,\n");
+		mysqlCommands.add("    `jadiz_cost` TINYINT UNSIGNED NOT NULL,\n");
+		
+		mysqlCommands.add("    `text_description` VARCHAR(1000) NOT NULL,\n");
+		mysqlCommands.add("    `json_changes` VARCHAR(1000) NOT NULL,\n");
+		
+		mysqlCommands.add("    `patch_number_index` BIGINT UNSIGNED NOT NULL,\n\n");
+		mysqlCommands.add("    PRIMARY KEY (`id`),\n\n");
+		mysqlCommands.add("    FOREIGN KEY (`character_id`)\n");
+		mysqlCommands.add("        REFERENCES characters(`id`),\n\n");
+		mysqlCommands.add("    FOREIGN KEY (`gun_id`)\n");
+		mysqlCommands.add("        REFERENCES guns(`id`)\n");
+		mysqlCommands.add(");\n\n");
+		
+		for (i = 0; i < drillerWeapons.length; i++) {
+			// Skip the EPC Charge Shot since it would have identical info as EPC Regular Shot
+			if (i != 4) {
+				mysqlCommands.addAll(drillerWeapons[i].exportOCsToMySQL());
+			}
+		}
+		for (i = 0; i < engineerWeapons.length; i++) {
+			mysqlCommands.addAll(engineerWeapons[i].exportOCsToMySQL());
+		}
+		for (i = 0; i < gunnerWeapons.length; i++) {
+			// Skip Revolver Snipe since it would have identical info as Revolver Max RoF
+			if (i != 2) {
+				mysqlCommands.addAll(gunnerWeapons[i].exportOCsToMySQL());
+			}
+		}
+		for (i = 0; i < scoutWeapons.length; i++) {
+			// Skip M1000 Hipfire since it would have identical info as M1000 Focused Shots
+			if (i != 1) {
+				mysqlCommands.addAll(scoutWeapons[i].exportOCsToMySQL());
+			}
+		}
+		
+		calculator.writeFile(mysqlCommands, DatabaseConstants.OCsTableName + ".sql", false);
 	}
 
 	@Override
@@ -329,7 +440,7 @@ public class GuiController implements ActionListener {
 		else if (e == gui.getExportMySQL()) {
 			chooseFolder();
 			gui.activateThinkingCursor();
-			createMysqlFile();
+			createMetricsMysqlFile();
 			gui.deactivateThinkingCursor();
 		}
 		

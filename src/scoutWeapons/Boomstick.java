@@ -1,5 +1,6 @@
 package scoutWeapons;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -792,5 +793,61 @@ public class Boomstick extends Weapon {
 		else {
 			return 0;
 		}
+	}
+	
+	@Override
+	public ArrayList<String> exportModsToMySQL() {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		
+		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.modsTableName, getDwarfClassID(), getWeaponID());
+		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', " + DatabaseConstants.patchNumberID + ");";
+		
+		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
+		// Tier 1
+		toReturn.add(String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1000, 0, 0, 0, 0, 20, 0, tier1[0].getText(), ""));
+		toReturn.add(String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[1].getText(), ""));
+		
+		// Tier 2
+		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 1800, 0, 18, 0, 0, 12, 0, tier2[0].getText(), ""));
+		toReturn.add(String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 1800, 0, 0, 0, 18, 0, 12, tier2[1].getText(), ""));
+		
+		// Tier 3
+		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2200, 0, 0, 0, 20, 0, 30, tier3[0].getText(), ""));
+		toReturn.add(String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2200, 0, 0, 0, 20, 0, 30, tier3[1].getText(), ""));
+		toReturn.add(String.format(rowFormat, 3, tier3[2].getLetterRepresentation(), tier3[2].getName(), 2200, 30, 0, 0, 0, 20, 0, tier3[2].getText(), ""));
+		
+		// Tier 4
+		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 3800, 15, 0, 0, 0, 36, 25, tier4[0].getText(), ""));
+		toReturn.add(String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 3800, 0, 0, 36, 25, 0, 15, tier4[1].getText(), ""));
+		toReturn.add(String.format(rowFormat, 4, tier4[2].getLetterRepresentation(), tier4[2].getName(), 3800, 15, 36, 0, 0, 25, 0, tier4[2].getText(), ""));
+		
+		// Tier 5
+		toReturn.add(String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 4400, 0, 40, 110, 0, 60, 0, tier5[0].getText(), ""));
+		toReturn.add(String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 4400, 110, 0, 0, 40, 0, 60, tier5[1].getText(), ""));
+		toReturn.add(String.format(rowFormat, 5, tier5[2].getLetterRepresentation(), tier5[2].getName(), 4400, 0, 60, 40, 0, 0, 110, tier5[2].getText(), ""));
+		
+		return toReturn;
+	}
+	@Override
+	public ArrayList<String> exportOCsToMySQL() {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		
+		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.OCsTableName, getDwarfClassID(), getWeaponID());
+		rowFormat += "'%s', %s, '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', " + DatabaseConstants.patchNumberID + ");";
+		
+		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
+		// Clean
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 8550, 65, 0, 120, 0, 0, 100, overclocks[0].getText(), ""));
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 7950, 0, 0, 125, 100, 75, 0, overclocks[1].getText(), ""));
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 7050, 0, 95, 0, 125, 65, 0, overclocks[2].getText(), ""));
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 7850, 0, 100, 80, 0, 135, 0, overclocks[3].getText(), ""));
+		
+		// Balanced
+		toReturn.add(String.format(rowFormat, "Balanced", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 7700, 0, 95, 0, 0, 70, 135, overclocks[4].getText(), ""));
+		
+		// Unstable
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 8800, 0, 65, 0, 0, 105, 125, overclocks[5].getText(), ""));
+		
+		return toReturn;
 	}
 }

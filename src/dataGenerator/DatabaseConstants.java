@@ -3,6 +3,11 @@ package dataGenerator;
 public class DatabaseConstants {
 	public static String databaseName = "drgbuilds";
 	public static String statsTableName = "build_statistics";
+	public static String modsTableName = "mods_stats";
+	public static String OCsTableName = "overclocks_stats";
+	
+	public static String patchNumber = "31.1";
+	public static int patchNumberID = 3;
 	
 	public static int drillerCharacterID = 3;
 	public static int engineerCharacterID = 1;
