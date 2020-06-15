@@ -187,7 +187,8 @@ public class GuiController implements ActionListener {
 		mysqlCommands.add("    `jadiz_cost` TINYINT UNSIGNED NOT NULL,\n");
 		
 		mysqlCommands.add("    `text_description` VARCHAR(1000) NOT NULL,\n");
-		mysqlCommands.add("    `json_changes` VARCHAR(1000) NOT NULL,\n");
+		mysqlCommands.add("    `json_stats` VARCHAR(1000) NOT NULL,\n");
+		mysqlCommands.add("    `icon` VARCHAR(1000) NOT NULL,\n");
 		
 		mysqlCommands.add("    `patch_number_index` BIGINT UNSIGNED NOT NULL,\n\n");
 		mysqlCommands.add("    PRIMARY KEY (`id`),\n\n");
@@ -246,7 +247,8 @@ public class GuiController implements ActionListener {
 		mysqlCommands.add("    `jadiz_cost` TINYINT UNSIGNED NOT NULL,\n");
 		
 		mysqlCommands.add("    `text_description` VARCHAR(1000) NOT NULL,\n");
-		mysqlCommands.add("    `json_changes` VARCHAR(1000) NOT NULL,\n");
+		mysqlCommands.add("    `json_stats` VARCHAR(1000) NOT NULL,\n");
+		mysqlCommands.add("    `icon` VARCHAR(1000) NOT NULL,\n");
 		
 		mysqlCommands.add("    `patch_number_index` BIGINT UNSIGNED NOT NULL,\n\n");
 		mysqlCommands.add("    PRIMARY KEY (`id`),\n\n");

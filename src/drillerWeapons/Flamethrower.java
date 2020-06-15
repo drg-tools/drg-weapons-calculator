@@ -660,31 +660,31 @@ public class Flamethrower extends Weapon {
 		ArrayList<String> toReturn = new ArrayList<String>();
 		
 		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.modsTableName, getDwarfClassID(), getWeaponID());
-		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
 		
 		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
 		// Tier 1
-		toReturn.add(String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1200, 0, 0, 0, 0, 25, 0, tier1[0].getText(true), ""));
-		toReturn.add(String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1200, 0, 25, 0, 0, 0, 0, tier1[1].getText(true), ""));
+		toReturn.add(String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1200, 0, 0, 0, 0, 25, 0, tier1[0].getText(true), "{ \"clip\": { \"name\": \"Tank Size\", \"value\": 25 } }", "Icon_Upgrade_ClipSize"));
+		toReturn.add(String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1200, 0, 25, 0, 0, 0, 0, tier1[1].getText(true), "{ \"ex6\": { \"name\": \"Flame Reach\", \"value\": 5 } }", "Icon_Upgrade_Distance"));
 		
 		// Tier 2
-		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 2000, 0, 0, 0, 24, 15, 0, tier2[0].getText(true), ""));
-		toReturn.add(String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 2000, 0, 0, 0, 0, 15, 24, tier2[1].getText(true), ""));
-		toReturn.add(String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 2000, 24, 15, 0, 0, 0, 0, tier2[2].getText(true), ""));
+		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 2000, 0, 0, 0, 24, 15, 0, tier2[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 5 } }", "Icon_Upgrade_DamageGeneral"));
+		toReturn.add(String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 2000, 0, 0, 0, 0, 15, 24, tier2[1].getText(true), "{ \"ex11\": { \"name\": \"Heat\", \"value\": 10 } }", "Icon_Upgrade_Heat"));
+		toReturn.add(String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 2000, 24, 15, 0, 0, 0, 0, tier2[2].getText(true), "{ \"ex4\": { \"name\": \"Sticky Flame Duration\", \"value\": 3 } }", "Icon_Upgrade_Duration"));
 		
 		// Tier 3
-		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2800, 0, 35, 50, 0, 0, 0, tier3[0].getText(true), ""));
-		toReturn.add(String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2800, 0, 0, 35, 0, 0, 50, tier3[1].getText(true), ""));
-		toReturn.add(String.format(rowFormat, 3, tier3[2].getLetterRepresentation(), tier3[2].getName(), 2800, 0, 0, 50, 35, 0, 0, tier3[2].getText(true), ""));
+		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2800, 0, 35, 50, 0, 0, 0, tier3[0].getText(true), "{ \"rate\": { \"name\": \"Fuel Flow Rate\", \"value\": 30, \"percent\": true } }", "Icon_Upgrade_FireRate"));
+		toReturn.add(String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2800, 0, 0, 35, 0, 0, 50, tier3[1].getText(true), "{ \"ex3\": { \"name\": \"Sticky Flame Slowdown\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Sticky"));
+		toReturn.add(String.format(rowFormat, 3, tier3[2].getLetterRepresentation(), tier3[2].getName(), 2800, 0, 0, 50, 35, 0, 0, tier3[2].getText(true), "{ \"ammo\": { \"name\": \"Max Fuel\", \"value\": 75 } }", "Icon_Upgrade_Ammo"));
 		
 		// Tier 4
-		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 4800, 50, 48, 72, 0, 0, 0, tier4[0].getText(true), ""));
-		toReturn.add(String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 4800, 50, 0, 48, 0, 72, 0, tier4[1].getText(true), ""));
-		toReturn.add(String.format(rowFormat, 4, tier4[2].getLetterRepresentation(), tier4[2].getName(), 4800, 0, 72, 0, 48, 50, 0, tier4[2].getText(true), ""));
+		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 4800, 50, 48, 72, 0, 0, 0, tier4[0].getText(true), "{ \"ex5\": { \"name\": \"Fear Factor\", \"value\": 13, \"percent\": true } }", "Icon_Upgrade_ScareEnemies"));
+		toReturn.add(String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 4800, 50, 0, 48, 0, 72, 0, tier4[1].getText(true), "{ \"ex4\": { \"name\": \"Sticky Flame Duration\", \"value\": 3 } }", "Icon_Upgrade_Duration"));
+		toReturn.add(String.format(rowFormat, 4, tier4[2].getLetterRepresentation(), tier4[2].getName(), 4800, 0, 72, 0, 48, 50, 0, tier4[2].getText(true), "{ \"ammo\": { \"name\": \"Max Fuel\", \"value\": 75 } }", "Icon_Upgrade_Ammo"));
 		
 		// Tier 5
-		toReturn.add(String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 5600, 64, 70, 0, 140, 0, 0, tier5[0].getText(true), ""));
-		toReturn.add(String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 5600, 0, 0, 0, 64, 70, 140, tier5[1].getText(true), ""));
+		toReturn.add(String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 5600, 64, 70, 0, 140, 0, 0, tier5[0].getText(true), "{ \"ex7\": { \"name\": \"Area Heat\", \"value\": 10 } }", "Icon_Upgrade_Heat"));
+		toReturn.add(String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 5600, 0, 0, 0, 64, 70, 140, tier5[1].getText(true), "{ \"ex9\": { \"name\": \"Killed Targets Explode %\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_Explosion"));
 		
 		return toReturn;
 	}
@@ -693,20 +693,25 @@ public class Flamethrower extends Weapon {
 		ArrayList<String> toReturn = new ArrayList<String>();
 		
 		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.OCsTableName, getDwarfClassID(), getWeaponID());
-		rowFormat += "'%s', %s, '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		rowFormat += "'%s', %s, '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
 		
 		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
 		// Clean
-		toReturn.add(String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 7500, 0, 125, 90, 75, 0, 0, overclocks[0].getText(true), ""));
-		toReturn.add(String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 8250, 100, 80, 0, 0, 0, 130, overclocks[1].getText(true), ""));
-		
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 7500, 0, 125, 90, 75, 0, 0, overclocks[0].getText(true), "{ \"ammo\": { \"name\": \"Max Fuel\", \"value\": 75 } }", "Icon_Upgrade_Ammo"));
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 8250, 100, 80, 0, 0, 0, 130, overclocks[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 1 }, "
+				+ "\"ex4\": { \"name\": \"Sticky Flame Duration\", \"value\": 1 } }", "Icon_Upgrade_Duration"));
 		// Balanced
-		toReturn.add(String.format(rowFormat, "Balanced", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 7450, 0, 70, 130, 0, 0, 90, overclocks[2].getText(true), ""));
-		toReturn.add(String.format(rowFormat, "Balanced", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 7100, 0, 100, 0, 0, 80, 125, overclocks[3].getText(true), ""));
+		toReturn.add(String.format(rowFormat, "Balanced", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 7450, 0, 70, 130, 0, 0, 90, overclocks[2].getText(true), "{ \"clip\": { \"name\": \"Tank Size\", \"value\": 25 }, "
+				+ "\"ex6\": { \"name\": \"Flame Reach\", \"value\": 2, \"subtract\": true } }", "Icon_Upgrade_ClipSize"));
+		toReturn.add(String.format(rowFormat, "Balanced", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 7100, 0, 100, 0, 0, 80, 125, overclocks[3].getText(true), "{ \"ex6\": { \"name\": \"Flame Reach\", \"value\": 5 }, "
+				+ "\"rate\": { \"name\": \"Fuel Flow Rate\", \"value\": 20, \"percent\": true, \"subtract\": true } }", "Icon_Upgrade_Distance"));
 		
 		// Unstable
-		toReturn.add(String.format(rowFormat, "Unstable", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 7000, 90, 0, 0, 130, 70, 0, overclocks[4].getText(true), ""));
-		toReturn.add(String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 8800, 75, 0, 0, 0, 110, 140, overclocks[5].getText(true), ""));
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 7000, 90, 0, 0, 130, 70, 0, overclocks[4].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 2 }, "
+				+ "\"rate\": { \"name\": \"Fuel Flow Rate\", \"value\": 30, \"percent\": true }, \"ammo\": { \"name\": \"Max Fuel\", \"value\": 75, \"subtract\": true }, "
+				+ "\"ex10\": { \"name\": \"Movement Speed While Using\", \"value\": 50, \"percent\": true, \"subtract\": true } }", "Icon_Upgrade_DamageGeneral"));
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 8800, 75, 0, 0, 0, 110, 140, overclocks[5].getText(true), "{ \"ex1\": { \"name\": \"Increased Sticky Flame Damage\", \"value\": 1, \"boolean\": true }, "
+				+ "\"ex4\": { \"name\": \"Sticky Flame Duration\", \"value\": 6 }, \"clip\": { \"name\": \"Tank Size\", \"value\": 25, \"subtract\": true }, \"ammo\": { \"name\": \"Max Fuel\", \"value\": 75, \"subtract\": true } }", "Icon_Upgrade_Duration"));
 		
 		return toReturn;
 	}
