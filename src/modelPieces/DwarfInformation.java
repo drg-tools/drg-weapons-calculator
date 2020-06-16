@@ -9,7 +9,7 @@ public class DwarfInformation {
 	public static double douseTemperature = 25;
 	public static double heatLossPerSec = 12.5;
 	
-	public static double freezeTemperature = -10;
+	public static double freezeTemperature = -100;
 	public static double thawTemperature = -50;
 	public static double heatGainPerSec = 2;
 	
