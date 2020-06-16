@@ -19,6 +19,17 @@ public class BreachCutter extends Weapon {
 	* Class Variables
 	****************************************************************************************/
 	
+	private double projectileVelocity;
+	private double damageTickRate;
+	private double damagePerTick;
+	private double delayBeforeOpening;
+	private double projectileLifetime;
+	private double projectileWidth;
+	private int magazineSize;
+	private int carriedAmmo;
+	private double rateOfFire;
+	private double reloadTime;
+	
 	/****************************************************************************************
 	* Constructors
 	****************************************************************************************/
@@ -39,6 +50,16 @@ public class BreachCutter extends Weapon {
 		weaponPic = WeaponPictures.breachCutter;
 		
 		// Base stats, before mods or overclocks alter them:
+		projectileVelocity = 10;  // m/sec
+		damageTickRate = 50;  // ticks/sec
+		damagePerTick = 11.5;
+		delayBeforeOpening = 0.2;
+		projectileLifetime = 1.5;
+		projectileWidth = 2;
+		magazineSize = 4;
+		carriedAmmo = 12;
+		rateOfFire = 1.5;
+		reloadTime = 3.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -58,7 +79,7 @@ public class BreachCutter extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Prolonged Power Generation", "+1.5 Projectile Lifetime", modIcons.duration, 1, 0);
+		tier1[0] = new Mod("Prolonged Power Generation", "+1.5 Projectile Lifetime", modIcons.hourglass, 1, 0);
 		tier1[1] = new Mod("High Capacity Magazine", "+2 Clip Size", modIcons.magSize, 1, 1);
 		
 		tier2 = new Mod[3];
@@ -75,9 +96,9 @@ public class BreachCutter extends Weapon {
 		tier4[1] = new Mod("Disruptive Frequency Tuning", "+100% Stun Chance, 3 sec Stun duration", modIcons.stun, 4, 1);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Explosive Goodbye", "40 Damage in a small AoE around the line when it expires or another one gets fired, and leaves behind Persistent Plasma", modIcons.addedExplosion, 5, 0);
-		tier5[1] = new Mod("Plasma Trail", "Leaves behind a Persistent Plasma field for 4.6 seconds along the entire length of the line's lifetime", modIcons.areaDamage, 5, 1);
-		tier5[2] = new Mod("Triple Split Line", "Adds a line above and below the primary projectile (multiple lines hitting doesn't increase DPS)", modIcons.aoeRadius, 5, 2);
+		tier5[0] = new Mod("Explosive Goodbye", "40 Damage in a small AoE around the line when it expires or another one gets fired, and leaves behind Persistent Plasma", modIcons.addedExplosion, 5, 0, false);
+		tier5[1] = new Mod("Plasma Trail", "Leaves behind a Persistent Plasma field for 4.6 seconds along the entire length of the line's lifetime", modIcons.areaDamage, 5, 1, false);
+		tier5[2] = new Mod("Triple Split Line", "Adds a line above and below the primary projectile (multiple lines hitting doesn't increase DPS)", modIcons.aoeRadius, 5, 2, false);
 		
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Light-Weight Cases", "+4 Max Ammo, -0.2 Reload Time", overclockIcons.carriedAmmo, 0);
@@ -273,11 +294,165 @@ public class BreachCutter extends Weapon {
 	* Setters and Getters
 	****************************************************************************************/
 	
+	private double getProjectileVelocity() {
+		double toReturn = projectileVelocity;
+		
+		// Spinning Death makes it move a lot slower
+		if (selectedOverclock == 5) {
+			
+		}
+		
+		return toReturn;
+	}
+	private double getDamagePerTick() {
+		double toReturn = damagePerTick;
+		
+		if (selectedTier2 == 1) {
+			toReturn += 3.5;
+		}
+		
+		if (selectedOverclock == 2) {
+			toReturn += 1.0;
+		}
+		else if (selectedOverclock == 5) {
+			toReturn *= 0.2;
+		}
+		else if (selectedOverclock == 6) {
+			toReturn -= 3.5;
+		}
+		
+		return toReturn;
+	}
+	private double getDelayBeforeOpening() {
+		double toReturn = delayBeforeOpening;
+		
+		if (selectedTier3 == 0) {
+			toReturn -= 0.2;
+		}
+		
+		return toReturn;
+	}
+	private double getProjectileLifetime() {
+		double toReturn = projectileLifetime;
+		
+		if (selectedTier1 == 0) {
+			toReturn += 1.5;
+		}
+		
+		if (selectedOverclock == 2) {
+			toReturn += 0.5;
+		}
+		else if (selectedOverclock == 5) {
+			toReturn *= 2.5;
+		}
+		
+		return toReturn;
+	}
+	private double getProjectileWidth() {
+		double toReturn = projectileWidth;
+		
+		if (selectedTier2 == 2) {
+			toReturn += 1;
+		}
+		if (selectedTier3 == 1) {
+			toReturn += 1;
+		}
+		
+		return toReturn;
+	}
+	private int getMagazineSize() {
+		int toReturn = magazineSize;
+		
+		if (selectedTier1 == 1) {
+			toReturn += 2;
+		}
+		
+		if (selectedOverclock == 4) {
+			toReturn -= 2;
+		}
+		else if (selectedOverclock == 5) {
+			toReturn = (int) Math.ceil(toReturn / 4.0);
+		}
+		
+		return toReturn;
+	}
+	private int getCarriedAmmo() {
+		int toReturn = carriedAmmo;
+		
+		if (selectedTier2 == 0) {
+			toReturn += 8;
+		}
+		
+		if (selectedOverclock == 0) {
+			toReturn += 4;
+		}
+		else if (selectedOverclock == 3 || selectedOverclock == 6) {
+			toReturn -= 4;
+		}
+		else if (selectedOverclock == 5) {
+			toReturn /= 2;
+		}
+		
+		return toReturn;
+	}
+	private double getReloadTime() {
+		double toReturn = reloadTime;
+		
+		if (selectedOverclock == 0) {
+			toReturn -= 0.2;
+		}
+		
+		return toReturn;
+	}
+	private double getArmorBreaking() {
+		double toReturn = 1.0;
+		
+		if (selectedTier4 == 0) {
+			toReturn += 2.0;
+		}
+		
+		if (selectedOverclock == 6) {
+			toReturn /= 4.0;
+		}
+		
+		return toReturn;
+	}
+	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[1];
+		StatsRow[] toReturn = new StatsRow[13];
 		
-		toReturn[0] = new StatsRow("DPS:", 0, false);
+		boolean dmgPerTickModified = selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 5 || selectedOverclock == 6;
+		toReturn[0] = new StatsRow("Damage per Tick:", getDamagePerTick(), dmgPerTickModified);
+		
+		toReturn[1] = new StatsRow("Damage Ticks per Second:", damageTickRate, false);
+		
+		toReturn[2] = new StatsRow("Projectile Width:", getProjectileWidth(), selectedTier2 == 2 || selectedTier3 == 1);
+		
+		toReturn[3] = new StatsRow("Projectile Velocity:", getProjectileVelocity(), selectedOverclock == 5);
+		
+		toReturn[4] = new StatsRow("Delay Before Opening:", getDelayBeforeOpening(), selectedTier3 == 0);
+		
+		boolean lifetimeModified = selectedTier1 == 0 || selectedOverclock == 2 || selectedOverclock == 5;
+		toReturn[5] = new StatsRow("Projectile Lifetime:", getProjectileLifetime(), lifetimeModified);
+		
+		boolean magSizeModified = selectedTier1 == 1 || selectedOverclock == 4 || selectedOverclock == 5;
+		toReturn[6] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
+		
+		boolean carriedAmmoModified = selectedTier2 == 0 || selectedOverclock == 0 || selectedOverclock == 3 || selectedOverclock == 5 || selectedOverclock == 6;
+		toReturn[7] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
+		
+		toReturn[8] = new StatsRow("Rate of Fire:", rateOfFire, false);
+		
+		toReturn[9] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 0);
+		
+		boolean armorBreakingModified = selectedTier4 == 0 || selectedOverclock == 6;
+		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), armorBreakingModified, armorBreakingModified);
+		
+		boolean stunEquipped = selectedTier4 == 1;
+		toReturn[11] = new StatsRow("Stun Chance:", convertDoubleToPercentage(1.0), stunEquipped, stunEquipped);
+		
+		toReturn[12] = new StatsRow("Stun Duration:", 3, stunEquipped, stunEquipped);
 		
 		return toReturn;
 	}
@@ -288,12 +463,14 @@ public class BreachCutter extends Weapon {
 	
 	@Override
 	public boolean currentlyDealsSplashDamage() {
-		return false;
+		// TODO: Breach Cutter sometimes deals Splash damage for Explosive Goodbye, I would think?
+		return selectedTier5 == 0;
 	}
-
+	
+	// Single-target calculations
 	@Override
 	public double calculateIdealBurstDPS() {
-		return 1;
+		return damageTickRate * getDamagePerTick();
 	}
 
 	@Override
