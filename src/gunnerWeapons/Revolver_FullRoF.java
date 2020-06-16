@@ -82,7 +82,7 @@ public class Revolver_FullRoF extends Weapon {
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
 		tier1[0] = new Mod("Quickfire Ejector", "-0.7 Reload Time", modIcons.reloadSpeed, 1, 0);
-		tier1[1] = new Mod("Perfect Weight Balance", "-70% Base Spread", modIcons.baseSpread, 1, 1);
+		tier1[1] = new Mod("Perfect Weight Balance", "x0.3 Base Spread", modIcons.baseSpread, 1, 1);
 		
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("Increased Caliber Rounds", "+15 Direct Damage", modIcons.directDamage, 2, 0);
@@ -109,7 +109,7 @@ public class Revolver_FullRoF extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 33% chance to ricochet into a nearby enemy.", overclockIcons.ricochet, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Bullets", "x4 Damage to Burning targets, -25 Direct Damage", overclockIcons.heatDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Six Shooter", "+2 Magazine Size, +8 Max Ammo, +4 Rate of Fire, x1.5 Base Spread, +0.5 Reload Time", overclockIcons.magSize, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -13 Max Ammo, +71% Spread per Shot, +150% Recoil, +0.5 Reload Time", overclockIcons.directDamage, 4);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -13 Max Ammo, +71% Spread per Shot, x2.5 Recoil, +0.5 Reload Time", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Magic Bullets", "All bullets that impact terrain automatically ricochet to nearby enemies (effectively raising accuracy to 100%). +8 Max Ammo, -20 Direct Damage", overclockIcons.ricochet, 5);
 	}
 	
@@ -408,9 +408,8 @@ public class Revolver_FullRoF extends Weapon {
 	private double getBaseSpread() {
 		double toReturn = 1.0;
 		if (selectedTier1 == 1) {
-			toReturn -= 0.7;
+			toReturn *= 0.3;
 		}
-		
 		if (selectedOverclock == 3) {
 			toReturn *= 1.5;
 		}
@@ -444,14 +443,12 @@ public class Revolver_FullRoF extends Weapon {
 	private double getRecoil() {
 		double toReturn = 1.0;
 		
-		// Additive first
-		if (selectedOverclock == 4) {
-			toReturn += 1.5;
-		}
-		
-		// Multiplicative last
 		if (selectedTier2 == 1) {
 			toReturn *= 0.75;
+		}
+		
+		if (selectedOverclock == 4) {
+			toReturn *= 2.5;
 		}
 		
 		return toReturn;
@@ -896,7 +893,7 @@ public class Revolver_FullRoF extends Weapon {
 		toReturn.add(String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1000, 0, 0, 0, 0, 20, 0, tier1[1].getText(true), "{ \"ex1\": { \"name\": \"Base Spread\", \"value\": 70, \"percent\": true, \"subtract\": true } }", "Icon_Upgrade_Accuracy"));
 		
 		// Tier 2
-		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 1800, 0, 0, 0, 18, 0, 12, tier2[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 1.3, \"multiply\": true } }", "Icon_Upgrade_DamageGeneral"));
+		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 1800, 0, 0, 0, 18, 0, 12, tier2[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 15 } }", "Icon_Upgrade_DamageGeneral"));
 		toReturn.add(String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 1800, 0, 18, 0, 0, 12, 0, tier2[1].getText(true), "{ \"ex13\": { \"name\": \"Recoil\", \"value\": 0.75, \"multiply\": true }, "
 				+ "\"ex2\": { \"name\": \"Spread Per Shot\", \"value\": 80, \"percent\": true, \"subtract\": true } }", "Icon_Upgrade_Accuracy"));
 		toReturn.add(String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 1800, 0, 0, 0, 0, 12, 18, tier2[2].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 12 } }", "Icon_Upgrade_Ammo"));
@@ -926,7 +923,8 @@ public class Revolver_FullRoF extends Weapon {
 		
 		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
 		// Clean
-		toReturn.add(String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 7350, 70, 0, 0, 135, 105, 0, overclocks[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 1.1, \"multiply\": true } }", "Icon_Overclock_ChangeOfHigherDamage"));
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 7350, 70, 0, 0, 135, 105, 0, overclocks[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": " + homebrewPowderCoefficient + ", \"multiply\": true } }", 
+				"Icon_Overclock_ChangeOfHigherDamage"));
 		toReturn.add(String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 7300, 120, 0, 0, 0, 80, 110, overclocks[1].getText(true), "{ \"ex11\": { \"name\": \"Chain Hit\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Ricoshet"));
 		
 		// Balanced

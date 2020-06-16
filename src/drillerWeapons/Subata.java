@@ -458,7 +458,7 @@ public class Subata extends Weapon {
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
 		// This stat only applies to OC "Explosive Reload"
-		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), selectedOverclock == 4, selectedOverclock == 4);
+		toReturn[1] = new StatsRow("Explosive Reload Damage:", getAreaDamage(), selectedOverclock == 4, selectedOverclock == 4);
 		
 		boolean magSizeModified = selectedTier1 == 1 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
@@ -760,7 +760,8 @@ public class Subata extends Weapon {
 		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
 		// Clean
 		toReturn.add(String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 7600, 0, 65, 0, 120, 0, 100, overclocks[0].getText(true), "{ \"ex6\": { \"name\": \"Weakpoint Chain Hit Chance\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_Ricoshet"));
-		toReturn.add(String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 7150, 70, 135, 0, 100, 0, 0, overclocks[1].getText(true), "{ \"ex7\": { \"name\": \"Randomized Damage\", \"value\": 1, \"boolean\": true } }", "Icon_Overclock_ChangeOfHigherDamage"));
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 7150, 70, 135, 0, 100, 0, 0, overclocks[1].getText(true), "{ \"ex7\": { \"name\": \"Randomized Damage\", \"value\": 1, \"boolean\": true }, "
+				+ "\"dmg\": { \"name\": \"Damage\", \"value\": " + homebrewPowderCoefficient + ", \"multiply\": true } }", "Icon_Overclock_ChangeOfHigherDamage"));
 		
 		// Balanced
 		toReturn.add(String.format(rowFormat, "Balanced", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 9000, 0, 70, 130, 0, 0, 110, overclocks[2].getText(true), "{ \"clip\": { \"name\": \"Magazine Size\", \"value\": 10 }, "

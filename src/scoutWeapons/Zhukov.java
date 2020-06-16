@@ -422,7 +422,7 @@ public class Zhukov extends Weapon {
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
 		
 		// This stat only applies to OC "Embedded Detonators"
-		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), selectedOverclock == 3, selectedOverclock == 3);
+		toReturn[1] = new StatsRow("Embedded Detonators Damage:", getAreaDamage(), selectedOverclock == 3, selectedOverclock == 3);
 		
 		boolean magSizeModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2;
 		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
@@ -733,7 +733,7 @@ public class Zhukov extends Weapon {
 		
 		// Tier 3
 		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2200, 0, 0, 0, 20, 0, 30, tier3[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 2 } }", "Icon_Upgrade_DamageGeneral"));
-		toReturn.add(String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2200, 0, 0, 0, 30, 0, 20, tier3[1].getText(true), "{ \"ex1\": { \"name\": \"Base Spread\", \"value\": 50, \"percent\": true, \"subtract\": true } }", "Icon_Upgrade_Accuracy"));
+		toReturn.add(String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2200, 0, 0, 0, 30, 0, 20, tier3[1].getText(true), "{ \"ex1\": { \"name\": \"Base Spread\", \"value\": 0.5, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_Accuracy"));
 		
 		// Tier 4
 		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 3800, 0, 25, 0, 0, 15, 0, tier4[0].getText(true), "{ \"ex2\": { \"name\": \"Max Penetrations\", \"value\": 1 } }", "Icon_Upgrade_BulletPenetration"));

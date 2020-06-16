@@ -99,7 +99,7 @@ public class CryoCannon extends Weapon {
 		
 		tier3 = new Mod[2];
 		tier3[0] = new Mod("Improved Pump", "x1.7 Pressure Gain Rate", modIcons.chargeSpeed, 3, 0);
-		tier3[1] = new Mod("Increased Flow Volume", "+20% Flow Rate", modIcons.rateOfFire, 3, 1);
+		tier3[1] = new Mod("Increased Flow Volume", "+1.6 Flow Rate", modIcons.rateOfFire, 3, 1);
 		
 		tier4 = new Mod[3];
 		tier4[0] = new Mod("High Water Content", "+3 Damage per Particle", modIcons.directDamage, 4, 0);
@@ -108,16 +108,16 @@ public class CryoCannon extends Weapon {
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Fragile", "Every particle that hits a Frozen enemy has a chance to deal a large chunk of damage", modIcons.addedExplosion, 5, 0, false);
-		tier5[1] = new Mod("Cold Radiance", "Cool down enemies within 5m of you at a rate of 50 Cold/sec. This stacks with the direct stream and Ice Path's cold sources as well.", modIcons.coldDamage, 5, 1, false);
+		tier5[1] = new Mod("Cold Radiance", "Cool down enemies within 5m of you at a rate of 60 Cold/sec. This stacks with the direct stream and Ice Path's cold sources as well.", modIcons.coldDamage, 5, 1, false);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Improved Thermal Efficiency", "+25 Tank Size, x0.75 Pressure Drop Rate", overclockIcons.magSize, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Perfectly Tuned Cooler", "+1 Cold per Particle, +10% Flow Rate", overclockIcons.coldDamage, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Flow Rate Expansion", "x2.7 Pressure Gain Rate, +10% Flow Rate, x2.25 Pressure Drop Rate", overclockIcons.duration, 2);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Perfectly Tuned Cooler", "+1 Cold per Particle, +0.8 Flow Rate", overclockIcons.coldDamage, 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Flow Rate Expansion", "x2.7 Pressure Gain Rate, +0.8 Flow Rate, x2.25 Pressure Drop Rate", overclockIcons.duration, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Ice Spear", "Press the Reload button to consume 35 ammo and fire an Ice Spear that does 250 Direct Damage and 125 Area Damage in a 2.5m radius. "
 				+ "In exchange, +1 sec Repressurization Delay", overclockIcons.projectileVelocity, 3, false);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Ice Storm", "x2 Damage per Particle, -3 Cold per Particle, -50 Tank Size, x1.5 Pressure Drop Rate", overclockIcons.directDamage, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Snowball", "Press the Reload button to consume 50 ammo and fire a Snowball that does 100 Cold Damage in a 3.5m radius, which will freeze most enemies instantly. "
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Snowball", "Press the Reload button to consume 50 ammo and fire a Snowball that does 200 Cold Damage in a 4m radius, which will freeze most enemies instantly. "
 				+ "In exchange, -100 Tank Size, +1 sec Repressurization Delay", overclockIcons.aoeRadius, 5);
 	}
 	
@@ -764,7 +764,7 @@ public class CryoCannon extends Weapon {
 		// Tier 2
 		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 2000, 0, 0, 0, 0, 15, 24, tier2[0].getText(true), "{ \"clip\": { \"name\": \"Tank Capacity\", \"value\": 50 } }", "Icon_Upgrade_Ammo"));
 		toReturn.add(String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 2000, 24, 0, 0, 0, 15, 0, tier2[1].getText(true), "{ \"ex1\": { \"name\": \"Cold Stream Reach\", \"value\": 5 } }", "Icon_Upgrade_Distance"));
-		toReturn.add(String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 2000, 0, 15, 0, 24, 0, 0, tier2[2].getText(true), "{ \"reload\": { \"name\": \"Repressurization Delay\", \"value\": 0, \"multiply\": true } }", "Icon_Upgrade_TemperatureCoolDown"));
+		toReturn.add(String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 2000, 0, 15, 0, 24, 0, 0, tier2[2].getText(true), "{ \"reload\": { \"name\": \"Repressurization Delay\", \"value\": 1, \"subtract\": true } }", "Icon_Upgrade_TemperatureCoolDown"));
 		
 		// Tier 3
 		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2800, 0, 0, 0, 50, 0, 35, tier3[0].getText(true), "{ \"ex4\": { \"name\": \"Pressure Gain Rate\", \"value\": 1.7, \"multiply\": true } }", "Icon_Upgrade_ChargeUp"));
@@ -792,7 +792,8 @@ public class CryoCannon extends Weapon {
 		// Clean
 		toReturn.add(String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 8350, 110, 0, 0, 125, 70, 0, overclocks[0].getText(true), "{ \"clip\": { \"name\": \"Tank Capacity\", \"value\": 25 }, "
 				+ "\"ex3\": { \"name\": \"Pressure Drop Rate\", \"value\": 0.75, \"multiply\": true } }", "Icon_Upgrade_ClipSize"));
-		toReturn.add(String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 8750, 65, 110, 130, 0, 0, 0, overclocks[1].getText(true), "{ \"ex2\": { \"name\": \"Freezing Power\", \"value\": 1 } }", "Icon_Upgrade_Cold"));
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 8750, 65, 110, 130, 0, 0, 0, overclocks[1].getText(true), "{ \"ex2\": { \"name\": \"Freezing Power\", \"value\": 1 }, "
+				+ "\"ex7\": { \"name\": \"Flow Rate\", \"value\": 10, \"percent\": true } }", "Icon_Upgrade_Cold"));
 		
 		// Balanced
 		toReturn.add(String.format(rowFormat, "Balanced", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 8900, 125, 0, 0, 0, 70, 100, overclocks[2].getText(true), "{ \"ex3\": { \"name\": \"Pressure Drop Rate\", \"value\": 2.25, \"multiply\": true }, "

@@ -425,7 +425,8 @@ public class ButtonIcons {
 		coldDamage,
 		reloadSpeed,
 		distance,
-		hourglass
+		hourglass,
+		special
 	}
 	
 	public static BufferedImage getOverclockIcon(overclockIcons iconSelection) {
@@ -516,6 +517,9 @@ public class ButtonIcons {
 			}
 			case hourglass: {
 				return hourglassWhite;
+			}
+			case special: {
+				return specialStarWhite;
 			}
 			default: {
 				return null;

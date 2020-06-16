@@ -148,7 +148,7 @@ public class EPC_RegularShot extends Weapon {
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Heavy Hitter", "x1.6 Regular Shot Direct Damage, x1.5 Heat per Regular Shot, -32 Battery Size", overclockIcons.directDamage, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Overcharger", "x1.5 Charged Shot Direct Damage, x1.5 Charged Shot Area Damage, x1.2 Charged Shot AoE Radius, x1.5 Ammo per Charged Shot, -25% Cooling Rate", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Persistent Plasma", "Upon impact, Charged Shots leave behind a 3m radius field of Persistent Plasma that deals " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + 
-				" Electric Damage per Second for 6 seconds. -20 Charged Shot Direct Damage, -20 Charged Shot Area Damage", overclockIcons.hourglass, 5);
+				" Electric Damage per Second for 7.6 seconds. -20 Charged Shot Direct Damage, -20 Charged Shot Area Damage", overclockIcons.hourglass, 5);
 	}
 	
 	@Override
@@ -768,7 +768,7 @@ public class EPC_RegularShot extends Weapon {
 		toReturn.add(String.format(rowFormat, 3, tier3[2].getLetterRepresentation(), tier3[2].getName(), 2200, 0, 0, 30, 0, 20, 0, tier3[2].getText(true), "{ \"reload\": { \"name\": \"Cooling Rate\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_TemperatureCoolDown"));
 		
 		// Tier 4
-		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 3800, 0, 0, 15, 0, 36, 25, tier4[0].getText(true), "{ \"ex6\": { \"name\": \"Heat Buildup When Charged\", \"value\": 60, \"subtract\": true } }", "Icon_Upgrade_TemperatureCoolDown"));
+		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 3800, 0, 0, 15, 0, 36, 25, tier4[0].getText(true), "{ \"ex6\": { \"name\": \"Heat Buildup When Charged\", \"value\": 0.4, \"multiply\": true } }", "Icon_Upgrade_TemperatureCoolDown"));
 		toReturn.add(String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 3800, 0, 15, 0, 0, 0, 0, tier4[1].getText(true), "{ \"clip\": { \"name\": \"Battery Capacity\", \"value\": 24 } }", "Icon_Upgrade_Ammo"));
 		
 		// Tier 5
@@ -789,16 +789,23 @@ public class EPC_RegularShot extends Weapon {
 		
 		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
 		// Clean
-		toReturn.add(String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 7300, 0, 130, 65, 0, 0, 100, overclocks[0].getText(true), "", ""));
-		toReturn.add(String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 8900, 0, 0, 125, 95, 0, 80, overclocks[1].getText(true), "", ""));
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 7300, 0, 130, 65, 0, 0, 100, overclocks[0].getText(true), "{ \"clip\": { \"name\": \"Battery Capacity\", \"value\": 16 }, "
+				+ "\"ex5\": { \"name\": \"Charge Speed\", \"value\": 1.5, \"multiply\": true } }", "Icon_Upgrade_ChargeUp"));
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 8900, 0, 0, 125, 95, 0, 80, overclocks[1].getText(true), "{ \"reload\": { \"name\": \"Cooling Rate\", \"value\": 25, \"percent\": true },  "
+				+ "\"ex6\": { \"name\": \"Heat Buildup When Charged\", \"value\": 0.7, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_TemperatureCoolDown"));
 		
 		// Balanced
-		toReturn.add(String.format(rowFormat, "Balanced", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 7450, 0, 60, 125, 0, 0, 95, overclocks[2].getText(true), "", ""));
-		toReturn.add(String.format(rowFormat, "Balanced", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 8100, 60, 140, 105, 0, 0, 0, overclocks[3].getText(true), "", ""));
+		toReturn.add(String.format(rowFormat, "Balanced", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 7450, 0, 60, 125, 0, 0, 95, overclocks[2].getText(true), "{ \"ex4\": { \"name\": \"Charged Shot Ammo Use\", \"value\": 2, \"subtract\": true }, "
+				+ "\"ex5\": { \"name\": \"Charge Speed\", \"value\": 1.3, \"multiply\": true }, \"ex12\": { \"name\": \"Normal Shot Heat Generation\", \"value\": 1.5, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_Fuel"));
+		toReturn.add(String.format(rowFormat, "Balanced", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 8100, 60, 140, 105, 0, 0, 0, overclocks[3].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 1.6, \"multiply\": true }, "
+				+ "\"clip\": { \"name\": \"Battery Capacity\", \"value\": 32, \"subtract\": true }, \"ex12\": { \"name\": \"Normal Shot Heat Generation\", \"value\": 1.5, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_DamageGeneral"));
 		
 		// Unstable
-		toReturn.add(String.format(rowFormat, "Unstable", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 7050, 0, 120, 0, 95, 60, 0, overclocks[4].getText(true), "", ""));
-		toReturn.add(String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 8150, 95, 0, 0, 75, 0, 130, overclocks[5].getText(true), "", ""));
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 7050, 0, 120, 0, 95, 60, 0, overclocks[4].getText(true), "{ \"ex1\": { \"name\": \"Charged Damage\", \"value\": 1.5, \"multiply\": true }, "
+				+ "\"ex2\": { \"name\": \"Charged Area Damage\", \"value\": 1.5, \"multiply\": true }, \"ex3\": { \"name\": \"Charged Effect Radius\", \"value\": 1.2, \"multiply\": true }, \"ex4\": { \"name\": \"Charged Shot Ammo Use\", \"value\": 1.5, \"multiply\": true }, "
+				+ "\"reload\": { \"name\": \"Cooling Rate\", \"value\": 25, \"percent\": true, \"subtract\": true } }", "Icon_Upgrade_DamageGeneral"));
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 8150, 95, 0, 0, 75, 0, 130, overclocks[5].getText(true), "{ \"ex13\": { \"name\": \"Persistent Plasma\", \"value\": 1, \"boolean\": true }, "
+				+ "\"ex1\": { \"name\": \"Charged Damage\", \"value\": 20, \"subtract\": true }, \"ex2\": { \"name\": \"Charged Area Damage\", \"value\": 20, \"subtract\": true } }", "Icon_Upgrade_Duration"));
 		
 		return toReturn;
 	}
