@@ -189,6 +189,7 @@ public class GuiController implements ActionListener {
 		mysqlCommands.add("    `text_description` VARCHAR(1000) NOT NULL,\n");
 		mysqlCommands.add("    `json_stats` VARCHAR(1000) NOT NULL,\n");
 		mysqlCommands.add("    `icon` VARCHAR(1000) NOT NULL,\n");
+		mysqlCommands.add("    `mod_type` VARCHAR(1000) NOT NULL,\n");
 		
 		mysqlCommands.add("    `patch_number_index` BIGINT UNSIGNED NOT NULL,\n\n");
 		mysqlCommands.add("    PRIMARY KEY (`id`),\n\n");

@@ -885,32 +885,32 @@ public class Revolver_FullRoF extends Weapon {
 		ArrayList<String> toReturn = new ArrayList<String>();
 		
 		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.modsTableName, getDwarfClassID(), getWeaponID());
-		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
 		
 		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
 		// Tier 1
-		toReturn.add(String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[0].getText(true), "{ \"reload\": { \"name\": \"Reload Time\", \"value\": 0.7, \"subtract\": true } }", "Icon_Upgrade_Speed"));
-		toReturn.add(String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1000, 0, 0, 0, 0, 20, 0, tier1[1].getText(true), "{ \"ex1\": { \"name\": \"Base Spread\", \"value\": 70, \"percent\": true, \"subtract\": true } }", "Icon_Upgrade_Accuracy"));
+		toReturn.add(String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[0].getText(true), "{ \"reload\": { \"name\": \"Reload Time\", \"value\": 0.7, \"subtract\": true } }", "Icon_Upgrade_Speed", "Reload Speed"));
+		toReturn.add(String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1000, 0, 0, 0, 0, 20, 0, tier1[1].getText(true), "{ \"ex1\": { \"name\": \"Base Spread\", \"value\": 70, \"percent\": true, \"subtract\": true } }", "Icon_Upgrade_Accuracy", "Accuracy"));
 		
 		// Tier 2
-		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 1800, 0, 0, 0, 18, 0, 12, tier2[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 15 } }", "Icon_Upgrade_DamageGeneral"));
+		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 1800, 0, 0, 0, 18, 0, 12, tier2[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 15 } }", "Icon_Upgrade_DamageGeneral", "Damage"));
 		toReturn.add(String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 1800, 0, 18, 0, 0, 12, 0, tier2[1].getText(true), "{ \"ex13\": { \"name\": \"Recoil\", \"value\": 0.75, \"multiply\": true }, "
-				+ "\"ex2\": { \"name\": \"Spread Per Shot\", \"value\": 80, \"percent\": true, \"subtract\": true } }", "Icon_Upgrade_Accuracy"));
-		toReturn.add(String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 1800, 0, 0, 0, 0, 12, 18, tier2[2].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 12 } }", "Icon_Upgrade_Ammo"));
+				+ "\"ex2\": { \"name\": \"Spread Per Shot\", \"value\": 80, \"percent\": true, \"subtract\": true } }", "Icon_Upgrade_Accuracy", "Accuracy"));
+		toReturn.add(String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 1800, 0, 0, 0, 0, 12, 18, tier2[2].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 12 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
 		
 		// Tier 3
-		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2200, 0, 0, 0, 20, 0, 30, tier3[0].getText(true), "{ \"ex3\": { \"name\": \"Max Penetrations\", \"value\": 3 } }", "Icon_Upgrade_BulletPenetration"));
+		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2200, 0, 0, 0, 20, 0, 30, tier3[0].getText(true), "{ \"ex3\": { \"name\": \"Max Penetrations\", \"value\": 3 } }", "Icon_Upgrade_BulletPenetration", "Blow Through"));
 		toReturn.add(String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2200, 0, 0, 0, 20, 0, 30, tier3[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 0.5, \"multiply\": true }, "
-				+ "\"ex5\": { \"name\": \"Area Damage\", \"value\": 30 }, \"ex9\": { \"name\": \"Effect Radius\", \"value\": 1.5 } }", "Icon_Upgrade_Explosion"));
-		toReturn.add(String.format(rowFormat, 3, tier3[2].getLetterRepresentation(), tier3[2].getName(), 2200, 0, 0, 0, 30, 0, 20, tier3[2].getText(true), "{ \"ex6\": { \"name\": \"Weakpoint Damage Bonus\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_Weakspot"));
+				+ "\"ex5\": { \"name\": \"Area Damage\", \"value\": 30 }, \"ex9\": { \"name\": \"Effect Radius\", \"value\": 1.5 } }", "Icon_Upgrade_Explosion", "Explosion"));
+		toReturn.add(String.format(rowFormat, 3, tier3[2].getLetterRepresentation(), tier3[2].getName(), 2200, 0, 0, 0, 30, 0, 20, tier3[2].getText(true), "{ \"ex6\": { \"name\": \"Weakpoint Damage Bonus\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_Weakspot", "Weak Spot Bonus"));
 		
 		// Tier 4
-		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 3800, 15, 0, 0, 0, 36, 25, tier4[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 12 } }", "Icon_Upgrade_Ammo"));
-		toReturn.add(String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 3800, 15, 36, 0, 0, 25, 0, tier4[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 15 } }", "Icon_Upgrade_DamageGeneral"));
+		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 3800, 15, 0, 0, 0, 36, 25, tier4[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 12 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
+		toReturn.add(String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 3800, 15, 36, 0, 0, 25, 0, tier4[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 15 } }", "Icon_Upgrade_DamageGeneral", "Damage"));
 		
 		// Tier 5
-		toReturn.add(String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 4400, 0, 40, 110, 0, 60, 0, tier5[0].getText(true), "{ \"ex7\": { \"name\": \"Dead-Eye\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Accuracy"));
-		toReturn.add(String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 4400, 110, 0, 0, 40, 0, 60, tier5[1].getText(true), "{ \"ex8\": { \"name\": \"Neurotoxin Coating\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Special"));
+		toReturn.add(String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 4400, 0, 40, 110, 0, 60, 0, tier5[0].getText(true), "{ \"ex7\": { \"name\": \"Dead-Eye\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Accuracy", "Accuracy"));
+		toReturn.add(String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 4400, 110, 0, 0, 40, 0, 60, tier5[1].getText(true), "{ \"ex8\": { \"name\": \"Neurotoxin Coating\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Special", "Neurotoxin"));
 		
 		return toReturn;
 	}

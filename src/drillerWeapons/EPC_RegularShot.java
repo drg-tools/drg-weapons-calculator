@@ -139,7 +139,7 @@ public class EPC_RegularShot extends Weapon {
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Flying Nightmare", "Charged Shots now deal their Direct Damage to enemies hit by the AoE while in-flight but it no longer explodes upon impact. Additionally, x0.55 AoE radius, x0.7 Charge Speed.", modIcons.special, 5, 0);
 		tier5[1] = new Mod("Thin Containment Field", "Shoot the Charged Shot with a Regular Shot to make it detonate for an extra +240 Damage. Additionally, x0.8 Heat per Regular Shot, and x0.8 Heat per Charged Shot which means it no longer overheats on charged shots.", modIcons.special, 5, 1);
-		tier5[2] = new Mod("Plasma Burn", "Regular Shots have an 50% of their Direct Damage added on as Heat Damage per shot", modIcons.heatDamage, 5, 2);
+		tier5[2] = new Mod("Plasma Burn", "Regular Shots have 50% of their Direct Damage added on as Heat Damage per shot", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Energy Rerouting", "+16 Battery Size, x1.5 Charge Speed.", overclockIcons.chargeSpeed, 0);
@@ -747,36 +747,36 @@ public class EPC_RegularShot extends Weapon {
 		ArrayList<String> toReturn = new ArrayList<String>();
 		
 		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.modsTableName, getDwarfClassID(), getWeaponID());
-		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
 		
 		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
 		// Tier 1
-		toReturn.add(String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1000, 0, 0, 0, 0, 20, 0, tier1[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 5 } }", "Icon_Upgrade_DamageGeneral"));
-		toReturn.add(String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[1].getText(true), "{ \"clip\": { \"name\": \"Battery Capacity\", \"value\": 24 } }", "Icon_Upgrade_Ammo"));
+		toReturn.add(String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1000, 0, 0, 0, 0, 20, 0, tier1[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 5 } }", "Icon_Upgrade_DamageGeneral", "Damage"));
+		toReturn.add(String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[1].getText(true), "{ \"clip\": { \"name\": \"Battery Capacity\", \"value\": 24 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
 		toReturn.add(String.format(rowFormat, 1, tier1[2].getLetterRepresentation(), tier1[2].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[2].getText(true), "{ \"ex1\": { \"name\": \"Charged Damage\", \"value\": 15 }, "
-				+ "\"ex2\": { \"name\": \"Charged Area Damage\", \"value\": 15 } }", "Icon_Upgrade_AreaDamage"));
+				+ "\"ex2\": { \"name\": \"Charged Area Damage\", \"value\": 15 } }", "Icon_Upgrade_AreaDamage", "Damage"));
 		
 		// Tier 2
-		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 1800, 0, 0, 0, 18, 0, 12, tier2[0].getText(true), "{ \"ex3\": { \"name\": \"Charged Effect Radius\", \"value\": 1 } }", "Icon_Upgrade_Area"));
-		toReturn.add(String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 1800, 0, 18, 0, 0, 12, 0, tier2[1].getText(true), "{ \"ex7\": { \"name\": \"Normal Projectile Velocity\", \"value\": 25, \"percent\": true } }", "Icon_Upgrade_ProjectileSpeed"));
+		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 1800, 0, 0, 0, 18, 0, 12, tier2[0].getText(true), "{ \"ex3\": { \"name\": \"Charged Effect Radius\", \"value\": 1 } }", "Icon_Upgrade_Area", "Area of effect"));
+		toReturn.add(String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 1800, 0, 18, 0, 0, 12, 0, tier2[1].getText(true), "{ \"ex7\": { \"name\": \"Normal Projectile Velocity\", \"value\": 25, \"percent\": true } }", "Icon_Upgrade_ProjectileSpeed", "Projectile Speed"));
 		toReturn.add(String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 1800, 0, 18, 0, 12, 0, 0, tier2[2].getText(true), "{ \"ex1\": { \"name\": \"Charged Damage\", \"value\": 15 }, "
-				+ "\"ex2\": { \"name\": \"Charged Area Damage\", \"value\": 15 } }", "Icon_Upgrade_AreaDamage"));
+				+ "\"ex2\": { \"name\": \"Charged Area Damage\", \"value\": 15 } }", "Icon_Upgrade_AreaDamage", "Area Damage"));
 		
 		// Tier 3
-		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2200, 30, 0, 0, 0, 20, 0, tier3[0].getText(true), "{ \"ex4\": { \"name\": \"Charged Shot Ammo Use\", \"value\": 2, \"subtract\": true } }", "Icon_Upgrade_Fuel"));
-		toReturn.add(String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2200, 0, 0, 0, 30, 0, 20, tier3[1].getText(true), "{ \"ex5\": { \"name\": \"Charge Speed\", \"value\": 2.5, \"multiply\": true } }", "Icon_Upgrade_ChargeUp"));
-		toReturn.add(String.format(rowFormat, 3, tier3[2].getLetterRepresentation(), tier3[2].getName(), 2200, 0, 0, 30, 0, 20, 0, tier3[2].getText(true), "{ \"reload\": { \"name\": \"Cooling Rate\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_TemperatureCoolDown"));
+		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2200, 30, 0, 0, 0, 20, 0, tier3[0].getText(true), "{ \"ex4\": { \"name\": \"Charged Shot Ammo Use\", \"value\": 2, \"subtract\": true } }", "Icon_Upgrade_Fuel", "Energy Consumption"));
+		toReturn.add(String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2200, 0, 0, 0, 30, 0, 20, tier3[1].getText(true), "{ \"ex5\": { \"name\": \"Charge Speed\", \"value\": 2.5, \"multiply\": true } }", "Icon_Upgrade_ChargeUp", "Charge Speed"));
+		toReturn.add(String.format(rowFormat, 3, tier3[2].getLetterRepresentation(), tier3[2].getName(), 2200, 0, 0, 30, 0, 20, 0, tier3[2].getText(true), "{ \"reload\": { \"name\": \"Cooling Rate\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_TemperatureCoolDown", "Cooling"));
 		
 		// Tier 4
-		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 3800, 0, 0, 15, 0, 36, 25, tier4[0].getText(true), "{ \"ex6\": { \"name\": \"Heat Buildup When Charged\", \"value\": 0.4, \"multiply\": true } }", "Icon_Upgrade_TemperatureCoolDown"));
-		toReturn.add(String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 3800, 0, 15, 0, 0, 0, 0, tier4[1].getText(true), "{ \"clip\": { \"name\": \"Battery Capacity\", \"value\": 24 } }", "Icon_Upgrade_Ammo"));
+		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 3800, 0, 0, 15, 0, 36, 25, tier4[0].getText(true), "{ \"ex6\": { \"name\": \"Heat Buildup When Charged\", \"value\": 0.4, \"multiply\": true } }", "Icon_Upgrade_TemperatureCoolDown", "Cooling"));
+		toReturn.add(String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 3800, 0, 15, 0, 0, 0, 0, tier4[1].getText(true), "{ \"clip\": { \"name\": \"Battery Capacity\", \"value\": 24 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
 		
 		// Tier 5
 		toReturn.add(String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 4400, 60, 0, 0, 40, 0, 110, tier5[0].getText(true), "{ \"ex9\": { \"name\": \"Flying Nightmare\", \"value\": 1, \"boolean\": true }, "
-				+ "\"ex5\": { \"name\": \"Charge Speed\", \"value\": 0.7, \"multiply\": true } }", "Icon_Upgrade_Special"));
+				+ "\"ex5\": { \"name\": \"Charge Speed\", \"value\": 0.7, \"multiply\": true } }", "Icon_Upgrade_Special", "Special"));
 		toReturn.add(String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 4400, 60, 0, 0, 40, 0, 110, tier5[1].getText(true), "{ \"ex10\": { \"name\": \"No Charged Shot Insta-Overheat\", \"value\": 1, \"boolean\": true }, "
-				+ "\"ex12\": { \"name\": \"Normal Shot Heat Generation\", \"value\": 0.8, \"percent\": true, \"multiply\": true }, \"ex8\": { \"name\": \"Thin Containment Field\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Special"));
-		toReturn.add(String.format(rowFormat, 5, tier5[2].getLetterRepresentation(), tier5[2].getName(), 4400, 40, 0, 0, 0, 110, 60, tier5[2].getText(true), "{ \"ex11\": { \"name\": \"Plasma Burn\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Heat"));
+				+ "\"ex12\": { \"name\": \"Normal Shot Heat Generation\", \"value\": 0.8, \"percent\": true, \"multiply\": true }, \"ex8\": { \"name\": \"Thin Containment Field\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Special", "Special"));
+		toReturn.add(String.format(rowFormat, 5, tier5[2].getLetterRepresentation(), tier5[2].getName(), 4400, 40, 0, 0, 0, 110, 60, tier5[2].getText(true), "{ \"ex11\": { \"name\": \"Plasma Burn\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Heat", "Heat"));
 		
 		return toReturn;
 	}

@@ -753,31 +753,31 @@ public class CryoCannon extends Weapon {
 		ArrayList<String> toReturn = new ArrayList<String>();
 		
 		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.modsTableName, getDwarfClassID(), getWeaponID());
-		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
 		
 		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
 		// Tier 1
-		toReturn.add(String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1200, 0, 0, 0, 25, 0, 0, tier1[0].getText(true), "{ \"ex3\": { \"name\": \"Pressure Drop Rate\", \"value\": 0.5, \"multiply\": true } }", "Icon_Upgrade_ClipSize"));
-		toReturn.add(String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1200, 0, 0, 0, 0, 25, 0, tier1[1].getText(true), "{ \"rate\": { \"name\": \"Chargeup Time\", \"value\": 0.4, \"subtract\": true } }", "Icon_Upgrade_ChargeUp"));
-		toReturn.add(String.format(rowFormat, 1, tier1[2].getLetterRepresentation(), tier1[2].getName(), 1200, 0, 25, 0, 0, 0, 0, tier1[2].getText(true), "{ \"ex2\": { \"name\": \"Freezing Power\", \"value\": 1 } }", "Icon_Upgrade_Cold"));
+		toReturn.add(String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1200, 0, 0, 0, 25, 0, 0, tier1[0].getText(true), "{ \"ex3\": { \"name\": \"Pressure Drop Rate\", \"value\": 0.5, \"multiply\": true } }", "Icon_Upgrade_ClipSize", "Magazine Size"));
+		toReturn.add(String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1200, 0, 0, 0, 0, 25, 0, tier1[1].getText(true), "{ \"rate\": { \"name\": \"Chargeup Time\", \"value\": 0.4, \"subtract\": true } }", "Icon_Upgrade_ChargeUp", "Charge Speed"));
+		toReturn.add(String.format(rowFormat, 1, tier1[2].getLetterRepresentation(), tier1[2].getName(), 1200, 0, 25, 0, 0, 0, 0, tier1[2].getText(true), "{ \"ex2\": { \"name\": \"Freezing Power\", \"value\": 1 } }", "Icon_Upgrade_Cold", "Cold"));
 		
 		// Tier 2
-		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 2000, 0, 0, 0, 0, 15, 24, tier2[0].getText(true), "{ \"clip\": { \"name\": \"Tank Capacity\", \"value\": 50 } }", "Icon_Upgrade_Ammo"));
-		toReturn.add(String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 2000, 24, 0, 0, 0, 15, 0, tier2[1].getText(true), "{ \"ex1\": { \"name\": \"Cold Stream Reach\", \"value\": 5 } }", "Icon_Upgrade_Distance"));
-		toReturn.add(String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 2000, 0, 15, 0, 24, 0, 0, tier2[2].getText(true), "{ \"reload\": { \"name\": \"Repressurization Delay\", \"value\": 1, \"subtract\": true } }", "Icon_Upgrade_TemperatureCoolDown"));
+		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 2000, 0, 0, 0, 0, 15, 24, tier2[0].getText(true), "{ \"clip\": { \"name\": \"Tank Capacity\", \"value\": 50 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
+		toReturn.add(String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 2000, 24, 0, 0, 0, 15, 0, tier2[1].getText(true), "{ \"ex1\": { \"name\": \"Cold Stream Reach\", \"value\": 5 } }", "Icon_Upgrade_Distance", "Reach"));
+		toReturn.add(String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 2000, 0, 15, 0, 24, 0, 0, tier2[2].getText(true), "{ \"reload\": { \"name\": \"Repressurization Delay\", \"value\": 1, \"subtract\": true } }", "Icon_Upgrade_TemperatureCoolDown", "Overheat"));
 		
 		// Tier 3
-		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2800, 0, 0, 0, 50, 0, 35, tier3[0].getText(true), "{ \"ex4\": { \"name\": \"Pressure Gain Rate\", \"value\": 1.7, \"multiply\": true } }", "Icon_Upgrade_ChargeUp"));
-		toReturn.add(String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2800, 0, 50, 35, 0, 0, 0, tier3[1].getText(true), "{ \"ex7\": { \"name\": \"Flow Rate\", \"value\": 20, \"percent\": true } }", "Icon_Upgrade_FireRate"));
+		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2800, 0, 0, 0, 50, 0, 35, tier3[0].getText(true), "{ \"ex4\": { \"name\": \"Pressure Gain Rate\", \"value\": 1.7, \"multiply\": true } }", "Icon_Upgrade_ChargeUp", "Charge Speed"));
+		toReturn.add(String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2800, 0, 50, 35, 0, 0, 0, tier3[1].getText(true), "{ \"ex7\": { \"name\": \"Flow Rate\", \"value\": 20, \"percent\": true } }", "Icon_Upgrade_FireRate", "Rate of Fire"));
 		
 		// Tier 4
-		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 4800, 0, 72, 0, 48, 50, 0, tier4[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 3 } }", "Icon_Upgrade_DamageGeneral"));
-		toReturn.add(String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 4800, 48, 0, 0, 0, 50, 72, tier4[1].getText(true), "{ \"ex2\": { \"name\": \"Freezing Power\", \"value\": 1 } }", "Icon_Upgrade_Cold"));
-		toReturn.add(String.format(rowFormat, 4, tier4[2].getLetterRepresentation(), tier4[2].getName(), 4800, 50, 0, 48, 0, 0, 72, tier4[2].getText(true), "{ \"clip\": { \"name\": \"Tank Capacity\", \"value\": 150 } }", "Icon_Upgrade_Ammo"));
+		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 4800, 0, 72, 0, 48, 50, 0, tier4[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 3 } }", "Icon_Upgrade_DamageGeneral", "Damage"));
+		toReturn.add(String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 4800, 48, 0, 0, 0, 50, 72, tier4[1].getText(true), "{ \"ex2\": { \"name\": \"Freezing Power\", \"value\": 1 } }", "Icon_Upgrade_Cold", "Cold"));
+		toReturn.add(String.format(rowFormat, 4, tier4[2].getLetterRepresentation(), tier4[2].getName(), 4800, 50, 0, 48, 0, 0, 72, tier4[2].getText(true), "{ \"clip\": { \"name\": \"Tank Capacity\", \"value\": 150 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
 		
 		// Tier 5
-		toReturn.add(String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 5600, 140, 64, 0, 70, 0, 0, tier5[0].getText(true), "{ \"ex5\": { \"name\": \"Frozen Targets can Shatter\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Explosion"));
-		toReturn.add(String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 5600, 0, 0, 64, 0, 140, 70, tier5[1].getText(true), "{ \"ex6\": { \"name\": \"Area Cold Damage\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Cold"));
+		toReturn.add(String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 5600, 140, 64, 0, 70, 0, 0, tier5[0].getText(true), "{ \"ex5\": { \"name\": \"Frozen Targets can Shatter\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Explosion", "Special"));
+		toReturn.add(String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 5600, 0, 0, 64, 0, 140, 70, tier5[1].getText(true), "{ \"ex6\": { \"name\": \"Area Cold Damage\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Cold", "Cold"));
 		
 		return toReturn;
 	}
