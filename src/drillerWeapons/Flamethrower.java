@@ -1,5 +1,6 @@
 package drillerWeapons;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -95,7 +96,7 @@ public class Flamethrower extends Weapon {
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("Unfiltered Fuel", "+5 Damage per Particle", modIcons.directDamage, 2, 0);
 		tier2[1] = new Mod("Triple Filtered Fuel", "+10 Heat per Particle", modIcons.heatDamage, 2, 1);
-		tier2[2] = new Mod("Sticky Flame Duration", "+3 sec Sticky Flames duration", modIcons.duration, 2, 2);
+		tier2[2] = new Mod("Sticky Flame Duration", "+3 sec Sticky Flames duration", modIcons.hourglass, 2, 2);
 		
 		tier3 = new Mod[3];
 		tier3[0] = new Mod("Oversized Valves", "+1.8 Flow Rate", modIcons.rateOfFire, 3, 0);
@@ -104,20 +105,20 @@ public class Flamethrower extends Weapon {
 		
 		tier4 = new Mod[3];
 		tier4[0] = new Mod("It Burns!", "Every second that the direct stream is applied to an enemy, there's a 13% chance that it will inflict Fear", modIcons.fear, 4, 0);
-		tier4[1] = new Mod("Sticky Flame Duration", "+3 sec Sticky Flames duration", modIcons.duration, 4, 1);
+		tier4[1] = new Mod("Sticky Flame Duration", "+3 sec Sticky Flames duration", modIcons.hourglass, 4, 1);
 		tier4[2] = new Mod("More Fuel", "+75 Max Fuel", modIcons.carriedAmmo, 4, 2);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Heat Radiance", "Heat up enemies within 5m of you at a rate of ??? Heat/sec. This stacks with the direct stream and Sticky Flames' heat sources as well.", modIcons.heatDamage, 5, 0, false);
+		tier5[0] = new Mod("Heat Radiance", "Heat up enemies within 5m of you at a rate of 50 Heat/sec. This stacks with the direct stream and Sticky Flames' heat sources as well.", modIcons.heatDamage, 5, 0, false);
 		tier5[1] = new Mod("Targets Explode", "If the direct stream kills an enemy, there's a 50% chance that they will explode and deal 55 Fire Damage and 55 Heat Damage to all enemies within a 3m radius.", modIcons.addedExplosion, 5, 1, false);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Lighter Tanks", "+75 Max Fuel", overclockIcons.carriedAmmo, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Sticky Additive", "+1 Damage per Particle, +1 sec Sticky Flame duration", overclockIcons.duration, 1);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Sticky Additive", "+1 Damage per Particle, +1 sec Sticky Flame duration", overclockIcons.hourglass, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Feed Valves", "+25 Fuel Tank Size, -2m Flame Reach", overclockIcons.magSize, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Fuel Stream Diffuser", "+5m Flame Reach, -1.2 Flow Rate", overclockIcons.distance, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Face Melter", "+2 Damage per Particle, +1.8 Flow Rate, -75 Max Fuel, x0.5 Movement Speed while using", overclockIcons.directDamage, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Sticky Fuel", "+5 Sticky Flames damage, +6 sec Sticky Flames duration, -25 Tank Size, -75 Max Fuel", overclockIcons.duration, 5);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Sticky Fuel", "+5 Sticky Flames damage, +6 sec Sticky Flames duration, -25 Tank Size, -75 Max Fuel", overclockIcons.hourglass, 5);
 	}
 	
 	@Override
@@ -572,7 +573,7 @@ public class Flamethrower extends Weapon {
 		double directHeatPerSec = getParticleHeat() * getFlowRate();
 		double stickyFlamesHeatPerSec = stickyFlamesHeatPerTick * stickyFlamesTicksPerSec / 2.0;
 		double timeToIgnite = EnemyInformation.averageTimeToIgnite(directHeatPerSec + stickyFlamesHeatPerSec);
-		double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+		double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 		double fireDoTTotalDamage = fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		
 		return directTotalDamage + stickyFlamesTotalDamage + fireDoTTotalDamage;
@@ -643,7 +644,7 @@ public class Flamethrower extends Weapon {
 		
 		// Total Burn Damage
 		double timeToIgnite = EnemyInformation.averageTimeToIgnite(getParticleHeat(), getFlowRate());
-		double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+		double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 		double fireDoTTotalDamage = fireDoTDamagePerEnemy * numTargets;
 		
 		return directTotalDamage + fireDoTTotalDamage;
@@ -652,5 +653,66 @@ public class Flamethrower extends Weapon {
 	@Override
 	public double timeToFireMagazine() {
 		return getFuelTankSize() / getFlowRate();
+	}
+	
+	@Override
+	public ArrayList<String> exportModsToMySQL() {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		
+		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.modsTableName, getDwarfClassID(), getWeaponID());
+		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		
+		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
+		// Tier 1
+		toReturn.add(String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1200, 0, 0, 0, 0, 25, 0, tier1[0].getText(true), "{ \"clip\": { \"name\": \"Tank Size\", \"value\": 25 } }", "Icon_Upgrade_ClipSize", "Magazine Size"));
+		toReturn.add(String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1200, 0, 25, 0, 0, 0, 0, tier1[1].getText(true), "{ \"ex6\": { \"name\": \"Flame Reach\", \"value\": 5 } }", "Icon_Upgrade_Distance", "Reach"));
+		
+		// Tier 2
+		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 2000, 0, 0, 0, 24, 15, 0, tier2[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 5 } }", "Icon_Upgrade_DamageGeneral", "Damage"));
+		toReturn.add(String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 2000, 0, 0, 0, 0, 15, 24, tier2[1].getText(true), "{ \"ex11\": { \"name\": \"Heat\", \"value\": 10 } }", "Icon_Upgrade_Heat", "Heat"));
+		toReturn.add(String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 2000, 24, 15, 0, 0, 0, 0, tier2[2].getText(true), "{ \"ex4\": { \"name\": \"Sticky Flame Duration\", \"value\": 3 } }", "Icon_Upgrade_Duration", "Delay"));
+		
+		// Tier 3
+		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2800, 0, 35, 50, 0, 0, 0, tier3[0].getText(true), "{ \"rate\": { \"name\": \"Fuel Flow Rate\", \"value\": 30, \"percent\": true } }", "Icon_Upgrade_FireRate", "Rate of Fire"));
+		toReturn.add(String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2800, 0, 0, 35, 0, 0, 50, tier3[1].getText(true), "{ \"ex3\": { \"name\": \"Sticky Flame Slowdown\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Sticky", "Slowdown"));
+		toReturn.add(String.format(rowFormat, 3, tier3[2].getLetterRepresentation(), tier3[2].getName(), 2800, 0, 0, 50, 35, 0, 0, tier3[2].getText(true), "{ \"ammo\": { \"name\": \"Max Fuel\", \"value\": 75 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
+		
+		// Tier 4
+		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 4800, 50, 48, 72, 0, 0, 0, tier4[0].getText(true), "{ \"ex5\": { \"name\": \"Fear Factor\", \"value\": 13, \"percent\": true } }", "Icon_Upgrade_ScareEnemies", "Fear"));
+		toReturn.add(String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 4800, 50, 0, 48, 0, 72, 0, tier4[1].getText(true), "{ \"ex4\": { \"name\": \"Sticky Flame Duration\", \"value\": 3 } }", "Icon_Upgrade_Duration", "Delay"));
+		toReturn.add(String.format(rowFormat, 4, tier4[2].getLetterRepresentation(), tier4[2].getName(), 4800, 0, 72, 0, 48, 50, 0, tier4[2].getText(true), "{ \"ammo\": { \"name\": \"Max Fuel\", \"value\": 75 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
+		
+		// Tier 5
+		toReturn.add(String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 5600, 64, 70, 0, 140, 0, 0, tier5[0].getText(true), "{ \"ex7\": { \"name\": \"Area Heat\", \"value\": 10 } }", "Icon_Upgrade_Heat", "Heat"));
+		toReturn.add(String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 5600, 0, 0, 0, 64, 70, 140, tier5[1].getText(true), "{ \"ex9\": { \"name\": \"Killed Targets Explode %\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_Explosion", "Explosion"));
+		
+		return toReturn;
+	}
+	@Override
+	public ArrayList<String> exportOCsToMySQL() {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		
+		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.OCsTableName, getDwarfClassID(), getWeaponID());
+		rowFormat += "'%s', %s, '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		
+		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
+		// Clean
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 7500, 0, 125, 90, 75, 0, 0, overclocks[0].getText(true), "{ \"ammo\": { \"name\": \"Max Fuel\", \"value\": 75 } }", "Icon_Upgrade_Ammo"));
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 8250, 100, 80, 0, 0, 0, 130, overclocks[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 1 }, "
+				+ "\"ex4\": { \"name\": \"Sticky Flame Duration\", \"value\": 1 } }", "Icon_Upgrade_Duration"));
+		// Balanced
+		toReturn.add(String.format(rowFormat, "Balanced", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 7450, 0, 70, 130, 0, 0, 90, overclocks[2].getText(true), "{ \"clip\": { \"name\": \"Tank Size\", \"value\": 25 }, "
+				+ "\"ex6\": { \"name\": \"Flame Reach\", \"value\": 2, \"subtract\": true } }", "Icon_Upgrade_ClipSize"));
+		toReturn.add(String.format(rowFormat, "Balanced", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 7100, 0, 100, 0, 0, 80, 125, overclocks[3].getText(true), "{ \"ex6\": { \"name\": \"Flame Reach\", \"value\": 5 }, "
+				+ "\"rate\": { \"name\": \"Fuel Flow Rate\", \"value\": 20, \"percent\": true, \"subtract\": true } }", "Icon_Upgrade_Distance"));
+		
+		// Unstable
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 7000, 90, 0, 0, 130, 70, 0, overclocks[4].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 2 }, "
+				+ "\"rate\": { \"name\": \"Fuel Flow Rate\", \"value\": 30, \"percent\": true }, \"ammo\": { \"name\": \"Max Fuel\", \"value\": 75, \"subtract\": true }, "
+				+ "\"ex10\": { \"name\": \"Movement Speed While Using\", \"value\": 50, \"percent\": true, \"subtract\": true } }", "Icon_Upgrade_DamageGeneral"));
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 8800, 75, 0, 0, 0, 110, 140, overclocks[5].getText(true), "{ \"ex1\": { \"name\": \"Increased Sticky Flame Damage\", \"value\": 1, \"boolean\": true }, "
+				+ "\"ex4\": { \"name\": \"Sticky Flame Duration\", \"value\": 6 }, \"clip\": { \"name\": \"Tank Size\", \"value\": 25, \"subtract\": true }, \"ammo\": { \"name\": \"Max Fuel\", \"value\": 75, \"subtract\": true } }", "Icon_Upgrade_Duration"));
+		
+		return toReturn;
 	}
 }

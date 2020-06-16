@@ -1,5 +1,6 @@
 package gunnerWeapons;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -81,7 +82,7 @@ public class Revolver_FullRoF extends Weapon {
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
 		tier1[0] = new Mod("Quickfire Ejector", "-0.7 Reload Time", modIcons.reloadSpeed, 1, 0);
-		tier1[1] = new Mod("Perfect Weight Balance", "-70% Base Spread", modIcons.baseSpread, 1, 1);
+		tier1[1] = new Mod("Perfect Weight Balance", "x0.3 Base Spread", modIcons.baseSpread, 1, 1);
 		
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("Increased Caliber Rounds", "+15 Direct Damage", modIcons.directDamage, 2, 0);
@@ -100,7 +101,7 @@ public class Revolver_FullRoF extends Weapon {
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Dead-Eye", "No aim penalty while moving", modIcons.baseSpread, 5, 0, false);
 		// It looks like whenever this procs for the main target, all splash targets get it too, instead of RNG/enemy.
-		tier5[1] = new Mod("Glyphid Neurotoxin Coating", "50% chance to inflict Neurotoxin DoT on all enemies hit by the Revolver"
+		tier5[1] = new Mod("Glyphid Neurotoxin Coating", "50% chance to inflict Neurotoxin DoT on all enemies hit by the Revolver. "
 				+ "Neurotoxin does an average of " + MathUtils.round(DoTInformation.Neuro_DPS, GuiConstants.numDecimalPlaces) + " Poison Damage per Second", modIcons.neurotoxin, 5, 1);
 		
 		overclocks = new Overclock[6];
@@ -108,7 +109,7 @@ public class Revolver_FullRoF extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 33% chance to ricochet into a nearby enemy.", overclockIcons.ricochet, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Bullets", "x4 Damage to Burning targets, -25 Direct Damage", overclockIcons.heatDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Six Shooter", "+2 Magazine Size, +8 Max Ammo, +4 Rate of Fire, x1.5 Base Spread, +0.5 Reload Time", overclockIcons.magSize, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -13 Max Ammo, +71% Spread per Shot, +150% Recoil, +0.5 Reload Time", overclockIcons.directDamage, 4);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -13 Max Ammo, +71% Spread per Shot, x2.5 Recoil, +0.5 Reload Time", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Magic Bullets", "All bullets that impact terrain automatically ricochet to nearby enemies (effectively raising accuracy to 100%). +8 Max Ammo, -20 Direct Damage", overclockIcons.ricochet, 5);
 	}
 	
@@ -407,9 +408,8 @@ public class Revolver_FullRoF extends Weapon {
 	private double getBaseSpread() {
 		double toReturn = 1.0;
 		if (selectedTier1 == 1) {
-			toReturn -= 0.7;
+			toReturn *= 0.3;
 		}
-		
 		if (selectedOverclock == 3) {
 			toReturn *= 1.5;
 		}
@@ -443,14 +443,12 @@ public class Revolver_FullRoF extends Weapon {
 	private double getRecoil() {
 		double toReturn = 1.0;
 		
-		// Additive first
-		if (selectedOverclock == 4) {
-			toReturn += 1.5;
-		}
-		
-		// Multiplicative last
 		if (selectedTier2 == 1) {
 			toReturn *= 0.75;
+		}
+		
+		if (selectedOverclock == 4) {
+			toReturn *= 2.5;
 		}
 		
 		return toReturn;
@@ -812,7 +810,31 @@ public class Revolver_FullRoF extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), getAreaDamage(), getWeakpointBonus());
+		double[] directDamage = {
+			getDirectDamage(),  // Kinetic
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double[] areaDamage = {
+			getAreaDamage(),  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double timeToNeurotoxin = MathUtils.meanRolls(0.5) / getRateOfFire();
+		double ntDoTDmg = calculateAverageDoTDamagePerEnemy(timeToNeurotoxin, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
+		double[] DoTDamage = {
+			0,  // Fire
+			0,  // Electric
+			ntDoTDmg,  // Poison
+			0  // Radiation
+		};
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -856,5 +878,70 @@ public class Revolver_FullRoF extends Weapon {
 	@Override
 	public double timeToFireMagazine() {
 		return getMagazineSize() / getRateOfFire();
+	}
+	
+	@Override
+	public ArrayList<String> exportModsToMySQL() {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		
+		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.modsTableName, getDwarfClassID(), getWeaponID());
+		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		
+		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
+		// Tier 1
+		toReturn.add(String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[0].getText(true), "{ \"reload\": { \"name\": \"Reload Time\", \"value\": 0.7, \"subtract\": true } }", "Icon_Upgrade_Speed", "Reload Speed"));
+		toReturn.add(String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1000, 0, 0, 0, 0, 20, 0, tier1[1].getText(true), "{ \"ex1\": { \"name\": \"Base Spread\", \"value\": 70, \"percent\": true, \"subtract\": true } }", "Icon_Upgrade_Accuracy", "Accuracy"));
+		
+		// Tier 2
+		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 1800, 0, 0, 0, 18, 0, 12, tier2[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 15 } }", "Icon_Upgrade_DamageGeneral", "Damage"));
+		toReturn.add(String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 1800, 0, 18, 0, 0, 12, 0, tier2[1].getText(true), "{ \"ex13\": { \"name\": \"Recoil\", \"value\": 0.75, \"multiply\": true }, "
+				+ "\"ex2\": { \"name\": \"Spread Per Shot\", \"value\": 80, \"percent\": true, \"subtract\": true } }", "Icon_Upgrade_Accuracy", "Accuracy"));
+		toReturn.add(String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 1800, 0, 0, 0, 0, 12, 18, tier2[2].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 12 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
+		
+		// Tier 3
+		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2200, 0, 0, 0, 20, 0, 30, tier3[0].getText(true), "{ \"ex3\": { \"name\": \"Max Penetrations\", \"value\": 3 } }", "Icon_Upgrade_BulletPenetration", "Blow Through"));
+		toReturn.add(String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2200, 0, 0, 0, 20, 0, 30, tier3[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 0.5, \"multiply\": true }, "
+				+ "\"ex5\": { \"name\": \"Area Damage\", \"value\": 30 }, \"ex9\": { \"name\": \"Effect Radius\", \"value\": 1.5 } }", "Icon_Upgrade_Explosion", "Explosion"));
+		toReturn.add(String.format(rowFormat, 3, tier3[2].getLetterRepresentation(), tier3[2].getName(), 2200, 0, 0, 0, 30, 0, 20, tier3[2].getText(true), "{ \"ex6\": { \"name\": \"Weakpoint Damage Bonus\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_Weakspot", "Weak Spot Bonus"));
+		
+		// Tier 4
+		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 3800, 15, 0, 0, 0, 36, 25, tier4[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 12 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
+		toReturn.add(String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 3800, 15, 36, 0, 0, 25, 0, tier4[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 15 } }", "Icon_Upgrade_DamageGeneral", "Damage"));
+		
+		// Tier 5
+		toReturn.add(String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 4400, 0, 40, 110, 0, 60, 0, tier5[0].getText(true), "{ \"ex7\": { \"name\": \"Dead-Eye\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Accuracy", "Accuracy"));
+		toReturn.add(String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 4400, 110, 0, 0, 40, 0, 60, tier5[1].getText(true), "{ \"ex8\": { \"name\": \"Neurotoxin Coating\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Special", "Neurotoxin"));
+		
+		return toReturn;
+	}
+	@Override
+	public ArrayList<String> exportOCsToMySQL() {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		
+		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.OCsTableName, getDwarfClassID(), getWeaponID());
+		rowFormat += "'%s', %s, '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		
+		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
+		// Clean
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 7350, 70, 0, 0, 135, 105, 0, overclocks[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": " + homebrewPowderCoefficient + ", \"multiply\": true } }", 
+				"Icon_Overclock_ChangeOfHigherDamage"));
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 7300, 120, 0, 0, 0, 80, 110, overclocks[1].getText(true), "{ \"ex11\": { \"name\": \"Chain Hit\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Ricoshet"));
+		
+		// Balanced
+		toReturn.add(String.format(rowFormat, "Balanced", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 7350, 60, 0, 0, 130, 0, 110, overclocks[2].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 25, \"subtract\": true }, "
+				+ "\"ex14\": { \"name\": \"Damage Vs Burning\", \"value\": 300, \"percent\": true } }", "Icon_Upgrade_FireRate"));
+		toReturn.add(String.format(rowFormat, "Balanced", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 7750, 100, 120, 0, 60, 0, 0, overclocks[3].getText(true), "{ \"clip\": { \"name\": \"Magazine Size\", \"value\": 2 }, "
+				+ "\"ammo\": { \"name\": \"Max Ammo\", \"value\": 8 }, \"rate\": { \"name\": \"Rate of Fire\", \"value\": 4 }, \"reload\": { \"name\": \"Reload Time\", \"value\": 0.5 }, "
+				+ "\"ex1\": { \"name\": \"Base Spread\", \"value\": 1.5, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_ClipSize"));
+		
+		// Unstable
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 7300, 90, 0, 65, 0, 140, 0, overclocks[4].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 2, \"multiply\": true }, "
+				+ "\"ammo\": { \"name\": \"Max Ammo\", \"value\": 13, \"subtract\": true }, \"clip\": { \"name\": \"Magazine Size\", \"value\": 1, \"subtract\": true }, \"reload\": { \"name\": \"Reload Time\", \"value\": 0.5 }, "
+				+ "\"ex13\": { \"name\": \"Recoil\", \"value\": 2.5, \"percent\": true, \"multiply\": true }, \"ex1\": { \"name\": \"Base Spread\", \"value\": 0.5, \"percent\": true, \"multiply\": true }, "
+				+ "\"ex2\": { \"name\": \"Spread Per Shot\", \"value\": 71, \"percent\": true } }", "Icon_Upgrade_DamageGeneral"));
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 8750, 130, 0, 75, 105, 0, 0, overclocks[5].getText(true), "{ \"ex12\": { \"name\": \"Magic Bullets\", \"value\": 1, \"boolean\": true }, "
+				+ "\"ammo\": { \"name\": \"Max Ammo\", \"value\": 8 }, \"dmg\": { \"name\": \"Damage\", \"value\": 20, \"subtract\": true } }", "Icon_Upgrade_Ricoshet"));
+		
+		return toReturn;
 	}
 }

@@ -1,5 +1,6 @@
 package drillerWeapons;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,6 +18,11 @@ import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
 
+/*
+	Extracted via UUU:
+		Charge Speed 0.7
+*/
+
 public class EPC_RegularShot extends Weapon {
 	
 	/****************************************************************************************
@@ -30,8 +36,7 @@ public class EPC_RegularShot extends Weapon {
 	private int batterySize;
 	private double rateOfFire;
 	private double maxHeat;
-	private double regularCoolingRate;
-	private double overheatedCoolingRate;
+	private double coolingRate;
 	private int ammoPerChargedShot;
 	private double chargeShotWindup;
 	private double heatPerRegularShot;
@@ -87,14 +92,13 @@ public class EPC_RegularShot extends Weapon {
 		chargedAreaDamage = 60;
 		chargedAoERadius = 2.0;
 		batterySize = 120;
-		rateOfFire = 7.0;
-		maxHeat = 8.0;
-		regularCoolingRate = 13.0 / 6.0;  // A lot of math, trial, and error went into finding this number.
-		overheatedCoolingRate = 3.2;  // Want this to work out to 2.5 sec overheat cooldown by default
+		rateOfFire = 8.0;
+		maxHeat = 1.0;
+		coolingRate = 0.4;
 		ammoPerChargedShot = 8;
 		chargeShotWindup = 1.5;  // seconds
-		heatPerRegularShot = 1.0;
-		heatPerSecondWhileCharged = maxHeat * 2.0;  // Want this to work out to 0.5 sec of heat buildup before overheating by default
+		heatPerRegularShot = 0.13;
+		heatPerSecondWhileCharged = 2.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -134,9 +138,8 @@ public class EPC_RegularShot extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Flying Nightmare", "Charged Shots now deal their Direct Damage to enemies hit by the AoE while in-flight but it no longer explodes upon impact. Additionally, x0.55 AoE radius, x0.7 Charge Speed.", modIcons.special, 5, 0);
-		tier5[1] = new Mod("Thin Containment Field", "Shoot the Charged Shot with a Regular Shot to make it detonate for an extra +240 Damage. Additionally, x0.8 Heat per Regular Shot, and x0.8 Heat per Charged Shot. "
-				+ "Because it no longer overheats after a charged shot, it takes longer to cool down because it has to use the normal cooling rate.", modIcons.special, 5, 1);
-		tier5[2] = new Mod("Plasma Burn", "Regular Shots have an 50% of their Direct Damage added on as Heat Damage per shot", modIcons.heatDamage, 5, 2);
+		tier5[1] = new Mod("Thin Containment Field", "Shoot the Charged Shot with a Regular Shot to make it detonate for an extra +240 Damage. Additionally, x0.8 Heat per Regular Shot, and x0.8 Heat per Charged Shot which means it no longer overheats on charged shots.", modIcons.special, 5, 1);
+		tier5[2] = new Mod("Plasma Burn", "Regular Shots have 50% of their Direct Damage added on as Heat Damage per shot", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Energy Rerouting", "+16 Battery Size, x1.5 Charge Speed.", overclockIcons.chargeSpeed, 0);
@@ -145,7 +148,7 @@ public class EPC_RegularShot extends Weapon {
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Heavy Hitter", "x1.6 Regular Shot Direct Damage, x1.5 Heat per Regular Shot, -32 Battery Size", overclockIcons.directDamage, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Overcharger", "x1.5 Charged Shot Direct Damage, x1.5 Charged Shot Area Damage, x1.2 Charged Shot AoE Radius, x1.5 Ammo per Charged Shot, -25% Cooling Rate", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Persistent Plasma", "Upon impact, Charged Shots leave behind a 3m radius field of Persistent Plasma that deals " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + 
-				" Electric Damage per Second for 6 seconds. -20 Charged Shot Direct Damage, -20 Charged Shot Area Damage", overclockIcons.duration, 5);
+				" Electric Damage per Second for 7.6 seconds. -20 Charged Shot Direct Damage, -20 Charged Shot Area Damage", overclockIcons.hourglass, 5);
 	}
 	
 	@Override
@@ -480,6 +483,7 @@ public class EPC_RegularShot extends Weapon {
 	private double getHeatPerChargedShot() {
 		// Unless they have Mod Tier 5 "Thin Containment Field" equipped, charged shots guarantee an overheat.
 		if (selectedTier5 == 1) {
+			// UUU indicates this is 0.25, but that seems wrong to me. I could believe 0.75...
 			return maxHeat * 0.8;
 		}
 		else {
@@ -513,7 +517,7 @@ public class EPC_RegularShot extends Weapon {
 		double k = getCoolingRateModifier();
 		double h = getHeatPerRegularShot();
 		
-		double exactAnswer = (maxHeat * rateOfFire) / (rateOfFire * h - k * regularCoolingRate);
+		double exactAnswer = (maxHeat * rateOfFire) / (rateOfFire * h - k * coolingRate);
 		
 		return (int) Math.ceil(exactAnswer);
 	}
@@ -521,7 +525,7 @@ public class EPC_RegularShot extends Weapon {
 		return maxHeat / getHeatPerSecondWhileCharged();
 	}
 	private double getCooldownDuration() {
-		return maxHeat / (overheatedCoolingRate * getCoolingRateModifier());
+		return maxHeat / (coolingRate * getCoolingRateModifier());
 	}
 
 	@Override
@@ -535,7 +539,7 @@ public class EPC_RegularShot extends Weapon {
 		toReturn[1] = new StatsRow("Projectile Velocity:", convertDoubleToPercentage(getRegularShotVelocity()), selectedTier2 == 1, selectedTier2 == 1);
 		
 		boolean heatPerShotModified = selectedTier5 == 1 || selectedOverclock == 2 || selectedOverclock == 3;
-		toReturn[2] = new StatsRow("Heat/Shot:", getHeatPerRegularShot(), heatPerShotModified, heatPerShotModified);
+		toReturn[2] = new StatsRow("Heat/Shot:", getHeatPerRegularShot(), heatPerShotModified);
 		
 		toReturn[3] = new StatsRow("Shots Fired Before Overheating:", getNumRegularShotsBeforeOverheat(), coolingRateModified || heatPerShotModified);
 		
@@ -647,7 +651,7 @@ public class EPC_RegularShot extends Weapon {
 			double estimatedNumEnemiesKilled = calculateFiringDuration() / averageTimeToKill();
 			double heatDamagePerShot = 0.5 * getDirectDamage();
 			double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatDamagePerShot, rateOfFire);
-			double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 			
 			fireDoTTotalDamage = fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		}
@@ -684,7 +688,33 @@ public class EPC_RegularShot extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), 0, 0);
+		double[] directDamage = {
+			0.5 * getDirectDamage(),  // Kinetic
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0.5 * getDirectDamage()  // Electric
+		};
+		
+		double[] areaDamage = {
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double burnDmg = 0;
+		if (selectedTier5 == 2) {
+			burnDmg = calculateAverageDoTDamagePerEnemy(EnemyInformation.averageTimeToIgnite(0.5 * getDirectDamage(), rateOfFire), DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
+		}
+		double[] DoTDamage = {
+			burnDmg,  // Fire
+			0,  // Electric
+			0,  // Poison
+			0  // Radiation
+		};
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, 0.0);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -702,7 +732,7 @@ public class EPC_RegularShot extends Weapon {
 		if (selectedTier5 == 2) {
 			double heatDamagePerShot = 0.5 * getDirectDamage();
 			double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatDamagePerShot, rateOfFire);
-			fireDoTDamage = calculateAverageDoTDamagePerEnemy(timeToIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			fireDoTDamage = calculateAverageDoTDamagePerEnemy(timeToIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 		}
 		return baseDamage + fireDoTDamage;
 	}
@@ -710,5 +740,73 @@ public class EPC_RegularShot extends Weapon {
 	@Override
 	public double timeToFireMagazine() {
 		return getNumRegularShotsBeforeOverheat() / rateOfFire;
+	}
+	
+	@Override
+	public ArrayList<String> exportModsToMySQL() {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		
+		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.modsTableName, getDwarfClassID(), getWeaponID());
+		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		
+		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
+		// Tier 1
+		toReturn.add(String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1000, 0, 0, 0, 0, 20, 0, tier1[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 5 } }", "Icon_Upgrade_DamageGeneral", "Damage"));
+		toReturn.add(String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[1].getText(true), "{ \"clip\": { \"name\": \"Battery Capacity\", \"value\": 24 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
+		toReturn.add(String.format(rowFormat, 1, tier1[2].getLetterRepresentation(), tier1[2].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[2].getText(true), "{ \"ex1\": { \"name\": \"Charged Damage\", \"value\": 15 }, "
+				+ "\"ex2\": { \"name\": \"Charged Area Damage\", \"value\": 15 } }", "Icon_Upgrade_AreaDamage", "Damage"));
+		
+		// Tier 2
+		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 1800, 0, 0, 0, 18, 0, 12, tier2[0].getText(true), "{ \"ex3\": { \"name\": \"Charged Effect Radius\", \"value\": 1 } }", "Icon_Upgrade_Area", "Area of effect"));
+		toReturn.add(String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 1800, 0, 18, 0, 0, 12, 0, tier2[1].getText(true), "{ \"ex7\": { \"name\": \"Normal Projectile Velocity\", \"value\": 25, \"percent\": true } }", "Icon_Upgrade_ProjectileSpeed", "Projectile Speed"));
+		toReturn.add(String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 1800, 0, 18, 0, 12, 0, 0, tier2[2].getText(true), "{ \"ex1\": { \"name\": \"Charged Damage\", \"value\": 15 }, "
+				+ "\"ex2\": { \"name\": \"Charged Area Damage\", \"value\": 15 } }", "Icon_Upgrade_AreaDamage", "Area Damage"));
+		
+		// Tier 3
+		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2200, 30, 0, 0, 0, 20, 0, tier3[0].getText(true), "{ \"ex4\": { \"name\": \"Charged Shot Ammo Use\", \"value\": 2, \"subtract\": true } }", "Icon_Upgrade_Fuel", "Energy Consumption"));
+		toReturn.add(String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2200, 0, 0, 0, 30, 0, 20, tier3[1].getText(true), "{ \"ex5\": { \"name\": \"Charge Speed\", \"value\": 2.5, \"multiply\": true } }", "Icon_Upgrade_ChargeUp", "Charge Speed"));
+		toReturn.add(String.format(rowFormat, 3, tier3[2].getLetterRepresentation(), tier3[2].getName(), 2200, 0, 0, 30, 0, 20, 0, tier3[2].getText(true), "{ \"reload\": { \"name\": \"Cooling Rate\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_TemperatureCoolDown", "Cooling"));
+		
+		// Tier 4
+		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 3800, 0, 0, 15, 0, 36, 25, tier4[0].getText(true), "{ \"ex6\": { \"name\": \"Heat Buildup When Charged\", \"value\": 0.4, \"multiply\": true } }", "Icon_Upgrade_TemperatureCoolDown", "Cooling"));
+		toReturn.add(String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 3800, 0, 15, 0, 0, 0, 0, tier4[1].getText(true), "{ \"clip\": { \"name\": \"Battery Capacity\", \"value\": 24 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
+		
+		// Tier 5
+		toReturn.add(String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 4400, 60, 0, 0, 40, 0, 110, tier5[0].getText(true), "{ \"ex9\": { \"name\": \"Flying Nightmare\", \"value\": 1, \"boolean\": true }, "
+				+ "\"ex5\": { \"name\": \"Charge Speed\", \"value\": 0.7, \"multiply\": true } }", "Icon_Upgrade_Special", "Special"));
+		toReturn.add(String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 4400, 60, 0, 0, 40, 0, 110, tier5[1].getText(true), "{ \"ex10\": { \"name\": \"No Charged Shot Insta-Overheat\", \"value\": 1, \"boolean\": true }, "
+				+ "\"ex12\": { \"name\": \"Normal Shot Heat Generation\", \"value\": 0.8, \"percent\": true, \"multiply\": true }, \"ex8\": { \"name\": \"Thin Containment Field\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Special", "Special"));
+		toReturn.add(String.format(rowFormat, 5, tier5[2].getLetterRepresentation(), tier5[2].getName(), 4400, 40, 0, 0, 0, 110, 60, tier5[2].getText(true), "{ \"ex11\": { \"name\": \"Plasma Burn\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Heat", "Heat"));
+		
+		return toReturn;
+	}
+	@Override
+	public ArrayList<String> exportOCsToMySQL() {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		
+		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.OCsTableName, getDwarfClassID(), getWeaponID());
+		rowFormat += "'%s', %s, '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		
+		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
+		// Clean
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 7300, 0, 130, 65, 0, 0, 100, overclocks[0].getText(true), "{ \"clip\": { \"name\": \"Battery Capacity\", \"value\": 16 }, "
+				+ "\"ex5\": { \"name\": \"Charge Speed\", \"value\": 1.5, \"multiply\": true } }", "Icon_Upgrade_ChargeUp"));
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 8900, 0, 0, 125, 95, 0, 80, overclocks[1].getText(true), "{ \"reload\": { \"name\": \"Cooling Rate\", \"value\": 25, \"percent\": true },  "
+				+ "\"ex6\": { \"name\": \"Heat Buildup When Charged\", \"value\": 0.7, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_TemperatureCoolDown"));
+		
+		// Balanced
+		toReturn.add(String.format(rowFormat, "Balanced", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 7450, 0, 60, 125, 0, 0, 95, overclocks[2].getText(true), "{ \"ex4\": { \"name\": \"Charged Shot Ammo Use\", \"value\": 2, \"subtract\": true }, "
+				+ "\"ex5\": { \"name\": \"Charge Speed\", \"value\": 1.3, \"multiply\": true }, \"ex12\": { \"name\": \"Normal Shot Heat Generation\", \"value\": 1.5, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_Fuel"));
+		toReturn.add(String.format(rowFormat, "Balanced", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 8100, 60, 140, 105, 0, 0, 0, overclocks[3].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 1.6, \"multiply\": true }, "
+				+ "\"clip\": { \"name\": \"Battery Capacity\", \"value\": 32, \"subtract\": true }, \"ex12\": { \"name\": \"Normal Shot Heat Generation\", \"value\": 1.5, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_DamageGeneral"));
+		
+		// Unstable
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 7050, 0, 120, 0, 95, 60, 0, overclocks[4].getText(true), "{ \"ex1\": { \"name\": \"Charged Damage\", \"value\": 1.5, \"multiply\": true }, "
+				+ "\"ex2\": { \"name\": \"Charged Area Damage\", \"value\": 1.5, \"multiply\": true }, \"ex3\": { \"name\": \"Charged Effect Radius\", \"value\": 1.2, \"multiply\": true }, \"ex4\": { \"name\": \"Charged Shot Ammo Use\", \"value\": 1.5, \"multiply\": true }, "
+				+ "\"reload\": { \"name\": \"Cooling Rate\", \"value\": 25, \"percent\": true, \"subtract\": true } }", "Icon_Upgrade_DamageGeneral"));
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 8150, 95, 0, 0, 75, 0, 130, overclocks[5].getText(true), "{ \"ex13\": { \"name\": \"Persistent Plasma\", \"value\": 1, \"boolean\": true }, "
+				+ "\"ex1\": { \"name\": \"Charged Damage\", \"value\": 20, \"subtract\": true }, \"ex2\": { \"name\": \"Charged Area Damage\", \"value\": 20, \"subtract\": true } }", "Icon_Upgrade_Duration"));
+		
+		return toReturn;
 	}
 }

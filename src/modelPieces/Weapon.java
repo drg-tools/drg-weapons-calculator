@@ -39,8 +39,9 @@ public abstract class Weapon extends Observable {
 	
 	protected double[] aoeEfficiency;
 	
-	// Glyphid Swarmer, Webspitter through Light Armor, Grunt Weakpoint, Grunt through Light Armor, Praetorian Mouth, Praetorian Abdomen, and Mactera Spawn
-	protected int[] breakpoints = {0, 0, 0, 0, 0, 0, 0};
+	// There are 24 breakpoints: 7 normal damage, 12 weakpoints, and 5 Light Armor. They're in the same order as the enemy indexes in EnemyInformation.
+	protected int[] breakpoints = {0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,
+								   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	
 	// Mobility, Damage Resist, Armor Break, Slow, Fear, Stun, Freeze
 	// Set them all to zero to start, then override values in child objects as necessary.
@@ -427,8 +428,6 @@ public abstract class Weapon extends Observable {
 		/*
 			I'm choosing to model the DoT total damage as "How much damage does the DoT do to the average enemy while it's still alive?"
 		*/
-		
-
 		double timeWhileAfflictedByDoT = averageTimeToKill() - timeBeforeProc;
 		
 		// Don't let this math create a DoT that lasts longer than the default DoT duration.
@@ -590,7 +589,7 @@ public abstract class Weapon extends Observable {
 	}
 	protected double increaseBulletDamageForWeakpoints(double preWeakpointBulletDamage, double weakpointBonusModifier) {
 		/*
-			Before weakpoint bonus modifier, weakpoint damage is roughly a 38% increase per bullet.
+			Before weakpoint bonus modifier, weakpoint damage is roughly a 40% increase per bullet.
 			As a rule of thumb, the weakpointBonusModifier is roughly a (2/3 * bonus damage) additional increase per bullet. 
 			30% bonus modifier => ~20% increase to DPS
 		*/
@@ -642,7 +641,7 @@ public abstract class Weapon extends Observable {
 	public double ammoEfficiency() {
 		return calculateMaxMultiTargetDamage() / averageDamageToKillEnemy();
 	}
-	public abstract double estimatedAccuracy(boolean weakpointAccuracy); // -1 means manual or N/A; [0.00, 1.00] otherwise
+	public abstract double estimatedAccuracy(boolean weakpointAccuracy); // -1 means manual or N/A; [0.0, 100.0] otherwise
 	public abstract int breakpoints();
 	
 	// This method is used to explain what the individual numbers of the Breakpoints
@@ -650,12 +649,29 @@ public abstract class Weapon extends Observable {
 		StatsRow[] toReturn = new StatsRow[breakpoints.length];
 		
 		toReturn[0] = new StatsRow("Glypid Swarmer:", breakpoints[0], false);
-		toReturn[1] = new StatsRow("Glyphid Webspitter (through Light Armor):", breakpoints[1], false);
-		toReturn[2] = new StatsRow("Glyphid Grunt (Weakpoint):", breakpoints[2], false);
-		toReturn[3] = new StatsRow("Glyphid Grunt (through Light Armor):", breakpoints[3], false);
-		toReturn[4] = new StatsRow("Glyphid Praetorian (Mouth):", breakpoints[4], false);
-		toReturn[5] = new StatsRow("Glyphid Praetorian (Abdomen):", breakpoints[5], false);
-		toReturn[6] = new StatsRow("Mactera Spawn (Weakpoint):", breakpoints[6], false);
+		toReturn[1] = new StatsRow("Glypid Grunt (Light Armor):", breakpoints[1], false);
+		toReturn[2] = new StatsRow("Glypid Grunt (Weakpoint):", breakpoints[2], false);
+		toReturn[3] = new StatsRow("Glypid Grunt Guard (Light Armor):", breakpoints[3], false);
+		toReturn[4] = new StatsRow("Glypid Grunt Guard (Weakpoint):", breakpoints[4], false);
+		toReturn[5] = new StatsRow("Glypid Grunt Slasher (Light Armor):", breakpoints[5], false);
+		toReturn[6] = new StatsRow("Glypid Grunt Slasher (Weakpoint):", breakpoints[6], false);
+		toReturn[7] = new StatsRow("Glypid Praetorian (Mouth):", breakpoints[7], false);
+		toReturn[8] = new StatsRow("Glypid Praetorian (Weakpoint):", breakpoints[8], false);
+		toReturn[9] = new StatsRow("Glypid Exploder:", breakpoints[9], false);
+		toReturn[10] = new StatsRow("Glypid Exploder (Weakpoint):", breakpoints[10], false);
+		toReturn[11] = new StatsRow("Glypid Webspitter (Light Armor):", breakpoints[11], false);
+		toReturn[12] = new StatsRow("Glypid Webspitter (Weakpoint):", breakpoints[12], false);
+		toReturn[13] = new StatsRow("Glypid Acidspitter (Light Armor):", breakpoints[13], false);
+		toReturn[14] = new StatsRow("Glypid Acidspitter (Weakpoint):", breakpoints[14], false);
+		toReturn[15] = new StatsRow("Glypid Warden:", breakpoints[15], false);
+		toReturn[16] = new StatsRow("Glypid Warden (Orb):", breakpoints[16], false);
+		toReturn[17] = new StatsRow("Glypid Oppressor (Weakpoint):", breakpoints[17], false);
+		toReturn[18] = new StatsRow("Mactera Spawn:", breakpoints[18], false);
+		toReturn[19] = new StatsRow("Mactera Spawn (Weakpoint):", breakpoints[19], false);
+		toReturn[20] = new StatsRow("Mactera Grabber:", breakpoints[20], false);
+		toReturn[21] = new StatsRow("Mactera Grabber (Weakpoint):", breakpoints[21], false);
+		toReturn[22] = new StatsRow("Mactera Goo Bomber:", breakpoints[22], false);
+		toReturn[23] = new StatsRow("Mactera Goo Bomber (Weakpoint):    ", breakpoints[23], false);  // Added spaces at the end to create some whitespace in the JPanel
 		
 		return toReturn;
 	}
@@ -677,7 +693,7 @@ public abstract class Weapon extends Observable {
 		return toReturn;
 	}
 	
-	// These two methods will be added as columns to the MySQL dump, but I have no plans to add them to the 15 metrics in the bottom panel.
+	// These two methods will be added as columns to the MySQL metrics dump, but I have no plans to add them to the 15 metrics in the bottom panel.
 	public abstract double damagePerMagazine();
 	public abstract double timeToFireMagazine();
 	
@@ -689,4 +705,7 @@ public abstract class Weapon extends Observable {
 			calculateFiringDuration(), averageOverkill(), averageTimeToKill(), breakpoints(), utilityScore()
 		};
 	}
+	
+	public abstract ArrayList<String> exportModsToMySQL();
+	public abstract ArrayList<String> exportOCsToMySQL();
 }

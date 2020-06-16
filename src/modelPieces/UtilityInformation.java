@@ -2,7 +2,7 @@ package modelPieces;
 
 public class UtilityInformation {
 	/*
-		Direct Damage (aka Kinetic Damage)
+		Direct Damage
 		
 		Weapons that deal Direct Damage:
 			Every weapon that fires bullets
@@ -10,12 +10,12 @@ public class UtilityInformation {
 			Driller - Impact Axe
 			Engineer - Breach Cutter
 	*/
-	public static double Direct_Utility = 0;
 	
 	/*
-		Area Damage (aka Explosive Damage)
+		Area Damage
 		
 		Weapons that deal Area Damage:
+			Driller - Subata (OC Explosive Reload)
 			Driller - EPC's charged shots
 			Driller - Satchel Charge
 			Driller - Impact Axe
@@ -26,13 +26,10 @@ public class UtilityInformation {
 			Gunner - Revolver (Mod Tier 3, Explosive Rounds)
 			Gunner - Sticky Grenade
 			Gunner - Cluster Grenade
-		
-		Enemies who resist Area Damage:
-			Glyphid Bulk Detonator; -50% damage taken
-			Glyphid Dreadnaught: -40% damage taken
+			Scout - Boomstick (Blastwave)
+			Scout - Zhukovs (OC Embedded Detonators)
 		
 	*/
-	public static double Area_Utility = 0;
 	
 	/*
 		Heat Damage
@@ -53,18 +50,8 @@ public class UtilityInformation {
 			Gunner - Minigun (Mod Tier 5, Aggressive Overheat)
 			Gunner - Minigun (Overclock, Burning Hell)
 			Gunner - Incendiary Grenade
-			Scout - Boomstick (Mod Tier 5, White Phosphorous Shells)
-		
-		Enemies who are weak to Heat Damage:
-			Glacial Strata - Glyphid Grunt, Grunt Guard, Grunt Slasher, and Praetorian
-			All Mactera
-			Q'ronar Shellback and Youngling: +50% damage taken
-			Nayaka Trawler: +100% damage taken
-		
-		Enemies who resist Heat Damage:
-			Glyphid Dreadnaught: -50% damage taken
+			Scout - Boomstick (Mod Tier 5, White Phosphorus Shells)
 	*/
-	public static double Heat_Utility = 0;
 	
 	/*
 		Cold Damage
@@ -82,16 +69,8 @@ public class UtilityInformation {
 			Driller - Cryo Cannon
 			Scout - Zhukov (Overclock, Cryo Minelets)
 			Scout - Cryo Grenade
-		
-		Enemies who are weak to Cold Damage:
-			Q'ronar Shellback and Youngling: +70% damage taken, but cannot be Frozen
-			Nayaka Trawler: +100% damage taken
-			Naedocyte Breeder and all normal Mactera die instantly if Frozen (Mactera Ice Bomber resists cold damage, though)
-		
-		Enemies who resist Cold Damage:
-			Glacial Strata - Glyphid Grunt, Grunt Guard, Grunt Slasher, and Praetorian
 	*/
-	public static double Cold_Utility = 0.5;  // It appears that the slow from Cold damage increases as their Cold Meter fills up, from 0% slow at no Cold to 99% slowed right before frozen.
+	public static double Cold_Utility = 0.25;  // It appears that the slow from Cold damage increases as their Cold Meter fills up, from 0% slow at no Cold to 25% slowed right before frozen.
 	public static double Frozen_Utility = 2.5;  // Not only are Frozen enemies "stunned" but they also take x3 damage (without getting Weakpoint Bonuses)
 	public static double Frozen_Damage_Multiplier = 3;  // Only applies to Direct Damage; not Area Damage or DoTs
 	
@@ -100,42 +79,32 @@ public class UtilityInformation {
 		
 		Weapons that deal Electric Damage:
 			Engineer - "Stubby" SMG
-		
-		Enemies who are weak to Electric Damage:
-			Huuli Hoarder: +80% damage taken
-		
-		Enemies who resist Electric Damage:
-			Glyphid Dreadnaught: -60% damage taken
 	*/
-	public static double Electric_Utility = 0;
 	public static double IFG_Damage_Multiplier = 1.3;
 	
 	/*
 		Armor Breaking
 		
 		Many enemies have armor on them. There are 3 types of armor:
-			1. Light Armor (reduces incoming damage by 20%)
+			1. Light Armor (reduces incoming Direct Damage by 20%)
 			2. Heavy Armor (100 or 150 hp per armor plate)
 			3. Unbreakable Armor
 		
-		Light Armor has a chance to break when being damaged by Kinetic Damage or Explosive Damage. Any Mods or Overclocks that increase 
-		Armor Break will multiplicatively increase that chance without increasing the actual damage dealt. The chance to break Light Armor
-		can be approximated by the formula:
-			
-			0.361 * Math.ln(ArmorBreaking * Damage) - 0.49  
-			(Credit goes to Elythnwaen for figuring this out)
+		Light Armor has a chance to break when being damaged by Direct Damage. Any Mods or Overclocks that increase 
+		Armor Break will increase that chance without increasing the actual damage dealt. 
 		
-		Heavy armor reduces all damage dealt to 0 until the armor plate is broken off. These armor plates all have 
+		Heavy armor reduces all Direct Damage dealt to 0 until the armor plate is broken off. These armor plates all have 
 		their own health bars, at 100 or 150 hp each. Any damage over that 100 will still be absorbed by the plate, so it's better to use low-damage bullets
 		instead of high-damage grenades, since any overkill damage will be lost. For Heavy armor, the Armor Break multiplier is just a straight damage multiplier
-		for any damage that hits a BDI armor plate. 300% armor break chance is effectively reducing the BDI armor plates from 100 to just 33.3 hp. The only enemy types 
+		for any damage that hits a Heavy Armor plate. 300% armor break chance is effectively reducing the Heavy armor plates from 100 to just 33.3 hp. The only enemy types 
 		with Heavy Armor plates are Glyphid Grunt Guard, Glyphid Praetorian, and Q'ronar Shellback.
 		
 		Finally, Unbreakable Armor is armor that reduces all incoming damage to zero and cannot be broken. Instead, you MUST damage
-		the enemy somewhere else, or use Area Damage to bypass it. The only two enemies that have UDI armor are Glyphid Dreadnaught and Glyphid Praetorian Oppressor.
+		the enemy somewhere else, or use Area Damage to bypass it. The only two enemies that have UDI armor are Glyphid Dreadnought and Glyphid Oppressor.
 		For both of those enemies, their abdomen can be damaged while the rest of their body is immune.
 	*/
 	public static double ArmorBreak_Utility = 1.0;
+	// Technically Q'ronar Younglings have Light Armor that reduces incoming damage by 50%, but they're not modeled in this program.
 	public static double LightArmor_DamageReduction = 0.8;
 	
 	/*
@@ -161,9 +130,12 @@ public class UtilityInformation {
 			Glyphid Grunt Guard
 			
 		Enemies who are immune to Stun:
+			Glyphid Oppressor
 			Glyphid Bulk Detonator
-			Glyphid Dreadnaught
+			Glyphid Dreadnought
 			Glyphid Brood Nexus
+			Naedocyte Breeder
+			Spitball Infector
 			BET-C
 	*/
 	public static double Stun_Utility = 1.5;
@@ -196,8 +168,8 @@ public class UtilityInformation {
 		Slow
 		
 		There are only a few ways to inflict a Slow on enemies. Both the Neurotoxin and Electrocute DoTs apply a slow to the enemy, and the Sticky Flames
-		from Driller's Flamethrower can slow enemies passing through with the use of Mod Tier 3 "Sticky Flame Slowdown". Scout's IFG grenades apply a slow, but 
-		do not apply an Electrocute DoT. Flying enemies and Dreadnaughts are immune to being slowed.
+		from Driller's Flamethrower can slow enemies. Scout's IFG grenades apply a 75% slow, but do not apply an Electrocute DoT. Flying enemies and 
+		Dreadnoughts are immune to being slowed.
 		
 		Neurotoxin = 30% slow
 		Electrocute = 80% slow
@@ -219,7 +191,7 @@ public class UtilityInformation {
 		Damage Resistance
 		
 		This is a pretty rare effect in DRG right now. While active, it increases a Dwarf's Effective Health Pool (EHP) and makes them harder to kill. As it stands, 
-		a 30% Damage Resistance gives a score of 1.42857, which is a little too low in comparison to other Utililty scores.
+		a 30% Damage Resistance gives a score of 1.42857, which is a little too low in comparison to other Utility scores.
 	*/
 	public static double DamageResist_Utility = 2;
 }

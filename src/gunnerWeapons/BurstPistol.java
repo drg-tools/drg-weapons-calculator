@@ -1,5 +1,6 @@
 package gunnerWeapons;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -108,10 +109,10 @@ public class BurstPistol extends Weapon {
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Mags", "+84 Max Ammo, -1 Rate of Fire, +0.4 Reload Time", overclockIcons.carriedAmmo, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Experimental Rounds", "+9 Direct Damage, -6 Magazine Size, -36 Max Ammo", overclockIcons.directDamage, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Electro Minelets", "Any bullets that impact terrain get converted to Electro Minelets. After 1 second of arming time, "
-				+ "they inflict an Electrocute DoT to any enemies that pass within 1.5m of them. The Electrocute DoTs deal an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) 
-				+ " Electric Damage per Second. -3 Direct Damage, -6 Magazine Size.", overclockIcons.electricity, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Micro Fletchettes", "+30 Magazine Size, +120 Max Ammo, x0.5 Spread per Shot, x0.5 Recoil, x0.5 Damage per bullet", overclockIcons.miniShells, 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Spray", "x1.5 Direct Damage, x4 Base Spread", overclockIcons.miniShells, 6);
+				+ "they inflict an Electrocute DoT to any enemies that pass within 1.5m of them. The Electrocute DoTs deal an average of " + MathUtils.round(DoTInformation.Electro_TicksPerSec * 2, GuiConstants.numDecimalPlaces) 
+				+ " Electric Damage per Second for 2 seconds. -3 Direct Damage, -6 Magazine Size.", overclockIcons.electricity, 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Micro Fletchettes", "+30 Magazine Size, x2 Max Ammo, x0.5 Spread per Shot, x0.5 Recoil, x0.5 Damage per bullet", overclockIcons.miniShells, 5);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Spray", "x1.5 Direct Damage, x4 Base Spread", overclockIcons.special, 6);
 	}
 	
 	@Override
@@ -351,7 +352,7 @@ public class BurstPistol extends Weapon {
 			toReturn -= 36;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn += 120;
+			toReturn *= 2;
 		}
 		
 		return toReturn;
@@ -589,11 +590,12 @@ public class BurstPistol extends Weapon {
 		if (selectedOverclock == 4) {
 			if (burst) {
 				// Because the Electro Minelets don't arm for 1 second, the Burst DPS needs to be reduced by an uptime coefficient
+				// Additionally, they only do 2 dmg per tick for 2 secs
 				double electroMinesUptimeCoefficient = (duration - 1) / duration;
-				electroDPS = electroMinesUptimeCoefficient * DoTInformation.Electro_DPS;
+				electroDPS = electroMinesUptimeCoefficient * DoTInformation.Electro_TicksPerSec * 2;
 			}
 			else {
-				electroDPS = DoTInformation.Electro_DPS;
+				electroDPS = DoTInformation.Electro_TicksPerSec * 2;
 			}
 		}
 		
@@ -628,7 +630,8 @@ public class BurstPistol extends Weapon {
 	public double calculateAdditionalTargetDPS() {
 		double electroDPS = 0;
 		if (selectedOverclock == 4) {
-			electroDPS = DoTInformation.Electro_DPS;
+			// OC "Electro Minelets" only does 2 dmg/tick for 2 secs
+			electroDPS = DoTInformation.Electro_TicksPerSec * 2;
 		}
 		
 		double blowthroughDPS = 0;
@@ -647,8 +650,8 @@ public class BurstPistol extends Weapon {
 		if (selectedOverclock == 4) {
 			double accuracy = estimatedAccuracy(false) / 100.0;
 			int numBulletsThatMiss = (int) Math.ceil((1 - accuracy) * (getCarriedAmmo() + getMagazineSize()));
-			// Electro Minelets only apply a 2 second DoT, instead of the full 4 seconds like other mods/OCs.
-			totalDamage += numBulletsThatMiss * DoTInformation.Electro_DPS * (0.5 * DoTInformation.Electro_SecsDuration);
+			// OC "Electro Minelets" only does 2 dmg/tick for 2 secs
+			totalDamage += numBulletsThatMiss * DoTInformation.Electro_TicksPerSec * 2 * 2;
 		}
 		
 		return totalDamage;
@@ -699,7 +702,34 @@ public class BurstPistol extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), 0, getWeakpointBonus());
+		double[] directDamage = {
+			getDirectDamage(),  // Kinetic
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double[] areaDamage = {
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double electroDmg = 0;
+		if (selectedOverclock == 4) {
+			// OC "Electro Minelets" only does 2 dmg/tick for 2 secs
+			electroDmg = calculateAverageDoTDamagePerEnemy(0, 2, DoTInformation.Electro_TicksPerSec * 2);
+		}
+		double[] DoTDamage = {
+			0,  // Fire
+			electroDmg,  // Electric
+			0,  // Poison
+			0  // Radiation
+		};
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -713,7 +743,7 @@ public class BurstPistol extends Weapon {
 			// Electro Minelets arm in 1 second, detonate on any enemies that come within ~1.5m, and then explode after 3 seconds. 100% chance to apply Electrocute for 2 sec.
 			double probabilityBulletsMiss = 1.0 - estimatedAccuracy(false) / 100.0;
 			int numGlyphidsInMineletRadius = 8;  // calculateNumGlyphidsInRadius(1.5);
-			utilityScores[3] = probabilityBulletsMiss * numGlyphidsInMineletRadius * (0.5 * DoTInformation.Electro_SecsDuration) * UtilityInformation.Electrocute_Slow_Utility;
+			utilityScores[3] = probabilityBulletsMiss * numGlyphidsInMineletRadius * 2 * UtilityInformation.Electrocute_Slow_Utility;
 		}
 		else {
 			utilityScores[3] = 0;
@@ -742,5 +772,71 @@ public class BurstPistol extends Weapon {
 		int numBurstsPerMagazine = getMagazineSize() / getBurstSize();
 		
 		return numBurstsPerMagazine * timeToFireBurst + (numBurstsPerMagazine - 1) * delayBetweenBursts;
+	}
+	
+	@Override
+	public ArrayList<String> exportModsToMySQL() {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		
+		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.modsTableName, getDwarfClassID(), getWeaponID());
+		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		
+		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
+		// Tier 1
+		toReturn.add(String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1000, 0, 0, 0, 0, 20, 0, tier1[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 3 } }", "Icon_Upgrade_DamageGeneral", "Damage"));
+		toReturn.add(String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1000, 0, 0, 0, 20, 0, 0, tier1[1].getText(true), "{ \"ex10\": { \"name\": \"Base Spread\", \"value\": 30, \"percent\": true, \"subtract\": true }, "
+				+ "\"ex3\": { \"name\": \"Spread Per Shot\", \"value\": 0.6, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_Accuracy", "Accuracy"));
+		toReturn.add(String.format(rowFormat, 1, tier1[2].getLetterRepresentation(), tier1[2].getName(), 1000, 0, 0, 20, 0, 0, 0, tier1[2].getText(true), "{ \"ex11\": { \"name\": \"Max Penetrations\", \"value\": 1 } }", "Icon_Upgrade_BulletPenetration", "Blow Through"));
+		
+		// Tier 2
+		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 1800, 0, 18, 0, 0, 12, 0, tier2[0].getText(true), "{ \"ex4\": { \"name\": \"Recoil\", \"value\": 0.5, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_Recoil", "Recoil"));
+		toReturn.add(String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 1800, 0, 0, 0, 12, 0, 18, tier2[1].getText(true), "{ \"reload\": { \"name\": \"Reload Time\", \"value\": 0.7, \"subtract\": true } }", "Icon_Upgrade_Speed", "Reload Speed"));
+		toReturn.add(String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 1800, 0, 18, 12, 0, 0, 0, tier2[2].getText(true), "{ \"rate\": { \"name\": \"Rate of Fire\", \"value\": 3 } }", "Icon_Upgrade_FireRate", "Rate of Fire"));
+		
+		// Tier 3
+		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2200, 0, 0, 0, 20, 0, 30, tier3[0].getText(true), "{ \"clip\": { \"name\": \"Magazine Size\", \"value\": 12 } }", "Icon_Upgrade_ClipSize", "Magazine Size"));
+		toReturn.add(String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2200, 30, 0, 0, 0, 20, 0, tier3[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 3 } }", "Icon_Upgrade_DamageGeneral", "Damage"));
+		
+		// Tier 4
+		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 3800, 25, 36, 0, 0, 0, 15, tier4[0].getText(true), "{ \"ex5\": { \"name\": \"Armor Breaking\", \"value\": 200, \"percent\": true } }", "Icon_Upgrade_ArmorBreaking", "Armor Breaking"));
+		toReturn.add(String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 3800, 0, 0, 36, 25, 15, 0, tier4[1].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 72 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
+		toReturn.add(String.format(rowFormat, 4, tier4[2].getLetterRepresentation(), tier4[2].getName(), 3800, 15, 0, 0, 0, 36, 25, tier4[2].getText(true), "{ \"ex6\": { \"name\": \"Weakpoint Damage Bonus\", \"value\": 40, \"percent\": true } }", "Icon_Upgrade_Weakspot", "Weak Spot Bonus"));
+		
+		// Tier 5
+		toReturn.add(String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 4400, 110, 40, 0, 60, 0, 0, tier5[0].getText(true), "{ \"ex8\": { \"name\": \"Burst Stun Duration\", \"value\": 4 } }", "Icon_Upgrade_Stun", "Stun"));
+		toReturn.add(String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 4400, 0, 60, 0, 0, 110, 40, tier5[1].getText(true), "{ \"ex1\": { \"name\": \"Burst Size\", \"value\": 3 } }", "Icon_Upgrade_FireRate", "Rate of Fire"));
+		
+		return toReturn;
+	}
+	@Override
+	public ArrayList<String> exportOCsToMySQL() {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		
+		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.OCsTableName, getDwarfClassID(), getWeaponID());
+		rowFormat += "'%s', %s, '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		
+		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
+		// Clean
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 7950, 100, 0, 0, 140, 75, 0, overclocks[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 36 }, "
+				+ "\"rate\": { \"name\": \"Rate of Fire\", \"value\": 1 } }", "Icon_Upgrade_FireRate"));
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 7850, 110, 120, 0, 0, 0, 75, overclocks[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 1 }, "
+				+ "\"reload\": { \"name\": \"Reload Time\", \"value\": 0.2, \"subtract\": true } }", "Icon_Upgrade_DamageGeneral"));
+		
+		// Balanced
+		toReturn.add(String.format(rowFormat, "Balanced", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 7350, 135, 0, 105, 0, 0, 75, overclocks[2].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 84 }, "
+				+ "\"rate\": { \"name\": \"Rate of Fire\", \"value\": 1, \"subtract\": true }, \"reload\": { \"name\": \"Reload Time\", \"value\": 0.4 } }", "Icon_Upgrade_Ammo"));
+		toReturn.add(String.format(rowFormat, "Balanced", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 8550, 130, 0, 0, 0, 100, 75, overclocks[3].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 9 }, "
+				+ "\"ammo\": { \"name\": \"Max Ammo\", \"value\": 36, \"subtract\": true }, \"clip\": { \"name\": \"Magazine Size\", \"value\": 6, \"subtract\": true } }", "Icon_Upgrade_DamageGeneral"));
+		
+		// Unstable
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 7450, 0, 0, 120, 0, 80, 95, overclocks[4].getText(true), "{ \"ex9\": { \"name\": \"Electro Minelets\", \"value\": 1, \"boolean\": true }, "
+				+ "\"dmg\": { \"name\": \"Damage\", \"value\": 3, \"subtract\": true }, \"clip\": { \"name\": \"Magazine Size\", \"value\": 6, \"subtract\": true } }", "Icon_Upgrade_Electricity"));
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 7650, 130, 80, 0, 0, 0, 100, overclocks[5].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 2, \"multiply\": true }, "
+				+ "\"clip\": { \"name\": \"Magazine Size\", \"value\": 30 }, \"ex4\": { \"name\": \"Recoil\", \"value\": 0.5, \"percent\": true, \"multiply\": true }, \"ex3\": { \"name\": \"Spread Per Shot\", \"value\": 0.5, \"percent\": true, \"multiply\": true }, "
+				+ "\"dmg\": { \"name\": \"Damage\", \"value\": 0.5, \"multiply\": true } }", "Icon_Overclock_SmallBullets"));
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[6].getShortcutRepresentation(), overclocks[6].getName(), 7650, 75, 125, 105, 0, 0, 0, overclocks[6].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 1.5, \"multiply\": true }, "
+				+ "\"ex10\": { \"name\": \"Base Spread\", \"value\": 4, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_Special"));
+		
+		return toReturn;
 	}
 }

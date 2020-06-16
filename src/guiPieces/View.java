@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 
+import dataGenerator.DatabaseConstants;
 import modelPieces.Weapon;
 import utilities.ResourceLoader;
 
@@ -38,7 +39,7 @@ public class View extends JFrame implements Observer {
 	private ButtonGroup dsHazGroup, dsPCGroup;
 	private JRadioButton dsHaz1, dsHaz2, dsHaz3, dsHaz4, dsHaz5, dsPC1, dsPC2, dsPC3, dsPC4;
 	private JMenu exportMenu;
-	private JMenuItem exportCurrent, exportAll, exportMySQL;
+	private JMenuItem exportCurrent, exportAll, exportMetricsToMySQL, exportCostsToMySQL;
 	private JMenu miscMenu;	
 	private JMenuItem miscWeaponTabScreenshot, miscExportCombination, miscLoadCombination, miscSuggestion;
 	
@@ -69,7 +70,7 @@ public class View extends JFrame implements Observer {
 		TCA = new ThinkingCursorAnimation(this);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("MeatShield's DRG DPS Calculator (DRG Update 30.2)");
+		setTitle("MeatShield's DRG DPS Calculator (DRG Update " + DatabaseConstants.patchNumber + ")");
 		setPreferredSize(new Dimension(1500, 950));
 		
 		// Add the icon
@@ -249,8 +250,10 @@ public class View extends JFrame implements Observer {
 		exportMenu.add(exportCurrent);
 		exportAll = new JMenuItem("Export all weapons to CSV");
 		exportMenu.add(exportAll);
-		exportMySQL = new JMenuItem("Export all weapons to MySQL");
-		exportMenu.add(exportMySQL);
+		exportMetricsToMySQL = new JMenuItem("Export all weapons to MySQL");
+		exportMenu.add(exportMetricsToMySQL);
+		exportCostsToMySQL = new JMenuItem("Export mods/OCs to MySQL");
+		exportMenu.add(exportCostsToMySQL);
 		menuBar.add(exportMenu);
 		
 		// Miscellaneous Actions menu
@@ -320,8 +323,11 @@ public class View extends JFrame implements Observer {
 	public JMenuItem getExportAll() {
 		return exportAll;
 	}
-	public JMenuItem getExportMySQL() {
-		return exportMySQL;
+	public JMenuItem getExportMetricsMySQL() {
+		return exportMetricsToMySQL;
+	}
+	public JMenuItem getExportCostsMySQL() {
+		return exportCostsToMySQL;
 	}
 	
 	public JMenuItem getMiscScreenshot() {
@@ -379,7 +385,8 @@ public class View extends JFrame implements Observer {
 		
 		exportCurrent.addActionListener(parent);
 		exportAll.addActionListener(parent);
-		exportMySQL.addActionListener(parent);
+		exportMetricsToMySQL.addActionListener(parent);
+		exportCostsToMySQL.addActionListener(parent);
 		
 		miscWeaponTabScreenshot.addActionListener(parent);
 		miscExportCombination.addActionListener(parent);

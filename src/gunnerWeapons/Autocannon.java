@@ -1,5 +1,6 @@
 package gunnerWeapons;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,9 +32,9 @@ public class Autocannon extends Weapon {
 	private int magazineSize;
 	private int carriedAmmo;
 	private double movespeedWhileFiring;
+	private double increaseScalingRate;
 	private double minRateOfFire;
 	private double maxRateOfFire;
-	private int numBulletsFiredDuringRampup;
 	private double reloadTime;
 	
 	/****************************************************************************************
@@ -62,9 +63,9 @@ public class Autocannon extends Weapon {
 		magazineSize = 110;
 		carriedAmmo = 440;
 		movespeedWhileFiring = 0.5;
-		minRateOfFire = 1.0;
-		maxRateOfFire = 5.5;  // Before 5.5 was listed in-game this was measured to be 5.25
-		numBulletsFiredDuringRampup = 10;
+		increaseScalingRate = 0.3;
+		minRateOfFire = 3.0;
+		maxRateOfFire = 5.5;
 		reloadTime = 5.0;  // seconds
 		
 		initializeModsAndOverclocks();
@@ -91,31 +92,31 @@ public class Autocannon extends Weapon {
 		
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("Tighter Barrel Alignment", "-30% Base Spread", modIcons.baseSpread, 2, 0);
-		tier2[1] = new Mod("Improved Gas System", "+1.5 Max Rate of Fire", modIcons.rateOfFire, 2, 1);
-		tier2[2] = new Mod("Lighter Barrel Assembly", "-5 Bullets fired to reach Max Rate of Fire", modIcons.rateOfFire, 2, 2);
+		tier2[1] = new Mod("Improved Gas System", "+0.2 Min Rate of Fire, +1.5 Max Rate of Fire", modIcons.rateOfFire, 2, 1);
+		tier2[2] = new Mod("Lighter Barrel Assembly", "+1 Min Rate of Fire, x2 RoF Scaling Rate", modIcons.rateOfFire, 2, 2);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Supercharged Feed Mechanism", "+2 Max Rate of Fire", modIcons.rateOfFire, 3, 0);
+		tier3[0] = new Mod("Supercharged Feed Mechanism", "+0.6 Min Rate of Fire, +2 Max Rate of Fire", modIcons.rateOfFire, 3, 0);
 		tier3[1] = new Mod("Loaded Rounds", "+2 Area Damage", modIcons.areaDamage, 3, 1);
 		tier3[2] = new Mod("High Velocity Rounds", "+4 Direct Damage", modIcons.directDamage, 3, 2);
 		
 		tier4 = new Mod[2];
 		tier4[0] = new Mod("Penetrating Rounds", "+400% Armor Breaking", modIcons.armorBreaking, 4, 0);
-		tier4[1] = new Mod("Shrapnel Rounds", "+0.6 AoE Radius", modIcons.aoeRadius, 4, 1);
+		tier4[1] = new Mod("Shrapnel Rounds", "+0.6m AoE Radius", modIcons.aoeRadius, 4, 1);
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Feedback Loop", "x1.2 Direct and Area Damage when at Max Rate of Fire", modIcons.directDamage, 5, 0);
-		tier5[1] = new Mod("Suppressive Fire", "Around 20% chance to inflict Fear to enemies within the AoE Radius on impact.", modIcons.fear, 5, 1);
+		tier5[1] = new Mod("Suppressive Fire", "50% chance to inflict Fear to enemies within a 1m radius on impact.", modIcons.fear, 5, 1);
 		tier5[2] = new Mod("Damage Resistance At Full RoF", "33% Damage Resistance when at Max Rate of Fire", modIcons.damageResistance, 5, 2);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Drums", "+110 Max Ammo, -0.5 Reload Time", overclockIcons.carriedAmmo, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Splintering Shells", "+1 Area Damage, +0.3 AoE Radius", overclockIcons.aoeRadius, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Carpet Bomber", "+3 Area Damage, +0.7 AoE Radius, -6 Direct Damage", overclockIcons.areaDamage, 2);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Splintering Shells", "+1 Area Damage, +0.3m AoE Radius", overclockIcons.aoeRadius, 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Carpet Bomber", "+3 Area Damage, +0.7m AoE Radius, -6 Direct Damage", overclockIcons.areaDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Combat Mobility", "Increases movement speed while using from 50% to 65% of normal walk speed, -2 Direct Damage", overclockIcons.movespeed, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Big Bertha", "+12 Direct Damage, -30% Base Spread, x0.5 Magazine Size, -110 Max Ammo, -1.5 Max Rate of Fire", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neurotoxin Payload", "30% Chance to inflict a Neurotoxin DoT that deals an average of " + MathUtils.round(DoTInformation.Neuro_DPS, GuiConstants.numDecimalPlaces) + 
-				" Poison Damage per Second to all enemies within the AoE Radius upon impact. +0.3 AoE Radius, -3 Direct Damage, -6 Area Damage", overclockIcons.neurotoxin, 5);
+				" Poison Damage per Second to all enemies within the AoE Radius upon impact. +0.3m AoE Radius, -3 Direct Damage, -6 Area Damage", overclockIcons.neurotoxin, 5);
 	}
 	
 	@Override
@@ -382,32 +383,65 @@ public class Autocannon extends Weapon {
 		}
 		return MathUtils.round(modifier * DwarfInformation.walkSpeed, 2);
 	}
-	private int getNumBulletsRampup() {
+	private double getIncreaseScalingRate() {
+		double toReturn = increaseScalingRate;
 		if (selectedTier2 == 2) {
-			return numBulletsFiredDuringRampup / 2;
+			toReturn += 0.3;
 		}
-		else {
-			return numBulletsFiredDuringRampup;
+		return toReturn;
+	}
+	private double getMinRateOfFire() {
+		double toReturn = minRateOfFire;
+		if (selectedTier2 == 1) {
+			toReturn += 0.2;
 		}
+		else if (selectedTier2 == 2) {
+			toReturn += 1.0;
+		}
+		
+		if (selectedTier3 == 0) {
+			toReturn += 0.6;
+		}
+		return toReturn;
 	}
 	private double getMaxRateOfFire() {
 		double toReturn = maxRateOfFire;
 		if (selectedTier2 == 1) {
-			toReturn += 1.5;  // Before being listed in-game, this used to be a +15% modifier
+			toReturn += 1.5;
 		}
 		if (selectedTier3 == 0) {
-			toReturn += 2;  // Before being listed in-game, this used to be a +35% modifier
+			toReturn += 2;
 		}
 		if (selectedOverclock == 4) {
-			toReturn -= 1.5;  // Before being listed in-game, this used to be a -25% modifier
+			toReturn -= 1.5;
 		}
 		return toReturn;
 	}
+	private double avgRoFDuringRampup() {
+		double startRoF = getMinRateOfFire();
+		double maxRoF = getMaxRateOfFire();
+		double scalingRate = getIncreaseScalingRate();
+		double timeToFullRoF = Math.log(maxRoF / startRoF) / scalingRate;
+		double exactNumBullets = (startRoF / scalingRate) * (Math.pow(Math.E, scalingRate * timeToFullRoF) - 1);
+		return exactNumBullets / timeToFullRoF;
+	}
+	private int getNumBulletsRampup() {
+		double startRoF = getMinRateOfFire();
+		double maxRoF = getMaxRateOfFire();
+		double scalingRate = getIncreaseScalingRate();
+		double timeToFullRoF = Math.log(maxRoF / startRoF) / scalingRate;
+		double exactNumBullets = (startRoF / scalingRate) * (Math.pow(Math.E, scalingRate * timeToFullRoF) - 1);
+		return (int) Math.round(exactNumBullets);
+	}
 	private double getAverageRateOfFire() {
+		// Special case: When T2.C and OC Big Bertha get combined, the Min RoF == Max RoF
+		if (selectedTier2 == 2 && selectedOverclock == 4) {
+			return getMaxRateOfFire();
+		}
+		
 		int numBulletsRampup = getNumBulletsRampup();
 		int magSize = getMagazineSize();
-		double maxRoF = getMaxRateOfFire();
-		return ((minRateOfFire + maxRoF) / 2.0 * numBulletsRampup + maxRoF * (magSize - numBulletsRampup)) / magSize;
+		return (avgRoFDuringRampup() * numBulletsRampup + getMaxRateOfFire() * (magSize - numBulletsRampup)) / magSize;
 	}
 	private double getReloadTime() {
 		double toReturn = reloadTime;
@@ -435,9 +469,15 @@ public class Autocannon extends Weapon {
 		}
 	}
 	
+	private double feedbackLoopMultiplier() {
+		double magSize = getMagazineSize();
+		double numBulletsRampup = getNumBulletsRampup();
+		return (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+	}
+	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[13];
+		StatsRow[] toReturn = new StatsRow[15];
 		
 		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 2 || (selectedOverclock > 1 && selectedOverclock < 6);
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
@@ -453,24 +493,28 @@ public class Autocannon extends Weapon {
 		boolean carriedAmmoModified = selectedTier1 == 2 || selectedOverclock == 0 || selectedOverclock == 4;
 		toReturn[4] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[5] = new StatsRow("Number of Bullets Fired Before Max RoF:", getNumBulletsRampup(), selectedTier2 == 2);
+		boolean minRoFModified = selectedTier2 > 0 || selectedTier3 == 0;
+		toReturn[5] = new StatsRow("Starting Rate of Fire:", getMinRateOfFire(), minRoFModified);
 		
-		// tier2 indexes 1 & 2 both increase RoF
-		boolean RoFModified = selectedTier2 > 0 || selectedTier3 == 0 || selectedOverclock == 4;
-		toReturn[6] = new StatsRow("Average Rate of Fire:", getAverageRateOfFire(), RoFModified);
+		boolean maxRoFModified = selectedTier2 == 1 || selectedTier3 == 0 || selectedOverclock == 4;
+		toReturn[6] = new StatsRow("Max Rate of Fire:", getMaxRateOfFire(), maxRoFModified);
 		
-		toReturn[7] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 0);
+		toReturn[7] = new StatsRow("Number of Bullets Fired Before Max RoF:", getNumBulletsRampup(), false);
 		
-		toReturn[8] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[8] = new StatsRow("Average Rate of Fire:", getAverageRateOfFire(), minRoFModified || maxRoFModified);
 		
-		toReturn[9] = new StatsRow("Fear Chance:", "20% (?)", selectedTier5 == 1, selectedTier5 == 1);
+		toReturn[9] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 0);
+		
+		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier4 == 0, selectedTier4 == 0);
+		
+		toReturn[11] = new StatsRow("Fear Chance:", "20% (?)", selectedTier5 == 1, selectedTier5 == 1);
 		
 		boolean baseSpreadModified = selectedTier2 == 0 || selectedOverclock == 4;
-		toReturn[10] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
+		toReturn[12] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
 		
-		toReturn[11] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 3);
+		toReturn[13] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 3);
 		
-		toReturn[12] = new StatsRow("Damage Resistance at Full RoF:", "33%", selectedTier5 == 2, selectedTier5 == 2);
+		toReturn[14] = new StatsRow("Damage Resistance at Full RoF:", "33%", selectedTier5 == 2, selectedTier5 == 2);
 		
 		return toReturn;
 	}
@@ -486,8 +530,7 @@ public class Autocannon extends Weapon {
 	
 	@Override
 	protected void setAoEEfficiency() {
-		// TODO: Elythnwaen doesn't have access to the full damage radius and damage fall-off of the Autocannon, so ask MikeGSG for those 2 values.
-		aoeEfficiency =  calculateAverageAreaDamage(getAoERadius(), 1.0, 0.25);
+		aoeEfficiency =  calculateAverageAreaDamage(getAoERadius(), 0.75, 0.5);
 	}
 	
 	// Single-target calculations
@@ -523,8 +566,7 @@ public class Autocannon extends Weapon {
 		}
 		
 		if (selectedTier5 == 0) {
-			double numBulletsRampup = (double) getNumBulletsRampup();
-			double feedbackLoopMultiplier = (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+			double feedbackLoopMultiplier = feedbackLoopMultiplier();
 			directDamage *= feedbackLoopMultiplier;
 			areaDamage *= feedbackLoopMultiplier;
 		}
@@ -577,8 +619,7 @@ public class Autocannon extends Weapon {
 		double magSize = (double) getMagazineSize();
 		double damageMultiplier = 1.0;
 		if (selectedTier5 == 0) {
-			double numBulletsRampup = (double) getNumBulletsRampup();
-			damageMultiplier = (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+			damageMultiplier = feedbackLoopMultiplier();
 		}
 		return damagePerBullet * magSize * damageMultiplier;
 	}
@@ -610,8 +651,7 @@ public class Autocannon extends Weapon {
 		double areaDamage = getAreaDamage();
 		
 		if (selectedTier5 == 0) {
-			double numBulletsRampup = (double) getNumBulletsRampup();
-			areaDamage *= (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+			areaDamage *= feedbackLoopMultiplier();
 		}
 		
 		double areaDamagePerMag = areaDamage * aoeEfficiency[1] * magSize;
@@ -688,7 +728,37 @@ public class Autocannon extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		breakpoints = EnemyInformation.calculateBreakpoints(getDirectDamage(), getAreaDamage(), 0);
+		double dmgMultiplier = 1.0;
+		
+		if (selectedTier5 == 0) {
+			dmgMultiplier = feedbackLoopMultiplier();
+		}
+		
+		double[] directDamage = {
+			getDirectDamage() * dmgMultiplier,  // Kinetic
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double[] areaDamage = {
+			getAreaDamage() * dmgMultiplier,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double timeToNeurotoxin = MathUtils.meanRolls(0.3) / getAverageRateOfFire();
+		double ntDoTDmg = calculateAverageDoTDamagePerEnemy(timeToNeurotoxin, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
+		double[] DoTDamage = {
+			0,  // Fire
+			0,  // Electric
+			ntDoTDmg,  // Poison
+			0  // Radiation
+		};
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, 0.0);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -703,11 +773,20 @@ public class Autocannon extends Weapon {
 			
 			int numBulletsRampup = getNumBulletsRampup();
 			int magSize = getMagazineSize();
+			double minRoF = getMinRateOfFire();
 			double maxRoF = getMaxRateOfFire();
-			double timeRampingUp = numBulletsRampup / ((minRateOfFire + maxRoF) / 2.0); 
-			double timeAtMaxRoF = (magSize - numBulletsRampup) / maxRoF;
 			
-			double fullRoFUptime = timeAtMaxRoF / (timeRampingUp + timeAtMaxRoF);
+			double fullRoFUptime;
+			// Special case: when Min RoF == Max RoF the timeRampingUp is zero due to numBulletsRampup == 0.
+			if (minRoF == maxRoF) {
+				fullRoFUptime = 1;
+			}
+			else {
+				double timeRampingUp = numBulletsRampup / Math.log(maxRoF / getMinRateOfFire()) / getIncreaseScalingRate(); 
+				double timeAtMaxRoF = (magSize - numBulletsRampup) / maxRoF;
+				
+				fullRoFUptime = timeAtMaxRoF / (timeRampingUp + timeAtMaxRoF);
+			}
 			
 			utilityScores[1] = fullRoFUptime * EHPmultiplier * UtilityInformation.DamageResist_Utility;
 		}
@@ -724,7 +803,7 @@ public class Autocannon extends Weapon {
 		// Average out the Area Damage Breaking and Direct Damage Breaking
 		utilityScores[2] = (directDamageAB + (aoeEfficiency[2] - 1) * areaDamageAB) * UtilityInformation.ArmorBreak_Utility / aoeEfficiency[2];
 		
-		// OC "Neurotoxin Payload" has a 20% chance to inflict a 30% slow by poisoning enemies
+		// OC "Neurotoxin Payload" has a 30% chance to inflict a 30% slow by poisoning enemies
 		if (selectedOverclock == 5) {
 			utilityScores[3] = 0.3 * calculateMaxNumTargets() * DoTInformation.Neuro_SecsDuration * UtilityInformation.Neuro_Slow_Utility;
 		}
@@ -732,9 +811,10 @@ public class Autocannon extends Weapon {
 			utilityScores[3] = 0;
 		}
 		
-		// Mod Tier 5 "Suppressive Fire" induces Fear (20-50% chance maybe?)
+		// According to MikeGSG, Mod Tier 5 "Suppressive Fire" does 0.5 Fear in a 1m radius
 		if (selectedTier5 == 1) {
-			utilityScores[4] = 0.2 * calculateMaxNumTargets() * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			int numGlyphidsFeared = 5;  // calculateNumGlyphidsInRadius(1.0);
+			utilityScores[4] = 0.5 * numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;
@@ -749,8 +829,7 @@ public class Autocannon extends Weapon {
 		double magSize = getMagazineSize();
 		double damageMultiplier = 1.0;
 		if (selectedTier5 == 0) {
-			double numBulletsRampup = (double) getNumBulletsRampup();
-			damageMultiplier = (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+			damageMultiplier = feedbackLoopMultiplier();
 		}
 		return damagePerBullet * magSize * damageMultiplier;
 	}
@@ -758,5 +837,69 @@ public class Autocannon extends Weapon {
 	@Override
 	public double timeToFireMagazine() {
 		return getMagazineSize() / getAverageRateOfFire();
+	}
+	
+	@Override
+	public ArrayList<String> exportModsToMySQL() {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		
+		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.modsTableName, getDwarfClassID(), getWeaponID());
+		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		
+		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
+		// Tier 1
+		toReturn.add(String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1200, 0, 25, 0, 0, 0, 0, tier1[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 3 } }", "Icon_Upgrade_DamageGeneral", "Damage"));
+		toReturn.add(String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1200, 0, 0, 0, 0, 25, 0, tier1[1].getText(true), "{ \"clip\": { \"name\": \"Magazine Size\", \"value\": 110 } }", "Icon_Upgrade_ClipSize", "Magazine Size"));
+		toReturn.add(String.format(rowFormat, 1, tier1[2].getLetterRepresentation(), tier1[2].getName(), 1200, 0, 0, 0, 25, 0, 0, tier1[2].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 220 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
+		
+		// Tier 2
+		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 2000, 0, 0, 0, 24, 15, 0, tier2[0].getText(true), "{ \"ex3\": { \"name\": \"Base Spread\", \"value\": 30, \"percent\": true, \"subtract\": true } }", "Icon_Upgrade_Accuracy", "Accuracy"));
+		toReturn.add(String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 2000, 0, 0, 0, 0, 15, 24, tier2[1].getText(true), "{ \"rate\": { \"name\": \"Top Rate of Fire\", \"value\": 1.5 } }", "Icon_Upgrade_FireRate", "Rate of Fire"));
+		toReturn.add(String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 2000, 0, 15, 0, 0, 24, 0, tier2[2].getText(true), "{ \"ex4\": { \"name\": \"Rate of Fire Growth Speed\", \"value\": 100, \"percent\": true } }", "Icon_Upgrade_FireRate", "Rate of Fire"));
+		
+		// Tier 3
+		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2800, 0, 0, 0, 50, 0, 35, tier3[0].getText(true), "{ \"rate\": { \"name\": \"Top Rate of Fire\", \"value\": 2 } }", "Icon_Upgrade_FireRate", "Rate of Fire"));
+		toReturn.add(String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2800, 35, 0, 50, 0, 0, 0, tier3[1].getText(true), "{ \"ex1\": { \"name\": \"Area Damage\", \"value\": 2 } }", "Icon_Upgrade_AreaDamage", "Area Damage"));
+		toReturn.add(String.format(rowFormat, 3, tier3[2].getLetterRepresentation(), tier3[2].getName(), 2800, 50, 0, 0, 0, 35, 0, tier3[2].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 4 } }", "Icon_Upgrade_DamageGeneral", "Damage"));
+		
+		// Tier 4
+		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 4800, 48, 0, 0, 0, 50, 72, tier4[0].getText(true), "{ \"ex5\": { \"name\": \"Armor Breaking\", \"value\": 400, \"percent\": true } }", "Icon_Upgrade_ArmorBreaking", "Armor Breaking"));
+		toReturn.add(String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 4800, 50, 0, 48, 0, 0, 72, tier4[1].getText(true), "{ \"ex2\": { \"name\": \"Effect Radius\", \"value\": 0.6 } }", "Icon_Upgrade_Area", "Area of effect"));
+		
+		// Tier 5
+		toReturn.add(String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 5600, 64, 70, 0, 140, 0, 0, tier5[0].getText(true), "{ \"ex7\": { \"name\": \"Top RoF Damage Bonus\", \"value\": 20, \"percent\": true } }", "Icon_Upgrade_DamageGeneral", "Damage"));
+		toReturn.add(String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 5600, 64, 70, 140, 0, 0, 0, tier5[1].getText(true), "{ \"ex8\": { \"name\": \"Impact Fear AoE\", \"value\": 1 } }", "Icon_Upgrade_ScareEnemies", "Fear"));
+		toReturn.add(String.format(rowFormat, 5, tier5[2].getLetterRepresentation(), tier5[2].getName(), 5600, 0, 0, 0, 64, 70, 140, tier5[2].getText(true), "{ \"ex9\": { \"name\": \"Damage Resistance at Full RoF\", \"value\": 33, \"percent\": true } }", "Icon_Upgrade_Resistance", "Resistance"));
+		
+		return toReturn;
+	}
+	@Override
+	public ArrayList<String> exportOCsToMySQL() {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		
+		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.OCsTableName, getDwarfClassID(), getWeaponID());
+		rowFormat += "'%s', %s, '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		
+		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
+		// Clean
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 7850, 105, 0, 0, 135, 70, 0, overclocks[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 110 }, "
+				+ "\"reload\": { \"name\": \"Reload Time\", \"value\": 0.5, \"subtract\": true } }", "Icon_Upgrade_Ammo"));
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 7300, 65, 0, 0, 95, 0, 125, overclocks[1].getText(true), "{ \"ex1\": { \"name\": \"Area Damage\", \"value\": 1 }, "
+				+ "\"ex2\": { \"name\": \"Effect Radius\", \"value\": 0.3 } }", "Icon_Upgrade_Area"));
+		
+		// Balanced
+		toReturn.add(String.format(rowFormat, "Balanced", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 7350, 105, 0, 70, 120, 0, 0, overclocks[2].getText(true), "{ \"ex1\": { \"name\": \"Area Damage\", \"value\": 3 }, "
+				+ "\"ex2\": { \"name\": \"Effect Radius\", \"value\": 0.7 }, \"dmg\": { \"name\": \"Damage\", \"value\": 6, \"subtract\": true } }", "Icon_Upgrade_AreaDamage"));
+		toReturn.add(String.format(rowFormat, "Balanced", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 7650, 95, 0, 0, 70, 0, 120, overclocks[3].getText(true), "{ \"ex6\": { \"name\": \"Movement Speed While Using\", \"value\": 15, \"percent\": true }, "
+				+ "\"dmg\": { \"name\": \"Damage\", \"value\": 2, \"subtract\": true } }", "Icon_Upgrade_MovementSpeed"));
+		
+		// Unstable
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 8400, 0, 125, 80, 105, 0, 0, overclocks[4].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 12 }, "
+				+ "\"clip\": { \"name\": \"Magazine Size\", \"value\": 0.5, \"multiply\": true }, \"ammo\": { \"name\": \"Max Ammo\", \"value\": 110, \"subtract\": true }, \"ex3\": { \"name\": \"Base Spread\", \"value\": 30, \"percent\": true, \"subtract\": true }, "
+				+ "\"rate\": { \"name\": \"Top Rate of Fire\", \"value\": 1.5, \"subtract\": true } }", "Icon_Upgrade_DamageGeneral"));
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 8100, 135, 0, 0, 100, 0, 75, overclocks[5].getText(true), "{ \"ex10\": { \"name\": \"Neurotoxin Payload\", \"value\": 1, \"boolean\": true }, "
+				+ "\"dmg\": { \"name\": \"Damage\", \"value\": 3, \"subtract\": true }, \"ex1\": { \"name\": \"Area Damage\", \"value\": 6, \"subtract\": true }, \"ex2\": { \"name\": \"Effect Radius\", \"value\": 0.3 } }", "Icon_Overclock_Neuro"));
+		
+		return toReturn;
 	}
 }

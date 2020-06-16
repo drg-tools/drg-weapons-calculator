@@ -1,5 +1,6 @@
 package engineerWeapons;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -96,11 +97,11 @@ public class Shotgun extends Weapon {
 		tier4[1] = new Mod("Bigger Pellets", "+1 Damage per Pellet", modIcons.directDamage, 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1m Radius. 3 second cooldown per turret.", modIcons.special, 5, 0, false);
+		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1m Radius. 10 Sentry ammo per shot, 3 second cooldown per Sentry.", modIcons.special, 5, 0, false);
 		tier5[1] = new Mod("Miner Adjustments", "Changes the Shotgun from semi-automatic to fully automatic, +0.5 Rate of Fire", modIcons.rateOfFire, 5, 1);
 		
 		overclocks = new Overclock[5];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Stunner", "Pellets now have a 10% chance to stun any time they damage an enemy, and any shots that hit a "
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Stunner", "Pellets can now stun an enemy on any body part instead of just weakpoints, and any shots that hit a "
 				+ "target that's already stunned deal x1.3 damage.", overclockIcons.stun, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Light-Weight Magazines", "+20 Max Ammo, -0.4 Reload Time", overclockIcons.carriedAmmo, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Magnetic Pellet Alignment", "x0.5 Base Spread, +30% Weakpoint Bonus, x0.75 Rate of Fire", overclockIcons.baseSpread, 2);
@@ -639,14 +640,36 @@ public class Shotgun extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		breakpoints = EnemyInformation.calculateBreakpoints(getDamagePerPellet() * getNumberOfPellets(), 0, getWeakpointBonus());
+		double[] directDamage = {
+			getDamagePerPellet() * getNumberOfPellets(),  // Kinetic
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double[] areaDamage = {
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double[] DoTDamage = {
+			0,  // Fire
+			0,  // Electric
+			0,  // Poison
+			0  // Radiation
+		};
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0);
 		return MathUtils.sum(breakpoints);
 	}
 
 	@Override
 	public double utilityScore() {
 		// Light Armor Breaking probability
-		// TODO: Should this probability be calculated like its stun/pellet chance?
+		// TODO: Should this Light Armor probability be calculated like its stun/pellet chance?
 		int numPelletsThatHitLightArmorPlate = (int) Math.round(getNumberOfPellets() * estimatedAccuracy(false) / 100.0);
 		double probabilityToBreakLightArmorPlatePerPellet = calculateProbabilityToBreakLightArmor(getDamagePerPellet() * numPelletsThatHitLightArmorPlate, getArmorBreaking());
 		utilityScores[2] = probabilityToBreakLightArmorPlatePerPellet * UtilityInformation.ArmorBreak_Utility;
@@ -665,5 +688,66 @@ public class Shotgun extends Weapon {
 	@Override
 	public double timeToFireMagazine() {
 		return getMagazineSize() / getRateOfFire();
+	}
+	
+	@Override
+	public ArrayList<String> exportModsToMySQL() {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		
+		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.modsTableName, getDwarfClassID(), getWeaponID());
+		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		
+		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
+		// Tier 1
+		toReturn.add(String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1200, 0, 25, 0, 0, 0, 0, tier1[0].getText(true), "{ \"rate\": { \"name\": \"Rate of Fire\", \"value\": 1 } }", "Icon_Upgrade_FireRate", "Rate of Fire"));
+		toReturn.add(String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1200, 0, 0, 0, 0, 25, 0, tier1[1].getText(true), "{ \"clip\": { \"name\": \"Magazine Size\", \"value\": 2 } }", "Icon_Upgrade_ClipSize", "Magazine Size"));
+		
+		// Tier 2
+		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 2000, 0, 0, 0, 24, 15, 0, tier2[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 40 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
+		toReturn.add(String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 2000, 0, 0, 0, 0, 15, 24, tier2[1].getText(true), "{ \"ex1\": { \"name\": \"Pellets\", \"value\": 2 } }", "Icon_Upgrade_Shotgun_Pellet", "Pellet Count"));
+		toReturn.add(String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 2000, 24, 0, 15, 0, 0, 0, tier2[2].getText(true), "{ \"ex5\": { \"name\": \"Base Spread\", \"value\": 0.5, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_Accuracy", "Accuracy"));
+		
+		// Tier 3
+		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2800, 0, 0, 0, 35, 0, 50, tier3[0].getText(true), "{ \"ex4\": { \"name\": \"Recoil\", \"value\": 0.4, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_Recoil", "Recoil"));
+		toReturn.add(String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2800, 35, 0, 0, 0, 50, 0, tier3[1].getText(true), "{ \"reload\": { \"name\": \"Reload Time\", \"value\": 0.5, \"subtract\": true } }", "Icon_Upgrade_Speed", "Reload Speed"));
+		toReturn.add(String.format(rowFormat, 3, tier3[2].getLetterRepresentation(), tier3[2].getName(), 2800, 0, 50, 0, 0, 35, 0, tier3[2].getText(true), "{ \"clip\": { \"name\": \"Magazine Size\", \"value\": 3 } }", "Icon_Upgrade_ClipSize", "Magazine Size"));
+		
+		// Tier 4
+		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 4800, 48, 0, 0, 0, 50, 72, tier4[0].getText(true), "{ \"ex6\": { \"name\": \"Armor Breaking\", \"value\": 400, \"percent\": true } }", "Icon_Upgrade_ArmorBreaking", "Armor Breaking"));
+		toReturn.add(String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 4800, 0, 72, 0, 48, 50, 0, tier4[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 1 } }", "Icon_Upgrade_DamageGeneral", "Damage"));
+		
+		// Tier 5
+		toReturn.add(String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 5600, 0, 0, 0, 64, 70, 140, tier5[0].getText(true), "{ \"ex7\": { \"name\": \"Turret Whip\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Special", "Special"));
+		toReturn.add(String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 5600, 64, 70, 0, 140, 0, 0, tier5[1].getText(true), "{ \"rate\": { \"name\": \"Rate of Fire\", \"value\": 0.5 }, "
+				+ "\"ex8\": { \"name\": \"Miner Adjustments\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_FireRate", "Rate of Fire"));
+		
+		return toReturn;
+	}
+	@Override
+	public ArrayList<String> exportOCsToMySQL() {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		
+		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.OCsTableName, getDwarfClassID(), getWeaponID());
+		rowFormat += "'%s', %s, '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		
+		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
+		// Clean
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 7350, 60, 100, 0, 0, 0, 135, overclocks[0].getText(true), "{ \"ex10\": { \"name\": \"Stun Chance on all body parts\", \"value\": 1, \"boolean\": true }, "
+				+ "\"ex11\": { \"name\": \"Bonus Damage Vs Stunned\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_ClipSize"));
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 7250, 105, 0, 60, 125, 0, 0, overclocks[1].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 20 }, "
+				+ "\"reload\": { \"name\": \"Reload Time\", \"value\": 0.4, \"subtract\": true } }", "Icon_Upgrade_Ammo"));
+		
+		// Balanced
+		toReturn.add(String.format(rowFormat, "Balanced", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 7900, 0, 0, 75, 0, 120, 105, overclocks[2].getText(true), "{ \"ex5\": { \"name\": \"Base Spread\", \"value\": 0.5, \"percent\": true, \"multiply\": true }, "
+				+ "\"ex9\": { \"name\": \"Weakpoint Damage Bonus\", \"value\": 30, \"percent\": true }, \"rate\": { \"name\": \"Rate of Fire\", \"value\": 0.75, \"multiply\": true } }", "Icon_Upgrade_Accuracy"));
+		
+		// Unstable
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 8050, 0, 125, 80, 100, 0, 0, overclocks[3].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 1 }, "
+				+ "\"rate\": { \"name\": \"Rate of Fire\", \"value\": 2 }, \"reload\": { \"name\": \"Reload Time\", \"value\": 0.5 }, \"ex5\": { \"name\": \"Base Spread\", \"value\": 1.5, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_FireRate"));
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 7700, 90, 0, 0, 125, 65, 0, overclocks[4].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 90 }, "
+				+ "\"clip\": { \"name\": \"Magazine Size\", \"value\": 6 }, \"ex4\": { \"name\": \"Recoil\", \"value\": 0.5, \"percent\": true, \"multiply\": true }, \"dmg\": { \"name\": \"Damage\", \"value\": 2, \"subtract\": true }, "
+				+ "\"ex2\": { \"name\": \"Weakpoint Stun Duration\", \"value\": 0, \"multiply\": true }, \"ex3\": { \"name\": \"Weakpoint Stun Chance Per Pellet\", \"value\": 0, \"percent\": true, \"multiply\": true } }", "Icon_Overclock_SmallBullets"));
+		
+		return toReturn;
 	}
 }

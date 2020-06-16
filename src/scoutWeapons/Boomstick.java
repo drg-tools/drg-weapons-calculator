@@ -1,5 +1,6 @@
 package scoutWeapons;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,6 +18,16 @@ import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
+
+/*
+	Extracted via UUU:
+		ShockWaveLength: 150
+		Radius: 150
+		Distance: 250
+		
+		ShotgunJump Force: 1000
+		Fear Factor Radius: 500
+*/
 
 public class Boomstick extends Weapon {
 	
@@ -82,7 +93,7 @@ public class Boomstick extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", modIcons.carriedAmmo, 1, 0);
+		tier1[0] = new Mod("Expanded Ammo Bags", "+8 Max Ammo", modIcons.carriedAmmo, 1, 0);
 		tier1[1] = new Mod("Double-Sized Buckshot", "+3 Damage per Pellet", modIcons.directDamage, 1, 1);
 		
 		tier2 = new Mod[2];
@@ -95,7 +106,7 @@ public class Boomstick extends Weapon {
 		tier3[2] = new Mod("High Capacity Shells", "+3 Pellets per Shot", modIcons.pelletsPerShot, 3, 2);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Super Blowthrough Rounds", "+3 Penetratinos", modIcons.blowthrough, 4, 0);
+		tier4[0] = new Mod("Super Blowthrough Rounds", "+3 Penetrations", modIcons.blowthrough, 4, 0);
 		tier4[1] = new Mod("Tungsten Coated Buckshot", "+300% Armor Breaking", modIcons.armorBreaking, 4, 1);
 		tier4[2] = new Mod("Improved Blast Wave", "+20 Blastwave Damage to any enemies in the area extending 4m infront of you.", modIcons.special, 4, 2);
 		
@@ -640,13 +651,13 @@ public class Boomstick extends Weapon {
 			double fireDoTDamagePerEnemy;
 			if (getMagazineSize() > 1) {
 				double timeBeforeIgnite = calculateTimeToIgnite(false);
-				fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeIgnite, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+				fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 				
 				fireDoTTotalDamage = fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 			}
 			else {
 				double percentageOfEnemiesIgnitedPerShot = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(0.5 * directDamagePerShot);
-				fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+				fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 				
 				fireDoTTotalDamage += numShots * (percentageOfEnemiesIgnitedPerShot * numTargets) * fireDoTDamagePerEnemy;
 			}
@@ -701,10 +712,37 @@ public class Boomstick extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		breakpoints = EnemyInformation.calculateBreakpoints(getDamagePerPellet() * getNumberOfPellets(), 0, 0);
+		double[] directDamage = {
+			getDamagePerPellet() * getNumberOfPellets(),  // Kinetic
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double[] areaDamage = {
+			getBlastwaveDamage(),  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		// Because White Phosphorus Shells is a burst of Heat, it's not modeled like other DoTs are
+		double burstOfHeatPerShot = 0;
+		if (selectedTier5 == 2) {
+			burstOfHeatPerShot = 0.5 * getDamagePerPellet() * getNumberOfPellets();
+		}
+		
+		double[] DoTDamage = {
+			0,  // Fire
+			0,  // Electric
+			0,  // Poison
+			0  // Radiation
+		};
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, burstOfHeatPerShot);
 		return MathUtils.sum(breakpoints);
 	}
-
 	@Override
 	public double utilityScore() {
 		// OC "Special Powder" gives a lot of Mobility (7.8m vertical per shot, 13m horizontal per shot)
@@ -717,7 +755,7 @@ public class Boomstick extends Weapon {
 		}
 		
 		// Light Armor Breaking probability
-		// TODO: Should this probability be calculated like its stun/pellet chance?
+		// TODO: Should this Light Armor probability be calculated like its stun/pellet chance?
 		int numPelletsThatHitLightArmorPlate = (int) Math.round(getNumberOfPellets() * estimatedAccuracy(false) / 100.0);
 		double probabilityToBreakLightArmorPlatePerPellet = calculateProbabilityToBreakLightArmor(getDamagePerPellet() * numPelletsThatHitLightArmorPlate, getArmorBreaking());
 		utilityScores[2] = probabilityToBreakLightArmorPlatePerPellet * UtilityInformation.ArmorBreak_Utility;
@@ -755,5 +793,66 @@ public class Boomstick extends Weapon {
 		else {
 			return 0;
 		}
+	}
+	
+	@Override
+	public ArrayList<String> exportModsToMySQL() {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		
+		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.modsTableName, getDwarfClassID(), getWeaponID());
+		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		
+		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
+		// Tier 1
+		toReturn.add(String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1000, 0, 0, 0, 0, 20, 0, tier1[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 8 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
+		toReturn.add(String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 3 } }", "Icon_Upgrade_DamageGeneral", "Damage"));
+		
+		// Tier 2
+		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 1800, 0, 18, 0, 0, 12, 0, tier2[0].getText(true), "{ \"rate\": { \"name\": \"Rate of Fire\", \"value\": 7.5 } }", "Icon_Upgrade_FireRate", "Rate of Fire"));
+		toReturn.add(String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 1800, 0, 0, 0, 18, 0, 12, tier2[1].getText(true), "{ \"reload\": { \"name\": \"Reload Time\", \"value\": 0.7, \"subtract\": true } }", "Icon_Upgrade_Speed", "Reload Speed"));
+		
+		// Tier 3
+		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2200, 0, 0, 0, 20, 0, 30, tier3[0].getText(true), "{ \"ex9\": { \"name\": \"Stun Duration\", \"value\": 2.5 } }", "Icon_Upgrade_Stun", "Stun"));
+		toReturn.add(String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2200, 0, 0, 0, 20, 0, 30, tier3[1].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 12 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
+		toReturn.add(String.format(rowFormat, 3, tier3[2].getLetterRepresentation(), tier3[2].getName(), 2200, 30, 0, 0, 0, 20, 0, tier3[2].getText(true), "{ \"ex1\": { \"name\": \"Pellets\", \"value\": 3 } }", "Icon_Upgrade_Shotgun_Pellet", "Pellet Count"));
+		
+		// Tier 4
+		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 3800, 15, 0, 0, 0, 36, 25, tier4[0].getText(true), "{ \"ex3\": { \"name\": \"Max Penetrations\", \"value\": 3 } }", "Icon_Upgrade_BulletPenetration", "Blow Through"));
+		toReturn.add(String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 3800, 0, 0, 36, 25, 0, 15, tier4[1].getText(true), "{ \"ex4\": { \"name\": \"Armor Breaking\", \"value\": 300, \"percent\": true } }", "Icon_Upgrade_ArmorBreaking", "Armor Breaking"));
+		toReturn.add(String.format(rowFormat, 4, tier4[2].getLetterRepresentation(), tier4[2].getName(), 3800, 15, 36, 0, 0, 25, 0, tier4[2].getText(true), "{ \"ex5\": { \"name\": \"Front AoE shock wave Damage\", \"value\": 20 } }", "Icon_Upgrade_Special", "Special"));
+		
+		// Tier 5
+		toReturn.add(String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 4400, 0, 40, 110, 0, 60, 0, tier5[0].getText(true), "{ \"ex6\": { \"name\": \"Auto Reload\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Speed", "Reload Speed"));
+		toReturn.add(String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 4400, 110, 0, 0, 40, 0, 60, tier5[1].getText(true), "{ \"ex7\": { \"name\": \"Proximity Fear Chance\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_ScareEnemies", "Fear"));
+		toReturn.add(String.format(rowFormat, 5, tier5[2].getLetterRepresentation(), tier5[2].getName(), 4400, 0, 60, 40, 0, 0, 110, tier5[2].getText(true), "{ \"ex8\": { \"name\": \"Damage % as Fire\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_Heat", "Heat"));
+		
+		return toReturn;
+	}
+	@Override
+	public ArrayList<String> exportOCsToMySQL() {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		
+		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.OCsTableName, getDwarfClassID(), getWeaponID());
+		rowFormat += "'%s', %s, '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		
+		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
+		// Clean
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 8550, 65, 0, 120, 0, 0, 100, overclocks[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 6 }, "
+				+ "\"reload\": { \"name\": \"Reload Time\", \"value\": 0.2, \"subtract\": true } }", "Icon_Upgrade_Ammo"));
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 7950, 0, 0, 125, 100, 75, 0, overclocks[1].getText(true), "{ \"ex10\": { \"name\": \"Double Barrel\", \"value\": 1, \"boolean\": true }, "
+				+ "\"dmg\": { \"name\": \"Damage\", \"value\": 1 } }", "Icon_Upgrade_FireRate"));
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 7050, 0, 95, 0, 125, 65, 0, overclocks[2].getText(true), "{ \"ex11\": { \"name\": \"Shotgun Jump\", \"value\": 1, \"boolean\": true } }", "Icon_Overclock_ShotgunJump"));
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 7850, 0, 100, 80, 0, 135, 0, overclocks[3].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 1 }, "
+				+ "\"ex1\": { \"name\": \"Pellets\", \"value\": 1 } }", "Icon_Upgrade_Shotgun_Pellet"));
+		
+		// Balanced
+		toReturn.add(String.format(rowFormat, "Balanced", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 7700, 0, 95, 0, 0, 70, 135, overclocks[4].getText(true), "{ \"ex12\": { \"name\": \"Base Spread\", \"value\": 35, \"percent\": true, \"subtract\": true }, "
+				+ "\"ex1\": { \"name\": \"Pellets\", \"value\": 2, \"subtract\": true } }", "Icon_Upgrade_Aim"));
+		
+		// Unstable
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 8800, 0, 65, 0, 0, 105, 125, overclocks[5].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 8 }, "
+				+ "\"ammo\": { \"name\": \"Max Ammo\", \"value\": 10, \"subtract\": true }, \"reload\": { \"name\": \"Reload Time\", \"value\": 0.5 } }", "Icon_Upgrade_DamageGeneral"));
+		
+		return toReturn;
 	}
 }

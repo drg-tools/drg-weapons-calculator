@@ -1,5 +1,6 @@
 package gunnerWeapons;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,6 +18,11 @@ import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.MathUtils;
+
+/*
+	Extracted via UUU:
+	Time between Burning Hell ticks: 0.25
+*/
 
 public class Minigun extends Weapon {
 
@@ -36,6 +42,7 @@ public class Minigun extends Weapon {
 	private int spindownTime;
 	private double movespeedWhileFiring;
 	private int bulletsFiredTilMaxStability;
+	private double secondsBeforeHotBullets;
 	private int cooldownAfterOverheat;
 	
 	/****************************************************************************************
@@ -62,14 +69,16 @@ public class Minigun extends Weapon {
 		stunChancePerPellet = 0.3;
 		stunDuration = 1;
 		maxAmmo = 2400; // equal to 1200 pellets
+		// MikeGSG confirmed that 9.5 is the max Heat, and the default Heat gain rate is 1 Heat/sec, so this translates into 9.5 seconds of firing before Overheat.
 		maxHeat = 9.5;
 		heatPerSecond = 1.0;
 		coolingRate = 1.5;
 		rateOfFire = 30;  // equal to 15 pellets/sec
 		spinupTime = 0.7;
-		spindownTime = 3;  // seconds for the stability to decay full rotational speed down to stationary barrels
+		spindownTime = 3;  // seconds for the barrels to stop spinning -- does not affect the stability
 		movespeedWhileFiring = 0.5;
 		bulletsFiredTilMaxStability = 40;  // equals 20 pellets
+		secondsBeforeHotBullets = 3.17805;  // See explanation in calculateIgnitionTime() 
 		cooldownAfterOverheat = 10;
 		
 		initializeModsAndOverclocks();
@@ -109,18 +118,19 @@ public class Minigun extends Weapon {
 		tier4[2] = new Mod("Magnetic Bearings", "+3 seconds spindown time", modIcons.special, 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Aggressive Venting", "After overheating, deal 75 Heat Damage and 100% chance to apply Fear to all enemies within a 3m radius", modIcons.addedExplosion, 5, 0);
-		tier5[1] = new Mod("Cold As The Grave", "Every kill reduces the current Heat Meter and thus increases the firing duration before overheating", modIcons.coolingRate, 5, 1);
+		tier5[0] = new Mod("Aggressive Venting", "After overheating, deal 60 Heat Damage and 100% chance to apply Fear to all enemies within a 10m radius", modIcons.addedExplosion, 5, 0);
+		tier5[1] = new Mod("Cold As The Grave", "Every kill subtracts 0.8 Heat from the Heat Meter (maxes at 9.5 Heat) and thus increases the firing duration before overheating", modIcons.coolingRate, 5, 1);
 		tier5[2] = new Mod("Hot Bullets", "After the Heat Meter turns red, 50% of the Damage per Pellet gets added as Heat Damage", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "A Little More Oomph!", "+1 Damage per Pellet, -0.2 spinup time", overclockIcons.directDamage, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Thinned Drum Walls", "+300 Max Ammo, +0.5 Cooling Rate", overclockIcons.coolingRate, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Burning Hell", "While firing, the Minigun deals 100 Heat per Second in a cone 6m in front of the muzzle. +50% heat accumulation in the "
+		// Burning Hell info comes straight from MikeGSG -- thanks Mike!
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Burning Hell", "While firing, the Minigun deals 20 Area Damage per second and 80 Heat per Second in a cone 5m in front of the muzzle. +50% heat accumulation in the "
 				+ "weapon's heat meter, which translates to 2/3 the firing period", overclockIcons.heatDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Compact Feed Mechanism", "+800 Max Ammo, -4 Rate of Fire", overclockIcons.carriedAmmo, 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Exhaust Vectoring", "+2 Damage per Pellet, x2.5 Base Spread", overclockIcons.directDamage, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Bullet Hell", "50% for bullets that impact an enemy or terrain to ricochet into another enemy. -3 Damage per Pellet, x6 Base Spread", overclockIcons.ricochet, 5);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Bullet Hell", "50% chance for bullets that impact an enemy or terrain to ricochet into another enemy. -3 Damage per Pellet, x6 Base Spread", overclockIcons.ricochet, 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Storm", "+4 Damage per Pellet, x0 Movespeed while using, and the Minigun cannot stun enemies anymore.", overclockIcons.directDamage, 6);
 	}
 	
@@ -450,43 +460,22 @@ public class Minigun extends Weapon {
 		}
 	}
 	
+	private double variableChamberPressureMultiplier() {
+		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
+		double pelletsFiredWhileNotStabilized = bulletsFiredTilMaxStability / 2.0;
+		return (pelletsFiredWhileNotStabilized + 1.15*(numPelletsFiredBeforeOverheat - pelletsFiredWhileNotStabilized)) / numPelletsFiredBeforeOverheat;
+	}
 	private double calculateFiringPeriod() {
-		double firingPeriod = maxHeat / getHeatPerSecond();
+		double heatPerSecond = getHeatPerSecond();
+		double RoF = getRateOfFire();
+		double firingPeriod = maxHeat / heatPerSecond;
 		
-		// Cold as the Grave removes a set amount of Heat from the Minigun's meter every time that the Minigun gets the killing blow on an enemy.
-		// TODO: Although the way it's implemented avoids the infinite loop of methods calling each other, I'm not satisfied with how CATG is modeled currently.
+		// Cold as the Grave removes 0.8 Heat from the Minigun's meter every time that the Minigun gets the killing blow on an enemy.
 		if (selectedTier5 == 1) {
-			// Amount of Heat removed per kill, depending on enemy size. (pure guesses)
-			double smallEnemy = 0.1;
-			double mediumEnemy = 0.5;
-			double largeEnemy = 1.0;
-			double [] heatRemovalVector = {
-				smallEnemy,  // Glyphid Swarmer
-				mediumEnemy,  // Glyphid Grunt
-				mediumEnemy,  // Glyphid Grunt Guard
-				mediumEnemy,  // Glyphid Grunt Slasher
-				largeEnemy,  // Glyphid Praetorian
-				smallEnemy,  // Glyphid Exploder
-				largeEnemy,  // Glyphid Bulk Detonator
-				largeEnemy,  // Glyphid Crassus Detonator
-				mediumEnemy,  // Glyphid Webspitter
-				mediumEnemy,  // Glyphid Acidspitter
-				largeEnemy,  // Glyphid Menace
-				largeEnemy,  // Glyphid Warden
-				largeEnemy,  // Glyphid Oppressor
-				largeEnemy,  // Q'ronar Shellback
-				mediumEnemy,  // Mactera Spawn
-				mediumEnemy,  // Mactera Grabber
-				largeEnemy,  // Mactera Bomber
-				largeEnemy,  // Naedocyte Breeder
-				largeEnemy,  // Glyphid Brood Nexus
-				largeEnemy,  // Spitball Infector
-				smallEnemy   // Cave Leech
-			};
-			double averageHeatRemovedOnKill = EnemyInformation.dotProductWithSpawnRates(heatRemovalVector);
+			double heatRemovedPerKill = 0.8;
 			
 			// This is a quick-and-dirty way to guess what the Ideal Burst DPS will be when it's all said and done without calculating Firing Period and causing an infinite loop.
-			double estimatedBurstDPS = getDamagePerPellet() * getRateOfFire() / 2.0;
+			double estimatedBurstDPS = getDamagePerPellet() * RoF / 2.0;
 			if (selectedTier4 == 0) {
 				// Slight overestimation
 				estimatedBurstDPS *= 1.13;
@@ -494,11 +483,28 @@ public class Minigun extends Weapon {
 			if (selectedOverclock == 2) {
 				// Slight overestimation
 				estimatedBurstDPS += 0.95 * DoTInformation.Burn_DPS;
+				
+				// To account for the increased Heat Gain Rate from Burning Hell, I'm proportionally scaling down the Heat removed per kill
+				heatRemovedPerKill = heatRemovedPerKill / heatPerSecond;
 			}
 			
 			double estimatedBurstTTK = EnemyInformation.averageHealthPool() / estimatedBurstDPS;
-			double estimatedNumKillsDuringDefaultPeriod = firingPeriod / estimatedBurstTTK;
-			firingPeriod += estimatedNumKillsDuringDefaultPeriod * averageHeatRemovedOnKill;
+			double timeAddedByCATG = (firingPeriod / estimatedBurstTTK) * heatRemovedPerKill;
+			firingPeriod += timeAddedByCATG;
+			
+			// I'm using this while loop to model how getting a kill enables the Minigun to get more kills without Overheating, but also the diminishing returns. If I modeled it correctly,
+			// then this will be less and less effective as the average healthpool goes up with Difficulty Scaling
+			double maxFiringPeriod = getMaxAmmo() / RoF;
+			while (timeAddedByCATG > heatRemovedPerKill) {
+				timeAddedByCATG = (timeAddedByCATG / estimatedBurstTTK) * heatRemovedPerKill;
+				firingPeriod += timeAddedByCATG;
+				
+				// On Haz1 1Player, this is an infinite while loop. As such, I'm adding a second exit condition: it can't return a firing period longer than it takes to fire all ammo.
+				if (firingPeriod > maxFiringPeriod) {
+					firingPeriod = maxFiringPeriod;
+					break;
+				}
+			}
 		}
 		
 		return firingPeriod;
@@ -571,8 +577,7 @@ public class Minigun extends Weapon {
 	}
 	
 	private double calculateIgnitionTime(boolean accuracy) {
-		// It looks like Hot Bullets and Burning Hell both have -50% Burn DoT Durations?
-		double burningHellHeatPerSec = 100;
+		double burningHellHeatPerSec = 80;
 		
 		double generalAccuracy;
 		if (accuracy) {
@@ -588,27 +593,44 @@ public class Minigun extends Weapon {
 			generalAccuracy = Math.min(generalAccuracy + 0.5, 1.0);
 		}
 		
+		/*
+			MikeGSG shared with me that the Heat Meter displayed on the Minigun is the output of UE4 function that maps the current Heat value [0, 9.5]
+			to [0, 100]. It doesn't use a proper equation, but I found a polynomial approximation:
+			
+				17x - 0.256x^2 - 0.0449x^3
+			
+			Additionally, according to UUU, Hot Bullets activates when the output value of the Heat Meter is > 50. Using WolframAlpha to solve for what Heat Value: 3.17805 Heat
+				GetAll GatlingGun HotShellsTemperatureRequired
+				GetAll GatlingHotShellsBonusUpgrade TemperatureRequired
+			
+			Unless Burning Hell is equipped, that's functionally the time before bullets have Heat Damage added to them.
+		*/
+		double timeBeforeHotBullets = secondsBeforeHotBullets;
+		
 		// Hot Bullets only
 		if (selectedTier5 == 2 && selectedOverclock != 2) {
 			// Hot Bullets adds 50% of of each pellet's Direct Damage as Heat Damage while the Heat Meter on the Minigun is red.
-			// In practice, the meter turns red after 4 seconds of sustained firing, meaning that the last 5.5 seconds of the burst will have Hot Bullets.
 			// I'm choosing to reduce the heatPerPellet by the Accuracy of the gun to imitate when pellets miss the target
 			double heatPerPellet = ((double) getDamagePerPellet()) * generalAccuracy / 2.0;
 			double RoF = getRateOfFire() / 2.0;
-			return 4 + EnemyInformation.averageTimeToIgnite(heatPerPellet, RoF);
+			return timeBeforeHotBullets + EnemyInformation.averageTimeToIgnite(heatPerPellet, RoF);
 		}
 		// Burning Hell only
 		else if (selectedTier5 != 2 && selectedOverclock == 2) {
-			// Burning Hell looks like it burns everything within 6m in a 20 degree arc in front of you at a rate of 100 heat/sec
-			// TODO: I would like for this to have its AoE damage reflected in max damage, like Aggressive Venting
+			// Burning Hell burns everything within 5m in a 20 degree arc in front of you at a rate of 80 heat/sec
 			return EnemyInformation.averageTimeToIgnite(burningHellHeatPerSec);
 		}
 		// Both Hot Bullets AND Burning Hell
 		else if (selectedTier5 == 2 && selectedOverclock == 2) {
-			// Because Burning Hell reduces the Firing Period from 9.5 sec to 6.33 sec, this means that Hot Bullets gets activated after 2.66 seconds instead of 4.
+			// Because Burning Hell reduces the Firing Period from 9.5 sec to 6.33 sec, this means that Hot Bullets gets activated sooner too
+			double heatGain = getHeatPerSecond();
+			double firingPeriod = maxHeat / heatGain;
+			timeBeforeHotBullets /= heatGain;
+			double timeAfterHotBullets = firingPeriod - timeBeforeHotBullets;
+			
 			double heatPerPellet = ((double) getDamagePerPellet()) * generalAccuracy / 2.0;
 			double RoF = getRateOfFire() / 2.0;
-			double avgHeatPerSec = (2.66 * burningHellHeatPerSec + 3.66 * (heatPerPellet * RoF + burningHellHeatPerSec)) / 6.33;
+			double avgHeatPerSec = (timeBeforeHotBullets * burningHellHeatPerSec + timeAfterHotBullets * (heatPerPellet * RoF + burningHellHeatPerSec)) / firingPeriod;
 			return EnemyInformation.averageTimeToIgnite(avgHeatPerSec);
 		}
 		// Neither are equipped.
@@ -672,8 +694,7 @@ public class Minigun extends Weapon {
 			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
 		}
 		if (selectedTier4 == 0) {
-			double pelletsFiredWhileNotStabilized = bulletsFiredTilMaxStability / 2.0;
-			directDamage *= (pelletsFiredWhileNotStabilized + 1.15*(burstSize - pelletsFiredWhileNotStabilized)) / burstSize;
+			directDamage *= variableChamberPressureMultiplier();
 		}
 		
 		double weakpointAccuracy;
@@ -698,10 +719,15 @@ public class Minigun extends Weapon {
 			}
 		}
 		
+		double burningHellAreaDPS = 0;
+		if (selectedOverclock == 2) {
+			burningHellAreaDPS = 20;
+		}
+		
 		int pelletsThatHitWeakpoint = (int) Math.round(burstSize * weakpointAccuracy);
 		int pelletsThatHitTarget = (int) Math.round(burstSize * generalAccuracy) - pelletsThatHitWeakpoint;
 		
-		return (pelletsThatHitWeakpoint * directWeakpointDamage + pelletsThatHitTarget * directDamage) / longDuration + burnDPS;
+		return (pelletsThatHitWeakpoint * directWeakpointDamage + pelletsThatHitTarget * directDamage) / longDuration + burningHellAreaDPS + burnDPS;
 	}
 	
 	private double calculateDamagePerBurst(boolean weakpointBonus) {
@@ -714,8 +740,7 @@ public class Minigun extends Weapon {
 		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
 		double damageMultiplier = 1.0;
 		if (selectedTier4 == 0) {
-			double pelletsFiredWhileNotStabilized = bulletsFiredTilMaxStability / 2.0;
-			damageMultiplier = (pelletsFiredWhileNotStabilized + 1.15*(numPelletsFiredBeforeOverheat - pelletsFiredWhileNotStabilized)) / numPelletsFiredBeforeOverheat;
+			damageMultiplier = variableChamberPressureMultiplier();
 		}
 		
 		if (weakpointBonus) {
@@ -755,7 +780,8 @@ public class Minigun extends Weapon {
 			return idealSustained;
 		}
 		else if (selectedOverclock == 2) {
-			return DoTInformation.Burn_DPS;
+			// Burning Hell does 20 Area Damage per second in addition to lighting things on fire at a rate of 80 Heat/sec
+			return 20 + DoTInformation.Burn_DPS;
 		}
 		else if (selectedOverclock == 5) {
 			// Bullet Hell has a 50% chance to ricochet
@@ -773,16 +799,21 @@ public class Minigun extends Weapon {
 		double numberOfBursts = (double) getMaxAmmo() / (2.0 * numPelletsFiredBeforeOverheat);
 		double totalDamage = numberOfBursts * calculateDamagePerBurst(false) * numTargets;
 		
+		double burningHellAoEDamage = 0;
+		
 		double fireDoTTotalDamage = 0;
+		double heatGainPerSec = getHeatPerSecond();
+		double timeBeforeHotBullets = secondsBeforeHotBullets / heatGainPerSec;
+		double defaultFiringPeriod = maxHeat / heatGainPerSec;
+		double timeAfterHotBullets = defaultFiringPeriod - timeBeforeHotBullets;
 		double timeBeforeFireProc, fireDoTDamagePerEnemy, estimatedNumEnemiesKilled;
-		// Both Hot Bullets and Burning Hell are penalized with -50% DoT duration
-		// Because of how Hot Bullets' ignition time is calculated, it returns (4 + the ignition time). As a result, it would end up subtracting from the total damage.
+		// Because of how Hot Bullets' ignition time is calculated, it returns (3.17 + the ignition time). As a result, it would end up subtracting from the total damage.
 		if (selectedTier5 == 2 && selectedOverclock != 2) {
-			timeBeforeFireProc = calculateIgnitionTime(false) - 4;
-			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, 0.5 * EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			timeBeforeFireProc = calculateIgnitionTime(false) - timeBeforeHotBullets;
+			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 			
 			// Because Hot Bullets only starts igniting enemies after 4 seconds, reduce this damage by the uptime coefficient.
-			fireDoTDamagePerEnemy *= (5.5/9.5);
+			fireDoTDamagePerEnemy *= (timeAfterHotBullets / defaultFiringPeriod);
 			
 			estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
 			
@@ -791,27 +822,30 @@ public class Minigun extends Weapon {
 		// Burning Hell, on the other hand, works great with this. Even with Hot Bullets stacked on top of it, it doesn't do negative damage.
 		else if (selectedOverclock == 2) {
 			timeBeforeFireProc = calculateIgnitionTime(false);
-			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, 0.5 * EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeFireProc, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 			
-			// TODO: change numTargets to reflect the 6m 20* cone AoE igniting more than just the primary target and sometimes the blowthroughs
-			estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
+			// Arbitrarily using 4 targets hit in the AoE in front of the muzzle, no real math behind it.
+			int numTargetsHitByBurningHellAoE = 4;
+			fireDoTTotalDamage += numberOfBursts * defaultFiringPeriod * fireDoTDamagePerEnemy * numTargetsHitByBurningHellAoE;
 			
-			fireDoTTotalDamage += fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
+			// Additionally, model the 20 Area Damage per second dealt by Burning Hell
+			burningHellAoEDamage = numberOfBursts * defaultFiringPeriod * 20 * numTargetsHitByBurningHellAoE;
 		}
 		
-		// Aggressive Venting does one burst of 75 Heat Damage in a 3m radius around the Gunner
+		// According to MikeGSG, AV does 60 Heat Damage in a 6m radius that falls off to 15 Heat Damage at 10m. It also inflicts 10 Fear on all enemies within that 10m radius.
 		if (selectedTier5 == 0) {
-			// I'm choosing to model Aggressive Venting as Fire DoT max damage without affecting DPS stats, since the 11 sec cooldown penalty would TANK all of those stats.
-			// Additionally, I'm choosing to not combine its burst of 75 Heat Damage with the Heat/sec dealt by Hot Bullets or Burning Hell. It gets its own section, all to itself.
-			double percentageOfEnemiesIgnitedByAV = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(75);
-			double numGlyphidsHitByHeatBurst = 20;  // this.calculateNumGlyphidsInRadius(3);
+			// I'm choosing to model Aggressive Venting as Fire DoT max damage without affecting DPS stats, since the 10 sec cooldown penalty would TANK all of those stats.
+			// Additionally, I'm choosing to not combine its burst of 60 Heat Damage with the Heat/sec dealt by Hot Bullets or Burning Hell. It gets its own section, all to itself.
+			double[] aggressiveVentingAoeEfficiency = calculateAverageAreaDamage(10, 6, 15.0/60.0);
+			double percentageOfEnemiesIgnitedByAV = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(60 * aggressiveVentingAoeEfficiency[1]);
+			double numGlyphidsHitByHeatBurst = aggressiveVentingAoeEfficiency[2];
 			int numTimesAVcanTrigger = (int) Math.floor(numberOfBursts);
-			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, EnemyInformation.averageBurnDuration(), DoTInformation.Burn_DPS);
+			fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 			
 			fireDoTTotalDamage += numTimesAVcanTrigger * (percentageOfEnemiesIgnitedByAV * numGlyphidsHitByHeatBurst) * fireDoTDamagePerEnemy;
 		}
 		
-		return totalDamage + fireDoTTotalDamage;
+		return totalDamage + fireDoTTotalDamage + burningHellAoEDamage;
 	}
 
 	@Override
@@ -902,7 +936,46 @@ public class Minigun extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		breakpoints = EnemyInformation.calculateBreakpoints(getDamagePerPellet(), 0, 0);
+		double dmgPerPellet = getDamagePerPellet();
+		if (selectedTier4 == 0) {
+			dmgPerPellet *= variableChamberPressureMultiplier();
+		}
+		double[] directDamage = {
+			dmgPerPellet,  // Kinetic
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double[] areaDamage = {
+			0,  // Explosive
+			0,  // Fire
+			0,  // Frost
+			0  // Electric
+		};
+		
+		double burnDmg = 0;
+		// Because Hot Bullets takes almost 4 seconds to start working, I'm choosing to not model when Burning Hell and Hot Bullets are combined.
+		// I'm also choosing to model Burning Hell's 20 Area Damage per second as another Fire DoT
+		if (selectedOverclock == 2) {
+			burnDmg = calculateAverageDoTDamagePerEnemy(calculateIgnitionTime(false), DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
+			burnDmg += calculateAverageDoTDamagePerEnemy(0, DoTInformation.Burn_SecsDuration, 20);
+		}
+		else if (selectedTier5 == 2) {
+			// To model the fact that this won't start igniting enemies until 4 seconds of firing, I'm choosing to only use 1/4 of the Burn DoT damage
+			// This is not in any way an accurate representation, since every enemy except Bulks, Breeders, and Nexuses would die before they started Burning.
+			burnDmg = 0.25 * calculateAverageDoTDamagePerEnemy(calculateIgnitionTime(false) - 4, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
+		}
+		
+		double[] DoTDamage = {
+			burnDmg,  // Fire
+			0,  // Electric
+			0,  // Poison
+			0  // Radiation
+		};
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, 0.0);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -914,9 +987,12 @@ public class Minigun extends Weapon {
 		// Light Armor Breaking probability
 		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDamagePerPellet(), getArmorBreaking()) * UtilityInformation.ArmorBreak_Utility;
 		
-		// Mod Tier 5 "Aggressive Venting" induces Fear in a 3m radius (while also dealing 75 Heat Damage)
+		// Mod Tier 5 "Aggressive Venting" induces Fear in a 10m radius (while also dealing 60 Heat Damage)
 		if (selectedTier5 == 0) {
-			int numGlyphidsFeared = 20;  // this.calculateNumGlyphidsInRadius(3);
+			// This returns 135 Grunts with radus 10, so I'm choosing to reduce the number by the AoE Efficiency (about 76%) which brings the number feared down to 103.
+			// That still might be too high?
+			double[] aggressiveVentingAoeEfficiency = calculateAverageAreaDamage(10, 6, 0.25);
+			int numGlyphidsFeared = (int) Math.round(aggressiveVentingAoeEfficiency[1] * aggressiveVentingAoeEfficiency[2]);
 			utilityScores[4] = numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
 		}
 		else {
@@ -937,5 +1013,71 @@ public class Minigun extends Weapon {
 	@Override
 	public double timeToFireMagazine() {
 		return calculateFiringPeriod();
+	}
+	
+	@Override
+	public ArrayList<String> exportModsToMySQL() {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		
+		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.modsTableName, getDwarfClassID(), getWeaponID());
+		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		
+		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
+		// Tier 1
+		toReturn.add(String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1200, 0, 0, 0, 25, 0, 0, tier1[0].getText(true), "{ \"reload\": { \"name\": \"Cooling Rate\", \"value\": 1.5 } }", "Icon_Upgrade_TemperatureCoolDown", "Cooling"));
+		toReturn.add(String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1200, 0, 0, 0, 0, 25, 0, tier1[1].getText(true), "{ \"rate\": { \"name\": \"Rate of Fire\", \"value\": 4 } }", "Icon_Upgrade_FireRate", "Rate of Fire"));
+		toReturn.add(String.format(rowFormat, 1, tier1[2].getLetterRepresentation(), tier1[2].getName(), 1200, 0, 25, 0, 0, 0, 0, tier1[2].getText(true), "{ \"ex3\": { \"name\": \"Base Spread\", \"value\": 0.2, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_Accuracy", "Accuracy"));
+		
+		// Tier 2
+		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 2000, 0, 15, 0, 0, 24, 0, tier2[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 600 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
+		toReturn.add(String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 2000, 0, 0, 0, 24, 0, 15, tier2[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 2 } }", "Icon_Upgrade_DamageGeneral", "Damage"));
+		
+		// Tier 3
+		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2800, 0, 0, 0, 35, 0, 50, tier3[0].getText(true), "{ \"ex4\": { \"name\": \"Armor Breaking\", \"value\": 200, \"percent\": true } }", "Icon_Upgrade_ArmorBreaking", "Armor Breaking"));
+		toReturn.add(String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2800, 35, 0, 50, 0, 0, 0, tier3[1].getText(true), "{ \"ex11\": { \"name\": \"Stun Duration\", \"value\": 1 } }", "Icon_Upgrade_Stun", "Stun"));
+		toReturn.add(String.format(rowFormat, 3, tier3[2].getLetterRepresentation(), tier3[2].getName(), 2800, 50, 0, 0, 0, 35, 0, tier3[2].getText(true), "{ \"ex6\": { \"name\": \"Max Penetrations\", \"value\": 1 } }", "Icon_Upgrade_BulletPenetration", "Blow Through"));
+		
+		// Tier 4
+		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 4800, 0, 0, 0, 72, 50, 48, tier4[0].getText(true), "{ \"ex7\": { \"name\": \"Max Stabilization Damage Bonus\", \"value\": 15, \"percent\": true } }", "Icon_Upgrade_DamageGeneral", "Damage"));
+		toReturn.add(String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 4800, 72, 48, 50, 0, 0, 0, tier4[1].getText(true), "{ \"ex1\": { \"name\": \"Spinup Time\", \"value\": 0.4, \"subtract\": true } }", "Icon_Upgrade_ChargeUp", "Charge Speed"));
+		toReturn.add(String.format(rowFormat, 4, tier4[2].getLetterRepresentation(), tier4[2].getName(), 4800, 48, 50, 0, 72, 0, 0, tier4[2].getText(true), "{ \"ex2\": { \"name\": \"Spindown Time\", \"value\": 3 } }", "Icon_Upgrade_Special", "Special"));
+		
+		// Tier 5
+		toReturn.add(String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 5600, 0, 140, 0, 64, 70, 0, tier5[0].getText(true), "{ \"ex8\": { \"name\": \"Critical Overheat\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Explosion", "Explosion"));
+		toReturn.add(String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 5600, 64, 0, 0, 0, 70, 140, tier5[1].getText(true), "{ \"ex9\": { \"name\": \"Heat Removed on Kill\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_TemperatureCoolDown", "Cooling"));
+		toReturn.add(String.format(rowFormat, 5, tier5[2].getLetterRepresentation(), tier5[2].getName(), 5600, 70, 0, 64, 0, 0, 140, tier5[2].getText(true), "{ \"ex10\": { \"name\": \"Hot Bullets\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_Heat", "Heat"));
+		
+		return toReturn;
+	}
+	@Override
+	public ArrayList<String> exportOCsToMySQL() {
+		ArrayList<String> toReturn = new ArrayList<String>();
+		
+		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.OCsTableName, getDwarfClassID(), getWeaponID());
+		rowFormat += "'%s', %s, '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
+		
+		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
+		// Clean
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 8700, 95, 120, 75, 0, 0, 0, overclocks[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 1 }, "
+				+ "\"ex1\": { \"name\": \"Spinup Time\", \"value\": 0.2, \"subtract\": true } }", "Icon_Upgrade_DamageGeneral"));
+		toReturn.add(String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 7650, 0, 0, 0, 75, 125, 95, overclocks[1].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 300 }, "
+				+ "\"reload\": { \"name\": \"Cooling Rate\", \"value\": 0.5 } }", "Icon_Upgrade_TemperatureCoolDown"));
+		
+		// Balanced
+		toReturn.add(String.format(rowFormat, "Balanced", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 8700, 140, 0, 65, 110, 0, 0, overclocks[2].getText(true), "{ \"ex13\": { \"name\": \"Burning Hell\", \"value\": 1, \"boolean\": true }, "
+				+ "\"ex14\": { \"name\": \"Heat Generation\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_Heat"));
+		toReturn.add(String.format(rowFormat, "Balanced", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 7450, 130, 70, 0, 95, 0, 0, overclocks[3].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 800 }, "
+				+ "\"rate\": { \"name\": \"Rate of Fire\", \"value\": 4, \"subtract\": true } }", "Icon_Upgrade_Ammo"));
+		toReturn.add(String.format(rowFormat, "Balanced", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 7400, 65, 140, 0, 95, 0, 0, overclocks[4].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 2 },  "
+				+ "\"ex3\": { \"name\": \"Base Spread\", \"value\": 2.5, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_DamageGeneral"));
+		
+		// Unstable
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 7600, 140, 0, 75, 0, 105, 0, overclocks[5].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 3, \"subtract\": true }, "
+				+ "\"ex3\": { \"name\": \"Base Spread\", \"value\": 6, \"percent\": true, \"multiply\": true }, \"ex15\": { \"name\": \"Bullet Hell\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Ricoshet"));
+		toReturn.add(String.format(rowFormat, "Unstable", overclocks[6].getShortcutRepresentation(), overclocks[6].getName(), 8800, 65, 0, 0, 0, 130, 100, overclocks[6].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 4 }, "
+				+ "\"ex12\": { \"name\": \"Movement Speed While Using\", \"value\": 0, \"percent\": true, \"multiply\": true }, \"ex5\": { \"name\": \"Stun Chance\", \"value\": 0, \"percent\": true, \"multiply\": true }, "
+				+ "\"ex11\": { \"name\": \"Stun Duration\", \"value\": 0, \"multiply\": true } }", "Icon_Upgrade_DamageGeneral"));
+		
+		return toReturn;
 	}
 }

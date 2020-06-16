@@ -5,16 +5,15 @@ public class DwarfInformation {
 	public static int health = 125;
 	public static int shield = 25;
 	
-	// TODO: verify these "temperature" numbers
-	public static double igniteTemperature = 150;
-	public static double douseTemperature = 75;
-	public static double heatLossPerSec = 40;
+	public static double igniteTemperature = 50;
+	public static double douseTemperature = 25;
+	public static double heatLossPerSec = 12.5;
 	
-	public static double freezeTemperature = -150;
-	public static double thawTemperature = -75;
-	public static double heatGainPerSec = 3;
+	public static double freezeTemperature = -100;
+	public static double thawTemperature = -50;
+	public static double heatGainPerSec = 2;
 	
 	// These are measured in m/sec
 	public static double walkSpeed = 3.0;
-	public static double runSpeedModifier = 1.4;
+	public static double runSpeed = 4.35;
 }

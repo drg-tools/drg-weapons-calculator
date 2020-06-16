@@ -14,19 +14,14 @@ import modelPieces.Weapon;
 public class WeaponStatsGenerator {
 	
 	private Weapon weaponToTest;
-	private String csvFolderPath;
-	private String csvFilePath;
+	private File outputFolder;
 	private String[] headers;
 	private ArrayList<String> csvLinesToWrite;
 	
 	public WeaponStatsGenerator(Weapon testingWeapon) {
 		weaponToTest = testingWeapon;
-		csvFolderPath = "";
-		
-		String weaponClass = weaponToTest.getDwarfClass();
-		String weaponName = weaponToTest.getSimpleName();
-		File csvOut = new File(csvFolderPath, weaponClass + "_" + weaponName + ".csv");
-		csvFilePath = csvOut.getAbsolutePath();
+		String defaultHomeFolder = System.getProperty("user.home");
+		outputFolder = new File(defaultHomeFolder);
 		
 		headers = new String[] {"Mods/OC", "Ideal Burst DPS", "Ideal Sustained DPS", "Sustained DPS (+Weakpoints)", 
 								"Sustained DPS (+Weakpoints, +Accuracy)", "Ideal Additional Target DPS", "Max Num Targets", 
@@ -35,23 +30,47 @@ public class WeaponStatsGenerator {
 		csvLinesToWrite = new ArrayList<String>();
 	}
 	
-	public String getCSVFolderPath() {
-		return csvFolderPath;
+	public void changeOutputFolder(File newDestinationFolder) {
+		if (newDestinationFolder.isDirectory()) {
+			outputFolder = newDestinationFolder;
+		}
 	}
-	public void setCSVFolderPath(String newPath) {
-		csvFolderPath = newPath;
-		String weaponClass = weaponToTest.getDwarfClass();
-		String weaponName = weaponToTest.getSimpleName();
-		File csvOut = new File(csvFolderPath, weaponClass + "_" + weaponName + ".csv");
-		csvFilePath = csvOut.getAbsolutePath();
+	
+	public File getOutputFolder() {
+		return outputFolder;
+	}
+	
+	public void writeFile(String lineToWrite, String filename, boolean append) {
+		File out = new File(outputFolder, filename);
+		
+		try {
+			FileWriter writer = new FileWriter(out, append);
+			writer.append(lineToWrite);
+			writer.flush();
+			writer.close();
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	public void writeFile(ArrayList<String> linesToWrite, String filename, boolean append) {
+		File out = new File(outputFolder, filename);
+		
+		try {
+			FileWriter writer = new FileWriter(out, append);
+			for (String line: linesToWrite) {
+				writer.append(line);
+			}
+			writer.flush();
+			writer.close();
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void changeWeapon(Weapon newWeaponToCalculate) {
 		weaponToTest = newWeaponToCalculate;
-		String weaponClass = weaponToTest.getDwarfClass();
-		String weaponName = weaponToTest.getSimpleName();
-		File csvOut = new File(csvFolderPath, weaponClass + "_" + weaponName + ".csv");
-		csvFilePath = csvOut.getAbsolutePath();
 		
 		// Proactively clear out the old CSV lines, since they won't be applicable to the new Weapon
 		csvLinesToWrite = new ArrayList<String>();
@@ -73,20 +92,15 @@ public class WeaponStatsGenerator {
 		
 		// Start by resetting all mods and overclocks to be unselected
 		String currentCombination = weaponToTest.getCombination();
+		String filename = weaponToTest.getDwarfClass() + "_" + weaponToTest.getSimpleName() + ".csv";
 		
 		if (exportStatsToCSV) {
 			// New run; clear out old data and write the header line.
 			csvLinesToWrite = new ArrayList<String>();
-			try {
-				// Set append=False so that it clears existing lines
-				FileWriter CSVwriter = new FileWriter(csvFilePath, false);
-				String headerLine = String.join(",", headers) + ",\n";
-				CSVwriter.append(headerLine);
-				CSVwriter.flush();
-				CSVwriter.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			
+			String headerLine = String.join(",", headers) + ",\n";
+			// Set append=False so that it clears existing lines
+			writeFile(headerLine, filename, false);
 		}
 		
 		if (printStatsToConsole) {
@@ -339,29 +353,22 @@ public class WeaponStatsGenerator {
 			System.out.println("	Most Utility: " + bestUtilityCombination + " at " + bestUtility);
 		}
 		if (exportStatsToCSV) {
-			// Open the CSV file once, then dump the accumulated ArrayList of lines all at once to minimize I/O time
-			try {
-				// Set append=True so that it appends the lines after the header line
-				FileWriter CSVwriter = new FileWriter(csvFilePath, true);
-				for (String line: csvLinesToWrite) {
-					CSVwriter.append(line);
-				}
-				CSVwriter.flush();
-				CSVwriter.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			// Set append=True so that it appends the lines after the header line
+			writeFile(csvLinesToWrite, filename, true);
 		}
 		
 		// Finally, set the Weapon back to the mods/oc combination that it started at before the test.
 		weaponToTest.buildFromCombination(currentCombination);
 	}
 	
-	public ArrayList<String> dumpToMySQL() {
+	public ArrayList<String> dumpMetricsToMySQL() {
 		ArrayList<String> toReturn = new ArrayList<String>();
 		
 		// Grab the current combination for the weapon to restore after this is done
 		String currentCombination = weaponToTest.getCombination();
+		int dwarfClassID = weaponToTest.getDwarfClassID();
+		int weaponID = weaponToTest.getWeaponID();
+		String simpleName = weaponToTest.getSimpleName();
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
@@ -383,7 +390,7 @@ public class WeaponStatsGenerator {
 								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
 								toReturn.add(String.format("INSERT INTO `%s` VALUES(NULL, %d, %d, '%s', '%s', %f, %f, %f, %f, %f, %d, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %f);\n", 
-										DatabaseConstants.tableName, weaponToTest.getDwarfClassID(), weaponToTest.getWeaponID(), weaponToTest.getSimpleName(), weaponToTest.getCombination(),
+										DatabaseConstants.statsTableName, dwarfClassID, weaponID, simpleName, weaponToTest.getCombination(),
 										weaponToTest.calculateIdealBurstDPS(), weaponToTest.calculateIdealSustainedDPS(), weaponToTest.sustainedWeakpointDPS(), weaponToTest.sustainedWeakpointAccuracyDPS(), weaponToTest.calculateAdditionalTargetDPS(), 
 										weaponToTest.calculateMaxNumTargets(), weaponToTest.calculateMaxMultiTargetDamage(), weaponToTest.ammoEfficiency(), weaponToTest.estimatedAccuracy(false), weaponToTest.estimatedAccuracy(true),
 										weaponToTest.calculateFiringDuration(), weaponToTest.averageOverkill(), weaponToTest.averageTimeToKill(), weaponToTest.breakpoints(), weaponToTest.utilityScore(),
