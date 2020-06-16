@@ -81,13 +81,13 @@ public class BreachCutter extends Weapon {
 		
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Light-Weight Cases", "+4 Max Ammo, -0.2 Reload Time", overclockIcons.carriedAmmo, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Roll Control", "Holding down the trigger after the line leaves the gun causes the line to start rolling. On release of the trigger, the line stops rolling.", overclockIcons.directDamage, 1);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Roll Control", "Holding down the trigger after the line leaves the gun causes the line to start rolling. On release of the trigger, the line stops rolling.", overclockIcons.rollControl, 1);
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Stronger Plasma Current", "+50 Beam DPS, +0.5 Projectile Lifetime", overclockIcons.directDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Return to Sender", "Holding down the trigger after line leaves the gun activates a remote connection which on the release of the trigger causes "
-				+ "the line to change direction and move back towards the gun. Additionally, -4 Max Ammo", overclockIcons.directDamage, 3);
+				+ "the line to change direction and move back towards the gun. Additionally, -4 Max Ammo", overclockIcons.returnToSender, 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "High Voltage Crossover", "100% chance to electrocute enemies, which deals an average of 16.0 Electric Damage per Second for 4 seconds. In exchange, -2 Magazine Size.", overclockIcons.electricity, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Spinning Death", "Spinning Death, x2.5 Projectile Lifetime, x0.2 Beam DPS, x0.5 Max Ammo, and x0.25 Magazine Size", overclockIcons.special, 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "Ignites most enemies immediately in exchange for -175 Beam DPS, -4 Max Ammo, and x0.25 Armor Breaking", overclockIcons.directDamage, 6);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "Ignites most enemies immediately in exchange for -175 Beam DPS, -4 Max Ammo, and x0.25 Armor Breaking", overclockIcons.heatDamage, 6);
 	}
 	
 	@Override
@@ -293,53 +293,54 @@ public class BreachCutter extends Weapon {
 
 	@Override
 	public double calculateIdealBurstDPS() {
-		return 0;
+		return 1;
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		return 0;
+		return 1;
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		return 0;
+		return 1;
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		return 0;
+		return 1;
 	}
 
 	// Multi-target calculations
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		return 0;
+		return 1;
 	}
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		return 0;
+		return 10;
 	}
 
 	@Override
 	public int calculateMaxNumTargets() {
-		return 0;
+		return 1;
 	}
 
 	@Override
 	public double calculateFiringDuration() {
-		return 0;
+		return 1;
 	}
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
-		return 0;
+		return 1;
 	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		return 0;
+		// Breach Cutter can't be aimed like normal weapons
+		return -1;
 	}
 	
 	@Override
@@ -354,12 +355,12 @@ public class BreachCutter extends Weapon {
 	
 	@Override
 	public double damagePerMagazine() {
-		return 0;
+		return 1;
 	}
 	
 	@Override
 	public double timeToFireMagazine() {
-		return 0;
+		return 1;
 	}
 	
 	@Override
