@@ -108,7 +108,7 @@ public class CryoCannon extends Weapon {
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Fragile", "Every particle that hits a Frozen enemy has a chance to deal a large chunk of damage", modIcons.addedExplosion, 5, 0, false);
-		tier5[1] = new Mod("Cold Radiance", "Cool down enemies within 5m of you at a rate of 60 Cold/sec. This stacks with the direct stream and Ice Path's cold sources as well.", modIcons.coldDamage, 5, 1, false);
+		tier5[1] = new Mod("Cold Radiance", "Cool down enemies within 4m of you at a rate of 60 Cold/sec. This stacks with the direct stream and Ice Path's cold sources as well.", modIcons.coldDamage, 5, 1, false);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Improved Thermal Efficiency", "+25 Tank Size, x0.75 Pressure Drop Rate", overclockIcons.magSize, 0);
