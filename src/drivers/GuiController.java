@@ -53,6 +53,9 @@ import scoutWeapons.Zhukov;
 		8000 Total Damage
 */
 
+// TODO: refactor to only spit out MySQL statements for mods/OCs that changed
+// TODO: manually write up the equipment, grenades, and armor DB files
+
 public class GuiController implements ActionListener {
 	
 	private Weapon[] drillerWeapons;
@@ -166,7 +169,7 @@ public class GuiController implements ActionListener {
 		calculator.writeFile(mysqlCommands, DatabaseConstants.statsTableName + ".sql", false);
 	}
 	
-	private void createModsOCsMysqlFiles() {
+	private void createModsOCsMysqlFiles(boolean exportAll) {
 		ArrayList<String> mysqlCommands = new ArrayList<String>();
 		mysqlCommands.add(String.format("USE `%s`;\n\n", DatabaseConstants.databaseName));
 		mysqlCommands.add(String.format("DROP TABLE IF EXISTS `%s`;\n\n", DatabaseConstants.modsTableName));
@@ -204,23 +207,23 @@ public class GuiController implements ActionListener {
 		for (i = 0; i < drillerWeapons.length; i++) {
 			// Skip the EPC Charge Shot since it would have identical info as EPC Regular Shot
 			if (i != 4) {
-				mysqlCommands.addAll(drillerWeapons[i].exportModsToMySQL());
+				mysqlCommands.addAll(drillerWeapons[i].exportModsToMySQL(exportAll));
 			}
 		}
 		for (i = 0; i < engineerWeapons.length; i++) {
-			mysqlCommands.addAll(engineerWeapons[i].exportModsToMySQL());
+			mysqlCommands.addAll(engineerWeapons[i].exportModsToMySQL(exportAll));
 		}
-		mysqlCommands.addAll(bc.exportModsToMySQL());
+		mysqlCommands.addAll(bc.exportModsToMySQL(exportAll));
 		for (i = 0; i < gunnerWeapons.length; i++) {
 			// Skip Revolver Snipe since it would have identical info as Revolver Max RoF
 			if (i != 2) {
-				mysqlCommands.addAll(gunnerWeapons[i].exportModsToMySQL());
+				mysqlCommands.addAll(gunnerWeapons[i].exportModsToMySQL(exportAll));
 			}
 		}
 		for (i = 0; i < scoutWeapons.length; i++) {
 			// Skip M1000 Hipfire since it would have identical info as M1000 Focused Shots
 			if (i != 1) {
-				mysqlCommands.addAll(scoutWeapons[i].exportModsToMySQL());
+				mysqlCommands.addAll(scoutWeapons[i].exportModsToMySQL(exportAll));
 			}
 		}
 		
@@ -261,23 +264,23 @@ public class GuiController implements ActionListener {
 		for (i = 0; i < drillerWeapons.length; i++) {
 			// Skip the EPC Charge Shot since it would have identical info as EPC Regular Shot
 			if (i != 4) {
-				mysqlCommands.addAll(drillerWeapons[i].exportOCsToMySQL());
+				mysqlCommands.addAll(drillerWeapons[i].exportOCsToMySQL(exportAll));
 			}
 		}
 		for (i = 0; i < engineerWeapons.length; i++) {
-			mysqlCommands.addAll(engineerWeapons[i].exportOCsToMySQL());
+			mysqlCommands.addAll(engineerWeapons[i].exportOCsToMySQL(exportAll));
 		}
-		mysqlCommands.addAll(bc.exportOCsToMySQL());
+		mysqlCommands.addAll(bc.exportOCsToMySQL(exportAll));
 		for (i = 0; i < gunnerWeapons.length; i++) {
 			// Skip Revolver Snipe since it would have identical info as Revolver Max RoF
 			if (i != 2) {
-				mysqlCommands.addAll(gunnerWeapons[i].exportOCsToMySQL());
+				mysqlCommands.addAll(gunnerWeapons[i].exportOCsToMySQL(exportAll));
 			}
 		}
 		for (i = 0; i < scoutWeapons.length; i++) {
 			// Skip M1000 Hipfire since it would have identical info as M1000 Focused Shots
 			if (i != 1) {
-				mysqlCommands.addAll(scoutWeapons[i].exportOCsToMySQL());
+				mysqlCommands.addAll(scoutWeapons[i].exportOCsToMySQL(exportAll));
 			}
 		}
 		
@@ -453,7 +456,7 @@ public class GuiController implements ActionListener {
 		else if (e == gui.getExportCostsMySQL()) {
 			chooseFolder();
 			gui.activateThinkingCursor();
-			createModsOCsMysqlFiles();
+			createModsOCsMysqlFiles(true);
 			gui.deactivateThinkingCursor();
 		}
 		

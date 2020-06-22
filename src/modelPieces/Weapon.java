@@ -706,6 +706,6 @@ public abstract class Weapon extends Observable {
 		};
 	}
 	
-	public abstract ArrayList<String> exportModsToMySQL();
-	public abstract ArrayList<String> exportOCsToMySQL();
+	public abstract ArrayList<String> exportModsToMySQL(boolean exportAllMods);
+	public abstract ArrayList<String> exportOCsToMySQL(boolean exportAllOCs);
 }

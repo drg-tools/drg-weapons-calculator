@@ -16,6 +16,7 @@ import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
+import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
 public class EPC_ChargeShot extends Weapon {
@@ -799,8 +800,8 @@ public class EPC_ChargeShot extends Weapon {
 	}
 	
 	@Override
-	public ArrayList<String> exportModsToMySQL() {
-		ArrayList<String> toReturn = new ArrayList<String>();
+	public ArrayList<String> exportModsToMySQL(boolean exportAllMods) {
+		ConditionalArrayList<String> toReturn = new ConditionalArrayList<String>();
 		
 		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.modsTableName, getDwarfClassID(), getWeaponID());
 		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
@@ -837,8 +838,8 @@ public class EPC_ChargeShot extends Weapon {
 		return toReturn;
 	}
 	@Override
-	public ArrayList<String> exportOCsToMySQL() {
-		ArrayList<String> toReturn = new ArrayList<String>();
+	public ArrayList<String> exportOCsToMySQL(boolean exportAllOCs) {
+		ConditionalArrayList<String> toReturn = new ConditionalArrayList<String>();
 		
 		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.OCsTableName, getDwarfClassID(), getWeaponID());
 		rowFormat += "'%s', %s, '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
