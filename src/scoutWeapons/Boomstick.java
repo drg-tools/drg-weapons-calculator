@@ -805,27 +805,53 @@ public class Boomstick extends Weapon {
 		
 		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
 		// Tier 1
-		toReturn.add(String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1000, 0, 0, 0, 0, 20, 0, tier1[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 8 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
-		toReturn.add(String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 3 } }", "Icon_Upgrade_DamageGeneral", "Damage"));
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1000, 0, 0, 0, 0, 20, 0, tier1[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 8 } }", "Icon_Upgrade_Ammo", "Total Ammo"),
+				exportAllMods || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 3 } }", "Icon_Upgrade_DamageGeneral", "Damage"),
+				exportAllMods || false);
 		
 		// Tier 2
-		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 1800, 0, 18, 0, 0, 12, 0, tier2[0].getText(true), "{ \"rate\": { \"name\": \"Rate of Fire\", \"value\": 7.5 } }", "Icon_Upgrade_FireRate", "Rate of Fire"));
-		toReturn.add(String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 1800, 0, 0, 0, 18, 0, 12, tier2[1].getText(true), "{ \"reload\": { \"name\": \"Reload Time\", \"value\": 0.7, \"subtract\": true } }", "Icon_Upgrade_Speed", "Reload Speed"));
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 1800, 0, 18, 0, 0, 12, 0, tier2[0].getText(true), "{ \"rate\": { \"name\": \"Rate of Fire\", \"value\": 7.5 } }", "Icon_Upgrade_FireRate", "Rate of Fire"),
+				exportAllMods || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 1800, 0, 0, 0, 18, 0, 12, tier2[1].getText(true), "{ \"reload\": { \"name\": \"Reload Time\", \"value\": 0.7, \"subtract\": true } }", "Icon_Upgrade_Speed", "Reload Speed"),
+				exportAllMods || false);
 		
 		// Tier 3
-		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2200, 0, 0, 0, 20, 0, 30, tier3[0].getText(true), "{ \"ex9\": { \"name\": \"Stun Duration\", \"value\": 2.5 } }", "Icon_Upgrade_Stun", "Stun"));
-		toReturn.add(String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2200, 0, 0, 0, 20, 0, 30, tier3[1].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 12 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
-		toReturn.add(String.format(rowFormat, 3, tier3[2].getLetterRepresentation(), tier3[2].getName(), 2200, 30, 0, 0, 0, 20, 0, tier3[2].getText(true), "{ \"ex1\": { \"name\": \"Pellets\", \"value\": 3 } }", "Icon_Upgrade_Shotgun_Pellet", "Pellet Count"));
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2200, 0, 0, 0, 20, 0, 30, tier3[0].getText(true), "{ \"ex9\": { \"name\": \"Stun Duration\", \"value\": 2.5 } }", "Icon_Upgrade_Stun", "Stun"),
+				exportAllMods || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2200, 0, 0, 0, 20, 0, 30, tier3[1].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 12 } }", "Icon_Upgrade_Ammo", "Total Ammo"),
+				exportAllMods || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 3, tier3[2].getLetterRepresentation(), tier3[2].getName(), 2200, 30, 0, 0, 0, 20, 0, tier3[2].getText(true), "{ \"ex1\": { \"name\": \"Pellets\", \"value\": 3 } }", "Icon_Upgrade_Shotgun_Pellet", "Pellet Count"),
+				exportAllMods || false);
 		
 		// Tier 4
-		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 3800, 15, 0, 0, 0, 36, 25, tier4[0].getText(true), "{ \"ex3\": { \"name\": \"Max Penetrations\", \"value\": 3 } }", "Icon_Upgrade_BulletPenetration", "Blow Through"));
-		toReturn.add(String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 3800, 0, 0, 36, 25, 0, 15, tier4[1].getText(true), "{ \"ex4\": { \"name\": \"Armor Breaking\", \"value\": 300, \"percent\": true } }", "Icon_Upgrade_ArmorBreaking", "Armor Breaking"));
-		toReturn.add(String.format(rowFormat, 4, tier4[2].getLetterRepresentation(), tier4[2].getName(), 3800, 15, 36, 0, 0, 25, 0, tier4[2].getText(true), "{ \"ex5\": { \"name\": \"Front AoE shock wave Damage\", \"value\": 20 } }", "Icon_Upgrade_Special", "Special"));
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 3800, 15, 0, 0, 0, 36, 25, tier4[0].getText(true), "{ \"ex3\": { \"name\": \"Max Penetrations\", \"value\": 3 } }", "Icon_Upgrade_BulletPenetration", "Blow Through"),
+				exportAllMods || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 3800, 0, 0, 36, 25, 0, 15, tier4[1].getText(true), "{ \"ex4\": { \"name\": \"Armor Breaking\", \"value\": 300, \"percent\": true } }", "Icon_Upgrade_ArmorBreaking", "Armor Breaking"),
+				exportAllMods || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 4, tier4[2].getLetterRepresentation(), tier4[2].getName(), 3800, 15, 36, 0, 0, 25, 0, tier4[2].getText(true), "{ \"ex5\": { \"name\": \"Front AoE shock wave Damage\", \"value\": 20 } }", "Icon_Upgrade_Special", "Special"),
+				exportAllMods || false);
 		
 		// Tier 5
-		toReturn.add(String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 4400, 0, 40, 110, 0, 60, 0, tier5[0].getText(true), "{ \"ex6\": { \"name\": \"Auto Reload\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Speed", "Reload Speed"));
-		toReturn.add(String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 4400, 110, 0, 0, 40, 0, 60, tier5[1].getText(true), "{ \"ex7\": { \"name\": \"Proximity Fear Chance\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_ScareEnemies", "Fear"));
-		toReturn.add(String.format(rowFormat, 5, tier5[2].getLetterRepresentation(), tier5[2].getName(), 4400, 0, 60, 40, 0, 0, 110, tier5[2].getText(true), "{ \"ex8\": { \"name\": \"Damage % as Fire\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_Heat", "Heat"));
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 4400, 0, 40, 110, 0, 60, 0, tier5[0].getText(true), "{ \"ex6\": { \"name\": \"Auto Reload\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Speed", "Reload Speed"),
+				exportAllMods || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 4400, 110, 0, 0, 40, 0, 60, tier5[1].getText(true), "{ \"ex7\": { \"name\": \"Proximity Fear Chance\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_ScareEnemies", "Fear"),
+				exportAllMods || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 5, tier5[2].getLetterRepresentation(), tier5[2].getName(), 4400, 0, 60, 40, 0, 0, 110, tier5[2].getText(true), "{ \"ex8\": { \"name\": \"Damage % as Fire\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_Heat", "Heat"),
+				exportAllMods || false);
 		
 		return toReturn;
 	}
@@ -838,21 +864,33 @@ public class Boomstick extends Weapon {
 		
 		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
 		// Clean
-		toReturn.add(String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 8550, 65, 0, 120, 0, 0, 100, overclocks[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 6 }, "
-				+ "\"reload\": { \"name\": \"Reload Time\", \"value\": 0.2, \"subtract\": true } }", "Icon_Upgrade_Ammo"));
-		toReturn.add(String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 7950, 0, 0, 125, 100, 75, 0, overclocks[1].getText(true), "{ \"ex10\": { \"name\": \"Double Barrel\", \"value\": 1, \"boolean\": true }, "
-				+ "\"dmg\": { \"name\": \"Damage\", \"value\": 1 } }", "Icon_Upgrade_FireRate"));
-		toReturn.add(String.format(rowFormat, "Clean", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 7050, 0, 95, 0, 125, 65, 0, overclocks[2].getText(true), "{ \"ex11\": { \"name\": \"Shotgun Jump\", \"value\": 1, \"boolean\": true } }", "Icon_Overclock_ShotgunJump"));
-		toReturn.add(String.format(rowFormat, "Clean", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 7850, 0, 100, 80, 0, 135, 0, overclocks[3].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 1 }, "
-				+ "\"ex1\": { \"name\": \"Pellets\", \"value\": 1 } }", "Icon_Upgrade_Shotgun_Pellet"));
+		toReturn.conditionalAdd(
+				String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 8550, 65, 0, 120, 0, 0, 100, overclocks[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 6 }, "
+				+ "\"reload\": { \"name\": \"Reload Time\", \"value\": 0.2, \"subtract\": true } }", "Icon_Upgrade_Ammo"),
+				exportAllOCs || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 7950, 0, 0, 125, 100, 75, 0, overclocks[1].getText(true), "{ \"ex10\": { \"name\": \"Double Barrel\", \"value\": 1, \"boolean\": true }, "
+				+ "\"dmg\": { \"name\": \"Damage\", \"value\": 1 } }", "Icon_Upgrade_FireRate"),
+				exportAllOCs || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, "Clean", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 7050, 0, 95, 0, 125, 65, 0, overclocks[2].getText(true), "{ \"ex11\": { \"name\": \"Shotgun Jump\", \"value\": 1, \"boolean\": true } }", "Icon_Overclock_ShotgunJump"),
+				exportAllOCs || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, "Clean", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 7850, 0, 100, 80, 0, 135, 0, overclocks[3].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 1 }, "
+				+ "\"ex1\": { \"name\": \"Pellets\", \"value\": 1 } }", "Icon_Upgrade_Shotgun_Pellet"),
+				exportAllOCs || false);
 		
 		// Balanced
-		toReturn.add(String.format(rowFormat, "Balanced", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 7700, 0, 95, 0, 0, 70, 135, overclocks[4].getText(true), "{ \"ex12\": { \"name\": \"Base Spread\", \"value\": 35, \"percent\": true, \"subtract\": true }, "
-				+ "\"ex1\": { \"name\": \"Pellets\", \"value\": 2, \"subtract\": true } }", "Icon_Upgrade_Aim"));
+		toReturn.conditionalAdd(
+				String.format(rowFormat, "Balanced", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 7700, 0, 95, 0, 0, 70, 135, overclocks[4].getText(true), "{ \"ex12\": { \"name\": \"Base Spread\", \"value\": 35, \"percent\": true, \"subtract\": true }, "
+				+ "\"ex1\": { \"name\": \"Pellets\", \"value\": 2, \"subtract\": true } }", "Icon_Upgrade_Aim"),
+				exportAllOCs || false);
 		
 		// Unstable
-		toReturn.add(String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 8800, 0, 65, 0, 0, 105, 125, overclocks[5].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 8 }, "
-				+ "\"ammo\": { \"name\": \"Max Ammo\", \"value\": 10, \"subtract\": true }, \"reload\": { \"name\": \"Reload Time\", \"value\": 0.5 } }", "Icon_Upgrade_DamageGeneral"));
+		toReturn.conditionalAdd(
+				String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 8800, 0, 65, 0, 0, 105, 125, overclocks[5].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 8 }, "
+				+ "\"ammo\": { \"name\": \"Max Ammo\", \"value\": 10, \"subtract\": true }, \"reload\": { \"name\": \"Reload Time\", \"value\": 0.5 } }", "Icon_Upgrade_DamageGeneral"),
+				exportAllOCs || false);
 		
 		return toReturn;
 	}
