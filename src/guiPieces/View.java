@@ -2,15 +2,10 @@ package guiPieces;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontFormatException;
 import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -39,7 +34,7 @@ public class View extends JFrame implements Observer {
 	private ButtonGroup dsHazGroup, dsPCGroup;
 	private JRadioButton dsHaz1, dsHaz2, dsHaz3, dsHaz4, dsHaz5, dsPC1, dsPC2, dsPC3, dsPC4;
 	private JMenu exportMenu;
-	private JMenuItem exportCurrent, exportAll, exportMetricsToMySQL, exportCostsToMySQL;
+	private JMenuItem exportCurrent, exportAll, exportMetricsToMySQL, exportModsOCsToMySQL, exportChangedModsOCsToMySQL;
 	private JMenu miscMenu;	
 	private JMenuItem miscWeaponTabScreenshot, miscExportCombination, miscLoadCombination, miscSuggestion;
 	
@@ -246,14 +241,16 @@ public class View extends JFrame implements Observer {
 		
 		// Export Stats to CSV menu
 		exportMenu = new JMenu("Export Data");
-		exportCurrent = new JMenuItem("Export current weapon to CSV");
+		exportCurrent = new JMenuItem("Export current weapon's metrics to CSV");
 		exportMenu.add(exportCurrent);
-		exportAll = new JMenuItem("Export all weapons to CSV");
+		exportAll = new JMenuItem("Export all weapons' metrics to CSV");
 		exportMenu.add(exportAll);
-		exportMetricsToMySQL = new JMenuItem("Export all weapons to MySQL");
+		exportMetricsToMySQL = new JMenuItem("Export all weapons' metrics to MySQL");
 		exportMenu.add(exportMetricsToMySQL);
-		exportCostsToMySQL = new JMenuItem("Export mods/OCs to MySQL");
-		exportMenu.add(exportCostsToMySQL);
+		exportModsOCsToMySQL = new JMenuItem("Export all mods & OCs to MySQL");
+		exportMenu.add(exportModsOCsToMySQL);
+		exportChangedModsOCsToMySQL = new JMenuItem("Export changed mods & OCs to MySQL");
+		exportMenu.add(exportChangedModsOCsToMySQL);
 		menuBar.add(exportMenu);
 		
 		// Miscellaneous Actions menu
@@ -326,8 +323,11 @@ public class View extends JFrame implements Observer {
 	public JMenuItem getExportMetricsMySQL() {
 		return exportMetricsToMySQL;
 	}
-	public JMenuItem getExportCostsMySQL() {
-		return exportCostsToMySQL;
+	public JMenuItem getExportModsOCsMySQL() {
+		return exportModsOCsToMySQL;
+	}
+	public JMenuItem getExportChangedModsOCsMySQL() {
+		return exportChangedModsOCsToMySQL;
 	}
 	
 	public JMenuItem getMiscScreenshot() {
@@ -386,7 +386,8 @@ public class View extends JFrame implements Observer {
 		exportCurrent.addActionListener(parent);
 		exportAll.addActionListener(parent);
 		exportMetricsToMySQL.addActionListener(parent);
-		exportCostsToMySQL.addActionListener(parent);
+		exportModsOCsToMySQL.addActionListener(parent);
+		exportChangedModsOCsToMySQL.addActionListener(parent);
 		
 		miscWeaponTabScreenshot.addActionListener(parent);
 		miscExportCombination.addActionListener(parent);

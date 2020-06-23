@@ -15,6 +15,7 @@ import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.Weapon;
+import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
 public class Subata extends Weapon {
@@ -718,62 +719,98 @@ public class Subata extends Weapon {
 	}
 	
 	@Override
-	public ArrayList<String> exportModsToMySQL() {
-		ArrayList<String> toReturn = new ArrayList<String>();
+	public ArrayList<String> exportModsToMySQL(boolean exportAllMods) {
+		ConditionalArrayList<String> toReturn = new ConditionalArrayList<String>();
 		
 		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.modsTableName, getDwarfClassID(), getWeaponID());
 		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
 		
 		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
 		// Tier 1
-		toReturn.add(String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[0].getText(true), "{ \"ex2\": { \"name\": \"Base Spread\", \"value\": 0, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_Accuracy", "Accuracy"));
-		toReturn.add(String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1000, 0, 0, 0, 0, 20, 0, tier1[1].getText(true), "{ \"clip\": { \"name\": \"Magazine Size\", \"value\": 5 } }", "Icon_Upgrade_ClipSize", "Magazine Size"));
-		toReturn.add(String.format(rowFormat, 1, tier1[2].getLetterRepresentation(), tier1[2].getName(), 1000, 0, 0, 0, 0, 20, 0, tier1[2].getText(true), "{ \"reload\": { \"name\": \"Reload Time\", \"value\": 0.6, \"subtract\": true } }", "Icon_Upgrade_Speed", "Reload Speed"));
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[0].getText(true), "{ \"ex2\": { \"name\": \"Base Spread\", \"value\": 0, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_Accuracy", "Accuracy"),
+				exportAllMods || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1000, 0, 0, 0, 0, 20, 0, tier1[1].getText(true), "{ \"clip\": { \"name\": \"Magazine Size\", \"value\": 5 } }", "Icon_Upgrade_ClipSize", "Magazine Size"),
+				exportAllMods || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 1, tier1[2].getLetterRepresentation(), tier1[2].getName(), 1000, 0, 0, 0, 0, 20, 0, tier1[2].getText(true), "{ \"reload\": { \"name\": \"Reload Time\", \"value\": 0.6, \"subtract\": true } }", "Icon_Upgrade_Speed", "Reload Speed"),
+				exportAllMods || false);
 		
 		// Tier 2
-		toReturn.add(String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 1800, 0, 0, 0, 18, 0, 12, tier2[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 40 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
-		toReturn.add(String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 1800, 0, 18, 0, 0, 12, 0, tier2[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 1 } }", "Icon_Upgrade_DamageGeneral", "Damage"));
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 1800, 0, 0, 0, 18, 0, 12, tier2[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 40 } }", "Icon_Upgrade_Ammo", "Total Ammo"),
+				exportAllMods || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 1800, 0, 18, 0, 0, 12, 0, tier2[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 1 } }", "Icon_Upgrade_DamageGeneral", "Damage"),
+				exportAllMods || false);
 		
 		// Tier 3
-		toReturn.add(String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2200, 0, 30, 0, 0, 20, 0, tier3[0].getText(true), "{ \"dmg\\\": { \"name\": \"Damage\", \"value\": 1 } }", "Icon_Upgrade_DamageGeneral", "Damage"));
-		toReturn.add(String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2200, 0, 0, 0, 20, 0, 30, tier3[1].getText(true), "{ \"ex3\": { \"name\": \"Spread Per Shot\", \"value\": 20, \"percent\": true, \"subtract\": true }, "
-				+ "\"recoil\": { \"name\": \"Recoil\", \"value\": 0.5, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_Accuracy", "Accuracy"));
-		toReturn.add(String.format(rowFormat, 3, tier3[2].getLetterRepresentation(), tier3[2].getName(), 2200, 20, 0, 30, 0, 0, 0, tier3[2].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 40 } }", "Icon_Upgrade_Ammo", "Total Ammo"));
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2200, 0, 30, 0, 0, 20, 0, tier3[0].getText(true), "{ \"dmg\\\": { \"name\": \"Damage\", \"value\": 1 } }", "Icon_Upgrade_DamageGeneral", "Damage"),
+				exportAllMods || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2200, 0, 0, 0, 20, 0, 30, tier3[1].getText(true), "{ \"ex3\": { \"name\": \"Spread Per Shot\", \"value\": 20, \"percent\": true, \"subtract\": true }, "
+				+ "\"recoil\": { \"name\": \"Recoil\", \"value\": 0.5, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_Accuracy", "Accuracy"),
+				exportAllMods || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 3, tier3[2].getLetterRepresentation(), tier3[2].getName(), 2200, 20, 0, 30, 0, 0, 0, tier3[2].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 40 } }", "Icon_Upgrade_Ammo", "Total Ammo"),
+				exportAllMods || false);
 		
 		// Tier 4
-		toReturn.add(String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 3800, 0, 0, 36, 25, 0, 15, tier4[0].getText(true), "{ \"ex1\": { \"name\": \"Weakpoint Damage Bonus\", \"value\": 60, \"percent\": true } }", "Icon_Upgrade_Weakspot", "Weak Spot Bonus"));
-		toReturn.add(String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 3800, 15, 36, 0, 0, 25, 0, tier4[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 3 } }", "Icon_Upgrade_DamageGeneral", "Damage"));
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 3800, 0, 0, 36, 25, 0, 15, tier4[0].getText(true), "{ \"ex1\": { \"name\": \"Weakpoint Damage Bonus\", \"value\": 60, \"percent\": true } }", "Icon_Upgrade_Weakspot", "Weak Spot Bonus"),
+				exportAllMods || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 3800, 15, 36, 0, 0, 25, 0, tier4[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 3 } }", "Icon_Upgrade_DamageGeneral", "Damage"),
+				exportAllMods || false);
 		
 		// Tier 5
-		toReturn.add(String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 4400, 110, 0, 0, 40, 0, 60, tier5[0].getText(true), "{ \"ex4\": { \"name\": \"Bonus Fire Damage to Burning Targets\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_Heat", "Heat"));
-		toReturn.add(String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 4400, 0, 40, 110, 0, 60, 0, tier5[1].getText(true), "{ \"ex5\": { \"name\": \"Damage Vs Mactera\", \"value\": 20, \"percent\": true } }", "Icon_Upgrade_Special", "Special"));
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 4400, 110, 0, 0, 40, 0, 60, tier5[0].getText(true), "{ \"ex4\": { \"name\": \"Bonus Fire Damage to Burning Targets\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_Heat", "Heat"),
+				exportAllMods || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 4400, 0, 40, 110, 0, 60, 0, tier5[1].getText(true), "{ \"ex5\": { \"name\": \"Damage Vs Mactera\", \"value\": 20, \"percent\": true } }", "Icon_Upgrade_Special", "Special"),
+				exportAllMods || false);
 		
 		return toReturn;
 	}
 	@Override
-	public ArrayList<String> exportOCsToMySQL() {
-		ArrayList<String> toReturn = new ArrayList<String>();
+	public ArrayList<String> exportOCsToMySQL(boolean exportAllOCs) {
+		ConditionalArrayList<String> toReturn = new ConditionalArrayList<String>();
 		
 		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.OCsTableName, getDwarfClassID(), getWeaponID());
 		rowFormat += "'%s', %s, '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
 		
 		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
 		// Clean
-		toReturn.add(String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 7600, 0, 65, 0, 120, 0, 100, overclocks[0].getText(true), "{ \"ex6\": { \"name\": \"Weakpoint Chain Hit Chance\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_Ricoshet"));
-		toReturn.add(String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 7150, 70, 135, 0, 100, 0, 0, overclocks[1].getText(true), "{ \"ex7\": { \"name\": \"Randomized Damage\", \"value\": 1, \"boolean\": true }, "
-				+ "\"dmg\": { \"name\": \"Damage\", \"value\": " + homebrewPowderCoefficient + ", \"multiply\": true } }", "Icon_Overclock_ChangeOfHigherDamage"));
+		toReturn.conditionalAdd(
+				String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 7600, 0, 65, 0, 120, 0, 100, overclocks[0].getText(true), "{ \"ex6\": { \"name\": \"Weakpoint Chain Hit Chance\", \"value\": 50, \"percent\": true } }", "Icon_Upgrade_Ricoshet"),
+				exportAllOCs || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 7150, 70, 135, 0, 100, 0, 0, overclocks[1].getText(true), "{ \"ex7\": { \"name\": \"Randomized Damage\", \"value\": 1, \"boolean\": true }, "
+				+ "\"dmg\": { \"name\": \"Damage\", \"value\": " + homebrewPowderCoefficient + ", \"multiply\": true } }", "Icon_Overclock_ChangeOfHigherDamage"),
+				exportAllOCs || false);
 		
 		// Balanced
-		toReturn.add(String.format(rowFormat, "Balanced", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 9000, 0, 70, 130, 0, 0, 110, overclocks[2].getText(true), "{ \"clip\": { \"name\": \"Magazine Size\", \"value\": 10 }, "
-				+ "\"reload\": { \"name\": \"Reload Time\", \"value\": 0.5 } }", "Icon_Upgrade_ClipSize"));
+		toReturn.conditionalAdd(
+				String.format(rowFormat, "Balanced", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 9000, 0, 70, 130, 0, 0, 110, overclocks[2].getText(true), "{ \"clip\": { \"name\": \"Magazine Size\", \"value\": 10 }, "
+				+ "\"reload\": { \"name\": \"Reload Time\", \"value\": 0.5 } }", "Icon_Upgrade_ClipSize"),
+				exportAllOCs || false);
 		
 		// Unstable
-		toReturn.add(String.format(rowFormat, "Unstable", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 7400, 0, 95, 0, 65, 120, 0, overclocks[3].getText(true), "{ \"ex8\": { \"name\": \"Automatic Fire\", \"value\": 1, \"boolean\": true }, "
-				+ "\"rate\": { \"name\": \"Rate of Fire\", \"value\": 2 }, \"ex2\": { \"name\": \"Base Spread\", \"value\": 100, \"percent\": true }, \"recoil\": { \"name\": \"Recoil\", \"value\": 2.5, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_FireRate"));
-		toReturn.add(String.format(rowFormat, "Unstable", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 8100, 65, 0, 125, 0, 95, 0, overclocks[4].getText(true), "{ \"ex9\": { \"name\": \"Explosive Reload\", \"value\": 1, \"boolean\": true }, "
-				+ "\"dmg\": { \"name\": \"Damage\", \"value\": 3, \"subtract\": true }, \"ammo\": { \"name\": \"Max Ammo\", \"value\": 40, \"subtract\": true }, \"clip\": { \"name\": \"Magazine Size\", \"value\": 3, \"subtract\": true } }", "Icon_Overclock_Special_Magazine"));
-		toReturn.add(String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 7150, 0, 0, 75, 95, 0, 135, overclocks[5].getText(true), "{ \"ex10\": { \"name\": \"Stun Chance\", \"value\": 50, \"percent\": true }, "
-				+ "\"clip\": { \"name\": \"Magazine Size\", \"value\": 4, \"subtract\": true }, \"rate\": { \"name\": \"Rate of Fire\", \"value\": 4, \"subtract\": true } }", "Icon_Upgrade_Stun"));
+		toReturn.conditionalAdd(
+				String.format(rowFormat, "Unstable", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 7400, 0, 95, 0, 65, 120, 0, overclocks[3].getText(true), "{ \"ex8\": { \"name\": \"Automatic Fire\", \"value\": 1, \"boolean\": true }, "
+				+ "\"rate\": { \"name\": \"Rate of Fire\", \"value\": 2 }, \"ex2\": { \"name\": \"Base Spread\", \"value\": 100, \"percent\": true }, \"recoil\": { \"name\": \"Recoil\", \"value\": 2.5, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_FireRate"),
+				exportAllOCs || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, "Unstable", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 8100, 65, 0, 125, 0, 95, 0, overclocks[4].getText(true), "{ \"ex9\": { \"name\": \"Explosive Reload\", \"value\": 1, \"boolean\": true }, "
+				+ "\"dmg\": { \"name\": \"Damage\", \"value\": 3, \"subtract\": true }, \"ammo\": { \"name\": \"Max Ammo\", \"value\": 40, \"subtract\": true }, \"clip\": { \"name\": \"Magazine Size\", \"value\": 3, \"subtract\": true } }", "Icon_Overclock_Special_Magazine"),
+				exportAllOCs || false);
+		toReturn.conditionalAdd(
+				String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 7150, 0, 0, 75, 95, 0, 135, overclocks[5].getText(true), "{ \"ex10\": { \"name\": \"Stun Chance\", \"value\": 50, \"percent\": true }, "
+				+ "\"clip\": { \"name\": \"Magazine Size\", \"value\": 4, \"subtract\": true }, \"rate\": { \"name\": \"Rate of Fire\", \"value\": 4, \"subtract\": true } }", "Icon_Upgrade_Stun"),
+				exportAllOCs || false);
 		
 		return toReturn;
 	}
