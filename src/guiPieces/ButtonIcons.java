@@ -82,8 +82,8 @@ public class ButtonIcons {
 	private static BufferedImage grenadeJump = ResourceLoader.loadImage("images/overclock/Icon_Overclock_ExplosionJump.png");
 	private static BufferedImage hoverclock = ResourceLoader.loadImage("images/overclock/Icon_Overclock_Hoverclock.png");
 	private static BufferedImage shotgunJump = ResourceLoader.loadImage("images/overclock/Icon_Overclock_ShotgunJump.png");
-	private static BufferedImage breachCutterRoll = ResourceLoader.loadImage("images/overclock/Icon_Overclock_Spinning_LineCutter.png");
-	private static BufferedImage breachCutterReturn = ResourceLoader.loadImage("images/overclock/Icon_Overclock_ForthAndBack_LineCutter.png");
+	private static BufferedImage breachCutterRoll = ResourceLoader.loadImage("images/overclock/Icon_Overclock_Spinning_Linecutter.png");
+	private static BufferedImage breachCutterReturn = ResourceLoader.loadImage("images/overclock/Icon_Overclock_ForthAndBack_Linecutter.png");
 	
 	private static BufferedImage statusFire = ResourceLoader.loadImage("images/statusEffect/Status_fire.png");
 	private static BufferedImage statusFrozen = ResourceLoader.loadImage("images/statusEffect/Status_frozen.png");

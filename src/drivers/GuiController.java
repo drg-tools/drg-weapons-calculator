@@ -53,8 +53,6 @@ import scoutWeapons.Zhukov;
 		8000 Total Damage
 */
 
-// TODO: manually write up the equipment, grenades, and armor DB files
-
 public class GuiController implements ActionListener {
 	
 	private Weapon[] drillerWeapons;
@@ -67,7 +65,7 @@ public class GuiController implements ActionListener {
 	
 	public static void main(String[] args) {
 		Weapon[] drillerWeapons = new Weapon[] {new Flamethrower(), new CryoCannon(), new Subata(), new EPC_RegularShot(), new EPC_ChargeShot()};
-		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new GrenadeLauncher()};
+		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new GrenadeLauncher(), new BreachCutter()};
 		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new Revolver_Snipe(), new Revolver_FullRoF(), new BurstPistol()};
 		Weapon[] scoutWeapons = new Weapon[] {new AssaultRifle(), new Classic_Hipfire(), new Classic_FocusShot(), new Boomstick(), new Zhukov()};
 		View gui = new View(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons);

@@ -103,13 +103,13 @@ public class BreachCutter extends Weapon {
 		
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Light-Weight Cases", "+4 Max Ammo, -0.2 Reload Time", overclockIcons.carriedAmmo, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Roll Control", "Holding down the trigger after the line leaves the gun causes the line to start rolling. On release of the trigger, the line stops rolling.", overclockIcons.rollControl, 1);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Roll Control", "Holding down the trigger after the line leaves the gun causes the line to start rolling. On release of the trigger, the line stops rolling.", overclockIcons.rollControl, 1, false);
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Stronger Plasma Current", "+50 Beam DPS, +0.5 Projectile Lifetime", overclockIcons.directDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Return to Sender", "Holding down the trigger after line leaves the gun activates a remote connection which on the release of the trigger causes "
-				+ "the line to change direction and move back towards the gun. Additionally, -4 Max Ammo", overclockIcons.returnToSender, 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "High Voltage Crossover", "100% chance to electrocute enemies, which deals an average of 16.0 Electric Damage per Second for 4 seconds. In exchange, -2 Magazine Size.", overclockIcons.electricity, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Spinning Death", "Spinning Death, x2.5 Projectile Lifetime, x0.2 Beam DPS, x0.5 Max Ammo, and x0.25 Magazine Size", overclockIcons.special, 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "Ignites most enemies immediately in exchange for -175 Beam DPS, -4 Max Ammo, and x0.25 Armor Breaking", overclockIcons.heatDamage, 6);
+				+ "the line to change direction and move back towards the gun. Additionally, -4 Max Ammo", overclockIcons.returnToSender, 3, false);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "High Voltage Crossover", "100% chance to electrocute enemies, which deals an average of 16.0 Electric Damage per Second for 4 seconds. In exchange, -2 Magazine Size.", overclockIcons.electricity, 4, false);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Spinning Death", "Spinning Death, x2.5 Projectile Lifetime, x0.2 Beam DPS, x0.5 Max Ammo, and x0.25 Magazine Size", overclockIcons.special, 5, false);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "Ignites most enemies immediately in exchange for -175 Beam DPS, -4 Max Ammo, and x0.25 Armor Breaking", overclockIcons.heatDamage, 6, false);
 	}
 	
 	@Override
@@ -430,12 +430,12 @@ public class BreachCutter extends Weapon {
 		
 		toReturn[2] = new StatsRow("Projectile Width:", getProjectileWidth(), selectedTier2 == 2 || selectedTier3 == 1);
 		
-		toReturn[3] = new StatsRow("Projectile Velocity:", getProjectileVelocity(), selectedOverclock == 5);
+		toReturn[3] = new StatsRow("Projectile Velocity (m/sec):", getProjectileVelocity(), selectedOverclock == 5);
 		
 		toReturn[4] = new StatsRow("Delay Before Opening:", getDelayBeforeOpening(), selectedTier3 == 0);
 		
 		boolean lifetimeModified = selectedTier1 == 0 || selectedOverclock == 2 || selectedOverclock == 5;
-		toReturn[5] = new StatsRow("Projectile Lifetime:", getProjectileLifetime(), lifetimeModified);
+		toReturn[5] = new StatsRow("Projectile Lifetime (sec):", getProjectileLifetime(), lifetimeModified);
 		
 		boolean magSizeModified = selectedTier1 == 1 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[6] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);

@@ -123,8 +123,7 @@ public class InformationTabsText {
 	
 	public static JPanel getFAQText() {
 		String[][] FAQtext = {
-			{"Where is the Breach Cutter?", "The Breach Cutter is substantially harder to model accurately due to how it works. I would need to know the sizes of each enemy, the m/sec that the Breach Cutter line moves at, "
-					+ "how many times per second the line does damage, and how much damage per tick it does."},
+			{"Why is the Breach Cutter so incomplete?", "The Breach Cutter is substantially harder to model accurately due to how it works. I still need to know the sizes of each enemy and figure out things like Spinning Death before Breach Cutter gets polished up."},
 			{"Why do some Mods and Overclocks have a Red outline?", "Mods or Overclocks with a Red outline either are not implemented yet, or how they work in-game can't be represented by the Weapon's stats."},
 			{"What's the point of this program?", "To help the DRG community compare and contrast their preferred builds for each weapon, and to provide more detail about how the weapons work than described in-game or on the wiki."},
 			{"How long should I wait for the program to calculate the best build?", "This should run pretty fast. I would expect it to be done in a second or two, five at most."},
