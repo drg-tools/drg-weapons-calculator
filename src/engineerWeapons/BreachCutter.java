@@ -8,6 +8,7 @@ import dataGenerator.DatabaseConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
+import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
@@ -15,6 +16,8 @@ import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 
 /*
+	TODO: I think that each projectile has a "burst of damage on first impact" that needs to be found and subsequently modeled.
+	
 	Extracted via UUU:
 	
 		Spinning Death 
@@ -122,9 +125,9 @@ public class BreachCutter extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Roll Control", "Holding down the trigger after the line leaves the gun causes the line to start rolling. On release of the trigger, the line stops rolling.", overclockIcons.rollControl, 1, false);
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Stronger Plasma Current", "+50 Beam DPS, +0.5 Projectile Lifetime", overclockIcons.directDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Return to Sender", "Holding down the trigger after line leaves the gun activates a remote connection which on the release of the trigger causes "
-				+ "the line to change direction and move back towards the gun. Additionally, -4 Max Ammo", overclockIcons.returnToSender, 3, false);
+				+ "the line to change direction and move back towards the gun. Additionally, -4 Max Ammo", overclockIcons.returnToSender, 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "High Voltage Crossover", "100% chance to electrocute enemies, which deals an average of 16.0 Electric Damage per Second for 4 seconds. In exchange, -2 Magazine Size.", overclockIcons.electricity, 4, false);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Spinning Death", "Spinning Death, x2.5 Projectile Lifetime, x0.2 Beam DPS, x0.5 Max Ammo, and x0.25 Magazine Size", overclockIcons.special, 5, false);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Spinning Death", "Spinning Death, x0.05 Projectile Velocity, x2.5 Projectile Lifetime, x0.2 Beam DPS, x0.5 Max Ammo, and x0.25 Magazine Size", overclockIcons.special, 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "Ignites most enemies immediately in exchange for -175 Beam DPS, -4 Max Ammo, and x0.25 Armor Breaking", overclockIcons.heatDamage, 6, false);
 	}
 	
@@ -316,7 +319,7 @@ public class BreachCutter extends Weapon {
 		
 		// Spinning Death makes it move a lot slower
 		if (selectedOverclock == 5) {
-			
+			toReturn = 0.5;
 		}
 		
 		return toReturn;
@@ -437,7 +440,7 @@ public class BreachCutter extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[13];
+		StatsRow[] toReturn = new StatsRow[14];
 		
 		boolean dmgPerTickModified = selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 5 || selectedOverclock == 6;
 		toReturn[0] = new StatsRow("Damage per Tick:", getDamagePerTick(), dmgPerTickModified);
@@ -453,23 +456,33 @@ public class BreachCutter extends Weapon {
 		boolean lifetimeModified = selectedTier1 == 0 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[5] = new StatsRow("Projectile Lifetime (sec):", getProjectileLifetime(), lifetimeModified);
 		
+		double singleGruntDamage;
+		int numGrunts = calculateMaxNumTargets();
+		if (selectedOverclock == 5) {
+			singleGruntDamage = calculateAverageDamageToGruntPerSpinningDeathProjectile();
+		}
+		else {
+			singleGruntDamage = calculateDamageToGruntPerRegularProjectile();
+		}
+		toReturn[6] = new StatsRow("Damage per Projectile:", numGrunts * singleGruntDamage, false);
+		
 		boolean magSizeModified = selectedTier1 == 1 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[6] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
+		toReturn[7] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier2 == 0 || selectedOverclock == 0 || selectedOverclock == 3 || selectedOverclock == 5 || selectedOverclock == 6;
-		toReturn[7] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
+		toReturn[8] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[8] = new StatsRow("Rate of Fire:", rateOfFire, false);
+		toReturn[9] = new StatsRow("Rate of Fire:", rateOfFire, false);
 		
-		toReturn[9] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 0);
+		toReturn[10] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 0);
 		
 		boolean armorBreakingModified = selectedTier4 == 0 || selectedOverclock == 6;
-		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), armorBreakingModified, armorBreakingModified);
+		toReturn[11] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), armorBreakingModified, armorBreakingModified);
 		
 		boolean stunEquipped = selectedTier4 == 1;
-		toReturn[11] = new StatsRow("Stun Chance:", convertDoubleToPercentage(1.0), stunEquipped, stunEquipped);
+		toReturn[12] = new StatsRow("Stun Chance:", convertDoubleToPercentage(1.0), stunEquipped, stunEquipped);
 		
-		toReturn[12] = new StatsRow("Stun Duration:", 3, stunEquipped, stunEquipped);
+		toReturn[13] = new StatsRow("Stun Duration:", 3, stunEquipped, stunEquipped);
 		
 		return toReturn;
 	}
@@ -477,6 +490,98 @@ public class BreachCutter extends Weapon {
 	/****************************************************************************************
 	* Other Methods
 	****************************************************************************************/
+	
+	private double calculateDamageToGruntPerRegularProjectile() {
+		// TODO: model High Voltage Crossover and Inferno in this method
+		
+		double secondsOfIntersection = 2.0 * EnemyInformation.GlyphidGruntBodyAndLegsRadius / getProjectileVelocity();
+		if (selectedOverclock == 3) {
+			// OC "Return to Sender" doubles how long a single projectile can intersect a single target
+			secondsOfIntersection *= 2.0;
+		}
+		
+		return secondsOfIntersection * damageTickRate * getDamagePerTick();
+	}
+	
+	// This method isn't perfect but it's a good start. It should eventually model how the enemies move instead of stand still and work out a couple of math/logic overlaps that I'm choosing to neglect for right now.
+	private double calculateAverageDamageToGruntPerSpinningDeathProjectile() {
+		double sdRotationSpeed = 4 * Math.PI;  // Equals 2 full circles per second
+		double sdProjectileVelocity = getProjectileVelocity();
+		double sdWidth = getProjectileWidth();
+		double sdLifetime = getProjectileLifetime();
+		
+		double R = sdWidth / 2.0;
+		double r = EnemyInformation.GlyphidGruntBodyAndLegsRadius;
+		
+		double maxNumHitsDownDiameter = ((sdRotationSpeed / Math.PI) / sdProjectileVelocity) * sdWidth;  // 8*w
+		double avgNumHitsDownChords = ((sdRotationSpeed / Math.PI) / sdProjectileVelocity) * ((Math.PI * Math.pow(R, 2)) / sdWidth);  // 2Pi*w
+		
+		// I'm choosing to model this as if the Spinning Death projectile is centered on (0, 0) and doesn't move, and a Grunt is moving through its damage area at the Projectile Velocity. It helps simplify the math a little bit.
+		double horizontalOffsetFromCenterForRepresentativeChord = (Math.sqrt(Math.pow(maxNumHitsDownDiameter, 2) - Math.pow(avgNumHitsDownChords, 2)) / maxNumHitsDownDiameter) * R; // 0.3095*w
+		double representativeChordLength = 2.0 * Math.sqrt(Math.pow(R, 2));
+		double verticalOffsetForCenterOfGrunt = Math.sqrt(Math.pow(R + r, 2) - Math.pow(horizontalOffsetFromCenterForRepresentativeChord, 2));
+		
+		double totalNumSecondsThatSpinningDeathIntersectsGrunt = 0.0;
+		double distanceBetweenCirclesCenters, radiansAngleOfIntersection, lensChordLength, lengthOfTangentSegment;
+		
+		double timeElapsed = 0.0;
+		double timeInterval = 1.0 / (sdRotationSpeed / Math.PI);
+		double totalDistanceTraveledVertically = 0.0;
+		double distanceMovedPerInterval = sdProjectileVelocity * timeInterval;
+		while (timeElapsed < sdLifetime && totalDistanceTraveledVertically < (representativeChordLength + 2 * r)) {
+			/*
+				As the Grunt moves through the Spinning Death projectile, there are 3 states of intersection: 
+					1. If the two centers are further apart than their combined radii, then there's no overlap.
+					2. When the center of Grunt is still outside the SD circle, the area intersected is a Lens (like AccuracyEstimator) and the angle of rotation intersected is 
+						proportional to the chord length across the Lens. Find the chord, translate it to arc length of the SD projectile, and find the radians. Divide radians by rotational speed.
+					3. When the center of the Grunt is inside the SD circle but it's far enough away that the center of SD isn't yet inside the Grunt's circle. The angle of intersection is the angle
+						between the two lines that intersect at SD's center and are both tangent to Grunt's circle. Divide radians by rotational speed.
+					4. When the center of SD is inside Grunt's circle, then angle of intersection is technically infinite. For this case, just add the full timeInterval and move on to the next loop.
+			*/
+			distanceBetweenCirclesCenters = Math.sqrt(Math.pow(horizontalOffsetFromCenterForRepresentativeChord, 2) + Math.pow(verticalOffsetForCenterOfGrunt, 2));
+			
+			// Case 1: No overlap
+			if (distanceBetweenCirclesCenters >= R + r) {
+				// Do nothing, just move onto next loop
+			}
+			
+			// Case 2: Lens
+			else if (distanceBetweenCirclesCenters >= R && distanceBetweenCirclesCenters < R + r) {
+				/*
+					This is by far the most complicated case to calculate. Because we know that this case is a Lens, there's a formula to find the length of the chord shared by the two circles
+					inside the Lens. Using that chord length and some more geometry, we can calculate the angle of intersection
+				*/
+				// Sourced from https://mathworld.wolfram.com/Circle-CircleIntersection.html
+				lensChordLength = (1.0 / distanceBetweenCirclesCenters) * Math.sqrt((-distanceBetweenCirclesCenters + r - R) * (-distanceBetweenCirclesCenters - r + R) * (-distanceBetweenCirclesCenters + r + R) * (distanceBetweenCirclesCenters + r + R));
+				radiansAngleOfIntersection = 2.0 * Math.asin(lensChordLength / (2.0 * R));
+				totalNumSecondsThatSpinningDeathIntersectsGrunt += radiansAngleOfIntersection / sdRotationSpeed;
+			}
+			
+			// Case 3: Tangents
+			else if (distanceBetweenCirclesCenters >= r && distanceBetweenCirclesCenters < R) {
+				/*
+					Because Tangents are by definition at right-angles to the center of the circle, and we know the lengths of the two radii, we can use simple trigonometry to calculate
+					the angle of intersection.
+				*/
+				lengthOfTangentSegment = Math.sqrt(Math.pow(distanceBetweenCirclesCenters, 2) - Math.pow(r, 2));
+				radiansAngleOfIntersection = 2.0 * Math.atan(r / lengthOfTangentSegment);
+				totalNumSecondsThatSpinningDeathIntersectsGrunt += radiansAngleOfIntersection / sdRotationSpeed;
+			}
+			
+			// Case 4: Complete overlap
+			else if (distanceBetweenCirclesCenters < r) {
+				totalNumSecondsThatSpinningDeathIntersectsGrunt += timeInterval;
+			}
+			
+			timeElapsed += timeInterval;
+			totalDistanceTraveledVertically += distanceMovedPerInterval;
+			verticalOffsetForCenterOfGrunt -= distanceMovedPerInterval;
+		}
+		
+		// System.out.println("According to the Spinning Death method, on average a Grunt would be intersected for " + totalNumSecondsThatSpinningDeathIntersectsGrunt + " seconds. This should be STRICTLY LESS THAN projectile total lifetime: " + sdLifetime);
+		
+		return totalNumSecondsThatSpinningDeathIntersectsGrunt * damageTickRate * getDamagePerTick();
+	}
 	
 	@Override
 	public boolean currentlyDealsSplashDamage() {
@@ -513,12 +618,35 @@ public class BreachCutter extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		return 10;
+		double singleGruntDamage;
+		int numGrunts = calculateMaxNumTargets();
+		if (selectedOverclock == 5) {
+			singleGruntDamage = calculateAverageDamageToGruntPerSpinningDeathProjectile();
+		}
+		else {
+			singleGruntDamage = calculateDamageToGruntPerRegularProjectile();
+		}
+		return numGrunts * singleGruntDamage * (getMagazineSize() + getCarriedAmmo());
 	}
 
 	@Override
 	public int calculateMaxNumTargets() {
-		return 1;
+		int numGruntsHitSimultaneouslyPerRow;
+		double width = getProjectileWidth();
+		double velocity = getProjectileVelocity();
+		double lifetime = getProjectileLifetime();
+		if (selectedOverclock == 5) {
+			numGruntsHitSimultaneouslyPerRow = calculateNumGlyphidsInRadius(width / 2.0);
+		}
+		else {
+			numGruntsHitSimultaneouslyPerRow = (int) (1.0 + 2.0 * Math.ceil(((width / 2.0) - EnemyInformation.GlyphidGruntBodyRadius) / EnemyInformation.GlyphidGruntBodyAndLegsRadius));
+		}
+		
+		int numRowsOfGruntsHitDuringProjectileLifetime = (int) Math.ceil((velocity / (4.0 * EnemyInformation.GlyphidGruntBodyAndLegsRadius)) * lifetime);
+		
+		// System.out.println("Num grunts per row: " + numGruntsHitSimultaneouslyPerRow + ", Num rows of grunts: " + numRowsOfGruntsHitDuringProjectileLifetime);
+		
+		return numGruntsHitSimultaneouslyPerRow * numRowsOfGruntsHitDuringProjectileLifetime;
 	}
 
 	@Override
@@ -528,7 +656,12 @@ public class BreachCutter extends Weapon {
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
-		return 1;
+		if (selectedOverclock == 5) {
+			return calculateAverageDamageToGruntPerSpinningDeathProjectile();
+		}
+		else {
+			return calculateDamageToGruntPerRegularProjectile();
+		}
 	}
 
 	@Override
