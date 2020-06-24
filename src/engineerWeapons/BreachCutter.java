@@ -14,6 +14,22 @@ import modelPieces.StatsRow;
 import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 
+/*
+	Extracted via UUU:
+	
+		Spinning Death 
+			GetAll LineCutterProjectile RotationSpeed = 720 degrees = 4 Pi rads/sec
+										RotationMode = Yaw
+				   ProjectileMovementComponent MaxSpeed = 50 = 0.5 m/sec ?!?!
+				   
+			After some complicated math, the average number of times Spinning Death will hit a single point in space = 2 * Pi * width. 
+			Still need to scale it up to creature size.
+										
+		GetAll ProjectileVelocityModule StartVelocity = 1000 = 10 m/sec
+			   ProjectileMovementComponent InitialSpeed = 1000
+													
+*/
+
 public class BreachCutter extends Weapon {
 	
 	/****************************************************************************************

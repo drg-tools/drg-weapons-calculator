@@ -20,7 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 import dataGenerator.DatabaseConstants;
-import dataGenerator.WeaponStatsGenerator;
+import dataGenerator.MetricsCalculator;
 import drillerWeapons.CryoCannon;
 import drillerWeapons.EPC_ChargeShot;
 import drillerWeapons.EPC_RegularShot;
@@ -60,7 +60,7 @@ public class GuiController implements ActionListener {
 	private Weapon[] gunnerWeapons;
 	private Weapon[] scoutWeapons;
 	private View gui;
-	private WeaponStatsGenerator calculator;
+	private MetricsCalculator calculator;
 	private JFileChooser folderChooser;
 	
 	public static void main(String[] args) {
@@ -96,7 +96,7 @@ public class GuiController implements ActionListener {
 			System.out.println("Error: no weapons in GuiController's arrays");
 			weaponSelected = new Minigun();
 		}
-		calculator = new WeaponStatsGenerator(weaponSelected);
+		calculator = new MetricsCalculator(weaponSelected);
 		folderChooser = new JFileChooser();
 		folderChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 	}
@@ -135,12 +135,16 @@ public class GuiController implements ActionListener {
 		mysqlCommands.add("    `breakpoints` INT NOT NULL,\n");
 		mysqlCommands.add("    `utility` DOUBLE NOT NULL,\n");
 		mysqlCommands.add("    `damage_per_magazine` DOUBLE NOT NULL,\n");
-		mysqlCommands.add("    `time_to_fire_magazine` DOUBLE NOT NULL,\n\n");
+		mysqlCommands.add("    `time_to_fire_magazine` DOUBLE NOT NULL,\n");
+		
+		mysqlCommands.add("    `patch_id` BIGINT UNSIGNED NOT NULL,\n\n");
 		mysqlCommands.add("    PRIMARY KEY (`id`),\n\n");
 		mysqlCommands.add("    FOREIGN KEY (`character_id`)\n");
 		mysqlCommands.add("        REFERENCES characters(`id`),\n\n");
 		mysqlCommands.add("    FOREIGN KEY (`gun_id`)\n");
-		mysqlCommands.add("        REFERENCES guns(`id`)\n");
+		mysqlCommands.add("        REFERENCES guns(`id`),\n\n");
+		mysqlCommands.add("    FOREIGN KEY (`patch_id`)\n");
+		mysqlCommands.add("        REFERENCES patches(`id`)\n");
 		mysqlCommands.add(");\n\n");
 		
 		int i;
@@ -193,12 +197,14 @@ public class GuiController implements ActionListener {
 			mysqlCommands.add("    `icon` VARCHAR(1000) NOT NULL,\n");
 			mysqlCommands.add("    `mod_type` VARCHAR(1000) NOT NULL,\n");
 			
-			mysqlCommands.add("    `patch_number_index` BIGINT UNSIGNED NOT NULL,\n\n");
+			mysqlCommands.add("    `patch_id` BIGINT UNSIGNED NOT NULL,\n\n");
 			mysqlCommands.add("    PRIMARY KEY (`id`),\n\n");
 			mysqlCommands.add("    FOREIGN KEY (`character_id`)\n");
 			mysqlCommands.add("        REFERENCES characters(`id`),\n\n");
 			mysqlCommands.add("    FOREIGN KEY (`gun_id`)\n");
-			mysqlCommands.add("        REFERENCES guns(`id`)\n");
+			mysqlCommands.add("        REFERENCES guns(`id`),\n\n");
+			mysqlCommands.add("    FOREIGN KEY (`patch_id`)\n");
+			mysqlCommands.add("        REFERENCES patches(`id`)\n");
 			mysqlCommands.add(");\n\n");
 		}
 		else {
@@ -258,12 +264,14 @@ public class GuiController implements ActionListener {
 			mysqlCommands.add("    `json_stats` VARCHAR(1000) NOT NULL,\n");
 			mysqlCommands.add("    `icon` VARCHAR(1000) NOT NULL,\n");
 			
-			mysqlCommands.add("    `patch_number_index` BIGINT UNSIGNED NOT NULL,\n\n");
+			mysqlCommands.add("    `patch_id` BIGINT UNSIGNED NOT NULL,\n\n");
 			mysqlCommands.add("    PRIMARY KEY (`id`),\n\n");
 			mysqlCommands.add("    FOREIGN KEY (`character_id`)\n");
 			mysqlCommands.add("        REFERENCES characters(`id`),\n\n");
 			mysqlCommands.add("    FOREIGN KEY (`gun_id`)\n");
-			mysqlCommands.add("        REFERENCES guns(`id`)\n");
+			mysqlCommands.add("        REFERENCES guns(`id`),\n\n");
+			mysqlCommands.add("    FOREIGN KEY (`patch_id`)\n");
+			mysqlCommands.add("        REFERENCES patches(`id`)\n");
 			mysqlCommands.add(");\n\n");
 		}
 		

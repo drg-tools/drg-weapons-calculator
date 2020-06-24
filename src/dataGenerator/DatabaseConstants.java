@@ -2,9 +2,9 @@ package dataGenerator;
 
 public class DatabaseConstants {
 	public static String databaseName = "drgbuilds";
-	public static String statsTableName = "build_statistics";
-	public static String modsTableName = "mods_stats";
-	public static String OCsTableName = "overclocks_stats";
+	public static String statsTableName = "build_metrics";
+	public static String modsTableName = "mods";
+	public static String OCsTableName = "overclocks";
 	
 	public static String patchNumber = "31.3";
 	public static int patchNumberID = 5;

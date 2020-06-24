@@ -301,9 +301,6 @@ public abstract class EPC extends Weapon {
 	public String getDwarfClass() {
 		return "Driller";
 	}
-	public String getSimpleName() {
-		return "EPC_ChargeShot";
-	}
 	public int getDwarfClassID() {
 		return DatabaseConstants.drillerCharacterID;
 	}

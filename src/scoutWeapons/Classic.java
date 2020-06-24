@@ -266,9 +266,6 @@ public abstract class Classic extends Weapon {
 	public String getDwarfClass() {
 		return "Scout";
 	}
-	public String getSimpleName() {
-		return "Classic_Hipfire";
-	}
 	public int getDwarfClassID() {
 		return DatabaseConstants.scoutCharacterID;
 	}

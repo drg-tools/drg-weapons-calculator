@@ -11,14 +11,14 @@ import modelPieces.Weapon;
 
 // TODO: I think it would be possible to refactor this class a little bit to only get the metrics for a particular combination once per loop per weapon
 // but it would take a couple days to do that refactor.
-public class WeaponStatsGenerator {
+public class MetricsCalculator {
 	
 	private Weapon weaponToTest;
 	private File outputFolder;
 	private String[] headers;
 	private ArrayList<String> csvLinesToWrite;
 	
-	public WeaponStatsGenerator(Weapon testingWeapon) {
+	public MetricsCalculator(Weapon testingWeapon) {
 		weaponToTest = testingWeapon;
 		String defaultHomeFolder = System.getProperty("user.home");
 		outputFolder = new File(defaultHomeFolder);
@@ -389,12 +389,12 @@ public class WeaponStatsGenerator {
 							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
 								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
-								toReturn.add(String.format("INSERT INTO `%s` VALUES(NULL, %d, %d, '%s', '%s', %f, %f, %f, %f, %f, %d, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %f);\n", 
+								toReturn.add(String.format("INSERT INTO `%s` VALUES(NULL, %d, %d, '%s', '%s', %f, %f, %f, %f, %f, %d, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %f, %d);\n", 
 										DatabaseConstants.statsTableName, dwarfClassID, weaponID, simpleName, weaponToTest.getCombination(),
 										weaponToTest.calculateIdealBurstDPS(), weaponToTest.calculateIdealSustainedDPS(), weaponToTest.sustainedWeakpointDPS(), weaponToTest.sustainedWeakpointAccuracyDPS(), weaponToTest.calculateAdditionalTargetDPS(), 
 										weaponToTest.calculateMaxNumTargets(), weaponToTest.calculateMaxMultiTargetDamage(), weaponToTest.ammoEfficiency(), weaponToTest.estimatedAccuracy(false), weaponToTest.estimatedAccuracy(true),
 										weaponToTest.calculateFiringDuration(), weaponToTest.averageOverkill(), weaponToTest.averageTimeToKill(), weaponToTest.breakpoints(), weaponToTest.utilityScore(),
-										weaponToTest.damagePerMagazine(), weaponToTest.timeToFireMagazine()
+										weaponToTest.damagePerMagazine(), weaponToTest.timeToFireMagazine(), DatabaseConstants.patchNumberID
 								));
 							}
 						}

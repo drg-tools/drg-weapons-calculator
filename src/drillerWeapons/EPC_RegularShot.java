@@ -37,6 +37,10 @@ public class EPC_RegularShot extends EPC {
 		return new EPC_RegularShot(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getSimpleName() {
+		return "EPC_RegularShot";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/
