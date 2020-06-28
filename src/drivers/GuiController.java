@@ -194,8 +194,8 @@ public class GuiController implements ActionListener {
 			
 			mysqlCommands.add("    `text_description` VARCHAR(1000) NOT NULL,\n");
 			mysqlCommands.add("    `json_stats` VARCHAR(1000) NOT NULL,\n");
-			mysqlCommands.add("    `icon` VARCHAR(1000) NOT NULL,\n");
-			mysqlCommands.add("    `mod_type` VARCHAR(1000) NOT NULL,\n");
+			mysqlCommands.add("    `icon` VARCHAR(50) NOT NULL,\n");
+			mysqlCommands.add("    `mod_type` VARCHAR(20) NOT NULL,\n");
 			
 			mysqlCommands.add("    `patch_id` BIGINT UNSIGNED NOT NULL,\n\n");
 			mysqlCommands.add("    PRIMARY KEY (`id`),\n\n");
@@ -211,8 +211,6 @@ public class GuiController implements ActionListener {
 			filenamePrefix = "changed_";
 		}
 		
-		// Breach Cutter isn't fully fleshed out; I just have a skeleton written for mod/OC costs used in this method.
-		Weapon bc = new BreachCutter();
 		int i;
 		for (i = 0; i < drillerWeapons.length; i++) {
 			// Skip the EPC Charge Shot since it would have identical info as EPC Regular Shot
@@ -223,7 +221,6 @@ public class GuiController implements ActionListener {
 		for (i = 0; i < engineerWeapons.length; i++) {
 			mysqlCommands.addAll(engineerWeapons[i].exportModsToMySQL(exportAll));
 		}
-		mysqlCommands.addAll(bc.exportModsToMySQL(exportAll));
 		for (i = 0; i < gunnerWeapons.length; i++) {
 			// Skip Revolver Snipe since it would have identical info as Revolver Max RoF
 			if (i != 2) {
@@ -262,7 +259,7 @@ public class GuiController implements ActionListener {
 			
 			mysqlCommands.add("    `text_description` VARCHAR(1000) NOT NULL,\n");
 			mysqlCommands.add("    `json_stats` VARCHAR(1000) NOT NULL,\n");
-			mysqlCommands.add("    `icon` VARCHAR(1000) NOT NULL,\n");
+			mysqlCommands.add("    `icon` VARCHAR(50) NOT NULL,\n");
 			
 			mysqlCommands.add("    `patch_id` BIGINT UNSIGNED NOT NULL,\n\n");
 			mysqlCommands.add("    PRIMARY KEY (`id`),\n\n");
@@ -284,7 +281,6 @@ public class GuiController implements ActionListener {
 		for (i = 0; i < engineerWeapons.length; i++) {
 			mysqlCommands.addAll(engineerWeapons[i].exportOCsToMySQL(exportAll));
 		}
-		mysqlCommands.addAll(bc.exportOCsToMySQL(exportAll));
 		for (i = 0; i < gunnerWeapons.length; i++) {
 			// Skip Revolver Snipe since it would have identical info as Revolver Max RoF
 			if (i != 2) {

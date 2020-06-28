@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import dataGenerator.DatabaseConstants;
+import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
@@ -15,10 +16,7 @@ import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
-
-/*
-	It looks like Explosive Goodbye does 40 explosive damage in a 3m radius, 2m full damage radius												
-*/
+import utilities.MathUtils;
 
 public class BreachCutter extends Weapon {
 	
@@ -107,8 +105,9 @@ public class BreachCutter extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Explosive Goodbye", "When the line either expires or the trigger gets pulled again, the current line explodes for 40 Explosive Damage in a 3m radius AoE, and leaves behind a field of Persistent Plasma "
-				+ " that does an average of " + DoTInformation.Plasma_DPS + " Electric Damage per second for 4.6 seconds in a 3m radius sphere.", modIcons.addedExplosion, 5, 0, false);
-		tier5[1] = new Mod("Plasma Trail", "Leaves behind a Persistent Plasma field that does an average of " + DoTInformation.Plasma_DPS + " Electric Damage per second for 4.6 seconds along the entire length of the line's path", modIcons.areaDamage, 5, 1, false);
+				+ " that does an average of " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per second for 4.6 seconds in a 3m radius sphere.", modIcons.addedExplosion, 5, 0, false);
+		tier5[1] = new Mod("Plasma Trail", "Leaves behind a Persistent Plasma field that does an average of " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per second for 4.6 seconds "
+				+ "along the entire length of the line's path", modIcons.areaDamage, 5, 1, false);
 		tier5[2] = new Mod("Triple Split Line", "Adds a line above and below the primary projectile (multiple lines hitting doesn't increase DPS)", modIcons.aoeRadius, 5, 2, false);
 		
 		overclocks = new Overclock[7];
@@ -119,7 +118,7 @@ public class BreachCutter extends Weapon {
 				+ "the line to change direction and move back towards the gun. In exchange, -4 Max Ammo", overclockIcons.returnToSender, 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "High Voltage Crossover", "100% chance to electrocute enemies, which deals an average of 16.0 Electric Damage per Second for 4 seconds. In exchange, -2 Magazine Size.", overclockIcons.electricity, 4, false);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Spinning Death", "Spinning Death, x0.05 Projectile Velocity, x0 Impact Damage, x2.5 Projectile Lifetime, x0.2 Damage per Tick, x0.5 Max Ammo, and x0.25 Magazine Size", overclockIcons.special, 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "Adds 80% of Damage per Tick as Heat Damage which ignites enemies almost instantly in exchange for -3.5 Damage per Tick, -4 Max Ammo, and x0.25 Armor Breaking", overclockIcons.heatDamage, 6, false);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "Adds 90% of Damage per Tick as Heat Damage which ignites enemies almost instantly in exchange for -3.5 Damage per Tick, -4 Max Ammo, and x0.25 Armor Breaking", overclockIcons.heatDamage, 6, false);
 	}
 	
 	@Override

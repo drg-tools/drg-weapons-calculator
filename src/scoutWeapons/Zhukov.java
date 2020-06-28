@@ -95,7 +95,7 @@ public class Zhukov extends Weapon {
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Conductive Bullets", "+30% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 5, 0);
-		tier5[1] = new Mod("Get In, Get Out", "+100% Movement Speed for 2 seconds after reloading an empty magazine", modIcons.movespeed, 5, 1);
+		tier5[1] = new Mod("Get In, Get Out", "+50% Movement Speed for 2.5 seconds after reloading an empty magazine", modIcons.movespeed, 5, 1);
 		
 		overclocks = new Overclock[5];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Minimal Magazines", "+2 Rate of Fire, -0.4 Reload Time", overclockIcons.reloadSpeed, 0);
@@ -671,17 +671,17 @@ public class Zhukov extends Weapon {
 		// OC "Gas Recycling" reduces Scout's movement speed
 		utilityScores[0] = (getMovespeedWhileFiring() - MathUtils.round(DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
 		
-		// Mod Tier 5 "Get In, Get Out" gives 100% movement speed increase for 2 sec after reloading empty clips
+		// Mod Tier 5 "Get In, Get Out" gives 50% movement speed increase for 2.5 sec after reloading empty clips
 		if (selectedTier5 == 1) {
-			// Because this buff lasts 2 seconds, but I don't think it's possible to have 100% uptime. Use the uptime as a coefficient to reduce the value of the movespeed buff.
+			// Because this buff lasts 2.5 seconds, but I don't think it's possible to have 100% uptime. Use the uptime as a coefficient to reduce the value of the movespeed buff.
 			double effectiveMagazineSize = getMagazineSize() / 2.0;
 			double effectiveRoF = getRateOfFire() / 2.0;
 			double timeToFireMagazineAndReload = (effectiveMagazineSize / effectiveRoF) + getReloadTime();
 			
 			// Just because I don't think it's possible doesn't mean I'm not safeguarding against it.
-			double uptimeCoefficient = Math.min(2.0 / timeToFireMagazineAndReload, 1);
+			double uptimeCoefficient = Math.min(2.5 / timeToFireMagazineAndReload, 1);
 			
-			utilityScores[0] += uptimeCoefficient * DwarfInformation.walkSpeed * UtilityInformation.Movespeed_Utility;
+			utilityScores[0] += uptimeCoefficient * MathUtils.round(0.5 * DwarfInformation.walkSpeed, 2) * UtilityInformation.Movespeed_Utility;
 		}
 		
 		// Light Armor Breaking probability
