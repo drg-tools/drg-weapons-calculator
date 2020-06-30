@@ -113,7 +113,7 @@ public class Boomstick extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Auto Reload", "Reloads automatically when unequipped for more than 5 seconds", modIcons.reloadSpeed, 5, 0, false);
-		tier5[1] = new Mod("Fear The Boomstick", "50% Chance to inflict Fear on enemies caught within the Blastwave", modIcons.fear, 5, 1);
+		tier5[1] = new Mod("Fear The Boomstick", "50% chance to inflict Fear on enemies within 5m of you every time you pull the trigger", modIcons.fear, 5, 1);
 		tier5[2] = new Mod("White Phosphorous Shells", "Add 50% of the Damage per Pellet as Heat Damage, which can ignite enemies. Burn DoT does an average of " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[6];
@@ -468,7 +468,7 @@ public class Boomstick extends Weapon {
 		
 		toReturn[8] = new StatsRow("Fear Chance:", "50%", selectedTier5 == 1, selectedTier5 == 1);
 		
-		toReturn[9] = new StatsRow("Stun Chance:", convertDoubleToPercentage(stunChance), false);
+		toReturn[9] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(stunChance), false);
 		
 		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), selectedTier3 == 0);
 		
@@ -487,6 +487,20 @@ public class Boomstick extends Weapon {
 	public boolean currentlyDealsSplashDamage() {
 		// Technically the Blastwave is Area Damage, but this flag is for spherical Area Damage like Grenade Launcher or Autocannon.
 		return false;
+	}
+	
+	// Copied over from Engineer/Shotgun
+	private double calculateCumulativeStunChancePerShot() {
+		double stunAccuracy = estimatedAccuracy(false) / 100.0;
+		int numPelletsThatHaveStunChance = (int) Math.round(getNumberOfPellets() * stunAccuracy);
+		if (numPelletsThatHaveStunChance > 0) {
+			// Only 1 pellet needs to succeed in order to stun the creature
+			return MathUtils.cumulativeBinomialProbability(stunChance, numPelletsThatHaveStunChance, 1);
+		}
+		else {
+			// This is a special case -- when the Accuracy is so low that none of the pellets are expected to hit a weakpoint, the cumulative binomial probability returns -1, which in turn destroys the Utility Score unnecessarily.
+			return 0.0;
+		}
 	}
 	
 	private double calculateTimeToIgnite(boolean accuracy) {
@@ -761,19 +775,19 @@ public class Boomstick extends Weapon {
 		double probabilityToBreakLightArmorPlatePerPellet = calculateProbabilityToBreakLightArmor(getDamagePerPellet() * numPelletsThatHitLightArmorPlate, getArmorBreaking());
 		utilityScores[2] = probabilityToBreakLightArmorPlatePerPellet * UtilityInformation.ArmorBreak_Utility;
 		
-		// Mod Tier 5 "Fear the Boomstick" = 50% chance to Fear in same blast cone as the Blastwave damage
+		// Mod Tier 5 "Fear the Boomstick" = 50% chance to Fear enemies within 5m
 		if (selectedTier5 == 1) {
-			// 20 degree isosceles triangle, 4m height; 1.41m base. 4 grunts can be hit in a 1-2-1 stack.
-			int gruntsHitByBlastwave = 4;
+			// A 5m radius returns 41 grunts, which is just too many. I'm choosing to reduce the radius by half, which brings it down to 12.
+			// From my tests, it seems that the 0.5 Fear corresponds to about 30% fear proc
+			int gruntsHitByBlastwave = calculateNumGlyphidsInRadius(5.0 / 2.0);
 			utilityScores[4] = 0.5 * gruntsHitByBlastwave * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;
 		}
 		
-		// Innate Stun = 30% chance for 2.5 sec (improved by Mod Tier 3 "Stun Duration")
-		// It looks like each shot has a 30% chance for all of its pellets to have 100% stun rate, so more pellets doesn't equal more likely to stun.
-		utilityScores[5] = stunChance * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
+		// Innate Stun = 30% chance per pellet for 2.5 sec (improved by Mod Tier 3 "Stun Duration")
+		utilityScores[5] = calculateCumulativeStunChancePerShot() * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
 		
 		return MathUtils.sum(utilityScores);
 	}

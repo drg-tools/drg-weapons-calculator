@@ -101,8 +101,8 @@ public class AssaultRifle extends Weapon {
 		tier4[2] = new Mod("Improved Gas System", "+2 Rate of Fire", modIcons.rateOfFire, 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Battle Frenzy", "After killing an enemy, gain +50% Movement Speed for 3 seconds", modIcons.movespeed, 5, 0);
-		tier5[1] = new Mod("Battle Cool", "After killing an enemy, Spread per Shot is set to 0 for 1.5 seconds", modIcons.baseSpread, 5, 1);
+		tier5[0] = new Mod("Battle Frenzy", "After killing an enemy, gain +50% Movement Speed for 2.5 seconds", modIcons.movespeed, 5, 0);
+		tier5[1] = new Mod("Battle Cool", "After killing an enemy, Spread Recovery Speed gets increased by x12.5 for 1.5 seconds", modIcons.baseSpread, 5, 1);
 		tier5[2] = new Mod("Stun", "+30% chance to Stun on Weakpoint hit", modIcons.stun, 5, 2);
 		
 		overclocks = new Overclock[7];
@@ -414,28 +414,18 @@ public class AssaultRifle extends Weapon {
 			return 1.0;
 		}
 	}
-	private double getSpreadPerShot() {
-		if (selectedTier5 == 1) {
-			// According to the Wiki, Battle Cool sets spreadPerShot = 0 for 1.5 seconds after a kill. This effectively lets the Spread decrease during that period due to the constant Spread Recovery.
-			// I'm choosing to model this as an averaged reduction on Spread per Shot across the whole magazine instead of trying to model it as the On-Kill effect that it truly is. 
-			double battleCoolDuration = 1.5;
-			double burstTTK = EnemyInformation.averageHealthPool() / calculateIdealBurstDPS();
-			double battleCoolUptimeCoefficient = battleCoolDuration / burstTTK;
-			
-			double magSize = getMagazineSize();
-			double numBulletsPerMagAffected = Math.round(magSize * battleCoolUptimeCoefficient);
-			double numBulletsUnaffected = magSize - numBulletsPerMagAffected;
-			
-			// This could be written simpler by not using the term multiplied by zero, but I'm choosing to write it explicitly to show how the averaging gets done.
-			return (0.0 * numBulletsPerMagAffected + 1.0 * numBulletsUnaffected) / magSize;
-		}
-		else {
-			return 1.0;
-		}
-	}
 	private double getSpreadRecoverySpeed() {
+		// I'm choosing to model it as if these two effects do not stack.
 		if (selectedOverclock == 5) {
 			return 10.0;
+		}
+		else if (selectedTier5 == 1) {
+			// According to the MikeGSG, Battle Cool increases Spread Recovery Speed by x12.5 for 1.5 seconds after a kill.
+			// Because the GK2 can currently kill the avg hp faster than the 1.5 sec duration, I'm choosing to model it as if it has 100% uptime after its first kill 
+			// since it would keep chaining until the end of the magazine (1.8 sec reload > 1.5 sec buff)
+			double burstTTK = EnemyInformation.averageHealthPool() / calculateIdealBurstDPS();
+			double timeToFireMag = timeToFireMagazine();
+			return (burstTTK * 1.0 + (timeToFireMag - burstTTK) * 12.5) / timeToFireMag;
 		}
 		else {
 			return 1.0;
@@ -463,7 +453,7 @@ public class AssaultRifle extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[13];
+		StatsRow[] toReturn = new StatsRow[12];
 		
 		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 || selectedOverclock == 2 || selectedOverclock == 5 || selectedOverclock == 6;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
@@ -488,12 +478,11 @@ public class AssaultRifle extends Weapon {
 		
 		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), selectedTier1 == 0, selectedTier1 == 0);
 		
-		toReturn[10] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier5 == 1, selectedTier5 == 1);
-		
-		toReturn[11] = new StatsRow("Spread Recovery:", convertDoubleToPercentage(getSpreadRecoverySpeed()), selectedOverclock == 5, selectedOverclock == 5);
+		boolean SRSmodified = selectedTier5 == 1 || selectedOverclock == 5;
+		toReturn[10] = new StatsRow("Spread Recovery:", convertDoubleToPercentage(getSpreadRecoverySpeed()), SRSmodified, SRSmodified);
 		
 		boolean recoilModified = selectedTier3 == 0 || selectedOverclock == 0 || selectedOverclock == 3 || selectedOverclock == 5;
-		toReturn[12] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
+		toReturn[11] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
 		
 		return toReturn;
 	}
@@ -660,7 +649,7 @@ public class AssaultRifle extends Weapon {
 		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
 		double recoilDownInterval = 2.0 / 3.0;
 		
-		double[] modifiers = {getBaseSpread(), getSpreadPerShot(), getSpreadRecoverySpeed(), 1.0, getRecoil()};
+		double[] modifiers = {getBaseSpread(), 1.0, getSpreadRecoverySpeed(), 1.0, getRecoil()};
 		
 		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
@@ -701,10 +690,10 @@ public class AssaultRifle extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		// Mod Tier 5 "Battle Frenzy" grants a 50% movespeed increase on kill for 3 seconds
+		// Mod Tier 5 "Battle Frenzy" grants a 50% movespeed increase on kill for 2.5 seconds
 		if (selectedTier5 == 0) {
-			double uptimeCoefficient = Math.min(3.0 / averageTimeToKill(), 1);
-			utilityScores[0] = uptimeCoefficient * MathUtils.round(0.5 * DwarfInformation.walkSpeed, 2) * UtilityInformation.Movespeed_Utility;
+			// Because the duration of the boost is always longer than the Avg TTK, it doesn't need an uptime coefficient.
+			utilityScores[0] = MathUtils.round(0.5 * DwarfInformation.walkSpeed, 2) * UtilityInformation.Movespeed_Utility;
 		}
 		else {
 			utilityScores[0] = 0;

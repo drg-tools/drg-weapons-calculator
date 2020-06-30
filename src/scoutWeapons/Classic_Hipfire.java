@@ -37,6 +37,10 @@ public class Classic_Hipfire extends Classic {
 		return new Classic_Hipfire(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getSimpleName() {
+		return "Classic_Hipfire";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/

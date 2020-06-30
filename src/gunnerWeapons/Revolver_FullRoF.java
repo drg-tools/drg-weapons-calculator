@@ -31,6 +31,10 @@ public class Revolver_FullRoF extends Revolver {
 		return new Revolver_FullRoF(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getSimpleName() {
+		return "Revolver_FullRoF";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/

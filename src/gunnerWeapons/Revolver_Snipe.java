@@ -31,6 +31,10 @@ public class Revolver_Snipe extends Revolver {
 		return new Revolver_Snipe(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getSimpleName() {
+		return "Revolver_Snipe";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/

@@ -23,31 +23,30 @@ public class EnemyInformation {
 		}
 	}
 	
-	// These are educated guesses about the enemies' spawn rates. Biome-specific enemies, "hatchling" enemy types, and Dreadnoughts not included.
+	// These are the actual statistics extracted from 153k kills from 6 players' Miner's Manual entries. Biome-specific enemies, "hatchling" enemy types, and Dreadnoughts not included.
 	// All of these numbers must sum up to exactly 1.0 for it to be a probability vector.
-	// TODO: verify these spawn rate numbers; I think there are more grunts and fewer swarmers.
 	private static double[] spawnRates = {
-		0.165, // Glyphid Swarmer
-		0.24,  // Glyphid Grunt
-		0.08,  // Glyphid Grunt Guard
-		0.08,  // Glyphid Grunt Slasher
-		0.04,  // Glyphid Praetorian
-		0.08,  // Glyphid Exploder
-		0.01,  // Glyphid Bulk Detonator
-		0.005, // Glyphid Crassus Detonator
-		0.04,  // Glyphid Webspitter
-		0.02,  // Glyphid Acidspitter
-		0.02,  // Glyphid Menace
-		0.02,  // Glyphid Warden
-		0.01,  // Glyphid Oppressor
-		0.01,  // Q'ronar Shellback
-		0.08,  // Mactera Spawn
-		0.01,  // Mactera Grabber
-		0.03,  // Mactera Bomber
-		0.02,  // Naedocyte Breeder
-		0.02,  // Glyphid Brood Nexus
-		0.01,  // Spitball Infector
-		0.01   // Cave Leech
+		0.311598275, 	 // Glyphid Swarmer
+		0.4190277052,  	 // Glyphid Grunt
+		0.0457723471,  	 // Glyphid Grunt Guard
+		0.04558285416,   // Glyphid Grunt Slasher
+		0.01902770518,   // Glyphid Praetorian
+		0.0629312598,  	 // Glyphid Exploder
+		0.001078149503,  // Glyphid Bulk Detonator
+		0.0000457396759, // Glyphid Crassus Detonator
+		0.02062859383,   // Glyphid Webspitter
+		0.01256534239,   // Glyphid Acidspitter
+		0.002430737062,  // Glyphid Menace
+		0.003110297961,  // Glyphid Warden
+		0.002763983272,  // Glyphid Oppressor
+		0.002084422373,  // Q'ronar Shellback
+		0.03056717198,   // Mactera Spawn
+		0.003005750131,  // Mactera Grabber
+		0.00825927862,   // Mactera Bomber
+		0.0006926293779, // Naedocyte Breeder
+		0.001731573445,  // Glyphid Brood Nexus
+		0.003149503398,  // Spitball Infector
+		0.003946680606   // Cave Leech
 	};
 	
 	// These numbers are estimates of what percentage of bullets shot at each enemy type will hit the enemy's weakpoints
@@ -198,7 +197,7 @@ public class EnemyInformation {
 			sum += spawnRates[i];
 		}
 		// Double addition is wonky; round it.
-		sum = MathUtils.round(sum, 2);
+		sum = MathUtils.round(sum, 4);
 		return sum == 1.0;
 	}
 	

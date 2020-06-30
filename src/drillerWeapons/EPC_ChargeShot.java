@@ -37,6 +37,10 @@ public class EPC_ChargeShot extends EPC {
 		return new EPC_ChargeShot(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
+	public String getSimpleName() {
+		return "EPC_ChargeShot";
+	}
+	
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/

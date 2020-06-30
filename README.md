@@ -10,15 +10,16 @@ so that everyone can make use of it. Maybe even the Developers, too -- who knows
 
 ___
 ### Installation
-If you already have Java 8 or higher installed on your computer, then you can just download the most recent .jar file from /jars, 
-and double-click to run. If you don't have Java installed, go to /builds and download the latest installer. It should open up a 
-Windows Install Wizard which will install a local copy of JRE8 in the folder you choose for installation, which will then be used 
-by the .exe version installed.
+If you already have Java 8 or higher installed on your computer, then you can just download the .jar file from the most recent release, 
+and double-click to run. If you don't have Java installed, you can download a Windows Install Wizard from the latest release. It will 
+install a local copy of JRE8 in the folder you choose for installation, which will then be used by the .exe version installed.
+
+I'm currently researching if there's a way I can get this packaged for Mac computers as a .pkg file for releases.
 
 ___
 ### Tech Specs
 * Compiled on Java JRE 12.0.2, Class v56
-* Bundled using Launch4j 3.12 and Inno Setup 6.0.4
+* Bundled for Windows using Launch4j 3.12 and Inno Setup 6.0.4
 
 If you want to contribute to this project, feel free to make a Pull Request and I'll take a look at your suggested changes. I'm also open to adding people as Collaborators to this project.
 

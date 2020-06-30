@@ -262,9 +262,6 @@ public abstract class Revolver extends Weapon {
 	public String getDwarfClass() {
 		return "Gunner";
 	}
-	public String getSimpleName() {
-		return "Revolver_FullRoF";
-	}
 	public int getDwarfClassID() {
 		return DatabaseConstants.gunnerCharacterID;
 	}

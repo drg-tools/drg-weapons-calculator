@@ -20,7 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 import dataGenerator.DatabaseConstants;
-import dataGenerator.WeaponStatsGenerator;
+import dataGenerator.MetricsCalculator;
 import drillerWeapons.CryoCannon;
 import drillerWeapons.EPC_ChargeShot;
 import drillerWeapons.EPC_RegularShot;
@@ -53,8 +53,6 @@ import scoutWeapons.Zhukov;
 		8000 Total Damage
 */
 
-// TODO: manually write up the equipment, grenades, and armor DB files
-
 public class GuiController implements ActionListener {
 	
 	private Weapon[] drillerWeapons;
@@ -62,12 +60,12 @@ public class GuiController implements ActionListener {
 	private Weapon[] gunnerWeapons;
 	private Weapon[] scoutWeapons;
 	private View gui;
-	private WeaponStatsGenerator calculator;
+	private MetricsCalculator calculator;
 	private JFileChooser folderChooser;
 	
 	public static void main(String[] args) {
 		Weapon[] drillerWeapons = new Weapon[] {new Flamethrower(), new CryoCannon(), new Subata(), new EPC_RegularShot(), new EPC_ChargeShot()};
-		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new GrenadeLauncher()};
+		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new GrenadeLauncher(), new BreachCutter()};
 		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new Revolver_Snipe(), new Revolver_FullRoF(), new BurstPistol()};
 		Weapon[] scoutWeapons = new Weapon[] {new AssaultRifle(), new Classic_Hipfire(), new Classic_FocusShot(), new Boomstick(), new Zhukov()};
 		View gui = new View(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons);
@@ -98,7 +96,7 @@ public class GuiController implements ActionListener {
 			System.out.println("Error: no weapons in GuiController's arrays");
 			weaponSelected = new Minigun();
 		}
-		calculator = new WeaponStatsGenerator(weaponSelected);
+		calculator = new MetricsCalculator(weaponSelected);
 		folderChooser = new JFileChooser();
 		folderChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 	}
@@ -137,12 +135,16 @@ public class GuiController implements ActionListener {
 		mysqlCommands.add("    `breakpoints` INT NOT NULL,\n");
 		mysqlCommands.add("    `utility` DOUBLE NOT NULL,\n");
 		mysqlCommands.add("    `damage_per_magazine` DOUBLE NOT NULL,\n");
-		mysqlCommands.add("    `time_to_fire_magazine` DOUBLE NOT NULL,\n\n");
+		mysqlCommands.add("    `time_to_fire_magazine` DOUBLE NOT NULL,\n");
+		
+		mysqlCommands.add("    `patch_id` BIGINT UNSIGNED NOT NULL,\n\n");
 		mysqlCommands.add("    PRIMARY KEY (`id`),\n\n");
 		mysqlCommands.add("    FOREIGN KEY (`character_id`)\n");
 		mysqlCommands.add("        REFERENCES characters(`id`),\n\n");
 		mysqlCommands.add("    FOREIGN KEY (`gun_id`)\n");
-		mysqlCommands.add("        REFERENCES guns(`id`)\n");
+		mysqlCommands.add("        REFERENCES guns(`id`),\n\n");
+		mysqlCommands.add("    FOREIGN KEY (`patch_id`)\n");
+		mysqlCommands.add("        REFERENCES patches(`id`)\n");
 		mysqlCommands.add(");\n\n");
 		
 		int i;
@@ -192,23 +194,23 @@ public class GuiController implements ActionListener {
 			
 			mysqlCommands.add("    `text_description` VARCHAR(1000) NOT NULL,\n");
 			mysqlCommands.add("    `json_stats` VARCHAR(1000) NOT NULL,\n");
-			mysqlCommands.add("    `icon` VARCHAR(1000) NOT NULL,\n");
-			mysqlCommands.add("    `mod_type` VARCHAR(1000) NOT NULL,\n");
+			mysqlCommands.add("    `icon` VARCHAR(50) NOT NULL,\n");
+			mysqlCommands.add("    `mod_type` VARCHAR(20) NOT NULL,\n");
 			
-			mysqlCommands.add("    `patch_number_index` BIGINT UNSIGNED NOT NULL,\n\n");
+			mysqlCommands.add("    `patch_id` BIGINT UNSIGNED NOT NULL,\n\n");
 			mysqlCommands.add("    PRIMARY KEY (`id`),\n\n");
 			mysqlCommands.add("    FOREIGN KEY (`character_id`)\n");
 			mysqlCommands.add("        REFERENCES characters(`id`),\n\n");
 			mysqlCommands.add("    FOREIGN KEY (`gun_id`)\n");
-			mysqlCommands.add("        REFERENCES guns(`id`)\n");
+			mysqlCommands.add("        REFERENCES guns(`id`),\n\n");
+			mysqlCommands.add("    FOREIGN KEY (`patch_id`)\n");
+			mysqlCommands.add("        REFERENCES patches(`id`)\n");
 			mysqlCommands.add(");\n\n");
 		}
 		else {
 			filenamePrefix = "changed_";
 		}
 		
-		// Breach Cutter isn't fully fleshed out; I just have a skeleton written for mod/OC costs used in this method.
-		Weapon bc = new BreachCutter();
 		int i;
 		for (i = 0; i < drillerWeapons.length; i++) {
 			// Skip the EPC Charge Shot since it would have identical info as EPC Regular Shot
@@ -219,7 +221,6 @@ public class GuiController implements ActionListener {
 		for (i = 0; i < engineerWeapons.length; i++) {
 			mysqlCommands.addAll(engineerWeapons[i].exportModsToMySQL(exportAll));
 		}
-		mysqlCommands.addAll(bc.exportModsToMySQL(exportAll));
 		for (i = 0; i < gunnerWeapons.length; i++) {
 			// Skip Revolver Snipe since it would have identical info as Revolver Max RoF
 			if (i != 2) {
@@ -258,14 +259,16 @@ public class GuiController implements ActionListener {
 			
 			mysqlCommands.add("    `text_description` VARCHAR(1000) NOT NULL,\n");
 			mysqlCommands.add("    `json_stats` VARCHAR(1000) NOT NULL,\n");
-			mysqlCommands.add("    `icon` VARCHAR(1000) NOT NULL,\n");
+			mysqlCommands.add("    `icon` VARCHAR(50) NOT NULL,\n");
 			
-			mysqlCommands.add("    `patch_number_index` BIGINT UNSIGNED NOT NULL,\n\n");
+			mysqlCommands.add("    `patch_id` BIGINT UNSIGNED NOT NULL,\n\n");
 			mysqlCommands.add("    PRIMARY KEY (`id`),\n\n");
 			mysqlCommands.add("    FOREIGN KEY (`character_id`)\n");
 			mysqlCommands.add("        REFERENCES characters(`id`),\n\n");
 			mysqlCommands.add("    FOREIGN KEY (`gun_id`)\n");
-			mysqlCommands.add("        REFERENCES guns(`id`)\n");
+			mysqlCommands.add("        REFERENCES guns(`id`),\n\n");
+			mysqlCommands.add("    FOREIGN KEY (`patch_id`)\n");
+			mysqlCommands.add("        REFERENCES patches(`id`)\n");
 			mysqlCommands.add(");\n\n");
 		}
 		
@@ -278,7 +281,6 @@ public class GuiController implements ActionListener {
 		for (i = 0; i < engineerWeapons.length; i++) {
 			mysqlCommands.addAll(engineerWeapons[i].exportOCsToMySQL(exportAll));
 		}
-		mysqlCommands.addAll(bc.exportOCsToMySQL(exportAll));
 		for (i = 0; i < gunnerWeapons.length; i++) {
 			// Skip Revolver Snipe since it would have identical info as Revolver Max RoF
 			if (i != 2) {
