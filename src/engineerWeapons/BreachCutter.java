@@ -585,7 +585,7 @@ public class BreachCutter extends Weapon {
 	
 	@Override
 	public boolean currentlyDealsSplashDamage() {
-		// TODO: Breach Cutter sometimes deals Splash damage for Explosive Goodbye
+		// Breach Cutter sometimes deals Splash damage for Explosive Goodbye
 		return selectedTier5 == 0;
 	}
 	
@@ -679,6 +679,7 @@ public class BreachCutter extends Weapon {
 	
 	@Override
 	public int breakpoints() {
+		// I'm not sure if Breakpoints is needed for Breach Cutter or not... but as it stands it would be impossible to model without knowing the dimensions of all the other creatures
 		return 0;
 	}
 

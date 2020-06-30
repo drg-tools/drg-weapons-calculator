@@ -42,7 +42,6 @@ public class Minigun extends Weapon {
 	private double spinupTime;
 	private int spindownTime;
 	private double movespeedWhileFiring;
-	private int bulletsFiredTilMaxStability;
 	private double secondsBeforeHotBullets;
 	private int cooldownAfterOverheat;
 	
@@ -78,7 +77,6 @@ public class Minigun extends Weapon {
 		spinupTime = 0.7;
 		spindownTime = 3;  // seconds for the barrels to stop spinning -- does not affect the stability
 		movespeedWhileFiring = 0.5;
-		bulletsFiredTilMaxStability = 40;  // equals 20 pellets
 		secondsBeforeHotBullets = 3.17805;  // See explanation in calculateIgnitionTime() 
 		cooldownAfterOverheat = 10;
 		
@@ -461,9 +459,14 @@ public class Minigun extends Weapon {
 		}
 	}
 	
+	private int numPelletsFiredTilMaxAccuracy() {
+		double RoF = getRateOfFire() / 2.0;
+		double exactAnswer = RoF * 3.0 / (0.2 * RoF - 1.0);
+		return (int) Math.floor(exactAnswer);
+	}
 	private double variableChamberPressureMultiplier() {
 		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
-		double pelletsFiredWhileNotStabilized = bulletsFiredTilMaxStability / 2.0;
+		double pelletsFiredWhileNotStabilized = numPelletsFiredTilMaxAccuracy();
 		return (pelletsFiredWhileNotStabilized + 1.15*(numPelletsFiredBeforeOverheat - pelletsFiredWhileNotStabilized)) / numPelletsFiredBeforeOverheat;
 	}
 	private double calculateFiringPeriod() {
@@ -528,7 +531,7 @@ public class Minigun extends Weapon {
 		
 		toReturn[1] = new StatsRow("Ammo Consumed per Pellet:", 2, false);
 		
-		toReturn[2] = new StatsRow("Ammo Spent Until Stabilized:", bulletsFiredTilMaxStability, false);
+		toReturn[2] = new StatsRow("Ammo Spent Until Stabilized:", numPelletsFiredTilMaxAccuracy() * 2, selectedTier1 == 1 || selectedOverclock == 3);
 		
 		toReturn[3] = new StatsRow("Max Duration of Firing Without Overheating:", calculateFiringPeriod(), selectedTier5 == 1 || selectedOverclock == 2);
 		
@@ -889,6 +892,7 @@ public class Minigun extends Weapon {
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		// I'm choosing to model Minigun as if it has no recoil. Although it does, its so negligible that it would have no effect.
 		// Because it's being modeled without recoil, and its crosshair gets smaller as it fires, I'm making a quick-and-dirty estimate here instead of using AccuracyEstimator.
+		// TODO: now that I have confirmation from MikeGSG that this does in fact use the same model as the other guns, it might be prudent to use AccuracyEstimator and figure out the negative values.
 		double unchangingBaseSpread = 61;
 		double changingBaseSpread = 68 * getBaseSpread();
 		double spreadVariance = 334;
@@ -909,7 +913,7 @@ public class Minigun extends Weapon {
 			targetRadius = 0.4;
 		}
 		int numPelletsFired = (int) calculateMaxNumPelletsFiredWithoutOverheating();
-		int numPelletsUntilStable = bulletsFiredTilMaxStability/2;
+		int numPelletsUntilStable = numPelletsFiredTilMaxAccuracy();
 		double currentSpreadRadius;
 		for (int i = 0; i < numPelletsUntilStable; i++) {
 			currentSpreadRadius = AccuracyEstimator.convertSpreadPixelsToMeters(maxSpread - i*spreadPerShot, false);
