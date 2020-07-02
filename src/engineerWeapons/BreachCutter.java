@@ -14,6 +14,7 @@ import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
+import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
@@ -96,7 +97,8 @@ public class BreachCutter extends Weapon {
 		tier2[2] = new Mod("Loosened Node Cohesion", "+1m Plasma Beam Width", modIcons.aoeRadius, 2, 2);
 		
 		tier3 = new Mod[2];
-		tier3[0] = new Mod("Quick Deploy", "-0.2 Plasma Expansion Delay", modIcons.duration, 3, 0);
+		// Although getStats() shows this change, it has no effect on any numbers in this model. As such, I'm marking as "not modeled".
+		tier3[0] = new Mod("Quick Deploy", "-0.2 Plasma Expansion Delay", modIcons.duration, 3, 0, false);
 		tier3[1] = new Mod("Loosened Node Cohesion", "+1m Plasma Beam Width", modIcons.aoeRadius, 3, 1);
 		
 		tier4 = new Mod[2];
@@ -105,20 +107,23 @@ public class BreachCutter extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Explosive Goodbye", "When the line either expires or the trigger gets pulled again, the current line explodes for 40 Explosive Damage in a 3m radius AoE, and leaves behind a field of Persistent Plasma "
-				+ " that does an average of " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per second for 4.6 seconds in a 3m radius sphere.", modIcons.addedExplosion, 5, 0, false);
+				+ " that does an average of " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per second for 4.6 seconds in a 3m radius sphere.", modIcons.addedExplosion, 5, 0);
 		tier5[1] = new Mod("Plasma Trail", "Leaves behind a Persistent Plasma field that does an average of " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per second for 4.6 seconds "
-				+ "along the entire length of the line's path", modIcons.areaDamage, 5, 1, false);
+				+ "along the entire length of the line's path", modIcons.areaDamage, 5, 1);
+		// Since the additional lines neither increase targets hit nor DPS per target, I'm marking it as "not modeled"
 		tier5[2] = new Mod("Triple Split Line", "Adds a line above and below the primary projectile (multiple lines hitting doesn't increase DPS)", modIcons.aoeRadius, 5, 2, false);
 		
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Light-Weight Cases", "+4 Max Ammo, -0.2 Reload Time", overclockIcons.carriedAmmo, 0);
+		// Roll Control has no effect on DPS stats, so it gets marked as "not modeled"
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Roll Control", "Holding down the trigger after the line leaves the gun causes the line to start rolling. On release of the trigger, the line stops rolling.", overclockIcons.rollControl, 1, false);
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Stronger Plasma Current", "+1 Damage per Tick, +0.5 Projectile Lifetime", overclockIcons.directDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Return to Sender", "Holding down the trigger after line leaves the gun activates a remote connection, which on release of the trigger causes "
 				+ "the line to change direction and move back towards the gun. In exchange, -4 Max Ammo", overclockIcons.returnToSender, 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "High Voltage Crossover", "100% chance to electrocute enemies, which deals an average of 16.0 Electric Damage per Second for 4 seconds. In exchange, -2 Magazine Size.", overclockIcons.electricity, 4, false);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Spinning Death", "Spinning Death, x0.05 Projectile Velocity, x0 Impact Damage, x2.5 Projectile Lifetime, x0.2 Damage per Tick, x0.5 Max Ammo, and x0.25 Magazine Size", overclockIcons.special, 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "Adds 90% of Damage per Tick as Heat Damage which ignites enemies almost instantly in exchange for -3.5 Damage per Tick, -4 Max Ammo, and x0.25 Armor Breaking", overclockIcons.heatDamage, 6, false);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "High Voltage Crossover", "100% chance to electrocute enemies, which deals an average of 16.0 Electric Damage per Second for 4 seconds. In exchange, -2 Magazine Size.", overclockIcons.electricity, 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Spinning Death", "Instead of flying in a straight line, the projectile now rotates 2 times per second about the Yaw axis. Additionally: x0.05 Projectile Velocity, x0 Impact Damage, "
+				+ "x2.5 Projectile Lifetime, x0.2 Damage per Tick, x0.5 Max Ammo, and x0.25 Magazine Size", overclockIcons.special, 5);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "Adds 90% of Damage per Tick as Heat Damage which ignites enemies almost instantly in exchange for -3.5 Damage per Tick, -4 Max Ammo, and x0.25 Armor Breaking", overclockIcons.heatDamage, 6);
 	}
 	
 	@Override
@@ -309,7 +314,7 @@ public class BreachCutter extends Weapon {
 		
 		// Spinning Death makes it move a lot slower
 		if (selectedOverclock == 5) {
-			toReturn = 0.5;
+			toReturn *= 0.05;
 		}
 		
 		return toReturn;
@@ -438,7 +443,7 @@ public class BreachCutter extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[15];
+		StatsRow[] toReturn = new StatsRow[16];
 		
 		toReturn[0] = new StatsRow("Burst Damage on First Impact:", getImpactDamage(), selectedOverclock == 5);
 		
@@ -456,33 +461,34 @@ public class BreachCutter extends Weapon {
 		boolean lifetimeModified = selectedTier1 == 0 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[6] = new StatsRow("Projectile Lifetime (sec):", getProjectileLifetime(), lifetimeModified);
 		
-		double singleGruntDamage;
-		int numGrunts = calculateMaxNumTargets();
+		toReturn[7] = new StatsRow("Avg Damage per Projectile to Single Grunt:", calculateAverageDamagePerGrunt(true, true, false), false);
+		
+		double intersectionTime;
 		if (selectedOverclock == 5) {
-			singleGruntDamage = calculateAverageDamageToGruntPerSpinningDeathProjectile();
+			intersectionTime = calculateAverageGruntIntersectionTimePerSpinningDeathProjectile();
 		}
 		else {
-			singleGruntDamage = calculateDamageToGruntPerRegularProjectile();
+			intersectionTime = calculateGruntIntersectionTimePerRegularProjectile();
 		}
-		toReturn[7] = new StatsRow("Damage per Projectile:", numGrunts * singleGruntDamage, false);
+		toReturn[8] = new StatsRow("Estimated Seconds of Intersection per Grunt:", intersectionTime, false);
 		
 		boolean magSizeModified = selectedTier1 == 1 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[8] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
+		toReturn[9] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier2 == 0 || selectedOverclock == 0 || selectedOverclock == 3 || selectedOverclock == 5 || selectedOverclock == 6;
-		toReturn[9] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
+		toReturn[10] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[10] = new StatsRow("Rate of Fire:", rateOfFire, false);
+		toReturn[11] = new StatsRow("Rate of Fire:", rateOfFire, false);
 		
-		toReturn[11] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 0);
+		toReturn[12] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 0);
 		
 		boolean armorBreakingModified = selectedTier4 == 0 || selectedOverclock == 6;
-		toReturn[12] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), armorBreakingModified, armorBreakingModified);
+		toReturn[13] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), armorBreakingModified, armorBreakingModified);
 		
 		boolean stunEquipped = selectedTier4 == 1;
-		toReturn[13] = new StatsRow("Stun Chance:", convertDoubleToPercentage(1.0), stunEquipped, stunEquipped);
+		toReturn[14] = new StatsRow("Stun Chance:", convertDoubleToPercentage(1.0), stunEquipped, stunEquipped);
 		
-		toReturn[14] = new StatsRow("Stun Duration:", 3, stunEquipped, stunEquipped);
+		toReturn[15] = new StatsRow("Stun Duration:", 3, stunEquipped, stunEquipped);
 		
 		return toReturn;
 	}
@@ -491,20 +497,24 @@ public class BreachCutter extends Weapon {
 	* Other Methods
 	****************************************************************************************/
 	
-	private double calculateDamageToGruntPerRegularProjectile() {
-		// TODO: model High Voltage Crossover and Inferno in this method
-		
-		double secondsOfIntersection = 2.0 * EnemyInformation.GlyphidGruntBodyAndLegsRadius / getProjectileVelocity();
+	private double calculateAverageIgnitionTime() {
+		// OC "Inferno" adds 90% of projectile's damage as Heat
+		double heatPerSec = 0.9 * damageTickRate * getDamagePerTick();
+		return EnemyInformation.averageTimeToIgnite(heatPerSec);
+	}
+	
+	private double calculateGruntIntersectionTimePerRegularProjectile() {
+		double secondsOfIntersection = (2.0 * EnemyInformation.GlyphidGruntBodyAndLegsRadius) / getProjectileVelocity();
 		if (selectedOverclock == 3) {
 			// OC "Return to Sender" doubles how long a single projectile can intersect a single target
 			secondsOfIntersection *= 2.0;
 		}
 		
-		return getImpactDamage() + secondsOfIntersection * damageTickRate * getDamagePerTick();
+		return secondsOfIntersection;
 	}
 	
 	// This method isn't perfect but it's a good start. It should eventually model how the enemies move instead of stand still and work out a couple of math/logic overlaps that I'm choosing to neglect for right now.
-	private double calculateAverageDamageToGruntPerSpinningDeathProjectile() {
+	private double calculateAverageGruntIntersectionTimePerSpinningDeathProjectile() {
 		double sdRotationSpeed = 4 * Math.PI;  // Equals 2 full circles per second
 		double sdProjectileVelocity = getProjectileVelocity();
 		double sdWidth = getProjectileWidth();
@@ -530,7 +540,7 @@ public class BreachCutter extends Weapon {
 		double distanceMovedPerInterval = sdProjectileVelocity * timeInterval;
 		while (timeElapsed < sdLifetime && totalDistanceTraveledVertically < (representativeChordLength + 2 * r)) {
 			/*
-				As the Grunt moves through the Spinning Death projectile, there are 3 states of intersection: 
+				As the Grunt moves through the Spinning Death projectile, there are 4 states of intersection: 
 					1. If the two centers are further apart than their combined radii, then there's no overlap.
 					2. When the center of Grunt is still outside the SD circle, the area intersected is a Lens (like AccuracyEstimator) and the angle of rotation intersected is 
 						proportional to the chord length across the Lens. Find the chord, translate it to arc length of the SD projectile, and find the radians. Divide radians by rotational speed.
@@ -578,14 +588,94 @@ public class BreachCutter extends Weapon {
 			verticalOffsetForCenterOfGrunt -= distanceMovedPerInterval;
 		}
 		
-		// System.out.println("According to the Spinning Death method, on average a Grunt would be intersected for " + totalNumSecondsThatSpinningDeathIntersectsGrunt + " seconds. This should be STRICTLY LESS THAN projectile total lifetime: " + sdLifetime);
+		return totalNumSecondsThatSpinningDeathIntersectsGrunt;
+	}
+	
+	/*
+		I want this method to model the DPS of the projectile as it passes through the entirety of a single grunt. This means
+		modeling the impact damage, the listed DPS, the DoTs, and the explosion from Explosive Goodbye.
+	*/
+	private double calculateAverageDamagePerGrunt(boolean extendDoTsBeyondIntersection, boolean primaryTarget, boolean weakpoint) {
+		double intersectionTime;
+		if (selectedOverclock == 5) {
+			intersectionTime = calculateAverageGruntIntersectionTimePerSpinningDeathProjectile();
+		}
+		else {
+			intersectionTime = calculateGruntIntersectionTimePerRegularProjectile();
+		}
 		
-		return totalNumSecondsThatSpinningDeathIntersectsGrunt * damageTickRate * getDamagePerTick();
+		// getImpactDamage() will return 0 when Spinning Death is equipped
+		double baseDamage = getImpactDamage() + intersectionTime * damageTickRate * getDamagePerTick();
+		
+		if (weakpoint) {
+			// Only the actual projectile can benefit from hitting Weakpoints, not the DoTs or Explosive Goodbye.
+			baseDamage *= EnemyInformation.averageWeakpointDamageIncrease();
+		}
+		
+		if (selectedTier5 == 0 && primaryTarget) {
+			// I'm choosing to believe that the players can detonate a line on a Grunt such that the Grunt's hitbox is within the 2m full damage radius, 
+			// therefore I'm choosing not to model damage falloff averages right here.
+			baseDamage += 40.0;
+		}
+		
+		double burnDamage = 0;
+		if (selectedOverclock == 6) {
+			double ignitionTime = calculateAverageIgnitionTime();
+			double burnDoTDuration;
+			if (extendDoTsBeyondIntersection) {
+				burnDoTDuration = DoTInformation.Burn_SecsDuration;
+			}
+			else {
+				burnDoTDuration = intersectionTime - ignitionTime;
+			}
+			
+			burnDamage = DoTInformation.Burn_DPS * burnDoTDuration;
+		}
+		
+		double electrocuteDamage = 0;
+		if (selectedOverclock == 4) {
+			double electrocuteDoTDuration;
+			if (extendDoTsBeyondIntersection) {
+				// OC "High Voltage Crossover" has an increased duration of 4 sec
+				electrocuteDoTDuration = 4.0;
+			}
+			else {
+				electrocuteDoTDuration = intersectionTime;
+			}
+			
+			// OC "High Voltage Crossover" also has an increased damage of 4 Damage/tick
+			electrocuteDamage = 4 * DoTInformation.Electro_TicksPerSec * electrocuteDoTDuration;
+		}
+		
+		double plasmaDamage = 0;
+		if (selectedTier5 == 0 || selectedTier5 == 1) {
+			double plasmaDoTDuration;
+			if (extendDoTsBeyondIntersection) {
+				if (selectedTier5 == 0) {
+					// I'm estimating that Grunts will walk out of the Explosive Goodbye sphere in about 1.5 seconds
+					plasmaDoTDuration = 1.5;
+				}
+				else {
+					// Due to top-level if-statement, this is implicitly selectedTier5 == 1
+					// I'm estimating that Grunts will walk out of the Persistent Plasma trail in about 2 seconds
+					plasmaDoTDuration = 2.0;
+				}
+			}
+			else {
+				// Because intersectionTime takes into account both Spinning Death and Return to Sender, I shouldn't have to worry about them here.
+				plasmaDoTDuration = intersectionTime;
+			}
+			
+			plasmaDamage = DoTInformation.Plasma_DPS * plasmaDoTDuration;
+		}
+		
+		return baseDamage + burnDamage + electrocuteDamage + plasmaDamage;
 	}
 	
 	@Override
 	public boolean currentlyDealsSplashDamage() {
 		// Breach Cutter sometimes deals Splash damage for Explosive Goodbye
+		// TODO: in the current model, this splash damage doesn't get used. I'm unsure if I want to keep this.
 		return selectedTier5 == 0;
 	}
 	
@@ -593,47 +683,73 @@ public class BreachCutter extends Weapon {
 	protected void setAoEEfficiency() {
 		// According to Elythnwaen, Explosive Goodbye does 40 Explosive Damage in a 3m radius, 2m Full Damage radius. 
 		// No listed falloff percentage, so I'm just going to use the default 0.25
+		// TODO: in the current model, this AoE Efficiency isn't used. I'm unsure if I want to keep this.
 		aoeEfficiency = calculateAverageAreaDamage(3, 2, 0.25);
 	}
 	
 	// Single-target calculations
+	private double calculateSingleTargetDPS(boolean primaryTarget, boolean weakpoint) {
+		double intersectionTime;
+		if (selectedOverclock == 5) {
+			intersectionTime = calculateAverageGruntIntersectionTimePerSpinningDeathProjectile();
+		}
+		else {
+			intersectionTime = calculateGruntIntersectionTimePerRegularProjectile();
+		}
+		
+		double damagePerProjectileToSingleGrunt = calculateAverageDamagePerGrunt(false, primaryTarget, weakpoint);
+		
+		return damagePerProjectileToSingleGrunt / intersectionTime;
+	}
+	
 	@Override
 	public double calculateIdealBurstDPS() {
-		return damageTickRate * getDamagePerTick();
+		// I'm choosing to leave Burst DPS as the in-game DPS so that people who use this program will have something they know to compare my calculations to what the game tells them
+		double baseDPS =  damageTickRate * getDamagePerTick();
+		
+		double burnDPS = 0;
+		if (selectedOverclock == 6) {
+			burnDPS = DoTInformation.Burn_DPS;
+		}
+		
+		double electroDPS = 0;
+		if (selectedOverclock == 4) {
+			// OC "High Voltage Crossover" has an increased Dmg/Tick of 4
+			electroDPS = 4 * DoTInformation.Electro_TicksPerSec;
+		}
+		
+		double plasmaDPS = 0;
+		if (selectedTier5 == 0 || selectedTier5 == 1) {
+			plasmaDPS = DoTInformation.Plasma_DPS;
+		}
+		
+		return baseDPS + burnDPS + electroDPS + plasmaDPS;
 	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		return 1;
+		return calculateSingleTargetDPS(true, false);
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		return 1;
+		return calculateSingleTargetDPS(true, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		return 1;
+		return calculateSingleTargetDPS(true, true);
 	}
 
 	// Multi-target calculations
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		return 1;
+		return calculateSingleTargetDPS(false, false);
 	}
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		double singleGruntDamage;
-		int numGrunts = calculateMaxNumTargets();
-		if (selectedOverclock == 5) {
-			singleGruntDamage = calculateAverageDamageToGruntPerSpinningDeathProjectile();
-		}
-		else {
-			singleGruntDamage = calculateDamageToGruntPerRegularProjectile();
-		}
-		return numGrunts * singleGruntDamage * (getMagazineSize() + getCarriedAmmo());
+		return calculateMaxNumTargets() * calculateAverageDamagePerGrunt(true, true, false) * (getMagazineSize() + getCarriedAmmo());
 	}
 
 	@Override
@@ -658,17 +774,17 @@ public class BreachCutter extends Weapon {
 
 	@Override
 	public double calculateFiringDuration() {
-		return 1;
+		int magSize = getMagazineSize();
+		int carriedAmmo = getCarriedAmmo();
+		double timeToFireMagazine = ((double) magSize) / rateOfFire;
+		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
-		if (selectedOverclock == 5) {
-			return calculateAverageDamageToGruntPerSpinningDeathProjectile();
-		}
-		else {
-			return calculateDamageToGruntPerRegularProjectile();
-		}
+		// Yes extend DoT durations, yes primary target, no weakpoint
+		double dmgPerShot = calculateAverageDamagePerGrunt(true, true, false);
+		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
 	@Override
@@ -685,17 +801,50 @@ public class BreachCutter extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		return 0;
+		// Light Armor Breaking probability
+		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDamagePerTick(), getArmorBreaking()) * UtilityInformation.ArmorBreak_Utility;
+		
+		// Slow
+		// OC "High Voltage Crossover" applies an Electrocute DoT that slows movement by 80% for 4 seconds
+		if (selectedOverclock == 4) {
+			// In order to prevent double-counting the 80% slow while enemies are stunned by T4.B, I'm going to reduce the Slow duration by the Stun duration when both are selected
+			double slowDuration = 4.0;
+			if (selectedTier4 == 1) {
+				slowDuration -= 3.0;
+			}
+			utilityScores[3] = calculateMaxNumTargets() * slowDuration * UtilityInformation.Electrocute_Slow_Utility;
+		}
+		else {
+			utilityScores[3] = 0;
+		}
+		
+		// Stun
+		// T4.B has a 100% chance to stun for 3 seconds
+		if (selectedTier4 == 1) {
+			utilityScores[5] = calculateMaxNumTargets() * 3.0 * UtilityInformation.Stun_Utility;
+		}
+		else {
+			utilityScores[5] = 0;
+		}
+		
+		return MathUtils.sum(utilityScores);
 	}
 	
 	@Override
 	public double damagePerMagazine() {
-		return 1;
+		return calculateMaxNumTargets() * calculateAverageDamagePerGrunt(true, true, false) * getMagazineSize();
 	}
 	
 	@Override
 	public double timeToFireMagazine() {
-		return 1;
+		int magSize = getMagazineSize();
+		if (magSize > 1) {
+			return magSize / rateOfFire;
+		}
+		else {
+			// Spinning Death without T2.B Mag Size only has one shot before reloading, so much like the Grenade Launcher its time to fire magazine would be zero.
+			return 0;
+		}
 	}
 	
 	@Override
