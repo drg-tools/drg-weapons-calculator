@@ -26,8 +26,8 @@ public class BreachCutter extends Weapon {
 	****************************************************************************************/
 	
 	private double projectileVelocity;
-	private double burstDamageOnFirstImpact;
-	private double damageTickRate;
+	protected double burstDamageOnFirstImpact;
+	protected double damageTickRate;
 	private double damagePerTick;
 	private double delayBeforeOpening;
 	private double projectileLifetime;
@@ -309,7 +309,7 @@ public class BreachCutter extends Weapon {
 	* Setters and Getters
 	****************************************************************************************/
 	
-	private double getProjectileVelocity() {
+	protected double getProjectileVelocity() {
 		double toReturn = projectileVelocity;
 		
 		// Spinning Death makes it move a lot slower
@@ -319,7 +319,7 @@ public class BreachCutter extends Weapon {
 		
 		return toReturn;
 	}
-	private double getImpactDamage() {
+	protected double getImpactDamage() {
 		if (selectedOverclock == 5) {
 			return 0.0;
 		}
@@ -327,7 +327,7 @@ public class BreachCutter extends Weapon {
 			return burstDamageOnFirstImpact;
 		}
 	}
-	private double getDamagePerTick() {
+	protected double getDamagePerTick() {
 		double toReturn = damagePerTick;
 		
 		if (selectedTier2 == 1) {
@@ -346,7 +346,7 @@ public class BreachCutter extends Weapon {
 		
 		return toReturn;
 	}
-	private double getDelayBeforeOpening() {
+	protected double getDelayBeforeOpening() {
 		double toReturn = delayBeforeOpening;
 		
 		if (selectedTier3 == 0) {
@@ -355,7 +355,7 @@ public class BreachCutter extends Weapon {
 		
 		return toReturn;
 	}
-	private double getProjectileLifetime() {
+	protected double getProjectileLifetime() {
 		double toReturn = projectileLifetime;
 		
 		if (selectedTier1 == 0) {
@@ -371,7 +371,7 @@ public class BreachCutter extends Weapon {
 		
 		return toReturn;
 	}
-	private double getProjectileWidth() {
+	protected double getProjectileWidth() {
 		double toReturn = projectileWidth;
 		
 		if (selectedTier2 == 2) {
@@ -383,7 +383,7 @@ public class BreachCutter extends Weapon {
 		
 		return toReturn;
 	}
-	private int getMagazineSize() {
+	protected int getMagazineSize() {
 		int toReturn = magazineSize;
 		
 		if (selectedTier1 == 1) {
@@ -399,7 +399,7 @@ public class BreachCutter extends Weapon {
 		
 		return toReturn;
 	}
-	private int getCarriedAmmo() {
+	protected int getCarriedAmmo() {
 		int toReturn = carriedAmmo;
 		
 		if (selectedTier2 == 0) {
@@ -418,7 +418,17 @@ public class BreachCutter extends Weapon {
 		
 		return toReturn;
 	}
-	private double getReloadTime() {
+	protected double getRateOfFire() {
+		// OC "Return to Sender" changes max RoF from 1.5 to 1/(2/3 * Lifetime)
+		if (selectedOverclock == 3) {
+			// This assumes that people let go of the trigger at the two-thirds distance
+			return 3.0 / (2.0 * getProjectileLifetime());
+		}
+		else {
+			return rateOfFire;
+		}
+	}
+	protected double getReloadTime() {
 		double toReturn = reloadTime;
 		
 		if (selectedOverclock == 0) {
@@ -427,7 +437,7 @@ public class BreachCutter extends Weapon {
 		
 		return toReturn;
 	}
-	private double getArmorBreaking() {
+	protected double getArmorBreaking() {
 		double toReturn = 1.0;
 		
 		if (selectedTier4 == 0) {
@@ -443,7 +453,7 @@ public class BreachCutter extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[16];
+		StatsRow[] toReturn = new StatsRow[15];
 		
 		toReturn[0] = new StatsRow("Burst Damage on First Impact:", getImpactDamage(), selectedOverclock == 5);
 		
@@ -461,34 +471,25 @@ public class BreachCutter extends Weapon {
 		boolean lifetimeModified = selectedTier1 == 0 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[6] = new StatsRow("Projectile Lifetime (sec):", getProjectileLifetime(), lifetimeModified);
 		
-		toReturn[7] = new StatsRow("Avg Damage per Projectile to Single Grunt:", calculateAverageDamagePerGrunt(true, true, false), false);
-		
-		double intersectionTime;
-		if (selectedOverclock == 5) {
-			intersectionTime = calculateAverageGruntIntersectionTimePerSpinningDeathProjectile();
-		}
-		else {
-			intersectionTime = calculateGruntIntersectionTimePerRegularProjectile();
-		}
-		toReturn[8] = new StatsRow("Estimated Seconds of Intersection per Grunt:", intersectionTime, false);
+		toReturn[7] = new StatsRow("Avg Damage per Projectile to Single Grunt:", calculateAverageDamagePerGrunt(true, true, false, true), false);
 		
 		boolean magSizeModified = selectedTier1 == 1 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[9] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
+		toReturn[8] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier2 == 0 || selectedOverclock == 0 || selectedOverclock == 3 || selectedOverclock == 5 || selectedOverclock == 6;
-		toReturn[10] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
+		toReturn[9] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
 		
-		toReturn[11] = new StatsRow("Rate of Fire:", rateOfFire, false);
+		toReturn[10] = new StatsRow("Rate of Fire:", getRateOfFire(), selectedOverclock == 3);
 		
-		toReturn[12] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 0);
+		toReturn[11] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 0);
 		
 		boolean armorBreakingModified = selectedTier4 == 0 || selectedOverclock == 6;
-		toReturn[13] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), armorBreakingModified, armorBreakingModified);
+		toReturn[12] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), armorBreakingModified, armorBreakingModified);
 		
 		boolean stunEquipped = selectedTier4 == 1;
-		toReturn[14] = new StatsRow("Stun Chance:", convertDoubleToPercentage(1.0), stunEquipped, stunEquipped);
+		toReturn[13] = new StatsRow("Stun Chance:", convertDoubleToPercentage(1.0), stunEquipped, stunEquipped);
 		
-		toReturn[15] = new StatsRow("Stun Duration:", 3, stunEquipped, stunEquipped);
+		toReturn[14] = new StatsRow("Stun Duration:", 3, stunEquipped, stunEquipped);
 		
 		return toReturn;
 	}
@@ -497,13 +498,13 @@ public class BreachCutter extends Weapon {
 	* Other Methods
 	****************************************************************************************/
 	
-	private double calculateAverageIgnitionTime() {
+	protected double calculateAverageIgnitionTime() {
 		// OC "Inferno" adds 90% of projectile's damage as Heat
 		double heatPerSec = 0.9 * damageTickRate * getDamagePerTick();
 		return EnemyInformation.averageTimeToIgnite(heatPerSec);
 	}
 	
-	private double calculateGruntIntersectionTimePerRegularProjectile() {
+	protected double calculateGruntIntersectionTimePerRegularProjectile() {
 		double secondsOfIntersection = (2.0 * EnemyInformation.GlyphidGruntBodyAndLegsRadius) / getProjectileVelocity();
 		if (selectedOverclock == 3) {
 			// OC "Return to Sender" doubles how long a single projectile can intersect a single target
@@ -514,7 +515,7 @@ public class BreachCutter extends Weapon {
 	}
 	
 	// This method isn't perfect but it's a good start. It should eventually model how the enemies move instead of stand still and work out a couple of math/logic overlaps that I'm choosing to neglect for right now.
-	private double calculateAverageGruntIntersectionTimePerSpinningDeathProjectile() {
+	protected double calculateAverageGruntIntersectionTimePerSpinningDeathProjectile() {
 		double sdRotationSpeed = 4 * Math.PI;  // Equals 2 full circles per second
 		double sdProjectileVelocity = getProjectileVelocity();
 		double sdWidth = getProjectileWidth();
@@ -595,7 +596,7 @@ public class BreachCutter extends Weapon {
 		I want this method to model the DPS of the projectile as it passes through the entirety of a single grunt. This means
 		modeling the impact damage, the listed DPS, the DoTs, and the explosion from Explosive Goodbye.
 	*/
-	private double calculateAverageDamagePerGrunt(boolean extendDoTsBeyondIntersection, boolean primaryTarget, boolean weakpoint) {
+	protected double calculateAverageDamagePerGrunt(boolean extendDoTsBeyondIntersection, boolean primaryTarget, boolean weakpoint, boolean ignoreStatusEffects) {
 		double intersectionTime;
 		if (selectedOverclock == 5) {
 			intersectionTime = calculateAverageGruntIntersectionTimePerSpinningDeathProjectile();
@@ -607,19 +608,44 @@ public class BreachCutter extends Weapon {
 		// getImpactDamage() will return 0 when Spinning Death is equipped
 		double baseDamage = getImpactDamage() + intersectionTime * damageTickRate * getDamagePerTick();
 		
-		if (weakpoint) {
-			// Only the actual projectile can benefit from hitting Weakpoints, not the DoTs or Explosive Goodbye.
-			baseDamage *= EnemyInformation.averageWeakpointDamageIncrease();
+		if (!ignoreStatusEffects) {
+			// Frozen
+			if (statusEffects[1]) {
+				baseDamage *= UtilityInformation.Frozen_Damage_Multiplier;
+			}
+			
+			// IFG Grenade
+			if (statusEffects[3]) {
+				baseDamage *= UtilityInformation.IFG_Damage_Multiplier;
+			}
+			
+			if (weakpoint && !statusEffects[1]) {
+				// Only the actual projectile can benefit from hitting Weakpoints, not the DoTs or Explosive Goodbye.
+				baseDamage *= EnemyInformation.averageWeakpointDamageIncrease();
+			}
+		}
+		else {
+			if (weakpoint) {
+				// Only the actual projectile can benefit from hitting Weakpoints, not the DoTs or Explosive Goodbye.
+				baseDamage *= EnemyInformation.averageWeakpointDamageIncrease();
+			}
 		}
 		
 		if (selectedTier5 == 0 && primaryTarget) {
 			// I'm choosing to believe that the players can detonate a line on a Grunt such that the Grunt's hitbox is within the 2m full damage radius, 
 			// therefore I'm choosing not to model damage falloff averages right here.
-			baseDamage += 40.0;
+			if (!ignoreStatusEffects && statusEffects[3]) {
+				// I believe IFG will increase the Explosive Goodbye damage too
+				baseDamage += 40.0 * UtilityInformation.IFG_Damage_Multiplier;
+			}
+			else {
+				baseDamage += 40.0;
+			}
 		}
 		
 		double burnDamage = 0;
-		if (selectedOverclock == 6) {
+		// If Frozen, then they can't Burn. However, the logic gets tricky when trying to ingore Status Effects like Frozen for max damage calculations.
+		if ((selectedOverclock == 6 && ignoreStatusEffects) || (selectedOverclock == 6 && !ignoreStatusEffects && !statusEffects[1])) {
 			double ignitionTime = calculateAverageIgnitionTime();
 			double burnDoTDuration;
 			if (extendDoTsBeyondIntersection) {
@@ -688,34 +714,34 @@ public class BreachCutter extends Weapon {
 	}
 	
 	// Single-target calculations
-	private double calculateSingleTargetDPS(boolean primaryTarget, boolean weakpoint) {
-		double intersectionTime;
-		if (selectedOverclock == 5) {
-			intersectionTime = calculateAverageGruntIntersectionTimePerSpinningDeathProjectile();
+	private double calculateSingleTargetDPS(boolean burst, boolean primaryTarget, boolean weakpoint) {
+		double damagePerProjectileToSingleGrunt = calculateAverageDamagePerGrunt(false, primaryTarget, weakpoint, false);
+		double dmgPerMag = damagePerProjectileToSingleGrunt * getMagazineSize();
+		
+		double duration;
+		// Special case when OC "Spinning Death" is equipped and T1.B more mag size isn't equipped, the mag size is 1.
+		if (selectedOverclock == 5 && selectedTier1 != 1) {
+			duration = getReloadTime();
+		}
+		else if (burst) {
+			duration = getMagazineSize() / getRateOfFire();
 		}
 		else {
-			intersectionTime = calculateGruntIntersectionTimePerRegularProjectile();
+			duration = getMagazineSize() / getRateOfFire() + getReloadTime();
 		}
 		
-		double damagePerProjectileToSingleGrunt = calculateAverageDamagePerGrunt(false, primaryTarget, weakpoint);
-		
-		return damagePerProjectileToSingleGrunt / intersectionTime;
-	}
-	
-	@Override
-	public double calculateIdealBurstDPS() {
-		// I'm choosing to leave Burst DPS as the in-game DPS so that people who use this program will have something they know to compare my calculations to what the game tells them
-		double baseDPS =  damageTickRate * getDamagePerTick();
+		double baseDPS = dmgPerMag / duration;
 		
 		double burnDPS = 0;
 		if (selectedOverclock == 6) {
+			// Because OC "Inferno" ignites all enemies just so dang fast, I'm choosing to over-estimate the Burn DPS for bursts as if they ignite instantly.
 			burnDPS = DoTInformation.Burn_DPS;
 		}
 		
 		double electroDPS = 0;
 		if (selectedOverclock == 4) {
-			// OC "High Voltage Crossover" has an increased Dmg/Tick of 4
-			electroDPS = 4 * DoTInformation.Electro_TicksPerSec;
+			// OC "High Voltage Crossover" has an increased damage of 4 dmg/tick
+			electroDPS = 4.0 * DoTInformation.Electro_TicksPerSec;
 		}
 		
 		double plasmaDPS = 0;
@@ -725,31 +751,36 @@ public class BreachCutter extends Weapon {
 		
 		return baseDPS + burnDPS + electroDPS + plasmaDPS;
 	}
+	
+	@Override
+	public double calculateIdealBurstDPS() {
+		return calculateSingleTargetDPS(true, true, false);
+	}
 
 	@Override
 	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(true, false);
+		return calculateSingleTargetDPS(false, true, false);
 	}
 	
 	@Override
 	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(true, true);
+		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	@Override
 	public double sustainedWeakpointAccuracyDPS() {
-		return calculateSingleTargetDPS(true, true);
+		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	// Multi-target calculations
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		return calculateSingleTargetDPS(false, false);
+		return calculateSingleTargetDPS(false, false, false);
 	}
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		return calculateMaxNumTargets() * calculateAverageDamagePerGrunt(true, true, false) * (getMagazineSize() + getCarriedAmmo());
+		return calculateMaxNumTargets() * calculateAverageDamagePerGrunt(true, true, false, true) * (getMagazineSize() + getCarriedAmmo());
 	}
 
 	@Override
@@ -776,14 +807,14 @@ public class BreachCutter extends Weapon {
 	public double calculateFiringDuration() {
 		int magSize = getMagazineSize();
 		int carriedAmmo = getCarriedAmmo();
-		double timeToFireMagazine = ((double) magSize) / rateOfFire;
+		double timeToFireMagazine = ((double) magSize) / getRateOfFire();
 		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
 		// Yes extend DoT durations, yes primary target, no weakpoint
-		double dmgPerShot = calculateAverageDamagePerGrunt(true, true, false);
+		double dmgPerShot = calculateAverageDamagePerGrunt(true, true, false, true);
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
@@ -832,14 +863,14 @@ public class BreachCutter extends Weapon {
 	
 	@Override
 	public double damagePerMagazine() {
-		return calculateMaxNumTargets() * calculateAverageDamagePerGrunt(true, true, false) * getMagazineSize();
+		return calculateMaxNumTargets() * calculateAverageDamagePerGrunt(true, true, false, true) * getMagazineSize();
 	}
 	
 	@Override
 	public double timeToFireMagazine() {
 		int magSize = getMagazineSize();
 		if (magSize > 1) {
-			return magSize / rateOfFire;
+			return magSize / getRateOfFire();
 		}
 		else {
 			// Spinning Death without T2.B Mag Size only has one shot before reloading, so much like the Grenade Launcher its time to fire magazine would be zero.

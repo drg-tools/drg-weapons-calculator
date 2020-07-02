@@ -27,6 +27,7 @@ import drillerWeapons.EPC_RegularShot;
 import drillerWeapons.Flamethrower;
 import drillerWeapons.Subata;
 import engineerWeapons.BreachCutter;
+import engineerWeapons.BreachCutter_Projectile;
 import engineerWeapons.GrenadeLauncher;
 import engineerWeapons.SMG;
 import engineerWeapons.Shotgun;
@@ -65,7 +66,7 @@ public class GuiController implements ActionListener {
 	
 	public static void main(String[] args) {
 		Weapon[] drillerWeapons = new Weapon[] {new Flamethrower(), new CryoCannon(), new Subata(), new EPC_RegularShot(), new EPC_ChargeShot()};
-		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new GrenadeLauncher(), new BreachCutter()};
+		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new GrenadeLauncher(), new BreachCutter(), new BreachCutter_Projectile()};
 		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new Revolver_Snipe(), new Revolver_FullRoF(), new BurstPistol()};
 		Weapon[] scoutWeapons = new Weapon[] {new AssaultRifle(), new Classic_Hipfire(), new Classic_FocusShot(), new Boomstick(), new Zhukov()};
 		View gui = new View(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons);
@@ -218,7 +219,8 @@ public class GuiController implements ActionListener {
 				mysqlCommands.addAll(drillerWeapons[i].exportModsToMySQL(exportAll));
 			}
 		}
-		for (i = 0; i < engineerWeapons.length; i++) {
+		// Skip BreachCutter_Projectile since it would have identical info as BreachCutter
+		for (i = 0; i < engineerWeapons.length - 1; i++) {
 			mysqlCommands.addAll(engineerWeapons[i].exportModsToMySQL(exportAll));
 		}
 		for (i = 0; i < gunnerWeapons.length; i++) {
@@ -278,7 +280,8 @@ public class GuiController implements ActionListener {
 				mysqlCommands.addAll(drillerWeapons[i].exportOCsToMySQL(exportAll));
 			}
 		}
-		for (i = 0; i < engineerWeapons.length; i++) {
+		// Skip BreachCutter_Projectile since it would have identical info as BreachCutter
+		for (i = 0; i < engineerWeapons.length - 1; i++) {
 			mysqlCommands.addAll(engineerWeapons[i].exportOCsToMySQL(exportAll));
 		}
 		for (i = 0; i < gunnerWeapons.length; i++) {
