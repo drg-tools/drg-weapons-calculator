@@ -110,7 +110,7 @@ public class Flamethrower extends Weapon {
 		tier4[2] = new Mod("More Fuel", "+75 Max Fuel", modIcons.carriedAmmo, 4, 2);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Heat Radiance", "Heat up enemies within 3m of you at a rate of 80 Heat/sec. This stacks with the direct stream and Sticky Flames' heat sources as well.", modIcons.heatDamage, 5, 0, false);
+		tier5[0] = new Mod("Heat Radiance", "Heat up enemies within 3m of you at a rate of 80 Heat/sec. This stacks with the direct stream and Sticky Flames' heat sources as well.", modIcons.heatDamage, 5, 0);
 		tier5[1] = new Mod("Targets Explode", "If the direct stream kills an enemy, there's a 50% chance that they will explode and deal 55 Fire Damage and 55 Heat Damage to all enemies within a 3m radius.", modIcons.addedExplosion, 5, 1, false);
 		
 		overclocks = new Overclock[6];
@@ -499,13 +499,20 @@ public class Flamethrower extends Weapon {
 		
 		double directHeatPerSec = getParticleHeat() * getFlowRate();
 		
+		double heatRadianceHeatPerSec = 0;
+		if (selectedTier5 == 0) {
+			// 80 Heat/sec in a 3m radius
+			// I want this to be less effective with far-reaching streams to model how the further the steam flies the less likely it is that the enemies will be within the 3m.
+			heatRadianceHeatPerSec = 80.0 * 3.0 / getFlameReach();
+		}
+		
 		double stickyFlamesDPS = getSFDamagePerTick() * stickyFlamesTicksPerSec / 2.0;
 		double stickyFlamesHeatPerSec = stickyFlamesHeatPerTick * stickyFlamesTicksPerSec / 2.0;
 		
 		if (burst) {
 			duration = ((double) getFuelTankSize()) / getFlowRate();
 			
-			double totalHeatPerSec = directHeatPerSec + stickyFlamesHeatPerSec;
+			double totalHeatPerSec = directHeatPerSec + stickyFlamesHeatPerSec + heatRadianceHeatPerSec;
 			double timeToIgnite = EnemyInformation.averageTimeToIgnite(totalHeatPerSec);
 			double burnDoTUptimeCoefficient = (duration - timeToIgnite) / duration;
 			burnDPS = burnDoTUptimeCoefficient * DoTInformation.Burn_DPS;
@@ -573,7 +580,13 @@ public class Flamethrower extends Weapon {
 		// Total Burn Damage
 		double directHeatPerSec = getParticleHeat() * getFlowRate();
 		double stickyFlamesHeatPerSec = stickyFlamesHeatPerTick * stickyFlamesTicksPerSec / 2.0;
-		double timeToIgnite = EnemyInformation.averageTimeToIgnite(directHeatPerSec + stickyFlamesHeatPerSec);
+		double heatRadianceHeatPerSec = 0;
+		if (selectedTier5 == 0) {
+			// 80 Heat/sec in a 3m radius
+			// I want this to be less effective with far-reaching streams to model how the further the steam flies the less likely it is that the enemies will be within the 3m.
+			heatRadianceHeatPerSec = 80.0 * 3.0 / getFlameReach();
+		}
+		double timeToIgnite = EnemyInformation.averageTimeToIgnite(directHeatPerSec + stickyFlamesHeatPerSec + heatRadianceHeatPerSec);
 		double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 		double fireDoTTotalDamage = fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		

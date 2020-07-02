@@ -899,6 +899,24 @@ public class Minigun extends Weapon {
 		double spreadPerShot = 16.7;
 		// double spreadRecoverySpeed = 95.42857143;
 		
+		/*
+		double effectiveRoF = getRateOfFire() / 2.0;
+		// Using some cheeky negative values, I can bend AccuracyEstimator.calculateCircularAccuracy() for this method.
+		double cheekyBaseSpread = unchangingBaseSpread + changingBaseSpread + spreadVariance;
+		int cheekyMagSize = (int) calculateMaxNumPelletsFiredWithoutOverheating();
+		double[] cheekyModifiers = {
+			1.0,   // Base Spread
+			-1.0,  // Spread per Shot
+			-1.0,  // Spread Recovery Speed
+			-1.0,  // Spread Variance
+			0.0    // Recoil
+		};
+		
+		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, effectiveRoF, cheekyMagSize, 1, 
+				cheekyBaseSpread, 0, spreadVariance, spreadPerShot, spreadRecoverySpeed, 0, 0.5, 1.0, cheekyModifiers);
+		
+		*/
+		
 		double baseSpread = unchangingBaseSpread + changingBaseSpread;
 		double maxSpread = baseSpread + spreadVariance;
 		
@@ -937,6 +955,7 @@ public class Minigun extends Weapon {
 		}
 		
 		return sumOfAllProbabilities / numPelletsFired * 100.0;
+		
 	}
 	
 	@Override
