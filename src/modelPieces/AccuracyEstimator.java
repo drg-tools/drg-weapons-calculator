@@ -154,7 +154,10 @@ public class AccuracyEstimator {
 			}
 			
 			if (invertedSpread) {
-				currentSpreadPixels = Math.min(currentSpreadPixels - deltaTime * spreadRecoverySpeedPixels, baseSpreadPixels); 
+				// Special case: the way Minigun's accuracy works, the SRS stops acting on the crosshair when it's at full accuracy.
+				if (currentSpreadPixels > maxSpreadPixels) {
+					currentSpreadPixels = Math.min(currentSpreadPixels - deltaTime * spreadRecoverySpeedPixels, baseSpreadPixels);
+				}
 			}
 			else {
 				currentSpreadPixels = Math.max(currentSpreadPixels - deltaTime * spreadRecoverySpeedPixels, baseSpreadPixels);  // This value can never go below Base Spread

@@ -891,16 +891,15 @@ public class Minigun extends Weapon {
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		// I'm choosing to model Minigun as if it has no recoil. Although it does, its so negligible that it would have no effect.
-		// Because it's being modeled without recoil, and its crosshair gets smaller as it fires, I'm making a quick-and-dirty estimate here instead of using AccuracyEstimator.
-		// TODO: now that I have confirmation from MikeGSG that this does in fact use the same model as the other guns, it might be prudent to use AccuracyEstimator and figure out the negative values.
 		double unchangingBaseSpread = 61;
 		double changingBaseSpread = 68 * getBaseSpread();
-		double spreadVariance = 334;
-		double spreadPerShot = 16.7;
-		// double spreadRecoverySpeed = 95.42857143;
 		
-		/*
+		// I measured Spread Variance, and then used the 0.2/1.0/3.0 ratio that MikeGSG provided to reverse-engineer what the Spread per Shot and Spread Recovery Speed are
+		double spreadVariance = 334;
+		double spreadPerShot = spreadVariance / 15.0;
+		double spreadRecoverySpeed = spreadVariance / 3.0;
 		double effectiveRoF = getRateOfFire() / 2.0;
+		
 		// Using some cheeky negative values, I can bend AccuracyEstimator.calculateCircularAccuracy() for this method.
 		double cheekyBaseSpread = unchangingBaseSpread + changingBaseSpread + spreadVariance;
 		int cheekyMagSize = (int) calculateMaxNumPelletsFiredWithoutOverheating();
@@ -915,7 +914,13 @@ public class Minigun extends Weapon {
 		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, effectiveRoF, cheekyMagSize, 1, 
 				cheekyBaseSpread, 0, spreadVariance, spreadPerShot, spreadRecoverySpeed, 0, 0.5, 1.0, cheekyModifiers);
 		
-		*/
+		/* 
+			I'm keeping this old model here for posterity's sake. TODO: After I re-do a lot of the Accuracy value tests, delete this block comment.
+		
+		// Because it's being modeled without recoil, and its crosshair gets smaller as it fires, I'm making a quick-and-dirty estimate here instead of using AccuracyEstimator. 
+		double spreadVariance = 334;
+		double spreadPerShot = 16.7;
+		double spreadRecoverySpeed = 95.42857143;
 		
 		double baseSpread = unchangingBaseSpread + changingBaseSpread;
 		double maxSpread = baseSpread + spreadVariance;
@@ -955,7 +960,7 @@ public class Minigun extends Weapon {
 		}
 		
 		return sumOfAllProbabilities / numPelletsFired * 100.0;
-		
+		*/
 	}
 	
 	@Override
