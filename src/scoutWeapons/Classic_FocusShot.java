@@ -258,7 +258,8 @@ public class Classic_FocusShot extends Classic {
 		// According to MikeGSG, Mod Tier 5 "Precision Terror" does 1 Fear in a 3.5m radius
 		if (selectedTier5 == 1) {
 			double probabilityToHitWeakpoint = EnemyInformation.probabilityBulletWillHitWeakpoint();
-			double uptimeCoefficient = Math.min(UtilityInformation.Fear_Duration / averageTimeToKill(), 1);
+			// Again, intentionally using the incorrect "guess" spawn rates to create a believable uptime coefficient
+			double uptimeCoefficient = Math.min(UtilityInformation.Fear_Duration / averageTimeToKill(false), 1);
 			int numGlyphidsFeared = 22;  // calculateNumGlyphidsInRadius(3.5);
 			utilityScores[4] = probabilityToHitWeakpoint * uptimeCoefficient * numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
 		}

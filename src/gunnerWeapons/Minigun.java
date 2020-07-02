@@ -492,7 +492,9 @@ public class Minigun extends Weapon {
 				heatRemovedPerKill = heatRemovedPerKill / heatPerSecond;
 			}
 			
-			double estimatedBurstTTK = EnemyInformation.averageHealthPool() / estimatedBurstDPS;
+			// I'm choosing to model CatG with the incorrect "guessed" Spawn Rates vector because it produced very believable results.
+			// Using the "exact" Spawn Rates made this model CatG WAY too strongly.
+			double estimatedBurstTTK = EnemyInformation.averageHealthPool(false) / estimatedBurstDPS;
 			double timeAddedByCATG = (firingPeriod / estimatedBurstTTK) * heatRemovedPerKill;
 			firingPeriod += timeAddedByCATG;
 			

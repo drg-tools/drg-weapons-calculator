@@ -421,11 +421,10 @@ public class AssaultRifle extends Weapon {
 		}
 		else if (selectedTier5 == 1) {
 			// According to the MikeGSG, Battle Cool increases Spread Recovery Speed by x12.5 for 1.5 seconds after a kill.
-			// Because the GK2 can currently kill the avg hp faster than the 1.5 sec duration, I'm choosing to model it as if it has 100% uptime after its first kill 
-			// since it would keep chaining until the end of the magazine (1.8 sec reload > 1.5 sec buff)
-			double burstTTK = EnemyInformation.averageHealthPool() / calculateIdealBurstDPS();
-			double timeToFireMag = timeToFireMagazine();
-			return (burstTTK * 1.0 + (timeToFireMag - burstTTK) * 12.5) / timeToFireMag;
+			// Similar to Gunner/Minigun/Mod/5/CatG, I'm choosing to use the incorrect "guessed" spawn rates for this avg HP value for a more believable uptimeCoefficient
+			double burstTTK = EnemyInformation.averageHealthPool(false) / calculateIdealBurstDPS();
+			double battleCoolUptimeCoefficient = 1.5 / burstTTK;
+			return 12.5 * battleCoolUptimeCoefficient;
 		}
 		else {
 			return 1.0;
@@ -692,8 +691,9 @@ public class AssaultRifle extends Weapon {
 	public double utilityScore() {
 		// Mod Tier 5 "Battle Frenzy" grants a 50% movespeed increase on kill for 2.5 seconds
 		if (selectedTier5 == 0) {
-			// Because the duration of the boost is always longer than the Avg TTK, it doesn't need an uptime coefficient.
-			utilityScores[0] = MathUtils.round(0.5 * DwarfInformation.walkSpeed, 2) * UtilityInformation.Movespeed_Utility;
+			// Again, using incorrect "guess" Spawn Rates to create believable uptimeCoefficient
+			double uptimeCoefficient = Math.min(2.5 / averageTimeToKill(false), 1);
+			utilityScores[0] = uptimeCoefficient * MathUtils.round(0.5 * DwarfInformation.walkSpeed, 2) * UtilityInformation.Movespeed_Utility;
 		}
 		else {
 			utilityScores[0] = 0;

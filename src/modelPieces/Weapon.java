@@ -632,7 +632,10 @@ public abstract class Weapon extends Observable {
 	
 	public abstract double calculateFiringDuration();
 	public double averageTimeToKill() {
-		return EnemyInformation.averageHealthPool() / sustainedWeakpointDPS();
+		return averageTimeToKill(true);
+	}
+	public double averageTimeToKill(boolean useExactSpawnRates) {
+		return EnemyInformation.averageHealthPool(useExactSpawnRates) / sustainedWeakpointDPS();
 	}
 	protected abstract double averageDamageToKillEnemy();
 	public double averageOverkill() {
