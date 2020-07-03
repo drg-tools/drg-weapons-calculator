@@ -510,7 +510,9 @@ public class GuiController implements ActionListener {
 					+ "corresponding character with a hyphen.";
 			instructions = HoverText.breakLongToolTipString(instructions, 90);
 			String newCombination = JOptionPane.showInputDialog(gui, instructions);
-			currentlySelectedWeapon.buildFromCombination(newCombination);
+			if (newCombination != null) {
+				currentlySelectedWeapon.buildFromCombination(newCombination);
+			}
 		}
 		else if (e == gui.getMiscSuggestion()) {
 			openWebpage("https://github.com/drg-tools/drg-weapons-calculator/issues/new/choose");

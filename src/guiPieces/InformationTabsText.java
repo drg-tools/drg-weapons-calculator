@@ -93,7 +93,7 @@ public class InformationTabsText {
 					+ "As a result of that formula, higher damage per bullet and higher Weakpoint bonus will yield a smaller denominator, while higher damage per bullet, more targets per shot, "
 					+ "and more carried ammo will result in a higher numerator. Using a combination of those 4 upgrades will result in a very high AE score."},
 			{"General Accuracy", "A pretty straight-forward metric to understand, General Accuracy is an estimate of what percentage of projectiles would hit a target from 7m away using sustained "
-					+ "fire. For the two shotguns, the distance has been reduced to 5m. Some weapons like both of Driller's primary weapons, Engineer's Grenade Launcher, or Scout's M1000 "
+					+ "fire. For the two shotguns, the distance has been reduced to 5m. Some weapons like both of Driller's primary weapons, Engineer's secondary weapons, or Scout's M1000 "
 					+ "Classic (Focused Shots) can't have their accuracy modeled and will instead say \"Manually Aimed\"."},
 			{"Weakpoint Accuracy", "Just like General Accuracy, this metric represents what percentage of projectiles would hit an enemy's Weakpoint from 7m away (5m for the two shotguns). "
 					+ "For weapons that can't have their accuracy modeled, it will instead say \"Manually Aimed\"."},
@@ -229,10 +229,10 @@ public class InformationTabsText {
 			{"Mike @ GSG / Dagadegatto", "Thank you for being willing to answer so many of my technical questions about DRG and helping to improve the quality of this program's models."},
 			{"Elythnwaen", "Thank you for collecting data about elemental weaknesses, resistances, Burn/Freeze temperatures, and more! Also, thank you for letting me know about Subata's 50% Armor Breaking penalty."},
 			{"Ian McDonagh", "Thank you for creating the open-source JAR 'image4j' that allows me to use .ico files natively."},
-			{"Gaming for the Recently Deceased", "Thank you for helping to promote this project and making a video about it. YouTube Channel: https://www.youtube.com/channel/UCL_8gMChYJD5ls7GaJtGmUw"},
-			{"Usteppin", "Thank you for collecting some data and testing weapon builds for me on Hazard 5. Twitch Channel: https://www.twitch.tv/usteppin"},
+			{"USteppin", "Thank you for collecting some data and testing weapon builds for me on Hazard 5. Twitch Channel: https://www.twitch.tv/usteppin"},
 			{"Alpha and Beta testers", "Thank you Minomess, Royal, CynicalAtropos, ARobotWithCancer, and ArcticEcho for giving me feedback while this was still being developed and helping test out the builds."},
 			// I'm intentionally adding blank lines below here so that the content gets pushed to the top of the page
+			{"", ""},
 			{"", ""},
 			{"", ""},
 			{"", ""},

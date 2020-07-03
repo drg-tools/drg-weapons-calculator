@@ -497,7 +497,7 @@ public class CryoCannon extends Weapon {
 		if (selectedTier5 == 1) {
 			// 60 Cold/sec in a 4m radius
 			// I want this to be less effective with far-reaching streams to model how the further the steam flies the less likely it is that the enemies will be within the 4m.
-			coldRadianceColdPerSec = 60.0 * 4.0 / getColdStreamReach();
+			coldRadianceColdPerSec = -60.0 * 4.0 / getColdStreamReach();
 		}
 		
 		double totalColdPerSec = streamColdPerSec + icePathColdPerSec + coldRadianceColdPerSec;
