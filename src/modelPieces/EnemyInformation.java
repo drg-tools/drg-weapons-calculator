@@ -23,9 +23,35 @@ public class EnemyInformation {
 		}
 	}
 	
+	// These are the values that I guessed for the proportion of each enemy spawn type. It worked REALLY well for avg TTK-based mods like Cold as the Grave and Battle Cool, but it's not representative of the actual game.
+	// All of these numbers must sum up to exactly 1.0 for it to be a probability vector.
+	private static double[] guessedSpawnRates = {
+		0.165, // Glyphid Swarmer
+		0.24,  // Glyphid Grunt
+		0.08,  // Glyphid Grunt Guard
+		0.08,  // Glyphid Grunt Slasher
+		0.04,  // Glyphid Praetorian
+		0.08,  // Glyphid Exploder
+		0.01,  // Glyphid Bulk Detonator
+		0.005, // Glyphid Crassus Detonator
+		0.04,  // Glyphid Webspitter
+		0.02,  // Glyphid Acidspitter
+		0.02,  // Glyphid Menace
+		0.02,  // Glyphid Warden
+		0.01,  // Glyphid Oppressor
+		0.01,  // Q'ronar Shellback
+		0.08,  // Mactera Spawn
+		0.01,  // Mactera Grabber
+		0.03,  // Mactera Bomber
+		0.02,  // Naedocyte Breeder
+		0.02,  // Glyphid Brood Nexus
+		0.01,  // Spitball Infector
+		0.01   // Cave Leech
+	};
+	
 	// These are the actual statistics extracted from 153k kills from 6 players' Miner's Manual entries. Biome-specific enemies, "hatchling" enemy types, and Dreadnoughts not included.
 	// All of these numbers must sum up to exactly 1.0 for it to be a probability vector.
-	private static double[] spawnRates = {
+	private static double[] exactSpawnRates = {
 		0.311598275, 	 // Glyphid Swarmer
 		0.4190277052,  	 // Glyphid Grunt
 		0.0457723471,  	 // Glyphid Grunt Guard
@@ -193,8 +219,8 @@ public class EnemyInformation {
 	
 	private static boolean verifySpawnRatesTotalIsOne() {
 		double sum = 0.0;
-		for (int i = 0; i < spawnRates.length; i++) {
-			sum += spawnRates[i];
+		for (int i = 0; i < exactSpawnRates.length; i++) {
+			sum += exactSpawnRates[i];
 		}
 		// Double addition is wonky; round it.
 		sum = MathUtils.round(sum, 4);
@@ -206,7 +232,7 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		double toReturn = MathUtils.vectorDotProduct(spawnRates, probabilityBulletHitsWeakpointPerEnemyType);
+		double toReturn = MathUtils.vectorDotProduct(exactSpawnRates, probabilityBulletHitsWeakpointPerEnemyType);
 		// System.out.println("Estimated percentage of bullets fired that will hit a weakpoint: " + toReturn);
 		return toReturn;
 	}
@@ -216,14 +242,25 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		double toReturn = MathUtils.vectorDotProduct(spawnRates, defaultWeakpointDamageBonusPerEnemyType);
+		double toReturn = MathUtils.vectorDotProduct(exactSpawnRates, defaultWeakpointDamageBonusPerEnemyType);
 		// System.out.println("Average damage multiplier from hitting a weakpoint: " + toReturn);
 		return toReturn;
 	}
 	
 	public static double averageHealthPool() {
+		return averageHealthPool(true);
+	}
+	public static double averageHealthPool(boolean exact) {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
+		}
+		
+		double[] spawnRates;
+		if (exact) {
+			spawnRates = exactSpawnRates;
+		}
+		else {
+			spawnRates = guessedSpawnRates;
 		}
 		
 		int i, enemyIndex;
@@ -280,7 +317,7 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		int numEnemyTypes = spawnRates.length;
+		int numEnemyTypes = exactSpawnRates.length;
 		double[] igniteTemps = new double[numEnemyTypes];
 		double[] heatLossRates = new double[numEnemyTypes];
 		
@@ -289,8 +326,8 @@ public class EnemyInformation {
 			heatLossRates[i] = enemyTemperatures[i][2];
 		}
 		
-		double avgIgniteTemp = MathUtils.vectorDotProduct(spawnRates, igniteTemps);
-		double avgHeatLossRate = MathUtils.vectorDotProduct(spawnRates, heatLossRates);
+		double avgIgniteTemp = MathUtils.vectorDotProduct(exactSpawnRates, igniteTemps);
+		double avgHeatLossRate = MathUtils.vectorDotProduct(exactSpawnRates, heatLossRates);
 		
 		return avgIgniteTemp / (heatPerSecond - avgHeatLossRate);
 	}
@@ -299,7 +336,7 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		int numEnemyTypes = spawnRates.length;
+		int numEnemyTypes = exactSpawnRates.length;
 		double[] igniteTemps = new double[numEnemyTypes];
 		double[] douseTemps = new double[numEnemyTypes];
 		double[] heatLossRates = new double[numEnemyTypes];
@@ -310,9 +347,9 @@ public class EnemyInformation {
 			heatLossRates[i] = enemyTemperatures[i][2];
 		}
 		
-		double avgIgniteTemp = MathUtils.vectorDotProduct(spawnRates, igniteTemps);
-		double avgDouseTemp = MathUtils.vectorDotProduct(spawnRates, douseTemps);
-		double avgHeatLossRate = MathUtils.vectorDotProduct(spawnRates, heatLossRates);
+		double avgIgniteTemp = MathUtils.vectorDotProduct(exactSpawnRates, igniteTemps);
+		double avgDouseTemp = MathUtils.vectorDotProduct(exactSpawnRates, douseTemps);
+		double avgHeatLossRate = MathUtils.vectorDotProduct(exactSpawnRates, heatLossRates);
 		
 		return (avgIgniteTemp - avgDouseTemp) / avgHeatLossRate;
 	}
@@ -323,9 +360,9 @@ public class EnemyInformation {
 		}
 		
 		double sum = 0;
-		for (int i = 0; i < spawnRates.length; i++) {
+		for (int i = 0; i < exactSpawnRates.length; i++) {
 			if (enemyTemperatures[i][0] < heatPerBurst) {
-				sum += spawnRates[i];
+				sum += exactSpawnRates[i];
 			}
 		}
 		
@@ -353,14 +390,14 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		int numEnemyTypes = spawnRates.length;
+		int numEnemyTypes = exactSpawnRates.length;
 		double[] freezeTemps = new double[numEnemyTypes];
 		
 		for (int i = 0; i < numEnemyTypes; i++) {
 			freezeTemps[i] = enemyTemperatures[i][3];
 		}
 		
-		double avgFreezeTemp = MathUtils.vectorDotProduct(spawnRates, freezeTemps);
+		double avgFreezeTemp = MathUtils.vectorDotProduct(exactSpawnRates, freezeTemps);
 		
 		// Negative Freeze temps divided by negative cold per seconds results in a positive number of seconds
 		return avgFreezeTemp / coldPerSecond;
@@ -371,7 +408,7 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		int numEnemyTypes = spawnRates.length;
+		int numEnemyTypes = exactSpawnRates.length;
 		double[] freezeTemps = new double[numEnemyTypes];
 		double[] thawTemps = new double[numEnemyTypes];
 		double[] heatGainRates = new double[numEnemyTypes];
@@ -382,9 +419,9 @@ public class EnemyInformation {
 			heatGainRates[i] = enemyTemperatures[i][5];
 		}
 		
-		double avgFreezeTemp = MathUtils.vectorDotProduct(spawnRates, freezeTemps);
-		double avgThawTemp = MathUtils.vectorDotProduct(spawnRates, thawTemps);
-		double avgHeatGainRate = MathUtils.vectorDotProduct(spawnRates, heatGainRates);
+		double avgFreezeTemp = MathUtils.vectorDotProduct(exactSpawnRates, freezeTemps);
+		double avgThawTemp = MathUtils.vectorDotProduct(exactSpawnRates, thawTemps);
+		double avgHeatGainRate = MathUtils.vectorDotProduct(exactSpawnRates, heatGainRates);
 		
 		// Negative Freeze temps divided by negative cold per seconds results in a positive number of seconds
 		return (avgFreezeTemp - avgThawTemp) / (coldPerSecond + avgHeatGainRate);
@@ -394,7 +431,7 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		int numEnemyTypes = spawnRates.length;
+		int numEnemyTypes = exactSpawnRates.length;
 		double[] freezeTemps = new double[numEnemyTypes];
 		double[] thawTemps = new double[numEnemyTypes];
 		double[] heatGainRates = new double[numEnemyTypes];
@@ -405,9 +442,9 @@ public class EnemyInformation {
 			heatGainRates[i] = enemyTemperatures[i][5];
 		}
 		
-		double avgFreezeTemp = MathUtils.vectorDotProduct(spawnRates, freezeTemps);
-		double avgThawTemp = MathUtils.vectorDotProduct(spawnRates, thawTemps);
-		double avgHeatGainRate = MathUtils.vectorDotProduct(spawnRates, heatGainRates);
+		double avgFreezeTemp = MathUtils.vectorDotProduct(exactSpawnRates, freezeTemps);
+		double avgThawTemp = MathUtils.vectorDotProduct(exactSpawnRates, thawTemps);
+		double avgHeatGainRate = MathUtils.vectorDotProduct(exactSpawnRates, heatGainRates);
 		
 		// Because every Freeze temp is negative and is strictly less than the corresponding Thaw temp, subtracting Freeze from Thaw guarantees a positive number.
 		return (avgThawTemp - avgFreezeTemp) / avgHeatGainRate;
@@ -419,9 +456,9 @@ public class EnemyInformation {
 		}
 		
 		double sum = 0;
-		for (int i = 0; i < spawnRates.length; i++) {
+		for (int i = 0; i < exactSpawnRates.length; i++) {
 			if (enemyTemperatures[i][3] > coldPerBurst) {
-				sum += spawnRates[i];
+				sum += exactSpawnRates[i];
 			}
 		}
 		
@@ -432,7 +469,7 @@ public class EnemyInformation {
 		int[] indexesOfEnemiesWithLightArmor = new int[] {1, 2, 3, 8, 9};
 		double[] subsetSpawnRates = new double[indexesOfEnemiesWithLightArmor.length];
 		for (int i = 0; i < indexesOfEnemiesWithLightArmor.length; i++) {
-			subsetSpawnRates[i] = spawnRates[indexesOfEnemiesWithLightArmor[i]];
+			subsetSpawnRates[i] = exactSpawnRates[indexesOfEnemiesWithLightArmor[i]];
 		}
 		
 		return MathUtils.vectorDotProduct(enemyLightArmorStrengthValues, subsetSpawnRates) / MathUtils.sum(subsetSpawnRates);

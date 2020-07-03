@@ -542,7 +542,7 @@ public class WeaponTab extends JPanel {
 		}
 		else {
 			// Flamethrower and Cryo Cannon don't have the Breakpoint metric calculated
-			value = new JLabel("Not needed");
+			value = new JLabel(leftPadSpaces + "Not needed");
 			value.setFont(GuiConstants.customFontBold);
 			value.setForeground(GuiConstants.drgHighlightedYellow);
 			toReturn.add(value);

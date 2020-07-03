@@ -25,7 +25,7 @@ If you want to contribute to this project, feel free to make a Pull Request and 
 
 ___
 According to CLOC, 1.0.3's metrics:
-* 55 .java files
-* 2983 blank lines
-* 1779 comment lines
-* 16576 code lines
+* 56 .java files
+* 3076 blank lines
+* 1923 comment lines
+* 16961 code lines

@@ -100,8 +100,8 @@ public class Zhukov extends Weapon {
 		overclocks = new Overclock[5];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Minimal Magazines", "+2 Rate of Fire, -0.4 Reload Time", overclockIcons.reloadSpeed, 0);
 		overclocks[1] = new Overclock(Overclock.classification.balanced, "Custom Casings", "+30 Mag Size, -1 Direct Damage", overclockIcons.magSize, 1);
-		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "Any bullets that impact terrain get converted to Cryo Minelets. After 1 second of arming time they will explode on any "
-				+ "enemies that get close, dealing 10 Cold Damage each. They automatically explode after 3 seconds. -1 Direct Damage, -10 Magazine Size", overclockIcons.coldDamage, 2);
+		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "Any bullets that impact terrain get converted to Cryo Minelets. After 0.1 seconds of arming time they will explode on any "
+				+ "enemies that get within 1.5m, dealing 10 Cold Damage each. They automatically explode after 4 seconds. -1 Direct Damage, -10 Magazine Size", overclockIcons.coldDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 10 Explosive Damage to the enemy "
 				+ "upon reloading. -3 Direct Damage, -75 Max Ammo.", overclockIcons.specialReload, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Gas Recycling", "+5 Direct Damage, but it can no longer gain bonus damage from hitting a Weakpoint. Additionally, x1.5 Base Spread "
@@ -464,7 +464,7 @@ public class Zhukov extends Weapon {
 	}
 	
 	private double calculateAvgNumBulletsNeededToFreeze() {
-		// Minelets do 10 Cold Damage upon detonation, but they have to take 1 second to arm first.
+		// Minelets do 10 Cold Damage upon detonation, but they have to take 0.1 seconds to arm first.
 		// While Frozen, bullets do x3 Direct Damage.
 		double effectiveRoF = getRateOfFire() / 2.0;
 		double timeToFreeze = EnemyInformation.averageTimeToFreeze(-10, effectiveRoF);
@@ -519,9 +519,10 @@ public class Zhukov extends Weapon {
 				bulletsThatHitTarget = (int) Math.round(effectiveMagazineSize * generalAccuracy);
 			}
 			else {
-				// First, you have to intentionally miss bullets in order to convert them to Cryo Minelets, then wait 1 second, and unload the rest of the clip into
+				// First, you have to intentionally miss bullets in order to convert them to Cryo Minelets, then wait 0.1 seconds, and unload the rest of the clip into
 				// the now-frozen enemy for x3 damage. Damage vs frozen enemies does NOT benefit from weakpoint damage on top of the frozen multiplier.
-				duration += 1;
+				// Since most players won't be able to wait for exactly 0.1 seconds, I'm modeling it as if they wait 0.5 seconds.
+				duration += 0.5;
 				double numBulletsMissedToBecomeCryoMinelets = calculateAvgNumBulletsNeededToFreeze();
 				directDamage *= UtilityInformation.Frozen_Damage_Multiplier;
 				bulletsThatHitTarget = (int) Math.round((effectiveMagazineSize - numBulletsMissedToBecomeCryoMinelets) * generalAccuracy);
@@ -689,9 +690,9 @@ public class Zhukov extends Weapon {
 		
 		// OC "Cryo Minelets" applies Cryo damage to missed bullets
 		if (selectedOverclock == 2) {
-			// Cryo minelets: 1 placed per 2 ammo, minelets arm in 1 second, and detonate in 3 seconds if no enemy is around.
-			// Minelets seem to do 10 Cold Damage each, and they don't explode in a radius -- instead it seems that they spurt off in a random direction for 2.5m.
-			int estimatedNumTargetsSlowedOrFrozen = 3;  // This is a pure, unadulterated guess.
+			// Cryo minelets: 1 placed per 2 ammo, minelets arm in 0.1 seconds, and detonate in 4 seconds if no enemy is around.
+			// Minelets seem to do 10 Cold Damage each, and explode in a 1.5m radius.
+			int estimatedNumTargetsSlowedOrFrozen = 8;  // calculateNumGlyphidsInRadius(1.5);
 			
 			utilityScores[3] = estimatedNumTargetsSlowedOrFrozen * UtilityInformation.Cold_Utility;
 			utilityScores[6] = estimatedNumTargetsSlowedOrFrozen * UtilityInformation.Frozen_Utility;

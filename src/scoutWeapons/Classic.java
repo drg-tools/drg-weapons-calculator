@@ -321,7 +321,8 @@ public abstract class Classic extends Weapon {
 			// so that this doesn't infinitely loop.
 			double killingMachineManualReloadWindow = 1.0;
 			double killingMachineReloadReduction = 0.75;
-			double burstTTK = EnemyInformation.averageHealthPool() / calculateIdealBurstDPS();
+			// Just like Gunner/Minigun/Mod/5/CatG, I'm using the incorrect "guess" spawn rates to create a more believable uptime coefficient
+			double burstTTK = EnemyInformation.averageHealthPool(false) / calculateIdealBurstDPS();
 			// Don't let a high Burst DPS increase this beyond a 100% uptime
 			double killingMachineUptimeCoefficient = Math.min(killingMachineManualReloadWindow / burstTTK, 1.0);
 			double effectiveReloadReduction = killingMachineUptimeCoefficient * killingMachineReloadReduction;

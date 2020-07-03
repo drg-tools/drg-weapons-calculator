@@ -128,12 +128,17 @@ public class AccuracyEstimator {
 	}
 	
 	// This method returns an array of what the crosshair width will be at the moment each bullet gets fired (will need to be converted from Spread Pixels to meters)
-	private static double[] spread(double RoF, int magSize, int burstSize, double baseSpreadPixels, double spreadPerShotPixels, double spreadRecoverySpeedPixels, double maxSpreadPixels) {
+	private static double[] spread(double RoF, int magSize, int burstSize, double baseSpreadPixels, double spreadPerShotPixels, double spreadRecoverySpeedPixels, double maxSpreadPixels, boolean invertedSpread) {
 		double[] spreadAtEachShot = new double[magSize];
 		double currentSpreadPixels = baseSpreadPixels;
 		spreadAtEachShot[0] = currentSpreadPixels;
 		// Add the Spread per Shot for the first shot
-		currentSpreadPixels = Math.min(currentSpreadPixels + spreadPerShotPixels, maxSpreadPixels);  // This value can never go above Max Spread
+		if (invertedSpread) {
+			currentSpreadPixels = Math.max(currentSpreadPixels + spreadPerShotPixels, maxSpreadPixels);
+		}
+		else {
+			currentSpreadPixels = Math.min(currentSpreadPixels + spreadPerShotPixels, maxSpreadPixels);  // This value can never go above Max Spread
+		}
 		
 		double timeBetweenBursts = 1 / RoF;
 		double deltaTime;
@@ -148,13 +153,26 @@ public class AccuracyEstimator {
 				deltaTime = timeBetweenBursts;
 			}
 			
-			currentSpreadPixels = Math.max(currentSpreadPixels - deltaTime * spreadRecoverySpeedPixels, baseSpreadPixels);  // This value can never go below Base Spread
+			if (invertedSpread) {
+				// Special case: the way Minigun's accuracy works, the SRS stops acting on the crosshair when it's at full accuracy.
+				if (currentSpreadPixels > maxSpreadPixels) {
+					currentSpreadPixels = Math.min(currentSpreadPixels - deltaTime * spreadRecoverySpeedPixels, baseSpreadPixels);
+				}
+			}
+			else {
+				currentSpreadPixels = Math.max(currentSpreadPixels - deltaTime * spreadRecoverySpeedPixels, baseSpreadPixels);  // This value can never go below Base Spread
+			}
 			
 			// Mark what the current spread is when this bullet gets fired
 			spreadAtEachShot[i] = currentSpreadPixels;
 			
 			// Add the Spread per Shot from this bullet for the next loop
-			currentSpreadPixels = Math.min(currentSpreadPixels + spreadPerShotPixels, maxSpreadPixels);  // This value can never go above Max Spread
+			if (invertedSpread) {
+				currentSpreadPixels = Math.max(currentSpreadPixels + spreadPerShotPixels, maxSpreadPixels);
+			}
+			else {
+				currentSpreadPixels = Math.min(currentSpreadPixels + spreadPerShotPixels, maxSpreadPixels);  // This value can never go above Max Spread
+			}
 		}
 		
 		return spreadAtEachShot;
@@ -358,7 +376,7 @@ public class AccuracyEstimator {
 		double RpS = convertRecoilPixelsToRads(recoilPerShot) * accuracyModifiers[4];
 		
 		// predictedSpread is an array of the pixel values of the width of the crosshair when each bullet gets fired
-		double[] predictedSpread = spread(rateOfFire, magSize, burstSize, Sb, SpS, Sr, Sm);
+		double[] predictedSpread = spread(rateOfFire, magSize, burstSize, Sb, SpS, Sr, Sm, SpS < 0);
 		// predictedRecoil is an array of the radian values of how far off-center the crosshair is when each bullet gets fired
 		double[] predictedRecoil = recoil(rateOfFire,  magSize, burstSize, RpS, recoilIncreaseInterval, recoilDecreaseInterval);
 		
