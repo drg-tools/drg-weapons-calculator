@@ -19,6 +19,7 @@ import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
+// Breach Cutter doesn't gain damage from Frozen, and only its Damage per Tick gets boosted by Weakpoint damage. Impact Damage is unaffected when hitting weakpoint.
 public class BreachCutter extends Weapon {
 	
 	/****************************************************************************************
@@ -278,6 +279,11 @@ public class BreachCutter extends Weapon {
 					selectedOverclock = 6;
 					break;
 				}
+			}
+			
+			// Re-set AoE Efficiency
+			if (currentlyDealsSplashDamage()) {
+				setAoEEfficiency();
 			}
 			
 			if (countObservers() > 0) {
@@ -605,43 +611,36 @@ public class BreachCutter extends Weapon {
 			intersectionTime = calculateGruntIntersectionTimePerRegularProjectile();
 		}
 		
-		// getImpactDamage() will return 0 when Spinning Death is equipped
-		double baseDamage = getImpactDamage() + intersectionTime * damageTickRate * getDamagePerTick();
+		double impactDamage = getImpactDamage();
+		double dmgPerTick = getDamagePerTick();
+		double explosiveGoodbyeDmg = 0;
+		if (selectedTier5 == 0 && primaryTarget) {
+			explosiveGoodbyeDmg = 40.0;
+		}
 		
 		if (!ignoreStatusEffects) {
-			// Frozen
-			if (statusEffects[1]) {
-				baseDamage *= UtilityInformation.Frozen_Damage_Multiplier;
-			}
+			// None of Breach Cutter's damage benefits from enemies being Frozen.
 			
 			// IFG Grenade
 			if (statusEffects[3]) {
-				baseDamage *= UtilityInformation.IFG_Damage_Multiplier;
+				dmgPerTick *= UtilityInformation.IFG_Damage_Multiplier;
+				impactDamage *= UtilityInformation.IFG_Damage_Multiplier;
+				explosiveGoodbyeDmg *= UtilityInformation.IFG_Damage_Multiplier;
 			}
 			
+			// Weakpoint doesn't apply when enemies are Frozen
 			if (weakpoint && !statusEffects[1]) {
-				// Only the actual projectile can benefit from hitting Weakpoints, not the DoTs or Explosive Goodbye.
-				baseDamage *= EnemyInformation.averageWeakpointDamageIncrease();
+				// Only the Dmg/Tick benefits from Weakpoints
+				dmgPerTick *= EnemyInformation.averageWeakpointDamageIncrease();
 			}
 		}
 		else {
 			if (weakpoint) {
-				// Only the actual projectile can benefit from hitting Weakpoints, not the DoTs or Explosive Goodbye.
-				baseDamage *= EnemyInformation.averageWeakpointDamageIncrease();
+				dmgPerTick *= EnemyInformation.averageWeakpointDamageIncrease();
 			}
 		}
 		
-		if (selectedTier5 == 0 && primaryTarget) {
-			// I'm choosing to believe that the players can detonate a line on a Grunt such that the Grunt's hitbox is within the 2m full damage radius, 
-			// therefore I'm choosing not to model damage falloff averages right here.
-			if (!ignoreStatusEffects && statusEffects[3]) {
-				// I believe IFG will increase the Explosive Goodbye damage too
-				baseDamage += 40.0 * UtilityInformation.IFG_Damage_Multiplier;
-			}
-			else {
-				baseDamage += 40.0;
-			}
-		}
+		double baseDamage = impactDamage + intersectionTime * damageTickRate * dmgPerTick + explosiveGoodbyeDmg;
 		
 		double burnDamage = 0;
 		// If Frozen, then they can't Burn. However, the logic gets tricky when trying to ingore Status Effects like Frozen for max damage calculations.
@@ -733,7 +732,8 @@ public class BreachCutter extends Weapon {
 		double baseDPS = dmgPerMag / duration;
 		
 		double burnDPS = 0;
-		if (selectedOverclock == 6) {
+		// Frozen negates the Burn DoT
+		if (selectedOverclock == 6 && !statusEffects[1]) {
 			// Because OC "Inferno" ignites all enemies just so dang fast, I'm choosing to over-estimate the Burn DPS for bursts as if they ignite instantly.
 			burnDPS = DoTInformation.Burn_DPS;
 		}

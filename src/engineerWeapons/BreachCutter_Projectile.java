@@ -1,9 +1,6 @@
 package engineerWeapons;
 
-import modelPieces.EnemyInformation;
 import modelPieces.StatsRow;
-import modelPieces.UtilityInformation;
-import utilities.MathUtils;
 
 public class BreachCutter_Projectile extends BreachCutter {
 	
