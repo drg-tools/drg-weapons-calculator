@@ -110,7 +110,7 @@ public class Flamethrower extends Weapon {
 		tier4[2] = new Mod("More Fuel", "+75 Max Fuel", modIcons.carriedAmmo, 4, 2);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Heat Radiance", "Heat up enemies within 3m of you at a rate of 80 Heat/sec. This stacks with the direct stream and Sticky Flames' heat sources as well.", modIcons.heatDamage, 5, 0);
+		tier5[0] = new Mod("Heat Radiance", "Deal 80 Fire Damage per second and 80 Heat per second to all enemies within 3m of you. The Heat/sec stacks with the direct stream and Sticky Flames' heat sources as well.", modIcons.heatDamage, 5, 0);
 		tier5[1] = new Mod("Targets Explode", "If the direct stream kills an enemy, there's a 50% chance that they will explode and deal 55 Fire Damage and 55 Heat Damage to all enemies within a 3m radius.", modIcons.addedExplosion, 5, 1, false);
 		
 		overclocks = new Overclock[6];
@@ -499,11 +499,14 @@ public class Flamethrower extends Weapon {
 		
 		double directHeatPerSec = getParticleHeat() * getFlowRate();
 		
-		double heatRadianceHeatPerSec = 0;
+		double heatRadianceDmgAndHeatPerTick = 0;
+		int numTicksHeatRadianceWillProc = 0; 
 		if (selectedTier5 == 0) {
 			// 80 Heat/sec in a 3m radius
 			// I want this to be less effective with far-reaching streams to model how the further the steam flies the less likely it is that the enemies will be within the 3m.
-			heatRadianceHeatPerSec = 80.0 * 3.0 / getFlameReach();
+			heatRadianceDmgAndHeatPerTick = 80.0 * 3.0 / getFlameReach();
+			// Because Heat Radiance only procs after every full second of firing, I'm choosing to take the floor() of how many seconds a single magazine can be fired.
+			numTicksHeatRadianceWillProc = (int) Math.floor(((double) getFuelTankSize()) / getFlowRate()); 
 		}
 		
 		double stickyFlamesDPS = getSFDamagePerTick() * stickyFlamesTicksPerSec / 2.0;
@@ -512,7 +515,8 @@ public class Flamethrower extends Weapon {
 		if (burst) {
 			duration = ((double) getFuelTankSize()) / getFlowRate();
 			
-			double totalHeatPerSec = directHeatPerSec + stickyFlamesHeatPerSec + heatRadianceHeatPerSec;
+			// Because Heat Radiance ticks once per second, the value per tick is equal to the Heat/sec
+			double totalHeatPerSec = directHeatPerSec + stickyFlamesHeatPerSec + heatRadianceDmgAndHeatPerTick ;
 			double timeToIgnite = EnemyInformation.averageTimeToIgnite(totalHeatPerSec);
 			double burnDoTUptimeCoefficient = (duration - timeToIgnite) / duration;
 			burnDPS = burnDoTUptimeCoefficient * DoTInformation.Burn_DPS;
@@ -533,7 +537,8 @@ public class Flamethrower extends Weapon {
 			directDamagePerParticle *= UtilityInformation.IFG_Damage_Multiplier;
 		}
 		
-		return directDamagePerParticle * getFuelTankSize() / duration + stickyFlamesDPS + burnDPS;
+		double heatRadianceDamagePerTank = heatRadianceDmgAndHeatPerTick * numTicksHeatRadianceWillProc;
+		return (directDamagePerParticle * getFuelTankSize() + heatRadianceDamagePerTank) / duration + stickyFlamesDPS + burnDPS;
 	}
 
 	// Single-target calculations
@@ -577,20 +582,28 @@ public class Flamethrower extends Weapon {
 		double stickyFlamesDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, getSFDuration(), stickyFlamesDPS);
 		double stickyFlamesTotalDamage = stickyFlamesDamagePerEnemy * estimatedNumEnemiesKilled;
 		
-		// Total Burn Damage
-		double directHeatPerSec = getParticleHeat() * getFlowRate();
-		double stickyFlamesHeatPerSec = stickyFlamesHeatPerTick * stickyFlamesTicksPerSec / 2.0;
+		// Total Heat Radiance Damage
+		double heatRadianceTotalDamage = 0;
 		double heatRadianceHeatPerSec = 0;
 		if (selectedTier5 == 0) {
-			// 80 Heat/sec in a 3m radius
+			// 80 Fire + Heat/sec in a 3m radius
+			double numTicksOfHeatRadiance = numMagazines(getCarriedFuel(), getFuelTankSize()) * (int) Math.floor(((double) getFuelTankSize()) / getFlowRate());
+			// I'm choosing to model this as if the player is kiting enemies, keeping them about 1.5m away so that they don't receive melee attacks.
+			int numGlyphidsHitByHeatRadiancePerTick = calculateNumGlyphidsInRadius(3.0) - calculateNumGlyphidsInRadius(1.5);
+			heatRadianceTotalDamage = 80 * numTicksOfHeatRadiance * numGlyphidsHitByHeatRadiancePerTick;
+			
 			// I want this to be less effective with far-reaching streams to model how the further the steam flies the less likely it is that the enemies will be within the 3m.
 			heatRadianceHeatPerSec = 80.0 * 3.0 / getFlameReach();
 		}
+		
+		// Total Burn Damage
+		double directHeatPerSec = getParticleHeat() * getFlowRate();
+		double stickyFlamesHeatPerSec = stickyFlamesHeatPerTick * stickyFlamesTicksPerSec / 2.0;
 		double timeToIgnite = EnemyInformation.averageTimeToIgnite(directHeatPerSec + stickyFlamesHeatPerSec + heatRadianceHeatPerSec);
 		double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 		double fireDoTTotalDamage = fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		
-		return directTotalDamage + stickyFlamesTotalDamage + fireDoTTotalDamage;
+		return directTotalDamage + stickyFlamesTotalDamage + heatRadianceTotalDamage + fireDoTTotalDamage;
 	}
 
 	@Override
