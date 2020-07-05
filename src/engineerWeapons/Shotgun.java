@@ -449,25 +449,25 @@ public class Shotgun extends Weapon {
 		StatsRow[] toReturn = new StatsRow[12];
 		
 		boolean damageModified = selectedTier4 == 1 || selectedOverclock == 3 || selectedOverclock == 4;
-		toReturn[0] = new StatsRow("Damage per Pellet:", getDamagePerPellet(), damageModified);
+		toReturn[0] = new StatsRow("Damage per Pellet:", getDamagePerPellet(), modIcons.directDamage, damageModified);
 		
-		toReturn[1] = new StatsRow("Number of Pellets/Shot:", getNumberOfPellets(), selectedTier2 == 1);
+		toReturn[1] = new StatsRow("Number of Pellets/Shot:", getNumberOfPellets(), modIcons.pelletsPerShot, selectedTier2 == 1);
 		
 		boolean magSizeModified = selectedTier1 == 1 || selectedTier3 == 2 || selectedOverclock == 4;
-		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
+		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 4;
-		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
+		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
 		boolean RoFModified = selectedTier1 == 0 || selectedTier5 == 1 || selectedOverclock == 2 || selectedOverclock == 3;
-		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), RoFModified);
+		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, RoFModified);
 		
 		boolean reloadModified = selectedTier3 == 1 || selectedOverclock == 1 || selectedOverclock == 3;
-		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), reloadModified);
+		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, reloadModified);
 		
-		toReturn[6] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedOverclock == 2, selectedOverclock == 2);
+		toReturn[6] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedOverclock == 2, selectedOverclock == 2);
 		
-		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier4 == 0, selectedTier4 == 0);
 		
 		String stunDescription;
 		if (selectedOverclock == 0) {
@@ -476,15 +476,15 @@ public class Shotgun extends Weapon {
 		else {
 			stunDescription = "Weakpoint Stun Chance per Pellet:";
 		}
-		toReturn[8] = new StatsRow(stunDescription, convertDoubleToPercentage(getWeakpointStunChance()), selectedOverclock == 0 || selectedOverclock == 4);
+		toReturn[8] = new StatsRow(stunDescription, convertDoubleToPercentage(getWeakpointStunChance()), modIcons.stun, selectedOverclock == 0 || selectedOverclock == 4);
 		
-		toReturn[9] = new StatsRow("Stun Duration:", getStunDuration(), selectedOverclock == 4);
+		toReturn[9] = new StatsRow("Stun Duration:", getStunDuration(), null, selectedOverclock == 4);
 		
 		boolean baseSpreadModified = selectedTier2 == 2 || selectedOverclock == 2 || selectedOverclock == 3;
-		toReturn[10] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
+		toReturn[10] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, baseSpreadModified, baseSpreadModified);
 		
 		boolean recoilModified = selectedTier3 == 0 || selectedOverclock == 4;
-		toReturn[11] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
+		toReturn[11] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), modIcons.recoil, recoilModified, recoilModified);
 		
 		return toReturn;
 	}

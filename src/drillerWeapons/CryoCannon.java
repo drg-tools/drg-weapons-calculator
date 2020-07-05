@@ -438,44 +438,44 @@ public class CryoCannon extends Weapon {
 		StatsRow[] toReturn = new StatsRow[16];
 		
 		// Stats about the direct stream's DPS
-		toReturn[0] = new StatsRow("Damage per Particle:", getParticleDamage(), selectedTier4 == 0 || selectedOverclock == 4);
+		toReturn[0] = new StatsRow("Damage per Particle:", getParticleDamage(), modIcons.directDamage, selectedTier4 == 0 || selectedOverclock == 4);
 		
 		boolean coldModified = selectedTier1 == 2 || selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 4;
 		// Again, choosing to display Cold as positive even though it's a negative value.
-		toReturn[1] = new StatsRow("Cold per Particle:", -1 * getParticleCold(), coldModified);
+		toReturn[1] = new StatsRow("Cold per Particle:", -1 * getParticleCold(), modIcons.coldDamage, coldModified);
 		
 		boolean freezingTimeModified = false;
-		toReturn[2] = new StatsRow("Avg Time to Freeze:", averageTimeToFreeze(false), freezingTimeModified);
-		toReturn[3] = new StatsRow("Avg Freeze Multiplier:", averageFreezeMultiplier(), freezingTimeModified);
+		toReturn[2] = new StatsRow("Avg Time to Freeze:", averageTimeToFreeze(false), null, freezingTimeModified);
+		toReturn[3] = new StatsRow("Avg Freeze Multiplier:", averageFreezeMultiplier(), null, freezingTimeModified);
 		
-		toReturn[4] = new StatsRow("Cold Stream Reach:", getColdStreamReach(), selectedTier2 == 1);
+		toReturn[4] = new StatsRow("Cold Stream Reach:", getColdStreamReach(), modIcons.distance, selectedTier2 == 1);
 		
 		boolean tankSizeModified = selectedTier2 == 0 || selectedTier4 == 2 || selectedOverclock == 0 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[5] = new StatsRow("Tank Size:", getTankSize(), tankSizeModified);
+		toReturn[5] = new StatsRow("Tank Size:", getTankSize(), modIcons.carriedAmmo, tankSizeModified);
 		
-		toReturn[6] = new StatsRow("Chargeup Time:", getChargeupTime(), selectedTier1 == 1);
+		toReturn[6] = new StatsRow("Chargeup Time:", getChargeupTime(), modIcons.chargeSpeed, selectedTier1 == 1);
 		
 		boolean pressureDropModified = selectedTier1 == 0 || selectedOverclock % 2 == 0 ;
-		toReturn[7] = new StatsRow("Pressure Drop Rate:", convertDoubleToPercentage(getPressureDropModifier()), pressureDropModified);
-		toReturn[8] = new StatsRow("Pressure Drop Duration:", pressureDropDuration / getPressureDropModifier(), pressureDropModified);
+		toReturn[7] = new StatsRow("Pressure Drop Rate:", convertDoubleToPercentage(getPressureDropModifier()), modIcons.magSize, pressureDropModified);
+		toReturn[8] = new StatsRow("Pressure Drop Duration:", pressureDropDuration / getPressureDropModifier(), null, pressureDropModified);
 		
 		boolean flowRateModified = selectedTier3 == 1 || selectedOverclock == 1 || selectedOverclock == 2;
-		toReturn[9] = new StatsRow("Flow Rate:", getFlowRate(), flowRateModified);
+		toReturn[9] = new StatsRow("Flow Rate:", getFlowRate(), modIcons.rateOfFire, flowRateModified);
 		
 		boolean delayModified = selectedTier2 == 2 || selectedOverclock == 3 || selectedOverclock == 5;
-		toReturn[10] = new StatsRow("Repressurization Delay:", getRepressurizationDelay(), delayModified);
+		toReturn[10] = new StatsRow("Repressurization Delay:", getRepressurizationDelay(), modIcons.coolingRate, delayModified);
 		
 		boolean pressureGainModified = selectedTier3 == 0 || selectedOverclock == 2;
-		toReturn[11] = new StatsRow("Pressure Gain Rate:", convertDoubleToPercentage(getPressureGainModifier()), pressureGainModified);
-		toReturn[12] = new StatsRow("Pressure Gain Duration:", pressureGainDuration / getPressureGainModifier(), pressureGainModified);
+		toReturn[11] = new StatsRow("Pressure Gain Rate:", convertDoubleToPercentage(getPressureGainModifier()), modIcons.chargeSpeed, pressureGainModified);
+		toReturn[12] = new StatsRow("Pressure Gain Duration:", pressureGainDuration / getPressureGainModifier(), null, pressureGainModified);
 		
 		// Stats about the Ice Path
 		// I'm choosing to display this as a positive number, even though internally it's negative.
-		toReturn[13] = new StatsRow("Ice Path Cold per Tick:", -1 * icePathColdPerTick, false);
+		toReturn[13] = new StatsRow("Ice Path Cold per Tick:", -1 * icePathColdPerTick, modIcons.coldDamage, false);
 		
-		toReturn[14] = new StatsRow("Ice Path Ticks per Sec:", icePathTicksPerSec, false);
+		toReturn[14] = new StatsRow("Ice Path Ticks per Sec:", icePathTicksPerSec, null, false);
 		
-		toReturn[15] = new StatsRow("Ice Path Duration", icePathDuration, false);
+		toReturn[15] = new StatsRow("Ice Path Duration", icePathDuration, null, false);
 		
 		return toReturn;
 	}

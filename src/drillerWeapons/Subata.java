@@ -456,43 +456,43 @@ public class Subata extends Weapon {
 		StatsRow[] toReturn = new StatsRow[15];
 		
 		boolean directDamageModified = selectedTier2 == 1 || selectedTier3 == 0 || selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 4;
-		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
 		// This stat only applies to OC "Explosive Reload"
-		toReturn[1] = new StatsRow("Explosive Reload Damage:", getAreaDamage(), selectedOverclock == 4, selectedOverclock == 4);
+		toReturn[1] = new StatsRow("Explosive Reload Damage:", getAreaDamage(), modIcons.areaDamage, selectedOverclock == 4, selectedOverclock == 4);
 		
 		boolean magSizeModified = selectedTier1 == 1 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
+		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier2 == 0 || selectedTier3 == 2 || selectedOverclock == 4;
-		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
+		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
-		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), selectedOverclock == 3 || selectedOverclock == 5);
+		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedOverclock == 3 || selectedOverclock == 5);
 		
-		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), selectedTier1 == 2 || selectedOverclock == 2);
+		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier1 == 2 || selectedOverclock == 2);
 		
-		toReturn[6] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0);
+		toReturn[6] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedTier4 == 0);
 		
 		// Display Subata's hidden 50% armor break penalty
-		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(armorBreaking), false);
+		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(armorBreaking), modIcons.armorBreaking, false);
 		
 		// These two stats only apply to OC "Tranquilizer Rounds"
 		boolean tranqRoundsEquipped = selectedOverclock == 5;
-		toReturn[8] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), tranqRoundsEquipped, tranqRoundsEquipped);
+		toReturn[8] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), modIcons.stun, tranqRoundsEquipped, tranqRoundsEquipped);
 		
-		toReturn[9] = new StatsRow("Stun Duration:", getStunDuration(), tranqRoundsEquipped, tranqRoundsEquipped);
+		toReturn[9] = new StatsRow("Stun Duration:", getStunDuration(), null, tranqRoundsEquipped, tranqRoundsEquipped);
 		
 		boolean chainHitEquipped = selectedOverclock == 0;
-		toReturn[10] = new StatsRow("Weakpoint Chain Hit Chance:", "50%", chainHitEquipped, chainHitEquipped);
-		toReturn[11] = new StatsRow("Max Ricochets:", getMaxRicochets(), chainHitEquipped, chainHitEquipped);
+		toReturn[10] = new StatsRow("Weakpoint Chain Hit Chance:", "50%", null, chainHitEquipped, chainHitEquipped);
+		toReturn[11] = new StatsRow("Max Ricochets:", getMaxRicochets(), modIcons.ricochet, chainHitEquipped, chainHitEquipped);
 		
 		boolean baseSpreadModified = selectedTier1 == 0 || selectedOverclock == 3;
-		toReturn[12] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
+		toReturn[12] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, baseSpreadModified, baseSpreadModified);
 		
-		toReturn[13] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), selectedTier3 == 1, selectedTier3 == 1);
+		toReturn[13] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), modIcons.baseSpread, selectedTier3 == 1, selectedTier3 == 1);
 		
 		boolean recoilModified = selectedOverclock == 3 || selectedTier3 == 1;
-		toReturn[14] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
+		toReturn[14] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), modIcons.recoil, recoilModified, recoilModified);
 		
 		return toReturn;
 	}

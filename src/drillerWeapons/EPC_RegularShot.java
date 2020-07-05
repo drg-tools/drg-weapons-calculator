@@ -1,5 +1,6 @@
 package drillerWeapons;
 
+import guiPieces.ButtonIcons.modIcons;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.StatsRow;
@@ -51,23 +52,23 @@ public class EPC_RegularShot extends EPC {
 		
 		StatsRow[] toReturn = new StatsRow[8];
 		
-		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), selectedTier1 == 0 || selectedOverclock == 3);
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, selectedTier1 == 0 || selectedOverclock == 3);
 		
-		toReturn[1] = new StatsRow("Projectile Velocity:", convertDoubleToPercentage(getRegularShotVelocity()), selectedTier2 == 1, selectedTier2 == 1);
+		toReturn[1] = new StatsRow("Projectile Velocity:", convertDoubleToPercentage(getRegularShotVelocity()), modIcons.projectileVelocity, selectedTier2 == 1, selectedTier2 == 1);
 		
 		boolean heatPerShotModified = selectedTier5 == 1 || selectedOverclock == 2 || selectedOverclock == 3;
-		toReturn[2] = new StatsRow("Heat/Shot:", getHeatPerRegularShot(), heatPerShotModified);
+		toReturn[2] = new StatsRow("Heat/Shot:", getHeatPerRegularShot(), null, heatPerShotModified);
 		
-		toReturn[3] = new StatsRow("Shots Fired Before Overheating:", getNumRegularShotsBeforeOverheat(), coolingRateModified || heatPerShotModified);
+		toReturn[3] = new StatsRow("Shots Fired Before Overheating:", getNumRegularShotsBeforeOverheat(), modIcons.magSize, coolingRateModified || heatPerShotModified);
 		
 		boolean batterySizeModified = selectedTier1 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 3;
-		toReturn[4] = new StatsRow("Battery Size:", getBatterySize(), batterySizeModified);
+		toReturn[4] = new StatsRow("Battery Size:", getBatterySize(), modIcons.carriedAmmo,  batterySizeModified);
 		
-		toReturn[5] = new StatsRow("Rate of Fire:", rateOfFire, false);
+		toReturn[5] = new StatsRow("Rate of Fire:", rateOfFire, modIcons.rateOfFire, false);
 		
-		toReturn[6] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), coolingRateModified);
+		toReturn[6] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), modIcons.coolingRate, coolingRateModified);
 		
-		toReturn[7] = new StatsRow("Cooldown After Overheating:", getCooldownDuration(), coolingRateModified);
+		toReturn[7] = new StatsRow("Cooldown After Overheating:", getCooldownDuration(), null, coolingRateModified);
 		
 		return toReturn;
 	}

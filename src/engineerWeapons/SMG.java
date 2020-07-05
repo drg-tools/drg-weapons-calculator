@@ -434,31 +434,31 @@ public class SMG extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[11];
 		
-		toReturn[0] = new StatsRow("Electrocute DoT Chance:", convertDoubleToPercentage(getElectrocutionDoTChance()), selectedTier1 == 1 || selectedOverclock == 5);
-		toReturn[1] = new StatsRow("Electrocute DoT DPS:", DoTInformation.Electro_DPS, false);
+		toReturn[0] = new StatsRow("Electrocute DoT Chance:", convertDoubleToPercentage(getElectrocutionDoTChance()), modIcons.electricity, selectedTier1 == 1 || selectedOverclock == 5);
+		toReturn[1] = new StatsRow("Electrocute DoT DPS:", DoTInformation.Electro_DPS, null, false);
 		
 		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 0 || selectedOverclock == 3 || selectedOverclock == 5;
-		toReturn[2] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
+		toReturn[2] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
-		toReturn[3] = new StatsRow("Electric Damage:", getElectricDamage(), selectedOverclock == 2, selectedOverclock == 2);
+		toReturn[3] = new StatsRow("Electric Damage:", getElectricDamage(), modIcons.directDamage, selectedOverclock == 2, selectedOverclock == 2);
 		
 		boolean magSizeModified = selectedTier2 == 0 || selectedTier5 == 0 || selectedOverclock == 0;
-		toReturn[4] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
+		toReturn[4] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier1 == 2 || selectedTier3 == 1 || selectedOverclock == 3 || selectedOverclock == 4;
-		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
+		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
 		boolean RoFModified = selectedTier2 == 2 || (selectedOverclock > 0 && selectedOverclock < 5);
-		toReturn[6] = new StatsRow("Rate of Fire:", getRateOfFire(), RoFModified);
+		toReturn[6] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, RoFModified);
 		
-		toReturn[7] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 1);
+		toReturn[7] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 1);
 		
-		toReturn[8] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[8] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedTier4 == 0, selectedTier4 == 0);
 		
 		boolean baseSpreadModified = selectedOverclock == 0 || selectedOverclock == 2;
-		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
+		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, baseSpreadModified, baseSpreadModified);
 		
-		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1, selectedTier2 == 1);
+		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), modIcons.recoil, selectedTier2 == 1, selectedTier2 == 1);
 		
 		return toReturn;
 	}

@@ -444,42 +444,42 @@ public class Flamethrower extends Weapon {
 		
 		// Stats about the direct stream's DPS
 		boolean damageModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 4;
-		toReturn[0] = new StatsRow("Damage per Particle:", getParticleDamage(), damageModified);
+		toReturn[0] = new StatsRow("Damage per Particle:", getParticleDamage(), modIcons.directDamage, damageModified);
 		
-		toReturn[1] = new StatsRow("Heat per Particle:", getParticleHeat(), selectedTier2 == 1);
+		toReturn[1] = new StatsRow("Heat per Particle:", getParticleHeat(), modIcons.heatDamage, selectedTier2 == 1);
 		
 		boolean reachModified = selectedTier1 == 1 || selectedOverclock == 2 || selectedOverclock == 3;
-		toReturn[2] = new StatsRow("Flame Reach:", getFlameReach(), reachModified);
+		toReturn[2] = new StatsRow("Flame Reach:", getFlameReach(), modIcons.distance, reachModified);
 		
 		boolean tankSizeModified = selectedTier1 == 0 || selectedOverclock == 2 || selectedOverclock == 5;
-		toReturn[3] = new StatsRow("Fuel Tank Size:", getFuelTankSize(), tankSizeModified);
+		toReturn[3] = new StatsRow("Fuel Tank Size:", getFuelTankSize(), modIcons.magSize, tankSizeModified);
 		
 		boolean carriedFuelModified = selectedTier3 == 2 || selectedTier4 == 2 || selectedOverclock == 0 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[4] = new StatsRow("Max Fuel:", getCarriedFuel(), carriedFuelModified);
+		toReturn[4] = new StatsRow("Max Fuel:", getCarriedFuel(), modIcons.carriedAmmo, carriedFuelModified);
 		
 		boolean flowRateModified = selectedTier3 == 0 || selectedOverclock == 3 || selectedOverclock == 4;
-		toReturn[5] = new StatsRow("Flow Rate:", getFlowRate(), flowRateModified);
+		toReturn[5] = new StatsRow("Flow Rate:", getFlowRate(), modIcons.rateOfFire, flowRateModified);
 		
-		toReturn[6] = new StatsRow("Reload Time:", reloadTime, false);
+		toReturn[6] = new StatsRow("Reload Time:", reloadTime, modIcons.reloadSpeed, false);
 		
-		toReturn[7] = new StatsRow("Fear Chance per Second:", convertDoubleToPercentage(0.13), selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[7] = new StatsRow("Fear Chance per Second:", convertDoubleToPercentage(0.13), modIcons.fear, selectedTier4 == 0, selectedTier4 == 0);
 		
-		toReturn[8] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 4, selectedOverclock == 4);
+		toReturn[8] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), modIcons.movespeed, selectedOverclock == 4, selectedOverclock == 4);
 		
 		// Burn DPS
-		toReturn[9] = new StatsRow("Burn DoT DPS:", DoTInformation.Burn_DPS, false);
+		toReturn[9] = new StatsRow("Burn DoT DPS:", DoTInformation.Burn_DPS, null, false);
 		
 		// Stats about the Sticky Flames
-		toReturn[10] = new StatsRow("Sticky Flames Dmg per Tick:", getSFDamagePerTick(), selectedOverclock == 5);
+		toReturn[10] = new StatsRow("Sticky Flames Dmg per Tick:", getSFDamagePerTick(), null, selectedOverclock == 5);
 		
-		toReturn[11] = new StatsRow("Sticky Flames Heat per Tick:", stickyFlamesHeatPerTick, false);
+		toReturn[11] = new StatsRow("Sticky Flames Heat per Tick:", stickyFlamesHeatPerTick, modIcons.heatDamage, false);
 		
-		toReturn[12] = new StatsRow("Sticky Flames Avg Ticks/Sec:", stickyFlamesTicksPerSec, false);
+		toReturn[12] = new StatsRow("Sticky Flames Avg Ticks/Sec:", stickyFlamesTicksPerSec, null, false);
 		
 		boolean SFDurationModified = selectedTier2 == 2 || selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 5;
-		toReturn[13] = new StatsRow("Sticky Flames Duration:", getSFDuration(), SFDurationModified);
+		toReturn[13] = new StatsRow("Sticky Flames Duration:", getSFDuration(), modIcons.hourglass, SFDurationModified);
 		
-		toReturn[14] = new StatsRow("Sticky Flames Slow:", convertDoubleToPercentage(getSFSlow()), selectedTier3 == 1);
+		toReturn[14] = new StatsRow("Sticky Flames Slow:", convertDoubleToPercentage(getSFSlow()), modIcons.slowdown, selectedTier3 == 1);
 		
 		return toReturn;
 	}
