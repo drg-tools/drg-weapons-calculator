@@ -64,9 +64,9 @@ public class EPC_ChargeShot extends EPC {
 		boolean windupModified = selectedTier3 == 1 || selectedTier5 == 0 || selectedOverclock == 0 || selectedOverclock == 2;
 		toReturn[3] = new StatsRow("Charged Shot Windup:", getChargedShotWindup(), modIcons.chargeSpeed, windupModified);
 		
-		toReturn[4] = new StatsRow("Heat/Sec While Charged:", getHeatPerSecondWhileCharged(), null, selectedTier4 == 0 || selectedOverclock == 1);
+		toReturn[4] = new StatsRow("Heat/Sec While Charged:", getHeatPerSecondWhileCharged(), modIcons.blank, selectedTier4 == 0 || selectedOverclock == 1);
 		
-		toReturn[5] = new StatsRow("Seconds Charged Shot can be Held Before Overheating:", getSecondsBeforeOverheatWhileCharged(), null, selectedTier4 == 0 || selectedOverclock == 1);
+		toReturn[5] = new StatsRow("Seconds Charged Shot can be Held Before Overheating:", getSecondsBeforeOverheatWhileCharged(), modIcons.blank, selectedTier4 == 0 || selectedOverclock == 1);
 		
 		boolean ammoPerShotModified = selectedTier3 == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedTier5 == 1;
 		toReturn[6] = new StatsRow("Ammo/Charged Shot:", getAmmoPerChargedShot(), modIcons.fuel, ammoPerShotModified);
@@ -81,7 +81,7 @@ public class EPC_ChargeShot extends EPC {
 		
 		toReturn[9] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), modIcons.coolingRate, coolingRateModified);
 		
-		toReturn[10] = new StatsRow("Cooldown After Overheating:", getCooldownDuration(), null, coolingRateModified || selectedTier5 == 1);
+		toReturn[10] = new StatsRow("Cooldown After Overheating:", getCooldownDuration(), modIcons.blank, coolingRateModified || selectedTier5 == 1);
 		
 		return toReturn;
 	}

@@ -57,7 +57,7 @@ public class EPC_RegularShot extends EPC {
 		toReturn[1] = new StatsRow("Projectile Velocity:", convertDoubleToPercentage(getRegularShotVelocity()), modIcons.projectileVelocity, selectedTier2 == 1, selectedTier2 == 1);
 		
 		boolean heatPerShotModified = selectedTier5 == 1 || selectedOverclock == 2 || selectedOverclock == 3;
-		toReturn[2] = new StatsRow("Heat/Shot:", getHeatPerRegularShot(), null, heatPerShotModified);
+		toReturn[2] = new StatsRow("Heat/Shot:", getHeatPerRegularShot(), modIcons.blank, heatPerShotModified);
 		
 		toReturn[3] = new StatsRow("Shots Fired Before Overheating:", getNumRegularShotsBeforeOverheat(), modIcons.magSize, coolingRateModified || heatPerShotModified);
 		
@@ -68,7 +68,7 @@ public class EPC_RegularShot extends EPC {
 		
 		toReturn[6] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), modIcons.coolingRate, coolingRateModified);
 		
-		toReturn[7] = new StatsRow("Cooldown After Overheating:", getCooldownDuration(), null, coolingRateModified);
+		toReturn[7] = new StatsRow("Cooldown After Overheating:", getCooldownDuration(), modIcons.blank, coolingRateModified);
 		
 		return toReturn;
 	}

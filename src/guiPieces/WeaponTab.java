@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.image.BufferedImage;
 
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -142,8 +143,9 @@ public class WeaponTab extends JPanel {
 		toReturn.setLayout(new BoxLayout(toReturn, BoxLayout.Y_AXIS));
 		toReturn.setPreferredSize(new Dimension(200, 280));
 		
-		JPanel row;
+		JPanel row, statLabelPanel;
 		JLabel statLabel, statValue;
+		BufferedImage statLabelIcon;
 		int paddingPixels = 2*GuiConstants.paddingPixels;
 		String statLabelText;
 		for (int i = 0; i < weaponStats.length; i++) {
@@ -152,6 +154,13 @@ public class WeaponTab extends JPanel {
 				row.setOpaque(false);
 				row.setLayout(new BorderLayout());
 				
+				statLabelPanel = new JPanel();
+				statLabelPanel.setOpaque(false);
+				statLabelPanel.setLayout(new BorderLayout());
+				
+				statLabelIcon = ButtonIcons.getModIcon(weaponStats[i].getIcon(), false);
+				statLabelPanel.add(new StatsRowIconPanel(statLabelIcon), BorderLayout.LINE_START);
+				
 				statLabelText = weaponStats[i].getName();
 				statLabelText = HoverText.breakLongToolTipString(statLabelText, 28);
 				statLabel = new JLabel(statLabelText);
@@ -159,7 +168,9 @@ public class WeaponTab extends JPanel {
 				statLabel.setForeground(Color.white);
 				// Left-pad the label text
 				statLabel.setBorder(new EmptyBorder(0, paddingPixels, 0, 0));
-				row.add(statLabel, BorderLayout.LINE_START);
+				statLabelPanel.add(statLabel, BorderLayout.CENTER);
+				
+				row.add(statLabelPanel, BorderLayout.LINE_START);
 				
 				statValue = new JLabel(weaponStats[i].getValue());
 				statValue.setFont(GuiConstants.customFontBold);

@@ -74,6 +74,9 @@ public class ButtonIcons {
 	private static BufferedImage slowdownBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Sticky_Black.png");
 	private static BufferedImage hourglassBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Duration_V2_Black.png");
 	
+	// This gets used by StatsRow when there's no associated picture.
+	private static BufferedImage blank = ResourceLoader.loadImage("images/mod/blank.png");
+	
 	public static BufferedImage cleanFrame = ResourceLoader.loadImage("images/overclock/Frame_Overclock_Clean.png");
 	public static BufferedImage balancedFrame = ResourceLoader.loadImage("images/overclock/Frame_Overclock_Balanced.png");
 	public static BufferedImage unstableFrame = ResourceLoader.loadImage("images/overclock/Frame_Overclock_Unstable.png");
@@ -123,7 +126,8 @@ public class ButtonIcons {
 		distance,
 		duration,
 		slowdown,
-		hourglass
+		hourglass,
+		blank
 	};
 	
 	public static BufferedImage getModIcon(modIcons iconSelection, boolean getBlackVersion) {
@@ -391,6 +395,9 @@ public class ButtonIcons {
 				else {
 					return hourglassWhite;
 				}
+			}
+			case blank: {
+				return blank;
 			}
 			default: {
 				return null;

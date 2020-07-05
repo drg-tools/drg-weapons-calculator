@@ -63,6 +63,9 @@ public class StatsRow {
 	public String getValue() {
 		return statValue;
 	}
+	public modIcons getIcon() {
+		return icon;
+	}
 	public boolean shouldValueBeHighlighted() {
 		return highlightModifiedValue;
 	}

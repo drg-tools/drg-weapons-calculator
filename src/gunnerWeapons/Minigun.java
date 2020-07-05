@@ -531,11 +531,11 @@ public class Minigun extends Weapon {
 		boolean damageModified = selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock > 3;
 		toReturn[0] = new StatsRow("Direct Damage per Pellet:", getDamagePerPellet(), modIcons.directDamage, damageModified);
 		
-		toReturn[1] = new StatsRow("Ammo Consumed per Pellet:", 2, null, false);
+		toReturn[1] = new StatsRow("Ammo Consumed per Pellet:", 2, modIcons.blank, false);
 		
-		toReturn[2] = new StatsRow("Ammo Spent Until Stabilized:", numPelletsFiredTilMaxAccuracy() * 2, null, selectedTier1 == 1 || selectedOverclock == 3);
+		toReturn[2] = new StatsRow("Ammo Spent Until Stabilized:", numPelletsFiredTilMaxAccuracy() * 2, modIcons.blank, selectedTier1 == 1 || selectedOverclock == 3);
 		
-		toReturn[3] = new StatsRow("Max Duration of Firing Without Overheating:", calculateFiringPeriod(), null, selectedTier5 == 1 || selectedOverclock == 2);
+		toReturn[3] = new StatsRow("Max Duration of Firing Without Overheating:", calculateFiringPeriod(), modIcons.blank, selectedTier5 == 1 || selectedOverclock == 2);
 		
 		boolean pelletsPerBurstModified = selectedTier5 == 1 || selectedOverclock == 2 || selectedTier1 == 1 || selectedOverclock == 3;
 		toReturn[4] = new StatsRow("Max Num Pellets Fired per Burst:", calculateMaxNumPelletsFiredWithoutOverheating(), modIcons.magSize, pelletsPerBurstModified);
@@ -547,9 +547,9 @@ public class Minigun extends Weapon {
 		
 		toReturn[7] = new StatsRow("Cooling Rate:", getCoolingRate(), modIcons.coolingRate, selectedTier1 == 0 || selectedOverclock == 1);
 		
-		toReturn[8] = new StatsRow("Max Cooldown Without Overheating:", calculateCooldownPeriod(), null, selectedTier1 == 0 || selectedOverclock == 1);
+		toReturn[8] = new StatsRow("Max Cooldown Without Overheating:", calculateCooldownPeriod(), modIcons.blank, selectedTier1 == 0 || selectedOverclock == 1);
 		
-		toReturn[9] = new StatsRow("Cooldown After Overheat:", cooldownAfterOverheat, null, false);
+		toReturn[9] = new StatsRow("Cooldown After Overheat:", cooldownAfterOverheat, modIcons.blank, false);
 		
 		toReturn[10] = new StatsRow("Spinup Time:", getSpinupTime(), modIcons.chargeSpeed, selectedTier4 == 1 || selectedOverclock == 0);
 		
@@ -563,7 +563,7 @@ public class Minigun extends Weapon {
 		
 		toReturn[15] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(getStunChancePerPellet()), modIcons.stun, selectedOverclock == 6);
 		
-		toReturn[16] = new StatsRow("Stun Duration:", getStunDuration(), null, selectedTier3 == 1 || selectedOverclock == 6);
+		toReturn[16] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.blank, selectedTier3 == 1 || selectedOverclock == 6);
 		
 		boolean baseSpreadModified = selectedTier1 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[17] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, baseSpreadModified, baseSpreadModified);

@@ -473,7 +473,7 @@ public class AssaultRifle extends Weapon {
 		
 		toReturn[7] = new StatsRow("Weakpoint Stun Chance:", convertDoubleToPercentage(getWeakpointStunChance()), modIcons.stun, selectedTier5 == 2);
 		
-		toReturn[8] = new StatsRow("Stun Duration:", stunDuration, null, false);
+		toReturn[8] = new StatsRow("Stun Duration:", stunDuration, modIcons.blank, false);
 		
 		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, selectedTier1 == 0, selectedTier1 == 0);
 		

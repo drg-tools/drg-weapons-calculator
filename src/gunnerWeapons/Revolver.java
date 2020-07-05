@@ -461,11 +461,11 @@ public abstract class Revolver extends Weapon {
 		
 		toReturn[8] = new StatsRow("Stun Chance:", convertDoubleToPercentage(stunChance), modIcons.stun, false);
 		
-		toReturn[9] = new StatsRow("Stun Duration:", stunDuration, null, false);
+		toReturn[9] = new StatsRow("Stun Duration:", stunDuration, modIcons.blank, false);
 		
 		toReturn[10] = new StatsRow("Max Penetrations:", getMaxPenetrations(), modIcons.blowthrough, selectedTier3 == 0, selectedTier3 == 0);
 		
-		toReturn[11] = new StatsRow("Weakpoint Chain Hit Chance:", "33%", null, selectedOverclock == 1, selectedOverclock == 1);
+		toReturn[11] = new StatsRow("Weakpoint Chain Hit Chance:", "33%", modIcons.blank, selectedOverclock == 1, selectedOverclock == 1);
 		
 		boolean canRicochet = selectedOverclock == 1 || selectedOverclock == 5;
 		toReturn[12] = new StatsRow("Max Ricochets:", getMaxRicochets(), modIcons.ricochet, canRicochet, canRicochet);

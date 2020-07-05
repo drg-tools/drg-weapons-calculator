@@ -51,7 +51,7 @@ public class BreachCutter_Projectile extends BreachCutter {
 		boolean dmgPerTickModified = selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 5 || selectedOverclock == 6;
 		toReturn[1] = new StatsRow("Damage per Tick:", getDamagePerTick(), modIcons.directDamage, dmgPerTickModified);
 		
-		toReturn[2] = new StatsRow("Damage Ticks per Second:", damageTickRate, null, false);
+		toReturn[2] = new StatsRow("Damage Ticks per Second:", damageTickRate, modIcons.blank, false);
 		
 		toReturn[3] = new StatsRow("Projectile Width:", getProjectileWidth(), modIcons.aoeRadius, selectedTier2 == 2 || selectedTier3 == 1);
 		
@@ -62,9 +62,9 @@ public class BreachCutter_Projectile extends BreachCutter {
 		boolean lifetimeModified = selectedTier1 == 0 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[6] = new StatsRow("Projectile Lifetime (sec):", getProjectileLifetime(), modIcons.hourglass, lifetimeModified);
 		
-		toReturn[7] = new StatsRow("In-Game Listed DPS:", getDamagePerTick() * damageTickRate, null, dmgPerTickModified);
+		toReturn[7] = new StatsRow("In-Game Listed DPS:", getDamagePerTick() * damageTickRate, modIcons.blank, dmgPerTickModified);
 		
-		toReturn[8] = new StatsRow("Avg Damage per Projectile to Single Grunt:", calculateAverageDamagePerGrunt(true, true, false, true), null, false);
+		toReturn[8] = new StatsRow("Avg Damage per Projectile to Single Grunt:", calculateAverageDamagePerGrunt(true, true, false, true), modIcons.blank, false);
 		
 		double intersectionTime;
 		if (selectedOverclock == 5) {
@@ -73,7 +73,7 @@ public class BreachCutter_Projectile extends BreachCutter {
 		else {
 			intersectionTime = calculateGruntIntersectionTimePerRegularProjectile();
 		}
-		toReturn[9] = new StatsRow("Estimated Seconds of Intersection per Grunt:", intersectionTime, null, false);
+		toReturn[9] = new StatsRow("Estimated Seconds of Intersection per Grunt:", intersectionTime, modIcons.blank, false);
 		
 		return toReturn;
 	}

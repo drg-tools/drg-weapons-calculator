@@ -454,7 +454,7 @@ public class GrenadeLauncher extends Weapon {
 		
 		boolean stunEquipped = selectedTier4 == 2;
 		toReturn[9] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), modIcons.stun, stunEquipped, stunEquipped);
-		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), null, stunEquipped, stunEquipped);
+		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.blank, stunEquipped, stunEquipped);
 		
 		return toReturn;
 	}
