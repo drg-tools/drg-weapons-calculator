@@ -89,7 +89,7 @@ public class Classic_FocusShot extends Classic {
 	@Override
 	protected double getRateOfFire() {
 		// Because the max RoF will never be achieved with Focus Shots, instead model the RoF as the inverse of the Focus Duration
-		return 1.0 / (delayBeforeFocusing + getFocusDuration());
+		return 1.0 / (getFocusDelay() + getFocusDuration());
 	}
 	
 	@Override
@@ -101,7 +101,7 @@ public class Classic_FocusShot extends Classic {
 		boolean multiplierModified = selectedTier3 == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[1] = new StatsRow("Focused Shot Multiplier:", convertDoubleToPercentage(getFocusedShotMultiplier()), multiplierModified);
 		
-		toReturn[2] = new StatsRow("Delay Before Focusing:", delayBeforeFocusing, false);
+		toReturn[2] = new StatsRow("Delay Before Focusing:", getFocusDelay(), selectedOverclock == 3);
 		
 		toReturn[3] = new StatsRow("Focus Shot Charge-up Duration:", getFocusDuration(), selectedTier2 == 0 || selectedOverclock == 5);
 		
