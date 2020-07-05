@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 
 import utilities.ResourceLoader;
 
+// TODO: AreaDamage-White has a black background?
+
 public class ButtonIcons {
 	// Start by loading all of the images once at the start, so that they don't have to be loaded every time repaint() gets called.
 	private static BufferedImage baseSpreadWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Aim.png");

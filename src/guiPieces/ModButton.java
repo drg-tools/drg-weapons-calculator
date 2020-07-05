@@ -12,12 +12,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JToolTip;
 
 import guiPieces.ButtonIcons.modIcons;
 import modelPieces.Weapon;
+import net.coobird.thumbnailator.Thumbnails;
 
 public class ModButton extends JButton implements ActionListener, MouseMotionListener {
 	private static final long serialVersionUID = 1L;
@@ -118,7 +120,13 @@ public class ModButton extends JButton implements ActionListener, MouseMotionLis
 		int textHorizontalOffset = (this.getWidth() - textWidth + (int) iconWidth) / 2;
 		int iconHorizontalOffset = textHorizontalOffset - GuiConstants.paddingPixels - (int) iconWidth;
 		
-		g2.drawImage(icon, iconHorizontalOffset, iconVerticalOffset, (int) (iconWidth), (int) (iconHeight), null);
+		BufferedImage resizedIcon = icon;
+		try {
+			resizedIcon = Thumbnails.of(resizedIcon).size((int) (iconWidth), (int) (iconHeight)).asBufferedImage();
+		}
+		catch (IOException e) {}
+		
+		g2.drawImage(resizedIcon, iconHorizontalOffset, iconVerticalOffset, (int) (iconWidth), (int) (iconHeight), null);
 		g2.drawString(myText, textHorizontalOffset, textVerticalOffset);
 		g2.dispose();
 	}

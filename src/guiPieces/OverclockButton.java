@@ -12,6 +12,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JToolTip;
@@ -19,6 +20,7 @@ import javax.swing.JToolTip;
 import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.Overclock;
 import modelPieces.Weapon;
+import net.coobird.thumbnailator.Thumbnails;
 
 public class OverclockButton extends JButton implements ActionListener, MouseMotionListener {
 	private static final long serialVersionUID = 1L;
@@ -119,7 +121,14 @@ public class OverclockButton extends JButton implements ActionListener, MouseMot
 		int width = getWidth() - 4*bufferPixels;
 		int thirdWidth = (int) Math.round(width / 3.0);
 		int frameHorizontalOffset = thirdWidth - (int) frameWidth;
-		g2.drawImage(frame, frameHorizontalOffset, frameVerticalOffset, (int) (frameWidth), (int) (frameHeight), null);
+		
+		BufferedImage resizedFrame = frame;
+		try {
+			resizedFrame = Thumbnails.of(resizedFrame).size((int) (frameWidth), (int) (frameHeight)).asBufferedImage();
+		}
+		catch (IOException e) {}
+		
+		g2.drawImage(resizedFrame, frameHorizontalOffset, frameVerticalOffset, (int) (frameWidth), (int) (frameHeight), null);
 		
 		double iconWidth = 31;
 		double iconHeight = (double) icon.getHeight() * iconWidth / (double) icon.getWidth();
@@ -137,7 +146,14 @@ public class OverclockButton extends JButton implements ActionListener, MouseMot
 		if (iconValue == ButtonIcons.overclockIcons.directDamage || iconValue == ButtonIcons.overclockIcons.ricochet) {
 			iconHorizontalOffset -= 1;
 		}
-		g2.drawImage(icon, iconHorizontalOffset, iconVerticalOffset, (int) (iconWidth), (int) (iconHeight), null);
+		
+		BufferedImage resizedIcon = icon;
+		try {
+			resizedIcon = Thumbnails.of(resizedIcon).size((int) (iconWidth), (int) (iconHeight)).asBufferedImage();
+		}
+		catch (IOException e) {}
+		
+		g2.drawImage(resizedIcon, iconHorizontalOffset, iconVerticalOffset, (int) (iconWidth), (int) (iconHeight), null);
 		
 		// Set the font color
 		if (enabled) {
