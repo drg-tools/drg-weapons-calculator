@@ -19,8 +19,8 @@ public abstract class Weapon extends Observable {
 	protected String fullName;
 	protected BufferedImage weaponPic;
 	// Since several of the weapons have a Homebrew Powder mod or OC, I'm adding this coefficient in the parent class so that they can all be updated simultaneously.
-	// This number was calculated by adding up all numbers in the range [80, 140] and then dividing that sum by 60 to get the average value.
-	protected double homebrewPowderCoefficient = 1.11833;
+	// Taking the (integral of x dx from 0.8 -> 1.4) / (1.4 - 0.8) results in the intuitive 1.1
+	protected double homebrewPowderCoefficient = 1.1;
 	
 	// If any of these shorts is set to -1, that means there should be no mods equipped at that tier.
 	protected Mod[] tier1;
