@@ -378,8 +378,36 @@ public class GuiController implements ActionListener {
 		
 		for (int i = 0; i < currentlySelectedWeapon.getBaselineStats().length; i++) {
 			if (e == gui.getOverallBestCombination(i)) {
+				
 				gui.activateThinkingCursor();
-				currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(i));
+				
+				if (gui.calculateBestMetricAllModelsEnabled()) {
+					// When this checkbox is selected, then all models in the GUI should run this metric in sequence.
+					int j;
+					for (j = 0; j < drillerWeapons.length; j++) {
+						calculator.changeWeapon(drillerWeapons[j]);
+						drillerWeapons[j].buildFromCombination(calculator.getBestMetricCombination(i));
+					}
+					for (j = 0; j < engineerWeapons.length; j++) {
+						calculator.changeWeapon(engineerWeapons[j]);
+						engineerWeapons[j].buildFromCombination(calculator.getBestMetricCombination(i));
+					}
+					for (j = 0; j < gunnerWeapons.length; j++) {
+						calculator.changeWeapon(gunnerWeapons[j]);
+						gunnerWeapons[j].buildFromCombination(calculator.getBestMetricCombination(i));
+					}
+					for (j = 0; j < scoutWeapons.length; j++) {
+						calculator.changeWeapon(scoutWeapons[j]);
+						scoutWeapons[j].buildFromCombination(calculator.getBestMetricCombination(i));
+					}
+					
+					// Remember to change back to the weapon showing on the tab when they clicked this action
+					calculator.changeWeapon(currentlySelectedWeapon);
+				}
+				else {
+					currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(i));
+				}
+				
 				gui.deactivateThinkingCursor();
 				
 				// Empty return so that this method doesn't have to finish this for loop or evaluate the if/else block below afterwards

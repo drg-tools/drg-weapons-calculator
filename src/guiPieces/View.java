@@ -28,6 +28,7 @@ public class View extends JFrame implements Observer {
 	private JMenuBar menuBar;
 	private JMenu overallBestCombinationsMenu;
 	private JMenuItem[] overallBestCombinations;
+	private CustomJMenuCheckbox doAllWeaponsPerBCAClick;
 	private JMenu subsetBestCombinationsMenu;
 	private JMenuItem[] subsetBestCombinations;
 	private JMenu difficultyScalingMenu;
@@ -184,6 +185,11 @@ public class View extends JFrame implements Observer {
 			overallBestCombinationsMenu.add(overallBestCombinations[i]);
 			subsetBestCombinationsMenu.add(subsetBestCombinations[i]);
 		}
+		
+		overallBestCombinationsMenu.addSeparator();
+		doAllWeaponsPerBCAClick = new CustomJMenuCheckbox("Calculate Best Metric for all Models");
+		overallBestCombinationsMenu.add(doAllWeaponsPerBCAClick);
+		
 		menuBar.add(overallBestCombinationsMenu);
 		menuBar.add(subsetBestCombinationsMenu);
 		
@@ -275,6 +281,10 @@ public class View extends JFrame implements Observer {
 		}
 		
 		return overallBestCombinations[index];
+	}
+	
+	public boolean calculateBestMetricAllModelsEnabled() {
+		return doAllWeaponsPerBCAClick.isSelected();
 	}
 	
 	public JMenuItem getSubsetBestCombination(int index) {
