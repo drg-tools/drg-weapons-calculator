@@ -750,8 +750,12 @@ public class Autocannon extends Weapon {
 			0  // Electric
 		};
 		
-		double timeToNeurotoxin = MathUtils.meanRolls(0.3) / getAverageRateOfFire();
-		double ntDoTDmg = calculateAverageDoTDamagePerEnemy(timeToNeurotoxin, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
+		double ntDoTDmg = 0;
+		if (selectedOverclock == 5) {
+			double timeToNeurotoxin = MathUtils.meanRolls(0.3) / getAverageRateOfFire();
+			ntDoTDmg = calculateAverageDoTDamagePerEnemy(timeToNeurotoxin, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
+		}
+		
 		double[] DoTDamage = {
 			0,  // Fire
 			0,  // Electric

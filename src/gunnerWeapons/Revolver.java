@@ -792,8 +792,14 @@ public abstract class Revolver extends Weapon {
 	
 	@Override
 	public int breakpoints() {
+		
+		double direct = getDirectDamage();
+		if (selectedOverclock == 2 && statusEffects[0]) {
+			direct *= 4.0;
+		}
+		
 		double[] directDamage = {
-			getDirectDamage(),  // Kinetic
+			direct,  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
@@ -807,8 +813,12 @@ public abstract class Revolver extends Weapon {
 			0  // Electric
 		};
 		
-		double timeToNeurotoxin = MathUtils.meanRolls(0.5) / getRateOfFire();
-		double ntDoTDmg = calculateAverageDoTDamagePerEnemy(timeToNeurotoxin, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
+		double ntDoTDmg = 0;
+		if (selectedTier5 == 1) {
+			double timeToNeurotoxin = MathUtils.meanRolls(0.5) / getRateOfFire();
+			ntDoTDmg = calculateAverageDoTDamagePerEnemy(timeToNeurotoxin, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
+		}
+		
 		double[] DoTDamage = {
 			0,  // Fire
 			0,  // Electric

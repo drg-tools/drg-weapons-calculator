@@ -660,8 +660,13 @@ public class Subata extends Weapon {
 	
 	@Override
 	public int breakpoints() {
+		double direct = getDirectDamage();
+		if (selectedTier5 == 0 && statusEffects[0]) {
+			direct *= 1.5;
+		}
+		
 		double[] directDamage = {
-			getDirectDamage(),  // Kinetic
+			direct,  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
