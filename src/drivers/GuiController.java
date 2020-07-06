@@ -331,51 +331,6 @@ public class GuiController implements ActionListener {
 		}
 		calculator.changeWeapon(currentlySelectedWeapon);
 		
-		int[] tier1Subset, tier2Subset, tier3Subset, tier4Subset, tier5Subset, ocsSubset;
-		int t1 = currentlySelectedWeapon.getSelectedModAtTier(1);
-		if (t1 > -1) {
-			tier1Subset = new int[] {t1, t1};
-		}
-		else {
-			// Have to subtract 1 from the length since the for loop this gets fed to uses <= instead of just <
-			tier1Subset = new int[] {-1, currentlySelectedWeapon.getModsAtTier(1).length - 1};
-		}
-		int t2 = currentlySelectedWeapon.getSelectedModAtTier(2);
-		if (t2 > -1) {
-			tier2Subset = new int[] {t2, t2};
-		}
-		else {
-			tier2Subset = new int[] {-1, currentlySelectedWeapon.getModsAtTier(2).length - 1};
-		}
-		int t3 = currentlySelectedWeapon.getSelectedModAtTier(3);
-		if (t3 > -1) {
-			tier3Subset = new int[] {t3, t3};
-		}
-		else {
-			tier3Subset = new int[] {-1, currentlySelectedWeapon.getModsAtTier(3).length - 1};
-		}
-		int t4 = currentlySelectedWeapon.getSelectedModAtTier(4);
-		if (t4 > -1) {
-			tier4Subset = new int[] {t4, t4};
-		}
-		else {
-			tier4Subset = new int[] {-1, currentlySelectedWeapon.getModsAtTier(4).length - 1};
-		}
-		int t5 = currentlySelectedWeapon.getSelectedModAtTier(5);
-		if (t5 > -1) {
-			tier5Subset = new int[] {t5, t5};
-		}
-		else {
-			tier5Subset = new int[] {-1, currentlySelectedWeapon.getModsAtTier(5).length - 1};
-		}
-		int oc = currentlySelectedWeapon.getSelectedOverclock();
-		if (oc > -1) {
-			ocsSubset = new int[] {oc, oc};
-		}
-		else {
-			ocsSubset = new int[] {-1, currentlySelectedWeapon.getOverclocks().length - 1};
-		}
-		
 		for (int i = 0; i < currentlySelectedWeapon.getBaselineStats().length; i++) {
 			if (e == gui.getOverallBestCombination(i)) {
 				
@@ -415,7 +370,7 @@ public class GuiController implements ActionListener {
 			}
 			else if (e == gui.getSubsetBestCombination(i)) {
 				gui.activateThinkingCursor();
-				currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(i, tier1Subset, tier2Subset, tier3Subset, tier4Subset, tier5Subset, ocsSubset));
+				currentlySelectedWeapon.buildFromCombination(calculator.getSubsetBestMetricCombination(i));
 				gui.deactivateThinkingCursor();
 				
 				// Empty return so that this method doesn't have to finish this for loop or evaluate the if/else block below afterwards

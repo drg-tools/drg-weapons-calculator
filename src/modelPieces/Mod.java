@@ -10,6 +10,7 @@ public class Mod {
 	private int tier;
 	private int index;
 	private boolean implemented;
+	private boolean ignored;
 	
 	public Mod(String modName, String modText, modIcons upgradeType, int tierNumber, int arrayIndex) {
 		this(modName, modText, upgradeType, tierNumber, arrayIndex, true);
@@ -22,6 +23,7 @@ public class Mod {
 		tier = tierNumber;
 		index = arrayIndex;
 		implemented = modImplemented;
+		ignored = false;
 	}
 	
 	public String getName() {
@@ -48,6 +50,13 @@ public class Mod {
 	}
 	public boolean isImplemented() {
 		return implemented;
+	}
+	
+	public void setIgnored(boolean newValue) {
+		ignored = newValue;
+	}
+	public boolean isIgnored() {
+		return ignored;
 	}
 	
 	public char getLetterRepresentation() {

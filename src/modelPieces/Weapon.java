@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 
 import guiPieces.AoEVisualizer;
 import guiPieces.ButtonIcons.modIcons;
+import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 import utilities.Point2D;
 
@@ -269,6 +270,75 @@ public abstract class Weapon extends Observable {
 	}
 	public Overclock[] getOverclocks() {
 		return overclocks;
+	}
+	
+	public int[] getSubsetModsAtTier(int tierNumber) {
+		// First, get the right mods and selection
+		Mod[] thisTier;
+		int selection;
+		switch (tierNumber) {
+			case 1: {
+				thisTier = tier1;
+				selection = selectedTier1;
+				break;
+			}
+			case 2: {
+				thisTier = tier2;
+				selection = selectedTier2;
+				break;
+			}
+			case 3: {
+				thisTier = tier3;
+				selection = selectedTier3;
+				break;
+			}
+			case 4: {
+				thisTier = tier4;
+				selection = selectedTier4;
+				break;
+			}
+			case 5: {
+				thisTier = tier5;
+				selection = selectedTier5;
+				break;
+			}
+			default: {
+				thisTier = new Mod[1];
+				selection = -1;
+				break;
+			}
+		}
+		
+		// Early exit condition: if a mod is already selected, then just return an array with the selected index
+		if (selection > -1) {
+			return new int[] {selection};
+		}
+		
+		ConditionalArrayList<Integer> macguffin = new ConditionalArrayList<Integer>();
+		// Make sure to add "no Mod selected" as an option for this tier, in case all mods get ignored.
+		macguffin.add(-1);
+		for (int i = 0; i < thisTier.length; i++) {
+			macguffin.conditionalAdd(i, !thisTier[i].isIgnored());
+		}
+		
+		// This line of magic sourced from https://stackoverflow.com/a/23945015
+		return macguffin.stream().mapToInt(i->i).toArray();
+	}
+	public int[] getSubsetOverclocks() {
+		// Early exit condition: if an OC is already selected, then just return an array with the selected index
+		if (selectedOverclock > -1) {
+			return new int[] {selectedOverclock};
+		}
+		
+		ConditionalArrayList<Integer> macguffin = new ConditionalArrayList<Integer>();
+		// Make sure to add "no OC selected" as an option for this tier, in case all OCs get ignored.
+		macguffin.add(-1);
+		for (int i = 0; i < overclocks.length; i++) {
+			macguffin.conditionalAdd(i, !overclocks[i].isIgnored());
+		}
+		
+		// This line of magic sourced from https://stackoverflow.com/a/23945015
+		return macguffin.stream().mapToInt(i->i).toArray();
 	}
 	
 	protected abstract void initializeModsAndOverclocks();

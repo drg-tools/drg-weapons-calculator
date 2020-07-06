@@ -12,6 +12,7 @@ public class Overclock {
 	private overclockIcons icon;
 	private int index;
 	private boolean implemented;
+	private boolean ignored;
 	
 	public Overclock(classification type, String ocName, String ocText, overclockIcons upgradeType, int arrayIndex) {
 		this(type, ocName, ocText, upgradeType, arrayIndex, true);
@@ -24,6 +25,7 @@ public class Overclock {
 		icon = upgradeType;
 		index = arrayIndex;
 		implemented = ocImplemented;
+		ignored = false;
 	}
 	
 	public classification getType() {
@@ -50,6 +52,13 @@ public class Overclock {
 	}
 	public boolean isImplemented() {
 		return implemented;
+	}
+	
+	public void setIgnored(boolean newValue) {
+		ignored = newValue;
+	}
+	public boolean isIgnored() {
+		return ignored;
 	}
 	
 	public String getShortcutRepresentation() {
