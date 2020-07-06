@@ -272,7 +272,7 @@ public abstract class Weapon extends Observable {
 		return overclocks;
 	}
 	
-	public int[] getSubsetModsAtTier(int tierNumber) {
+	public int[] getModsAtTier(int tierNumber, boolean subset) {
 		// First, get the right mods and selection
 		Mod[] thisTier;
 		int selection;
@@ -309,36 +309,60 @@ public abstract class Weapon extends Observable {
 			}
 		}
 		
-		// Early exit condition: if a mod is already selected, then just return an array with the selected index
-		if (selection > -1) {
-			return new int[] {selection};
+		if (subset) {
+			// Early exit condition: if a mod is already selected, then just return an array with the selected index
+			if (selection > -1) {
+				return new int[] {selection};
+			}
+			
+			ConditionalArrayList<Integer> macguffin = new ConditionalArrayList<Integer>();
+			// Make sure to add "no Mod selected" as an option for this tier, in case all mods get ignored.
+			macguffin.add(-1);
+			for (int i = 0; i < thisTier.length; i++) {
+				macguffin.conditionalAdd(i, !thisTier[i].isIgnored());
+			}
+			
+			// This line of magic sourced from https://stackoverflow.com/a/23945015
+			return macguffin.stream().mapToInt(i->i).toArray();
 		}
-		
-		ConditionalArrayList<Integer> macguffin = new ConditionalArrayList<Integer>();
-		// Make sure to add "no Mod selected" as an option for this tier, in case all mods get ignored.
-		macguffin.add(-1);
-		for (int i = 0; i < thisTier.length; i++) {
-			macguffin.conditionalAdd(i, !thisTier[i].isIgnored());
+		else {
+			int[] toReturn = new int[thisTier.length + 1];
+			// Always include the option for no mod to be selected
+			toReturn[0] = -1;
+			for (int i = 0; i < thisTier.length; i++) {
+				toReturn[i + 1] = i;
+			}
+			
+			return toReturn;
 		}
-		
-		// This line of magic sourced from https://stackoverflow.com/a/23945015
-		return macguffin.stream().mapToInt(i->i).toArray();
 	}
-	public int[] getSubsetOverclocks() {
-		// Early exit condition: if an OC is already selected, then just return an array with the selected index
-		if (selectedOverclock > -1) {
-			return new int[] {selectedOverclock};
+	public int[] getOverclocks(boolean subset) {
+		if (subset) {
+			// Early exit condition: if an OC is already selected, then just return an array with the selected index
+			if (selectedOverclock > -1) {
+				return new int[] {selectedOverclock};
+			}
+			
+			ConditionalArrayList<Integer> macguffin = new ConditionalArrayList<Integer>();
+			// Make sure to add "no OC selected" as an option for this tier, in case all OCs get ignored.
+			macguffin.add(-1);
+			for (int i = 0; i < overclocks.length; i++) {
+				macguffin.conditionalAdd(i, !overclocks[i].isIgnored());
+			}
+			
+			// This line of magic sourced from https://stackoverflow.com/a/23945015
+			return macguffin.stream().mapToInt(i->i).toArray();
 		}
-		
-		ConditionalArrayList<Integer> macguffin = new ConditionalArrayList<Integer>();
-		// Make sure to add "no OC selected" as an option for this tier, in case all OCs get ignored.
-		macguffin.add(-1);
-		for (int i = 0; i < overclocks.length; i++) {
-			macguffin.conditionalAdd(i, !overclocks[i].isIgnored());
+		else {
+			int[] toReturn = new int[overclocks.length + 1];
+			// Always include the option for no OC to be selected
+			toReturn[0] = -1;
+			for (int i = 0; i < overclocks.length; i++) {
+				toReturn[i + 1] = i;
+			}
+			
+			return toReturn;
 		}
-		
-		// This line of magic sourced from https://stackoverflow.com/a/23945015
-		return macguffin.stream().mapToInt(i->i).toArray();
 	}
 	
 	protected abstract void initializeModsAndOverclocks();

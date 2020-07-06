@@ -440,7 +440,7 @@ public class MetricsCalculator {
 				  			 metrics[6], metrics[7], metrics[8], metrics[9], metrics[10], metrics[11], metrics[12], metrics[13], metrics[14])));
 	}
 	
-	public String getBestMetricCombination(int metricIndex) {
+	public String getBestMetricCombination(int metricIndex, boolean subset) {
 		if (metricIndex < 0 || metricIndex > headers.length - 2) {
 			return "------";
 		}
@@ -459,140 +459,12 @@ public class MetricsCalculator {
 			bestValue = -1000000;
 		}
 		
-		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
-		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
-			weaponToTest.setSelectedOverclock(oc, false);
-			
-			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
-				weaponToTest.setSelectedModAtTier(5, t5, false);
-				
-				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
-					weaponToTest.setSelectedModAtTier(4, t4, false);
-					
-					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
-						weaponToTest.setSelectedModAtTier(3, t3, false);
-						
-						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
-							weaponToTest.setSelectedModAtTier(2, t2, false);
-							
-							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
-								weaponToTest.setSelectedModAtTier(1, t1, false);
-								
-								switch (metricIndex) {
-									case 0:{
-										currentValue = weaponToTest.calculateIdealBurstDPS();
-										break;
-									}
-									case 1:{
-										currentValue = weaponToTest.calculateIdealSustainedDPS();
-										break;
-									}
-									case 2:{
-										currentValue = weaponToTest.sustainedWeakpointDPS();
-										break;
-									}
-									case 3:{
-										currentValue = weaponToTest.sustainedWeakpointAccuracyDPS();
-										break;
-									}
-									case 4:{
-										currentValue = weaponToTest.calculateAdditionalTargetDPS();
-										break;
-									}
-									case 5:{
-										currentValue = weaponToTest.calculateMaxNumTargets();
-										break;
-									}
-									case 6:{
-										currentValue = weaponToTest.calculateMaxMultiTargetDamage();
-										break;
-									}
-									case 7:{
-										currentValue = weaponToTest.ammoEfficiency();
-										break;
-									}
-									case 8:{
-										currentValue = weaponToTest.estimatedAccuracy(false);
-										break;
-									}
-									case 9:{
-										currentValue = weaponToTest.estimatedAccuracy(true);
-										break;
-									}
-									case 10:{
-										currentValue = weaponToTest.calculateFiringDuration();
-										break;
-									}
-									case 11:{
-										currentValue = weaponToTest.averageOverkill();
-										break;
-									}
-									case 12:{
-										currentValue = weaponToTest.averageTimeToKill();
-										break;
-									}
-									case 13:{
-										currentValue = weaponToTest.breakpoints();
-										break;
-									}
-									case 14:{
-										currentValue = weaponToTest.utilityScore();
-										break;
-									}
-									default: {
-										currentValue = 0;
-										break;
-									}
-								}
-								
-								if (comparatorShouldBeLessThan) {
-									if (currentValue < bestValue) {
-										bestCombination = weaponToTest.getCombination();
-										bestValue = currentValue;
-									}
-								}
-								else {
-									if (currentValue > bestValue) {
-										bestCombination = weaponToTest.getCombination();
-										bestValue = currentValue;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		return bestCombination;
-	}
-	
-	// TODO: The way that this is turning out, I bet this could be adapted to be used for both BC(A) and BC(S).
-	public String getSubsetBestMetricCombination(int metricIndex) {
-		if (metricIndex < 0 || metricIndex > headers.length - 2) {
-			return "------";
-		}
-		
-		// Lowest Overkill, Fastest TTK, and Breakpoints should all be lowest-possible values
-		Integer[] indexesThatShouldUseLessThan = new Integer[] {11, 12, 13};
-		boolean comparatorShouldBeLessThan = new HashSet<Integer>(Arrays.asList(indexesThatShouldUseLessThan)).contains(metricIndex);
-		
-		String bestCombination = "------";
-		double bestValue, currentValue;
-		// To the best of my knowledge, none of these values goes above 200k, so setting the starting "best" value at 1 million should automatically make the first combination tried the new best
-		if (comparatorShouldBeLessThan) {
-			bestValue = 1000000;
-		}
-		else {
-			bestValue = -1000000;
-		}
-		
-		int[] tier1 = weaponToTest.getSubsetModsAtTier(1);
-		int[] tier2 = weaponToTest.getSubsetModsAtTier(2);
-		int[] tier3 = weaponToTest.getSubsetModsAtTier(3);
-		int[] tier4 = weaponToTest.getSubsetModsAtTier(4);
-		int[] tier5 = weaponToTest.getSubsetModsAtTier(5);
-		int[] overclocks = weaponToTest.getSubsetOverclocks();
+		int[] tier1 = weaponToTest.getModsAtTier(1, subset);
+		int[] tier2 = weaponToTest.getModsAtTier(2, subset);
+		int[] tier3 = weaponToTest.getModsAtTier(3, subset);
+		int[] tier4 = weaponToTest.getModsAtTier(4, subset);
+		int[] tier5 = weaponToTest.getModsAtTier(5, subset);
+		int[] overclocks = weaponToTest.getOverclocks(subset);
 		
 		// Set these boolean values once instead of evaluating tier 1 about 3000 times
 		boolean onlyOneTier1 = tier1.length == 1;
