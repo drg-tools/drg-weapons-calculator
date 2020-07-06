@@ -693,7 +693,7 @@ public abstract class Weapon extends Observable {
 		StatsRow[] toReturn = new StatsRow[utilityScores.length];
 		
 		toReturn[0] = new StatsRow("Mobility:", utilityScores[0], modIcons.movespeed, false);
-		toReturn[1] = new StatsRow("Damage Resist:    ", utilityScores[1], modIcons.damageResistance, false);
+		toReturn[1] = new StatsRow("Damage Resist:", utilityScores[1], modIcons.damageResistance, false);
 		toReturn[2] = new StatsRow("Armor Break:", utilityScores[2], modIcons.armorBreaking, false);
 		toReturn[3] = new StatsRow("Slow:", utilityScores[3], modIcons.slowdown, false);
 		toReturn[4] = new StatsRow("Fear:", utilityScores[4], modIcons.fear, false);

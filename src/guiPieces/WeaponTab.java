@@ -6,7 +6,6 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.image.BufferedImage;
 
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -143,10 +142,8 @@ public class WeaponTab extends JPanel {
 		toReturn.setLayout(new BoxLayout(toReturn, BoxLayout.Y_AXIS));
 		toReturn.setPreferredSize(new Dimension(200, 280));
 		
-		JPanel row, statLabelPanel;
+		JPanel row, statLabelIcon;
 		JLabel statLabel, statValue;
-		BufferedImage statLabelIcon;
-		int paddingPixels = 2*GuiConstants.paddingPixels;
 		String statLabelText;
 		for (int i = 0; i < weaponStats.length; i++) {
 			if (weaponStats[i].shouldBeDisplayed()) {
@@ -154,23 +151,15 @@ public class WeaponTab extends JPanel {
 				row.setOpaque(false);
 				row.setLayout(new BorderLayout());
 				
-				statLabelPanel = new JPanel();
-				statLabelPanel.setOpaque(false);
-				statLabelPanel.setLayout(new BorderLayout());
-				
-				statLabelIcon = ButtonIcons.getModIcon(weaponStats[i].getIcon(), false);
-				statLabelPanel.add(new StatsRowIconPanel(statLabelIcon), BorderLayout.LINE_START);
+				statLabelIcon = new StatsRowIconPanel(ButtonIcons.getModIcon(weaponStats[i].getIcon(), false));
+				row.add(statLabelIcon, BorderLayout.LINE_START);
 				
 				statLabelText = weaponStats[i].getName();
 				statLabelText = HoverText.breakLongToolTipString(statLabelText, 28);
 				statLabel = new JLabel(statLabelText);
 				statLabel.setFont(GuiConstants.customFont);
 				statLabel.setForeground(Color.white);
-				// Left-pad the label text
-				statLabel.setBorder(new EmptyBorder(0, paddingPixels, 0, 0));
-				statLabelPanel.add(statLabel, BorderLayout.CENTER);
-				
-				row.add(statLabelPanel, BorderLayout.LINE_START);
+				row.add(statLabel, BorderLayout.CENTER);
 				
 				statValue = new JLabel(weaponStats[i].getValue());
 				statValue.setFont(GuiConstants.customFontBold);
@@ -180,9 +169,9 @@ public class WeaponTab extends JPanel {
 				else {
 					statValue.setForeground(GuiConstants.drgRegularOrange);
 				}
-				// Right-pad the value text
-				statValue.setBorder(new EmptyBorder(0, 0, 0, paddingPixels));
 				row.add(statValue, BorderLayout.LINE_END);
+				
+				row.setBorder(new EmptyBorder(0, GuiConstants.paddingPixels, 0, 2*GuiConstants.paddingPixels));
 				
 				toReturn.add(row);
 			}
