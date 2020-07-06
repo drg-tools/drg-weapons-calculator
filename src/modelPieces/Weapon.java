@@ -95,12 +95,27 @@ public abstract class Weapon extends Observable {
 			switch (tierNumber) {
 				case 1: {
 					if (newSelection > -2 && newSelection < tier1.length) {
+						if (selectedTier1 > -1) {
+							tier1[selectedTier1].setSelected(false);
+						}
+						
 						if (newSelection == selectedTier1) {
 							// If the same mod is selected, that indicates that it's being unequipped. Set tier = -1 to affect the math properly.
 							selectedTier1 = -1;
 						}
 						else {
 							selectedTier1 = newSelection;
+							
+							if (selectedTier1 > -1) {
+								tier1[selectedTier1].setSelected(true);
+								
+								// Selecting a mod at any tier should remove the "ignore" flag from all other mods on that tier since it would be redundant, and it helps clarify things visually.
+								for (int i = 0; i < tier1.length; i++) {
+									if (i != selectedTier1) {
+										tier1[i].setIgnored(false);
+									}
+								}
+							}
 						}
 					}
 					else {
@@ -110,12 +125,27 @@ public abstract class Weapon extends Observable {
 				}
 				case 2: {
 					if (newSelection > -2 && newSelection < tier2.length) {
+						if (selectedTier2 > -1) {
+							tier2[selectedTier2].setSelected(false);
+						}
+						
 						if (newSelection == selectedTier2) {
 							// If the same mod is selected, that indicates that it's being unequipped. Set tier = -1 to affect the math properly.
 							selectedTier2 = -1;
 						}
 						else {
 							selectedTier2 = newSelection;
+							
+							if (selectedTier2 > -1) {
+								tier2[selectedTier2].setSelected(true);
+								
+								// Selecting a mod at any tier should remove the "ignore" flag from all other mods on that tier since it would be redundant, and it helps clarify things visually.
+								for (int i = 0; i < tier2.length; i++) {
+									if (i != selectedTier2) {
+										tier2[i].setIgnored(false);
+									}
+								}
+							}
 						}
 					}
 					else {
@@ -125,12 +155,27 @@ public abstract class Weapon extends Observable {
 				}
 				case 3: {
 					if (newSelection > -2 && newSelection < tier3.length) {
+						if (selectedTier3 > -1) {
+							tier3[selectedTier3].setSelected(false);
+						}
+						
 						if (newSelection == selectedTier3) {
 							// If the same mod is selected, that indicates that it's being unequipped. Set tier = -1 to affect the math properly.
 							selectedTier3 = -1;
 						}
 						else {
 							selectedTier3 = newSelection;
+							
+							if (selectedTier3 > -1) {
+								tier3[selectedTier3].setSelected(true);
+								
+								// Selecting a mod at any tier should remove the "ignore" flag from all other mods on that tier since it would be redundant, and it helps clarify things visually.
+								for (int i = 0; i < tier3.length; i++) {
+									if (i != selectedTier3) {
+										tier3[i].setIgnored(false);
+									}
+								}
+							}
 						}
 					}
 					else {
@@ -140,12 +185,27 @@ public abstract class Weapon extends Observable {
 				}
 				case 4: {
 					if (newSelection > -2 && newSelection < tier4.length) {
+						if (selectedTier4 > -1) {
+							tier4[selectedTier4].setSelected(false);
+						}
+						
 						if (newSelection == selectedTier4) {
 							// If the same mod is selected, that indicates that it's being unequipped. Set tier = -1 to affect the math properly.
 							selectedTier4 = -1;
 						}
 						else {
 							selectedTier4 = newSelection;
+							
+							if (selectedTier4 > -1) {
+								tier4[selectedTier4].setSelected(true);
+								
+								// Selecting a mod at any tier should remove the "ignore" flag from all other mods on that tier since it would be redundant, and it helps clarify things visually.
+								for (int i = 0; i < tier4.length; i++) {
+									if (i != selectedTier4) {
+										tier4[i].setIgnored(false);
+									}
+								}
+							}
 						}
 					}
 					else {
@@ -155,12 +215,27 @@ public abstract class Weapon extends Observable {
 				}
 				case 5: {
 					if (newSelection > -2 && newSelection < tier5.length) {
+						if (selectedTier5 > -1) {
+							tier5[selectedTier5].setSelected(false);
+						}
+						
 						if (newSelection == selectedTier5) {
 							// If the same mod is selected, that indicates that it's being unequipped. Set tier = -1 to affect the math properly.
 							selectedTier5 = -1;
 						}
 						else {
 							selectedTier5 = newSelection;
+							
+							if (selectedTier5 > -1) {
+								tier5[selectedTier5].setSelected(true);
+								
+								// Selecting a mod at any tier should remove the "ignore" flag from all other mods on that tier since it would be redundant, and it helps clarify things visually.
+								for (int i = 0; i < tier5.length; i++) {
+									if (i != selectedTier5) {
+										tier5[i].setIgnored(false);
+									}
+								}
+							}
 						}
 					}
 					else {
@@ -192,12 +267,27 @@ public abstract class Weapon extends Observable {
 	}
 	public void setSelectedOverclock(int newSelection, boolean updateGUI) {
 		if (newSelection > -2 && newSelection < overclocks.length) {
+			if (selectedOverclock > -1) {
+				overclocks[selectedOverclock].setSelected(false);
+			}
+			
 			if (newSelection == selectedOverclock) {
 				// If the same overclock is selected, that indicates that it's being unequipped. Set overclock = -1 to affect the math properly.
 				selectedOverclock = -1;
 			}
 			else {
 				selectedOverclock = newSelection;
+				
+				if (selectedOverclock > -1) {
+					overclocks[selectedOverclock].setSelected(true);
+					
+					// Selecting a mod at any tier should remove the "ignore" flag from all other mods on that tier since it would be redundant, and it helps clarify things visually.
+					for (int i = 0; i < overclocks.length; i++) {
+						if (i != selectedOverclock) {
+							overclocks[i].setIgnored(false);
+						}
+					}
+				}
 			}
 			
 			if (currentlyDealsSplashDamage()) {

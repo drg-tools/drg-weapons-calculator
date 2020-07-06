@@ -192,7 +192,7 @@ public class WeaponTab extends JPanel {
 		for (i = 1; i < 6; i++) {
 			weaponMods = myWeapon.getModsAtTier(i);
 			for (j = 0; j < weaponMods.length; j++) {
-				mb = new ModButton(myWeapon, i, j, weaponMods[j].getName(), weaponMods[j].getText(), weaponMods[j].getIcon(), myWeapon.getSelectedModAtTier(i) == j, weaponMods[j].isImplemented());
+				mb = new ModButton(myWeapon, weaponMods[j]);
 				toReturn.add(mb);
 			}
 			// Check to see if there are only two mods at this tier. If so, add an empty JLabel
@@ -217,7 +217,7 @@ public class WeaponTab extends JPanel {
 		
 		OverclockButton ocb;
 		for (int i = 0; i < weaponOverclocks.length; i++) {
-			ocb = new OverclockButton(myWeapon, i, weaponOverclocks[i].getName(), weaponOverclocks[i].getText(), weaponOverclocks[i].getIcon(), myWeapon.getSelectedOverclock() == i, weaponOverclocks[i].isImplemented());
+			ocb = new OverclockButton(myWeapon, weaponOverclocks[i]);
 			toReturn.add(ocb);
 		}
 		

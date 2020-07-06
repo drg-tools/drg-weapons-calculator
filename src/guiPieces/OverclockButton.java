@@ -17,7 +17,6 @@ import java.io.IOException;
 import javax.swing.JButton;
 import javax.swing.JToolTip;
 
-import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.Overclock;
 import modelPieces.Weapon;
 import net.coobird.thumbnailator.Thumbnails;
@@ -26,30 +25,22 @@ public class OverclockButton extends JButton implements ActionListener, MouseMot
 	private static final long serialVersionUID = 1L;
 	
 	private Weapon myWeapon;
+	private Overclock myOC;
 	private BufferedImage icon;
-	private int myIndex;
-	private Overclock.classification overclockType;
-	private ButtonIcons.overclockIcons iconValue;
-	private boolean enabled;
-	private boolean implemented;
 	
 	private RoundRectangle2D border;
 	
-	public OverclockButton(Weapon inputWeapon, int index, String ocName, String ocText, overclockIcons iconSelector, boolean overclockSelected, boolean ocImplemented) {
+	public OverclockButton(Weapon inputWeapon, Overclock thisOC) {
 		myWeapon = inputWeapon;
-		myIndex = index;
-		overclockType = myWeapon.getOverclocks()[myIndex].getType();
-		enabled = overclockSelected;
-		iconValue = iconSelector;
-		icon = ButtonIcons.getOverclockIcon(iconValue);
-		implemented = ocImplemented;
+		myOC = thisOC;
+		icon = ButtonIcons.getOverclockIcon(myOC.getIcon());
 		
 		int bufferPixels = GuiConstants.paddingPixels;
 		border = new RoundRectangle2D.Double(bufferPixels, bufferPixels, getWidth() - 2*bufferPixels, getHeight() - 2*bufferPixels, 50, 50);
 		
-		this.setText(ocName);
+		this.setText(myOC.getName());
 		this.setFont(GuiConstants.customFont);
-		this.setToolTipText(HoverText.breakLongToolTipString(ocText, 50));
+		this.setToolTipText(HoverText.breakLongToolTipString(myOC.getText(), 50));
 		this.setOpaque(false);
 		this.setContentAreaFilled(false);
 		this.setBorderPainted(false);
@@ -72,7 +63,7 @@ public class OverclockButton extends JButton implements ActionListener, MouseMot
 		border = new RoundRectangle2D.Double(bufferPixels, bufferPixels, getWidth() - 2*bufferPixels, getHeight() - 2*bufferPixels, 50, 50);
 		
 		// If this overclock hasn't been implemented in the model, draw its border red.
-		if (implemented) {
+		if (myOC.isImplemented()) {
 			g2.setPaint(GuiConstants.drgHighlightedYellow);
 		}
 		else {
@@ -82,7 +73,7 @@ public class OverclockButton extends JButton implements ActionListener, MouseMot
 		g2.draw(border);
 		
 		// If this overclock is currently selected, draw its interior as yellow.
-		if (enabled) {
+		if (myOC.isSelected()) {
 			g2.setPaint(GuiConstants.drgHighlightedYellow);
 		}
 		else {
@@ -93,7 +84,7 @@ public class OverclockButton extends JButton implements ActionListener, MouseMot
 		// The overclock type icon will take up the left third of the button, and the overclock name will take up the right two-thirds of the button
 		// Start by getting the correct frame
 		BufferedImage frame;
-		switch (overclockType) {
+		switch (myOC.getType()) {
 			case clean: {
 				frame = ButtonIcons.cleanFrame;
 				break;
@@ -134,16 +125,16 @@ public class OverclockButton extends JButton implements ActionListener, MouseMot
 		double iconHeight = (double) icon.getHeight() * iconWidth / (double) icon.getWidth();
 		int iconVerticalOffset = (int) Math.round((this.getHeight() - iconHeight) / 2.0);
 		// There's a weird interaction with the Clean Frame that makes the centered icons look too low.
-		if (overclockType == Overclock.classification.clean) {
+		if (myOC.getType() == Overclock.classification.clean) {
 			iconVerticalOffset -= 3;
 		}
 		// I'm also choosing to move RollControl down a little bit
-		if (iconValue == ButtonIcons.overclockIcons.rollControl) {
+		if (myOC.getIcon() == ButtonIcons.overclockIcons.rollControl) {
 			iconVerticalOffset += 2;
 		}
 		int iconHorizontalOffset = frameHorizontalOffset + (int) Math.round((frameWidth - iconWidth) / 2.0);
 		// The Damage skull and Ricochet icons are a little to the right; I'm going to move them to the left a little bit.
-		if (iconValue == ButtonIcons.overclockIcons.directDamage || iconValue == ButtonIcons.overclockIcons.ricochet) {
+		if (myOC.getIcon() == ButtonIcons.overclockIcons.directDamage || myOC.getIcon() == ButtonIcons.overclockIcons.ricochet) {
 			iconHorizontalOffset -= 1;
 		}
 		
@@ -156,13 +147,21 @@ public class OverclockButton extends JButton implements ActionListener, MouseMot
 		g2.drawImage(resizedIcon, iconHorizontalOffset, iconVerticalOffset, (int) (iconWidth), (int) (iconHeight), null);
 		
 		// Set the font color
-		if (enabled) {
+		if (myOC.isSelected()) {
 			g2.setPaint(Color.black);
 		}
 		else {
 			g2.setPaint(GuiConstants.drgHighlightedYellow);
 		}
 		g2.drawString(this.getText(), thirdWidth + 3*bufferPixels, (int) Math.round((this.getHeight() + GuiConstants.fontHeight) / 2.0));
+		
+		// Paint this with a translucent red when it's not eligible for Best Combinations (Subset)
+		if (myOC.isIgnored()) {
+			Color translucentRed = new Color(156.0f/255.0f, 20.0f/255.0f, 20.0f/255.0f, 0.5f);
+			g2.setPaint(translucentRed);
+			g2.fill(border);
+		}
+		
 		g2.dispose();
 		
 	}
@@ -176,7 +175,7 @@ public class OverclockButton extends JButton implements ActionListener, MouseMot
 	public void actionPerformed(ActionEvent e) {
 		// Because this button is only listening to itself, I'm skipping the standard "figure out what button got clicked" stuff.
 		// When this changes, the underlying Weapon will trigger a refresh of the overall GUI due to the Observable/Observer dynamic
-		myWeapon.setSelectedOverclock(myIndex);
+		myWeapon.setSelectedOverclock(myOC.getIndex());
 	}
 
 	@Override

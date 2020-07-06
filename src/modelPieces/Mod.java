@@ -9,6 +9,7 @@ public class Mod {
 	private modIcons icon;
 	private int tier;
 	private int index;
+	private boolean selected;
 	private boolean implemented;
 	private boolean ignored;
 	
@@ -22,6 +23,7 @@ public class Mod {
 		icon = upgradeType;
 		tier = tierNumber;
 		index = arrayIndex;
+		selected = false;
 		implemented = modImplemented;
 		ignored = false;
 	}
@@ -48,12 +50,35 @@ public class Mod {
 	public int getTier() {
 		return tier;
 	}
+	public int getIndex() {
+		return index;
+	}
+	
+	public void setSelected(boolean newValue) {
+		if (newValue) {
+			selected = true;
+			ignored = false;
+		}
+		else {
+			selected = false;
+		}
+	}
+	public boolean isSelected() {
+		return selected;
+	}
+	
 	public boolean isImplemented() {
 		return implemented;
 	}
 	
 	public void setIgnored(boolean newValue) {
-		ignored = newValue;
+		if (newValue) {
+			ignored = true;
+			selected = false;
+		}
+		else {
+			ignored = false;
+		}
 	}
 	public boolean isIgnored() {
 		return ignored;

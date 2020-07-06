@@ -17,7 +17,7 @@ import java.io.IOException;
 import javax.swing.JButton;
 import javax.swing.JToolTip;
 
-import guiPieces.ButtonIcons.modIcons;
+import modelPieces.Mod;
 import modelPieces.Weapon;
 import net.coobird.thumbnailator.Thumbnails;
 
@@ -25,27 +25,21 @@ public class ModButton extends JButton implements ActionListener, MouseMotionLis
 	private static final long serialVersionUID = 1L;
 	
 	private Weapon myWeapon;
+	private Mod myMod;
 	private BufferedImage icon;
-	private int myTier;
-	private int myIndex;
-	private boolean enabled;
-	private boolean implemented;
 	
 	private Polygon border;
 	
-	public ModButton(Weapon inputWeapon, int tier, int position, String modName, String modText, modIcons iconSelector, boolean modSelected, boolean modImplemented) {
+	public ModButton(Weapon inputWeapon, Mod thisMod) {
 		myWeapon = inputWeapon;
-		myTier = tier;
-		myIndex = position;
-		enabled = modSelected;
-		icon = ButtonIcons.getModIcon(iconSelector, enabled);
-		implemented = modImplemented;
+		myMod = thisMod;
+		icon = ButtonIcons.getModIcon(myMod.getIcon(), myMod.isSelected());
 		
 		border = createBackgroundHexagon();
 		
-		this.setText(modName);
+		this.setText(myMod.getName());
 		this.setFont(GuiConstants.customFont);
-		this.setToolTipText(HoverText.breakLongToolTipString(modText, 50));
+		this.setToolTipText(HoverText.breakLongToolTipString(myMod.getText(), 50));
 		this.setOpaque(false);
 		this.setContentAreaFilled(false);
 		this.setBorderPainted(false);
@@ -83,7 +77,7 @@ public class ModButton extends JButton implements ActionListener, MouseMotionLis
 		g2.setStroke(new BasicStroke(GuiConstants.edgeWidth));
 		
 		// If this mod hasn't yet been implemented in the Weapon, draw its border red.
-		if (implemented) {
+		if (myMod.isImplemented()) {
 			g2.setPaint(GuiConstants.drgHighlightedYellow);
 		}
 		else {
@@ -92,7 +86,7 @@ public class ModButton extends JButton implements ActionListener, MouseMotionLis
 		g2.drawPolygon(border);
 		
 		// If this Mod isn't enabled, fill the background with black.
-		if (enabled) {
+		if (myMod.isSelected()) {
 			g2.setPaint(GuiConstants.drgHighlightedYellow);
 		}
 		else {
@@ -107,7 +101,7 @@ public class ModButton extends JButton implements ActionListener, MouseMotionLis
 		int iconVerticalOffset = (int) Math.round((this.getHeight() - iconHeight) / 2.0);
 		
 		// Write with black text if enabled, or yellow text if not enabled
-		if (enabled) {
+		if (myMod.isSelected()) {
 			g2.setPaint(Color.black);
 		}
 		else {
@@ -128,6 +122,14 @@ public class ModButton extends JButton implements ActionListener, MouseMotionLis
 		
 		g2.drawImage(resizedIcon, iconHorizontalOffset, iconVerticalOffset, (int) (iconWidth), (int) (iconHeight), null);
 		g2.drawString(myText, textHorizontalOffset, textVerticalOffset);
+		
+		// Paint this with a translucent red when it's not eligible for Best Combinations (Subset)
+		if (myMod.isIgnored()) {
+			Color translucentRed = new Color(156.0f/255.0f, 20.0f/255.0f, 20.0f/255.0f, 0.5f);
+			g2.setPaint(translucentRed);
+			g2.fill(border);
+		}
+		
 		g2.dispose();
 	}
 	
@@ -140,7 +142,7 @@ public class ModButton extends JButton implements ActionListener, MouseMotionLis
 	public void actionPerformed(ActionEvent e) {
 		// Because this button is only listening to itself, I'm skipping the standard "figure out what button got clicked" stuff.
 		// When this changes, the underlying Weapon will trigger a refresh of the overall GUI due to the Observable/Observer dynamic
-		myWeapon.setSelectedModAtTier(myTier, myIndex);
+		myWeapon.setSelectedModAtTier(myMod.getTier(), myMod.getIndex());
 	}
 
 	@Override

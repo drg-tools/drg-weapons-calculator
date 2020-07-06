@@ -11,6 +11,7 @@ public class Overclock {
 	private String text;
 	private overclockIcons icon;
 	private int index;
+	private boolean selected;
 	private boolean implemented;
 	private boolean ignored;
 	
@@ -24,6 +25,7 @@ public class Overclock {
 		text = ocText;
 		icon = upgradeType;
 		index = arrayIndex;
+		selected = false;
 		implemented = ocImplemented;
 		ignored = false;
 	}
@@ -50,12 +52,35 @@ public class Overclock {
 	public overclockIcons getIcon() {
 		return icon;
 	}
+	public int getIndex() {
+		return index;
+	}
+	
+	public void setSelected(boolean newValue) {
+		if (newValue) {
+			selected = true;
+			ignored = false;
+		}
+		else {
+			selected = false;
+		}
+	}
+	public boolean isSelected() {
+		return selected;
+	}
+	
 	public boolean isImplemented() {
 		return implemented;
 	}
 	
 	public void setIgnored(boolean newValue) {
-		ignored = newValue;
+		if (newValue) {
+			ignored = true;
+			selected = false;
+		}
+		else {
+			ignored = false;
+		}
 	}
 	public boolean isIgnored() {
 		return ignored;
