@@ -148,124 +148,108 @@ public class AssaultRifle extends Weapon {
 		}
 		
 		if (combinationIsValid) {
+			// Start by setting all mods/OC to -1 so that no matter what the old build was, the new build will go through with no problem.
+			setSelectedModAtTier(1, -1, false);
+			setSelectedModAtTier(2, -1, false);
+			setSelectedModAtTier(3, -1, false);
+			setSelectedModAtTier(4, -1, false);
+			setSelectedModAtTier(5, -1, false);
+			setSelectedOverclock(-1, false);
+			
 			switch (symbols[0]) {
-				case '-': {
-					selectedTier1 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier1 = 0;
+					setSelectedModAtTier(1, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier1 = 1;
+					setSelectedModAtTier(1, 1, false);
 					break;
 				}
 			}
 			
 			switch (symbols[1]) {
-				case '-': {
-					selectedTier2 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier2 = 0;
+					setSelectedModAtTier(2, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier2 = 1;
+					setSelectedModAtTier(2, 1, false);
 					break;
 				}
 			}
 			
 			switch (symbols[2]) {
-				case '-': {
-					selectedTier3 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier3 = 0;
+					setSelectedModAtTier(3, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier3 = 1;
+					setSelectedModAtTier(3, 1, false);
 					break;
 				}
 				case 'C': {
-					selectedTier3 = 2;
+					setSelectedModAtTier(3, 2, false);
 					break;
 				}
 			}
 			
 			switch (symbols[3]) {
-				case '-': {
-					selectedTier4 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier4 = 0;
+					setSelectedModAtTier(4, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier4 = 1;
+					setSelectedModAtTier(4, 1, false);
 					break;
 				}
 				case 'C': {
-					selectedTier4 = 2;
+					setSelectedModAtTier(4, 2, false);
 					break;
 				}
 			}
 			
 			switch (symbols[4]) {
-				case '-': {
-					selectedTier5 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier5 = 0;
+					setSelectedModAtTier(5, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier5 = 1;
+					setSelectedModAtTier(5, 1, false);
 					break;
 				}
 				case 'C': {
-					selectedTier5 = 2;
+					setSelectedModAtTier(5, 2, false);
 					break;
 				}
 			}
 			
 			switch (symbols[5]) {
-				case '-': {
-					selectedOverclock = -1;
-					break;
-				}
 				case '1': {
-					selectedOverclock = 0;
+					setSelectedOverclock(0, false);
 					break;
 				}
 				case '2': {
-					selectedOverclock = 1;
+					setSelectedOverclock(1, false);
 					break;
 				}
 				case '3': {
-					selectedOverclock = 2;
+					setSelectedOverclock(2, false);
 					break;
 				}
 				case '4': {
-					selectedOverclock = 3;
+					setSelectedOverclock(3, false);
 					break;
 				}
 				case '5': {
-					selectedOverclock = 4;
+					setSelectedOverclock(4, false);
 					break;
 				}
 				case '6': {
-					selectedOverclock = 5;
+					setSelectedOverclock(5, false);
 					break;
 				}
 				case '7': {
-					selectedOverclock = 6;
+					setSelectedOverclock(6, false);
 					break;
 				}
 			}
