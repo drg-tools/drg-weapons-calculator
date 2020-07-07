@@ -164,120 +164,104 @@ public class BreachCutter extends Weapon {
 		}
 		
 		if (combinationIsValid) {
+			// Start by setting all mods/OC to -1 so that no matter what the old build was, the new build will go through with no problem.
+			setSelectedModAtTier(1, -1, false);
+			setSelectedModAtTier(2, -1, false);
+			setSelectedModAtTier(3, -1, false);
+			setSelectedModAtTier(4, -1, false);
+			setSelectedModAtTier(5, -1, false);
+			setSelectedOverclock(-1, false);
+			
 			switch (symbols[0]) {
-				case '-': {
-					selectedTier1 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier1 = 0;
+					setSelectedModAtTier(1, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier1 = 1;
+					setSelectedModAtTier(1, 1, false);
 					break;
 				}
 			}
 			
 			switch (symbols[1]) {
-				case '-': {
-					selectedTier2 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier2 = 0;
+					setSelectedModAtTier(2, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier2 = 1;
+					setSelectedModAtTier(2, 1, false);
 					break;
 				}
 				case 'C': {
-					selectedTier2 = 2;
+					setSelectedModAtTier(2, 2, false);
 					break;
 				}
 			}
 			
 			switch (symbols[2]) {
-				case '-': {
-					selectedTier3 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier3 = 0;
+					setSelectedModAtTier(3, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier3 = 1;
+					setSelectedModAtTier(3, 1, false);
 					break;
 				}
 			}
 			
 			switch (symbols[3]) {
-				case '-': {
-					selectedTier4 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier4 = 0;
+					setSelectedModAtTier(4, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier4 = 1;
+					setSelectedModAtTier(4, 1, false);
 					break;
 				}
 			}
 			
 			switch (symbols[4]) {
-				case '-': {
-					selectedTier5 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier5 = 0;
+					setSelectedModAtTier(5, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier5 = 1;
+					setSelectedModAtTier(5, 1, false);
 					break;
 				}
 				case 'C': {
-					selectedTier5 = 2;
+					setSelectedModAtTier(5, 2, false);
 					break;
 				}
 			}
 			
 			switch (symbols[5]) {
-				case '-': {
-					selectedOverclock = -1;
-					break;
-				}
 				case '1': {
-					selectedOverclock = 0;
+					setSelectedOverclock(0, false);
 					break;
 				}
 				case '2': {
-					selectedOverclock = 1;
+					setSelectedOverclock(1, false);
 					break;
 				}
 				case '3': {
-					selectedOverclock = 2;
+					setSelectedOverclock(2, false);
 					break;
 				}
 				case '4': {
-					selectedOverclock = 3;
+					setSelectedOverclock(3, false);
 					break;
 				}
 				case '5': {
-					selectedOverclock = 4;
+					setSelectedOverclock(4, false);
 					break;
 				}
 				case '6': {
-					selectedOverclock = 5;
+					setSelectedOverclock(5, false);
 					break;
 				}
 				case '7': {
-					selectedOverclock = 6;
+					setSelectedOverclock(6, false);
 					break;
 				}
 			}
@@ -462,41 +446,41 @@ public class BreachCutter extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[15];
 		
-		toReturn[0] = new StatsRow("Burst Damage on First Impact:", getImpactDamage(), selectedOverclock == 5);
+		toReturn[0] = new StatsRow("Burst Damage on First Impact:", getImpactDamage(), modIcons.areaDamage, selectedOverclock == 5);
 		
 		boolean dmgPerTickModified = selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 5 || selectedOverclock == 6;
-		toReturn[1] = new StatsRow("Damage per Tick:", getDamagePerTick(), dmgPerTickModified);
+		toReturn[1] = new StatsRow("Damage per Tick:", getDamagePerTick(), modIcons.directDamage, dmgPerTickModified);
 		
-		toReturn[2] = new StatsRow("Damage Ticks per Second:", damageTickRate, false);
+		toReturn[2] = new StatsRow("Damage Ticks per Second:", damageTickRate, modIcons.blank, false);
 		
-		toReturn[3] = new StatsRow("Projectile Width:", getProjectileWidth(), selectedTier2 == 2 || selectedTier3 == 1);
+		toReturn[3] = new StatsRow("Projectile Width:", getProjectileWidth(), modIcons.aoeRadius, selectedTier2 == 2 || selectedTier3 == 1);
 		
-		toReturn[4] = new StatsRow("Projectile Velocity (m/sec):", getProjectileVelocity(), selectedOverclock == 5);
+		toReturn[4] = new StatsRow("Projectile Velocity (m/sec):", getProjectileVelocity(), modIcons.projectileVelocity, selectedOverclock == 5);
 		
-		toReturn[5] = new StatsRow("Delay Before Opening:", getDelayBeforeOpening(), selectedTier3 == 0);
+		toReturn[5] = new StatsRow("Delay Before Opening:", getDelayBeforeOpening(), modIcons.duration, selectedTier3 == 0);
 		
 		boolean lifetimeModified = selectedTier1 == 0 || selectedOverclock == 2 || selectedOverclock == 5;
-		toReturn[6] = new StatsRow("Projectile Lifetime (sec):", getProjectileLifetime(), lifetimeModified);
+		toReturn[6] = new StatsRow("Projectile Lifetime (sec):", getProjectileLifetime(), modIcons.hourglass, lifetimeModified);
 		
-		toReturn[7] = new StatsRow("Avg Damage per Projectile to Single Grunt:", calculateAverageDamagePerGrunt(true, true, false, true), false);
+		toReturn[7] = new StatsRow("Avg Damage per Projectile to Single Grunt:", calculateAverageDamagePerGrunt(true, true, false, true), modIcons.special, false);
 		
 		boolean magSizeModified = selectedTier1 == 1 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[8] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
+		toReturn[8] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier2 == 0 || selectedOverclock == 0 || selectedOverclock == 3 || selectedOverclock == 5 || selectedOverclock == 6;
-		toReturn[9] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
+		toReturn[9] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
-		toReturn[10] = new StatsRow("Rate of Fire:", getRateOfFire(), selectedOverclock == 3);
+		toReturn[10] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedOverclock == 3);
 		
-		toReturn[11] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 0);
+		toReturn[11] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 0);
 		
 		boolean armorBreakingModified = selectedTier4 == 0 || selectedOverclock == 6;
-		toReturn[12] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), armorBreakingModified, armorBreakingModified);
+		toReturn[12] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, armorBreakingModified, armorBreakingModified);
 		
 		boolean stunEquipped = selectedTier4 == 1;
-		toReturn[13] = new StatsRow("Stun Chance:", convertDoubleToPercentage(1.0), stunEquipped, stunEquipped);
+		toReturn[13] = new StatsRow("Stun Chance:", convertDoubleToPercentage(1.0), modIcons.homebrewPowder, stunEquipped, stunEquipped);
 		
-		toReturn[14] = new StatsRow("Stun Duration:", 3, stunEquipped, stunEquipped);
+		toReturn[14] = new StatsRow("Stun Duration:", 3, modIcons.stun, stunEquipped, stunEquipped);
 		
 		return toReturn;
 	}

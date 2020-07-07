@@ -9,7 +9,9 @@ public class Mod {
 	private modIcons icon;
 	private int tier;
 	private int index;
+	private boolean selected;
 	private boolean implemented;
+	private boolean ignored;
 	
 	public Mod(String modName, String modText, modIcons upgradeType, int tierNumber, int arrayIndex) {
 		this(modName, modText, upgradeType, tierNumber, arrayIndex, true);
@@ -21,7 +23,9 @@ public class Mod {
 		icon = upgradeType;
 		tier = tierNumber;
 		index = arrayIndex;
+		selected = false;
 		implemented = modImplemented;
+		ignored = false;
 	}
 	
 	public String getName() {
@@ -46,8 +50,38 @@ public class Mod {
 	public int getTier() {
 		return tier;
 	}
+	public int getIndex() {
+		return index;
+	}
+	
+	public void toggleSelected() {
+		if (selected) {
+			selected = false;
+		}
+		else {
+			selected = true;
+			ignored = false;
+		}
+	}
+	public boolean isSelected() {
+		return selected;
+	}
+	
 	public boolean isImplemented() {
 		return implemented;
+	}
+	
+	public void toggleIgnored() {
+		if (ignored) {
+			ignored = false;
+		}
+		else {
+			ignored = true;
+			selected = false;
+		}
+	}
+	public boolean isIgnored() {
+		return ignored;
 	}
 	
 	public char getLetterRepresentation() {

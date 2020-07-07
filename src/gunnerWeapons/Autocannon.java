@@ -148,124 +148,108 @@ public class Autocannon extends Weapon {
 		}
 		
 		if (combinationIsValid) {
+			// Start by setting all mods/OC to -1 so that no matter what the old build was, the new build will go through with no problem.
+			setSelectedModAtTier(1, -1, false);
+			setSelectedModAtTier(2, -1, false);
+			setSelectedModAtTier(3, -1, false);
+			setSelectedModAtTier(4, -1, false);
+			setSelectedModAtTier(5, -1, false);
+			setSelectedOverclock(-1, false);
+			
 			switch (symbols[0]) {
-				case '-': {
-					selectedTier1 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier1 = 0;
+					setSelectedModAtTier(1, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier1 = 1;
+					setSelectedModAtTier(1, 1, false);
 					break;
 				}
 				case 'C': {
-					selectedTier1 = 2;
+					setSelectedModAtTier(1, 2, false);
 					break;
 				}
 			}
 			
 			switch (symbols[1]) {
-				case '-': {
-					selectedTier2 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier2 = 0;
+					setSelectedModAtTier(2, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier2 = 1;
+					setSelectedModAtTier(2, 1, false);
 					break;
 				}
 				case 'C': {
-					selectedTier2 = 2;
+					setSelectedModAtTier(2, 2, false);
 					break;
 				}
 			}
 			
 			switch (symbols[2]) {
-				case '-': {
-					selectedTier3 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier3 = 0;
+					setSelectedModAtTier(3, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier3 = 1;
+					setSelectedModAtTier(3, 1, false);
 					break;
 				}
 				case 'C': {
-					selectedTier3 = 2;
+					setSelectedModAtTier(3, 2, false);
 					break;
 				}
 			}
 			
 			switch (symbols[3]) {
-				case '-': {
-					selectedTier4 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier4 = 0;
+					setSelectedModAtTier(4, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier4 = 1;
+					setSelectedModAtTier(4, 1, false);
 					break;
 				}
 			}
 			
 			switch (symbols[4]) {
-				case '-': {
-					selectedTier5 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier5 = 0;
+					setSelectedModAtTier(5, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier5 = 1;
+					setSelectedModAtTier(5, 1, false);
 					break;
 				}
 				case 'C': {
-					selectedTier5 = 2;
+					setSelectedModAtTier(5, 2, false);
 					break;
 				}
 			}
 			
 			switch (symbols[5]) {
-				case '-': {
-					selectedOverclock = -1;
-					break;
-				}
 				case '1': {
-					selectedOverclock = 0;
+					setSelectedOverclock(0, false);
 					break;
 				}
 				case '2': {
-					selectedOverclock = 1;
+					setSelectedOverclock(1, false);
 					break;
 				}
 				case '3': {
-					selectedOverclock = 2;
+					setSelectedOverclock(2, false);
 					break;
 				}
 				case '4': {
-					selectedOverclock = 3;
+					setSelectedOverclock(3, false);
 					break;
 				}
 				case '5': {
-					selectedOverclock = 4;
+					setSelectedOverclock(4, false);
 					break;
 				}
 				case '6': {
-					selectedOverclock = 5;
+					setSelectedOverclock(5, false);
 					break;
 				}
 			}
@@ -481,41 +465,41 @@ public class Autocannon extends Weapon {
 		StatsRow[] toReturn = new StatsRow[15];
 		
 		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 2 || (selectedOverclock > 1 && selectedOverclock < 6);
-		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
 		boolean areaDamageModified = selectedTier3 == 1 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 5;
-		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), areaDamageModified);
+		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), modIcons.areaDamage, areaDamageModified);
 		
 		boolean aoeRadiusModified = selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 5;
-		toReturn[2] = new StatsRow("AoE Radius:", aoeEfficiency[0], aoeRadiusModified);
+		toReturn[2] = new StatsRow("AoE Radius:", aoeEfficiency[0], modIcons.aoeRadius, aoeRadiusModified);
 		
-		toReturn[3] = new StatsRow("Magazine Size:", getMagazineSize(), selectedTier1 == 1 || selectedOverclock == 4);
+		toReturn[3] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, selectedTier1 == 1 || selectedOverclock == 4);
 		
 		boolean carriedAmmoModified = selectedTier1 == 2 || selectedOverclock == 0 || selectedOverclock == 4;
-		toReturn[4] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
+		toReturn[4] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
 		boolean minRoFModified = selectedTier2 > 0 || selectedTier3 == 0;
-		toReturn[5] = new StatsRow("Starting Rate of Fire:", getMinRateOfFire(), minRoFModified);
+		toReturn[5] = new StatsRow("Starting Rate of Fire:", getMinRateOfFire(), modIcons.rateOfFire, minRoFModified);
 		
 		boolean maxRoFModified = selectedTier2 == 1 || selectedTier3 == 0 || selectedOverclock == 4;
-		toReturn[6] = new StatsRow("Max Rate of Fire:", getMaxRateOfFire(), maxRoFModified);
+		toReturn[6] = new StatsRow("Max Rate of Fire:", getMaxRateOfFire(), modIcons.rateOfFire, maxRoFModified);
 		
-		toReturn[7] = new StatsRow("Number of Bullets Fired Before Max RoF:", getNumBulletsRampup(), false);
+		toReturn[7] = new StatsRow("Number of Bullets Fired Before Max RoF:", getNumBulletsRampup(), modIcons.special, false);
 		
-		toReturn[8] = new StatsRow("Average Rate of Fire:", getAverageRateOfFire(), minRoFModified || maxRoFModified);
+		toReturn[8] = new StatsRow("Average Rate of Fire:", getAverageRateOfFire(), modIcons.rateOfFire, minRoFModified || maxRoFModified);
 		
-		toReturn[9] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 0);
+		toReturn[9] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 0);
 		
-		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier4 == 0, selectedTier4 == 0);
 		
-		toReturn[11] = new StatsRow("Fear Chance:", "20% (?)", selectedTier5 == 1, selectedTier5 == 1);
+		toReturn[11] = new StatsRow("Fear Chance:", "50%", modIcons.fear, selectedTier5 == 1, selectedTier5 == 1);
 		
 		boolean baseSpreadModified = selectedTier2 == 0 || selectedOverclock == 4;
-		toReturn[12] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
+		toReturn[12] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, baseSpreadModified, baseSpreadModified);
 		
-		toReturn[13] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 3);
+		toReturn[13] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), modIcons.movespeed, selectedOverclock == 3);
 		
-		toReturn[14] = new StatsRow("Damage Resistance at Full RoF:", "33%", selectedTier5 == 2, selectedTier5 == 2);
+		toReturn[14] = new StatsRow("Damage Resistance at Full RoF:", "33%", modIcons.damageResistance, selectedTier5 == 2, selectedTier5 == 2);
 		
 		return toReturn;
 	}
@@ -750,8 +734,12 @@ public class Autocannon extends Weapon {
 			0  // Electric
 		};
 		
-		double timeToNeurotoxin = MathUtils.meanRolls(0.3) / getAverageRateOfFire();
-		double ntDoTDmg = calculateAverageDoTDamagePerEnemy(timeToNeurotoxin, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
+		double ntDoTDmg = 0;
+		if (selectedOverclock == 5) {
+			double timeToNeurotoxin = MathUtils.meanRolls(0.3) / getAverageRateOfFire();
+			ntDoTDmg = calculateAverageDoTDamagePerEnemy(timeToNeurotoxin, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
+		}
+		
 		double[] DoTDamage = {
 			0,  // Fire
 			0,  // Electric

@@ -149,116 +149,100 @@ public class SMG extends Weapon {
 		}
 		
 		if (combinationIsValid) {
+			// Start by setting all mods/OC to -1 so that no matter what the old build was, the new build will go through with no problem.
+			setSelectedModAtTier(1, -1, false);
+			setSelectedModAtTier(2, -1, false);
+			setSelectedModAtTier(3, -1, false);
+			setSelectedModAtTier(4, -1, false);
+			setSelectedModAtTier(5, -1, false);
+			setSelectedOverclock(-1, false);
+			
 			switch (symbols[0]) {
-				case '-': {
-					selectedTier1 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier1 = 0;
+					setSelectedModAtTier(1, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier1 = 1;
+					setSelectedModAtTier(1, 1, false);
 					break;
 				}
 				case 'C': {
-					selectedTier1 = 2;
+					setSelectedModAtTier(1, 2, false);
 					break;
 				}
 			}
 			
 			switch (symbols[1]) {
-				case '-': {
-					selectedTier2 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier2 = 0;
+					setSelectedModAtTier(2, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier2 = 1;
+					setSelectedModAtTier(2, 1, false);
 					break;
 				}
 				case 'C': {
-					selectedTier2 = 2;
+					setSelectedModAtTier(2, 2, false);
 					break;
 				}
 			}
 			
 			switch (symbols[2]) {
-				case '-': {
-					selectedTier3 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier3 = 0;
+					setSelectedModAtTier(3, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier3 = 1;
+					setSelectedModAtTier(3, 1, false);
 					break;
 				}
 			}
 			
 			switch (symbols[3]) {
-				case '-': {
-					selectedTier4 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier4 = 0;
+					setSelectedModAtTier(4, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier4 = 1;
+					setSelectedModAtTier(4, 1, false);
 					break;
 				}
 			}
 			
 			switch (symbols[4]) {
-				case '-': {
-					selectedTier5 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier5 = 0;
+					setSelectedModAtTier(5, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier5 = 1;
+					setSelectedModAtTier(5, 1, false);
 					break;
 				}
 			}
 			
 			switch (symbols[5]) {
-				case '-': {
-					selectedOverclock = -1;
-					break;
-				}
 				case '1': {
-					selectedOverclock = 0;
+					setSelectedOverclock(0, false);
 					break;
 				}
 				case '2': {
-					selectedOverclock = 1;
+					setSelectedOverclock(1, false);
 					break;
 				}
 				case '3': {
-					selectedOverclock = 2;
+					setSelectedOverclock(2, false);
 					break;
 				}
 				case '4': {
-					selectedOverclock = 3;
+					setSelectedOverclock(3, false);
 					break;
 				}
 				case '5': {
-					selectedOverclock = 4;
+					setSelectedOverclock(4, false);
 					break;
 				}
 				case '6': {
-					selectedOverclock = 5;
+					setSelectedOverclock(5, false);
 					break;
 				}
 			}
@@ -434,31 +418,31 @@ public class SMG extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[11];
 		
-		toReturn[0] = new StatsRow("Electrocute DoT Chance:", convertDoubleToPercentage(getElectrocutionDoTChance()), selectedTier1 == 1 || selectedOverclock == 5);
-		toReturn[1] = new StatsRow("Electrocute DoT DPS:", DoTInformation.Electro_DPS, false);
+		toReturn[0] = new StatsRow("Electrocute DoT Chance:", convertDoubleToPercentage(getElectrocutionDoTChance()), modIcons.homebrewPowder, selectedTier1 == 1 || selectedOverclock == 5);
+		toReturn[1] = new StatsRow("Electrocute DoT DPS:", DoTInformation.Electro_DPS, modIcons.electricity, false);
 		
 		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 0 || selectedOverclock == 3 || selectedOverclock == 5;
-		toReturn[2] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
+		toReturn[2] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
-		toReturn[3] = new StatsRow("Electric Damage:", getElectricDamage(), selectedOverclock == 2, selectedOverclock == 2);
+		toReturn[3] = new StatsRow("Electric Damage:", getElectricDamage(), modIcons.directDamage, selectedOverclock == 2, selectedOverclock == 2);
 		
 		boolean magSizeModified = selectedTier2 == 0 || selectedTier5 == 0 || selectedOverclock == 0;
-		toReturn[4] = new StatsRow("Magazine Size:", getMagazineSize(), magSizeModified);
+		toReturn[4] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier1 == 2 || selectedTier3 == 1 || selectedOverclock == 3 || selectedOverclock == 4;
-		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
+		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
 		boolean RoFModified = selectedTier2 == 2 || (selectedOverclock > 0 && selectedOverclock < 5);
-		toReturn[6] = new StatsRow("Rate of Fire:", getRateOfFire(), RoFModified);
+		toReturn[6] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, RoFModified);
 		
-		toReturn[7] = new StatsRow("Reload Time:", getReloadTime(), selectedOverclock == 1);
+		toReturn[7] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 1);
 		
-		toReturn[8] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[8] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedTier4 == 0, selectedTier4 == 0);
 		
 		boolean baseSpreadModified = selectedOverclock == 0 || selectedOverclock == 2;
-		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
+		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, baseSpreadModified, baseSpreadModified);
 		
-		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), selectedTier2 == 1, selectedTier2 == 1);
+		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), modIcons.recoil, selectedTier2 == 1, selectedTier2 == 1);
 		
 		return toReturn;
 	}

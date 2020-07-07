@@ -46,27 +46,27 @@ public class UtilityBreakdownButton extends JButton implements ActionListener {
 		toReturn.setBorder(GuiConstants.blackLine);
 		toReturn.setLayout(new BoxLayout(toReturn, BoxLayout.Y_AXIS));
 		
-		JPanel row;
+		JPanel row, statIcon;
 		JLabel statLabel, statValue;
-		int paddingPixels = 2*GuiConstants.paddingPixels;
 		for (int i = 0; i < utilityStats.length; i++) {
 			row = new JPanel();
 			row.setOpaque(false);
 			row.setLayout(new BorderLayout());
 			
+			statIcon = new StatsRowIconPanel(ButtonIcons.getModIcon(utilityStats[i].getIcon(), false));
+			row.add(statIcon, BorderLayout.LINE_START);
+			
 			statLabel = new JLabel(utilityStats[i].getName());
 			statLabel.setFont(GuiConstants.customFont);
 			statLabel.setForeground(Color.white);
-			// Left-pad the label text
-			statLabel.setBorder(new EmptyBorder(0, paddingPixels, 0, 0));
-			row.add(statLabel, BorderLayout.LINE_START);
+			row.add(statLabel, BorderLayout.CENTER);
 			
 			statValue = new JLabel(utilityStats[i].getValue());
 			statValue.setFont(GuiConstants.customFont);
 			statValue.setForeground(GuiConstants.drgRegularOrange);
-			// Right-pad the value text
-			statValue.setBorder(new EmptyBorder(0, 0, 0, paddingPixels));
 			row.add(statValue, BorderLayout.LINE_END);
+			
+			row.setBorder(new EmptyBorder(0, GuiConstants.paddingPixels, 0, 2*GuiConstants.paddingPixels));
 			
 			toReturn.add(row);
 		}

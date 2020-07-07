@@ -110,7 +110,7 @@ public class Flamethrower extends Weapon {
 		tier4[2] = new Mod("More Fuel", "+75 Max Fuel", modIcons.carriedAmmo, 4, 2);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Heat Radiance", "Heat up enemies within 3m of you at a rate of 80 Heat/sec. This stacks with the direct stream and Sticky Flames' heat sources as well.", modIcons.heatDamage, 5, 0);
+		tier5[0] = new Mod("Heat Radiance", "Deal 80 Fire Damage per second and 80 Heat per second to all enemies within 3m of you. The Heat/sec stacks with the direct stream and Sticky Flames' heat sources as well.", modIcons.heatDamage, 5, 0);
 		tier5[1] = new Mod("Targets Explode", "If the direct stream kills an enemy, there's a 50% chance that they will explode and deal 55 Fire Damage and 55 Heat Damage to all enemies within a 3m radius.", modIcons.addedExplosion, 5, 1, false);
 		
 		overclocks = new Overclock[6];
@@ -154,120 +154,104 @@ public class Flamethrower extends Weapon {
 		}
 		
 		if (combinationIsValid) {
+			// Start by setting all mods/OC to -1 so that no matter what the old build was, the new build will go through with no problem.
+			setSelectedModAtTier(1, -1, false);
+			setSelectedModAtTier(2, -1, false);
+			setSelectedModAtTier(3, -1, false);
+			setSelectedModAtTier(4, -1, false);
+			setSelectedModAtTier(5, -1, false);
+			setSelectedOverclock(-1, false);
+			
 			switch (symbols[0]) {
-				case '-': {
-					selectedTier1 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier1 = 0;
+					setSelectedModAtTier(1, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier1 = 1;
+					setSelectedModAtTier(1, 1, false);
 					break;
 				}
 			}
 			
 			switch (symbols[1]) {
-				case '-': {
-					selectedTier2 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier2 = 0;
+					setSelectedModAtTier(2, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier2 = 1;
+					setSelectedModAtTier(2, 1, false);
 					break;
 				}
 				case 'C': {
-					selectedTier2 = 2;
+					setSelectedModAtTier(2, 2, false);
 					break;
 				}
 			}
 			
 			switch (symbols[2]) {
-				case '-': {
-					selectedTier3 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier3 = 0;
+					setSelectedModAtTier(3, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier3 = 1;
+					setSelectedModAtTier(3, 1, false);
 					break;
 				}
 				case 'C': {
-					selectedTier3 = 2;
+					setSelectedModAtTier(3, 2, false);
 					break;
 				}
 			}
 			
 			switch (symbols[3]) {
-				case '-': {
-					selectedTier4 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier4 = 0;
+					setSelectedModAtTier(4, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier4 = 1;
+					setSelectedModAtTier(4, 1, false);
 					break;
 				}
 				case 'C': {
-					selectedTier4 = 2;
+					setSelectedModAtTier(4, 2, false);
 					break;
 				}
 			}
 			
 			switch (symbols[4]) {
-				case '-': {
-					selectedTier5 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier5 = 0;
+					setSelectedModAtTier(5, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier5 = 1;
+					setSelectedModAtTier(5, 1, false);
 					break;
 				}
 			}
 			
 			switch (symbols[5]) {
-				case '-': {
-					selectedOverclock = -1;
-					break;
-				}
 				case '1': {
-					selectedOverclock = 0;
+					setSelectedOverclock(0, false);
 					break;
 				}
 				case '2': {
-					selectedOverclock = 1;
+					setSelectedOverclock(1, false);
 					break;
 				}
 				case '3': {
-					selectedOverclock = 2;
+					setSelectedOverclock(2, false);
 					break;
 				}
 				case '4': {
-					selectedOverclock = 3;
+					setSelectedOverclock(3, false);
 					break;
 				}
 				case '5': {
-					selectedOverclock = 4;
+					setSelectedOverclock(4, false);
 					break;
 				}
 				case '6': {
-					selectedOverclock = 5;
+					setSelectedOverclock(5, false);
 					break;
 				}
 			}
@@ -444,42 +428,42 @@ public class Flamethrower extends Weapon {
 		
 		// Stats about the direct stream's DPS
 		boolean damageModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 4;
-		toReturn[0] = new StatsRow("Damage per Particle:", getParticleDamage(), damageModified);
+		toReturn[0] = new StatsRow("Damage per Particle:", getParticleDamage(), modIcons.directDamage, damageModified);
 		
-		toReturn[1] = new StatsRow("Heat per Particle:", getParticleHeat(), selectedTier2 == 1);
+		toReturn[1] = new StatsRow("Heat per Particle:", getParticleHeat(), modIcons.heatDamage, selectedTier2 == 1);
 		
 		boolean reachModified = selectedTier1 == 1 || selectedOverclock == 2 || selectedOverclock == 3;
-		toReturn[2] = new StatsRow("Flame Reach:", getFlameReach(), reachModified);
+		toReturn[2] = new StatsRow("Flame Reach:", getFlameReach(), modIcons.distance, reachModified);
 		
 		boolean tankSizeModified = selectedTier1 == 0 || selectedOverclock == 2 || selectedOverclock == 5;
-		toReturn[3] = new StatsRow("Fuel Tank Size:", getFuelTankSize(), tankSizeModified);
+		toReturn[3] = new StatsRow("Fuel Tank Size:", getFuelTankSize(), modIcons.magSize, tankSizeModified);
 		
 		boolean carriedFuelModified = selectedTier3 == 2 || selectedTier4 == 2 || selectedOverclock == 0 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[4] = new StatsRow("Max Fuel:", getCarriedFuel(), carriedFuelModified);
+		toReturn[4] = new StatsRow("Max Fuel:", getCarriedFuel(), modIcons.carriedAmmo, carriedFuelModified);
 		
 		boolean flowRateModified = selectedTier3 == 0 || selectedOverclock == 3 || selectedOverclock == 4;
-		toReturn[5] = new StatsRow("Flow Rate:", getFlowRate(), flowRateModified);
+		toReturn[5] = new StatsRow("Flow Rate:", getFlowRate(), modIcons.rateOfFire, flowRateModified);
 		
-		toReturn[6] = new StatsRow("Reload Time:", reloadTime, false);
+		toReturn[6] = new StatsRow("Reload Time:", reloadTime, modIcons.reloadSpeed, false);
 		
-		toReturn[7] = new StatsRow("Fear Chance per Second:", convertDoubleToPercentage(0.13), selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[7] = new StatsRow("Fear Chance per Second:", convertDoubleToPercentage(0.13), modIcons.fear, selectedTier4 == 0, selectedTier4 == 0);
 		
-		toReturn[8] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), selectedOverclock == 4, selectedOverclock == 4);
+		toReturn[8] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), modIcons.movespeed, selectedOverclock == 4, selectedOverclock == 4);
 		
 		// Burn DPS
-		toReturn[9] = new StatsRow("Burn DoT DPS:", DoTInformation.Burn_DPS, false);
+		toReturn[9] = new StatsRow("Burn DoT DPS:", DoTInformation.Burn_DPS, modIcons.heatDamage, false);
 		
 		// Stats about the Sticky Flames
-		toReturn[10] = new StatsRow("Sticky Flames Dmg per Tick:", getSFDamagePerTick(), selectedOverclock == 5);
+		toReturn[10] = new StatsRow("Sticky Flames Dmg per Tick:", getSFDamagePerTick(), modIcons.directDamage, selectedOverclock == 5);
 		
-		toReturn[11] = new StatsRow("Sticky Flames Heat per Tick:", stickyFlamesHeatPerTick, false);
+		toReturn[11] = new StatsRow("Sticky Flames Heat per Tick:", stickyFlamesHeatPerTick, modIcons.heatDamage, false);
 		
-		toReturn[12] = new StatsRow("Sticky Flames Avg Ticks/Sec:", stickyFlamesTicksPerSec, false);
+		toReturn[12] = new StatsRow("Sticky Flames Avg Ticks/Sec:", stickyFlamesTicksPerSec, modIcons.blank, false);
 		
 		boolean SFDurationModified = selectedTier2 == 2 || selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 5;
-		toReturn[13] = new StatsRow("Sticky Flames Duration:", getSFDuration(), SFDurationModified);
+		toReturn[13] = new StatsRow("Sticky Flames Duration:", getSFDuration(), modIcons.hourglass, SFDurationModified);
 		
-		toReturn[14] = new StatsRow("Sticky Flames Slow:", convertDoubleToPercentage(getSFSlow()), selectedTier3 == 1);
+		toReturn[14] = new StatsRow("Sticky Flames Slow:", convertDoubleToPercentage(getSFSlow()), modIcons.slowdown, selectedTier3 == 1);
 		
 		return toReturn;
 	}
@@ -499,11 +483,14 @@ public class Flamethrower extends Weapon {
 		
 		double directHeatPerSec = getParticleHeat() * getFlowRate();
 		
-		double heatRadianceHeatPerSec = 0;
+		double heatRadianceDmgAndHeatPerTick = 0;
+		int numTicksHeatRadianceWillProc = 0; 
 		if (selectedTier5 == 0) {
 			// 80 Heat/sec in a 3m radius
 			// I want this to be less effective with far-reaching streams to model how the further the steam flies the less likely it is that the enemies will be within the 3m.
-			heatRadianceHeatPerSec = 80.0 * 3.0 / getFlameReach();
+			heatRadianceDmgAndHeatPerTick = 80.0 * 3.0 / getFlameReach();
+			// Because Heat Radiance only procs after every full second of firing, I'm choosing to take the floor() of how many seconds a single magazine can be fired.
+			numTicksHeatRadianceWillProc = (int) Math.floor(((double) getFuelTankSize()) / getFlowRate()); 
 		}
 		
 		double stickyFlamesDPS = getSFDamagePerTick() * stickyFlamesTicksPerSec / 2.0;
@@ -512,7 +499,8 @@ public class Flamethrower extends Weapon {
 		if (burst) {
 			duration = ((double) getFuelTankSize()) / getFlowRate();
 			
-			double totalHeatPerSec = directHeatPerSec + stickyFlamesHeatPerSec + heatRadianceHeatPerSec;
+			// Because Heat Radiance ticks once per second, the value per tick is equal to the Heat/sec
+			double totalHeatPerSec = directHeatPerSec + stickyFlamesHeatPerSec + heatRadianceDmgAndHeatPerTick ;
 			double timeToIgnite = EnemyInformation.averageTimeToIgnite(totalHeatPerSec);
 			double burnDoTUptimeCoefficient = (duration - timeToIgnite) / duration;
 			burnDPS = burnDoTUptimeCoefficient * DoTInformation.Burn_DPS;
@@ -533,7 +521,8 @@ public class Flamethrower extends Weapon {
 			directDamagePerParticle *= UtilityInformation.IFG_Damage_Multiplier;
 		}
 		
-		return directDamagePerParticle * getFuelTankSize() / duration + stickyFlamesDPS + burnDPS;
+		double heatRadianceDamagePerTank = heatRadianceDmgAndHeatPerTick * numTicksHeatRadianceWillProc;
+		return (directDamagePerParticle * getFuelTankSize() + heatRadianceDamagePerTank) / duration + stickyFlamesDPS + burnDPS;
 	}
 
 	// Single-target calculations
@@ -577,20 +566,28 @@ public class Flamethrower extends Weapon {
 		double stickyFlamesDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, getSFDuration(), stickyFlamesDPS);
 		double stickyFlamesTotalDamage = stickyFlamesDamagePerEnemy * estimatedNumEnemiesKilled;
 		
-		// Total Burn Damage
-		double directHeatPerSec = getParticleHeat() * getFlowRate();
-		double stickyFlamesHeatPerSec = stickyFlamesHeatPerTick * stickyFlamesTicksPerSec / 2.0;
+		// Total Heat Radiance Damage
+		double heatRadianceTotalDamage = 0;
 		double heatRadianceHeatPerSec = 0;
 		if (selectedTier5 == 0) {
-			// 80 Heat/sec in a 3m radius
+			// 80 Fire + Heat/sec in a 3m radius
+			double numTicksOfHeatRadiance = numMagazines(getCarriedFuel(), getFuelTankSize()) * (int) Math.floor(((double) getFuelTankSize()) / getFlowRate());
+			// I'm choosing to model this as if the player is kiting enemies, keeping them about 1.5m away so that they don't receive melee attacks.
+			int numGlyphidsHitByHeatRadiancePerTick = calculateNumGlyphidsInRadius(3.0) - calculateNumGlyphidsInRadius(1.5);
+			heatRadianceTotalDamage = 80 * numTicksOfHeatRadiance * numGlyphidsHitByHeatRadiancePerTick;
+			
 			// I want this to be less effective with far-reaching streams to model how the further the steam flies the less likely it is that the enemies will be within the 3m.
 			heatRadianceHeatPerSec = 80.0 * 3.0 / getFlameReach();
 		}
+		
+		// Total Burn Damage
+		double directHeatPerSec = getParticleHeat() * getFlowRate();
+		double stickyFlamesHeatPerSec = stickyFlamesHeatPerTick * stickyFlamesTicksPerSec / 2.0;
 		double timeToIgnite = EnemyInformation.averageTimeToIgnite(directHeatPerSec + stickyFlamesHeatPerSec + heatRadianceHeatPerSec);
 		double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 		double fireDoTTotalDamage = fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		
-		return directTotalDamage + stickyFlamesTotalDamage + fireDoTTotalDamage;
+		return directTotalDamage + stickyFlamesTotalDamage + heatRadianceTotalDamage + fireDoTTotalDamage;
 	}
 
 	@Override

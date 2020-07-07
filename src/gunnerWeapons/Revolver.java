@@ -138,116 +138,100 @@ public abstract class Revolver extends Weapon {
 		}
 		
 		if (combinationIsValid) {
+			// Start by setting all mods/OC to -1 so that no matter what the old build was, the new build will go through with no problem.
+			setSelectedModAtTier(1, -1, false);
+			setSelectedModAtTier(2, -1, false);
+			setSelectedModAtTier(3, -1, false);
+			setSelectedModAtTier(4, -1, false);
+			setSelectedModAtTier(5, -1, false);
+			setSelectedOverclock(-1, false);
+			
 			switch (symbols[0]) {
-				case '-': {
-					selectedTier1 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier1 = 0;
+					setSelectedModAtTier(1, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier1 = 1;
+					setSelectedModAtTier(1, 1, false);
 					break;
 				}
 			}
 			
 			switch (symbols[1]) {
-				case '-': {
-					selectedTier2 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier2 = 0;
+					setSelectedModAtTier(2, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier2 = 1;
+					setSelectedModAtTier(2, 1, false);
 					break;
 				}
 				case 'C': {
-					selectedTier2 = 2;
+					setSelectedModAtTier(2, 2, false);
 					break;
 				}
 			}
 			
 			switch (symbols[2]) {
-				case '-': {
-					selectedTier3 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier3 = 0;
+					setSelectedModAtTier(3, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier3 = 1;
+					setSelectedModAtTier(3, 1, false);
 					break;
 				}
 				case 'C': {
-					selectedTier3 = 2;
+					setSelectedModAtTier(3, 2, false);
 					break;
 				}
 			}
 			
 			switch (symbols[3]) {
-				case '-': {
-					selectedTier4 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier4 = 0;
+					setSelectedModAtTier(4, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier4 = 1;
+					setSelectedModAtTier(4, 1, false);
 					break;
 				}
 			}
 			
 			switch (symbols[4]) {
-				case '-': {
-					selectedTier5 = -1;
-					break;
-				}
 				case 'A': {
-					selectedTier5 = 0;
+					setSelectedModAtTier(5, 0, false);
 					break;
 				}
 				case 'B': {
-					selectedTier5 = 1;
+					setSelectedModAtTier(5, 1, false);
 					break;
 				}
 			}
 			
 			switch (symbols[5]) {
-				case '-': {
-					selectedOverclock = -1;
-					break;
-				}
 				case '1': {
-					selectedOverclock = 0;
+					setSelectedOverclock(0, false);
 					break;
 				}
 				case '2': {
-					selectedOverclock = 1;
+					setSelectedOverclock(1, false);
 					break;
 				}
 				case '3': {
-					selectedOverclock = 2;
+					setSelectedOverclock(2, false);
 					break;
 				}
 				case '4': {
-					selectedOverclock = 3;
+					setSelectedOverclock(3, false);
 					break;
 				}
 				case '5': {
-					selectedOverclock = 4;
+					setSelectedOverclock(4, false);
 					break;
 				}
 				case '6': {
-					selectedOverclock = 5;
+					setSelectedOverclock(5, false);
 					break;
 				}
 			}
@@ -441,45 +425,45 @@ public abstract class Revolver extends Weapon {
 		StatsRow[] toReturn = new StatsRow[16];
 		
 		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), directDamageModified);
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
 		boolean explosiveEquipped = selectedTier3 == 1;
-		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), explosiveEquipped, explosiveEquipped);
+		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), modIcons.areaDamage, explosiveEquipped, explosiveEquipped);
 		
-		toReturn[2] = new StatsRow("AoE Radius:", getAoERadius(), explosiveEquipped, explosiveEquipped);
+		toReturn[2] = new StatsRow("AoE Radius:", getAoERadius(), modIcons.aoeRadius, explosiveEquipped, explosiveEquipped);
 		
-		toReturn[3] = new StatsRow("Magazine Size:", getMagazineSize(), selectedOverclock == 3 || selectedOverclock == 4);
+		toReturn[3] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, selectedOverclock == 3 || selectedOverclock == 4);
 		
 		boolean carriedAmmoModified = selectedTier2 == 2 || selectedTier4 == 0 || (selectedOverclock > 2 && selectedOverclock < 6);
-		toReturn[4] = new StatsRow("Max Ammo:", getCarriedAmmo(), carriedAmmoModified);
+		toReturn[4] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
-		toReturn[5] = new StatsRow("Rate of Fire:", getRateOfFire(), selectedOverclock == 3);
+		toReturn[5] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedOverclock == 3);
 		
-		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), selectedTier1 == 0 || selectedOverclock == 3 || selectedOverclock == 4);
+		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier1 == 0 || selectedOverclock == 3 || selectedOverclock == 4);
 		
-		toReturn[7] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), selectedTier3 == 2);
+		toReturn[7] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedTier3 == 2);
 		
-		toReturn[8] = new StatsRow("Stun Chance:", convertDoubleToPercentage(stunChance), false);
+		toReturn[8] = new StatsRow("Stun Chance:", convertDoubleToPercentage(stunChance), modIcons.homebrewPowder, false);
 		
-		toReturn[9] = new StatsRow("Stun Duration:", stunDuration, false);
+		toReturn[9] = new StatsRow("Stun Duration:", stunDuration, modIcons.stun, false);
 		
-		toReturn[10] = new StatsRow("Max Penetrations:", getMaxPenetrations(), selectedTier3 == 0, selectedTier3 == 0);
+		toReturn[10] = new StatsRow("Max Penetrations:", getMaxPenetrations(), modIcons.blowthrough, selectedTier3 == 0, selectedTier3 == 0);
 		
-		toReturn[11] = new StatsRow("Weakpoint Chain Hit Chance:", "33%", selectedOverclock == 1, selectedOverclock == 1);
+		toReturn[11] = new StatsRow("Weakpoint Chain Hit Chance:", "33%", modIcons.homebrewPowder, selectedOverclock == 1, selectedOverclock == 1);
 		
 		boolean canRicochet = selectedOverclock == 1 || selectedOverclock == 5;
-		toReturn[12] = new StatsRow("Max Ricochets:", getMaxRicochets(), canRicochet, canRicochet);
+		toReturn[12] = new StatsRow("Max Ricochets:", getMaxRicochets(), modIcons.ricochet, canRicochet, canRicochet);
 		
 		boolean baseSpreadModified = selectedTier1 == 1 || selectedOverclock == 3 || selectedOverclock == 4;
-		toReturn[13] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), baseSpreadModified, baseSpreadModified);
+		toReturn[13] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, baseSpreadModified, baseSpreadModified);
 		
 		boolean spreadPerShotModified = selectedTier2 == 1 || selectedOverclock == 4;
-		toReturn[14] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), spreadPerShotModified, spreadPerShotModified);
+		toReturn[14] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), modIcons.baseSpread, spreadPerShotModified, spreadPerShotModified);
 		
-		toReturn[15] = new StatsRow("Spread Recovery:", convertDoubleToPercentage(getSpreadRecoverySpeed()), selectedOverclock == 4, selectedOverclock == 4);
+		toReturn[15] = new StatsRow("Spread Recovery:", convertDoubleToPercentage(getSpreadRecoverySpeed()), modIcons.baseSpread, selectedOverclock == 4, selectedOverclock == 4);
 		
 		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 4;
-		toReturn[15] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), recoilModified, recoilModified);
+		toReturn[15] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), modIcons.recoil, recoilModified, recoilModified);
 		
 		return toReturn;
 	}
@@ -792,8 +776,14 @@ public abstract class Revolver extends Weapon {
 	
 	@Override
 	public int breakpoints() {
+		
+		double direct = getDirectDamage();
+		if (selectedOverclock == 2 && statusEffects[0]) {
+			direct *= 4.0;
+		}
+		
 		double[] directDamage = {
-			getDirectDamage(),  // Kinetic
+			direct,  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
@@ -807,8 +797,12 @@ public abstract class Revolver extends Weapon {
 			0  // Electric
 		};
 		
-		double timeToNeurotoxin = MathUtils.meanRolls(0.5) / getRateOfFire();
-		double ntDoTDmg = calculateAverageDoTDamagePerEnemy(timeToNeurotoxin, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
+		double ntDoTDmg = 0;
+		if (selectedTier5 == 1) {
+			double timeToNeurotoxin = MathUtils.meanRolls(0.5) / getRateOfFire();
+			ntDoTDmg = calculateAverageDoTDamagePerEnemy(timeToNeurotoxin, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
+		}
+		
 		double[] DoTDamage = {
 			0,  // Fire
 			0,  // Electric

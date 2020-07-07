@@ -7,6 +7,8 @@ import java.util.Observable;
 import javax.swing.JPanel;
 
 import guiPieces.AoEVisualizer;
+import guiPieces.ButtonIcons.modIcons;
+import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 import utilities.Point2D;
 
@@ -19,8 +21,8 @@ public abstract class Weapon extends Observable {
 	protected String fullName;
 	protected BufferedImage weaponPic;
 	// Since several of the weapons have a Homebrew Powder mod or OC, I'm adding this coefficient in the parent class so that they can all be updated simultaneously.
-	// This number was calculated by adding up all numbers in the range [80, 140] and then dividing that sum by 60 to get the average value.
-	protected double homebrewPowderCoefficient = 1.11833;
+	// Taking the (integral of x dx from 0.8 -> 1.4) / (1.4 - 0.8) results in the intuitive 1.1
+	protected double homebrewPowderCoefficient = 1.1;
 	
 	// If any of these shorts is set to -1, that means there should be no mods equipped at that tier.
 	protected Mod[] tier1;
@@ -85,20 +87,25 @@ public abstract class Weapon extends Observable {
 			return -2;
 		}
 	}
-	public void setSelectedModAtTier(int tierNumber, int newSelection) {
-		setSelectedModAtTier(tierNumber, newSelection, true);
-	}
 	public void setSelectedModAtTier(int tierNumber, int newSelection, boolean updateGUI) {
 		if (tierNumber > 0 && tierNumber < 6) {
 			switch (tierNumber) {
 				case 1: {
 					if (newSelection > -2 && newSelection < tier1.length) {
+						if (selectedTier1 > -1) {
+							tier1[selectedTier1].toggleSelected();
+						}
+						
 						if (newSelection == selectedTier1) {
 							// If the same mod is selected, that indicates that it's being unequipped. Set tier = -1 to affect the math properly.
 							selectedTier1 = -1;
 						}
 						else {
 							selectedTier1 = newSelection;
+							
+							if (selectedTier1 > -1) {
+								tier1[selectedTier1].toggleSelected();
+							}
 						}
 					}
 					else {
@@ -108,12 +115,20 @@ public abstract class Weapon extends Observable {
 				}
 				case 2: {
 					if (newSelection > -2 && newSelection < tier2.length) {
+						if (selectedTier2 > -1) {
+							tier2[selectedTier2].toggleSelected();
+						}
+						
 						if (newSelection == selectedTier2) {
 							// If the same mod is selected, that indicates that it's being unequipped. Set tier = -1 to affect the math properly.
 							selectedTier2 = -1;
 						}
 						else {
 							selectedTier2 = newSelection;
+							
+							if (selectedTier2 > -1) {
+								tier2[selectedTier2].toggleSelected();
+							}
 						}
 					}
 					else {
@@ -123,12 +138,20 @@ public abstract class Weapon extends Observable {
 				}
 				case 3: {
 					if (newSelection > -2 && newSelection < tier3.length) {
+						if (selectedTier3 > -1) {
+							tier3[selectedTier3].toggleSelected();
+						}
+						
 						if (newSelection == selectedTier3) {
 							// If the same mod is selected, that indicates that it's being unequipped. Set tier = -1 to affect the math properly.
 							selectedTier3 = -1;
 						}
 						else {
 							selectedTier3 = newSelection;
+							
+							if (selectedTier3 > -1) {
+								tier3[selectedTier3].toggleSelected();
+							}
 						}
 					}
 					else {
@@ -138,12 +161,20 @@ public abstract class Weapon extends Observable {
 				}
 				case 4: {
 					if (newSelection > -2 && newSelection < tier4.length) {
+						if (selectedTier4 > -1) {
+							tier4[selectedTier4].toggleSelected();
+						}
+						
 						if (newSelection == selectedTier4) {
 							// If the same mod is selected, that indicates that it's being unequipped. Set tier = -1 to affect the math properly.
 							selectedTier4 = -1;
 						}
 						else {
 							selectedTier4 = newSelection;
+							
+							if (selectedTier4 > -1) {
+								tier4[selectedTier4].toggleSelected();
+							}
 						}
 					}
 					else {
@@ -153,12 +184,20 @@ public abstract class Weapon extends Observable {
 				}
 				case 5: {
 					if (newSelection > -2 && newSelection < tier5.length) {
+						if (selectedTier5 > -1) {
+							tier5[selectedTier5].toggleSelected();
+						}
+						
 						if (newSelection == selectedTier5) {
 							// If the same mod is selected, that indicates that it's being unequipped. Set tier = -1 to affect the math properly.
 							selectedTier5 = -1;
 						}
 						else {
 							selectedTier5 = newSelection;
+							
+							if (selectedTier5 > -1) {
+								tier5[selectedTier5].toggleSelected();
+							}
 						}
 					}
 					else {
@@ -181,21 +220,100 @@ public abstract class Weapon extends Observable {
 			System.out.println("Tier #" + tierNumber + " is not a valid tier of gear modifications");
 		}
 	}
+	// Because this is only called from GUI, I don't need to add updateGUI flag.
+	public void setIgnoredModAtTier(int tierNumber, int indexToIgnore) {
+		if (tierNumber > 0 && tierNumber < 6) {
+			switch (tierNumber) {
+				case 1: {
+					if (indexToIgnore > -2 && indexToIgnore < tier1.length) {
+						// Special case: if the mod being ignored was previously selected, un-select it so that the math lines up with what's displayed on the GUI
+						if (indexToIgnore == selectedTier1) {
+							selectedTier1 = -1;
+						}
+						
+						tier1[indexToIgnore].toggleIgnored();
+					}
+					break;
+				}
+				case 2: {
+					if (indexToIgnore > -2 && indexToIgnore < tier2.length) {
+						// Special case: if the mod being ignored was previously selected, un-select it so that the math lines up with what's displayed on the GUI
+						if (indexToIgnore == selectedTier2) {
+							selectedTier2 = -1;
+						}
+						
+						tier2[indexToIgnore].toggleIgnored();
+					}
+					break;
+				}
+				case 3: {
+					if (indexToIgnore > -2 && indexToIgnore < tier3.length) {
+						// Special case: if the mod being ignored was previously selected, un-select it so that the math lines up with what's displayed on the GUI
+						if (indexToIgnore == selectedTier3) {
+							selectedTier3 = -1;
+						}
+						
+						tier3[indexToIgnore].toggleIgnored();
+					}
+					break;
+				}
+				case 4: {
+					if (indexToIgnore > -2 && indexToIgnore < tier4.length) {
+						// Special case: if the mod being ignored was previously selected, un-select it so that the math lines up with what's displayed on the GUI
+						if (indexToIgnore == selectedTier4) {
+							selectedTier4 = -1;
+						}
+						
+						tier4[indexToIgnore].toggleIgnored();
+					}
+					break;
+				}
+				case 5: {
+					if (indexToIgnore > -2 && indexToIgnore < tier5.length) {
+						// Special case: if the mod being ignored was previously selected, un-select it so that the math lines up with what's displayed on the GUI
+						if (indexToIgnore == selectedTier5) {
+							selectedTier5 = -1;
+						}
+						
+						tier5[indexToIgnore].toggleIgnored();
+					}
+					break;
+				}
+			}
+			
+			if (currentlyDealsSplashDamage()) {
+				setAoEEfficiency();
+			}
+			
+			if (countObservers() > 0) {
+				setChanged();
+				notifyObservers();
+			}
+		}
+		else {
+			System.out.println("Tier #" + tierNumber + " is not a valid tier of gear modifications");
+		}
+	}
 	
 	public int getSelectedOverclock() {
 		return selectedOverclock;
 	}
-	public void setSelectedOverclock(int newSelection) {
-		setSelectedOverclock(newSelection, true);
-	}
 	public void setSelectedOverclock(int newSelection, boolean updateGUI) {
 		if (newSelection > -2 && newSelection < overclocks.length) {
+			if (selectedOverclock > -1) {
+				overclocks[selectedOverclock].toggleSelected();
+			}
+			
 			if (newSelection == selectedOverclock) {
 				// If the same overclock is selected, that indicates that it's being unequipped. Set overclock = -1 to affect the math properly.
 				selectedOverclock = -1;
 			}
 			else {
 				selectedOverclock = newSelection;
+				
+				if (selectedOverclock > -1) {
+					overclocks[selectedOverclock].toggleSelected();
+				}
 			}
 			
 			if (currentlyDealsSplashDamage()) {
@@ -209,6 +327,26 @@ public abstract class Weapon extends Observable {
 		}
 		else {
 			System.out.println("Overclock choice is outside array bounds");
+		}
+	}
+	// Because this is only called from GUI, I don't need to add updateGUI flag.
+	public void setIgnoredOverclock(int indexToIgnore) {
+		if (indexToIgnore > -2 && indexToIgnore < overclocks.length) {
+			// Special case: if the overclock being ignored was previously selected, un-select it so that the math lines up with what's displayed on the GUI
+			if (indexToIgnore == selectedOverclock) {
+				selectedOverclock = -1;
+			}
+			
+			overclocks[indexToIgnore].toggleIgnored();
+			
+			if (currentlyDealsSplashDamage()) {
+				setAoEEfficiency();
+			}
+			
+			if (countObservers() > 0) {
+				setChanged();
+				notifyObservers();
+			}
 		}
 	}
 	
@@ -268,6 +406,99 @@ public abstract class Weapon extends Observable {
 	}
 	public Overclock[] getOverclocks() {
 		return overclocks;
+	}
+	
+	public int[] getModsAtTier(int tierNumber, boolean subset) {
+		// First, get the right mods and selection
+		Mod[] thisTier;
+		int selection;
+		switch (tierNumber) {
+			case 1: {
+				thisTier = tier1;
+				selection = selectedTier1;
+				break;
+			}
+			case 2: {
+				thisTier = tier2;
+				selection = selectedTier2;
+				break;
+			}
+			case 3: {
+				thisTier = tier3;
+				selection = selectedTier3;
+				break;
+			}
+			case 4: {
+				thisTier = tier4;
+				selection = selectedTier4;
+				break;
+			}
+			case 5: {
+				thisTier = tier5;
+				selection = selectedTier5;
+				break;
+			}
+			default: {
+				thisTier = new Mod[1];
+				selection = -1;
+				break;
+			}
+		}
+		
+		if (subset) {
+			// Early exit condition: if a mod is already selected, then just return an array with the selected index
+			if (selection > -1) {
+				return new int[] {selection};
+			}
+			
+			ConditionalArrayList<Integer> macguffin = new ConditionalArrayList<Integer>();
+			// Make sure to add "no Mod selected" as an option for this tier, in case all mods get ignored.
+			macguffin.add(-1);
+			for (int i = 0; i < thisTier.length; i++) {
+				macguffin.conditionalAdd(i, !thisTier[i].isIgnored());
+			}
+			
+			// This line of magic sourced from https://stackoverflow.com/a/23945015
+			return macguffin.stream().mapToInt(i->i).toArray();
+		}
+		else {
+			int[] toReturn = new int[thisTier.length + 1];
+			// Always include the option for no mod to be selected
+			toReturn[0] = -1;
+			for (int i = 0; i < thisTier.length; i++) {
+				toReturn[i + 1] = i;
+			}
+			
+			return toReturn;
+		}
+	}
+	public int[] getOverclocks(boolean subset) {
+		if (subset) {
+			// Early exit condition: if an OC is already selected, then just return an array with the selected index
+			if (selectedOverclock > -1) {
+				return new int[] {selectedOverclock};
+			}
+			
+			ConditionalArrayList<Integer> macguffin = new ConditionalArrayList<Integer>();
+			// Make sure to add "no OC selected" as an option for this tier, in case all OCs get ignored.
+			macguffin.add(-1);
+			for (int i = 0; i < overclocks.length; i++) {
+				macguffin.conditionalAdd(i, !overclocks[i].isIgnored());
+			}
+			
+			// This line of magic sourced from https://stackoverflow.com/a/23945015
+			return macguffin.stream().mapToInt(i->i).toArray();
+		}
+		else {
+			int[] toReturn = new int[overclocks.length + 1];
+			// Always include the option for no OC to be selected
+			toReturn[0] = -1;
+			for (int i = 0; i < overclocks.length; i++) {
+				toReturn[i + 1] = i;
+			}
+			
+			return toReturn;
+		}
 	}
 	
 	protected abstract void initializeModsAndOverclocks();
@@ -428,7 +659,13 @@ public abstract class Weapon extends Observable {
 		/*
 			I'm choosing to model the DoT total damage as "How much damage does the DoT do to the average enemy while it's still alive?"
 		*/
-		double timeWhileAfflictedByDoT = averageTimeToKill() - timeBeforeProc;
+		// Special case: Revolver can have a lower TTK than time to proc.
+		double avgTTK = averageTimeToKill();
+		if (avgTTK < timeBeforeProc) {
+			return 0;
+		}
+		
+		double timeWhileAfflictedByDoT = avgTTK - timeBeforeProc;
 		
 		// Don't let this math create a DoT that lasts longer than the default DoT duration.
 		if (timeWhileAfflictedByDoT > averageDoTDuration) {
@@ -651,30 +888,30 @@ public abstract class Weapon extends Observable {
 	public StatsRow[] breakpointsExplanation() {
 		StatsRow[] toReturn = new StatsRow[breakpoints.length];
 		
-		toReturn[0] = new StatsRow("Glypid Swarmer:", breakpoints[0], false);
-		toReturn[1] = new StatsRow("Glypid Grunt (Light Armor):", breakpoints[1], false);
-		toReturn[2] = new StatsRow("Glypid Grunt (Weakpoint):", breakpoints[2], false);
-		toReturn[3] = new StatsRow("Glypid Grunt Guard (Light Armor):", breakpoints[3], false);
-		toReturn[4] = new StatsRow("Glypid Grunt Guard (Weakpoint):", breakpoints[4], false);
-		toReturn[5] = new StatsRow("Glypid Grunt Slasher (Light Armor):", breakpoints[5], false);
-		toReturn[6] = new StatsRow("Glypid Grunt Slasher (Weakpoint):", breakpoints[6], false);
-		toReturn[7] = new StatsRow("Glypid Praetorian (Mouth):", breakpoints[7], false);
-		toReturn[8] = new StatsRow("Glypid Praetorian (Weakpoint):", breakpoints[8], false);
-		toReturn[9] = new StatsRow("Glypid Exploder:", breakpoints[9], false);
-		toReturn[10] = new StatsRow("Glypid Exploder (Weakpoint):", breakpoints[10], false);
-		toReturn[11] = new StatsRow("Glypid Webspitter (Light Armor):", breakpoints[11], false);
-		toReturn[12] = new StatsRow("Glypid Webspitter (Weakpoint):", breakpoints[12], false);
-		toReturn[13] = new StatsRow("Glypid Acidspitter (Light Armor):", breakpoints[13], false);
-		toReturn[14] = new StatsRow("Glypid Acidspitter (Weakpoint):", breakpoints[14], false);
-		toReturn[15] = new StatsRow("Glypid Warden:", breakpoints[15], false);
-		toReturn[16] = new StatsRow("Glypid Warden (Orb):", breakpoints[16], false);
-		toReturn[17] = new StatsRow("Glypid Oppressor (Weakpoint):", breakpoints[17], false);
-		toReturn[18] = new StatsRow("Mactera Spawn:", breakpoints[18], false);
-		toReturn[19] = new StatsRow("Mactera Spawn (Weakpoint):", breakpoints[19], false);
-		toReturn[20] = new StatsRow("Mactera Grabber:", breakpoints[20], false);
-		toReturn[21] = new StatsRow("Mactera Grabber (Weakpoint):", breakpoints[21], false);
-		toReturn[22] = new StatsRow("Mactera Goo Bomber:", breakpoints[22], false);
-		toReturn[23] = new StatsRow("Mactera Goo Bomber (Weakpoint):    ", breakpoints[23], false);  // Added spaces at the end to create some whitespace in the JPanel
+		toReturn[0] = new StatsRow("Glypid Swarmer:", breakpoints[0], null, false);
+		toReturn[1] = new StatsRow("Glypid Grunt (Light Armor):", breakpoints[1], null, false);
+		toReturn[2] = new StatsRow("Glypid Grunt (Weakpoint):", breakpoints[2], null, false);
+		toReturn[3] = new StatsRow("Glypid Grunt Guard (Light Armor):", breakpoints[3], null, false);
+		toReturn[4] = new StatsRow("Glypid Grunt Guard (Weakpoint):", breakpoints[4], null, false);
+		toReturn[5] = new StatsRow("Glypid Grunt Slasher (Light Armor):", breakpoints[5], null, false);
+		toReturn[6] = new StatsRow("Glypid Grunt Slasher (Weakpoint):", breakpoints[6], null, false);
+		toReturn[7] = new StatsRow("Glypid Praetorian (Mouth):", breakpoints[7], null, false);
+		toReturn[8] = new StatsRow("Glypid Praetorian (Weakpoint):", breakpoints[8], null, false);
+		toReturn[9] = new StatsRow("Glypid Exploder:", breakpoints[9], null, false);
+		toReturn[10] = new StatsRow("Glypid Exploder (Weakpoint):", breakpoints[10], null, false);
+		toReturn[11] = new StatsRow("Glypid Webspitter (Light Armor):", breakpoints[11], null, false);
+		toReturn[12] = new StatsRow("Glypid Webspitter (Weakpoint):", breakpoints[12], null, false);
+		toReturn[13] = new StatsRow("Glypid Acidspitter (Light Armor):", breakpoints[13], null, false);
+		toReturn[14] = new StatsRow("Glypid Acidspitter (Weakpoint):", breakpoints[14], null, false);
+		toReturn[15] = new StatsRow("Glypid Warden:", breakpoints[15], null, false);
+		toReturn[16] = new StatsRow("Glypid Warden (Orb):", breakpoints[16], null, false);
+		toReturn[17] = new StatsRow("Glypid Oppressor (Weakpoint):", breakpoints[17], null, false);
+		toReturn[18] = new StatsRow("Mactera Spawn:", breakpoints[18], null, false);
+		toReturn[19] = new StatsRow("Mactera Spawn (Weakpoint):", breakpoints[19], null, false);
+		toReturn[20] = new StatsRow("Mactera Grabber:", breakpoints[20], null, false);
+		toReturn[21] = new StatsRow("Mactera Grabber (Weakpoint):", breakpoints[21], null, false);
+		toReturn[22] = new StatsRow("Mactera Goo Bomber:", breakpoints[22], null, false);
+		toReturn[23] = new StatsRow("Mactera Goo Bomber (Weakpoint):    ", breakpoints[23], null, false);  // Added spaces at the end to create some whitespace in the JPanel
 		
 		return toReturn;
 	}
@@ -685,13 +922,13 @@ public abstract class Weapon extends Observable {
 	public StatsRow[] utilityExplanation() {
 		StatsRow[] toReturn = new StatsRow[utilityScores.length];
 		
-		toReturn[0] = new StatsRow("Mobility:", utilityScores[0], false);
-		toReturn[1] = new StatsRow("Damage Resist:", utilityScores[1], false);
-		toReturn[2] = new StatsRow("Armor Break:", utilityScores[2], false);
-		toReturn[3] = new StatsRow("Slow:", utilityScores[3], false);
-		toReturn[4] = new StatsRow("Fear:", utilityScores[4], false);
-		toReturn[5] = new StatsRow("Stun:", utilityScores[5], false);
-		toReturn[6] = new StatsRow("Freeze:", utilityScores[6], false);
+		toReturn[0] = new StatsRow("Mobility:", utilityScores[0], modIcons.movespeed, false);
+		toReturn[1] = new StatsRow("Damage Resist:", utilityScores[1], modIcons.damageResistance, false);
+		toReturn[2] = new StatsRow("Armor Break:", utilityScores[2], modIcons.armorBreaking, false);
+		toReturn[3] = new StatsRow("Slow:", utilityScores[3], modIcons.slowdown, false);
+		toReturn[4] = new StatsRow("Fear:", utilityScores[4], modIcons.fear, false);
+		toReturn[5] = new StatsRow("Stun:", utilityScores[5], modIcons.stun, false);
+		toReturn[6] = new StatsRow("Freeze:", utilityScores[6], modIcons.coldDamage, false);
 		
 		return toReturn;
 	}

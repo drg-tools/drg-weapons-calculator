@@ -18,6 +18,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
+import javax.swing.ToolTipManager;
 
 import dataGenerator.DatabaseConstants;
 import modelPieces.Weapon;
@@ -28,6 +29,7 @@ public class View extends JFrame implements Observer {
 	private JMenuBar menuBar;
 	private JMenu overallBestCombinationsMenu;
 	private JMenuItem[] overallBestCombinations;
+	private CustomJMenuCheckbox doAllWeaponsPerBCAClick;
 	private JMenu subsetBestCombinationsMenu;
 	private JMenuItem[] subsetBestCombinations;
 	private JMenu difficultyScalingMenu;
@@ -73,6 +75,12 @@ public class View extends JFrame implements Observer {
 		
 		// Set the custom cursor
 		setCursor(CustomCursors.defaultCursor);
+		
+		// Edit the JToolTip timers (sourced from https://stackoverflow.com/a/2436954)
+		// 0.25 second before the ToolTips appear, so that you can move cursor over buttons at a moderate pace without the Tooltips showing immediately
+		ToolTipManager.sharedInstance().setInitialDelay(250);
+		// 10 seconds to read the ToolTips before they automatically re-hide.
+		ToolTipManager.sharedInstance().setDismissDelay(10000);
 		
 		constructMenu();
 		
@@ -184,6 +192,11 @@ public class View extends JFrame implements Observer {
 			overallBestCombinationsMenu.add(overallBestCombinations[i]);
 			subsetBestCombinationsMenu.add(subsetBestCombinations[i]);
 		}
+		
+		overallBestCombinationsMenu.addSeparator();
+		doAllWeaponsPerBCAClick = new CustomJMenuCheckbox("Calculate Best Metric for all Models");
+		overallBestCombinationsMenu.add(doAllWeaponsPerBCAClick);
+		
 		menuBar.add(overallBestCombinationsMenu);
 		menuBar.add(subsetBestCombinationsMenu);
 		
@@ -275,6 +288,10 @@ public class View extends JFrame implements Observer {
 		}
 		
 		return overallBestCombinations[index];
+	}
+	
+	public boolean calculateBestMetricAllModelsEnabled() {
+		return doAllWeaponsPerBCAClick.isSelected();
 	}
 	
 	public JMenuItem getSubsetBestCombination(int index) {

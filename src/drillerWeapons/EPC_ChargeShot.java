@@ -1,5 +1,6 @@
 package drillerWeapons;
 
+import guiPieces.ButtonIcons.modIcons;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.StatsRow;
@@ -52,35 +53,35 @@ public class EPC_ChargeShot extends EPC {
 		StatsRow[] toReturn = new StatsRow[11];
 		
 		boolean chargedDirectDamageModified = selectedTier1 == 2 || selectedTier2 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[0] = new StatsRow("Direct Damage:", getChargedDirectDamage(), chargedDirectDamageModified);
+		toReturn[0] = new StatsRow("Direct Damage:", getChargedDirectDamage(), modIcons.directDamage, chargedDirectDamageModified);
 		
 		boolean chargedAreaDamageModified = selectedTier1 == 2 || selectedTier2 == 2 || selectedTier5 == 0 || selectedTier5 == 1 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[1] = new StatsRow("Area Damage:", getChargedAreaDamage(), chargedAreaDamageModified);
+		toReturn[1] = new StatsRow("Area Damage:", getChargedAreaDamage(), modIcons.areaDamage, chargedAreaDamageModified);
 		
 		boolean radiusModified = selectedTier2 == 0 || selectedTier5 == 0 || selectedOverclock == 4;
-		toReturn[2] = new StatsRow("AoE Radius:", aoeEfficiency[0], radiusModified);
+		toReturn[2] = new StatsRow("AoE Radius:", aoeEfficiency[0], modIcons.aoeRadius, radiusModified);
 		
 		boolean windupModified = selectedTier3 == 1 || selectedTier5 == 0 || selectedOverclock == 0 || selectedOverclock == 2;
-		toReturn[3] = new StatsRow("Charged Shot Windup:", getChargedShotWindup(), windupModified);
+		toReturn[3] = new StatsRow("Charged Shot Windup:", getChargedShotWindup(), modIcons.chargeSpeed, windupModified);
 		
-		toReturn[4] = new StatsRow("Heat/Sec While Charged:", getHeatPerSecondWhileCharged(), selectedTier4 == 0 || selectedOverclock == 1);
+		toReturn[4] = new StatsRow("Heat/Sec While Charged:", getHeatPerSecondWhileCharged(), modIcons.blank, selectedTier4 == 0 || selectedOverclock == 1);
 		
-		toReturn[5] = new StatsRow("Seconds Charged Shot can be Held Before Overheating:", getSecondsBeforeOverheatWhileCharged(), selectedTier4 == 0 || selectedOverclock == 1);
+		toReturn[5] = new StatsRow("Seconds Charged Shot can be Held Before Overheating:", getSecondsBeforeOverheatWhileCharged(), modIcons.hourglass, selectedTier4 == 0 || selectedOverclock == 1);
 		
 		boolean ammoPerShotModified = selectedTier3 == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedTier5 == 1;
-		toReturn[6] = new StatsRow("Ammo/Charged Shot:", getAmmoPerChargedShot(), ammoPerShotModified);
+		toReturn[6] = new StatsRow("Ammo/Charged Shot:", getAmmoPerChargedShot(), modIcons.fuel, ammoPerShotModified);
 		
 		boolean batterySizeModified = selectedTier1 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 3;
-		toReturn[7] = new StatsRow("Battery Size:", getBatterySize(), batterySizeModified);
+		toReturn[7] = new StatsRow("Battery Size:", getBatterySize(), modIcons.carriedAmmo, batterySizeModified);
 		
 		// This is equivalent to "Did either the time to charge a shot or the time to cool down after a shot change?"
 		//boolean RoFModified = selectedTier3 == 1 || selectedTier3 == 2 || selectedTier5 == 0 || (selectedOverclock > -1 && selectedOverclock < 3) || selectedOverclock == 4;
 		boolean RoFModified = windupModified || selectedTier5 == 1 || coolingRateModified;
-		toReturn[8] = new StatsRow("Rate of Fire:", getRateOfFire(), RoFModified);
+		toReturn[8] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, RoFModified);
 		
-		toReturn[9] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), coolingRateModified);
+		toReturn[9] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), modIcons.coolingRate, coolingRateModified);
 		
-		toReturn[10] = new StatsRow("Cooldown After Overheating:", getCooldownDuration(), coolingRateModified || selectedTier5 == 1);
+		toReturn[10] = new StatsRow("Cooldown After Overheating:", getCooldownDuration(), modIcons.hourglass, coolingRateModified || selectedTier5 == 1);
 		
 		return toReturn;
 	}

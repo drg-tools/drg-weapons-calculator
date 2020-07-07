@@ -142,9 +142,8 @@ public class WeaponTab extends JPanel {
 		toReturn.setLayout(new BoxLayout(toReturn, BoxLayout.Y_AXIS));
 		toReturn.setPreferredSize(new Dimension(200, 280));
 		
-		JPanel row;
+		JPanel row, statLabelIcon;
 		JLabel statLabel, statValue;
-		int paddingPixels = 2*GuiConstants.paddingPixels;
 		String statLabelText;
 		for (int i = 0; i < weaponStats.length; i++) {
 			if (weaponStats[i].shouldBeDisplayed()) {
@@ -152,14 +151,15 @@ public class WeaponTab extends JPanel {
 				row.setOpaque(false);
 				row.setLayout(new BorderLayout());
 				
+				statLabelIcon = new StatsRowIconPanel(ButtonIcons.getModIcon(weaponStats[i].getIcon(), false));
+				row.add(statLabelIcon, BorderLayout.LINE_START);
+				
 				statLabelText = weaponStats[i].getName();
 				statLabelText = HoverText.breakLongToolTipString(statLabelText, 28);
 				statLabel = new JLabel(statLabelText);
 				statLabel.setFont(GuiConstants.customFont);
 				statLabel.setForeground(Color.white);
-				// Left-pad the label text
-				statLabel.setBorder(new EmptyBorder(0, paddingPixels, 0, 0));
-				row.add(statLabel, BorderLayout.LINE_START);
+				row.add(statLabel, BorderLayout.CENTER);
 				
 				statValue = new JLabel(weaponStats[i].getValue());
 				statValue.setFont(GuiConstants.customFontBold);
@@ -169,9 +169,9 @@ public class WeaponTab extends JPanel {
 				else {
 					statValue.setForeground(GuiConstants.drgRegularOrange);
 				}
-				// Right-pad the value text
-				statValue.setBorder(new EmptyBorder(0, 0, 0, paddingPixels));
 				row.add(statValue, BorderLayout.LINE_END);
+				
+				row.setBorder(new EmptyBorder(0, GuiConstants.paddingPixels, 0, 2*GuiConstants.paddingPixels));
 				
 				toReturn.add(row);
 			}
@@ -192,7 +192,7 @@ public class WeaponTab extends JPanel {
 		for (i = 1; i < 6; i++) {
 			weaponMods = myWeapon.getModsAtTier(i);
 			for (j = 0; j < weaponMods.length; j++) {
-				mb = new ModButton(myWeapon, i, j, weaponMods[j].getName(), weaponMods[j].getText(), weaponMods[j].getIcon(), myWeapon.getSelectedModAtTier(i) == j, weaponMods[j].isImplemented());
+				mb = new ModButton(myWeapon, weaponMods[j]);
 				toReturn.add(mb);
 			}
 			// Check to see if there are only two mods at this tier. If so, add an empty JLabel
@@ -217,7 +217,7 @@ public class WeaponTab extends JPanel {
 		
 		OverclockButton ocb;
 		for (int i = 0; i < weaponOverclocks.length; i++) {
-			ocb = new OverclockButton(myWeapon, i, weaponOverclocks[i].getName(), weaponOverclocks[i].getText(), weaponOverclocks[i].getIcon(), myWeapon.getSelectedOverclock() == i, weaponOverclocks[i].isImplemented());
+			ocb = new OverclockButton(myWeapon, weaponOverclocks[i]);
 			toReturn.add(ocb);
 		}
 		

@@ -12,12 +12,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JToolTip;
 
 import guiPieces.ButtonIcons.statusEffectIcons;
 import modelPieces.Weapon;
+import net.coobird.thumbnailator.Thumbnails;
 
 public class StatusEffectButton extends JButton implements ActionListener, MouseMotionListener {
 	private static final long serialVersionUID = 1L;
@@ -133,8 +135,14 @@ public class StatusEffectButton extends JButton implements ActionListener, Mouse
 		Polygon p = createIconHexagon((int) iconHeight + 6, iconHorizontalOffset - 6, iconVerticalOffset - 3);
 		g2.setPaint(Color.black);
 		g2.fillPolygon(p);
+		
+		BufferedImage resizedIcon = icon;
+		try {
+			resizedIcon = Thumbnails.of(resizedIcon).size((int) (iconWidth), (int) (iconHeight)).asBufferedImage();
+		}
+		catch (IOException e) {}
 				
-		g2.drawImage(icon, iconHorizontalOffset, iconVerticalOffset, (int) (iconWidth), (int) (iconHeight), null);
+		g2.drawImage(resizedIcon, iconHorizontalOffset, iconVerticalOffset, (int) (iconWidth), (int) (iconHeight), null);
 		
 		// Write with black text if enabled, or yellow text if not enabled
 		if (enabled) {
