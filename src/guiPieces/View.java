@@ -77,8 +77,8 @@ public class View extends JFrame implements Observer {
 		setCursor(CustomCursors.defaultCursor);
 		
 		// Edit the JToolTip timers (sourced from https://stackoverflow.com/a/2436954)
-		// 0.2 second before the ToolTips appear, so that you can move cursor over buttons at a moderate pace without the Tooltips showing immediately
-		ToolTipManager.sharedInstance().setInitialDelay(200);
+		// 0.25 second before the ToolTips appear, so that you can move cursor over buttons at a moderate pace without the Tooltips showing immediately
+		ToolTipManager.sharedInstance().setInitialDelay(250);
 		// 10 seconds to read the ToolTips before they automatically re-hide.
 		ToolTipManager.sharedInstance().setDismissDelay(10000);
 		
