@@ -93,7 +93,7 @@ public abstract class Weapon extends Observable {
 				case 1: {
 					if (newSelection > -2 && newSelection < tier1.length) {
 						if (selectedTier1 > -1) {
-							tier1[selectedTier1].setSelected(false);
+							tier1[selectedTier1].toggleSelected();
 						}
 						
 						if (newSelection == selectedTier1) {
@@ -104,7 +104,7 @@ public abstract class Weapon extends Observable {
 							selectedTier1 = newSelection;
 							
 							if (selectedTier1 > -1) {
-								tier1[selectedTier1].setSelected(true);
+								tier1[selectedTier1].toggleSelected();
 							}
 						}
 					}
@@ -116,7 +116,7 @@ public abstract class Weapon extends Observable {
 				case 2: {
 					if (newSelection > -2 && newSelection < tier2.length) {
 						if (selectedTier2 > -1) {
-							tier2[selectedTier2].setSelected(false);
+							tier2[selectedTier2].toggleSelected();
 						}
 						
 						if (newSelection == selectedTier2) {
@@ -127,7 +127,7 @@ public abstract class Weapon extends Observable {
 							selectedTier2 = newSelection;
 							
 							if (selectedTier2 > -1) {
-								tier2[selectedTier2].setSelected(true);
+								tier2[selectedTier2].toggleSelected();
 							}
 						}
 					}
@@ -139,7 +139,7 @@ public abstract class Weapon extends Observable {
 				case 3: {
 					if (newSelection > -2 && newSelection < tier3.length) {
 						if (selectedTier3 > -1) {
-							tier3[selectedTier3].setSelected(false);
+							tier3[selectedTier3].toggleSelected();
 						}
 						
 						if (newSelection == selectedTier3) {
@@ -150,7 +150,7 @@ public abstract class Weapon extends Observable {
 							selectedTier3 = newSelection;
 							
 							if (selectedTier3 > -1) {
-								tier3[selectedTier3].setSelected(true);
+								tier3[selectedTier3].toggleSelected();
 							}
 						}
 					}
@@ -162,7 +162,7 @@ public abstract class Weapon extends Observable {
 				case 4: {
 					if (newSelection > -2 && newSelection < tier4.length) {
 						if (selectedTier4 > -1) {
-							tier4[selectedTier4].setSelected(false);
+							tier4[selectedTier4].toggleSelected();
 						}
 						
 						if (newSelection == selectedTier4) {
@@ -173,7 +173,7 @@ public abstract class Weapon extends Observable {
 							selectedTier4 = newSelection;
 							
 							if (selectedTier4 > -1) {
-								tier4[selectedTier4].setSelected(true);
+								tier4[selectedTier4].toggleSelected();
 							}
 						}
 					}
@@ -185,7 +185,7 @@ public abstract class Weapon extends Observable {
 				case 5: {
 					if (newSelection > -2 && newSelection < tier5.length) {
 						if (selectedTier5 > -1) {
-							tier5[selectedTier5].setSelected(false);
+							tier5[selectedTier5].toggleSelected();
 						}
 						
 						if (newSelection == selectedTier5) {
@@ -196,7 +196,7 @@ public abstract class Weapon extends Observable {
 							selectedTier5 = newSelection;
 							
 							if (selectedTier5 > -1) {
-								tier5[selectedTier5].setSelected(true);
+								tier5[selectedTier5].toggleSelected();
 							}
 						}
 					}
@@ -220,6 +220,80 @@ public abstract class Weapon extends Observable {
 			System.out.println("Tier #" + tierNumber + " is not a valid tier of gear modifications");
 		}
 	}
+	// Because this is only called from GUI, I don't need to add updateGUI flag.
+	public void setIgnoredModAtTier(int tierNumber, int indexToIgnore) {
+		if (tierNumber > 0 && tierNumber < 6) {
+			switch (tierNumber) {
+				case 1: {
+					if (indexToIgnore > -2 && indexToIgnore < tier1.length) {
+						// Special case: if the mod being ignored was previously selected, un-select it so that the math lines up with what's displayed on the GUI
+						if (indexToIgnore == selectedTier1) {
+							selectedTier1 = -1;
+						}
+						
+						tier1[indexToIgnore].toggleIgnored();
+					}
+					break;
+				}
+				case 2: {
+					if (indexToIgnore > -2 && indexToIgnore < tier2.length) {
+						// Special case: if the mod being ignored was previously selected, un-select it so that the math lines up with what's displayed on the GUI
+						if (indexToIgnore == selectedTier2) {
+							selectedTier2 = -1;
+						}
+						
+						tier2[indexToIgnore].toggleIgnored();
+					}
+					break;
+				}
+				case 3: {
+					if (indexToIgnore > -2 && indexToIgnore < tier3.length) {
+						// Special case: if the mod being ignored was previously selected, un-select it so that the math lines up with what's displayed on the GUI
+						if (indexToIgnore == selectedTier3) {
+							selectedTier3 = -1;
+						}
+						
+						tier3[indexToIgnore].toggleIgnored();
+					}
+					break;
+				}
+				case 4: {
+					if (indexToIgnore > -2 && indexToIgnore < tier4.length) {
+						// Special case: if the mod being ignored was previously selected, un-select it so that the math lines up with what's displayed on the GUI
+						if (indexToIgnore == selectedTier4) {
+							selectedTier4 = -1;
+						}
+						
+						tier4[indexToIgnore].toggleIgnored();
+					}
+					break;
+				}
+				case 5: {
+					if (indexToIgnore > -2 && indexToIgnore < tier5.length) {
+						// Special case: if the mod being ignored was previously selected, un-select it so that the math lines up with what's displayed on the GUI
+						if (indexToIgnore == selectedTier5) {
+							selectedTier5 = -1;
+						}
+						
+						tier5[indexToIgnore].toggleIgnored();
+					}
+					break;
+				}
+			}
+			
+			if (currentlyDealsSplashDamage()) {
+				setAoEEfficiency();
+			}
+			
+			if (countObservers() > 0) {
+				setChanged();
+				notifyObservers();
+			}
+		}
+		else {
+			System.out.println("Tier #" + tierNumber + " is not a valid tier of gear modifications");
+		}
+	}
 	
 	public int getSelectedOverclock() {
 		return selectedOverclock;
@@ -227,7 +301,7 @@ public abstract class Weapon extends Observable {
 	public void setSelectedOverclock(int newSelection, boolean updateGUI) {
 		if (newSelection > -2 && newSelection < overclocks.length) {
 			if (selectedOverclock > -1) {
-				overclocks[selectedOverclock].setSelected(false);
+				overclocks[selectedOverclock].toggleSelected();
 			}
 			
 			if (newSelection == selectedOverclock) {
@@ -238,7 +312,7 @@ public abstract class Weapon extends Observable {
 				selectedOverclock = newSelection;
 				
 				if (selectedOverclock > -1) {
-					overclocks[selectedOverclock].setSelected(true);
+					overclocks[selectedOverclock].toggleSelected();
 				}
 			}
 			
@@ -253,6 +327,26 @@ public abstract class Weapon extends Observable {
 		}
 		else {
 			System.out.println("Overclock choice is outside array bounds");
+		}
+	}
+	// Because this is only called from GUI, I don't need to add updateGUI flag.
+	public void setIgnoredOverclock(int indexToIgnore) {
+		if (indexToIgnore > -2 && indexToIgnore < overclocks.length) {
+			// Special case: if the overclock being ignored was previously selected, un-select it so that the math lines up with what's displayed on the GUI
+			if (indexToIgnore == selectedOverclock) {
+				selectedOverclock = -1;
+			}
+			
+			overclocks[indexToIgnore].toggleIgnored();
+			
+			if (currentlyDealsSplashDamage()) {
+				setAoEEfficiency();
+			}
+			
+			if (countObservers() > 0) {
+				setChanged();
+				notifyObservers();
+			}
 		}
 	}
 	

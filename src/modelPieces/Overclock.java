@@ -56,13 +56,13 @@ public class Overclock {
 		return index;
 	}
 	
-	public void setSelected(boolean newValue) {
-		if (newValue) {
-			selected = true;
-			ignored = false;
+	public void toggleSelected() {
+		if (selected) {
+			selected = false;
 		}
 		else {
-			selected = false;
+			selected = true;
+			ignored = false;
 		}
 	}
 	public boolean isSelected() {
@@ -73,13 +73,13 @@ public class Overclock {
 		return implemented;
 	}
 	
-	public void setIgnored(boolean newValue) {
-		if (newValue) {
-			ignored = true;
-			selected = false;
+	public void toggleIgnored() {
+		if (ignored) {
+			ignored = false;
 		}
 		else {
-			ignored = false;
+			ignored = true;
+			selected = false;
 		}
 	}
 	public boolean isIgnored() {

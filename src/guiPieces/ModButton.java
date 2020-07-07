@@ -7,21 +7,20 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JToolTip;
+import javax.swing.SwingUtilities;
+import javax.swing.event.MouseInputListener;
 
 import modelPieces.Mod;
 import modelPieces.Weapon;
 import net.coobird.thumbnailator.Thumbnails;
 
-public class ModButton extends JButton implements ActionListener, MouseMotionListener {
+public class ModButton extends JButton implements MouseInputListener {
 	private static final long serialVersionUID = 1L;
 	
 	private Weapon myWeapon;
@@ -44,10 +43,8 @@ public class ModButton extends JButton implements ActionListener, MouseMotionLis
 		this.setContentAreaFilled(false);
 		this.setBorderPainted(false);
 		
-		// Have each ModButton listen to itself for when it gets clicked to simplify the GuiController
-		this.addActionListener(this);
-		
-		// Have this button listen to itself for Mouse Movement too to add the question mark to the cursor when within the border
+		// Have this button listen to itself for all MouseEvents (click, drag, move, release, etc) so that it can perform actions without having to throw the events up to GuiController.
+		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
 	}
 	
@@ -139,10 +136,47 @@ public class ModButton extends JButton implements ActionListener, MouseMotionLis
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		// Because this button is only listening to itself, I'm skipping the standard "figure out what button got clicked" stuff.
-		// When this changes, the underlying Weapon will trigger a refresh of the overall GUI due to the Observable/Observer dynamic
-		myWeapon.setSelectedModAtTier(myMod.getTier(), myMod.getIndex(), true);
+	public void mouseClicked(MouseEvent e) {
+		Point cursorHotspotLocation = e.getPoint();
+		
+		if (cursorHotspotLocation != null && border.contains(cursorHotspotLocation)) {
+			if (SwingUtilities.isLeftMouseButton(e)) {
+				myWeapon.setSelectedModAtTier(myMod.getTier(), myMod.getIndex(), true);
+			}
+			else if (SwingUtilities.isRightMouseButton(e)) {
+				myWeapon.setIgnoredModAtTier(myMod.getTier(), myMod.getIndex());
+			}
+		}
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// Do nothing if mouse is held down
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// Whenever a user drag-clicks across a button, it should just register like a normal click
+		Point cursorHotspotLocation = e.getPoint();
+		
+		if (cursorHotspotLocation != null && border.contains(cursorHotspotLocation)) {
+			if (SwingUtilities.isLeftMouseButton(e)) {
+				myWeapon.setSelectedModAtTier(myMod.getTier(), myMod.getIndex(), true);
+			}
+			else if (SwingUtilities.isRightMouseButton(e)) {
+				myWeapon.setIgnoredModAtTier(myMod.getTier(), myMod.getIndex());
+			}
+		}
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// Do nothing if mouse enters boundaries
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// Do nothing if mouse leaves button boundaries
 	}
 
 	@Override
