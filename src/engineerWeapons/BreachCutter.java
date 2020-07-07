@@ -462,7 +462,7 @@ public class BreachCutter extends Weapon {
 		boolean lifetimeModified = selectedTier1 == 0 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[6] = new StatsRow("Projectile Lifetime (sec):", getProjectileLifetime(), modIcons.hourglass, lifetimeModified);
 		
-		toReturn[7] = new StatsRow("Avg Damage per Projectile to Single Grunt:", calculateAverageDamagePerGrunt(true, true, false, true), modIcons.blank, false);
+		toReturn[7] = new StatsRow("Avg Damage per Projectile to Single Grunt:", calculateAverageDamagePerGrunt(true, true, false, true), modIcons.special, false);
 		
 		boolean magSizeModified = selectedTier1 == 1 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[8] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, magSizeModified);
@@ -478,9 +478,9 @@ public class BreachCutter extends Weapon {
 		toReturn[12] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, armorBreakingModified, armorBreakingModified);
 		
 		boolean stunEquipped = selectedTier4 == 1;
-		toReturn[13] = new StatsRow("Stun Chance:", convertDoubleToPercentage(1.0), modIcons.stun, stunEquipped, stunEquipped);
+		toReturn[13] = new StatsRow("Stun Chance:", convertDoubleToPercentage(1.0), modIcons.homebrewPowder, stunEquipped, stunEquipped);
 		
-		toReturn[14] = new StatsRow("Stun Duration:", 3, modIcons.blank, stunEquipped, stunEquipped);
+		toReturn[14] = new StatsRow("Stun Duration:", 3, modIcons.stun, stunEquipped, stunEquipped);
 		
 		return toReturn;
 	}

@@ -437,8 +437,8 @@ public class GrenadeLauncher extends Weapon {
 		toReturn[8] = new StatsRow("Fear Chance:", convertDoubleToPercentage(fearChance), modIcons.fear, false);
 		
 		boolean stunEquipped = selectedTier4 == 2;
-		toReturn[9] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), modIcons.stun, stunEquipped, stunEquipped);
-		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.blank, stunEquipped, stunEquipped);
+		toReturn[9] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), modIcons.homebrewPowder, stunEquipped, stunEquipped);
+		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, stunEquipped, stunEquipped);
 		
 		return toReturn;
 	}

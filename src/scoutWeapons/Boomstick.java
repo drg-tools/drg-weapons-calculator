@@ -452,9 +452,9 @@ public class Boomstick extends Weapon {
 		
 		toReturn[8] = new StatsRow("Fear Chance:", "50%", modIcons.fear, selectedTier5 == 1, selectedTier5 == 1);
 		
-		toReturn[9] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(stunChance), modIcons.stun, false);
+		toReturn[9] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(stunChance), modIcons.homebrewPowder, false);
 		
-		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.blank, selectedTier3 == 0);
+		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, selectedTier3 == 0);
 		
 		toReturn[11] = new StatsRow("Max Penetrations:", getMaxPenetrations(), modIcons.blowthrough, selectedTier4 == 0, selectedTier4 == 0);
 		

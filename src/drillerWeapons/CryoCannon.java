@@ -429,8 +429,8 @@ public class CryoCannon extends Weapon {
 		toReturn[1] = new StatsRow("Cold per Particle:", -1 * getParticleCold(), modIcons.coldDamage, coldModified);
 		
 		boolean freezingTimeModified = false;
-		toReturn[2] = new StatsRow("Avg Time to Freeze:", averageTimeToFreeze(false), modIcons.blank, freezingTimeModified);
-		toReturn[3] = new StatsRow("Avg Freeze Multiplier:", averageFreezeMultiplier(), modIcons.blank, freezingTimeModified);
+		toReturn[2] = new StatsRow("Avg Time to Freeze:", averageTimeToFreeze(false), modIcons.duration, freezingTimeModified);
+		toReturn[3] = new StatsRow("Avg Freeze Multiplier:", averageFreezeMultiplier(), modIcons.special, freezingTimeModified);
 		
 		toReturn[4] = new StatsRow("Cold Stream Reach:", getColdStreamReach(), modIcons.distance, selectedTier2 == 1);
 		
@@ -441,7 +441,7 @@ public class CryoCannon extends Weapon {
 		
 		boolean pressureDropModified = selectedTier1 == 0 || selectedOverclock % 2 == 0 ;
 		toReturn[7] = new StatsRow("Pressure Drop Rate:", convertDoubleToPercentage(getPressureDropModifier()), modIcons.magSize, pressureDropModified);
-		toReturn[8] = new StatsRow("Pressure Drop Duration:", pressureDropDuration / getPressureDropModifier(), modIcons.blank, pressureDropModified);
+		toReturn[8] = new StatsRow("Pressure Drop Duration:", pressureDropDuration / getPressureDropModifier(), modIcons.hourglass, pressureDropModified);
 		
 		boolean flowRateModified = selectedTier3 == 1 || selectedOverclock == 1 || selectedOverclock == 2;
 		toReturn[9] = new StatsRow("Flow Rate:", getFlowRate(), modIcons.rateOfFire, flowRateModified);
@@ -451,7 +451,7 @@ public class CryoCannon extends Weapon {
 		
 		boolean pressureGainModified = selectedTier3 == 0 || selectedOverclock == 2;
 		toReturn[11] = new StatsRow("Pressure Gain Rate:", convertDoubleToPercentage(getPressureGainModifier()), modIcons.chargeSpeed, pressureGainModified);
-		toReturn[12] = new StatsRow("Pressure Gain Duration:", pressureGainDuration / getPressureGainModifier(), modIcons.blank, pressureGainModified);
+		toReturn[12] = new StatsRow("Pressure Gain Duration:", pressureGainDuration / getPressureGainModifier(), modIcons.hourglass, pressureGainModified);
 		
 		// Stats about the Ice Path
 		// I'm choosing to display this as a positive number, even though internally it's negative.
@@ -459,7 +459,7 @@ public class CryoCannon extends Weapon {
 		
 		toReturn[14] = new StatsRow("Ice Path Ticks per Sec:", icePathTicksPerSec, modIcons.blank, false);
 		
-		toReturn[15] = new StatsRow("Ice Path Duration", icePathDuration, modIcons.blank, false);
+		toReturn[15] = new StatsRow("Ice Path Duration", icePathDuration, modIcons.hourglass, false);
 		
 		return toReturn;
 	}

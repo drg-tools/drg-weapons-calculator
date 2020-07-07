@@ -460,9 +460,9 @@ public class Shotgun extends Weapon {
 		else {
 			stunDescription = "Weakpoint Stun Chance per Pellet:";
 		}
-		toReturn[8] = new StatsRow(stunDescription, convertDoubleToPercentage(getWeakpointStunChance()), modIcons.stun, selectedOverclock == 0 || selectedOverclock == 4);
+		toReturn[8] = new StatsRow(stunDescription, convertDoubleToPercentage(getWeakpointStunChance()), modIcons.homebrewPowder, selectedOverclock == 0 || selectedOverclock == 4);
 		
-		toReturn[9] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.blank, selectedOverclock == 4);
+		toReturn[9] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, selectedOverclock == 4);
 		
 		boolean baseSpreadModified = selectedTier2 == 2 || selectedOverclock == 2 || selectedOverclock == 3;
 		toReturn[10] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, baseSpreadModified, baseSpreadModified);

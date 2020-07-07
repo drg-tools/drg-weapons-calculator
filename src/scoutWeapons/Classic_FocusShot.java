@@ -102,7 +102,7 @@ public class Classic_FocusShot extends Classic {
 		boolean multiplierModified = selectedTier3 == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[1] = new StatsRow("Focused Shot Multiplier:", convertDoubleToPercentage(getFocusedShotMultiplier()), modIcons.directDamage, multiplierModified);
 		
-		toReturn[2] = new StatsRow("Delay Before Focusing:", getFocusDelay(), modIcons.blank, selectedOverclock == 3);
+		toReturn[2] = new StatsRow("Delay Before Focusing:", getFocusDelay(), modIcons.duration, selectedOverclock == 3);
 		
 		toReturn[3] = new StatsRow("Focus Shot Charge-up Duration:", getFocusDuration(), modIcons.chargeSpeed, selectedTier2 == 0 || selectedOverclock == 5);
 		

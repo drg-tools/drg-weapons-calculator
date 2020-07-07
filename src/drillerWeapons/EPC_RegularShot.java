@@ -68,7 +68,7 @@ public class EPC_RegularShot extends EPC {
 		
 		toReturn[6] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), modIcons.coolingRate, coolingRateModified);
 		
-		toReturn[7] = new StatsRow("Cooldown After Overheating:", getCooldownDuration(), modIcons.blank, coolingRateModified);
+		toReturn[7] = new StatsRow("Cooldown After Overheating:", getCooldownDuration(), modIcons.hourglass, coolingRateModified);
 		
 		return toReturn;
 	}

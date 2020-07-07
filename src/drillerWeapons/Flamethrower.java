@@ -451,10 +451,10 @@ public class Flamethrower extends Weapon {
 		toReturn[8] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), modIcons.movespeed, selectedOverclock == 4, selectedOverclock == 4);
 		
 		// Burn DPS
-		toReturn[9] = new StatsRow("Burn DoT DPS:", DoTInformation.Burn_DPS, modIcons.blank, false);
+		toReturn[9] = new StatsRow("Burn DoT DPS:", DoTInformation.Burn_DPS, modIcons.heatDamage, false);
 		
 		// Stats about the Sticky Flames
-		toReturn[10] = new StatsRow("Sticky Flames Dmg per Tick:", getSFDamagePerTick(), modIcons.blank, selectedOverclock == 5);
+		toReturn[10] = new StatsRow("Sticky Flames Dmg per Tick:", getSFDamagePerTick(), modIcons.directDamage, selectedOverclock == 5);
 		
 		toReturn[11] = new StatsRow("Sticky Flames Heat per Tick:", stickyFlamesHeatPerTick, modIcons.heatDamage, false);
 		

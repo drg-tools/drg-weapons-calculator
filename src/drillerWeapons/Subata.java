@@ -462,12 +462,12 @@ public class Subata extends Weapon {
 		
 		// These two stats only apply to OC "Tranquilizer Rounds"
 		boolean tranqRoundsEquipped = selectedOverclock == 5;
-		toReturn[8] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), modIcons.stun, tranqRoundsEquipped, tranqRoundsEquipped);
+		toReturn[8] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), modIcons.homebrewPowder, tranqRoundsEquipped, tranqRoundsEquipped);
 		
-		toReturn[9] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.blank, tranqRoundsEquipped, tranqRoundsEquipped);
+		toReturn[9] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, tranqRoundsEquipped, tranqRoundsEquipped);
 		
 		boolean chainHitEquipped = selectedOverclock == 0;
-		toReturn[10] = new StatsRow("Weakpoint Chain Hit Chance:", "50%", modIcons.blank, chainHitEquipped, chainHitEquipped);
+		toReturn[10] = new StatsRow("Weakpoint Chain Hit Chance:", "50%", modIcons.homebrewPowder, chainHitEquipped, chainHitEquipped);
 		toReturn[11] = new StatsRow("Max Ricochets:", getMaxRicochets(), modIcons.ricochet, chainHitEquipped, chainHitEquipped);
 		
 		boolean baseSpreadModified = selectedTier1 == 0 || selectedOverclock == 3;
