@@ -223,23 +223,30 @@ public class MetricsCalculator {
 		double currentValue;
 		String forLoopsCombination;
 		
+		int[] tier1 = weaponToTest.getModsAtTier(1, false);
+		int[] tier2 = weaponToTest.getModsAtTier(2, false);
+		int[] tier3 = weaponToTest.getModsAtTier(3, false);
+		int[] tier4 = weaponToTest.getModsAtTier(4, false);
+		int[] tier5 = weaponToTest.getModsAtTier(5, false);
+		int[] overclocks = weaponToTest.getOverclocks(false);
+		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
-		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
+		for (int oc: overclocks) {
 			weaponToTest.setSelectedOverclock(oc, false);
 			
-			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
+			for (int t5: tier5) {
 				weaponToTest.setSelectedModAtTier(5, t5, false);
 				
-				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
+				for (int t4: tier4) {
 					weaponToTest.setSelectedModAtTier(4, t4, false);
 					
-					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
+					for (int t3: tier3) {
 						weaponToTest.setSelectedModAtTier(3, t3, false);
 						
-						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
+						for (int t2: tier2) {
 							weaponToTest.setSelectedModAtTier(2, t2, false);
 							
-							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
+							for (int t1: tier1) {
 								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
 								// Because this will generate thousands of lines of data, never print to console.
@@ -370,23 +377,30 @@ public class MetricsCalculator {
 		int weaponID = weaponToTest.getWeaponID();
 		String simpleName = weaponToTest.getSimpleName();
 		
+		int[] tier1 = weaponToTest.getModsAtTier(1, false);
+		int[] tier2 = weaponToTest.getModsAtTier(2, false);
+		int[] tier3 = weaponToTest.getModsAtTier(3, false);
+		int[] tier4 = weaponToTest.getModsAtTier(4, false);
+		int[] tier5 = weaponToTest.getModsAtTier(5, false);
+		int[] overclocks = weaponToTest.getOverclocks(false);
+		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
-		for (int oc = -1; oc < weaponToTest.getOverclocks().length; oc++) {
+		for (int oc: overclocks) {
 			weaponToTest.setSelectedOverclock(oc, false);
 			
-			for (int t5 = -1; t5 < weaponToTest.getModsAtTier(5).length; t5++) {
+			for (int t5: tier5) {
 				weaponToTest.setSelectedModAtTier(5, t5, false);
 				
-				for (int t4 = -1; t4 < weaponToTest.getModsAtTier(4).length; t4++) {
+				for (int t4: tier4) {
 					weaponToTest.setSelectedModAtTier(4, t4, false);
 					
-					for (int t3 = -1; t3 < weaponToTest.getModsAtTier(3).length; t3++) {
+					for (int t3: tier3) {
 						weaponToTest.setSelectedModAtTier(3, t3, false);
 						
-						for (int t2 = -1; t2 < weaponToTest.getModsAtTier(2).length; t2++) {
+						for (int t2: tier2) {
 							weaponToTest.setSelectedModAtTier(2, t2, false);
 							
-							for (int t1 = -1; t1 < weaponToTest.getModsAtTier(1).length; t1++) {
+							for (int t1: tier1) {
 								weaponToTest.setSelectedModAtTier(1, t1, false);
 								
 								toReturn.add(String.format("INSERT INTO `%s` VALUES(NULL, %d, %d, '%s', '%s', %f, %f, %f, %f, %f, %d, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %f, %d);\n", 

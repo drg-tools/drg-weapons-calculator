@@ -142,7 +142,7 @@ public class ModButton extends JButton implements ActionListener, MouseMotionLis
 	public void actionPerformed(ActionEvent e) {
 		// Because this button is only listening to itself, I'm skipping the standard "figure out what button got clicked" stuff.
 		// When this changes, the underlying Weapon will trigger a refresh of the overall GUI due to the Observable/Observer dynamic
-		myWeapon.setSelectedModAtTier(myMod.getTier(), myMod.getIndex());
+		myWeapon.setSelectedModAtTier(myMod.getTier(), myMod.getIndex(), true);
 	}
 
 	@Override

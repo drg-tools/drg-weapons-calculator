@@ -175,7 +175,7 @@ public class OverclockButton extends JButton implements ActionListener, MouseMot
 	public void actionPerformed(ActionEvent e) {
 		// Because this button is only listening to itself, I'm skipping the standard "figure out what button got clicked" stuff.
 		// When this changes, the underlying Weapon will trigger a refresh of the overall GUI due to the Observable/Observer dynamic
-		myWeapon.setSelectedOverclock(myOC.getIndex());
+		myWeapon.setSelectedOverclock(myOC.getIndex(), true);
 	}
 
 	@Override

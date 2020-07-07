@@ -87,9 +87,6 @@ public abstract class Weapon extends Observable {
 			return -2;
 		}
 	}
-	public void setSelectedModAtTier(int tierNumber, int newSelection) {
-		setSelectedModAtTier(tierNumber, newSelection, true);
-	}
 	public void setSelectedModAtTier(int tierNumber, int newSelection, boolean updateGUI) {
 		if (tierNumber > 0 && tierNumber < 6) {
 			switch (tierNumber) {
@@ -108,13 +105,6 @@ public abstract class Weapon extends Observable {
 							
 							if (selectedTier1 > -1) {
 								tier1[selectedTier1].setSelected(true);
-								
-								// Selecting a mod at any tier should remove the "ignore" flag from all other mods on that tier since it would be redundant, and it helps clarify things visually.
-								for (int i = 0; i < tier1.length; i++) {
-									if (i != selectedTier1) {
-										tier1[i].setIgnored(false);
-									}
-								}
 							}
 						}
 					}
@@ -138,13 +128,6 @@ public abstract class Weapon extends Observable {
 							
 							if (selectedTier2 > -1) {
 								tier2[selectedTier2].setSelected(true);
-								
-								// Selecting a mod at any tier should remove the "ignore" flag from all other mods on that tier since it would be redundant, and it helps clarify things visually.
-								for (int i = 0; i < tier2.length; i++) {
-									if (i != selectedTier2) {
-										tier2[i].setIgnored(false);
-									}
-								}
 							}
 						}
 					}
@@ -168,13 +151,6 @@ public abstract class Weapon extends Observable {
 							
 							if (selectedTier3 > -1) {
 								tier3[selectedTier3].setSelected(true);
-								
-								// Selecting a mod at any tier should remove the "ignore" flag from all other mods on that tier since it would be redundant, and it helps clarify things visually.
-								for (int i = 0; i < tier3.length; i++) {
-									if (i != selectedTier3) {
-										tier3[i].setIgnored(false);
-									}
-								}
 							}
 						}
 					}
@@ -198,13 +174,6 @@ public abstract class Weapon extends Observable {
 							
 							if (selectedTier4 > -1) {
 								tier4[selectedTier4].setSelected(true);
-								
-								// Selecting a mod at any tier should remove the "ignore" flag from all other mods on that tier since it would be redundant, and it helps clarify things visually.
-								for (int i = 0; i < tier4.length; i++) {
-									if (i != selectedTier4) {
-										tier4[i].setIgnored(false);
-									}
-								}
 							}
 						}
 					}
@@ -228,13 +197,6 @@ public abstract class Weapon extends Observable {
 							
 							if (selectedTier5 > -1) {
 								tier5[selectedTier5].setSelected(true);
-								
-								// Selecting a mod at any tier should remove the "ignore" flag from all other mods on that tier since it would be redundant, and it helps clarify things visually.
-								for (int i = 0; i < tier5.length; i++) {
-									if (i != selectedTier5) {
-										tier5[i].setIgnored(false);
-									}
-								}
 							}
 						}
 					}
@@ -262,9 +224,6 @@ public abstract class Weapon extends Observable {
 	public int getSelectedOverclock() {
 		return selectedOverclock;
 	}
-	public void setSelectedOverclock(int newSelection) {
-		setSelectedOverclock(newSelection, true);
-	}
 	public void setSelectedOverclock(int newSelection, boolean updateGUI) {
 		if (newSelection > -2 && newSelection < overclocks.length) {
 			if (selectedOverclock > -1) {
@@ -280,13 +239,6 @@ public abstract class Weapon extends Observable {
 				
 				if (selectedOverclock > -1) {
 					overclocks[selectedOverclock].setSelected(true);
-					
-					// Selecting a mod at any tier should remove the "ignore" flag from all other mods on that tier since it would be redundant, and it helps clarify things visually.
-					for (int i = 0; i < overclocks.length; i++) {
-						if (i != selectedOverclock) {
-							overclocks[i].setIgnored(false);
-						}
-					}
 				}
 			}
 			
