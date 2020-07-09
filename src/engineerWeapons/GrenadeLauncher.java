@@ -30,7 +30,7 @@ public class GrenadeLauncher extends Weapon {
 	private int carriedAmmo;
 	private int magazineSize;
 	private double reloadTime;
-	private double fearChance;
+	private double fearFactor;
 	private double armorBreaking;
 	
 	/****************************************************************************************
@@ -58,7 +58,7 @@ public class GrenadeLauncher extends Weapon {
 		carriedAmmo = 8;
 		magazineSize = 1;
 		reloadTime = 2.0;
-		fearChance = 1.0;
+		fearFactor = 1.0;
 		armorBreaking = 0.5;
 		
 		initializeModsAndOverclocks();
@@ -434,7 +434,7 @@ public class GrenadeLauncher extends Weapon {
 		
 		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier3 == 1);
 		
-		toReturn[8] = new StatsRow("Fear Chance:", convertDoubleToPercentage(fearChance), modIcons.fear, false);
+		toReturn[8] = new StatsRow("Fear Factor:", convertDoubleToPercentage(fearFactor), modIcons.fear, false);
 		
 		boolean stunEquipped = selectedTier4 == 2;
 		toReturn[9] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), modIcons.homebrewPowder, stunEquipped, stunEquipped);
@@ -661,8 +661,8 @@ public class GrenadeLauncher extends Weapon {
 			utilityScores[5] = getStunChance() * aoeEfficiency[2] * getStunDuration() * UtilityInformation.Stun_Utility;
 		}
 		else {
-			// Built-in Fear is 100%, but it doesn't seem to work 100% of the time... 
-			utilityScores[4] = fearChance * aoeEfficiency[2] * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			double probabilityToFear = EnemyInformation.avearageProbabilityToInflictFear(fearFactor);
+			utilityScores[4] = probabilityToFear * aoeEfficiency[2] * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
 			utilityScores[5] = 0;
 		}
 		

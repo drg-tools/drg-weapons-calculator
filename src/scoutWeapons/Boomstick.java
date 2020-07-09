@@ -113,7 +113,7 @@ public class Boomstick extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Auto Reload", "Reloads automatically when unequipped for more than 5 seconds", modIcons.reloadSpeed, 5, 0, false);
-		tier5[1] = new Mod("Fear The Boomstick", "50% chance to inflict Fear on enemies within 5m of you every time you pull the trigger", modIcons.fear, 5, 1);
+		tier5[1] = new Mod("Fear The Boomstick", "Deal 0.5 Fear to all enemies within 5m of you every time you pull the trigger", modIcons.fear, 5, 1);
 		tier5[2] = new Mod("White Phosphorous Shells", "Add 50% of the Damage per Pellet as Heat Damage, which can ignite enemies. Burn DoT does an average of " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[6];
@@ -450,7 +450,7 @@ public class Boomstick extends Weapon {
 		
 		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier4 == 1, selectedTier4 == 1);
 		
-		toReturn[8] = new StatsRow("Fear Chance:", "50%", modIcons.fear, selectedTier5 == 1, selectedTier5 == 1);
+		toReturn[8] = new StatsRow("Fear Factor:", convertDoubleToPercentage(0.5), modIcons.fear, selectedTier5 == 1, selectedTier5 == 1);
 		
 		toReturn[9] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(stunChance), modIcons.homebrewPowder, false);
 		
@@ -764,7 +764,8 @@ public class Boomstick extends Weapon {
 			// A 5m radius returns 41 grunts, which is just too many. I'm choosing to reduce the radius by half, which brings it down to 12.
 			// From my tests, it seems that the 0.5 Fear corresponds to about 30% fear proc
 			int gruntsHitByBlastwave = calculateNumGlyphidsInRadius(5.0 / 2.0);
-			utilityScores[4] = 0.5 * gruntsHitByBlastwave * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			double probabilityToFear = EnemyInformation.avearageProbabilityToInflictFear(0.5);
+			utilityScores[4] = probabilityToFear * gruntsHitByBlastwave * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;

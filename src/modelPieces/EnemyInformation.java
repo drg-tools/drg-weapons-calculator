@@ -217,6 +217,31 @@ public class EnemyInformation {
 		10,  // Glyphid Acidspitter
 	};
 	
+	// This information extracted via UUU
+	private static double[] enemyCourageValues = {
+		0.0, // Glyphid Swarmer
+		0.5,  // Glyphid Grunt
+		0.5,  // Glyphid Grunt Guard
+		0.5,  // Glyphid Grunt Slasher
+		0.5,  // Glyphid Praetorian
+		0.0,  // Glyphid Exploder
+		1.0,  // Glyphid Bulk Detonator
+		1.0, // Glyphid Crassus Detonator
+		0.3,  // Glyphid Webspitter
+		0.3,  // Glyphid Acidspitter
+		0.7,  // Glyphid Menace
+		0.5,  // Glyphid Warden
+		1.0,  // Glyphid Oppressor (technically 100.0 in-game, but I think that's an erroneous value.)
+		0.0,  // Q'ronar Shellback
+		0.0,  // Mactera Spawn
+		0.0,  // Mactera Grabber
+		0.0,  // Mactera Bomber
+		0.0,  // Naedocyte Breeder
+		0.0,  // Glyphid Brood Nexus
+		0.0,  // Spitball Infector
+		0.0   // Cave Leech
+	};
+	
 	private static boolean verifySpawnRatesTotalIsOne() {
 		double sum = 0.0;
 		for (int i = 0; i < exactSpawnRates.length; i++) {
@@ -495,6 +520,18 @@ public class EnemyInformation {
 		else {
 			return 1.0;
 		}
+	}
+	
+	public static double averageCourage() {
+		if (!verifySpawnRatesTotalIsOne()) {
+			return -1.0;
+		}
+		
+		return MathUtils.vectorDotProduct(exactSpawnRates, enemyCourageValues);
+	}
+	public static double avearageProbabilityToInflictFear(double fearFactor) {
+		double avgCourage = averageCourage();
+		return Math.min((1.0 - avgCourage) * fearFactor, 1.0);
 	}
 	
 	/*

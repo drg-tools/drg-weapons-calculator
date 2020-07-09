@@ -105,7 +105,7 @@ public class Flamethrower extends Weapon {
 		tier3[2] = new Mod("More Fuel", "+75 Max Fuel", modIcons.carriedAmmo, 3, 2);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("It Burns!", "Every second that the direct stream is applied to an enemy, there's a 13% chance that it will inflict Fear", modIcons.fear, 4, 0);
+		tier4[0] = new Mod("It Burns!", "Apply 0.13 Fear every second that enemies are hit by the Flame Stream", modIcons.fear, 4, 0);
 		tier4[1] = new Mod("Sticky Flame Duration", "+3 sec Sticky Flames duration", modIcons.hourglass, 4, 1);
 		tier4[2] = new Mod("More Fuel", "+75 Max Fuel", modIcons.carriedAmmo, 4, 2);
 		
@@ -446,7 +446,7 @@ public class Flamethrower extends Weapon {
 		
 		toReturn[6] = new StatsRow("Reload Time:", reloadTime, modIcons.reloadSpeed, false);
 		
-		toReturn[7] = new StatsRow("Fear Chance per Second:", convertDoubleToPercentage(0.13), modIcons.fear, selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[7] = new StatsRow("Fear Factor per Second:", convertDoubleToPercentage(0.13), modIcons.fear, selectedTier4 == 0, selectedTier4 == 0);
 		
 		toReturn[8] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), modIcons.movespeed, selectedOverclock == 4, selectedOverclock == 4);
 		
@@ -637,7 +637,10 @@ public class Flamethrower extends Weapon {
 		
 		// Fear
 		if (selectedTier4 == 0) {
-			utilityScores[4] = 0.13 * numTargets * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			// TODO: investigate if this Fear chance is per particle or per second of fire. The way the in-game Mod description is worded, it sounds like once per second this tries to Fear enemies, 
+			// but this is going to have such a low success rate I'm inclined to think that this is 0.13 Fear Factor per particle instead.
+			double probabilityToFear = EnemyInformation.avearageProbabilityToInflictFear(0.13);
+			utilityScores[4] = probabilityToFear * numTargets * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;
