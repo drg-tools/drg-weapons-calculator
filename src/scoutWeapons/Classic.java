@@ -97,7 +97,7 @@ public abstract class Classic extends Weapon {
 		tier5[2] = new Mod("Killing Machine", "Manually reloading within 1 second after a kill reduces reload time by 0.75 seconds", modIcons.reloadSpeed, 5, 2);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Hoverclock", "Your movement slows down for a few seconds while using focus mode in the air.", overclockIcons.hoverclock, 0);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Hoverclock", "While Focusing in midair, your current velocity is reduced by 80% for about a second or until you fire/stop focusing. Getting a kill or touching the ground lets you Hover again.", overclockIcons.hoverclock, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Minimal Clips", "+16 Max Ammo, -0.2 Reload Time", overclockIcons.carriedAmmo, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Active Stability System", "No movement penalty while Focusing, -25% Focused Shot Multiplier", overclockIcons.movespeed, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Hipster", "+3 Rate of Fire, x1.75 Max Ammo, x0.4 Delay Before Focusing, x0.85 Spread per Shot, +75% Spread Recovery Speed, x0.5 Recoil, x0.6 Direct Damage", overclockIcons.baseSpread, 3);

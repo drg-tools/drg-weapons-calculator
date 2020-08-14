@@ -124,8 +124,9 @@ public abstract class EPC extends Weapon {
 		tier4[1] = new Mod("High Density Battery", "+24 Battery Size", modIcons.carriedAmmo, 4, 1);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Flying Nightmare", "Charged Shots now deal their Direct Damage to enemies hit by the AoE while in-flight but it no longer explodes upon impact. Additionally, x0.55 AoE radius, x0.7 Charge Speed.", modIcons.special, 5, 0);
-		tier5[1] = new Mod("Thin Containment Field", "Shoot the Charged Shot with a Regular Shot to make it detonate for an extra +240 Damage. Additionally, x0.8 Heat per Regular Shot, and x0.8 Heat per Charged Shot which means it no longer overheats on charged shots.", modIcons.special, 5, 1);
+		tier5[0] = new Mod("Flying Nightmare", "Charged Shots now deal their Direct Damage to enemies hit by the AoE while in-flight but it no longer explodes upon impact. Additionally, x0.55 AoE radius, x0.7 Charge Speed.", modIcons.aoeRadius, 5, 0);
+		tier5[1] = new Mod("Thin Containment Field", "Shoot the Charged Shot with a Regular Shot before it impacts anything to make it detonate for 240 Damage and carve terrain within its radius. "
+				+ "Additionally, x0.8 Heat per Regular Shot, and x0.8 Heat per Charged Shot which means it no longer overheats on charged shots.", modIcons.special, 5, 1);
 		tier5[2] = new Mod("Plasma Burn", "Regular Shots have 50% of their Direct Damage added on as Heat Damage per shot", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[6];
@@ -590,7 +591,7 @@ public abstract class EPC extends Weapon {
 		// Tier 5
 		toReturn.conditionalAdd(
 				String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 4400, 60, 0, 0, 40, 0, 110, tier5[0].getText(true), "{ \"ex9\": { \"name\": \"Flying Nightmare\", \"value\": 1, \"boolean\": true }, "
-				+ "\"ex5\": { \"name\": \"Charge Speed\", \"value\": 0.7, \"multiply\": true } }", "Icon_Upgrade_Special", "Special"),
+				+ "\"ex5\": { \"name\": \"Charge Speed\", \"value\": 0.7, \"multiply\": true } }", "Icon_Upgrade_Area", "Special"),
 				exportAllMods || false);
 		toReturn.conditionalAdd(
 				String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 4400, 60, 0, 0, 40, 0, 110, tier5[1].getText(true), "{ \"ex10\": { \"name\": \"No Charged Shot Insta-Overheat\", \"value\": 1, \"boolean\": true }, "

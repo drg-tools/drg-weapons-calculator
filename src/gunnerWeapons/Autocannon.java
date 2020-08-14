@@ -117,7 +117,7 @@ public class Autocannon extends Weapon {
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Combat Mobility", "Increases movement speed while using from 50% to 65% of normal walk speed, -2 Direct Damage", overclockIcons.movespeed, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Big Bertha", "+12 Direct Damage, -30% Base Spread, x0.5 Magazine Size, -110 Max Ammo, -1.5 Max Rate of Fire", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neurotoxin Payload", "30% Chance to inflict a Neurotoxin DoT that deals an average of " + MathUtils.round(DoTInformation.Neuro_DPS, GuiConstants.numDecimalPlaces) + 
-				" Poison Damage per Second to all enemies within the AoE Radius upon impact. +0.3m AoE Radius, -3 Direct Damage, -6 Area Damage", overclockIcons.neurotoxin, 5);
+				" Poison Damage per Second for 10 seconds to all enemies within the AoE Radius upon impact. +0.3m AoE Radius, -3 Direct Damage, -6 Area Damage", overclockIcons.neurotoxin, 5);
 	}
 	
 	@Override

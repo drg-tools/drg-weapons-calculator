@@ -39,6 +39,7 @@ public abstract class Weapon extends Observable {
 	protected Overclock[] overclocks;
 	protected int selectedOverclock;
 	
+	// AoE Radius, AoE Efficiency Coefficient, Total num Grunts hit in AoE radius
 	protected double[] aoeEfficiency;
 	
 	// There are 24 breakpoints: 7 normal damage, 12 weakpoints, and 5 Light Armor. They're in the same order as the enemy indexes in EnemyInformation.

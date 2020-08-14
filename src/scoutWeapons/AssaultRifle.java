@@ -83,7 +83,7 @@ public class AssaultRifle extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Gyro Stabilisation", "-100% Base Spread", modIcons.baseSpread, 1, 0);
+		tier1[0] = new Mod("Gyro Stabilisation", "x0 Base Spread", modIcons.baseSpread, 1, 0);
 		tier1[1] = new Mod("Supercharged Feed Mechanism", "+2 Rate of Fire", modIcons.rateOfFire, 1, 1);
 		
 		tier2 = new Mod[2];
@@ -816,7 +816,7 @@ public class AssaultRifle extends Weapon {
 				+ "\"ex10\": { \"name\": \"Spread Recovery Speed\", \"value\": 10, \"percent\": true, \"multiply\": true }, \"dmg\": { \"name\": \"Damage\", \"value\": 1, \"subtract\": true }, \"rate\": { \"name\": \"Rate of Fire\", \"value\": 2, \"subtract\": true } }", "Icon_Upgrade_Aim"),
 				exportAllOCs || false);
 		toReturn.conditionalAdd(
-				String.format(rowFormat, "Unstable", overclocks[6].getShortcutRepresentation(), overclocks[6].getName(), 1000, 65, 105, 135, 0, 0, 0, overclocks[6].getText(true), "{ \"ex11\": { \"name\": \"Electric Reload (100% chance)\", \"value\": 1, \"boolean\": true }, "
+				String.format(rowFormat, "Unstable", overclocks[6].getShortcutRepresentation(), overclocks[6].getName(), 7750, 65, 105, 135, 0, 0, 0, overclocks[6].getText(true), "{ \"ex11\": { \"name\": \"Electric Reload (100% chance)\", \"value\": 1, \"boolean\": true }, "
 				+ "\"dmg\": { \"name\": \"Damage\", \"value\": 3, \"subtract\": true }, \"clip\": { \"name\": \"Magazine Size\", \"value\": 5, \"subtract\": true } }", "Icon_Overclock_Special_Magazine"),
 				exportAllOCs || false);
 		
