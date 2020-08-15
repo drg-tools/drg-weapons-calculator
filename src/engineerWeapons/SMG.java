@@ -452,7 +452,7 @@ public class SMG extends Weapon {
 	****************************************************************************************/
 	
 	private double calculateDamagePerBullet(boolean weakpointBonus) {
-		double directDamage = getDirectDamage();
+		double directDamage = getDirectDamage() + getElectricDamage();
 		
 		if (selectedTier4 == 1) {
 			double conductiveBulletsDamageMultiplier = 1.3;
@@ -460,7 +460,7 @@ public class SMG extends Weapon {
 				directDamage *= conductiveBulletsDamageMultiplier;
 			}
 			else {
-				// To model a 30% physical damage increase to electrocuted targets, average out how many bullets/mag that would get the buff after a DoT proc, and then spread that bonus across every bullet.
+				// To model a 30% direct damage increase to electrocuted targets, average out how many bullets/mag that would get the buff after a DoT proc, and then spread that bonus across every bullet.
 				double DoTChance = getElectrocutionDoTChance();
 				double meanBulletsFiredBeforeProc = MathUtils.meanRolls(DoTChance);
 				double numBulletsFiredAfterProc = getMagazineSize() - meanBulletsFiredBeforeProc;
@@ -469,23 +469,20 @@ public class SMG extends Weapon {
 			}
 		}
 		
-		// According to the wiki, Electric damage gets bonus from Weakpoints too
-		double totalDamage = directDamage + getElectricDamage();
-		
 		// Frozen
 		if (statusEffects[1]) {
-			totalDamage *= UtilityInformation.Frozen_Damage_Multiplier;
+			directDamage *= UtilityInformation.Frozen_Damage_Multiplier;
 		}
 		// IFG Grenade
 		if (statusEffects[3]) {
-			totalDamage *= UtilityInformation.IFG_Damage_Multiplier;
+			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
 		}
 		
 		if (weakpointBonus && !statusEffects[1]) {
-			return increaseBulletDamageForWeakpoints2(totalDamage, getWeakpointBonus());
+			return increaseBulletDamageForWeakpoints2(directDamage, getWeakpointBonus());
 		}
 		else {
-			return totalDamage;
+			return directDamage;
 		}
 	}
 	
