@@ -664,7 +664,7 @@ public abstract class Weapon extends Observable {
 			I'm choosing to model the DoT total damage as "How much damage does the DoT do to the average enemy while it's still alive?"
 		*/
 		// Special case: Revolver can have a lower TTK than time to proc.
-		double avgTTK = averageTimeToKill();
+		double avgTTK = averageTimeToKill(false);
 		if (avgTTK < timeBeforeProc) {
 			return 0;
 		}
