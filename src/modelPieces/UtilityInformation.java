@@ -70,15 +70,17 @@ public class UtilityInformation {
 			Scout - Zhukov (Overclock, Cryo Minelets)
 			Scout - Cryo Grenade
 	*/
-	public static double Cold_Utility = 0.25;  // It appears that the slow from Cold damage increases as their Cold Meter fills up, from 0% slow at no Cold to 25% slowed right before frozen.
-	public static double Frozen_Utility = 2.5;  // Not only are Frozen enemies "stunned" but they also take x3 damage (without getting Weakpoint Bonuses)
+	public static double Cold_Utility = 0.25;  // It appears that the slow from Cold damage increases as their Cold Meter fills up, from 0% slow at no Cold to 25% slowed right before frozen.  TODO: update this slow value
+	public static double Frozen_Utility = 2.5;  // Not only are Frozen enemies "stunned" but they also take x3 Direct Damage (without getting Weakpoint Bonuses)
 	public static double Frozen_Damage_Multiplier = 3;  // Only applies to Direct Damage; not Area Damage or DoTs
 	
 	/*
 		Electric Damage
 		
 		Weapons that deal Electric Damage:
+			Driller - EPC
 			Engineer - "Stubby" SMG
+			Engineer - Breach Cutter
 	*/
 	public static double IFG_Damage_Multiplier = 1.3;
 	
@@ -162,33 +164,34 @@ public class UtilityInformation {
 				Oppressor 100?!
 				Menace 0.7
 				
-		From observation, it seems that the % chance that Fear will be inflicted on enemies uses the following formula:
+		The % chance that Fear will be inflicted on enemies uses the following formula:
 		
 			% Proc = Math.min( (1.0 - Courage) * Fear Factor, 1.0)
 		
-		So, in theory, a Fear Factor of 334% would be enough to 100% proc Fear on a Glyphid Menace. Anything with Fear Factor 50% would fear Grunts and Praetorians with a probability of 0.25. 
-		If I hear that this is incorrect, or find new evidence that contradicts this model, I'll change it accordingly.
+		So, in theory, a Fear Factor of 3.34 would be enough to 100% proc Fear on a Glyphid Menace. Anything with Fear Factor 0.5 would fear Grunts and Praetorians with a probability of 0.25.
 		
-		Additionally, there's a possibility that the value of the Fear Factor determines the length of the Fear status effect. I'd have to test Aggressive Venting vs Praetorians and PGL vs Praetorians, see if they run 10x longer from AV than PGL
+		The duration of the Fear status effect is different per enemy type, according to MikeGSG. He hasn't confirmed this yet, but I'm under the impression that ground enemies have to walk a certain
+		distance away from the point of fear before it ends, so their movespeed affects the Fear duration. If that's true, then Slows would extend the Fear, and higher Hazard levels would shorten the Fear.
 		
 		Weapons that can inflict Fear:
 			Driller - Flamethrower (Mod Tier 4, It Burns!)
 			Driller - HE Grenade
 			Driller - Satchel Charge (Tier 4 upgrade "Big Bang")
 			Engineer - Grenade Launcher (default behavior)
-			Gunner - Minigun (Mod Tier 5, Aggressive Overheat)
+			Engineer - Proximity Mines (default behavior)
+			Gunner - Minigun (Mod Tier 5, Aggressive Venting)
 			Gunner - Autocannon (Mod Tier 5, Suppressive Fire)
 			Gunner - Sticky Grenade
 			Scout - M1000 Classic (Mod Tier 5, Precision Terror)
 			Scout - Boomstick (Mod Tier 5, Fear the Boomstick)
 			
-		Eneies immune to Fear:
+		Enemies immune to Fear:
+			Glyphid Oppressor
 			Glyphid Bulk Detonator
 			Glyphid Dreadnaught
 			BET-C
 	*/
 	public static double Fear_Utility = 0.75;
-	public static double Fear_Duration = 2;
 	
 	/*
 		Slow

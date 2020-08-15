@@ -260,8 +260,9 @@ public class Classic_FocusShot extends Classic {
 		if (selectedTier5 == 1) {
 			double probabilityToHitWeakpoint = EnemyInformation.probabilityBulletWillHitWeakpoint();
 			int numGlyphidsFeared = 22;  // calculateNumGlyphidsInRadius(3.5);
-			double probabilityToFear = EnemyInformation.avearageProbabilityToInflictFear(1.0);
-			utilityScores[4] = probabilityToHitWeakpoint * probabilityToFear * numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			double probabilityToFear = calculateFearProcProbability(1.0);
+			// Although it is technically possible to electrocute a Feared enemy with Electrocuting Focus Shots and Blowthrough Rounds, it's so unlikely to happen that I'm choosing not to model that overlap.
+			utilityScores[4] = probabilityToHitWeakpoint * probabilityToFear * numGlyphidsFeared * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;

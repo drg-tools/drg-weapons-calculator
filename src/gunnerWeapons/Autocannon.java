@@ -492,7 +492,7 @@ public class Autocannon extends Weapon {
 		
 		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier4 == 0, selectedTier4 == 0);
 		
-		toReturn[11] = new StatsRow("Fear Factor:", convertDoubleToPercentage(0.5), modIcons.fear, selectedTier5 == 1, selectedTier5 == 1);
+		toReturn[11] = new StatsRow("Fear Factor:", 0.5, modIcons.fear, selectedTier5 == 1, selectedTier5 == 1);
 		
 		boolean baseSpreadModified = selectedTier2 == 0 || selectedOverclock == 4;
 		toReturn[12] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, baseSpreadModified, baseSpreadModified);
@@ -803,8 +803,15 @@ public class Autocannon extends Weapon {
 		// According to MikeGSG, Mod Tier 5 "Suppressive Fire" does 0.5 Fear in a 1m radius
 		if (selectedTier5 == 1) {
 			int numGlyphidsFeared = 5;  // calculateNumGlyphidsInRadius(1.0);
-			double probabilityToFear = EnemyInformation.avearageProbabilityToInflictFear(0.5);
-			utilityScores[4] = probabilityToFear * numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			double probabilityToFear = calculateFearProcProbability(0.5);
+			double fearDuration = 0;
+			if (selectedOverclock == 5) {
+				fearDuration = EnemyInformation.averageFearDuration(UtilityInformation.Neuro_Slow_Utility, 10.0);
+			}
+			else {
+				fearDuration = EnemyInformation.averageFearDuration();
+			}
+			utilityScores[4] = probabilityToFear * numGlyphidsFeared * fearDuration * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;

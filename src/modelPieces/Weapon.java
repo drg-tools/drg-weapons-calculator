@@ -635,8 +635,11 @@ public abstract class Weapon extends Observable {
 		return calculateProbabilityToBreakLightArmor(baseDamage, 1.0);
 	}
 	protected double calculateProbabilityToBreakLightArmor(double baseDamage, double armorBreaking) {
-		double averageArmorStrength = EnemyInformation.averageLightArmorStrength();
-		return EnemyInformation.lightArmorBreakProbabilityLookup(baseDamage, armorBreaking, averageArmorStrength);
+		return EnemyInformation.lightArmorBreakProbabilityLookup(baseDamage, armorBreaking, EnemyInformation.averageLightArmorStrength());
+	}
+	
+	protected double calculateFearProcProbability(double fearFactor) {
+		return Math.min(fearFactor * (1.0 - EnemyInformation.averageCourage()), 1.0);
 	}
 	
 	protected double calculateRNGDoTDPSPerMagazine(double DoTProcChance, double DoTDPS, int magazineSize) {

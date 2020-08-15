@@ -434,7 +434,7 @@ public class GrenadeLauncher extends Weapon {
 		
 		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier3 == 1);
 		
-		toReturn[8] = new StatsRow("Fear Factor:", convertDoubleToPercentage(fearFactor), modIcons.fear, false);
+		toReturn[8] = new StatsRow("Fear Factor:", fearFactor, modIcons.fear, false);
 		
 		boolean stunEquipped = selectedTier4 == 2;
 		toReturn[9] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), modIcons.homebrewPowder, stunEquipped, stunEquipped);
@@ -661,8 +661,8 @@ public class GrenadeLauncher extends Weapon {
 			utilityScores[5] = getStunChance() * aoeEfficiency[2] * getStunDuration() * UtilityInformation.Stun_Utility;
 		}
 		else {
-			double probabilityToFear = EnemyInformation.avearageProbabilityToInflictFear(fearFactor);
-			utilityScores[4] = probabilityToFear * aoeEfficiency[2] * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			double probabilityToFear = calculateFearProcProbability(fearFactor);
+			utilityScores[4] = probabilityToFear * aoeEfficiency[2] * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
 			utilityScores[5] = 0;
 		}
 		

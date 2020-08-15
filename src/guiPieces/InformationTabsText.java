@@ -11,6 +11,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import modelPieces.DoTInformation;
+import modelPieces.EnemyInformation;
 import modelPieces.UtilityInformation;
 import utilities.MathUtils;
 
@@ -196,7 +197,8 @@ public class InformationTabsText {
 					+ DoTInformation.Neuro_SecsDuration + " seconds, while also being slowed by 30%. Also like Electrocute, enemies can only have one Neurotoxin DoT applied to them at once; anything that would apply a second effect instead refreshes the duration."},
 			{"Persistent Plasma (DoT)", "Similar to Radiation, this is an area-of-effect DoT that gets left behind by certain mods and overclocks. It deals an average of " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per second."},
 			{"Stun (Status Effect)", "Stunning an enemy stops them from moving or attacking for a set duration. That duration changes from weapon to weapon, but it's typically around 2 seconds. Enemies that channel their attacks (like Praetorians) can have those attacks interrurpted by a Stun."},
-			{"Fear (Status Effect)", "Inflicting Fear on an enemy causes them to stop what they're doing and run from the source of the Fear as fast as they can move for about " + UtilityInformation.Fear_Duration + " seconds. After the Fear wears off, they return to normal behavior."},
+			{"Fear (Status Effect)", "Inflicting Fear on an enemy causes them to stop what they're doing and run from the source of the Fear as fast as they can move for about " + MathUtils.round(EnemyInformation.averageFearDuration(), GuiConstants.numDecimalPlaces) + " seconds. After the Fear "
+					+ "wears off, they return to normal behavior."},
 			{"Base Spread", "This stat affects how accurate the first shot will be. At 0%, that means the first shot is guaranteed to go exactly where your crosshair is pointing. As the percentage goes higher, the probability that the first shot will hit decreases."},
 			{"Spread Per Shot", "After every shot gets fired, the maximum area of the crosshair increases by this amount. Thus, successive shots get increasingly less likely to hit your intended target until it reaches Max Spread."},
 			{"Spread Recovery", "This stat is constantly reducing the current Spread of the gun, trying to return to Base Spread. Because this is a constant rate, it's more effective the lower the Rate of Fire."},

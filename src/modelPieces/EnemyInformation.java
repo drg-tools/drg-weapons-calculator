@@ -242,6 +242,41 @@ public class EnemyInformation {
 		0.0   // Cave Leech
 	};
 	
+	// Used to determine average regular Fear duration. Enemies that can't move on the ground, fly, or can't be feared will have this value set to zero to maintain correct values.
+	// Additionally, all creatures that get Feared have a x1.5 speedboost, except for Oppressor (x2) and Bulk/Crassus/Dread (x1) which can only be feared by Field Medic/SYiH/Bosco Revive
+	// Values listed as m/sec groundspeed
+	private static double[] enemyFearMovespeed = {
+		3.5,  // Glyphid Swarmer
+		2.9,  // Glyphid Grunt
+		2.7,  // Glyphid Grunt Guard
+		3.1,  // Glyphid Grunt Slasher
+		2.0,  // Glyphid Praetorian
+		4.0,  // Glyphid Exploder
+		0.0,  // Glyphid Bulk Detonator
+		0.0,  // Glyphid Crassus Detonator
+		2.5,  // Glyphid Webspitter
+		2.5,  // Glyphid Acidspitter
+		2.5,  // Glyphid Menace
+		2.9,  // Glyphid Warden
+		0.0,  // Glyphid Oppressor
+		0.0,  // Q'ronar Shellback
+		0.0,  // Mactera Spawn
+		0.0,  // Mactera Grabber
+		0.0,  // Mactera Bomber
+		0.0,  // Naedocyte Breeder
+		0.0,  // Glyphid Brood Nexus
+		0.0,  // Spitball Infector
+		0.0   // Cave Leech
+	};
+	
+	private static double[] movespeedDifficultyScaling = {
+		0.8,  // Haz1
+		0.9,  // Haz2
+		1.0,  // Haz3
+		1.0,  // Haz4
+		1.1   // Haz5
+	};
+	
 	private static boolean verifySpawnRatesTotalIsOne() {
 		double sum = 0.0;
 		for (int i = 0; i < exactSpawnRates.length; i++) {
@@ -529,9 +564,36 @@ public class EnemyInformation {
 		
 		return MathUtils.vectorDotProduct(exactSpawnRates, enemyCourageValues);
 	}
-	public static double avearageProbabilityToInflictFear(double fearFactor) {
-		double avgCourage = averageCourage();
-		return Math.min((1.0 - avgCourage) * fearFactor, 1.0);
+	
+	/*
+		Although at this time this model is unconfirmed, I have some evidence to support this theory.
+		
+		The regular Fear status effect inflicted by weapons and grenades works like this: for every creature that has the Fear Factor attack applied to them,
+		the probability that they will have the Fear status effect inflicted is equal to Fear Factor * (1.0 - Courage). If it is inflicted, then ground-based 
+		enemies will move 8m away from the point of Fear at a rate of 1.5 * Max Movespeed * Difficulty Scaling * (1.0 - Movespeed Slow). As a result of this formula,
+		Slowing an enemy that is being Feared will increase the duration of the Fear status effect, and it will naturally be shorter at higher hazard levels.
+	*/
+	public static double averageFearDuration() {
+		return averageFearDuration(0.0, 0.0);
+	}
+	public static double averageFearDuration(double enemySlowMultiplier, double slowDuration) {
+		double averageFearMovespeed = MathUtils.vectorDotProduct(exactSpawnRates, enemyFearMovespeed);
+		double difficultyScalingMovespeedModifier = movespeedDifficultyScaling[hazardLevel - 1];
+		
+		// This value gathered from internal property TSK_FleeFrom_C.distance
+		double fearDistanceGoal = 10.0;
+		// 1.5 multiplier comes from DeepPathfinderMovement.FleeSpeedBoostMultiplier
+		double compositeAverageEnemyMovespeed = 1.5 * averageFearMovespeed * difficultyScalingMovespeedModifier * (1.0 - enemySlowMultiplier);
+		
+		double rawDuration = fearDistanceGoal / compositeAverageEnemyMovespeed;
+		if (enemySlowMultiplier > 0 && rawDuration > slowDuration) {
+			// If the slow runs out before the average enemy has finished moving the distance goal, then the rest of the distance will be at normal speed.
+			double remainingDistance = fearDistanceGoal - slowDuration * compositeAverageEnemyMovespeed;
+			return slowDuration + remainingDistance / (averageFearMovespeed * difficultyScalingMovespeedModifier);
+		}
+		else {
+			return rawDuration;
+		}
 	}
 	
 	/*

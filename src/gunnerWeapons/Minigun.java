@@ -117,7 +117,7 @@ public class Minigun extends Weapon {
 		tier4[2] = new Mod("Magnetic Bearings", "+3 seconds spindown time", modIcons.special, 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Aggressive Venting", "After overheating, deal 60 Heat Damage and 100% chance to apply 10 Fear to all enemies within a 10m radius", modIcons.addedExplosion, 5, 0);
+		tier5[0] = new Mod("Aggressive Venting", "After overheating, deal 60 Heat Damage and 10 Fear to all enemies within a 10m radius", modIcons.addedExplosion, 5, 0);
 		tier5[1] = new Mod("Cold As The Grave", "Every kill subtracts 0.8 Heat from the Heat Meter (maxes at 9.5 Heat) and thus increases the firing duration before overheating", modIcons.coolingRate, 5, 1);
 		tier5[2] = new Mod("Hot Bullets", "After the Heat Meter turns red, 50% of the Damage per Pellet gets added as Heat Damage", modIcons.heatDamage, 5, 2);
 		
@@ -1008,8 +1008,8 @@ public class Minigun extends Weapon {
 			// That still might be too high?
 			double[] aggressiveVentingAoeEfficiency = calculateAverageAreaDamage(10, 6, 0.25);
 			int numGlyphidsFeared = (int) Math.round(aggressiveVentingAoeEfficiency[1] * aggressiveVentingAoeEfficiency[2]);
-			double probabilityToFear = EnemyInformation.avearageProbabilityToInflictFear(10.0);
-			utilityScores[4] = probabilityToFear * numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			double probabilityToFear = calculateFearProcProbability(10.0);
+			utilityScores[4] = probabilityToFear * numGlyphidsFeared * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;

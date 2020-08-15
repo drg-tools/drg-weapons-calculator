@@ -450,7 +450,7 @@ public class Boomstick extends Weapon {
 		
 		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier4 == 1, selectedTier4 == 1);
 		
-		toReturn[8] = new StatsRow("Fear Factor:", convertDoubleToPercentage(0.5), modIcons.fear, selectedTier5 == 1, selectedTier5 == 1);
+		toReturn[8] = new StatsRow("Fear Factor:", 0.5, modIcons.fear, selectedTier5 == 1, selectedTier5 == 1);
 		
 		toReturn[9] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(stunChance), modIcons.homebrewPowder, false);
 		
@@ -759,13 +759,12 @@ public class Boomstick extends Weapon {
 		double probabilityToBreakLightArmorPlatePerPellet = calculateProbabilityToBreakLightArmor(getDamagePerPellet() * numPelletsThatHitLightArmorPlate, getArmorBreaking());
 		utilityScores[2] = probabilityToBreakLightArmorPlatePerPellet * UtilityInformation.ArmorBreak_Utility;
 		
-		// Mod Tier 5 "Fear the Boomstick" = 50% chance to Fear enemies within 5m
+		// Mod Tier 5 "Fear the Boomstick" = 0.5 Fear to enemies within 5m
 		if (selectedTier5 == 1) {
 			// A 5m radius returns 41 grunts, which is just too many. I'm choosing to reduce the radius by half, which brings it down to 12.
-			// From my tests, it seems that the 0.5 Fear corresponds to about 30% fear proc
 			int gruntsHitByBlastwave = calculateNumGlyphidsInRadius(5.0 / 2.0);
-			double probabilityToFear = EnemyInformation.avearageProbabilityToInflictFear(0.5);
-			utilityScores[4] = probabilityToFear * gruntsHitByBlastwave * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			double probabilityToFear = calculateFearProcProbability(0.5);
+			utilityScores[4] = probabilityToFear * gruntsHitByBlastwave * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;

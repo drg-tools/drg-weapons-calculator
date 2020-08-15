@@ -446,7 +446,7 @@ public class Flamethrower extends Weapon {
 		
 		toReturn[6] = new StatsRow("Reload Time:", reloadTime, modIcons.reloadSpeed, false);
 		
-		toReturn[7] = new StatsRow("Fear Factor per Second:", convertDoubleToPercentage(0.13), modIcons.fear, selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[7] = new StatsRow("Fear Factor per Second:", 0.13, modIcons.fear, selectedTier4 == 0, selectedTier4 == 0);
 		
 		toReturn[8] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), modIcons.movespeed, selectedOverclock == 4, selectedOverclock == 4);
 		
@@ -637,10 +637,9 @@ public class Flamethrower extends Weapon {
 		
 		// Fear
 		if (selectedTier4 == 0) {
-			// TODO: investigate if this Fear chance is per particle or per second of fire. The way the in-game Mod description is worded, it sounds like once per second this tries to Fear enemies, 
-			// but this is going to have such a low success rate I'm inclined to think that this is 0.13 Fear Factor per particle instead.
-			double probabilityToFear = EnemyInformation.avearageProbabilityToInflictFear(0.13);
-			utilityScores[4] = probabilityToFear * numTargets * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			double probabilityToFear = calculateFearProcProbability(0.13);
+			double fearDuration = EnemyInformation.averageFearDuration(getSFSlow(), getSFDuration());
+			utilityScores[4] = probabilityToFear * numTargets * fearDuration * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;
