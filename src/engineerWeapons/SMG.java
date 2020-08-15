@@ -100,7 +100,7 @@ public class SMG extends Weapon {
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Magazine Capacity Tweak", "+20 Magazine Size", modIcons.magSize, 5, 0);
-		tier5[1] = new Mod("Electric Arc", "Every time the SMG either applies or refreshes an Electrocute DoT, there's a 25% chance that enemies near the primary target will be electrocuted as well.", modIcons.electricity, 5, 1);
+		tier5[1] = new Mod("Electric Arc", "Every time the SMG either applies or refreshes an Electrocute DoT, there's a 25% chance that all enemies within a 2.75m radius of the primary target will be electrocuted as well.", modIcons.electricity, 5, 1);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Super-Slim Rounds", "+5 Magazine Size, x0.8 Base Spread", overclockIcons.magSize, 0);
@@ -109,8 +109,8 @@ public class SMG extends Weapon {
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Light-Weight Rounds", "+180 Max Ammo, -1 Direct Damage, -2 Rate of Fire", overclockIcons.carriedAmmo, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Turret Arc", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, that turret deals constant Electric Damage in a small radius around it. "
 				+ "Additionally, if 2 turrets are less than 10m apart and both are electrocuted at the same time, then an electric arc will pass between them for 10 seconds. -120 Max Ammo, -2 Rate of Fire", overclockIcons.electricity, 4, false);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Turret EM Discharge", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, then an explosion deals electric damage to all enemies "
-				+ "with a 5m radius. -5% Chance to Electrocute an enemy, -3 Direct Damage", overclockIcons.areaDamage, 5, false);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Turret EM Discharge", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, it triggers an explosion that deals 40 Electric Damage and 0.5 Fear to all enemies "
+				+ "within a 5m radius. There's a 1.5 second cooldown between explosions. -5% Chance to Electrocute an enemy, -3 Direct Damage", overclockIcons.areaDamage, 5, false);
 	}
 	
 	@Override
@@ -492,7 +492,8 @@ public class SMG extends Weapon {
 
 	@Override
 	public boolean currentlyDealsSplashDamage() {
-		return false;
+		// T5.B Electric Arc has a 2.75m radius AoE that can electrocute nearby enemies
+		return selectedTier5 == 1;
 	}
 	
 	// Single-target calculations
@@ -578,7 +579,8 @@ public class SMG extends Weapon {
 		totalDamage += calculateBurstElectrocutionDoTDPS() * calculateFiringDuration();
 		
 		if (selectedTier5 == 1) {
-			totalDamage += calculateAdditionalTargetDPS() * calculateFiringDuration();
+			// Don't double-count the DoTs already calculated for the primary target
+			totalDamage += (calculateMaxNumTargets() - 1) * calculateAdditionalTargetDPS() * calculateFiringDuration();
 		}
 		
 		return totalDamage;
@@ -586,9 +588,9 @@ public class SMG extends Weapon {
 
 	@Override
 	public int calculateMaxNumTargets() {
-		// TODO: I had modeled this method like it could only hit one other target, but looking at its visual effect I think it might be able to hit more than 1 around the primary target.
 		if (selectedTier5 == 1) {
-			return 2;
+			// T5.B "Electric Arc" causes a 2.75m AoE around the primary target 25% of the time that it procs an Electrocute DoT
+			return calculateNumGlyphidsInRadius(2.75);
 		}
 		else {
 			return 1;
@@ -665,7 +667,10 @@ public class SMG extends Weapon {
 		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDirectDamage() + getElectricDamage()) * UtilityInformation.ArmorBreak_Utility;
 		
 		// Innate ability to Electrocute applies an 80% slow to enemies (proc chance increased/decreased by mods and OCs)
-		utilityScores[3] = getElectrocutionDoTChance() * calculateMaxNumTargets() * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+		utilityScores[3] = getElectrocutionDoTChance() * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+		if (selectedTier5 == 1) {
+			utilityScores[3] += getElectrocutionDoTChance() * 0.25 * (calculateMaxNumTargets() - 1) * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+		}
 		
 		return MathUtils.sum(utilityScores);
 	}
