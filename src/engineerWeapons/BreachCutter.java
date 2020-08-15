@@ -820,24 +820,30 @@ public class BreachCutter extends Weapon {
 		// Light Armor Breaking probability
 		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDamagePerTick(), getArmorBreaking()) * UtilityInformation.ArmorBreak_Utility;
 		
+		int maxNumTargets = calculateMaxNumTargets();
+		
 		// Slow
-		// OC "High Voltage Crossover" applies an Electrocute DoT that slows movement by 80% for 4 seconds
 		if (selectedOverclock == 4) {
-			// In order to prevent double-counting the 80% slow while enemies are stunned by T4.B, I'm going to reduce the Slow duration by the Stun duration when both are selected
-			double slowDuration = 4.0;
-			if (selectedTier4 == 1) {
-				slowDuration -= 3.0;
-			}
-			utilityScores[3] = calculateMaxNumTargets() * slowDuration * UtilityInformation.Electrocute_Slow_Utility;
+			// OC "High Voltage Crossover" applies an Electrocute DoT that slows movement by 80% for 4 seconds
+			// This overrides the built-in 70% slow during intersection, instead of adding to it.
+			utilityScores[3] += maxNumTargets * 4.0 * UtilityInformation.Electrocute_Slow_Utility;
 		}
 		else {
-			utilityScores[3] = 0;
+			// Breach Cutter slows enemy movement by 70% while the line intersects their hitbox.
+			double intersectionTime;
+			if (selectedOverclock == 5) {
+				intersectionTime = calculateAverageGruntIntersectionTimePerSpinningDeathProjectile();
+			}
+			else {
+				intersectionTime = calculateGruntIntersectionTimePerRegularProjectile();
+			}
+			utilityScores[3] = maxNumTargets * intersectionTime * 0.7;
 		}
 		
 		// Stun
 		// T4.B has a 100% chance to stun for 3 seconds
 		if (selectedTier4 == 1) {
-			utilityScores[5] = calculateMaxNumTargets() * 3.0 * UtilityInformation.Stun_Utility;
+			utilityScores[5] = maxNumTargets * 3.0 * UtilityInformation.Stun_Utility;
 		}
 		else {
 			utilityScores[5] = 0;
