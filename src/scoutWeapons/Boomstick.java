@@ -711,17 +711,26 @@ public class Boomstick extends Weapon {
 	
 	@Override
 	public int breakpoints() {
+		double direct = getDamagePerPellet() * getNumberOfPellets();
+		double area = getBlastwaveDamage();
+		
+		// According to Elythnwaen, White Phosphorus Shells not only adds 50% of kinetic + explosive damage to Heat, it also converts 50% to Fire.
+		double split = 0;
+		if (selectedTier5 == 2) {
+			split = 0.5;
+		}
+		
 		double[] directDamage = {
-			getDamagePerPellet() * getNumberOfPellets(),  // Kinetic
+			(1.0 - split) * direct,  // Kinetic
 			0,  // Explosive
-			0,  // Fire
+			split * direct,  // Fire
 			0,  // Frost
 			0  // Electric
 		};
 		
 		double[] areaDamage = {
-			getBlastwaveDamage(),  // Explosive
-			0,  // Fire
+			(1.0 - split) * area,  // Explosive
+			split * area,  // Fire
 			0,  // Frost
 			0  // Electric
 		};
@@ -729,7 +738,7 @@ public class Boomstick extends Weapon {
 		// Because White Phosphorus Shells is a burst of Heat, it's not modeled like other DoTs are
 		double burstOfHeatPerShot = 0;
 		if (selectedTier5 == 2) {
-			burstOfHeatPerShot = 0.5 * getDamagePerPellet() * getNumberOfPellets();
+			burstOfHeatPerShot = 0.5 * (direct + area);
 		}
 		
 		double[] DoTDamage = {
