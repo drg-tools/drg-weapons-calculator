@@ -194,8 +194,7 @@ public class EPC_RegularShot extends EPC {
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
-		// TODO: should this be increased by Weakpoint bonus?
-		double dmgPerShot = getDirectDamage();
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage());
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 	

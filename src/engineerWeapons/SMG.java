@@ -607,6 +607,7 @@ public class SMG extends Weapon {
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
+		// TODO: calculateDamagePerBullet uses weakpointBonus2 (not the weighted average) which makes this different from all other models. Maybe refactor in the future?
 		double dmgPerShot = calculateDamagePerBullet(true);
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}

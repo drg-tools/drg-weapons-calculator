@@ -855,7 +855,6 @@ public class Minigun extends Weapon {
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
-		// TODO: Should this and all other weapons increase based on the weighted average, or just straight increase due to having Accuracy modeled now?
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet());
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}

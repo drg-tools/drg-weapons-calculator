@@ -599,7 +599,7 @@ public class Shotgun extends Weapon {
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
-		double dmgPerShot = increaseBulletDamageForWeakpoints(increaseBulletDamageForWeakpoints(getDamagePerPellet()) * getNumberOfPellets());
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet(), getWeakpointBonus()) * getNumberOfPellets();
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
