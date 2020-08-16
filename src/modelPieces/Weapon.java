@@ -23,6 +23,7 @@ public abstract class Weapon extends Observable {
 	// Since several of the weapons have a Homebrew Powder mod or OC, I'm adding this coefficient in the parent class so that they can all be updated simultaneously.
 	// Taking the (integral of x dx from 0.8 -> 1.4) / (1.4 - 0.8) results in the intuitive 1.1
 	protected double homebrewPowderCoefficient = 1.1;
+	protected double accuracyDistance = 7.0; // Start at 7m distance for all weapons in AccuracyEstimator, but let it be overwritten by shotgun classes.
 	
 	// If any of these shorts is set to -1, that means there should be no mods equipped at that tier.
 	protected Mod[] tier1;
@@ -539,6 +540,21 @@ public abstract class Weapon extends Observable {
 			}
 		*/
 		aoeEfficiency = new double[3];
+	}
+	
+	public void setAccuracyDistance(double newDistance) {
+		// Input sanitization
+		if (newDistance > 0 && newDistance < 20) {
+			accuracyDistance = newDistance;
+			// Because this method will only be called from the GUI, it doesn't need the updateGUI flag
+			if (countObservers() > 0) {
+				setChanged();
+				notifyObservers();
+			}
+		}
+	}
+	public double getAccuracyDistance() {
+		return accuracyDistance;
 	}
 	
 	/****************************************************************************************

@@ -7,31 +7,18 @@ import java.util.Set;
 import utilities.MathUtils;
 
 public class AccuracyEstimator {
-	// The distances from which this class estimates the accuracy of a gun
-	private static double closeRangeTargetDistanceMeters = 5.0;
-	private static double mediumRangeTargetDistanceMeters = 7.0;
 	// The distance from which the measurements were taken
 	private static double testingDistancePixels = 1074.047528;
 	
 	private static double convertRecoilPixelsToRads(double px) {
 		return Math.atan(px / testingDistancePixels);
 	}
-	private static double convertRadiansToMeters(double r, boolean closeRange) {
-		if (closeRange) {
-			return closeRangeTargetDistanceMeters * Math.tan(r);
-		}
-		else {
-			return mediumRangeTargetDistanceMeters * Math.tan(r);
-		}
+	private static double convertRadiansToMeters(double rads, double distance) {
+		return distance * Math.tan(rads);
 	}
 	// This method also gets used in Gunner/Minigun's accuracy method
-	public static double convertSpreadPixelsToMeters(double px, boolean closeRange) {
-		if (closeRange) {
-			return closeRangeTargetDistanceMeters * px /  (2 * testingDistancePixels);
-		}
-		else {
-			return mediumRangeTargetDistanceMeters * px /  (2 * testingDistancePixels);
-		}
+	public static double convertSpreadPixelsToMeters(double px, double distance) {
+		return distance * px /  (2 * testingDistancePixels);
 	}
 	
 	private enum inflectionType{increase, decrease, stop, IandD, IandS, DandS, allThree};
@@ -354,7 +341,7 @@ public class AccuracyEstimator {
 	}
 	
 	public static double calculateCircularAccuracy(
-		boolean weakpoint, boolean closeRange, double rateOfFire, int magSize, int burstSize,
+		boolean weakpoint, double distanceFromTarget, double rateOfFire, int magSize, int burstSize,
 		double unchangingBaseSpread, double changingBaseSpread, double spreadVariance, double spreadPerShot, double spreadRecoverySpeed,
 		double recoilPerShot, double recoilIncreaseInterval, double recoilDecreaseInterval,
 		double[] accuracyModifiers
@@ -394,10 +381,10 @@ public class AccuracyEstimator {
 		double crosshairRadius, crosshairRecoil, P; 
 		for (int i = 0; i < magSize; i++) {
 			// Step 2: calculate the crosshair size at the time the bullet gets fired
-			crosshairRadius = convertSpreadPixelsToMeters(predictedSpread[i], closeRange);
+			crosshairRadius = convertSpreadPixelsToMeters(predictedSpread[i], distanceFromTarget);
 			
 			// Step 3: calculate how far off-center the crosshair is due to recoil
-			crosshairRecoil = convertRadiansToMeters(predictedRecoil[i], closeRange);
+			crosshairRecoil = convertRadiansToMeters(predictedRecoil[i], distanceFromTarget);
 			
 			// Step 4: calculate the area of overlap (if any) between the crosshair size, crosshair recoil, and target area
 			// Step 5: divide the overlap by the target area for the probability that at the current bullet will hit
@@ -438,9 +425,9 @@ public class AccuracyEstimator {
 		return sumOfAllProbabilities / magSize * 100.0;
 	}
 	
-	public static double calculateRectangularAccuracy(boolean weakpoint, boolean closeRange, double crosshairWidthPixels, double crosshairHeightPixels) {
-		double crosshairHeightMeters = AccuracyEstimator.convertSpreadPixelsToMeters(crosshairHeightPixels, closeRange);
-		double crosshairWidthMeters = AccuracyEstimator.convertSpreadPixelsToMeters(crosshairWidthPixels, closeRange);
+	public static double calculateRectangularAccuracy(boolean weakpoint, double distanceFromTarget, double crosshairWidthPixels, double crosshairHeightPixels) {
+		double crosshairHeightMeters = AccuracyEstimator.convertSpreadPixelsToMeters(crosshairHeightPixels, distanceFromTarget);
+		double crosshairWidthMeters = AccuracyEstimator.convertSpreadPixelsToMeters(crosshairWidthPixels, distanceFromTarget);
 		double targetRadius;
 		if (weakpoint) {
 			targetRadius = 0.2;

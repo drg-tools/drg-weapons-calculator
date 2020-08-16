@@ -58,6 +58,9 @@ public class Zhukov extends Weapon {
 		rateOfFire = 30.0;  // Really 15
 		reloadTime = 1.8;
 		
+		// Similar to the shotguns, overwrite the default accuracyDistance of 7m
+		accuracyDistance = 5.0;
+		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
 		setBaselineStats();
@@ -619,7 +622,7 @@ public class Zhukov extends Weapon {
 		double crosshairHeightPixels = 98;
 		double crosshairWidthPixels = unchangingWidth + changingWidth * getBaseSpread();
 		
-		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, true, crosshairWidthPixels, crosshairHeightPixels);
+		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, accuracyDistance, crosshairWidthPixels, crosshairHeightPixels);
 	}
 	
 	@Override

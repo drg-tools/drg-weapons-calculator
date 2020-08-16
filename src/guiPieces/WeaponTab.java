@@ -425,23 +425,24 @@ public class WeaponTab extends JPanel {
 			value = new JLabel(leftPadSpaces + "Manually Aimed");
 			value.setFont(GuiConstants.customFontBold);
 			value.setForeground(GuiConstants.drgHighlightedYellow);
+			toReturn.add(value);
 		}
 		else {
 			roundedNumber = leftPadSpaces + MathUtils.round(generalAccuracy, GuiConstants.numDecimalPlaces) + "%";
-			value = new JLabel(roundedNumber);
-			value.setFont(GuiConstants.customFontBold);
+			
+			AccuracySliderButton accSlideButton = new AccuracySliderButton(this, roundedNumber, myWeapon);
 			if (generalAccuracy < originalStats[8]) {
-				value.setForeground(GuiConstants.drgNegativeChangeRed);
+				accSlideButton.setForeground(GuiConstants.drgNegativeChangeRed);
 			}
 			else if (generalAccuracy > originalStats[8]) {
-				value.setForeground(GuiConstants.drgOverclockCleanGreen);
+				accSlideButton.setForeground(GuiConstants.drgOverclockCleanGreen);
 			}
 			else {
 				// Implicitly means that they're equal
-				value.setForeground(GuiConstants.drgHighlightedYellow);
+				accSlideButton.setForeground(GuiConstants.drgHighlightedYellow);
 			}
+			toReturn.add(accSlideButton);
 		}
-		toReturn.add(value);
 		
 		double weakpointAccuracy = myWeapon.estimatedAccuracy(true);
 		if (weakpointAccuracy < 0) {

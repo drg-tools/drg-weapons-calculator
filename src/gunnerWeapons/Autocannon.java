@@ -685,7 +685,7 @@ public class Autocannon extends Weapon {
 			crosshairWidthPixels = 397;
 		}
 		
-		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, false, crosshairWidthPixels, crosshairHeightPixels);
+		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, accuracyDistance, crosshairWidthPixels, crosshairHeightPixels);
 	}
 	
 	@Override

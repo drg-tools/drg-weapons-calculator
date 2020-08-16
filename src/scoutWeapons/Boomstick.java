@@ -76,6 +76,9 @@ public class Boomstick extends Weapon {
 		stunChance = 0.3;
 		stunDuration = 2.5;
 		
+		// Because this is a shotgun, overwrite the default accuracyDistance of 7m
+		accuracyDistance = 5.0;
+		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
 		setBaselineStats();
@@ -693,7 +696,7 @@ public class Boomstick extends Weapon {
 			// Base Spread = 100%
 			crosshairWidthPixels = 468;
 		}
-		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, true, crosshairWidthPixels, crosshairHeightPixels);
+		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, accuracyDistance, crosshairWidthPixels, crosshairHeightPixels);
 	}
 	
 	@Override

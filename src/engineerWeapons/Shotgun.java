@@ -62,6 +62,9 @@ public class Shotgun extends Weapon {
 		weakpointStunChance = 0.1;
 		stunDuration = 3;
 		
+		// Because this is a shotgun, overwrite the default accuracyDistance of 7m
+		accuracyDistance = 5.0;
+		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
 		setBaselineStats();
@@ -618,7 +621,7 @@ public class Shotgun extends Weapon {
 		
 		double[] modifiers = {getBaseSpread(), 1.0, 1.0, 1.0, getRecoil()};
 		
-		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, true, getRateOfFire(), getMagazineSize(), 1, 
+		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, accuracyDistance, getRateOfFire(), getMagazineSize(), 1, 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
 				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
 	}
