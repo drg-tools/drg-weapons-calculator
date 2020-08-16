@@ -668,7 +668,7 @@ public abstract class Revolver extends Weapon {
 		
 		double neurotoxinDoTTotalDamage = 0;
 		if (selectedTier5 == 1) {
-			double timeBeforeNeuroProc = Math.round(1.0 / 0.5) / getRateOfFire();
+			double timeBeforeNeuroProc = MathUtils.meanRolls(0.5) / getRateOfFire();
 			double neurotoxinDoTTotalDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeNeuroProc, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
 			
 			double estimatedNumEnemiesKilled = numberOfTargets * (calculateFiringDuration() / averageTimeToKill());

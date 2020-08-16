@@ -720,27 +720,6 @@ public class Minigun extends Weapon {
 		return (pelletsThatHitWeakpoint * directWeakpointDamage + pelletsThatHitTarget * directDamage) / longDuration + burningHellAreaDPS + burnDPS;
 	}
 	
-	private double calculateDamagePerBurst(boolean weakpointBonus) {
-		/* 
-			The length of the burst is determined by the heat accumulated. Each burst duration should stop just shy of 
-			overheating the minigun so that it doesn't have the overheat cooldown penalty imposed.
-			
-			TODO: I'd like to refactor out this method if at all possible
-		*/
-		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
-		double damageMultiplier = 1.0;
-		if (selectedTier4 == 0) {
-			damageMultiplier = variableChamberPressureMultiplier();
-		}
-		
-		if (weakpointBonus) {
-			return numPelletsFiredBeforeOverheat * increaseBulletDamageForWeakpoints((double) getDamagePerPellet()) * damageMultiplier;
-		}
-		else {
-			return numPelletsFiredBeforeOverheat * (double) getDamagePerPellet() * damageMultiplier;
-		}
-	}
-	
 	@Override
 	public double calculateIdealBurstDPS() {
 		return calculateSingleTargetDPS(true, false, false);
@@ -787,7 +766,14 @@ public class Minigun extends Weapon {
 		int numTargets = calculateMaxNumTargets();
 		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
 		double numberOfBursts = (double) getMaxAmmo() / (2.0 * numPelletsFiredBeforeOverheat);
-		double totalDamage = numberOfBursts * calculateDamagePerBurst(false) * numTargets;
+		
+		double damageMultiplier = 1.0;
+		if (selectedTier4 == 0) {
+			damageMultiplier = variableChamberPressureMultiplier();
+		}
+		double damagePerBurst = numPelletsFiredBeforeOverheat * (double) getDamagePerPellet() * damageMultiplier;
+		
+		double totalDamage = numberOfBursts * damagePerBurst * numTargets;
 		
 		double burningHellAoEDamage = 0;
 		
@@ -899,54 +885,6 @@ public class Minigun extends Weapon {
 		
 		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, effectiveRoF, cheekyMagSize, 1, 
 				cheekyBaseSpread, 0, spreadVariance, spreadPerShot, spreadRecoverySpeed, 0, 0.5, 1.0, cheekyModifiers);
-		
-		/* 
-			I'm keeping this old model here for posterity's sake. TODO: After I re-do a lot of the Accuracy value tests, delete this block comment.
-		
-		// Because it's being modeled without recoil, and its crosshair gets smaller as it fires, I'm making a quick-and-dirty estimate here instead of using AccuracyEstimator. 
-		double spreadVariance = 334;
-		double spreadPerShot = 16.7;
-		double spreadRecoverySpeed = 95.42857143;
-		
-		double baseSpread = unchangingBaseSpread + changingBaseSpread;
-		double maxSpread = baseSpread + spreadVariance;
-		
-		// Adapted from AccuracyEstimator
-		// Because this is modeled without recoil, there are only two options: one where the crosshair is larger than the target, and one where it's <=.
-		double sumOfAllProbabilities = 0.0;
-		double targetRadius;
-		if (weakpointAccuracy) {
-			targetRadius = 0.2;
-		}
-		else {
-			targetRadius = 0.4;
-		}
-		int numPelletsFired = (int) calculateMaxNumPelletsFiredWithoutOverheating();
-		int numPelletsUntilStable = numPelletsFiredTilMaxAccuracy();
-		double currentSpreadRadius;
-		for (int i = 0; i < numPelletsUntilStable; i++) {
-			currentSpreadRadius = AccuracyEstimator.convertSpreadPixelsToMeters(maxSpread - i*spreadPerShot, false);
-			
-			if (currentSpreadRadius > targetRadius) {
-				sumOfAllProbabilities += Math.pow((targetRadius / currentSpreadRadius), 2);
-			}
-			else {
-				sumOfAllProbabilities += 1.0;
-			}
-		}
-		
-		// Because only the first 20 shots have an accuracy penalty, the rest can be modeled with simple multiplication
-		int numPelletsFiredAfterStable = numPelletsFired - numPelletsUntilStable;
-		currentSpreadRadius = AccuracyEstimator.convertSpreadPixelsToMeters(baseSpread, false);
-		if (currentSpreadRadius > targetRadius) {
-			sumOfAllProbabilities += numPelletsFiredAfterStable * Math.pow((targetRadius / currentSpreadRadius), 2);
-		}
-		else {
-			sumOfAllProbabilities += numPelletsFiredAfterStable;
-		}
-		
-		return sumOfAllProbabilities / numPelletsFired * 100.0;
-		*/
 	}
 	
 	@Override
@@ -1023,7 +961,17 @@ public class Minigun extends Weapon {
 	
 	@Override
 	public double damagePerMagazine() {
-		return calculateDamagePerBurst(false);
+		/* 
+			The length of the burst is determined by the heat accumulated. Each burst duration should stop just shy of 
+			overheating the minigun so that it doesn't have the overheat cooldown penalty imposed.
+		*/
+		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
+		double damageMultiplier = 1.0;
+		if (selectedTier4 == 0) {
+			damageMultiplier = variableChamberPressureMultiplier();
+		}
+		
+		return numPelletsFiredBeforeOverheat * (double) getDamagePerPellet() * damageMultiplier;
 	}
 	
 	@Override

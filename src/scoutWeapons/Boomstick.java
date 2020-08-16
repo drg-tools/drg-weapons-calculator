@@ -571,19 +571,6 @@ public class Boomstick extends Weapon {
 		
 		return (pelletsThatHitWeakpointPerShot * directWeakpointDamagePerPellet + pelletsThatHitTargetPerShot * getDamagePerPellet() + getBlastwaveDamage()) * magSize / duration + burnDPS;
 	}
-	
-	private double calculateDamagePerMagazine(boolean weakpointBonus) {
-		// TODO: I'd like to refactor this method out if possible
-		double damagePerShot;
-		if (weakpointBonus) {
-			damagePerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet() * getNumberOfPellets()) + getBlastwaveDamage();
-			return (double) damagePerShot * getMagazineSize();
-		}
-		else {
-			damagePerShot = getDamagePerPellet() * getNumberOfPellets() + getBlastwaveDamage();
-			return (double) damagePerShot * getMagazineSize();
-		}
-	}
 
 	@Override
 	public double calculateIdealBurstDPS() {
@@ -608,21 +595,21 @@ public class Boomstick extends Weapon {
 	@Override
 	public double calculateAdditionalTargetDPS() {
 		int magSize = getMagazineSize();
-		double secondaryDamage;
+		double secondaryDamagePerShot;
 		if (selectedTier4 == 0) {
-			secondaryDamage = calculateDamagePerMagazine(false);
+			secondaryDamagePerShot = getDamagePerPellet() * getNumberOfPellets() + getBlastwaveDamage();
 		}
 		else {
-			secondaryDamage = getBlastwaveDamage();
+			secondaryDamagePerShot = getBlastwaveDamage();
 		}
 		
 		double additionalDPS = 0;
 		if (magSize > 1) {
-			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-			additionalDPS += secondaryDamage / timeToFireMagazineAndReload;
+			double timeToFireMagazineAndReload = (((double) magSize) / getRateOfFire()) + getReloadTime();
+			additionalDPS = secondaryDamagePerShot * magSize / timeToFireMagazineAndReload;
 		}
 		else {
-			additionalDPS += secondaryDamage / getReloadTime();
+			additionalDPS = secondaryDamagePerShot / getReloadTime();
 		}
 		
 		// Penetrations can ignite, too

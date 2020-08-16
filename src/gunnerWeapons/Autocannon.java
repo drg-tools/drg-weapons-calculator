@@ -583,31 +583,6 @@ public class Autocannon extends Weapon {
 		// I'm choosing to model this as if the splash damage from every bullet were to hit the primary target, even if the bullets themselves don't.
 		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * directDamage + magSize * areaDamage) / duration + neuroDPS;
 	}
-	
-	private double calculateDamagePerMagazine(boolean weakpointBonus, int numTargets) {
-		// TODO: I'd like to refactor out this method if possible
-		double damagePerBullet;
-		double averageAreaDamage;
-		if (numTargets > 1) {
-			averageAreaDamage = aoeEfficiency[1];
-		}
-		else {
-			averageAreaDamage = 1.0;
-		}
-		
-		if (weakpointBonus) {
-			damagePerBullet = increaseBulletDamageForWeakpoints(getDirectDamage()) + numTargets * getAreaDamage() * averageAreaDamage;
-		}
-		else {
-			damagePerBullet = getDirectDamage() + numTargets * getAreaDamage() * averageAreaDamage;
-		}
-		double magSize = (double) getMagazineSize();
-		double damageMultiplier = 1.0;
-		if (selectedTier5 == 0) {
-			damageMultiplier = feedbackLoopMultiplier();
-		}
-		return damagePerBullet * magSize * damageMultiplier;
-	}
 
 	@Override
 	public double calculateIdealBurstDPS() {
@@ -651,9 +626,11 @@ public class Autocannon extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		// TODO: refactor this
-		int numTargets = (int) aoeEfficiency[2];
-		double damagePerMagazine = calculateDamagePerMagazine(false, numTargets);
+		double damagePerBullet = getDirectDamage() + getAreaDamage() * aoeEfficiency[2] * aoeEfficiency[1];
+		double damagePerMagazine = getMagazineSize() * damagePerBullet;
+		if (selectedTier5 == 0) {
+			damagePerMagazine *= feedbackLoopMultiplier();
+		}
 		double numberOfMagazines = numMagazines(getCarriedAmmo(), getMagazineSize());
 		
 		double neurotoxinDoTTotalDamage = 0;
@@ -661,7 +638,7 @@ public class Autocannon extends Weapon {
 			double timeBeforeNeuroProc = MathUtils.meanRolls(0.3) / getAverageRateOfFire();
 			double neurotoxinDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeNeuroProc, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
 			
-			double estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
+			double estimatedNumEnemiesKilled = aoeEfficiency[2] * (calculateFiringDuration() / averageTimeToKill());
 			
 			neurotoxinDoTTotalDamage = neurotoxinDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		}

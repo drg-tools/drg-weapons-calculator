@@ -457,7 +457,6 @@ public class Zhukov extends Weapon {
 	
 	// Single-target calculations
 	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
-		// TODO: both overlaps between (IFG and Conductive Bullets) and (Cryo Minelets and Frozen) are clunky. This method should be refactored in the future.
 		double generalAccuracy, duration;
 		
 		if (accuracy) {

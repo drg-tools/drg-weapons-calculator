@@ -515,24 +515,6 @@ public class BurstPistol extends Weapon {
 	}
 	
 	// Single-target calculations
-	private double calculateDamagePerBurst(boolean weakpointBonus) {
-		// TODO: I'd like to refactor this method out
-		if (weakpointBonus && !statusEffects[1]) {
-			return increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) * getBurstSize();
-		}
-		else {
-			return getDirectDamage() * getBurstSize();
-		}
-	}
-	
-	private double calculateDamagePerMagazine(boolean weakpointBonus) {
-		// TODO: I'd like to refactor this method out
-		double damagePerBurst = calculateDamagePerBurst(weakpointBonus);
-		int numBurstsPerMagazine = getMagazineSize() / getBurstSize();
-		
-		return damagePerBurst * numBurstsPerMagazine;
-	}
-	
 	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
 		double generalAccuracy, duration, directWeakpointDamage;
 		
@@ -630,7 +612,7 @@ public class BurstPistol extends Weapon {
 	@Override
 	public double calculateMaxMultiTargetDamage() {
 		double numberOfMagazines = numMagazines(getCarriedAmmo(), getMagazineSize());
-		double totalDamage = numberOfMagazines * calculateDamagePerMagazine(false);
+		double totalDamage = (getDirectDamage() * getMagazineSize()) * numberOfMagazines;
 		
 		if (selectedOverclock == 4) {
 			double accuracy = estimatedAccuracy(false) / 100.0;
@@ -661,8 +643,8 @@ public class BurstPistol extends Weapon {
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
-		double dmgPerShot = calculateDamagePerBurst(true);
-		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
+		double dmgPerBurst = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) * getBurstSize();
+		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerBurst) * dmgPerBurst;
 	}
 
 	@Override
@@ -747,7 +729,7 @@ public class BurstPistol extends Weapon {
 	
 	@Override
 	public double damagePerMagazine() {
-		return calculateDamagePerMagazine(false);
+		return getDirectDamage() * getMagazineSize();
 	}
 	
 	@Override
