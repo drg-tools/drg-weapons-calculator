@@ -115,7 +115,7 @@ public class CryoCannon extends Weapon {
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Improved Thermal Efficiency", "+25 Tank Size, x0.75 Pressure Drop Rate", overclockIcons.magSize, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Perfectly Tuned Cooler", "+1 Cold per Particle, +0.8 Flow Rate", overclockIcons.coldDamage, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Flow Rate Expansion", "x2.7 Pressure Gain Rate, +0.8 Flow Rate, x2.25 Pressure Drop Rate", overclockIcons.duration, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Ice Spear", "Press the Reload button to consume 50 ammo and fire an Ice Spear that does 250 Direct Damage and 125 Area Damage in a 2.5m radius. "
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Ice Spear", "Press the Reload button to consume 50 ammo and fire an Ice Spear that does 350 Direct Damage and 150 Area Damage in a 1.4m radius and stuns enemies for 3 seconds. "
 				+ "In exchange, +1 sec Repressurization Delay", overclockIcons.projectileVelocity, 3, false);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Ice Storm", "x2 Damage per Particle, -3 Cold per Particle, -50 Tank Size, x1.5 Pressure Drop Rate", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Snowball", "Press the Reload button to consume 35 ammo and fire a Snowball that does 200 Cold Damage in a 4m radius, which will freeze most enemies instantly. "
@@ -430,7 +430,7 @@ public class CryoCannon extends Weapon {
 		
 		boolean freezingTimeModified = false;
 		toReturn[2] = new StatsRow("Avg Time to Freeze:", averageTimeToFreeze(false), modIcons.duration, freezingTimeModified);
-		toReturn[3] = new StatsRow("Avg Freeze Multiplier:", averageFreezeMultiplier(), modIcons.special, freezingTimeModified);
+		toReturn[3] = new StatsRow("Avg Freeze Multiplier (doesn't affect itself):", averageFreezeMultiplier(), modIcons.special, freezingTimeModified);
 		
 		toReturn[4] = new StatsRow("Cold Stream Reach:", getColdStreamReach(), modIcons.distance, selectedTier2 == 1);
 		
@@ -495,71 +495,17 @@ public class CryoCannon extends Weapon {
 	}
 	
 	private double totalDamageDealtPerBurst(boolean primaryTarget) {
+		// Contrary to what some people have told me, CryoCannon does NOT gain bonus damage vs Frozen targets.
 		double dmgPerParticle = getParticleDamage();
 		double firingTime = pressureDropDuration / getPressureDropModifier();
 		double flowRate = getFlowRate();
 		
-		double timeToFreeze = averageTimeToFreeze(false);
-		double freezeDuration = EnemyInformation.averageFreezeDuration();
-		double timeToRefreeze = averageTimeToFreeze(true);
-		
 		// Status Effects
-		double frozenMultiplier;
-		if (primaryTarget && statusEffects[0]) {
-			// Burning cancels Frozen
-			frozenMultiplier = 1.0;
-		}
-		else if (primaryTarget && statusEffects[1]) {
-			// Already Frozen
-			dmgPerParticle *= UtilityInformation.Frozen_Damage_Multiplier;
-			// Don't multiply by 3 two times!
-			frozenMultiplier = 1.0;
-		}
-		else {
-			frozenMultiplier = UtilityInformation.Frozen_Damage_Multiplier;
-		}
-		
 		if (primaryTarget && statusEffects[3]) {
 			dmgPerParticle *= UtilityInformation.IFG_Damage_Multiplier;
 		}
 		
-		if (firingTime <= timeToFreeze) {
-			return firingTime * flowRate * dmgPerParticle;
-		}
-		
-		double totalDamage = 0;
-		double particlesFired = Math.round(timeToFreeze * flowRate);
-		totalDamage += particlesFired * dmgPerParticle;
-		firingTime -= timeToFreeze;
-		boolean currentlyFrozen = true;
-		while (firingTime > 0) {
-			if (currentlyFrozen) {
-				if (firingTime > freezeDuration) {
-					particlesFired = Math.round(freezeDuration * flowRate);
-					totalDamage += particlesFired * dmgPerParticle * frozenMultiplier;
-					firingTime -= freezeDuration;
-					currentlyFrozen = false;
-				}
-				else {
-					totalDamage += firingTime * flowRate * dmgPerParticle * frozenMultiplier;
-					firingTime = 0;
-				}
-			}
-			else {
-				if (firingTime > timeToRefreeze) {
-					particlesFired = Math.round(timeToRefreeze * flowRate);
-					totalDamage += particlesFired * dmgPerParticle;
-					firingTime -= timeToRefreeze;
-					currentlyFrozen = true;
-				}
-				else {
-					totalDamage += firingTime * flowRate * dmgPerParticle;
-					firingTime = 0;
-				}
-			}
-		}
-		
-		return totalDamage;
+		return firingTime * flowRate * dmgPerParticle;
 	}
 	
 	private double averageFreezeMultiplier() {
@@ -660,16 +606,8 @@ public class CryoCannon extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		// Every other weapon I've modeled so far is just raw damage, without any increases from weakpoints or Cryo Minelets. 
-		// I'm choosing to make Cryo Cannon the exception because it relies so much on freezing enemies.
-		double firingTime = pressureDropDuration / getPressureDropModifier();
-		double flowRate = getFlowRate();
-		double numParticlesFiredPerBurst = Math.floor(firingTime * flowRate);
-		
-		double tankSize = getTankSize();
-		double numFullBursts = Math.floor(tankSize / numParticlesFiredPerBurst);
-		
-		return (numFullBursts  + ((tankSize - numFullBursts * numParticlesFiredPerBurst) / numParticlesFiredPerBurst)) * totalDamageDealtPerBurst(false) * calculateMaxNumTargets();
+		// Because Cryo Cannon doesn't gain bonus damage vs Frozen targets, the total damage is pretty simple to calculate.
+		return calculateMaxNumTargets() * getParticleDamage() * getTankSize();
 	}
 
 	@Override
@@ -692,7 +630,7 @@ public class CryoCannon extends Weapon {
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
-		double dmgPerShot = getParticleDamage() * averageFreezeMultiplier();
+		double dmgPerShot = getParticleDamage();
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 	
