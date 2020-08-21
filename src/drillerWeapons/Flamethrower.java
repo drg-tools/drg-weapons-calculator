@@ -512,9 +512,11 @@ public class Flamethrower extends Weapon {
 		
 		double directDamagePerParticle = getParticleDamage();
 		
+		double temperatureShock = 0;
 		// Frozen
 		if (primaryTarget && statusEffects[1]) {
 			burnDPS = 0;
+			temperatureShock = 200;
 		}
 		// IFG Grenade
 		if (primaryTarget && statusEffects[3]) {
@@ -522,7 +524,7 @@ public class Flamethrower extends Weapon {
 		}
 		
 		double heatRadianceDamagePerTank = heatRadianceDmgAndHeatPerTick * numTicksHeatRadianceWillProc;
-		return (directDamagePerParticle * getFuelTankSize() + heatRadianceDamagePerTank) / duration + stickyFlamesDPS + burnDPS;
+		return (directDamagePerParticle * getFuelTankSize() + heatRadianceDamagePerTank + temperatureShock) / duration + stickyFlamesDPS + burnDPS;
 	}
 
 	// Single-target calculations

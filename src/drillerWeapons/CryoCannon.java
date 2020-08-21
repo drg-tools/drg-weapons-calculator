@@ -500,12 +500,18 @@ public class CryoCannon extends Weapon {
 		double firingTime = pressureDropDuration / getPressureDropModifier();
 		double flowRate = getFlowRate();
 		
+		double temperatureShock = 0;
 		// Status Effects
+		if (primaryTarget && statusEffects[0]) {
+			// Burning prevents the enemy from being Frozen, which doesn't directly affect DPS, but it does proc TempShock.
+			temperatureShock = 200;
+		}
+		
 		if (primaryTarget && statusEffects[3]) {
 			dmgPerParticle *= UtilityInformation.IFG_Damage_Multiplier;
 		}
 		
-		return firingTime * flowRate * dmgPerParticle;
+		return firingTime * flowRate * dmgPerParticle + temperatureShock;
 	}
 	
 	private double averageFreezeMultiplier() {
