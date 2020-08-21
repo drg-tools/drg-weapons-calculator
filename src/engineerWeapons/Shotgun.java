@@ -101,7 +101,8 @@ public class Shotgun extends Weapon {
 		tier4[1] = new Mod("Bigger Pellets", "+1 Damage per Pellet", modIcons.directDamage, 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1m Radius. 10 Sentry ammo per shot, 3 second cooldown per Sentry.", modIcons.special, 5, 0, false);
+		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1.5m Radius. Turret Whip projectile has a 100% chance to Stun for 1.5 seconds "
+				+ "inflicts 0.5 Fear to all enemies it damages. 10 Sentry ammo per shot, 3 second cooldown per Sentry.", modIcons.special, 5, 0, false);
 		tier5[1] = new Mod("Miner Adjustments", "Changes the Shotgun from semi-automatic to fully automatic, +0.5 Rate of Fire", modIcons.rateOfFire, 5, 1);
 		
 		overclocks = new Overclock[5];
@@ -662,8 +663,25 @@ public class Shotgun extends Weapon {
 		double probabilityToBreakLightArmorPlatePerPellet = calculateProbabilityToBreakLightArmor(getDamagePerPellet() * numPelletsThatHitLightArmorPlate, getArmorBreaking());
 		utilityScores[2] = probabilityToBreakLightArmorPlatePerPellet * UtilityInformation.ArmorBreak_Utility;
 		
+		// Fear
+		if (selectedTier5 == 0) {
+			// Turret Whip projectile does 0.5 Fear Factor in its 1.5m radius
+			// 8 = calculateNumGlyphidsInRadius(1.5)
+			utilityScores[4] = calculateFearProcProbability(0.5) * 8 * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
+		}
+		else {
+			utilityScores[4] = 0;
+		}
+		
+		// Stun
 		// Weakpoint = 10% stun chance per pellet, 3 sec duration (upgraded with Mod Tier 3 "Stun Duration", or OC "Stunner")
 		utilityScores[5] = calculateCumulativeStunChancePerShot() * getStunDuration() * UtilityInformation.Stun_Utility;
+		
+		if (selectedTier5 == 0) {
+			// Turret Whip projectile has 100% chance to stun for 1.5sec in its 1.5m radius
+			// 8 = calculateNumGlyphidsInRadius(1.5)
+			utilityScores[5] += 8 * 1.5 * UtilityInformation.Stun_Utility;
+		}
 		
 		return MathUtils.sum(utilityScores);
 	}

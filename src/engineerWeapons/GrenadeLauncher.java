@@ -653,16 +653,15 @@ public class GrenadeLauncher extends Weapon {
 		else {
 			utilityScores[2] = areaDamageAB * UtilityInformation.ArmorBreak_Utility;
 		}
+
+		// Fear (baseline function of the Grenade Launcher)
+		utilityScores[4] = calculateFearProcProbability(fearFactor) * aoeEfficiency[2] * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
 		
-		// Because the Stun from Concussive Blast keeps them immobolized while they're trying to run in Fear, I'm choosing to make the Stun/Fear Utility scores NOT additive.
+		// Stun (T4.C 100% stun chance, 3 sec duration)
 		if (selectedTier4 == 2) {
-			// Concussive Blast = 100% stun, 2 sec duration
-			utilityScores[4] = 0;
 			utilityScores[5] = getStunChance() * aoeEfficiency[2] * getStunDuration() * UtilityInformation.Stun_Utility;
 		}
 		else {
-			double probabilityToFear = calculateFearProcProbability(fearFactor);
-			utilityScores[4] = probabilityToFear * aoeEfficiency[2] * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
 			utilityScores[5] = 0;
 		}
 		
