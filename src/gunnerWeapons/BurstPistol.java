@@ -627,7 +627,7 @@ public class BurstPistol extends Weapon {
 	@Override
 	public int calculateMaxNumTargets() {
 		if (selectedOverclock == 4) {
-			return 8;  // calculateNumGlyphidsInRadius(1.5);
+			return calculateNumGlyphidsInRadius(1.5);
 		}
 		else {
 			return 1 + getMaxPenetrations();
@@ -709,7 +709,7 @@ public class BurstPistol extends Weapon {
 		if (selectedOverclock == 4) {
 			// Electro Minelets arm in 0.1 seconds, detonate on any enemies that come within ~1.5m, and then explode after 4 seconds. 100% chance to apply Electrocute for 2 sec.
 			double probabilityBulletsMiss = 1.0 - estimatedAccuracy(false) / 100.0;
-			int numGlyphidsInMineletRadius = 8;  // calculateNumGlyphidsInRadius(1.5);
+			int numGlyphidsInMineletRadius = calculateNumGlyphidsInRadius(1.5);
 			utilityScores[3] = probabilityBulletsMiss * numGlyphidsInMineletRadius * 2 * UtilityInformation.Electrocute_Slow_Utility;
 		}
 		else {

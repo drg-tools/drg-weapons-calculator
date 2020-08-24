@@ -666,8 +666,7 @@ public class Shotgun extends Weapon {
 		// Fear
 		if (selectedTier5 == 0) {
 			// Turret Whip projectile does 0.5 Fear Factor in its 1.5m radius
-			// 8 = calculateNumGlyphidsInRadius(1.5)
-			utilityScores[4] = calculateFearProcProbability(0.5) * 8 * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
+			utilityScores[4] = calculateFearProcProbability(0.5) * calculateNumGlyphidsInRadius(1.5) * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;
@@ -679,8 +678,7 @@ public class Shotgun extends Weapon {
 		
 		if (selectedTier5 == 0) {
 			// Turret Whip projectile has 100% chance to stun for 1.5sec in its 1.5m radius
-			// 8 = calculateNumGlyphidsInRadius(1.5)
-			utilityScores[5] += 8 * 1.5 * UtilityInformation.Stun_Utility;
+			utilityScores[5] += calculateNumGlyphidsInRadius(1.5) * 1.5 * UtilityInformation.Stun_Utility;
 		}
 		
 		return MathUtils.sum(utilityScores);

@@ -738,8 +738,8 @@ public class EnemyInformation {
 		Measured using meters
 	*/
 	// This is the radius of a Glyphid Grunt's hitbox that shouldn't overlap with other grunts, like the torso
-	public static double GlyphidGruntBodyRadius = 0.4;
+	public static double GlyphidGruntBodyRadius = 0.41;
 	// This is the radius of the entire Glyphid Grunt, from its center to the tip of its legs. The legs can overlap with other Grunts' legs.
-	public static double GlyphidGruntBodyAndLegsRadius = 0.9;
+	public static double GlyphidGruntBodyAndLegsRadius = 0.97;
 	
 }

@@ -778,7 +778,8 @@ public class BreachCutter extends Weapon {
 			numGruntsHitSimultaneouslyPerRow = calculateNumGlyphidsInRadius(width / 2.0);
 		}
 		else {
-			numGruntsHitSimultaneouslyPerRow = (int) (1.0 + 2.0 * Math.ceil(((width / 2.0) - EnemyInformation.GlyphidGruntBodyRadius) / EnemyInformation.GlyphidGruntBodyAndLegsRadius));
+			// ArcticEcho recommended (width + 1) as an estimate for average number of enemies hit by a line simultaneously
+			numGruntsHitSimultaneouslyPerRow = (int) (width + 1);
 		}
 		
 		int numRowsOfGruntsHitDuringProjectileLifetime = (int) Math.ceil((velocity / (4.0 * EnemyInformation.GlyphidGruntBodyAndLegsRadius)) * lifetime);

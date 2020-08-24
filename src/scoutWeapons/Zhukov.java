@@ -678,7 +678,7 @@ public class Zhukov extends Weapon {
 		if (selectedOverclock == 2) {
 			// Cryo minelets: 1 placed per 2 ammo, minelets arm in 0.1 seconds, and detonate in 4 seconds if no enemy is around.
 			// Minelets seem to do 10 Cold Damage each, and explode in a 1.5m radius.
-			int estimatedNumTargetsSlowedOrFrozen = 8;  // calculateNumGlyphidsInRadius(1.5);
+			int estimatedNumTargetsSlowedOrFrozen = calculateNumGlyphidsInRadius(1.5);
 			
 			utilityScores[3] = estimatedNumTargetsSlowedOrFrozen * UtilityInformation.Cold_Utility;
 			utilityScores[6] = estimatedNumTargetsSlowedOrFrozen * UtilityInformation.Frozen_Utility;
