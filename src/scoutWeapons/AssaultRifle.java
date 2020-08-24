@@ -407,8 +407,16 @@ public class AssaultRifle extends Weapon {
 			// According to the MikeGSG, Battle Cool increases Spread Recovery Speed by x12.5 for 1.5 seconds after a kill.
 			// Similar to Gunner/Minigun/Mod/5/CatG, I'm choosing to use the incorrect "guessed" spawn rates for this avg HP value for a more believable uptimeCoefficient
 			double burstTTK = EnemyInformation.averageHealthPool(false) / calculateIdealBurstDPS();
-			double battleCoolUptimeCoefficient = 1.5 / burstTTK;
-			return 12.5 * battleCoolUptimeCoefficient;
+			double timeToFireMag = getMagazineSize() / getRateOfFire();
+			if (timeToFireMag > burstTTK) {
+				double battleCoolDuration = Math.min(timeToFireMag - burstTTK, 1.5);
+				return ((burstTTK + 12.5 * battleCoolDuration) + (timeToFireMag - (burstTTK + battleCoolDuration))) / timeToFireMag;
+			}
+			else {
+				// If the weapon can't get a kill before the magazine is empty, Battle Cool will have no effect because the reload time (1.8 sec) is longer than 
+				// the buff duration (1.5 sec) so it would be useless if obtained on last bullet of mag.
+				return 1.0;
+			}
 		}
 		else {
 			return 1.0;
