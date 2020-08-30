@@ -515,6 +515,7 @@ public class AssaultRifle extends Weapon {
 			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
 		}
 		
+		// TODO: this needs to be refactored, there's a bug where bullets fired from a mag after a stun has completed aren't being added to the total. Check if Stunner does this too.
 		// Bullets of Mercy OC damage increase
 		if (selectedOverclock == 4) {
 			double BoMDamageMultiplier = 1.33;
@@ -674,6 +675,11 @@ public class AssaultRifle extends Weapon {
 			0,  // Poison
 			0  // Radiation
 		};
+		
+		if (statusEffects[3]) {
+			directDamage = MathUtils.vectorScalarMultiply(1.3, directDamage);
+			areaDamage = MathUtils.vectorScalarMultiply(1.3, areaDamage);
+		}
 		
 		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0);
 		return MathUtils.sum(breakpoints);

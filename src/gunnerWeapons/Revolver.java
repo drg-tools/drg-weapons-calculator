@@ -98,7 +98,7 @@ public abstract class Revolver extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 33% chance to ricochet into a nearby enemy.", overclockIcons.ricochet, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Bullets", "x4 Damage to Burning targets, -25 Direct Damage", overclockIcons.heatDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Six Shooter", "+2 Magazine Size, +8 Max Ammo, +4 Rate of Fire, x1.5 Base Spread, +0.5 Reload Time", overclockIcons.magSize, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -13 Max Ammo, +71% Spread per Shot, x2.5 Recoil, +0.5 Reload Time", overclockIcons.directDamage, 4);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -13 Max Ammo, x0.5 Base Spread, +71% Spread per Shot, x2.5 Recoil, +0.5 Reload Time", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Magic Bullets", "All bullets that impact terrain automatically ricochet to nearby enemies (effectively raising accuracy to 100%). +8 Max Ammo, -20 Direct Damage", overclockIcons.ricochet, 5);
 	}
 	
@@ -809,6 +809,11 @@ public abstract class Revolver extends Weapon {
 			ntDoTDmg,  // Poison
 			0  // Radiation
 		};
+		
+		if (statusEffects[3]) {
+			directDamage = MathUtils.vectorScalarMultiply(1.3, directDamage);
+			areaDamage = MathUtils.vectorScalarMultiply(1.3, areaDamage);
+		}
 		
 		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0);
 		return MathUtils.sum(breakpoints);

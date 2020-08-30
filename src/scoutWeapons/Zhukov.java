@@ -649,6 +649,16 @@ public class Zhukov extends Weapon {
 			0  // Radiation
 		};
 		
+		if (statusEffects[3]) {
+			directDamage = MathUtils.vectorScalarMultiply(1.3, directDamage);
+			areaDamage = MathUtils.vectorScalarMultiply(1.3, areaDamage);
+		}
+		
+		// T5.A Conductive Bullets multiplies by an additional x1.3 when hitting enemies electrocuted or affected by IFG
+		if (selectedTier5 == 0 && (statusEffects[2] || statusEffects[3])) {
+			directDamage = MathUtils.vectorScalarMultiply(1.3, directDamage);
+		}
+		
 		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0);
 		return MathUtils.sum(breakpoints);
 	}

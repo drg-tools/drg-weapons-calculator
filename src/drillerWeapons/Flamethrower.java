@@ -446,7 +446,7 @@ public class Flamethrower extends Weapon {
 		
 		toReturn[6] = new StatsRow("Reload Time:", reloadTime, modIcons.reloadSpeed, false);
 		
-		toReturn[7] = new StatsRow("Fear Factor per Second:", 0.13, modIcons.fear, selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[7] = new StatsRow("Fear Factor per Particle:", 0.13, modIcons.fear, selectedTier4 == 0, selectedTier4 == 0);
 		
 		toReturn[8] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), modIcons.movespeed, selectedOverclock == 4, selectedOverclock == 4);
 		

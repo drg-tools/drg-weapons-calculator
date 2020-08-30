@@ -42,6 +42,14 @@ public class MathUtils {
 		return sum;
 	}
 	
+	public static double[] vectorScalarMultiply(double scalar, double[] vector) {
+		for (int i = 0; i < vector.length; i++) {
+			vector[i] *= scalar;
+		}
+		
+		return vector;
+	}
+	
 	public static double sum(double[] A) {
 		if (A.length == 0) {
 			return 0;
