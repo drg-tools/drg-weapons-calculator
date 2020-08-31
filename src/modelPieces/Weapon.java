@@ -746,6 +746,109 @@ public abstract class Weapon extends Observable {
 		return toReturn[0];
 	}
 	
+	/*
+		This method will be used to model what the average multiplier of a short-duration conditional effect would be if spread out across 
+		every bullet of the magazine. Depending on the duration of the effect, the size of the magazine, and the rate of fire of the gun, 
+		the multiplier could only apply to 1-2 shots or upwards of 10 before it wears off.
+		
+		I'm writing this as "pessimistically" as possible, assuming it takes ceil() num shots to start the effect and that the effect 
+		only lasts for floor() number of shots. This may return a very slight underestimation of efficacy, but I think it's a safer route
+		than writing it "optimistically" and over-promising.
+		
+		Engineer/Shotgun/OC/"Stunner" x1.3 damage while enemies are stunned for 3 seconds
+		Scout/AssaultRifle/OC/"Bullets of Mercy" x1.33 damage while enemies are stunned for 1.5 seconds
+		Scout/AssaultRifle/Mod/5/B "Battle Cool" x12.5 Spread Recovery Speed for 1.5 seconds on kill
+	*/
+	protected double averageBonusPerMagazineForShortEffects(double conditionalMultiplier, double conditionDuration, boolean onKillEffect, double probabilityPerShot, double magazineSize, double RoF) {
+		double numShotsWithoutMultiplier = 0;
+		double numShotsWithMultiplier = 0;
+		double numShotsFiredDuringEffect = 0;
+		double shotsRemaining;
+		
+		if (onKillEffect) {
+			// This section is for effects that happen any time this weapon scores a killing blow, like Scout/AssaultRifle/Mod/5/B/"Battle Cool"
+			// Intentionally using incorrect "guessed" spawn rates to get better numbers.
+			double burstTTK = EnemyInformation.averageHealthPool(false) / calculateIdealBurstDPS();
+			double numShotsFiredPerKill = Math.ceil(RoF * burstTTK);
+			if (burstTTK < conditionDuration) {
+				// Early exit condition: if this weapon can score kills to trigger the On-Kill effect again before the effect duration ends, 
+				// it effectively turns into a Long Effect because the Short Effect never ends after first activation.
+				return averageBonusPerMagazineForLongEffects(conditionalMultiplier, numShotsFiredPerKill, magazineSize);
+			}
+			numShotsFiredDuringEffect = Math.floor(RoF * conditionDuration);
+			
+			double numKillsPerMag = Math.floor(magazineSize / numShotsFiredPerKill);
+			if (numKillsPerMag == 0) {
+				// Early exit condition: if the weapon can't achieve a kill with its Ideal Burst DPS before the magazine runs out, the On-Kill effect never triggers during the magazine
+				numShotsWithoutMultiplier = magazineSize;
+				numShotsWithMultiplier = 0;
+			}
+			else {
+				// All the bullets fired from the start of the magazine to score the first kill don't get the multiplier
+				numShotsWithoutMultiplier += numShotsFiredPerKill;
+				if (numKillsPerMag > 1) {
+					numShotsWithMultiplier += (numKillsPerMag - 1) * numShotsFiredDuringEffect;
+					numShotsWithoutMultiplier += (numKillsPerMag - 1) * (numShotsFiredPerKill - numShotsFiredDuringEffect);
+				}
+				// At this point in the sequence, the last kill of the magazine should have happened on the bullet before this one, and there aren't enough bullets left in the mag to kill another enemy
+				shotsRemaining = magazineSize % numShotsFiredPerKill;
+				double timeToFire = shotsRemaining / RoF;
+				if (timeToFire < conditionDuration) {
+					numShotsWithMultiplier += shotsRemaining;
+				}
+				else {
+					numShotsWithMultiplier += numShotsFiredDuringEffect;
+					numShotsWithoutMultiplier += (shotsRemaining - numShotsFiredDuringEffect);
+				}
+			}
+		}
+		else {
+			// This section is for effects that have a chance to start on any shot of the magazine, like Engineer/Shotgun/OC/"Stunner"
+			double numShotsFiredBeforeProc = Math.ceil(MathUtils.meanRolls(probabilityPerShot));
+			if (numShotsFiredBeforeProc >= magazineSize) {
+				// Early exit condition: if the mag size is really small or the probability is really low, there's a possibility that the effect never procs during one magazine
+				numShotsWithoutMultiplier = magazineSize;
+				numShotsWithMultiplier = 0;
+			}
+			else {
+				numShotsFiredDuringEffect = Math.floor(RoF * conditionDuration);
+				double numberOfFullCycles = Math.floor(magazineSize / (numShotsFiredBeforeProc + numShotsFiredDuringEffect));
+				if (numberOfFullCycles == 0) {
+					numShotsWithoutMultiplier += numShotsFiredBeforeProc;
+					numShotsWithMultiplier += (magazineSize - numShotsFiredBeforeProc);
+				}
+				else {
+					numShotsWithoutMultiplier += numberOfFullCycles * numShotsFiredBeforeProc;
+					numShotsWithMultiplier += numberOfFullCycles * numShotsFiredDuringEffect;
+					
+					shotsRemaining = magazineSize % (numShotsFiredBeforeProc + numShotsFiredDuringEffect);
+					if (shotsRemaining > numShotsFiredBeforeProc) {
+						numShotsWithoutMultiplier += numShotsFiredBeforeProc;
+						numShotsWithMultiplier += (shotsRemaining - numShotsFiredBeforeProc);
+					}
+					else {
+						numShotsWithoutMultiplier += shotsRemaining;
+					}
+				}
+			}
+		}
+		
+		return (numShotsWithoutMultiplier * 1.0 + numShotsWithMultiplier * conditionalMultiplier) / magazineSize;
+	}
+	
+	/*
+		This method will be used to model what the average multiplier of a long-duration conditional effect would be if spread out across
+		every bullet of the magazine. Effects of this nature are generally activated partway through the magazine and then stay active until 
+		the magazine's end when reload happens.
+		
+		Engineer/SMG/Mod/4/B "Conductive Bullets" x1.3 damage after enemy is electrocuted by the SMG
+		Gunner/Minigun/Mod/4/A "Variable Chamber Pressure" x1.15 damage after max stability
+		Gunner/Autocannon/Mod/5/A "Feedback Loop" x1.2 damage after full RoF
+	*/
+	protected double averageBonusPerMagazineForLongEffects(double conditionalMultiplier, double bulletsBeforeConditionStarts, double magazineSize) {
+		return (bulletsBeforeConditionStarts * 1.0 + (magazineSize - bulletsBeforeConditionStarts) * conditionalMultiplier) / magazineSize;
+	}
+	
 	protected int calculateNumGlyphidsInRadius(double radius) {
 		/*
 			This method should be used any time a projectile fired from this weapon has area-of-effect (AoE) damage in a radius.

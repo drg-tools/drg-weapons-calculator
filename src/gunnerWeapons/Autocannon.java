@@ -455,9 +455,7 @@ public class Autocannon extends Weapon {
 	}
 	
 	private double feedbackLoopMultiplier() {
-		double magSize = getMagazineSize();
-		double numBulletsRampup = getNumBulletsRampup();
-		return (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+		return averageBonusPerMagazineForLongEffects(1.2, getNumBulletsRampup(), getMagazineSize());
 	}
 	
 	@Override

@@ -531,13 +531,7 @@ public class Shotgun extends Weapon {
 		
 		if (selectedOverclock == 0) {
 			// Stunner OC damage multiplier
-			double stunChancePerShot = calculateCumulativeStunChancePerShot();
-			double numShotsBeforeStun = Math.round(MathUtils.meanRolls(stunChancePerShot));
-			double numShotsFiredWhileStunned = Math.min(Math.round(getStunDuration() * getRateOfFire()), getMagazineSize() - numShotsBeforeStun);
-			
-			double stunnerAverageDamageMultiplier = (numShotsBeforeStun + 1.3 * numShotsFiredWhileStunned) / (numShotsBeforeStun + numShotsFiredWhileStunned);
-			
-			dmgPerPellet *= stunnerAverageDamageMultiplier;
+			dmgPerPellet *= averageBonusPerMagazineForShortEffects(1.3, 3.0, false, calculateCumulativeStunChancePerShot(), getMagazineSize(), getRateOfFire());
 		}
 		
 		double weakpointAccuracy;

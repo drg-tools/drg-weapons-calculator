@@ -96,7 +96,7 @@ public class SMG extends Weapon {
 		
 		tier4 = new Mod[2];
 		tier4[0] = new Mod("Hollow-Point Bullets", "+30% Weakpoint Bonus", modIcons.weakpointBonus, 4, 0);
-		tier4[1] = new Mod("Conductive Bullets", "+30% Kinetic Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 4, 1);
+		tier4[1] = new Mod("Conductive Bullets", "+30% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 4, 1);
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Magazine Capacity Tweak", "+20 Magazine Size", modIcons.magSize, 5, 0);
@@ -461,11 +461,8 @@ public class SMG extends Weapon {
 			}
 			else {
 				// To model a 30% direct damage increase to electrocuted targets, average out how many bullets/mag that would get the buff after a DoT proc, and then spread that bonus across every bullet.
-				double DoTChance = getElectrocutionDoTChance();
-				double meanBulletsFiredBeforeProc = MathUtils.meanRolls(DoTChance);
-				double numBulletsFiredAfterProc = getMagazineSize() - meanBulletsFiredBeforeProc;
-				
-				directDamage *= (meanBulletsFiredBeforeProc + numBulletsFiredAfterProc * conductiveBulletsDamageMultiplier) / getMagazineSize();
+				double numBulletsBeforeElectrocute = Math.ceil(MathUtils.meanRolls(getElectrocutionDoTChance()));
+				directDamage *= averageBonusPerMagazineForLongEffects(conductiveBulletsDamageMultiplier, numBulletsBeforeElectrocute, getMagazineSize());
 			}
 		}
 		

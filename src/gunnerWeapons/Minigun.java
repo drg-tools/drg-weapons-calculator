@@ -449,9 +449,7 @@ public class Minigun extends Weapon {
 		return (int) Math.floor(exactAnswer);
 	}
 	private double variableChamberPressureMultiplier() {
-		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
-		double pelletsFiredWhileNotStabilized = numPelletsFiredTilMaxAccuracy();
-		return (pelletsFiredWhileNotStabilized + 1.15*(numPelletsFiredBeforeOverheat - pelletsFiredWhileNotStabilized)) / numPelletsFiredBeforeOverheat;
+		return averageBonusPerMagazineForLongEffects(1.15, numPelletsFiredTilMaxAccuracy(), calculateMaxNumPelletsFiredWithoutOverheating());
 	}
 	private double calculateFiringPeriod() {
 		double heatPerSecond = getHeatPerSecond();

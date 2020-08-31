@@ -405,18 +405,7 @@ public class AssaultRifle extends Weapon {
 		}
 		else if (selectedTier5 == 1) {
 			// According to the MikeGSG, Battle Cool increases Spread Recovery Speed by x12.5 for 1.5 seconds after a kill.
-			// Similar to Gunner/Minigun/Mod/5/CatG, I'm choosing to use the incorrect "guessed" spawn rates for this avg HP value for a more believable uptimeCoefficient
-			double burstTTK = EnemyInformation.averageHealthPool(false) / calculateIdealBurstDPS();
-			double timeToFireMag = getMagazineSize() / getRateOfFire();
-			if (timeToFireMag > burstTTK) {
-				double battleCoolDuration = Math.min(timeToFireMag - burstTTK, 1.5);
-				return ((burstTTK + 12.5 * battleCoolDuration) + (timeToFireMag - (burstTTK + battleCoolDuration))) / timeToFireMag;
-			}
-			else {
-				// If the weapon can't get a kill before the magazine is empty, Battle Cool will have no effect because the reload time (1.8 sec) is longer than 
-				// the buff duration (1.5 sec) so it would be useless if obtained on last bullet of mag.
-				return 1.0;
-			}
+			return averageBonusPerMagazineForShortEffects(12.5, 1.5, true, 0.0, getMagazineSize(), getRateOfFire());
 		}
 		else {
 			return 1.0;
@@ -515,7 +504,6 @@ public class AssaultRifle extends Weapon {
 			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
 		}
 		
-		// TODO: this needs to be refactored, there's a bug where bullets fired from a mag after a stun has completed aren't being added to the total. Check if Stunner does this too.
 		// Bullets of Mercy OC damage increase
 		if (selectedOverclock == 4) {
 			double BoMDamageMultiplier = 1.33;
@@ -524,13 +512,7 @@ public class AssaultRifle extends Weapon {
 			}
 			else {
 				// If no Status Effects are active, then it only procs on the weapon's built-in Stun.
-				double stunChancePerShot = getWeakpointStunChance();
-				double numShotsBeforeStun = Math.round(MathUtils.meanRolls(stunChancePerShot));
-				double numShotsFiredWhileStunned = Math.min(Math.round(stunDuration * getRateOfFire()), getMagazineSize() - numShotsBeforeStun);
-				
-				double averageBoMDamageMultiplier = (numShotsBeforeStun + BoMDamageMultiplier * numShotsFiredWhileStunned) / (numShotsBeforeStun + numShotsFiredWhileStunned);
-				
-				directDamage *= averageBoMDamageMultiplier;
+				directDamage *= averageBonusPerMagazineForShortEffects(BoMDamageMultiplier, 1.5, false, getWeakpointStunChance(), getMagazineSize(), getRateOfFire());
 			}
 		}
 		
