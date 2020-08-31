@@ -724,12 +724,7 @@ public class Autocannon extends Weapon {
 			0  // Radiation
 		};
 		
-		if (statusEffects[3]) {
-			directDamage = MathUtils.vectorScalarMultiply(1.3, directDamage);
-			areaDamage = MathUtils.vectorScalarMultiply(1.3, areaDamage);
-		}
-		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, 0.0);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, 0.0, statusEffects[1], statusEffects[3]);
 		return MathUtils.sum(breakpoints);
 	}
 

@@ -614,7 +614,8 @@ public class EnemyInformation {
 		
 		This method does NOT model Frozen x3 Direct Damage, IFG +30% damage, or Heavy Armor plates.
 	*/
-	public static int[] calculateBreakpoints(double[] directDamageByType, double[] areaDamageByType, double[] DoTDamageByType, double weakpointModifier, double macteraModifier, double singleBurstOfHeat) {
+	public static int[] calculateBreakpoints(double[] directDamageByType, double[] areaDamageByType, double[] DoTDamageByType, double weakpointModifier, double macteraModifier, 
+											 double singleBurstOfHeat, boolean frozen, boolean IFG) {
 		int[] creaturesToModel = {0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 14, 15, 16};
 		
 		// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
@@ -652,6 +653,29 @@ public class EnemyInformation {
 		// Glyphid Swarmers and Exploders have so little HP, it's not practical to model DoTs on them for Breakpoints
 		HashSet<Integer> indexesOfEnemiesShouldNotHaveDoTs = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 5}));
 		
+		// Frozen
+		double lightArmorReduction = UtilityInformation.LightArmor_DamageReduction;
+		if (frozen) {
+			// Removes Weakpoint Bonuses
+			weakpointModifier = -1.0;
+			
+			// Bypasses all Armor types
+			lightArmorReduction = 1.0;
+			
+			// Multiplies Direct Damage by x3
+			directDamageByType = MathUtils.vectorScalarMultiply(3.0, directDamageByType);
+			
+			// Removes any damage from Burning DoT. For now, Temperature Shock will remain unmodeled in Breakpoints but it's something that would be done in here somewhere.
+			DoTDamageByType[0] = 0;
+		}
+		
+		// IFG
+		if (IFG) {
+			// Increases Direct and Area Damage taken by x1.3
+			directDamageByType = MathUtils.vectorScalarMultiply(1.3, directDamageByType);
+			areaDamageByType = MathUtils.vectorScalarMultiply(1.3, areaDamageByType);
+		}
+		
 		double creatureHP, creatureWeakpointModifier, totalDirectDamage, totalAreaDamage, totalDoTDamage;
 		double[] creatureResistances;
 		for (int creatureIndex: creaturesToModel) {
@@ -666,10 +690,10 @@ public class EnemyInformation {
 			}
 			
 			creatureResistances = new double[] {
-				1.0 - enemyResistances[creatureIndex][0],
-				1.0 - enemyResistances[creatureIndex][1],
-				1.0 - enemyResistances[creatureIndex][2],
-				1.0 - enemyResistances[creatureIndex][3],
+				1.0 - enemyResistances[creatureIndex][0],	// Explosive
+				1.0 - enemyResistances[creatureIndex][1],	// Fire
+				1.0 - enemyResistances[creatureIndex][2],	// Frost
+				1.0 - enemyResistances[creatureIndex][3],	// Electric
 			};
 			
 			creatureWeakpointModifier = defaultWeakpointDamageBonusPerEnemyType[creatureIndex];
@@ -688,7 +712,8 @@ public class EnemyInformation {
 			
 			// Enemies can have Temperatures above their Ignite temperatures, and that makes them Burn longer than the "avg Burn duration" I have modeled. This is important for Grunts and 
 			// Mactera Spawns on Engie/GL/Mod/3/Incendiary Compound and Scout/Boomstick/Mod/5/WPS
-			if (singleBurstOfHeat >= enemyTemperatures[creatureIndex][0]) {
+			if (!frozen && singleBurstOfHeat >= enemyTemperatures[creatureIndex][0]) {
+				// If I choose to implement Temperature Shock in breakpoints, I'll have to add it here too.
 				totalDoTDamage += creatureResistances[1] * burnDPS * (singleBurstOfHeat - enemyTemperatures[creatureIndex][1]) / enemyTemperatures[creatureIndex][2];
 			}
 			
@@ -710,7 +735,7 @@ public class EnemyInformation {
 			
 			// Light Armor
 			if (indexesWithLightArmor.contains(creatureIndex)) {
-				toReturn.add((int) Math.ceil(creatureHP / (totalDirectDamage * UtilityInformation.LightArmor_DamageReduction + totalAreaDamage)));
+				toReturn.add((int) Math.ceil(creatureHP / (totalDirectDamage * lightArmorReduction + totalAreaDamage)));
 			}
 			
 			// Weakpoint
