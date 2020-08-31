@@ -777,15 +777,15 @@ public abstract class Revolver extends Weapon {
 	@Override
 	public int breakpoints() {
 		
-		double direct = getDirectDamage();
+		double directFireDamage = 0;
 		if (selectedOverclock == 2 && statusEffects[0]) {
-			direct *= 4.0;
+			directFireDamage = 3.0 * getDirectDamage();
 		}
 		
 		double[] directDamage = {
-			direct,  // Kinetic
+			getDirectDamage(), // Kinetic
 			0,  // Explosive
-			0,  // Fire
+			directFireDamage,  // Fire
 			0,  // Frost
 			0  // Electric
 		};
