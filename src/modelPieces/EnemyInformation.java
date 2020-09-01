@@ -757,6 +757,223 @@ public class EnemyInformation {
 	    return ret;
 	}
 	
+	/*
+		There's no succinct or clever way to write this method. It's going to be a beast, and iterate over several creatures individually. I apologize to anyone that has to
+		read over this method after it's done...
+		
+		Creatures with either Light or Heavy Armor:
+			Glyphid Grunt
+			Glyphid Grunt Guard
+			Glyphid Grunt Slasher
+			Glyphid Praetorian
+			Glyphid Webspitter
+			Glyphid Acidspitter
+			Glyphid Menace
+			Glyphid Warden
+			Q'ronar Shellback
+			
+		For most enemies in the list, I'm going to model it as if every shot fired has Weakpoint Accuracy percent of the Direct Damage hit the Weakpoint, 
+		(General Accuracy - Weakpoint Accuracy) percent hit up to 6 armor plates simultaneously and have its damage reduced accordingly, and 
+		remove (100% - General Accuracy) % of Direct Damage to account for missed shots. Area Damage will be applied normally, thankfully. This "superimposition" of
+		Direct Damage is the only way I can think of to produce consistent, repeatable results from this type of mechanic. If I didn't use this method, it would be a 
+		lot of RNG rolls to model and that would produce different results even for the same build different times.
+		
+		There will be a couple exceptions to this pattern: Praetorian and Shellback. Praetorian will have General Accuracy percent of Direct Damage hit its mouth, and 
+		(100% - General Accuracy) percent of Direct Damage hit the Heavy Armor plates around the mouth. Shellbacks will have General Accuracy percentage of Direct Damage
+		hit its plates until they're broken.
+	*/
+	public static double percentageDamageWastedByArmor(double directDamage, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy) {
+		double[][] creaturesArmorMatrix = {
+			// Creature Index, Number of Light Armor plates, Avg Armor Strength, Number of Heavy Armor plates, Avg Armor Plate HP
+			{1, 6, 15, 0, 0},  					// Glyphid Grunt
+			{2, 2, 15, 4, 60},  				// Glyphid Guard
+			{3, 6, 15, 0, 0},  					// Glyphid Slasher
+			{4, 0, 0, 6, 100},  				// Glyphid Praetorian
+			{8, 3, 10, 0, 0},  					// Glyphid Web Spitter
+			{9, 3, 10, 0, 0},  					// Glyphid Acid Spitter
+			{10, 0, (1*1 + 2*10)/3.0, 3, 0},  	// Glyphid Menace
+			{11, 0, 15, 3, 0},  				// Glyphid Warden
+			{13, 0, 0, 6, (6*70 + 14*30)/20},  	// Q'ronar Shellback
+		};
+		
+		// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
+		double[] normalEnemyResistances = {
+			0.7,  // Haz1
+			1.0,  // Haz2
+			1.1,  // Haz3
+			1.2,  // Haz4
+			1.2   // Haz5
+		};
+		double normalResistance = normalEnemyResistances[hazardLevel - 1];
+		
+		// On the other hand, large and extra-large enemies have their health scale by both player count and Hazard Level for all 20 combinations.
+		// Currently, it looks like the only extra-large enemy is a Dreadnought which I've chosen not to model for now.
+		double[][] largeEnemyResistances = {
+			{0.45, 0.55, 0.70, 0.85},  // Haz1
+			{0.65, 0.75, 0.90, 1.00},  // Haz2
+			{0.80, 0.90, 1.00, 1.10},  // Haz3
+			{1.00, 1.00, 1.20, 1.30},  // Haz4
+			{1.20, 1.20, 1.40, 1.50}   // Haz5
+		};
+		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
+		
+		int creatureIndex;
+		double baseHealth;
+		double proportionOfDamageThatHitsArmor, proportionOfDamageThatHitsWeakpoint;
+		double avgNumHitsToBreakArmorStrengthPlate, numHitsToBreakArmorHealthPlate;
+		double weakpointDamagePerShot, idealDamageDealtPerShot, reducedDamageDealtPerShot;
+		int shotCounter = 1;
+		double totalDamageSpent = 0, actualDamageDealt = 0, percentageWastedPerCreature = 0;
+		double percentageWastedTotal = 0;
+		for (int i = 0; i < creaturesArmorMatrix.length; i++) {
+			creatureIndex = (int) creaturesArmorMatrix[i][0];
+			baseHealth = enemyHealthPools[creatureIndex];
+			
+			if (creaturesArmorMatrix[i][4] > 0) {
+				// All Heavy Armor plates with healthbars have their health scale with normal resistance.
+				creaturesArmorMatrix[i][4] *= normalResistance;
+			}
+			
+			if (i == 3) {
+				// Special case: Glyphid Praetorian
+				baseHealth *= largeResistance;
+				
+				proportionOfDamageThatHitsArmor = (100.0 - generalAccuracy) / 100.0;
+				double proportionOfDamageThatHitsMouth = generalAccuracy / 100.0;
+				
+				numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / ((proportionOfDamageThatHitsArmor * directDamage + areaDamage) * armorBreaking));
+				
+				// Because I'm modeling it as if you're shooting at its mouth, Weakpoint bonuses are ignored.
+				double mouthDamagePerShot = directDamage * proportionOfDamageThatHitsMouth + areaDamage;
+				idealDamageDealtPerShot = mouthDamagePerShot + directDamage * proportionOfDamageThatHitsArmor;
+				
+				shotCounter = 1;
+				totalDamageSpent = 0;
+				actualDamageDealt = 0;
+				while (baseHealth > 0) {
+					reducedDamageDealtPerShot = mouthDamagePerShot;
+					
+					if (shotCounter > numHitsToBreakArmorHealthPlate) {
+						reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor;
+					}
+					
+					totalDamageSpent += idealDamageDealtPerShot;
+					actualDamageDealt += reducedDamageDealtPerShot;
+					baseHealth -= reducedDamageDealtPerShot;
+					shotCounter++;
+				}
+			}
+			else if (i == 8) {
+				// Special case: Q'ronar Shellback
+				baseHealth *= largeResistance;
+				
+				proportionOfDamageThatHitsArmor = generalAccuracy / 100.0;
+				
+				numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / ((proportionOfDamageThatHitsArmor * directDamage + areaDamage) * armorBreaking));
+				
+				// Because I'm modeling it as if you're shooting at it while curled up and rolling around, Weakpoint bonuses are ignored.
+				idealDamageDealtPerShot = directDamage * proportionOfDamageThatHitsArmor + areaDamage;
+				
+				shotCounter = 1;
+				totalDamageSpent = 0;
+				actualDamageDealt = 0;
+				while (baseHealth > 0) {
+					reducedDamageDealtPerShot = areaDamage;
+					
+					if (shotCounter > numHitsToBreakArmorHealthPlate) {
+						reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor;
+					}
+					
+					totalDamageSpent += idealDamageDealtPerShot;
+					actualDamageDealt += reducedDamageDealtPerShot;
+					baseHealth -= reducedDamageDealtPerShot;
+					shotCounter++;
+				}
+			}
+			else {
+				// General case
+				if (i == 6 || i == 7) {
+					// Menaces and Wardens get large HP scaling
+					baseHealth *= largeResistance;
+				}
+				else {
+					// All the other enemies get normal HP scaling
+					baseHealth *= normalResistance;
+				}
+				
+				// This first variable technically goes unused by everything, but I'm keeping it in to explain where the "missing damage" goes.
+				// proportionOfDamgeLostFromMissedShots = (100.0 - generalAccuracy) / 100.0;
+				proportionOfDamageThatHitsArmor = (generalAccuracy - weakpointAccuracy) / 100.0;
+				proportionOfDamageThatHitsWeakpoint = weakpointAccuracy / 100.0;
+				
+				if (creaturesArmorMatrix[i][2] > 0) {
+					avgNumHitsToBreakArmorStrengthPlate = Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(proportionOfDamageThatHitsArmor * directDamage + areaDamage, armorBreaking, creaturesArmorMatrix[i][2])));
+				}
+				else {
+					avgNumHitsToBreakArmorStrengthPlate = 0;
+				}
+				
+				if (creaturesArmorMatrix[i][4] > 0) {
+					numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / ((proportionOfDamageThatHitsArmor * directDamage + areaDamage) * armorBreaking));
+				}
+				else {
+					numHitsToBreakArmorHealthPlate = 0;
+				}
+				
+				if (weakpointModifier < 0) {
+					weakpointDamagePerShot = directDamage * proportionOfDamageThatHitsWeakpoint + areaDamage;
+				}
+				else {
+					weakpointDamagePerShot = directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex] + areaDamage;
+				}
+				
+				// Don't double-count Area Damage; already counted in Weakpoint.
+				idealDamageDealtPerShot = weakpointDamagePerShot + directDamage * proportionOfDamageThatHitsArmor;
+				
+				shotCounter = 1;
+				totalDamageSpent = 0;
+				actualDamageDealt = 0;
+				while (baseHealth > 0) {
+					reducedDamageDealtPerShot = weakpointDamagePerShot;
+					
+					// First, Light Armor plates (always Armor Strength, mixes with Heavy Armor plates on Guards)
+					if (creaturesArmorMatrix[i][1] > 0) {
+						if (shotCounter <= avgNumHitsToBreakArmorStrengthPlate) {
+							reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor * UtilityInformation.LightArmor_DamageReduction * creaturesArmorMatrix[i][1] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+						}
+						else {
+							reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor * creaturesArmorMatrix[i][1] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+						}
+					}
+					
+					if (creaturesArmorMatrix[i][3] > 0) {
+						// Second, Heavy Armor Plates with health (mixes with Light Armor plates on Guards)
+						if (creaturesArmorMatrix[i][4] > 0 && shotCounter > numHitsToBreakArmorHealthPlate) {
+							reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor * creaturesArmorMatrix[i][3] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+						}
+						// Third, Heavy Armor plates with Armor Strength (mutually exclusive with Light Armor plates)
+						else if (creaturesArmorMatrix[i][1] == 0 && creaturesArmorMatrix[i][2] > 0 && shotCounter > avgNumHitsToBreakArmorStrengthPlate) {
+							reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor;
+						}
+					}
+					
+					totalDamageSpent += idealDamageDealtPerShot;
+					actualDamageDealt += reducedDamageDealtPerShot;
+					baseHealth -= reducedDamageDealtPerShot;
+					shotCounter++;
+				}
+			}
+			
+			System.out.println("Armored creature index #" + i + ": Took " + shotCounter + " shots to deal " + actualDamageDealt + " damage and kill this enemy, whereas theoretically the same number of shots could have done " + totalDamageSpent + " damage.");
+			percentageWastedPerCreature = 1.0 - actualDamageDealt / totalDamageSpent;
+			System.out.println("For this enemy, " + (percentageWastedPerCreature*100.0) + "% of total damage was wasted by Armor.");
+			
+			percentageWastedTotal += percentageWastedPerCreature * exactSpawnRates[creatureIndex];
+		}
+		
+		return percentageWastedTotal * 100.0;
+	}
+	
 	/* 
 		Dimensions of a Glyphid Grunt used for estimating how many grunts would be hit by AoE damage of a certain radius 
 		(see method Weapon.calculateNumGlyphidsInRadius())
