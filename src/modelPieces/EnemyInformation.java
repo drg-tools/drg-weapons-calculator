@@ -783,6 +783,9 @@ public class EnemyInformation {
 		hit its plates until they're broken.
 	*/
 	public static double percentageDamageWastedByArmor(double directDamage, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy) {
+		return percentageDamageWastedByArmor(directDamage, areaDamage, armorBreaking, weakpointModifier, generalAccuracy, weakpointAccuracy, false);
+	}
+	public static double percentageDamageWastedByArmor(double directDamage, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy, boolean embeddedDetonators) {
 		double[][] creaturesArmorMatrix = {
 			// Creature Index, Number of Light Armor plates, Avg Armor Strength, Number of Heavy Armor plates, Avg Armor Plate HP
 			{1, 6, 15, 0, 0},  					// Glyphid Grunt
@@ -817,6 +820,16 @@ public class EnemyInformation {
 		};
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
+		
+		double areaDamageAppliedToHealthbar = areaDamage; 
+		double areaDamageAppliedToArmor;
+		if (embeddedDetonators) {
+			areaDamageAppliedToArmor = 0;
+		}
+		else {
+			areaDamageAppliedToArmor = areaDamage;
+		}
+		
 		int creatureIndex;
 		double baseHealth;
 		double proportionOfDamageThatHitsArmor, proportionOfDamageThatHitsWeakpoint;
@@ -841,10 +854,10 @@ public class EnemyInformation {
 				proportionOfDamageThatHitsArmor = (100.0 - generalAccuracy) / 100.0;
 				double proportionOfDamageThatHitsMouth = generalAccuracy / 100.0;
 				
-				numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / ((proportionOfDamageThatHitsArmor * directDamage + areaDamage) * armorBreaking));
+				numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / ((proportionOfDamageThatHitsArmor * directDamage + areaDamageAppliedToArmor) * armorBreaking));
 				
 				// Because I'm modeling it as if you're shooting at its mouth, Weakpoint bonuses are ignored.
-				double mouthDamagePerShot = directDamage * proportionOfDamageThatHitsMouth + areaDamage;
+				double mouthDamagePerShot = directDamage * proportionOfDamageThatHitsMouth + areaDamageAppliedToHealthbar;
 				idealDamageDealtPerShot = mouthDamagePerShot + directDamage * proportionOfDamageThatHitsArmor;
 				
 				shotCounter = 1;
@@ -869,18 +882,21 @@ public class EnemyInformation {
 				
 				proportionOfDamageThatHitsArmor = generalAccuracy / 100.0;
 				
-				numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / ((proportionOfDamageThatHitsArmor * directDamage + areaDamage) * armorBreaking));
+				numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / ((proportionOfDamageThatHitsArmor * directDamage + areaDamageAppliedToArmor) * armorBreaking));
 				
 				// Because I'm modeling it as if you're shooting at it while curled up and rolling around, Weakpoint bonuses are ignored.
-				idealDamageDealtPerShot = directDamage * proportionOfDamageThatHitsArmor + areaDamage;
+				idealDamageDealtPerShot = directDamage * proportionOfDamageThatHitsArmor + areaDamageAppliedToHealthbar;
 				
 				shotCounter = 1;
 				totalDamageSpent = 0;
 				actualDamageDealt = 0;
 				while (baseHealth > 0) {
-					reducedDamageDealtPerShot = areaDamage;
+					reducedDamageDealtPerShot = areaDamageAppliedToArmor;
 					
 					if (shotCounter > numHitsToBreakArmorHealthPlate) {
+						if (embeddedDetonators) {
+							reducedDamageDealtPerShot = areaDamageAppliedToHealthbar;
+						}
 						reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor;
 					}
 					
@@ -907,24 +923,24 @@ public class EnemyInformation {
 				proportionOfDamageThatHitsWeakpoint = weakpointAccuracy / 100.0;
 				
 				if (creaturesArmorMatrix[i][2] > 0) {
-					avgNumHitsToBreakArmorStrengthPlate = Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(proportionOfDamageThatHitsArmor * directDamage + areaDamage, armorBreaking, creaturesArmorMatrix[i][2])));
+					avgNumHitsToBreakArmorStrengthPlate = Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(proportionOfDamageThatHitsArmor * directDamage + areaDamageAppliedToArmor, armorBreaking, creaturesArmorMatrix[i][2])));
 				}
 				else {
 					avgNumHitsToBreakArmorStrengthPlate = 0;
 				}
 				
 				if (creaturesArmorMatrix[i][4] > 0) {
-					numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / ((proportionOfDamageThatHitsArmor * directDamage + areaDamage) * armorBreaking));
+					numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / ((proportionOfDamageThatHitsArmor * directDamage + areaDamageAppliedToArmor) * armorBreaking));
 				}
 				else {
 					numHitsToBreakArmorHealthPlate = 0;
 				}
 				
 				if (weakpointModifier < 0) {
-					weakpointDamagePerShot = directDamage * proportionOfDamageThatHitsWeakpoint + areaDamage;
+					weakpointDamagePerShot = directDamage * proportionOfDamageThatHitsWeakpoint + areaDamageAppliedToHealthbar;
 				}
 				else {
-					weakpointDamagePerShot = directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex] + areaDamage;
+					weakpointDamagePerShot = directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex] + areaDamageAppliedToHealthbar;
 				}
 				
 				// Don't double-count Area Damage; already counted in Weakpoint.

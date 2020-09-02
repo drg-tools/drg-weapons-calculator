@@ -709,8 +709,7 @@ public class Zhukov extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		// TODO: I know that Explosive Reload and Embedded Detonators don't work properly with this method yet.
-		return EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), getAreaDamage(), 1.0, getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true));
+		return EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), getAreaDamage(), 1.0, getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true), true);
 	}
 	
 	@Override
