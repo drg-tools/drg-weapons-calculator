@@ -880,12 +880,10 @@ public class EnemyInformation {
 				// Special case: Q'ronar Shellback
 				baseHealth *= largeResistance;
 				
-				proportionOfDamageThatHitsArmor = generalAccuracy / 100.0;
-				
-				numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / ((proportionOfDamageThatHitsArmor * directDamage + areaDamageAppliedToArmor) * armorBreaking));
+				numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / ((directDamage + areaDamageAppliedToArmor) * armorBreaking));
 				
 				// Because I'm modeling it as if you're shooting at it while curled up and rolling around, Weakpoint bonuses are ignored.
-				idealDamageDealtPerShot = directDamage * proportionOfDamageThatHitsArmor + areaDamageAppliedToHealthbar;
+				idealDamageDealtPerShot = directDamage + areaDamageAppliedToHealthbar;
 				
 				shotCounter = 1;
 				totalDamageSpent = 0;
@@ -897,7 +895,7 @@ public class EnemyInformation {
 						if (embeddedDetonators) {
 							reducedDamageDealtPerShot = areaDamageAppliedToHealthbar;
 						}
-						reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor;
+						reducedDamageDealtPerShot += directDamage;
 					}
 					
 					totalDamageSpent += idealDamageDealtPerShot;
@@ -917,9 +915,7 @@ public class EnemyInformation {
 					baseHealth *= normalResistance;
 				}
 				
-				// This first variable technically goes unused by everything, but I'm keeping it in to explain where the "missing damage" goes.
-				// proportionOfDamgeLostFromMissedShots = (100.0 - generalAccuracy) / 100.0;
-				proportionOfDamageThatHitsArmor = (generalAccuracy - weakpointAccuracy) / 100.0;
+				proportionOfDamageThatHitsArmor = (100.0 - weakpointAccuracy) / 100.0;
 				proportionOfDamageThatHitsWeakpoint = weakpointAccuracy / 100.0;
 				
 				if (creaturesArmorMatrix[i][2] > 0) {
