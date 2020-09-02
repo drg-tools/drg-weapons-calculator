@@ -44,7 +44,7 @@ public class WeaponTab extends JPanel {
 		gbc.gridwidth = 1;
 		gbc.gridheight = 24;
 		gbc.weightx = 1.0/7.0;
-		gbc.weighty = 24.0/30.0;
+		gbc.weighty = 24.0/31.0;
 		JPanel weaponStats = constructWeaponStatsPanel();
 		gbl.setConstraints(weaponStats, gbc);
 		this.add(weaponStats);
@@ -54,7 +54,7 @@ public class WeaponTab extends JPanel {
 		gbc.gridwidth = 6;
 		gbc.gridheight = 15;
 		gbc.weightx = 6.0/7.0;
-		gbc.weighty = 15.0/30.0;
+		gbc.weighty = 15.0/31.0;
 		JPanel weaponMods = constructModsPanel();
 		gbl.setConstraints(weaponMods, gbc);
 		this.add(weaponMods);
@@ -64,7 +64,7 @@ public class WeaponTab extends JPanel {
 		gbc.gridwidth = 6;
 		gbc.gridheight = 7;
 		gbc.weightx = 6.0/7.0;
-		gbc.weighty = 7.0/30.0;
+		gbc.weighty = 7.0/31.0;
 		JPanel weaponOverclocks = constructOverclocksPanel();
 		gbl.setConstraints(weaponOverclocks, gbc);
 		this.add(weaponOverclocks);
@@ -74,7 +74,7 @@ public class WeaponTab extends JPanel {
 		gbc.gridwidth = 6;
 		gbc.gridheight = 2;
 		gbc.weightx = 6.0/7.0;
-		gbc.weighty = 2.0/30.0;
+		gbc.weighty = 2.0/31.0;
 		JPanel statusEffectButtons = constructStatusEffectsPanel();
 		gbl.setConstraints(statusEffectButtons, gbc);
 		this.add(statusEffectButtons);
@@ -85,7 +85,7 @@ public class WeaponTab extends JPanel {
 		gbc.gridwidth = 7;
 		gbc.gridheight = 6;
 		gbc.weightx = 1.0;
-		gbc.weighty = 6.0/30.0;
+		gbc.weighty = 7.0/31.0;
 		JPanel weaponCalculations = constructCalculationsPanel();
 		gbl.setConstraints(weaponCalculations, gbc);
 		this.add(weaponCalculations);
@@ -230,24 +230,35 @@ public class WeaponTab extends JPanel {
 		JPanel toReturn = new JPanel();
 		toReturn.setBackground(GuiConstants.drgBackgroundBrown);
 		toReturn.setBorder(GuiConstants.blackLine);
-		toReturn.setLayout(new GridLayout(6, 5));
+		toReturn.setLayout(new GridLayout(8, 5));
+		
+		// 70px height per row of stats
 		
 		String[] headers = new String[] {
-			"Ideal Burst DPS",
-			"Ideal Sustained DPS",
-			"Sustained DPS (+Weakpoints)",
-			"Sustained DPS (+Weakpoints, +Accuracy)",
-			"Ideal Additional Target DPS",
+			// Row 1
+			"Burst DPS",
+			"Sustained DPS",
+			"Toggle Weakpoints in DPS",
+			"Toggle Accuracy in DPS",
+			"Toggle Armor in DPS",
+			// Row 2
+			"Additional Targets DPS",
 			"Max Num Targets",
 			"Max Multi-Target Dmg",
 			"Ammo Efficiency",
+			"Avg Damage Lost vs Armored Enemies",
+			// Row 3
+			"Accuracy Visualizer",
 			"General Accuracy",
 			"Weakpoint Accuracy",
 			"Firing Duration (sec)",
-			"Avg Overkill",
 			"Avg TTK (sec)",
+			// Row 4
+			"Avg Overkill",
 			"Breakpoints",
-			"Utility"
+			"Utility",
+			"",
+			""  // This last one, bottom-right, will eventually be "Haz5+ Ready"
 		};
 		
 		int i;
@@ -259,7 +270,7 @@ public class WeaponTab extends JPanel {
 		/******************************************
 			Row 1
 		******************************************/
-		for (i = 0; i < headers.length/3; i++) {
+		for (i = 0; i < headers.length/4; i++) {
 			header = new JLabel(headers[i]);
 			header.setFont(GuiConstants.customFont);
 			header.setForeground(GuiConstants.drgRegularOrange);
@@ -349,7 +360,7 @@ public class WeaponTab extends JPanel {
 		/******************************************
 			Row 2
 		******************************************/
-		for (i = headers.length/3; i < 2*headers.length/3; i++) {
+		for (i = headers.length/4; i < 2*headers.length/4; i++) {
 			header = new JLabel(headers[i]);
 			header.setFont(GuiConstants.customFont);
 			header.setForeground(GuiConstants.drgRegularOrange);
@@ -420,7 +431,51 @@ public class WeaponTab extends JPanel {
 		}
 		toReturn.add(value);
 		
+		double damageWastedByArmor = myWeapon.damageWastedByArmor();
+		roundedNumber = leftPadSpaces + MathUtils.round(damageWastedByArmor, GuiConstants.numDecimalPlaces) + "%";
+		value = new JLabel(roundedNumber);
+		value.setFont(GuiConstants.customFontBold);
+		if (damageWastedByArmor > originalStats[15]) {
+			value.setForeground(GuiConstants.drgNegativeChangeRed);
+		}
+		else if (damageWastedByArmor < originalStats[15]) {
+			value.setForeground(GuiConstants.drgOverclockCleanGreen);
+		}
+		else {
+			// Implicitly means that they're equal
+			value.setForeground(GuiConstants.drgHighlightedYellow);
+		}
+		toReturn.add(value);
+		
+		// Placeholder blank JLabel until a new metric gets placed here
+		value = new JLabel();
+		toReturn.add(value);
+		
+		/******************************************
+			Row 3
+		******************************************/
+		for (i = 2*headers.length/4; i < 3*headers.length/4; i++) {
+			header = new JLabel(headers[i]);
+			header.setFont(GuiConstants.customFont);
+			header.setForeground(GuiConstants.drgRegularOrange);
+			toReturn.add(header);
+		}
+		
 		double generalAccuracy = myWeapon.estimatedAccuracy(false);
+		if (generalAccuracy < 0) {
+			value = new JLabel(leftPadSpaces + "Manually Aimed");
+			value.setFont(GuiConstants.customFontBold);
+			value.setForeground(GuiConstants.drgHighlightedYellow);
+			toReturn.add(value);
+		}
+		else {
+			// TODO: this is where the visualizer button will go, but that's going to be a whole other thing to do first.
+			value = new JLabel(leftPadSpaces + "See how it works");
+			value.setFont(GuiConstants.customFontBold);
+			value.setForeground(GuiConstants.drgHighlightedYellow);
+			toReturn.add(value);
+		}
+		
 		if (generalAccuracy < 0) {
 			value = new JLabel(leftPadSpaces + "Manually Aimed");
 			value.setFont(GuiConstants.customFontBold);
@@ -467,16 +522,6 @@ public class WeaponTab extends JPanel {
 		}
 		toReturn.add(value);
 		
-		/******************************************
-			Row 3
-		******************************************/
-		for (i = 2*headers.length/3; i < headers.length; i++) {
-			header = new JLabel(headers[i]);
-			header.setFont(GuiConstants.customFont);
-			header.setForeground(GuiConstants.drgRegularOrange);
-			toReturn.add(header);
-		}
-		
 		double firingDuration = myWeapon.calculateFiringDuration();
 		roundedNumber = leftPadSpaces + MathUtils.round(firingDuration, GuiConstants.numDecimalPlaces);
 		value = new JLabel(roundedNumber);
@@ -493,22 +538,6 @@ public class WeaponTab extends JPanel {
 		}
 		toReturn.add(value);
 		
-		double overkill = myWeapon.averageOverkill();
-		roundedNumber = leftPadSpaces + MathUtils.round(overkill, GuiConstants.numDecimalPlaces) + "%";
-		value = new JLabel(roundedNumber);
-		value.setFont(GuiConstants.customFontBold);
-		if (overkill > originalStats[11]) {
-			value.setForeground(GuiConstants.drgNegativeChangeRed);
-		}
-		else if (overkill < originalStats[11]) {
-			value.setForeground(GuiConstants.drgOverclockCleanGreen);
-		}
-		else {
-			// Implicitly means that they're equal
-			value.setForeground(GuiConstants.drgHighlightedYellow);
-		}
-		toReturn.add(value);
-		
 		double timeToKill = myWeapon.averageTimeToKill();
 		roundedNumber = leftPadSpaces + MathUtils.round(timeToKill, GuiConstants.numDecimalPlaces);
 		value = new JLabel(roundedNumber);
@@ -517,6 +546,32 @@ public class WeaponTab extends JPanel {
 			value.setForeground(GuiConstants.drgNegativeChangeRed);
 		}
 		else if (timeToKill < originalStats[12]) {
+			value.setForeground(GuiConstants.drgOverclockCleanGreen);
+		}
+		else {
+			// Implicitly means that they're equal
+			value.setForeground(GuiConstants.drgHighlightedYellow);
+		}
+		toReturn.add(value);
+		
+		/******************************************
+			Row 4
+		******************************************/
+		for (i = 3*headers.length/4; i < headers.length; i++) {
+			header = new JLabel(headers[i]);
+			header.setFont(GuiConstants.customFont);
+			header.setForeground(GuiConstants.drgRegularOrange);
+			toReturn.add(header);
+		}
+		
+		double overkill = myWeapon.averageOverkill();
+		roundedNumber = leftPadSpaces + MathUtils.round(overkill, GuiConstants.numDecimalPlaces) + "%";
+		value = new JLabel(roundedNumber);
+		value.setFont(GuiConstants.customFontBold);
+		if (overkill > originalStats[11]) {
+			value.setForeground(GuiConstants.drgNegativeChangeRed);
+		}
+		else if (overkill < originalStats[11]) {
 			value.setForeground(GuiConstants.drgOverclockCleanGreen);
 		}
 		else {
@@ -563,6 +618,14 @@ public class WeaponTab extends JPanel {
 			utilButton.setForeground(GuiConstants.drgHighlightedYellow);
 		}
 		toReturn.add(utilButton);
+		
+		// Placeholder blank JLabel until a new metric gets placed here
+		value = new JLabel();
+		toReturn.add(value);
+		
+		// Placeholder blank JLabel until a new metric gets placed here
+		value = new JLabel();
+		toReturn.add(value);
 		
 		return toReturn;
 	}

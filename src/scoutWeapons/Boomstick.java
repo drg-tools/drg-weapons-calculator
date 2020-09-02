@@ -796,7 +796,7 @@ public class Boomstick extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		return EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet() * getNumberOfPellets(), getBlastwaveDamage(), getArmorBreaking(), 0.0, estimatedAccuracy(false), estimatedAccuracy(true));
+		return EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet() * getNumberOfPellets(), getBlastwaveDamage(), getArmorBreaking(), 0.0, estimatedAccuracy(false), estimatedAccuracy(true), true);
 	}
 	
 	@Override
