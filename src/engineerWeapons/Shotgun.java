@@ -688,6 +688,11 @@ public class Shotgun extends Weapon {
 	}
 	
 	@Override
+	public double damageWastedByArmor() {
+		return EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet() * getNumberOfPellets(), 0.0, getArmorBreaking(), getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true));
+	}
+	
+	@Override
 	public ArrayList<String> exportModsToMySQL(boolean exportAllMods) {
 		ConditionalArrayList<String> toReturn = new ConditionalArrayList<String>();
 		

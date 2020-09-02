@@ -977,6 +977,11 @@ public class Minigun extends Weapon {
 	}
 	
 	@Override
+	public double damageWastedByArmor() {
+		return EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet(), 0.0, getArmorBreaking(), 0.0, estimatedAccuracy(false), estimatedAccuracy(true));
+	}
+	
+	@Override
 	public ArrayList<String> exportModsToMySQL(boolean exportAllMods) {
 		ConditionalArrayList<String> toReturn = new ConditionalArrayList<String>();
 		

@@ -253,4 +253,10 @@ public class EPC_RegularShot extends EPC {
 	public double timeToFireMagazine() {
 		return getNumRegularShotsBeforeOverheat() / rateOfFire;
 	}
+	
+	@Override
+	public double damageWastedByArmor() {
+		double weakpointAccuracy = EnemyInformation.probabilityBulletWillHitWeakpoint() * 100.0;
+		return EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 0.0, 1.0, 0.0, 100.0, weakpointAccuracy);
+	}
 }

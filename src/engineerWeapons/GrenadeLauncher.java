@@ -693,6 +693,12 @@ public class GrenadeLauncher extends Weapon {
 	}
 	
 	@Override
+	public double damageWastedByArmor() {
+		double weakpointAccuracy = EnemyInformation.probabilityBulletWillHitWeakpoint() * 100.0;
+		return EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), getAreaDamage(), getArmorBreaking(), 0.0, 100.0, weakpointAccuracy);
+	}
+	
+	@Override
 	public ArrayList<String> exportModsToMySQL(boolean exportAllMods) {
 		ConditionalArrayList<String> toReturn = new ConditionalArrayList<String>();
 		

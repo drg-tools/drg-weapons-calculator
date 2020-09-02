@@ -871,6 +871,11 @@ public class BreachCutter extends Weapon {
 	}
 	
 	@Override
+	public double damageWastedByArmor() {
+		return 0;
+	}
+	
+	@Override
 	public ArrayList<String> exportModsToMySQL(boolean exportAllMods) {
 		ConditionalArrayList<String> toReturn = new ConditionalArrayList<String>();
 		

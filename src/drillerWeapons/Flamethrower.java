@@ -671,6 +671,12 @@ public class Flamethrower extends Weapon {
 	}
 	
 	@Override
+	public double damageWastedByArmor() {
+		// Flamethrower's stream ignores all armor.
+		return 0;
+	}
+	
+	@Override
 	public ArrayList<String> exportModsToMySQL(boolean exportAllMods) {
 		ConditionalArrayList<String> toReturn = new ConditionalArrayList<String>();
 		

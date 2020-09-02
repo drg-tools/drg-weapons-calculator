@@ -795,6 +795,11 @@ public class Boomstick extends Weapon {
 	}
 	
 	@Override
+	public double damageWastedByArmor() {
+		return EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet() * getNumberOfPellets(), getBlastwaveDamage(), getArmorBreaking(), 0.0, estimatedAccuracy(false), estimatedAccuracy(true));
+	}
+	
+	@Override
 	public ArrayList<String> exportModsToMySQL(boolean exportAllMods) {
 		ConditionalArrayList<String> toReturn = new ConditionalArrayList<String>();
 		

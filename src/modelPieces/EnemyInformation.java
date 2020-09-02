@@ -824,7 +824,7 @@ public class EnemyInformation {
 		double weakpointDamagePerShot, idealDamageDealtPerShot, reducedDamageDealtPerShot;
 		int shotCounter = 1;
 		double totalDamageSpent = 0, actualDamageDealt = 0, percentageWastedPerCreature = 0;
-		double percentageWastedTotal = 0;
+		double percentageWastedTotal = 0, totalSpawnPercentage = 0;
 		for (int i = 0; i < creaturesArmorMatrix.length; i++) {
 			creatureIndex = (int) creaturesArmorMatrix[i][0];
 			baseHealth = enemyHealthPools[creatureIndex];
@@ -964,14 +964,15 @@ public class EnemyInformation {
 				}
 			}
 			
-			System.out.println("Armored creature index #" + i + ": Took " + shotCounter + " shots to deal " + actualDamageDealt + " damage and kill this enemy, whereas theoretically the same number of shots could have done " + totalDamageSpent + " damage.");
+			// System.out.println("Armored creature index #" + i + ": Took " + shotCounter + " shots to deal " + actualDamageDealt + " damage and kill this enemy, whereas theoretically the same number of shots could have done " + totalDamageSpent + " damage.");
 			percentageWastedPerCreature = 1.0 - actualDamageDealt / totalDamageSpent;
-			System.out.println("For this enemy, " + (percentageWastedPerCreature*100.0) + "% of total damage was wasted by Armor.");
+			// System.out.println("For this enemy, " + (percentageWastedPerCreature*100.0) + "% of total damage was wasted by Armor.");
 			
 			percentageWastedTotal += percentageWastedPerCreature * exactSpawnRates[creatureIndex];
+			totalSpawnPercentage += exactSpawnRates[creatureIndex];
 		}
 		
-		return percentageWastedTotal * 100.0;
+		return percentageWastedTotal * 100.0 / totalSpawnPercentage;
 	}
 	
 	/* 

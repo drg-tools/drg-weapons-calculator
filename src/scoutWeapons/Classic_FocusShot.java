@@ -291,4 +291,10 @@ public class Classic_FocusShot extends Classic {
 		
 		return (bulletDamage + electrocuteDamage) * calculateMaxNumTargets();
 	}
+	
+	@Override
+	public double damageWastedByArmor() {
+		double weakpointAccuracy = EnemyInformation.probabilityBulletWillHitWeakpoint() * 100.0;
+		return EnemyInformation.percentageDamageWastedByArmor(getDirectDamage() * getFocusedShotMultiplier(), 0.0, getArmorBreaking(), getWeakpointBonus(), 100.0, weakpointAccuracy);
+	}
 }

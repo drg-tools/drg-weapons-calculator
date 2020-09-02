@@ -282,6 +282,12 @@ public class EPC_ChargeShot extends EPC {
 	}
 	
 	@Override
+	public double damageWastedByArmor() {
+		// The charged shots of the EPC need to have more research done before I model them like the other bullet-based weapons.
+		return 0;
+	}
+	
+	@Override
 	public double timeToFireMagazine() {
 		return getChargedShotWindup();
 	}

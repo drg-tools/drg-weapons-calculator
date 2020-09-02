@@ -516,7 +516,7 @@ public abstract class Weapon extends Observable {
 		baselineCalculatedStats = new double[] {
 			calculateIdealBurstDPS(), calculateIdealSustainedDPS(), sustainedWeakpointDPS(), sustainedWeakpointAccuracyDPS(), calculateAdditionalTargetDPS(), 
 			calculateMaxNumTargets(), calculateMaxMultiTargetDamage(), ammoEfficiency(), estimatedAccuracy(false), estimatedAccuracy(true),
-			calculateFiringDuration(), averageOverkill(), averageTimeToKill(), breakpoints(), utilityScore()
+			calculateFiringDuration(), averageOverkill(), averageTimeToKill(), breakpoints(), utilityScore(), damageWastedByArmor()
 		};
 		selectedTier1 = oldT1;
 		selectedTier2 = oldT2;
@@ -1060,12 +1060,14 @@ public abstract class Weapon extends Observable {
 	public abstract double damagePerMagazine();
 	public abstract double timeToFireMagazine();
 	
+	public abstract double damageWastedByArmor();
+	
 	// Shortcut method for WeaponStatsGenerator
 	public double[] getMetrics() {
 		return new double[]{
 			calculateIdealBurstDPS(), calculateIdealSustainedDPS(), sustainedWeakpointDPS(), sustainedWeakpointAccuracyDPS(), calculateAdditionalTargetDPS(), 
 			calculateMaxNumTargets(), calculateMaxMultiTargetDamage(), ammoEfficiency(), estimatedAccuracy(false), estimatedAccuracy(true),
-			calculateFiringDuration(), averageOverkill(), averageTimeToKill(), breakpoints(), utilityScore()
+			calculateFiringDuration(), averageOverkill(), averageTimeToKill(), breakpoints(), utilityScore(), damageWastedByArmor()
 		};
 	}
 	

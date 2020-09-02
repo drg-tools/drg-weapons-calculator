@@ -686,6 +686,12 @@ public class CryoCannon extends Weapon {
 	}
 	
 	@Override
+	public double damageWastedByArmor() {
+		// Cryo Cannon's stream ignores all Armor.
+		return 0;
+	}
+	
+	@Override
 	public ArrayList<String> exportModsToMySQL(boolean exportAllMods) {
 		ConditionalArrayList<String> toReturn = new ConditionalArrayList<String>();
 		

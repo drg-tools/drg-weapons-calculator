@@ -252,4 +252,9 @@ public class Classic_Hipfire extends Classic {
 	public double damagePerMagazine() {
 		return getDirectDamage() * getMagazineSize() * calculateMaxNumTargets();
 	}
+	
+	@Override
+	public double damageWastedByArmor() {
+		return EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 0.0, getArmorBreaking(), getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true));
+	}
 }

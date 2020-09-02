@@ -92,7 +92,8 @@ public class InformationTabsText {
 			{"Ammo Efficiency", "Ammo Efficiency is a bit more abstract of a metric, and technically doesn't have any units associated with it (unlike DPS, num targets, max damage, etc). "
 					+ "The current formula used to calculate Ammo Efficiency is (Max Multi-Target Damage / Math.ceil(Number of bullets needed to kill one enemy, including Weakpoint Bonuses)). "
 					+ "As a result of that formula, higher damage per bullet and higher Weakpoint bonus will yield a smaller denominator, while higher damage per bullet, more targets per shot, "
-					+ "and more carried ammo will result in a higher numerator. Using a combination of those 4 upgrades will result in a very high AE score."},
+					+ "and more carried ammo will result in a higher numerator. Using a combination of those 4 upgrades will result in a very high AE score. Higher AE allows you to deal with "
+					+ "more enemies without needing as many resupplies."},
 			{"General Accuracy", "A pretty straight-forward metric to understand, General Accuracy is an estimate of what percentage of projectiles would hit a target from 7m away using sustained "
 					+ "fire. For the two shotguns, the distance has been reduced to 5m. Some weapons like both of Driller's primary weapons, Engineer's secondary weapons, or Scout's M1000 "
 					+ "Classic (Focused Shots) can't have their accuracy modeled and will instead say \"Manually Aimed\"."},
