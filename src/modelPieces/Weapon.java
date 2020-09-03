@@ -7,6 +7,7 @@ import java.util.Observable;
 import javax.swing.JPanel;
 
 import guiPieces.AoEVisualizer;
+import guiPieces.GuiConstants;
 import guiPieces.ButtonIcons.modIcons;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
@@ -50,6 +51,14 @@ public abstract class Weapon extends Observable {
 	// Mobility, Damage Resist, Armor Break, Slow, Fear, Stun, Freeze
 	// Set them all to zero to start, then override values in child objects as necessary.
 	protected double[] utilityScores = {0, 0, 0, 0, 0, 0, 0};
+	
+	
+	protected double[][] damageWastedByArmorPerCreature = {
+		// Spawn Probabilities
+		{0, 0, 0, 0, 0, 0, 0, 0, 0},
+		// Damage Wasted
+		{0, 0, 0, 0, 0, 0, 0, 0, 0}
+	};
 	
 	// Burning, Frozen, Electrocuted, IFG Grenade
 	protected boolean[] statusEffects = {false, false, false, false};
@@ -1022,10 +1031,10 @@ public abstract class Weapon extends Observable {
 		toReturn[8] = new StatsRow("Glypid Praetorian (Weakpoint):", breakpoints[8], null, false);
 		toReturn[9] = new StatsRow("Glypid Exploder:", breakpoints[9], null, false);
 		toReturn[10] = new StatsRow("Glypid Exploder (Weakpoint):", breakpoints[10], null, false);
-		toReturn[11] = new StatsRow("Glypid Webspitter (Light Armor):", breakpoints[11], null, false);
-		toReturn[12] = new StatsRow("Glypid Webspitter (Weakpoint):", breakpoints[12], null, false);
-		toReturn[13] = new StatsRow("Glypid Acidspitter (Light Armor):", breakpoints[13], null, false);
-		toReturn[14] = new StatsRow("Glypid Acidspitter (Weakpoint):", breakpoints[14], null, false);
+		toReturn[11] = new StatsRow("Glypid Web Spitter (Light Armor):", breakpoints[11], null, false);
+		toReturn[12] = new StatsRow("Glypid Web Spitter (Weakpoint):", breakpoints[12], null, false);
+		toReturn[13] = new StatsRow("Glypid Acid Spitter (Light Armor):", breakpoints[13], null, false);
+		toReturn[14] = new StatsRow("Glypid Acid Spitter (Weakpoint):", breakpoints[14], null, false);
 		toReturn[15] = new StatsRow("Glypid Warden:", breakpoints[15], null, false);
 		toReturn[16] = new StatsRow("Glypid Warden (Orb):", breakpoints[16], null, false);
 		toReturn[17] = new StatsRow("Glypid Oppressor (Weakpoint):", breakpoints[17], null, false);
@@ -1061,6 +1070,22 @@ public abstract class Weapon extends Observable {
 	public abstract double timeToFireMagazine();
 	
 	public abstract double damageWastedByArmor();
+	
+	public StatsRow[] armorWastingExplanation() {
+		StatsRow[] toReturn = new StatsRow[damageWastedByArmorPerCreature[1].length];
+		
+		toReturn[0] = new StatsRow("Glyphid Grunt:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][0], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[1] = new StatsRow("Glyphid Guard:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][1], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[2] = new StatsRow("Glyphid Slasher:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][2], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[3] = new StatsRow("Glyphid Praetorian:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][3], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[4] = new StatsRow("Glyphid Web Spitter:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][4], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[5] = new StatsRow("Glyphid Acid Spitter:      ", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][5], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[6] = new StatsRow("Glyphid Menace:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][6], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[7] = new StatsRow("Glyphid Warden:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][7], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[8] = new StatsRow("Q'ronar Shellback:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][8], GuiConstants.numDecimalPlaces) + "%", null, false);
+		
+		return toReturn;
+	}
 	
 	// Shortcut method for WeaponStatsGenerator
 	public double[] getMetrics() {

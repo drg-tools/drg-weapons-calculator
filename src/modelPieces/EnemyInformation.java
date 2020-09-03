@@ -782,10 +782,10 @@ public class EnemyInformation {
 		(100% - General Accuracy) percent of Direct Damage hit the Heavy Armor plates around the mouth. Shellbacks will have General Accuracy percentage of Direct Damage
 		hit its plates until they're broken.
 	*/
-	public static double percentageDamageWastedByArmor(double directDamage, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy) {
+	public static double[][] percentageDamageWastedByArmor(double directDamage, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy) {
 		return percentageDamageWastedByArmor(directDamage, areaDamage, armorBreaking, weakpointModifier, generalAccuracy, weakpointAccuracy, false);
 	}
-	public static double percentageDamageWastedByArmor(double directDamage, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy, boolean embeddedDetonators) {
+	public static double[][] percentageDamageWastedByArmor(double directDamage, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy, boolean embeddedDetonators) {
 		double[][] creaturesArmorMatrix = {
 			// Creature Index, Number of Light Armor plates, Avg Armor Strength, Number of Heavy Armor plates, Avg Armor Plate HP
 			{1, 6, 15, 0, 0},  					// Glyphid Grunt
@@ -798,6 +798,8 @@ public class EnemyInformation {
 			{11, 0, 15, 3, 0},  				// Glyphid Warden
 			{13, 0, 0, 6, (6*70 + 14*30)/20},  	// Q'ronar Shellback
 		};
+		
+		double[][] toReturn = new double[2][creaturesArmorMatrix.length];
 		
 		// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
 		double[] normalEnemyResistances = {
@@ -836,8 +838,7 @@ public class EnemyInformation {
 		double avgNumHitsToBreakArmorStrengthPlate, numHitsToBreakArmorHealthPlate;
 		double weakpointDamagePerShot, idealDamageDealtPerShot, reducedDamageDealtPerShot;
 		int shotCounter = 1;
-		double totalDamageSpent = 0, actualDamageDealt = 0, percentageWastedPerCreature = 0;
-		double percentageWastedTotal = 0, totalSpawnPercentage = 0;
+		double totalDamageSpent = 0, actualDamageDealt = 0;
 		for (int i = 0; i < creaturesArmorMatrix.length; i++) {
 			creatureIndex = (int) creaturesArmorMatrix[i][0];
 			baseHealth = enemyHealthPools[creatureIndex];
@@ -977,14 +978,12 @@ public class EnemyInformation {
 			}
 			
 			// System.out.println("Armored creature index #" + i + ": Took " + shotCounter + " shots to deal " + actualDamageDealt + " damage and kill this enemy, whereas theoretically the same number of shots could have done " + totalDamageSpent + " damage.");
-			percentageWastedPerCreature = 1.0 - actualDamageDealt / totalDamageSpent;
+			toReturn[0][i] = exactSpawnRates[creatureIndex];
+			toReturn[1][i] = 1.0 - actualDamageDealt / totalDamageSpent;
 			// System.out.println("For this enemy, " + (percentageWastedPerCreature*100.0) + "% of total damage was wasted by Armor.");
-			
-			percentageWastedTotal += percentageWastedPerCreature * exactSpawnRates[creatureIndex];
-			totalSpawnPercentage += exactSpawnRates[creatureIndex];
 		}
 		
-		return percentageWastedTotal * 100.0 / totalSpawnPercentage;
+		return toReturn;
 	}
 	
 	/* 

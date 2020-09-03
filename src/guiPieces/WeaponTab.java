@@ -341,6 +341,20 @@ public class WeaponTab extends JPanel {
 		}
 		toReturn.add(value);
 		
+		// Placeholder blank JLabel until a new metric gets placed here
+		value = new JLabel();
+		toReturn.add(value);
+		
+		/******************************************
+			Row 2
+		******************************************/
+		for (i = headers.length/4; i < 2*headers.length/4; i++) {
+			header = new JLabel(headers[i]);
+			header.setFont(GuiConstants.customFont);
+			header.setForeground(GuiConstants.drgRegularOrange);
+			toReturn.add(header);
+		}
+		
 		double additionalTargetDPS = myWeapon.calculateAdditionalTargetDPS();
 		roundedNumber = leftPadSpaces + MathUtils.round(additionalTargetDPS, GuiConstants.numDecimalPlaces);
 		value = new JLabel(roundedNumber);
@@ -356,16 +370,6 @@ public class WeaponTab extends JPanel {
 			value.setForeground(GuiConstants.drgHighlightedYellow);
 		}
 		toReturn.add(value);
-		
-		/******************************************
-			Row 2
-		******************************************/
-		for (i = headers.length/4; i < 2*headers.length/4; i++) {
-			header = new JLabel(headers[i]);
-			header.setFont(GuiConstants.customFont);
-			header.setForeground(GuiConstants.drgRegularOrange);
-			toReturn.add(header);
-		}
 		
 		int maxNumTargets = myWeapon.calculateMaxNumTargets();
 		int originalNumTargets = (int) originalStats[5];
@@ -433,23 +437,18 @@ public class WeaponTab extends JPanel {
 		
 		double damageWastedByArmor = myWeapon.damageWastedByArmor();
 		roundedNumber = leftPadSpaces + MathUtils.round(damageWastedByArmor, GuiConstants.numDecimalPlaces) + "%";
-		value = new JLabel(roundedNumber);
-		value.setFont(GuiConstants.customFontBold);
+		ArmorWastingButton AWButton = new ArmorWastingButton(this, roundedNumber, myWeapon);
 		if (damageWastedByArmor > originalStats[15]) {
-			value.setForeground(GuiConstants.drgNegativeChangeRed);
+			AWButton.setForeground(GuiConstants.drgNegativeChangeRed);
 		}
 		else if (damageWastedByArmor < originalStats[15]) {
-			value.setForeground(GuiConstants.drgOverclockCleanGreen);
+			AWButton.setForeground(GuiConstants.drgOverclockCleanGreen);
 		}
 		else {
 			// Implicitly means that they're equal
-			value.setForeground(GuiConstants.drgHighlightedYellow);
+			AWButton.setForeground(GuiConstants.drgHighlightedYellow);
 		}
-		toReturn.add(value);
-		
-		// Placeholder blank JLabel until a new metric gets placed here
-		value = new JLabel();
-		toReturn.add(value);
+		toReturn.add(AWButton);
 		
 		/******************************************
 			Row 3
