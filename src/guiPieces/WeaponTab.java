@@ -242,7 +242,7 @@ public class WeaponTab extends JPanel {
 			"Toggle Accuracy in DPS",
 			"Toggle Armor in DPS",
 			// Row 2
-			"Additional Targets DPS",
+			"Additional Target DPS",
 			"Max Num Targets",
 			"Max Multi-Target Dmg",
 			"Ammo Efficiency",
@@ -430,34 +430,32 @@ public class WeaponTab extends JPanel {
 		}
 		else {
 			// TODO: this is where the visualizer button will go, but that's going to be a whole other thing to do first.
-			value = new JLabel(leftPadSpaces + "See how it works");
-			value.setFont(GuiConstants.customFontBold);
-			value.setForeground(GuiConstants.drgHighlightedYellow);
-			toReturn.add(value);
+			AccuracySliderButton accSlideButton = new AccuracySliderButton(this, leftPadSpaces + "See how it works", myWeapon);
+			accSlideButton.setForeground(GuiConstants.drgHighlightedYellow);
+			toReturn.add(accSlideButton);
 		}
 		
 		if (generalAccuracy < 0) {
 			value = new JLabel(leftPadSpaces + "Manually Aimed");
 			value.setFont(GuiConstants.customFontBold);
 			value.setForeground(GuiConstants.drgHighlightedYellow);
-			toReturn.add(value);
 		}
 		else {
 			roundedNumber = leftPadSpaces + MathUtils.round(generalAccuracy, GuiConstants.numDecimalPlaces) + "%";
-			
-			AccuracySliderButton accSlideButton = new AccuracySliderButton(this, roundedNumber, myWeapon);
+			value = new JLabel(roundedNumber);
+			value.setFont(GuiConstants.customFontBold);
 			if (generalAccuracy < originalStats[5]) {
-				accSlideButton.setForeground(GuiConstants.drgNegativeChangeRed);
+				value.setForeground(GuiConstants.drgNegativeChangeRed);
 			}
 			else if (generalAccuracy > originalStats[5]) {
-				accSlideButton.setForeground(GuiConstants.drgOverclockCleanGreen);
+				value.setForeground(GuiConstants.drgOverclockCleanGreen);
 			}
 			else {
 				// Implicitly means that they're equal
-				accSlideButton.setForeground(GuiConstants.drgHighlightedYellow);
+				value.setForeground(GuiConstants.drgHighlightedYellow);
 			}
-			toReturn.add(accSlideButton);
 		}
+		toReturn.add(value);
 		
 		double weakpointAccuracy = myWeapon.estimatedAccuracy(true);
 		if (weakpointAccuracy < 0) {
@@ -583,7 +581,7 @@ public class WeaponTab extends JPanel {
 		value = new JLabel();
 		toReturn.add(value);
 		
-		// Placeholder blank JLabel until a new metric gets placed here
+		// Placeholder blank JLabel until "Haz5 Viable" metric gets placed here
 		value = new JLabel();
 		toReturn.add(value);
 		
