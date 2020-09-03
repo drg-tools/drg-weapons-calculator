@@ -493,7 +493,6 @@ public class Subata extends Weapon {
 	// Single-target calculations
 	@Override
 	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
-		// TODO: Armor Wasting
 		double generalAccuracy, duration, directWeakpointDamage;
 		
 		if (accuracy) {
@@ -512,6 +511,12 @@ public class Subata extends Weapon {
 		
 		double directDamage = getDirectDamage();
 		double areaDamage = getAreaDamage();
+		
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			directDamage *= armorWaste;
+		}
 		
 		// Frozen
 		if (statusEffects[1]) {

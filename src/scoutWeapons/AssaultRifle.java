@@ -496,6 +496,13 @@ public class AssaultRifle extends Weapon {
 		}
 		
 		double directDamage = getDirectDamage();
+		
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			directDamage *= armorWaste;
+		}
+		
 		// Frozen
 		if (statusEffects[1]) {
 			directDamage *= UtilityInformation.Frozen_Damage_Multiplier;

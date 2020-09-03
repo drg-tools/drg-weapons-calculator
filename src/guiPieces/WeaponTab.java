@@ -293,17 +293,10 @@ public class WeaponTab extends JPanel {
 		value.setForeground(GuiConstants.drgHighlightedYellow);
 		toReturn.add(value);
 		
-		// Placeholder blank JLabel until a new metric gets placed here
-		value = new JLabel();
-		toReturn.add(value);
-		
-		// Placeholder blank JLabel until a new metric gets placed here
-		value = new JLabel();
-		toReturn.add(value);
-		
-		// Placeholder blank JLabel until a new metric gets placed here
-		value = new JLabel();
-		toReturn.add(value);
+		// These three buttons toggle Weakpoints, General Accuracy, and Armor Wasting metrics for DPS calculations.
+		toReturn.add( new DPSToggleButton(myWeapon, 0, leftPadSpaces));
+		toReturn.add( new DPSToggleButton(myWeapon, 1, leftPadSpaces));
+		toReturn.add( new DPSToggleButton(myWeapon, 2, leftPadSpaces));
 		
 		/******************************************
 			Row 2

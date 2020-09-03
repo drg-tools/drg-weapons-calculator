@@ -63,6 +63,10 @@ public abstract class Weapon extends Observable {
 	// Burning, Frozen, Electrocuted, IFG Grenade
 	protected boolean[] statusEffects = {false, false, false, false};
 	
+	protected boolean enableWeakpointsDPS = false;
+	protected boolean enableGeneralAccuracyDPS = false;
+	protected boolean enableArmorWastingDPS = false;
+	
 	protected double[] baselineCalculatedStats;
 	private AoEVisualizer illustration = null;
 	
@@ -222,6 +226,8 @@ public abstract class Weapon extends Observable {
 				setAoEEfficiency();
 			}
 			
+			damageWastedByArmor();
+			
 			if (updateGUI && countObservers() > 0) {
 				setChanged();
 				notifyObservers();
@@ -296,6 +302,8 @@ public abstract class Weapon extends Observable {
 				setAoEEfficiency();
 			}
 			
+			damageWastedByArmor();
+			
 			if (countObservers() > 0) {
 				setChanged();
 				notifyObservers();
@@ -331,6 +339,8 @@ public abstract class Weapon extends Observable {
 				setAoEEfficiency();
 			}
 			
+			damageWastedByArmor();
+			
 			if (updateGUI && countObservers() > 0) {
 				setChanged();
 				notifyObservers();
@@ -353,6 +363,8 @@ public abstract class Weapon extends Observable {
 			if (currentlyDealsSplashDamage()) {
 				setAoEEfficiency();
 			}
+			
+			damageWastedByArmor();
 			
 			if (countObservers() > 0) {
 				setChanged();
@@ -522,6 +534,8 @@ public abstract class Weapon extends Observable {
 			setAoEEfficiency();
 		}
 		
+		damageWastedByArmor();
+		
 		baselineCalculatedStats = new double[] {
 			calculateAdditionalTargetDPS(), calculateMaxNumTargets(), calculateMaxMultiTargetDamage(), ammoEfficiency(), damageWastedByArmor(), 
 			estimatedAccuracy(false), estimatedAccuracy(true), calculateFiringDuration(), averageTimeToKill(), averageOverkill(), breakpoints(), utilityScore()
@@ -535,6 +549,37 @@ public abstract class Weapon extends Observable {
 	}
 	public double[] getBaselineStats() {
 		return baselineCalculatedStats;
+	}
+	
+	public boolean getWeakpointDPSEnabled() {
+		return enableWeakpointsDPS;
+	}
+	public void setWeakpointDPS(boolean newValue, boolean updateGUI) {
+		enableWeakpointsDPS = newValue;
+		if (updateGUI && countObservers() > 0) {
+			setChanged();
+			notifyObservers();
+		}
+	}
+	public boolean getAccuracyDPSEnabled() {
+		return enableGeneralAccuracyDPS;
+	}
+	public void setAccuracyDPS(boolean newValue, boolean updateGUI) {
+		enableGeneralAccuracyDPS = newValue;
+		if (updateGUI && countObservers() > 0) {
+			setChanged();
+			notifyObservers();
+		}
+	}
+	public boolean getArmorWastingDPSEnabled() {
+		return enableArmorWastingDPS;
+	}
+	public void setArmorWastingDPS(boolean newValue, boolean updateGUI) {
+		enableArmorWastingDPS = newValue;
+		if (updateGUI && countObservers() > 0) {
+			setChanged();
+			notifyObservers();
+		}
 	}
 	
 	protected void setAoEEfficiency() {
@@ -973,8 +1018,7 @@ public abstract class Weapon extends Observable {
 	
 	// Single-target calculations
 	public double calculateSingleTargetDPS(boolean burst) {
-		// TODO: this is where i can model the GUI toggles
-		return calculateSingleTargetDPS(burst, false, false, false);
+		return calculateSingleTargetDPS(burst, enableWeakpointsDPS, enableGeneralAccuracyDPS, enableArmorWastingDPS);
 	}
 	public abstract double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting);
 	

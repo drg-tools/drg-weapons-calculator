@@ -537,6 +537,13 @@ public class Boomstick extends Weapon {
 		}
 		
 		double dmgPerPellet = getDamagePerPellet();
+		
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			dmgPerPellet *= armorWaste;
+		}
+		
 		// Frozen
 		if (statusEffects[1]) {
 			dmgPerPellet *= UtilityInformation.Frozen_Damage_Multiplier;

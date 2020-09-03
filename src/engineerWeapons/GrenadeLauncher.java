@@ -458,7 +458,8 @@ public class GrenadeLauncher extends Weapon {
 		aoeEfficiency = calculateAverageAreaDamage(getAoERadius(), 1.5, 0.15);
 	}
 	
-	private double calculateSingleTargetDPS(boolean burst, boolean weakpoint) {
+	@Override
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		double directDamage;
 		if (weakpoint && !statusEffects[1]) {
 			directDamage = increaseBulletDamageForWeakpoints(getDirectDamage());
@@ -467,6 +468,12 @@ public class GrenadeLauncher extends Weapon {
 			directDamage = getDirectDamage();
 		}
 		double areaDamage = getAreaDamage();
+		
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			directDamage *= armorWaste;
+		}
 		
 		// Frozen
 		if (statusEffects[1]) {
@@ -505,11 +512,6 @@ public class GrenadeLauncher extends Weapon {
 		}
 		
 		return baseDPS + burnDPS + radDPS;
-	}
-	
-	@Override
-	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
-		return calculateSingleTargetDPS(burst, weakpoint);
 	}
 
 	@Override

@@ -451,7 +451,8 @@ public class SMG extends Weapon {
 	* Other Methods
 	****************************************************************************************/
 	
-	private double calculateDamagePerBullet(boolean weakpointBonus) {
+	private double calculateDamagePerBullet(boolean weakpointBonus, boolean armorWasting) {
+		// TODO: maybe refactor this into the calculateSingleTargetDPS() method?
 		double directDamage = getDirectDamage() + getElectricDamage();
 		
 		if (selectedTier4 == 1) {
@@ -464,6 +465,12 @@ public class SMG extends Weapon {
 				double numBulletsBeforeElectrocute = Math.ceil(MathUtils.meanRolls(getElectrocutionDoTChance()));
 				directDamage *= averageBonusPerMagazineForLongEffects(conductiveBulletsDamageMultiplier, numBulletsBeforeElectrocute, getMagazineSize());
 			}
+		}
+		
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			directDamage *= armorWaste;
 		}
 		
 		// Frozen
@@ -516,8 +523,8 @@ public class SMG extends Weapon {
 		}
 		
 		double weakpointAccuracy;
-		double directWeakpointDamage = calculateDamagePerBullet(weakpoint);
-		double directDamage = calculateDamagePerBullet(false);
+		double directWeakpointDamage = calculateDamagePerBullet(weakpoint, armorWasting);
+		double directDamage = calculateDamagePerBullet(false, armorWasting);
 		
 		if (weakpoint) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
@@ -547,7 +554,7 @@ public class SMG extends Weapon {
 	public double calculateMaxMultiTargetDamage() {
 		// First, how much direct damage can be dealt without DoT calculations. Second, add the DoTs on the primary targets. Third, if necessary, add the secondary target DoTs.
 		double totalDamage = 0;
-		totalDamage += calculateDamagePerBullet(false) * (getMagazineSize() + getCarriedAmmo());
+		totalDamage += calculateDamagePerBullet(false, false) * (getMagazineSize() + getCarriedAmmo());
 		
 		/* 
 			There's no good way to model RNG-based mechanics' max damage, such as the Electrocute DoT. I'm choosing
@@ -586,7 +593,7 @@ public class SMG extends Weapon {
 	@Override
 	protected double averageDamageToKillEnemy() {
 		// TODO: calculateDamagePerBullet uses weakpointBonus2 (not the weighted average) which makes this different from all other models. Maybe refactor in the future?
-		double dmgPerShot = calculateDamagePerBullet(true);
+		double dmgPerShot = calculateDamagePerBullet(true, false);
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 

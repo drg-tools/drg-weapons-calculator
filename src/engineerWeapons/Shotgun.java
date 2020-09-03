@@ -503,7 +503,6 @@ public class Shotgun extends Weapon {
 	// Single-target calculations
 	@Override
 	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
-		// TODO: model Armor Wasting
 		double generalAccuracy, duration, directWeakpointDamagePerPellet;
 		
 		if (accuracy) {
@@ -521,6 +520,12 @@ public class Shotgun extends Weapon {
 		}
 		
 		double dmgPerPellet = getDamagePerPellet();
+		
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			dmgPerPellet *= armorWaste;
+		}
 		
 		// Frozen
 		if (statusEffects[1]) {

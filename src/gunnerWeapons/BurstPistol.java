@@ -535,6 +535,12 @@ public class BurstPistol extends Weapon {
 		
 		double dmg = getDirectDamage();
 		
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			dmg *= armorWaste;
+		}
+		
 		// Frozen
 		if (statusEffects[1]) {
 			dmg *= UtilityInformation.Frozen_Damage_Multiplier;

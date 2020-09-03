@@ -84,7 +84,8 @@ public class EPC_RegularShot extends EPC {
 	}
 
 	// Single-target calculations
-	private double calculateSingleTargetDPS(boolean burst, boolean weakpoint) {
+	@Override
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		double damagePerProjectile;
 		if (weakpoint && !statusEffects[1]) {
 			// Because this weapon doesn't have its Accuracy handled like the other weapons, I'm choosing to just increase the damage by a weighted average.
@@ -92,6 +93,12 @@ public class EPC_RegularShot extends EPC {
 		}
 		else {
 			damagePerProjectile = getDirectDamage();
+		}
+		
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			damagePerProjectile *= armorWaste;
 		}
 		
 		// Frozen
@@ -129,11 +136,6 @@ public class EPC_RegularShot extends EPC {
 		}
 		
 		return damagePerProjectile * burstSize / duration + burnDPS;
-	}
-	
-	@Override
-	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
-		return calculateSingleTargetDPS(burst, weakpoint);
 	}
 
 	// Multi-target calculations

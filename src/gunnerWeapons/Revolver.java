@@ -500,6 +500,13 @@ public abstract class Revolver extends Weapon {
 		
 		double directDamage = getDirectDamage();
 		double areaDamage = getAreaDamage();
+		
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			directDamage *= armorWaste;
+		}
+		
 		// OC Volatile Bullets deals x4 Direct Damage to Burning targets
 		if (selectedOverclock == 2 && statusEffects[0]) {
 			directDamage *= 4.0;
