@@ -494,7 +494,8 @@ public class SMG extends Weapon {
 	}
 	
 	// Single-target calculations
-	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+	@Override
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		double generalAccuracy, duration;
 		
 		if (accuracy) {
@@ -530,26 +531,6 @@ public class SMG extends Weapon {
 		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
 		
 		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * directDamage) / duration + electrocuteDPS;
-	}
-
-	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS(true, false, false);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(false, false, false);
-	}
-	
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(false, false, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	@Override

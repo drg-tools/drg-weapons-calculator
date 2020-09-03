@@ -512,7 +512,8 @@ public class Boomstick extends Weapon {
 	}
 	
 	// Single-target calculations
-	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+	@Override
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		double generalAccuracy, duration, directWeakpointDamagePerPellet;
 		
 		if (accuracy) {
@@ -574,26 +575,6 @@ public class Boomstick extends Weapon {
 		int pelletsThatHitTargetPerShot = (int) Math.round(numPelletsPerShot * generalAccuracy) - pelletsThatHitWeakpointPerShot;
 		
 		return (pelletsThatHitWeakpointPerShot * directWeakpointDamagePerPellet + pelletsThatHitTargetPerShot * getDamagePerPellet() + getBlastwaveDamage()) * magSize / duration + burnDPS;
-	}
-
-	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS(true, false, false);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(false, false, false);
-	}
-	
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(false, false, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	@Override

@@ -523,9 +523,8 @@ public abstract class Weapon extends Observable {
 		}
 		
 		baselineCalculatedStats = new double[] {
-			calculateIdealBurstDPS(), calculateIdealSustainedDPS(), sustainedWeakpointDPS(), sustainedWeakpointAccuracyDPS(), calculateAdditionalTargetDPS(), 
-			calculateMaxNumTargets(), calculateMaxMultiTargetDamage(), ammoEfficiency(), estimatedAccuracy(false), estimatedAccuracy(true),
-			calculateFiringDuration(), averageOverkill(), averageTimeToKill(), breakpoints(), utilityScore(), damageWastedByArmor()
+			calculateAdditionalTargetDPS(), calculateMaxNumTargets(), calculateMaxMultiTargetDamage(), ammoEfficiency(), damageWastedByArmor(), 
+			estimatedAccuracy(false), estimatedAccuracy(true), calculateFiringDuration(), averageTimeToKill(), averageOverkill(), breakpoints(), utilityScore()
 		};
 		selectedTier1 = oldT1;
 		selectedTier2 = oldT2;
@@ -777,7 +776,7 @@ public abstract class Weapon extends Observable {
 		if (onKillEffect) {
 			// This section is for effects that happen any time this weapon scores a killing blow, like Scout/AssaultRifle/Mod/5/B/"Battle Cool"
 			// Intentionally using incorrect "guessed" spawn rates to get better numbers.
-			double burstTTK = EnemyInformation.averageHealthPool(false) / calculateIdealBurstDPS();
+			double burstTTK = EnemyInformation.averageHealthPool(false) / calculateSingleTargetDPS(true, false, false, false);
 			double numShotsFiredPerKill = Math.ceil(RoF * burstTTK);
 			if (burstTTK < conditionDuration) {
 				// Early exit condition: if this weapon can score kills to trigger the On-Kill effect again before the effect duration ends, 
@@ -973,10 +972,11 @@ public abstract class Weapon extends Observable {
 	*/
 	
 	// Single-target calculations
-	public abstract double calculateIdealBurstDPS();
-	public abstract double calculateIdealSustainedDPS();
-	public abstract double sustainedWeakpointDPS();
-	public abstract double sustainedWeakpointAccuracyDPS();
+	public double calculateSingleTargetDPS(boolean burst) {
+		// TODO: this is where i can model the GUI toggles
+		return calculateSingleTargetDPS(burst, false, false, false);
+	}
+	public abstract double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting);
 	
 	// Multi-target calculations (based on "ideal" sustained DPS calculations)
 	// I'm choosing not to implement Status Effects on the additional targets
@@ -1004,7 +1004,7 @@ public abstract class Weapon extends Observable {
 		return averageTimeToKill(true);
 	}
 	public double averageTimeToKill(boolean useExactSpawnRates) {
-		return EnemyInformation.averageHealthPool(useExactSpawnRates) / sustainedWeakpointDPS();
+		return EnemyInformation.averageHealthPool(useExactSpawnRates) / calculateSingleTargetDPS(false, true, false, false);
 	}
 	protected abstract double averageDamageToKillEnemy();
 	public double averageOverkill() {
@@ -1089,8 +1089,9 @@ public abstract class Weapon extends Observable {
 	
 	// Shortcut method for WeaponStatsGenerator
 	public double[] getMetrics() {
+		// TODO: update this with all 16 variants of DPS
 		return new double[]{
-			calculateIdealBurstDPS(), calculateIdealSustainedDPS(), sustainedWeakpointDPS(), sustainedWeakpointAccuracyDPS(), calculateAdditionalTargetDPS(), 
+			calculateSingleTargetDPS(true, false, false, false), calculateSingleTargetDPS(false, false, false, false), calculateAdditionalTargetDPS(), 
 			calculateMaxNumTargets(), calculateMaxMultiTargetDamage(), ammoEfficiency(), estimatedAccuracy(false), estimatedAccuracy(true),
 			calculateFiringDuration(), averageOverkill(), averageTimeToKill(), breakpoints(), utilityScore(), damageWastedByArmor()
 		};

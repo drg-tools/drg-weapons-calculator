@@ -738,23 +738,8 @@ public class BreachCutter extends Weapon {
 	}
 	
 	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS(true, true, false);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(false, true, false);
-	}
-	
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(false, true, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		return calculateSingleTargetDPS(false, true, true);
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
+		return calculateSingleTargetDPS(burst, true, weakpoint);
 	}
 
 	// Multi-target calculations

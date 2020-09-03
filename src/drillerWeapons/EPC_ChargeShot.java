@@ -134,25 +134,7 @@ public class EPC_ChargeShot extends EPC {
 	}
 	
 	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS();
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		// Because it can only fire one charged shot before having to cool down, its sustained DPS = burst DPS
-		return calculateSingleTargetDPS();
-	}
-
-	@Override
-	public double sustainedWeakpointDPS() {
-		// EPC can't get weakpoint bonus damage, and sustained = burst in this mode.
-		return calculateSingleTargetDPS();
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		// Because the Charged Shots have to be aimed manually, Accuracy isn't applicable.
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		return calculateSingleTargetDPS();
 	}
 

@@ -628,7 +628,8 @@ public class Minigun extends Weapon {
 	}
 	
 	// Single-target calculations
-	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+	@Override
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		double generalAccuracy, shortDuration, longDuration, directWeakpointDamage;
 		
 		if (accuracy) {
@@ -717,30 +718,10 @@ public class Minigun extends Weapon {
 		
 		return (pelletsThatHitWeakpoint * directWeakpointDamage + pelletsThatHitTarget * directDamage) / longDuration + burningHellAreaDPS + burnDPS;
 	}
-	
-	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS(true, false, false);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(false, false, false);
-	}
-	
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(false, false, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		return calculateSingleTargetDPS(false, true, true);
-	}
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		double idealSustained = calculateIdealSustainedDPS();
+		double idealSustained = calculateSingleTargetDPS(false, false, false, false);
 		
 		if (selectedTier3 == 2) {
 			// Blowthrough Rounds are just the same DPS, with Burn DPS already added if Burning Hell or Hot Bullets is already equipped

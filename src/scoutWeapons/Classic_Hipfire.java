@@ -125,7 +125,7 @@ public class Classic_Hipfire extends Classic {
 	
 	// Single-target calculations
 	@Override
-	protected double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		double generalAccuracy, duration, directWeakpointDamage;
 		
 		if (accuracy) {

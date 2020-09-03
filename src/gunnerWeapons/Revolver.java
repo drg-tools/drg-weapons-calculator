@@ -480,7 +480,8 @@ public abstract class Revolver extends Weapon {
 	}
 	
 	// Single-target calculations
-	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+	@Override
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		double generalAccuracy, duration, directWeakpointDamage;
 		
 		if (accuracy) {
@@ -552,26 +553,6 @@ public abstract class Revolver extends Weapon {
 	}
 
 	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS(true, false, false);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(false, false, false);
-	}
-	
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(false, false, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		return calculateSingleTargetDPS(false, true, true);
-	}
-
-	@Override
 	public double calculateAdditionalTargetDPS() {
 		// TODO: I'd like to refactor this method a little.
 		/*
@@ -586,7 +567,7 @@ public abstract class Revolver extends Weapon {
 		// If Super Blowthrough Rounds is equipped, then the ricochets from either "Chain Hit" or "Magic Bullets" won't affect the additional DPS
 		if (selectedTier3 == 0) {
 			// Because Super Blowthrough Rounds are just the same damage to another enemy behind the primary target (or from a ricochet), return Ideal Sustained DPS
-			return calculateIdealSustainedDPS();
+			return calculateSingleTargetDPS(false, false, false, false);
 		}
 		
 		// Only Explosive
@@ -622,7 +603,7 @@ public abstract class Revolver extends Weapon {
 		else if (selectedOverclock == 5 && selectedTier3 != 0 && selectedTier3 != 1) {
 			// "Magic Bullets" mean that any bullet that MISSES the primary target will try to automatically ricochet to a nearby enemy.
 			// This can be modeled by returning (1 - Accuracy) * Ideal Sustained DPS
-			sustainedAdditionalDPS = (1.0 - estimatedAccuracy(false)/100.0) * calculateIdealSustainedDPS();
+			sustainedAdditionalDPS = (1.0 - estimatedAccuracy(false)/100.0) * calculateSingleTargetDPS(false, false, false, false);
 			
 			if (selectedTier5 == 1) {
 				sustainedAdditionalDPS += DoTInformation.Neuro_DPS;

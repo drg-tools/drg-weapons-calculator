@@ -277,68 +277,28 @@ public class WeaponTab extends JPanel {
 			toReturn.add(header);
 		}
 		
-		double idealBurstDPS = myWeapon.calculateIdealBurstDPS();
+		double idealBurstDPS = myWeapon.calculateSingleTargetDPS(true);
 		roundedNumber = leftPadSpaces + MathUtils.round(idealBurstDPS, GuiConstants.numDecimalPlaces);
 		value = new JLabel(roundedNumber);
 		value.setFont(GuiConstants.customFontBold);
-		if (idealBurstDPS < originalStats[0]) {
-			value.setForeground(GuiConstants.drgNegativeChangeRed);
-		}
-		else if (idealBurstDPS > originalStats[0]) {
-			value.setForeground(GuiConstants.drgOverclockCleanGreen);
-		}
-		else {
-			// Implicitly means that they're equal
-			value.setForeground(GuiConstants.drgHighlightedYellow);
-		}
+		// Because this one display will have 8 different numbers without changing builds, I'm choosing to just leave it as yellow
+		value.setForeground(GuiConstants.drgHighlightedYellow);
 		toReturn.add(value);
 		
-		double idealSustainedDPS = myWeapon.calculateIdealSustainedDPS();
+		double idealSustainedDPS = myWeapon.calculateSingleTargetDPS(false);
 		roundedNumber = leftPadSpaces + MathUtils.round(idealSustainedDPS, GuiConstants.numDecimalPlaces);
 		value = new JLabel(roundedNumber);
 		value.setFont(GuiConstants.customFontBold);
-		if (idealSustainedDPS < originalStats[1]) {
-			value.setForeground(GuiConstants.drgNegativeChangeRed);
-		}
-		else if (idealSustainedDPS > originalStats[1]) {
-			value.setForeground(GuiConstants.drgOverclockCleanGreen);
-		}
-		else {
-			// Implicitly means that they're equal
-			value.setForeground(GuiConstants.drgHighlightedYellow);
-		}
+		// Because this one display will have 8 different numbers without changing builds, I'm choosing to just leave it as yellow
+		value.setForeground(GuiConstants.drgHighlightedYellow);
 		toReturn.add(value);
 		
-		double sustainedWeakpointDPS = myWeapon.sustainedWeakpointDPS();
-		roundedNumber = leftPadSpaces + MathUtils.round(sustainedWeakpointDPS, GuiConstants.numDecimalPlaces);
-		value = new JLabel(roundedNumber);
-		value.setFont(GuiConstants.customFontBold);
-		if (sustainedWeakpointDPS < originalStats[2]) {
-			value.setForeground(GuiConstants.drgNegativeChangeRed);
-		}
-		else if (sustainedWeakpointDPS > originalStats[2]) {
-			value.setForeground(GuiConstants.drgOverclockCleanGreen);
-		}
-		else {
-			// Implicitly means that they're equal
-			value.setForeground(GuiConstants.drgHighlightedYellow);
-		}
+		// Placeholder blank JLabel until a new metric gets placed here
+		value = new JLabel();
 		toReturn.add(value);
 		
-		double sustainedWeakpointAccuracyDPS = myWeapon.sustainedWeakpointAccuracyDPS();
-		roundedNumber = leftPadSpaces + MathUtils.round(sustainedWeakpointAccuracyDPS, GuiConstants.numDecimalPlaces);
-		value = new JLabel(roundedNumber);
-		value.setFont(GuiConstants.customFontBold);
-		if (sustainedWeakpointAccuracyDPS < originalStats[3]) {
-			value.setForeground(GuiConstants.drgNegativeChangeRed);
-		}
-		else if (sustainedWeakpointAccuracyDPS > originalStats[3]) {
-			value.setForeground(GuiConstants.drgOverclockCleanGreen);
-		}
-		else {
-			// Implicitly means that they're equal
-			value.setForeground(GuiConstants.drgHighlightedYellow);
-		}
+		// Placeholder blank JLabel until a new metric gets placed here
+		value = new JLabel();
 		toReturn.add(value);
 		
 		// Placeholder blank JLabel until a new metric gets placed here
@@ -359,10 +319,10 @@ public class WeaponTab extends JPanel {
 		roundedNumber = leftPadSpaces + MathUtils.round(additionalTargetDPS, GuiConstants.numDecimalPlaces);
 		value = new JLabel(roundedNumber);
 		value.setFont(GuiConstants.customFontBold);
-		if (additionalTargetDPS < originalStats[4]) {
+		if (additionalTargetDPS < originalStats[0]) {
 			value.setForeground(GuiConstants.drgNegativeChangeRed);
 		}
-		else if (additionalTargetDPS > originalStats[4]) {
+		else if (additionalTargetDPS > originalStats[0]) {
 			value.setForeground(GuiConstants.drgOverclockCleanGreen);
 		}
 		else {
@@ -372,7 +332,7 @@ public class WeaponTab extends JPanel {
 		toReturn.add(value);
 		
 		int maxNumTargets = myWeapon.calculateMaxNumTargets();
-		int originalNumTargets = (int) originalStats[5];
+		int originalNumTargets = (int) originalStats[1];
 		if (myWeapon.currentlyDealsSplashDamage()) {
 			AoEVisualizerButton valButton = new AoEVisualizerButton(this, leftPadSpaces + maxNumTargets, myWeapon);
 			if (maxNumTargets < originalNumTargets) {
@@ -407,10 +367,10 @@ public class WeaponTab extends JPanel {
 		roundedNumber = leftPadSpaces + MathUtils.round(maxMultiDmg, GuiConstants.numDecimalPlaces);
 		value = new JLabel(roundedNumber);
 		value.setFont(GuiConstants.customFontBold);
-		if (maxMultiDmg < originalStats[6]) {
+		if (maxMultiDmg < originalStats[2]) {
 			value.setForeground(GuiConstants.drgNegativeChangeRed);
 		}
-		else if (maxMultiDmg > originalStats[6]) {
+		else if (maxMultiDmg > originalStats[2]) {
 			value.setForeground(GuiConstants.drgOverclockCleanGreen);
 		}
 		else {
@@ -423,10 +383,10 @@ public class WeaponTab extends JPanel {
 		roundedNumber = leftPadSpaces + MathUtils.round(ammoEfficiency, GuiConstants.numDecimalPlaces);
 		value = new JLabel(roundedNumber);
 		value.setFont(GuiConstants.customFontBold);
-		if (ammoEfficiency < originalStats[7]) {
+		if (ammoEfficiency < originalStats[3]) {
 			value.setForeground(GuiConstants.drgNegativeChangeRed);
 		}
-		else if (ammoEfficiency > originalStats[7]) {
+		else if (ammoEfficiency > originalStats[3]) {
 			value.setForeground(GuiConstants.drgOverclockCleanGreen);
 		}
 		else {
@@ -437,18 +397,26 @@ public class WeaponTab extends JPanel {
 		
 		double damageWastedByArmor = myWeapon.damageWastedByArmor();
 		roundedNumber = leftPadSpaces + MathUtils.round(damageWastedByArmor, GuiConstants.numDecimalPlaces) + "%";
-		ArmorWastingButton AWButton = new ArmorWastingButton(this, roundedNumber, myWeapon);
-		if (damageWastedByArmor > originalStats[15]) {
-			AWButton.setForeground(GuiConstants.drgNegativeChangeRed);
-		}
-		else if (damageWastedByArmor < originalStats[15]) {
-			AWButton.setForeground(GuiConstants.drgOverclockCleanGreen);
+		if (damageWastedByArmor > 0) {
+			ArmorWastingButton AWButton = new ArmorWastingButton(this, roundedNumber, myWeapon);
+			if (damageWastedByArmor > originalStats[4]) {
+				AWButton.setForeground(GuiConstants.drgNegativeChangeRed);
+			}
+			else if (damageWastedByArmor < originalStats[4]) {
+				AWButton.setForeground(GuiConstants.drgOverclockCleanGreen);
+			}
+			else {
+				// Implicitly means that they're equal
+				AWButton.setForeground(GuiConstants.drgHighlightedYellow);
+			}
+			toReturn.add(AWButton);
 		}
 		else {
-			// Implicitly means that they're equal
-			AWButton.setForeground(GuiConstants.drgHighlightedYellow);
+			value = new JLabel(roundedNumber);
+			value.setFont(GuiConstants.customFontBold);
+			value.setForeground(GuiConstants.drgHighlightedYellow);
+			toReturn.add(value);
 		}
-		toReturn.add(AWButton);
 		
 		/******************************************
 			Row 3
@@ -485,10 +453,10 @@ public class WeaponTab extends JPanel {
 			roundedNumber = leftPadSpaces + MathUtils.round(generalAccuracy, GuiConstants.numDecimalPlaces) + "%";
 			
 			AccuracySliderButton accSlideButton = new AccuracySliderButton(this, roundedNumber, myWeapon);
-			if (generalAccuracy < originalStats[8]) {
+			if (generalAccuracy < originalStats[5]) {
 				accSlideButton.setForeground(GuiConstants.drgNegativeChangeRed);
 			}
-			else if (generalAccuracy > originalStats[8]) {
+			else if (generalAccuracy > originalStats[5]) {
 				accSlideButton.setForeground(GuiConstants.drgOverclockCleanGreen);
 			}
 			else {
@@ -508,10 +476,10 @@ public class WeaponTab extends JPanel {
 			roundedNumber = leftPadSpaces + MathUtils.round(weakpointAccuracy, GuiConstants.numDecimalPlaces) + "%";
 			value = new JLabel(roundedNumber);
 			value.setFont(GuiConstants.customFontBold);
-			if (weakpointAccuracy < originalStats[9]) {
+			if (weakpointAccuracy < originalStats[6]) {
 				value.setForeground(GuiConstants.drgNegativeChangeRed);
 			}
-			else if (weakpointAccuracy > originalStats[9]) {
+			else if (weakpointAccuracy > originalStats[6]) {
 				value.setForeground(GuiConstants.drgOverclockCleanGreen);
 			}
 			else {
@@ -525,10 +493,10 @@ public class WeaponTab extends JPanel {
 		roundedNumber = leftPadSpaces + MathUtils.round(firingDuration, GuiConstants.numDecimalPlaces);
 		value = new JLabel(roundedNumber);
 		value.setFont(GuiConstants.customFontBold);
-		if (firingDuration < originalStats[10]) {
+		if (firingDuration < originalStats[7]) {
 			value.setForeground(GuiConstants.drgNegativeChangeRed);
 		}
-		else if (firingDuration > originalStats[10]) {
+		else if (firingDuration > originalStats[7]) {
 			value.setForeground(GuiConstants.drgOverclockCleanGreen);
 		}
 		else {
@@ -541,10 +509,10 @@ public class WeaponTab extends JPanel {
 		roundedNumber = leftPadSpaces + MathUtils.round(timeToKill, GuiConstants.numDecimalPlaces);
 		value = new JLabel(roundedNumber);
 		value.setFont(GuiConstants.customFontBold);
-		if (timeToKill > originalStats[12]) {
+		if (timeToKill > originalStats[8]) {
 			value.setForeground(GuiConstants.drgNegativeChangeRed);
 		}
-		else if (timeToKill < originalStats[12]) {
+		else if (timeToKill < originalStats[8]) {
 			value.setForeground(GuiConstants.drgOverclockCleanGreen);
 		}
 		else {
@@ -567,10 +535,10 @@ public class WeaponTab extends JPanel {
 		roundedNumber = leftPadSpaces + MathUtils.round(overkill, GuiConstants.numDecimalPlaces) + "%";
 		value = new JLabel(roundedNumber);
 		value.setFont(GuiConstants.customFontBold);
-		if (overkill > originalStats[11]) {
+		if (overkill > originalStats[9]) {
 			value.setForeground(GuiConstants.drgNegativeChangeRed);
 		}
-		else if (overkill < originalStats[11]) {
+		else if (overkill < originalStats[9]) {
 			value.setForeground(GuiConstants.drgOverclockCleanGreen);
 		}
 		else {
@@ -583,10 +551,10 @@ public class WeaponTab extends JPanel {
 		roundedNumber = leftPadSpaces + breakpoints;
 		if (breakpoints > 0) {
 			BreakpointsButton breakButton = new BreakpointsButton(this, roundedNumber, myWeapon);
-			if (breakpoints > originalStats[13]) {
+			if (breakpoints > originalStats[10]) {
 				breakButton.setForeground(GuiConstants.drgOverclockUnstableRed);
 			}
-			else if (breakpoints < originalStats[13]) {
+			else if (breakpoints < originalStats[10]) {
 				breakButton.setForeground(GuiConstants.drgOverclockCleanGreen);
 			}
 			else {
@@ -606,10 +574,10 @@ public class WeaponTab extends JPanel {
 		double utility = myWeapon.utilityScore();
 		roundedNumber = leftPadSpaces + MathUtils.round(utility, GuiConstants.numDecimalPlaces);
 		UtilityBreakdownButton utilButton = new UtilityBreakdownButton(this, roundedNumber, myWeapon);
-		if (utility < originalStats[14]) {
+		if (utility < originalStats[11]) {
 			utilButton.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}
-		else if (utility > originalStats[14]) {
+		else if (utility > originalStats[11]) {
 			utilButton.setForeground(GuiConstants.drgOverclockCleanGreen);
 		}
 		else {

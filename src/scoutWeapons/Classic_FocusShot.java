@@ -137,7 +137,7 @@ public class Classic_FocusShot extends Classic {
 
 	// Single-target calculations
 	@Override
-	protected double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		double duration;
 		if (burst) {
 			duration = ((double) getMagazineSize()) / getRateOfFire();

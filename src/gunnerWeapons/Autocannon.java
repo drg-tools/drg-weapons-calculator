@@ -517,7 +517,8 @@ public class Autocannon extends Weapon {
 	}
 	
 	// Single-target calculations
-	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+	@Override
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		double generalAccuracy, duration, directWeakpointDamage;
 		
 		if (accuracy) {
@@ -580,26 +581,6 @@ public class Autocannon extends Weapon {
 		
 		// I'm choosing to model this as if the splash damage from every bullet were to hit the primary target, even if the bullets themselves don't.
 		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * directDamage + magSize * areaDamage) / duration + neuroDPS;
-	}
-
-	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS(true, false, false);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(false, false, false);
-	}
-	
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(false, false, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	@Override

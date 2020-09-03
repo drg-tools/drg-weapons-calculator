@@ -585,23 +585,8 @@ public class CryoCannon extends Weapon {
 
 	// Single-target calculations
 	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateDPS(true, true);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateDPS(false, true);
-	}
-	
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateDPS(false, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		return calculateDPS(false, true);
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
+		return calculateDPS(burst, true);
 	}
 
 	// Multi-target calculations

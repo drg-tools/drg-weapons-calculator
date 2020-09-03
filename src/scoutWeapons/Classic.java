@@ -306,7 +306,7 @@ public abstract class Classic extends Weapon {
 			double killingMachineManualReloadWindow = 1.0;
 			double killingMachineReloadReduction = 0.75;
 			// Just like Gunner/Minigun/Mod/5/CatG, I'm using the incorrect "guess" spawn rates to create a more believable uptime coefficient
-			double burstTTK = EnemyInformation.averageHealthPool(false) / calculateIdealBurstDPS();
+			double burstTTK = EnemyInformation.averageHealthPool(false) / calculateSingleTargetDPS(true, false, false, false);
 			// Don't let a high Burst DPS increase this beyond a 100% uptime
 			double killingMachineUptimeCoefficient = Math.min(killingMachineManualReloadWindow / burstTTK, 1.0);
 			double effectiveReloadReduction = killingMachineUptimeCoefficient * killingMachineReloadReduction;
@@ -432,33 +432,12 @@ public abstract class Classic extends Weapon {
 	}
 	
 	// Single-target calculations
-	protected abstract double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint);
-
-	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS(true, false, false);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(false, false, false);
-	}
-
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(false, false, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		return calculateSingleTargetDPS(false, true, true);
-	}
 
 	// Multi-target calculations
 	@Override
 	public double calculateAdditionalTargetDPS() {
 		if (selectedTier4 == 0) {
-			return calculateIdealSustainedDPS();
+			return calculateSingleTargetDPS(false, false, false, false);
 		}
 		else {
 			return 0;

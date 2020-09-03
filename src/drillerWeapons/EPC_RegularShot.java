@@ -132,24 +132,8 @@ public class EPC_RegularShot extends EPC {
 	}
 	
 	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS(true, false);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(false, false);
-	}
-
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(false, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		// EPC has no recoil and no spread per shot, so it can effectively be considered 100% accurate
-		return calculateSingleTargetDPS(false, true);
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
+		return calculateSingleTargetDPS(burst, weakpoint);
 	}
 
 	// Multi-target calculations

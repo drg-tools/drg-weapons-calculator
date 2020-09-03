@@ -506,26 +506,10 @@ public class GrenadeLauncher extends Weapon {
 		
 		return baseDPS + burnDPS + radDPS;
 	}
-
-	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS(true, false);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(false, false);
-	}
 	
 	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(false, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		// Because the Grenade Launcher has to be aimed manually, its Accuracy isn't applicable.
-		return calculateSingleTargetDPS(false, true);
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
+		return calculateSingleTargetDPS(burst, weakpoint);
 	}
 
 	@Override
