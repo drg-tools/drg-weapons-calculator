@@ -212,7 +212,7 @@ public class EPC_RegularShot extends EPC {
 			0  // Radiation
 		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, 0.0, statusEffects[1], statusEffects[3]);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, 0.0, statusEffects[1], statusEffects[3], false);
 		return MathUtils.sum(breakpoints);
 	}
 

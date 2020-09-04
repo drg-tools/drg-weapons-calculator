@@ -610,7 +610,7 @@ public class GrenadeLauncher extends Weapon {
 			radDamage  // Radiation
 		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, heatPerGrenade, statusEffects[1], statusEffects[3]);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, heatPerGrenade, statusEffects[1], statusEffects[3], false);
 		return MathUtils.sum(breakpoints);
 	}
 

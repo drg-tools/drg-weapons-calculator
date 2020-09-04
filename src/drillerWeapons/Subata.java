@@ -663,7 +663,7 @@ public class Subata extends Weapon {
 			macteraBonus = 0.2;
 		}
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), macteraBonus, 0.0, statusEffects[1], statusEffects[3]);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), macteraBonus, 0.0, statusEffects[1], statusEffects[3], false);
 		return MathUtils.sum(breakpoints);
 	}
 

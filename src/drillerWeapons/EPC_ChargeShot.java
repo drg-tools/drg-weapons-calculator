@@ -236,7 +236,7 @@ public class EPC_ChargeShot extends EPC {
 			0  // Radiation
 		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, -1.0, 0.0, 0.0, statusEffects[1], statusEffects[3]);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, -1.0, 0.0, 0.0, statusEffects[1], statusEffects[3], selectedTier5 == 0);
 		return MathUtils.sum(breakpoints);
 	}
 

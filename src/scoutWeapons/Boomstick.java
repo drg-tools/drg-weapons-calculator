@@ -727,7 +727,7 @@ public class Boomstick extends Weapon {
 			0  // Radiation
 		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, burstOfHeatPerShot, statusEffects[1], statusEffects[3]);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, burstOfHeatPerShot, statusEffects[1], statusEffects[3], false);
 		return MathUtils.sum(breakpoints);
 	}
 	@Override

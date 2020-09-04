@@ -615,7 +615,7 @@ public class EnemyInformation {
 		This method does NOT model Frozen x3 Direct Damage, IFG +30% damage, or Heavy Armor plates.
 	*/
 	public static int[] calculateBreakpoints(double[] directDamageByType, double[] areaDamageByType, double[] DoTDamageByType, double weakpointModifier, double macteraModifier, 
-											 double singleBurstOfHeat, boolean frozen, boolean IFG) {
+											 double singleBurstOfHeat, boolean frozen, boolean IFG, boolean flyingNightmare) {
 		int[] creaturesToModel = {0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 14, 15, 16, 20};
 		
 		// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
@@ -667,6 +667,11 @@ public class EnemyInformation {
 			
 			// Removes any damage from Burning DoT. For now, Temperature Shock will remain unmodeled in Breakpoints but it's something that would be done in here somewhere.
 			DoTDamageByType[0] = 0;
+		}
+		
+		// Flying Nightmare is weird... it does the Direct Damage listed but it passes through enemies like the Breach Cutter and ignores armor.
+		if (flyingNightmare) {
+			lightArmorReduction = 1.0;
 		}
 		
 		// IFG
