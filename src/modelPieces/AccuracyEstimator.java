@@ -4,27 +4,71 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
+import javax.swing.JPanel;
+
 import utilities.MathUtils;
 
 public class AccuracyEstimator {
 	// The distance from which the measurements were taken
-	private static double testingDistancePixels = 1074.047528;
+	private double testingDistancePixels = 1074.047528;
 	
-	private static double convertRecoilPixelsToRads(double px) {
+	private double targetDistanceMeters;
+	private boolean modelRecoil;
+	private boolean visualizeGeneralAccuracy;
+	private double[] crosshairWidthOverTime;
+	private double[] rawRecoilOverTime;
+	private double[] reducedRecoilOverTime;
+	
+	public AccuracyEstimator() {
+		// This constructor really has no purpose other than instantiation, all the variables get defined on method usage.
+		
+		// Start at 7m distance for all weapons in AccuracyEstimator, but let it be overwritten by shotgun classes.
+		targetDistanceMeters = 7.0;
+		visualizeGeneralAccuracy = true;
+		modelRecoil = true;
+		// Setting these all as length 0 arrays so that I can use length > 0 checks in the animation
+		crosshairWidthOverTime = new double[0];
+		rawRecoilOverTime = new double[0];
+		reducedRecoilOverTime = new double[0];
+	}
+	
+	// Setters and Getters
+	public void setDistance(double newDistance) {
+		targetDistanceMeters = newDistance;
+	}
+	public double getDistance() {
+		return targetDistanceMeters;
+	}
+	
+	public void setModelRecoil(boolean newValue) {
+		modelRecoil = newValue;
+	}
+	public boolean isModelingRecoil() {
+		return modelRecoil;
+	}
+	
+	public void makeVisualizerShowGeneralAccuracy(boolean value) {
+		visualizeGeneralAccuracy = value;
+	}
+	public boolean visualizerShowsGeneralAccuracy() {
+		return visualizeGeneralAccuracy;
+	}
+	
+	// Other methods
+	private double convertRecoilPixelsToRads(double px) {
 		return Math.atan(px / testingDistancePixels);
 	}
-	private static double convertRadiansToMeters(double rads, double distance) {
+	private double convertRadiansToMeters(double rads, double distance) {
 		return distance * Math.tan(rads);
 	}
-	// This method also gets used in Gunner/Minigun's accuracy method
-	public static double convertSpreadPixelsToMeters(double px, double distance) {
+	private double convertSpreadPixelsToMeters(double px, double distance) {
 		return distance * px /  (2 * testingDistancePixels);
 	}
 	
 	private enum inflectionType{increase, decrease, stop, IandD, IandS, DandS, allThree};
 	
 	// This method, used in conjunction with the enum variable inflectionType, effectively returns the Union of all three possibilities that could happen on an inflection point.
-	private static inflectionType combineTwoInflectionTypes(inflectionType A, inflectionType B) {
+	private inflectionType combineTwoInflectionTypes(inflectionType A, inflectionType B) {
 		// Base case: one of the types is nothing; return the other.
 		if (A == null) {
 			return B;
@@ -115,7 +159,7 @@ public class AccuracyEstimator {
 	}
 	
 	// This method returns an array of what the crosshair width will be at the moment each bullet gets fired (will need to be converted from Spread Pixels to meters)
-	private static double[] spread(double RoF, int magSize, int burstSize, double baseSpreadPixels, double spreadPerShotPixels, double spreadRecoverySpeedPixels, double maxSpreadPixels, boolean invertedSpread) {
+	private double[] spread(double RoF, int magSize, int burstSize, double baseSpreadPixels, double spreadPerShotPixels, double spreadRecoverySpeedPixels, double maxSpreadPixels, boolean invertedSpread) {
 		double[] spreadAtEachShot = new double[magSize];
 		double currentSpreadPixels = baseSpreadPixels;
 		spreadAtEachShot[0] = currentSpreadPixels;
@@ -166,7 +210,7 @@ public class AccuracyEstimator {
 	}
 	
 	// This method returns an array of what the radians of deviation from the center of the target will be at the moment each bullet gets fired (will need to be converted from rads to meters)
-	private static double[] recoil(double RoF, int magSize, int burstSize, double recoilPerShotRads, double rUp, double rDown) {
+	private double[] recoil(double RoF, int magSize, int burstSize, double recoilPerShotRads, double rUp, double rDown) {
 		double delta = 1.0 / RoF;
 		
 		// Each key will be the timestamp of the inflection point, and the value will be an enumerated variable that will say how the slope changes at that inflection point
@@ -331,7 +375,7 @@ public class AccuracyEstimator {
 		return recoilAtEachShot;
 	}
 	
-	private static double areaOfLens(double R, double r, double d) {
+	private double areaOfLens(double R, double r, double d) {
 		// Sourced from https://en.wikipedia.org/wiki/Lens_(geometry)
 		double firstThird = Math.pow(r, 2) * Math.acos((Math.pow(d, 2) + Math.pow(r, 2) - Math.pow(R, 2)) / (2 * d * r));
 		double secondThird = Math.pow(R, 2) * Math.acos((Math.pow(d, 2) + Math.pow(R, 2) - Math.pow(r, 2)) / (2 * d * R));
@@ -340,8 +384,8 @@ public class AccuracyEstimator {
 		return firstThird + secondThird - finalThird;
 	}
 	
-	public static double calculateCircularAccuracy(
-		boolean weakpoint, double distanceFromTarget, double rateOfFire, int magSize, int burstSize,
+	public double calculateCircularAccuracy(
+		boolean weakpoint, double rateOfFire, int magSize, int burstSize,
 		double unchangingBaseSpread, double changingBaseSpread, double spreadVariance, double spreadPerShot, double spreadRecoverySpeed,
 		double recoilPerShot, double recoilIncreaseInterval, double recoilDecreaseInterval,
 		double[] accuracyModifiers
@@ -381,10 +425,10 @@ public class AccuracyEstimator {
 		double crosshairRadius, crosshairRecoil, P; 
 		for (int i = 0; i < magSize; i++) {
 			// Step 2: calculate the crosshair size at the time the bullet gets fired
-			crosshairRadius = convertSpreadPixelsToMeters(predictedSpread[i], distanceFromTarget);
+			crosshairRadius = convertSpreadPixelsToMeters(predictedSpread[i], targetDistanceMeters);
 			
 			// Step 3: calculate how far off-center the crosshair is due to recoil
-			crosshairRecoil = convertRadiansToMeters(predictedRecoil[i], distanceFromTarget);
+			crosshairRecoil = convertRadiansToMeters(predictedRecoil[i], targetDistanceMeters);
 			
 			// Step 4: calculate the area of overlap (if any) between the crosshair size, crosshair recoil, and target area
 			// Step 5: divide the overlap by the target area for the probability that at the current bullet will hit
@@ -425,9 +469,9 @@ public class AccuracyEstimator {
 		return sumOfAllProbabilities / magSize * 100.0;
 	}
 	
-	public static double calculateRectangularAccuracy(boolean weakpoint, double distanceFromTarget, double crosshairWidthPixels, double crosshairHeightPixels) {
-		double crosshairHeightMeters = AccuracyEstimator.convertSpreadPixelsToMeters(crosshairHeightPixels, distanceFromTarget);
-		double crosshairWidthMeters = AccuracyEstimator.convertSpreadPixelsToMeters(crosshairWidthPixels, distanceFromTarget);
+	public double calculateRectangularAccuracy(boolean weakpoint, double crosshairWidthPixels, double crosshairHeightPixels) {
+		double crosshairHeightMeters = convertSpreadPixelsToMeters(crosshairHeightPixels, targetDistanceMeters);
+		double crosshairWidthMeters = convertSpreadPixelsToMeters(crosshairWidthPixels, targetDistanceMeters);
 		double targetRadius;
 		if (weakpoint) {
 			targetRadius = 0.2;
@@ -451,5 +495,14 @@ public class AccuracyEstimator {
 		double areaOfProbabilityEllipse = Math.PI * hProb * vProb / 4.0;
 		
 		return areaOfProbabilityEllipse * 100.0;
+	}
+	
+	public boolean visualizerIsReady() {
+		return crosshairWidthOverTime.length > 0;
+	}
+	
+	public JPanel getVisualizer() {
+		
+		return null;
 	}
 }

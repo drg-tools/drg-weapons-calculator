@@ -867,7 +867,7 @@ public class Minigun extends Weapon {
 			0.0    // Recoil
 		};
 		
-		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, accuracyDistance, effectiveRoF, cheekyMagSize, 1, 
+		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, effectiveRoF, cheekyMagSize, 1, 
 				cheekyBaseSpread, 0, spreadVariance, spreadPerShot, spreadRecoverySpeed, 0, 0.5, 1.0, cheekyModifiers);
 	}
 	

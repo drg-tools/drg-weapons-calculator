@@ -649,7 +649,7 @@ public class BurstPistol extends Weapon {
 		
 		double[] modifiers = {getBaseSpread(), getSpreadPerShot(), 1.0, 1.0, getRecoil()};
 		
-		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, accuracyDistance, getRateOfFire(), getMagazineSize(), getBurstSize(), 
+		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), getBurstSize(), 
 				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
 				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
 	}
