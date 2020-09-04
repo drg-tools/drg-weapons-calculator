@@ -1089,6 +1089,7 @@ public abstract class Weapon extends Observable {
 		toReturn[21] = new StatsRow("Mactera Grabber (Weakpoint):", breakpoints[21], null, false);
 		toReturn[22] = new StatsRow("Mactera Goo Bomber:", breakpoints[22], null, false);
 		toReturn[23] = new StatsRow("Mactera Goo Bomber (Weakpoint):    ", breakpoints[23], null, false);  // Added spaces at the end to create some whitespace in the JPanel
+		toReturn[24] = new StatsRow("Cave Leech:", breakpoints[24], null, false);
 		
 		return toReturn;
 	}
