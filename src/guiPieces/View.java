@@ -29,7 +29,7 @@ public class View extends JFrame implements Observer {
 	private JMenuBar menuBar;
 	private JMenu overallBestCombinationsMenu;
 	private JMenuItem[] overallBestCombinations;
-	private CustomJMenuCheckbox obcWeakpointsCheckbox, obcAccuracyCheckbox, obcArmorCheckbox;
+	private CustomJMenuCheckbox bcaWeakpointsCheckbox, bcaAccuracyCheckbox, bcaArmorCheckbox;
 	private CustomJMenuCheckbox doAllWeaponsPerBCAClick;
 	private JMenu subsetBestCombinationsMenu;
 	private JMenuItem[] subsetBestCombinations;
@@ -193,12 +193,12 @@ public class View extends JFrame implements Observer {
 			
 			// Add these checkboxes to BCA (All) so that if anyone does the same metric for all weapons, it will standardize their choices.
 			if (i == 1) {
-				obcWeakpointsCheckbox = new CustomJMenuCheckbox("Enable Weakpoints");
-				obcAccuracyCheckbox = new CustomJMenuCheckbox("Enable Accuracy");
-				obcArmorCheckbox = new CustomJMenuCheckbox("Enable Armor");
-				overallBestCombinationsMenu.add(obcWeakpointsCheckbox);
-				overallBestCombinationsMenu.add(obcAccuracyCheckbox);
-				overallBestCombinationsMenu.add(obcArmorCheckbox);
+				bcaWeakpointsCheckbox = new CustomJMenuCheckbox("Enable Weakpoints");
+				bcaAccuracyCheckbox = new CustomJMenuCheckbox("Enable Accuracy");
+				bcaArmorCheckbox = new CustomJMenuCheckbox("Enable Armor");
+				overallBestCombinationsMenu.add(bcaWeakpointsCheckbox);
+				overallBestCombinationsMenu.add(bcaAccuracyCheckbox);
+				overallBestCombinationsMenu.add(bcaArmorCheckbox);
 				overallBestCombinationsMenu.addSeparator();
 			}
 		}
@@ -298,6 +298,14 @@ public class View extends JFrame implements Observer {
 		}
 		
 		return overallBestCombinations[index];
+	}
+	
+	public boolean[] getDPSCheckboxValues() {
+		return new boolean[] {
+			bcaWeakpointsCheckbox.isSelected(), 
+			bcaAccuracyCheckbox.isSelected(), 
+			bcaArmorCheckbox.isSelected()
+		};
 	}
 	
 	public boolean calculateBestMetricAllModelsEnabled() {

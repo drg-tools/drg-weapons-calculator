@@ -547,6 +547,7 @@ public abstract class Weapon extends Observable {
 		selectedTier5 = oldT5;
 		selectedOverclock = oldOC;
 	}
+	// This gets used in WeaponTab for making the associated numbers change red/green/yellow
 	public double[] getBaselineStats() {
 		return baselineCalculatedStats;
 	}
@@ -1129,16 +1130,6 @@ public abstract class Weapon extends Observable {
 		toReturn[8] = new StatsRow("Q'ronar Shellback:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][8], GuiConstants.numDecimalPlaces) + "%", null, false);
 		
 		return toReturn;
-	}
-	
-	// Shortcut method for WeaponStatsGenerator
-	public double[] getMetrics() {
-		// TODO: update this with all 16 variants of DPS
-		return new double[]{
-			calculateSingleTargetDPS(true, false, false, false), calculateSingleTargetDPS(false, false, false, false), calculateAdditionalTargetDPS(), 
-			calculateMaxNumTargets(), calculateMaxMultiTargetDamage(), ammoEfficiency(), estimatedAccuracy(false), estimatedAccuracy(true),
-			calculateFiringDuration(), averageOverkill(), averageTimeToKill(), breakpoints(), utilityScore(), damageWastedByArmor()
-		};
 	}
 	
 	public abstract ArrayList<String> exportModsToMySQL(boolean exportAllMods);

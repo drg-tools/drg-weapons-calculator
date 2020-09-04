@@ -1,7 +1,7 @@
 package dataGenerator;
 
 public class DatabaseConstants {
-	public static String databaseName = "drgbuilds";
+	public static String databaseName = "forge";
 	public static String statsTableName = "build_metrics";
 	public static String modsTableName = "mods";
 	public static String OCsTableName = "overclocks";

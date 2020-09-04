@@ -106,7 +106,7 @@ public class GuiController implements ActionListener {
 		int returnVal = folderChooser.showOpenDialog(null);
 		
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			calculator.changeOutputFolder(folderChooser.getSelectedFile());
+			calculator.setOutputFolder(folderChooser.getSelectedFile());
 		}
 	}
 	
@@ -120,21 +120,46 @@ public class GuiController implements ActionListener {
 		mysqlCommands.add("    `gun_id` BIGINT UNSIGNED NOT NULL,\n");
 		mysqlCommands.add("    `weapon_short_name` VARCHAR(20) NOT NULL,\n");
 		mysqlCommands.add("    `build_combination` VARCHAR(6) NOT NULL,\n");
+		
+		// Burst DPS
 		mysqlCommands.add("    `ideal_burst_dps` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `burst_dps_wp` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `burst_dps_acc` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `burst_dps_aw` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `burst_dps_wp_acc` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `burst_dps_wp_aw` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `burst_dps_acc_aw` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `burst_dps_wp_acc_aw` DOUBLE NOT NULL,\n");
+		
+		// Sustained DPS
 		mysqlCommands.add("    `ideal_sustained_dps` DOUBLE NOT NULL,\n");
-		mysqlCommands.add("    `sustained_weakpoint_dps` DOUBLE NOT NULL,\n");
-		mysqlCommands.add("    `sustained_weakpoint_accuracy_dps` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `sustained_dps_wp` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `sustained_dps_acc` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `sustained_dps_aw` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `sustained_dps_wp_acc` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `sustained_dps_wp_aw` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `sustained_dps_acc_aw` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `sustained_dps_wp_acc_aw` DOUBLE NOT NULL,\n");
+		
+		// GUI row 2
 		mysqlCommands.add("    `ideal_additional_target_dps` DOUBLE NOT NULL,\n");
 		mysqlCommands.add("    `max_num_targets_per_shot` INT NOT NULL,\n");
 		mysqlCommands.add("    `max_multi_target_damage` DOUBLE NOT NULL,\n");
 		mysqlCommands.add("    `ammo_efficiency` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `damage_wasted_by_armor` DOUBLE NOT NULL,\n");
+		
+		// GUI row 3
 		mysqlCommands.add("    `general_accuracy` DOUBLE NOT NULL,\n");
 		mysqlCommands.add("    `weakpoint_accuracy` DOUBLE NOT NULL,\n");
 		mysqlCommands.add("    `firing_duration` DOUBLE NOT NULL,\n");
-		mysqlCommands.add("    `average_overkill` DOUBLE NOT NULL,\n");
 		mysqlCommands.add("    `average_time_to_kill` DOUBLE NOT NULL,\n");
+		
+		// GUI row 4
+		mysqlCommands.add("    `average_overkill` DOUBLE NOT NULL,\n");
 		mysqlCommands.add("    `breakpoints` INT NOT NULL,\n");
 		mysqlCommands.add("    `utility` DOUBLE NOT NULL,\n");
+		
+		// Metrics not on GUI 
 		mysqlCommands.add("    `damage_per_magazine` DOUBLE NOT NULL,\n");
 		mysqlCommands.add("    `time_to_fire_magazine` DOUBLE NOT NULL,\n");
 		
@@ -331,27 +356,51 @@ public class GuiController implements ActionListener {
 		}
 		calculator.changeWeapon(currentlySelectedWeapon);
 		
-		for (int i = 0; i < currentlySelectedWeapon.getBaselineStats().length; i++) {
+		// There are currently 14 options for Best Combinations menus
+		for (int i = 0; i < 14; i++) {
 			if (e == gui.getOverallBestCombination(i)) {
 				
 				gui.activateThinkingCursor();
+				
+				/*
+					Because BCA metrics can be applied to all models, I chose to add 3 checkboxes into the menu that lets users select which of the 8 varieties of DPS they want
+					Technically these checkboxes are redundant if only calculating the BCA metric for the currently selected weapon (due to the toggle buttons in the GUI pane)
+					but they become necessary when finding the best DPS metric for all 20 models.
+				*/
+				boolean[] bcaDPSCheckboxValues = gui.getDPSCheckboxValues();
 				
 				if (gui.calculateBestMetricAllModelsEnabled()) {
 					// When this checkbox is selected, then all models in the GUI should run this metric in sequence.
 					int j;
 					for (j = 0; j < drillerWeapons.length; j++) {
+						drillerWeapons[j].setWeakpointDPS(bcaDPSCheckboxValues[0], false);
+						drillerWeapons[j].setAccuracyDPS(bcaDPSCheckboxValues[1], false);
+						drillerWeapons[j].setArmorWastingDPS(bcaDPSCheckboxValues[2], false);
+						
 						calculator.changeWeapon(drillerWeapons[j]);
 						drillerWeapons[j].buildFromCombination(calculator.getBestMetricCombination(i, false));
 					}
 					for (j = 0; j < engineerWeapons.length; j++) {
+						engineerWeapons[j].setWeakpointDPS(bcaDPSCheckboxValues[0], false);
+						engineerWeapons[j].setAccuracyDPS(bcaDPSCheckboxValues[1], false);
+						engineerWeapons[j].setArmorWastingDPS(bcaDPSCheckboxValues[2], false);
+						
 						calculator.changeWeapon(engineerWeapons[j]);
 						engineerWeapons[j].buildFromCombination(calculator.getBestMetricCombination(i, false));
 					}
 					for (j = 0; j < gunnerWeapons.length; j++) {
+						gunnerWeapons[j].setWeakpointDPS(bcaDPSCheckboxValues[0], false);
+						gunnerWeapons[j].setAccuracyDPS(bcaDPSCheckboxValues[1], false);
+						gunnerWeapons[j].setArmorWastingDPS(bcaDPSCheckboxValues[2], false);
+						
 						calculator.changeWeapon(gunnerWeapons[j]);
 						gunnerWeapons[j].buildFromCombination(calculator.getBestMetricCombination(i, false));
 					}
 					for (j = 0; j < scoutWeapons.length; j++) {
+						scoutWeapons[j].setWeakpointDPS(bcaDPSCheckboxValues[0], false);
+						scoutWeapons[j].setAccuracyDPS(bcaDPSCheckboxValues[1], false);
+						scoutWeapons[j].setArmorWastingDPS(bcaDPSCheckboxValues[2], false);
+						
 						calculator.changeWeapon(scoutWeapons[j]);
 						scoutWeapons[j].buildFromCombination(calculator.getBestMetricCombination(i, false));
 					}
@@ -360,6 +409,10 @@ public class GuiController implements ActionListener {
 					calculator.changeWeapon(currentlySelectedWeapon);
 				}
 				else {
+					currentlySelectedWeapon.setWeakpointDPS(bcaDPSCheckboxValues[0], false);
+					currentlySelectedWeapon.setAccuracyDPS(bcaDPSCheckboxValues[1], false);
+					currentlySelectedWeapon.setArmorWastingDPS(bcaDPSCheckboxValues[2], false);
+					
 					currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(i, false));
 				}
 				
@@ -370,7 +423,11 @@ public class GuiController implements ActionListener {
 			}
 			else if (e == gui.getSubsetBestCombination(i)) {
 				gui.activateThinkingCursor();
+				
+				// Because Best Combinations (Subset) only runs for the weapon shown on GUI at the moment, I have chosen not to add the 3 checkboxes for DPS metrics in the menu itself.
+				// If a user wants to know the subset combination for those metrics, they can toggle the buttons on the GUI and re-run BCS.
 				currentlySelectedWeapon.buildFromCombination(calculator.getBestMetricCombination(i, true));
+				
 				gui.deactivateThinkingCursor();
 				
 				// Empty return so that this method doesn't have to finish this for loop or evaluate the if/else block below afterwards
@@ -418,7 +475,7 @@ public class GuiController implements ActionListener {
 		else if (e == gui.getExportCurrent()) {
 			chooseFolder();
 			gui.activateThinkingCursor();
-			calculator.runTest(false, true);
+			calculator.exportMetricsToCSV();
 			gui.deactivateThinkingCursor();
 		}
 		else if (e == gui.getExportAll()) {
@@ -427,19 +484,19 @@ public class GuiController implements ActionListener {
 			int i;
 			for (i = 0; i < drillerWeapons.length; i++) {
 				calculator.changeWeapon(drillerWeapons[i]);
-				calculator.runTest(false, true);
+				calculator.exportMetricsToCSV();
 			}
 			for (i = 0; i < engineerWeapons.length; i++) {
 				calculator.changeWeapon(engineerWeapons[i]);
-				calculator.runTest(false, true);
+				calculator.exportMetricsToCSV();
 			}
 			for (i = 0; i < gunnerWeapons.length; i++) {
 				calculator.changeWeapon(gunnerWeapons[i]);
-				calculator.runTest(false, true);
+				calculator.exportMetricsToCSV();
 			}
 			for (i = 0; i < scoutWeapons.length; i++) {
 				calculator.changeWeapon(scoutWeapons[i]);
-				calculator.runTest(false, true);
+				calculator.exportMetricsToCSV();
 			}
 			gui.deactivateThinkingCursor();
 		}
