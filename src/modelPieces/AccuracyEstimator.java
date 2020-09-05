@@ -4,9 +4,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import guiPieces.AccuracyAnimation;
+import guiPieces.GuiConstants;
 import guiPieces.LineGraph;
 import utilities.MathUtils;
 
@@ -69,11 +72,11 @@ public class AccuracyEstimator {
 	private double convertRecoilPixelsToRads(double px) {
 		return Math.atan(px / testingDistancePixels);
 	}
-	private double convertRadiansToMeters(double rads, double distance) {
-		return distance * Math.tan(rads);
+	private double convertRadiansToMeters(double rads) {
+		return targetDistanceMeters * Math.tan(rads);
 	}
-	private double convertSpreadPixelsToMeters(double px, double distance) {
-		return distance * px /  (2 * testingDistancePixels);
+	private double convertSpreadPixelsToMeters(double px) {
+		return targetDistanceMeters * px /  (2 * testingDistancePixels);
 	}
 	
 	private enum inflectionType{increase, decrease, stop, IandD, IandS, DandS, allThree};
@@ -468,10 +471,10 @@ public class AccuracyEstimator {
 		double crosshairRadius, crosshairRecoil, P; 
 		for (int i = 0; i < magSize; i++) {
 			// Step 2: calculate the crosshair size at the time the bullet gets fired
-			crosshairRadius = convertSpreadPixelsToMeters(predictedSpread[i], targetDistanceMeters);
+			crosshairRadius = convertSpreadPixelsToMeters(predictedSpread[i]);
 			
 			// Step 3: calculate how far off-center the crosshair is due to recoil
-			crosshairRecoil = convertRadiansToMeters(predictedRecoil[i], targetDistanceMeters);
+			crosshairRecoil = convertRadiansToMeters(predictedRecoil[i]);
 			
 			// Step 4: calculate the area of overlap (if any) between the crosshair size, crosshair recoil, and target area
 			// Step 5: divide the overlap by the target area for the probability that at the current bullet will hit
@@ -513,8 +516,8 @@ public class AccuracyEstimator {
 	}
 	
 	public double calculateRectangularAccuracy(boolean weakpoint, double crosshairWidthPixels, double crosshairHeightPixels) {
-		double crosshairHeightMeters = convertSpreadPixelsToMeters(crosshairHeightPixels, targetDistanceMeters);
-		double crosshairWidthMeters = convertSpreadPixelsToMeters(crosshairWidthPixels, targetDistanceMeters);
+		double crosshairHeightMeters = convertSpreadPixelsToMeters(crosshairHeightPixels);
+		double crosshairWidthMeters = convertSpreadPixelsToMeters(crosshairWidthPixels);
 		double targetRadius;
 		if (weakpoint) {
 			targetRadius = 0.2;
@@ -592,31 +595,65 @@ public class AccuracyEstimator {
 		// Both of these arrays have the last timestamp at the end
 		double loopDuration = Math.max(spreadOverTimeTimestamps[spreadOverTimeTimestamps.length - 1], recoilOverTimeTimestamps[recoilOverTimeTimestamps.length - 1]);
 		
+		// In addition to finding the biggest values in each group, these for loops will be used to duplicate the spread and playerRecoil arrays but sized into meters at distance
+		// for the animation to pull from
+		HashMap<Double, Double> spreadMeters = new HashMap<Double, Double>();
+		HashMap<Double, Double> recoilMeters = new HashMap<Double, Double>();
 		int i;
-		double currentValue;
+		double currentTimestamp, currentValue;
 		double maxSpread = 0.0;
 		for (i = 0; i < spreadOverTimeTimestamps.length; i++) {
-			currentValue = spreadOverTime.get(spreadOverTimeTimestamps[i]);
+			currentTimestamp = spreadOverTimeTimestamps[i];
+			currentValue = spreadOverTime.get(currentTimestamp);
 			if (currentValue > maxSpread) {
 				maxSpread = currentValue;
 			}
+			
+			spreadMeters.put(currentTimestamp, convertSpreadPixelsToMeters(currentValue));
 		}
 		
-		double maxRecoil = 0.0;
+		double maxRawRecoil = 0.0;
+		double maxReducedRecoil = 0.0;
 		for (i = 0; i < recoilOverTimeTimestamps.length; i++) {
-			currentValue = recoilOverTime.get(recoilOverTimeTimestamps[i]);
-			if (currentValue > maxRecoil) {
-				maxRecoil = currentValue;
+			currentTimestamp = recoilOverTimeTimestamps[i];
+			currentValue = recoilOverTime.get(currentTimestamp);
+			if (currentValue > maxRawRecoil) {
+				maxRawRecoil = currentValue;
 			}
+			
+			currentValue = reducedRecoilOverTime.get(currentTimestamp);
+			if (currentValue > maxReducedRecoil) {
+				maxReducedRecoil = currentValue;
+			}
+			
+			recoilMeters.put(currentTimestamp, this.convertRadiansToMeters(reducedRecoilOverTime.get(currentTimestamp)));
 		}
+		
+		JPanel lineGraphsPanel = new JPanel();
+		lineGraphsPanel.setLayout(new BoxLayout(lineGraphsPanel, BoxLayout.PAGE_AXIS));
 		
 		LineGraph spreadGraph = new LineGraph(spreadOverTimeTimestamps, spreadOverTime, loopDuration, Math.max(maxSpread, 150));
-		LineGraph rawRecoilGraph = new LineGraph(recoilOverTimeTimestamps, recoilOverTime, loopDuration, Math.max(maxRecoil, 0.3));
-		LineGraph playerReducedRecoilGraph = new LineGraph(recoilOverTimeTimestamps, reducedRecoilOverTime, loopDuration, Math.max(maxRecoil, 0.3));
+		LineGraph rawRecoilGraph = new LineGraph(recoilOverTimeTimestamps, recoilOverTime, loopDuration, Math.max(maxRawRecoil, 0.3));
+		LineGraph playerReducedRecoilGraph = new LineGraph(recoilOverTimeTimestamps, reducedRecoilOverTime, loopDuration, Math.max(maxRawRecoil, 0.3));
 		
-		toReturn.add(spreadGraph);
-		toReturn.add(rawRecoilGraph);
-		toReturn.add(playerReducedRecoilGraph);
+		// TODO: add JLabels to describe what the line graphs are
+		lineGraphsPanel.add(spreadGraph);
+		lineGraphsPanel.add(rawRecoilGraph);
+		lineGraphsPanel.add(playerReducedRecoilGraph);
+		
+		AccuracyAnimation rawRecoilGif = new AccuracyAnimation(visualizeGeneralAccuracy, loopDuration, 
+				spreadOverTimeTimestamps, spreadMeters, convertSpreadPixelsToMeters(maxSpread), 
+				recoilOverTimeTimestamps, recoilMeters, convertRadiansToMeters(maxReducedRecoil));
+		rawRecoilGif.setBorder(GuiConstants.blackLine);
+		
+		AccuracyAnimation reducedRecoilGif = new AccuracyAnimation(visualizeGeneralAccuracy, loopDuration, 
+				spreadOverTimeTimestamps, spreadMeters, convertSpreadPixelsToMeters(maxSpread), 
+				recoilOverTimeTimestamps, recoilMeters, convertRadiansToMeters(maxReducedRecoil));
+		reducedRecoilGif.setBorder(GuiConstants.blackLine);
+		
+		toReturn.add(lineGraphsPanel);
+		toReturn.add(rawRecoilGif);
+		toReturn.add(reducedRecoilGif);
 		
 		return toReturn;
 	}
