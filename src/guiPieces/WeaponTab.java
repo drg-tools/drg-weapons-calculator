@@ -421,6 +421,12 @@ public class WeaponTab extends JPanel {
 			toReturn.add(header);
 		}
 		
+		// TODO: this is where the visualizer button will go, but that's going to be a whole other thing to do first.
+		value = new JLabel(leftPadSpaces + "See how it works");
+		value.setFont(GuiConstants.customFontBold);
+		value.setForeground(GuiConstants.drgHighlightedYellow);
+		toReturn.add(value);
+		
 		double generalAccuracy = myWeapon.estimatedAccuracy(false);
 		if (generalAccuracy < 0) {
 			value = new JLabel(leftPadSpaces + "Manually Aimed");
@@ -429,33 +435,20 @@ public class WeaponTab extends JPanel {
 			toReturn.add(value);
 		}
 		else {
-			// TODO: this is where the visualizer button will go, but that's going to be a whole other thing to do first.
-			AccuracySliderButton accSlideButton = new AccuracySliderButton(this, leftPadSpaces + "See how it works", myWeapon);
-			accSlideButton.setForeground(GuiConstants.drgHighlightedYellow);
-			toReturn.add(accSlideButton);
-		}
-		
-		if (generalAccuracy < 0) {
-			value = new JLabel(leftPadSpaces + "Manually Aimed");
-			value.setFont(GuiConstants.customFontBold);
-			value.setForeground(GuiConstants.drgHighlightedYellow);
-		}
-		else {
 			roundedNumber = leftPadSpaces + MathUtils.round(generalAccuracy, GuiConstants.numDecimalPlaces) + "%";
-			value = new JLabel(roundedNumber);
-			value.setFont(GuiConstants.customFontBold);
+			AccuracyEstimatorSettingsButton accSlideButton = new AccuracyEstimatorSettingsButton(this, roundedNumber, myWeapon);
 			if (generalAccuracy < originalStats[5]) {
-				value.setForeground(GuiConstants.drgNegativeChangeRed);
+				accSlideButton.setForeground(GuiConstants.drgNegativeChangeRed);
 			}
 			else if (generalAccuracy > originalStats[5]) {
-				value.setForeground(GuiConstants.drgOverclockCleanGreen);
+				accSlideButton.setForeground(GuiConstants.drgOverclockCleanGreen);
 			}
 			else {
 				// Implicitly means that they're equal
-				value.setForeground(GuiConstants.drgHighlightedYellow);
+				accSlideButton.setForeground(GuiConstants.drgHighlightedYellow);
 			}
+			toReturn.add(accSlideButton);
 		}
-		toReturn.add(value);
 		
 		double weakpointAccuracy = myWeapon.estimatedAccuracy(true);
 		if (weakpointAccuracy < 0) {

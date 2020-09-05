@@ -5,12 +5,16 @@ import java.awt.event.ActionListener;
 import java.util.Hashtable;
 
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
@@ -19,13 +23,17 @@ import javax.swing.event.ChangeListener;
 
 import modelPieces.Weapon;
 
-public class AccuracySliderButton extends JButton implements ActionListener, ChangeListener {
+public class AccuracyEstimatorSettingsButton extends JButton implements ActionListener, ChangeListener {
 	private static final long serialVersionUID = 1L;
 	
 	private JComponent parentComponent;
 	private Weapon toUpdate;
+	
+	private JCheckBox modelRecoilSetting;
+	private JRadioButton visualizeGeneralAccuracy;
+	private JRadioButton visualizeWeakpointAccuracy;
 
-	public AccuracySliderButton(JComponent parent, String textToDisplay, Weapon weaponWithAccuracy) {
+	public AccuracyEstimatorSettingsButton(JComponent parent, String textToDisplay, Weapon weaponWithAccuracy) {
 		parentComponent = parent;
 		toUpdate = weaponWithAccuracy;
 		
@@ -40,14 +48,33 @@ public class AccuracySliderButton extends JButton implements ActionListener, Cha
 	}
 	
 	// Adapted from https://docs.oracle.com/javase/tutorial/uiswing/components/slider.html
-	private JPanel getAccuracySliderPanel() {
+	private JPanel getAccuracySettingsPanel() {
 		JPanel toReturn = new JPanel();
 		toReturn.setLayout(new BoxLayout(toReturn, BoxLayout.Y_AXIS));
+		
+		modelRecoilSetting = new JCheckBox("Model Recoil in Accuracy Estimations", toUpdate.isRecoilModeledInAccuracy());
+		modelRecoilSetting.addActionListener(this);
+		toReturn.add(modelRecoilSetting);
+		
+		toReturn.add(new JSeparator());
+		
+		ButtonGroup generalOrWeakpointSetting = new ButtonGroup();
+		boolean currentlyShowingGeneralAccuracy = toUpdate.accuracyVisualizerShowsGeneralAccuracy();
+		visualizeGeneralAccuracy = new JRadioButton("Visualize General Accuracy", currentlyShowingGeneralAccuracy);
+		visualizeGeneralAccuracy.addActionListener(this);
+		generalOrWeakpointSetting.add(visualizeGeneralAccuracy);
+		toReturn.add(visualizeGeneralAccuracy);
+		visualizeWeakpointAccuracy = new JRadioButton("Visualize Weakpoint Accuracy", !currentlyShowingGeneralAccuracy);
+		visualizeWeakpointAccuracy.addActionListener(this);
+		generalOrWeakpointSetting.add(visualizeWeakpointAccuracy);
+		toReturn.add(visualizeWeakpointAccuracy);
+		
+		toReturn.add(new JSeparator());
 		
 		// Add JLabel for instructions/description
 		String longText = "Change the distance that's used to estimate the Accuracy metrics";
 		JLabel description = new JLabel(HoverText.breakLongToolTipString(longText, 40));
-		description.setBorder(new EmptyBorder(0, 0, 2*GuiConstants.paddingPixels, 0));
+		description.setBorder(new EmptyBorder(GuiConstants.paddingPixels, 0, 2*GuiConstants.paddingPixels, 0));
 		toReturn.add(description);
 		
 		// Add slider
@@ -77,12 +104,29 @@ public class AccuracySliderButton extends JButton implements ActionListener, Cha
 	}
 	
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		// Adapted from https://stackoverflow.com/a/13760416
-		JOptionPane a = new JOptionPane(getAccuracySliderPanel(), JOptionPane.INFORMATION_MESSAGE);
-		JDialog d = a.createDialog(null, "AccuracyEstimator Distance");
-		d.setLocationRelativeTo(parentComponent);
-		d.setVisible(true);
+	public void actionPerformed(ActionEvent arg0) {
+		Object e = arg0.getSource();
+		
+		if (e == this) {
+			// Adapted from https://stackoverflow.com/a/13760416
+			JOptionPane a = new JOptionPane(getAccuracySettingsPanel(), JOptionPane.INFORMATION_MESSAGE);
+			JDialog d = a.createDialog(null, "AccuracyEstimator Settings");
+			d.setLocationRelativeTo(parentComponent);
+			d.setVisible(true);
+		}
+		else if (e == modelRecoilSetting) {
+			toUpdate.setModelRecoilInAccuracy(modelRecoilSetting.isSelected());
+		}
+		else if (e == visualizeGeneralAccuracy) {
+			if (visualizeGeneralAccuracy.isSelected()) {
+				toUpdate.setAccuracyVisualizerToShowGeneralAccuracy(true);
+			}
+		}
+		else if (e == visualizeWeakpointAccuracy) {
+			if (visualizeWeakpointAccuracy.isSelected()) {
+				toUpdate.setAccuracyVisualizerToShowGeneralAccuracy(false);
+			}
+		}
 	}
 	
 	@Override

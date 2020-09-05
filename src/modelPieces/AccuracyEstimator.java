@@ -4,32 +4,42 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import utilities.MathUtils;
 
 public class AccuracyEstimator {
 	// The distance from which the measurements were taken
-	private double testingDistancePixels = 1074.047528;
+	private final double testingDistancePixels = 1074.047528;
+	
+	private double delayBeforePlayerReaction;
+	private double playerRecoilRecoveryPerSecond;
 	
 	private double targetDistanceMeters;
 	private boolean modelRecoil;
 	private boolean visualizeGeneralAccuracy;
-	private double[] crosshairWidthOverTime;
-	private double[] rawRecoilOverTime;
-	private double[] reducedRecoilOverTime;
+	
+	private double[] bulletFiredTimestamps;
+	private HashMap<Double, Double> spreadOverTime;
+	private HashMap<Double, Double> recoilOverTime;
+	private HashMap<Double, Double> reducedRecoilOverTime;
 	
 	public AccuracyEstimator() {
-		// This constructor really has no purpose other than instantiation, all the variables get defined on method usage.
+		delayBeforePlayerReaction = 0.2;  // seconds
+		playerRecoilRecoveryPerSecond = 0.8;  // Percentage of max recoil that the player recovers per second -- arbitrarily chosen
 		
 		// Start at 7m distance for all weapons in AccuracyEstimator, but let it be overwritten by shotgun classes.
 		targetDistanceMeters = 7.0;
 		visualizeGeneralAccuracy = true;
 		modelRecoil = true;
-		// Setting these all as length 0 arrays so that I can use length > 0 checks in the animation
-		crosshairWidthOverTime = new double[0];
-		rawRecoilOverTime = new double[0];
-		reducedRecoilOverTime = new double[0];
+		
+		// Setting these all as length 0 arrays so that I can use length > 0 checks even if they never get values added to them.
+		// spreadOverTime should have length (2*MagSize + 1)
+		spreadOverTime = new HashMap<Double, Double>();
+		// recoilOverTime should have length between [MagSize + 2, 3*MagSize]
+		recoilOverTime = new HashMap<Double, Double>();
+		reducedRecoilOverTime = new HashMap<Double, Double>();
 	}
 	
 	// Setters and Getters
@@ -160,9 +170,14 @@ public class AccuracyEstimator {
 	
 	// This method returns an array of what the crosshair width will be at the moment each bullet gets fired (will need to be converted from Spread Pixels to meters)
 	private double[] spread(double RoF, int magSize, int burstSize, double baseSpreadPixels, double spreadPerShotPixels, double spreadRecoverySpeedPixels, double maxSpreadPixels, boolean invertedSpread) {
+		spreadOverTime = new HashMap<Double, Double>();
+		double timeElapsed = 0.0;
+		
 		double[] spreadAtEachShot = new double[magSize];
 		double currentSpreadPixels = baseSpreadPixels;
 		spreadAtEachShot[0] = currentSpreadPixels;
+		spreadOverTime.put(timeElapsed, currentSpreadPixels);
+		
 		// Add the Spread per Shot for the first shot
 		if (invertedSpread) {
 			currentSpreadPixels = Math.max(currentSpreadPixels + spreadPerShotPixels, maxSpreadPixels);
@@ -170,6 +185,7 @@ public class AccuracyEstimator {
 		else {
 			currentSpreadPixels = Math.min(currentSpreadPixels + spreadPerShotPixels, maxSpreadPixels);  // This value can never go above Max Spread
 		}
+		spreadOverTime.put(timeElapsed, currentSpreadPixels);
 		
 		double timeBetweenBursts = 1 / RoF;
 		double deltaTime;
@@ -183,6 +199,7 @@ public class AccuracyEstimator {
 				// Either this gun doesn't have a burst mode, or it just fired the last bullet during a burst
 				deltaTime = timeBetweenBursts;
 			}
+			timeElapsed += deltaTime;
 			
 			if (invertedSpread) {
 				// Special case: the way Minigun's accuracy works, the SRS stops acting on the crosshair when it's at full accuracy.
@@ -196,6 +213,7 @@ public class AccuracyEstimator {
 			
 			// Mark what the current spread is when this bullet gets fired
 			spreadAtEachShot[i] = currentSpreadPixels;
+			spreadOverTime.put(timeElapsed, currentSpreadPixels);
 			
 			// Add the Spread per Shot from this bullet for the next loop
 			if (invertedSpread) {
@@ -204,7 +222,20 @@ public class AccuracyEstimator {
 			else {
 				currentSpreadPixels = Math.min(currentSpreadPixels + spreadPerShotPixels, maxSpreadPixels);  // This value can never go above Max Spread
 			}
+			
+			// Add a point for the crosshair width after the bullet is fired, too
+			spreadOverTime.put(timeElapsed, currentSpreadPixels);
 		}
+		
+		// Add a point at the end for how long it takes SRS to bring crosshair back to minimum size
+		double timeToResetSpread;
+		if (invertedSpread) {
+			timeToResetSpread = (baseSpreadPixels - currentSpreadPixels) / spreadRecoverySpeedPixels;
+		}
+		else {
+			timeToResetSpread = (currentSpreadPixels - baseSpreadPixels) / spreadRecoverySpeedPixels;
+		}
+		spreadOverTime.put(timeElapsed + timeToResetSpread, baseSpreadPixels);
 		
 		return spreadAtEachShot;
 	}
@@ -216,7 +247,7 @@ public class AccuracyEstimator {
 		// Each key will be the timestamp of the inflection point, and the value will be an enumerated variable that will say how the slope changes at that inflection point
 		HashMap<Double, inflectionType> inflectionPoints = new HashMap<Double, inflectionType>();
 		
-		double[] bulletFiredTimestamps = new double[magSize];
+		bulletFiredTimestamps = new double[magSize];
 		double currentTime = 0.0;
 		double a, b, c;
 		int i;
@@ -257,7 +288,7 @@ public class AccuracyEstimator {
 			}
 		}
 		
-		// In theory, the length of this array should be in the range [magSize + 2, 3 * magSize]
+		// In theory, the length of this array should be in the range [MagSize + 2, 3*MagSize]
 		Set<Double> unsortedTimestampKeys = inflectionPoints.keySet();
 		Double[] inflectionPointTimestamps = unsortedTimestampKeys.toArray(new Double[unsortedTimestampKeys.size()]);
 		Arrays.sort(inflectionPointTimestamps);
@@ -318,6 +349,8 @@ public class AccuracyEstimator {
 			slopeAtT[i] = currentSlope;
 		}
 		
+		saveRecoilForVisualizer(inflectionPointTimestamps, slopeAtT);
+		
 		// With the array of slope changes and their corresponding timestamps, it should be possible to accurately recreate what the recoil will look like over time before player counter-action. (equivalent to integrating from the 1st derivative to the function itself)
 		double[] recoilAtEachShot = new double[magSize];
 		double currentRecoilPixels = 0.0;
@@ -361,8 +394,6 @@ public class AccuracyEstimator {
 		
 		// Finally, reduce the predicted recoil as if the player was pulling the mouse downwards to compensate for the ever-increasing recoil.
 		// TODO: I'm not entirely satisfied with how this interacts with low RoF guns like Gunner/Revolver, Engie/Shotgun, Scout/M1k/Hipfire, or Gunner/BRT/-----2, but it's a fair enough approximation that I feel ok rolling it out for 1.0.
-		double delayBeforePlayerReaction = 0.2;  // seconds -- means that player reduction only applies at RoF 5+
-		double playerRecoilRecoveryPerSecond = 0.8;  // Percentage of max recoil that the player recovers per second -- arbitrarily chosen
 		double timeSpentReducingRecoil, totalReduction;
 		for (i = 1; i < magSize; i++) {
 			if (bulletFiredTimestamps[i] > delayBeforePlayerReaction) {
@@ -403,13 +434,18 @@ public class AccuracyEstimator {
 		double SpS = spreadPerShot * accuracyModifiers[1];
 		double Sr = spreadRecoverySpeed * accuracyModifiers[2];
 		double Sm = Sb + spreadVariance * accuracyModifiers[3];
-		//double RpS = convertRecoilPixelsToRads(recoilPerShot) * accuracyModifiers[4] * (1 - playerRecoilCorrectionCoefficient);
 		double RpS = convertRecoilPixelsToRads(recoilPerShot) * accuracyModifiers[4];
 		
 		// predictedSpread is an array of the pixel values of the width of the crosshair when each bullet gets fired
 		double[] predictedSpread = spread(rateOfFire, magSize, burstSize, Sb, SpS, Sr, Sm, SpS < 0);
 		// predictedRecoil is an array of the radian values of how far off-center the crosshair is when each bullet gets fired
-		double[] predictedRecoil = recoil(rateOfFire,  magSize, burstSize, RpS, recoilIncreaseInterval, recoilDecreaseInterval);
+		double[] predictedRecoil;
+		if (modelRecoil) {
+			predictedRecoil = recoil(rateOfFire,  magSize, burstSize, RpS, recoilIncreaseInterval, recoilDecreaseInterval);
+		}
+		else {
+			predictedRecoil = recoil(rateOfFire,  magSize, burstSize, 0.0, recoilIncreaseInterval, recoilDecreaseInterval);
+		}
 		
 		// Step 1: establish the target size
 		// Due to mathematical limitations, I'm forced to model the targets as if they're circular even though it would be a better approximation if the targets were elliptical
@@ -498,11 +534,47 @@ public class AccuracyEstimator {
 	}
 	
 	public boolean visualizerIsReady() {
-		return crosshairWidthOverTime.length > 0;
+		return spreadOverTime.size() > 0;
+	}
+	
+	private void saveRecoilForVisualizer(Double[] inflectionPointTimestamps, double[] slopeAtT) {
+		recoilOverTime = new HashMap<Double, Double>();
+		reducedRecoilOverTime = new HashMap<Double, Double>();
+		
+		// It always starts at zero recoil when t=0
+		recoilOverTime.put(0.0, 0.0);
+		reducedRecoilOverTime.put(0.0, 0.0);
+		
+		double timeBetweenInflectionPoints;
+		double currentRecoilValue = 0.0;
+		double timeElapsed = 0.0;
+		double timeSpentReducingRecoil, totalReduction;
+		
+		// Intentionally starting at 1 so that I can use (current - old) for time duration
+		for (int i = 1; i < inflectionPointTimestamps.length; i++) {
+			timeBetweenInflectionPoints = inflectionPointTimestamps[i] - inflectionPointTimestamps[i - 1];
+			timeElapsed += timeBetweenInflectionPoints;
+			
+			currentRecoilValue += slopeAtT[i - 1] * timeBetweenInflectionPoints;
+			recoilOverTime.put(inflectionPointTimestamps[i], currentRecoilValue);
+			
+			// I'm not entirely satisfied with how this interacts with low RoF guns like Gunner/Revolver, Engie/Shotgun, Scout/M1k/Hipfire, or Gunner/BRT/-----2, but it's a fair enough approximation that I feel ok rolling it out for 1.0.
+			if (timeElapsed > delayBeforePlayerReaction) {
+				timeSpentReducingRecoil = timeElapsed - delayBeforePlayerReaction;
+				totalReduction = Math.max(1.0 - timeSpentReducingRecoil * playerRecoilRecoveryPerSecond, 0);
+				reducedRecoilOverTime.put(inflectionPointTimestamps[i], currentRecoilValue * totalReduction);
+			}
+			else {
+				reducedRecoilOverTime.put(inflectionPointTimestamps[i], currentRecoilValue);
+			}
+		}
 	}
 	
 	public JPanel getVisualizer() {
+		JPanel toReturn = new JPanel();
 		
-		return null;
+		toReturn.add(new JLabel("This is placeholder until I get the animation figured out."));
+		
+		return toReturn;
 	}
 }
