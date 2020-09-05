@@ -55,6 +55,8 @@ public class AccuracyAnimation extends JPanel {
 		super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        // This custom compositor adds the two color values together when the circles overlap
+        g2.setComposite(new AdditiveComposite(getBackground()));
         
         double targetRadius;
         if (drawGeneralAccuracy) {
@@ -83,17 +85,11 @@ public class AccuracyAnimation extends JPanel {
         int verticalPadding = (int) Math.round(0.05 * height);
         
         /* 
-	    	Step 2: draw the target circle at the bottom, and paint it blue
+	    	Step 2: get the target circle ready to be drawn at the bottom
 	    */
         int circlesCenterX = (int) Math.round(width / 2.0);
         int drawTargetCenterY = (int) (height - verticalPadding - Math.round(Math.max(maxSpread, targetRadius) * pixelToMeterRatio));
         int drawTargetRadius = (int) Math.round(targetRadius * pixelToMeterRatio);
-        
-        g2.setPaint(Color.black);
-        g2.drawOval(circlesCenterX - drawTargetRadius, drawTargetCenterY - drawTargetRadius, 2*drawTargetRadius, 2*drawTargetRadius);  // Outline
-        Color targetBlue = new Color(0.0f, 0.0f, 1.0f, 0.75f);;
-        g2.setPaint(targetBlue);
-        g2.fillOval(circlesCenterX - drawTargetRadius, drawTargetCenterY - drawTargetRadius, 2*drawTargetRadius, 2*drawTargetRadius);  // Color interior
         
         /*
         	Step 3: use linear interpolation and currentTime to calculate the correct crosshair radius and center displacement
@@ -115,19 +111,30 @@ public class AccuracyAnimation extends JPanel {
         double interpolatedRecoilValue = oldValue + proportionOfTimeElapsed * (newValue - oldValue);
         
         /*
-    		Step 4: draw the crosshair circle and paint it yellow
+    		Step 4: determine crosshair size and location
         */
         int drawCrosshairCenterY = drawTargetCenterY - (int) (Math.round(interpolatedRecoilValue * pixelToMeterRatio));
         int drawCrosshairRadius = (int) Math.round(interpolatedSpreadValue * pixelToMeterRatio);
         
-        g2.setPaint(Color.black);
-        g2.drawOval(circlesCenterX - drawCrosshairRadius, drawCrosshairCenterY - drawCrosshairRadius, 2*drawCrosshairRadius, 2*drawCrosshairRadius);  // Outline
-        Color crosshairYellow = new Color(1.0f, 1.0f, 0.0f, 0.75f);
-        g2.setPaint(crosshairYellow);
-        g2.fillOval(circlesCenterX - drawCrosshairRadius, drawCrosshairCenterY - drawCrosshairRadius, 2*drawCrosshairRadius, 2*drawCrosshairRadius);  // Color interior
-        
         /*
-    		Step 5: paint the potential overlap of the two circles green
+    		Step 5: draw the two circles, smaller one first (doing bigger first causes some aliasing where they overlap)
         */
+        // TODO: I'm not satisfied with these colors, would like to change them before finalizing.
+        Color target = new Color(0, 127, 127);
+        Color crosshair = new Color(0, 127, 0);
+        if (drawCrosshairRadius < drawTargetRadius) {
+            g2.setColor(target);
+            g2.fillOval(circlesCenterX - drawTargetRadius, drawTargetCenterY - drawTargetRadius, 2*drawTargetRadius, 2*drawTargetRadius);
+            
+            g2.setColor(crosshair);
+            g2.fillOval(circlesCenterX - drawCrosshairRadius, drawCrosshairCenterY - drawCrosshairRadius, 2*drawCrosshairRadius, 2*drawCrosshairRadius);
+        }
+        else {
+        	g2.setColor(crosshair);
+            g2.fillOval(circlesCenterX - drawCrosshairRadius, drawCrosshairCenterY - drawCrosshairRadius, 2*drawCrosshairRadius, 2*drawCrosshairRadius);
+            
+        	g2.setColor(target);
+            g2.fillOval(circlesCenterX - drawTargetRadius, drawTargetCenterY - drawTargetRadius, 2*drawTargetRadius, 2*drawTargetRadius);
+        }
 	}
 }
