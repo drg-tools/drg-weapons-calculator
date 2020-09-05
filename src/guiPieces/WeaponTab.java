@@ -421,11 +421,16 @@ public class WeaponTab extends JPanel {
 			toReturn.add(header);
 		}
 		
-		// TODO: this is where the visualizer button will go, but that's going to be a whole other thing to do first.
-		value = new JLabel(leftPadSpaces + "See how it works");
-		value.setFont(GuiConstants.customFontBold);
-		value.setForeground(GuiConstants.drgHighlightedYellow);
-		toReturn.add(value);
+		if (myWeapon.accuracyCanBeVisualized()) {
+			AccuracyVisualizerButton visualizer = new AccuracyVisualizerButton(this, leftPadSpaces + "See how it works", myWeapon);
+			toReturn.add(visualizer);
+		}
+		else {
+			value = new JLabel(leftPadSpaces + "Manually Aimed");
+			value.setFont(GuiConstants.customFontBold);
+			value.setForeground(GuiConstants.drgHighlightedYellow);
+			toReturn.add(value);
+		}
 		
 		double generalAccuracy = myWeapon.estimatedAccuracy(false);
 		if (generalAccuracy < 0) {

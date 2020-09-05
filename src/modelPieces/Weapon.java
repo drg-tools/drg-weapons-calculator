@@ -639,6 +639,9 @@ public abstract class Weapon extends Observable {
 			notifyObservers();
 		}
 	}
+	public JPanel getVisualizerPanel() {
+		return accEstimator.getVisualizer();
+	}
 	
 	/****************************************************************************************
 	* Other Methods

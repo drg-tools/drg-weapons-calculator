@@ -8,7 +8,6 @@ import dataGenerator.DatabaseConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
-import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
@@ -846,6 +845,7 @@ public class Minigun extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
+		// TODO: this has a weird spike in Spread after about 6sec?
 		// I'm choosing to model Minigun as if it has no recoil. Although it does, its so negligible that it would have no effect.
 		double unchangingBaseSpread = 61;
 		double changingBaseSpread = 68 * getBaseSpread();

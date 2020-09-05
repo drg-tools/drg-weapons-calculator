@@ -7,6 +7,7 @@ import java.util.Set;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import guiPieces.LineGraph;
 import utilities.MathUtils;
 
 public class AccuracyEstimator {
@@ -185,7 +186,7 @@ public class AccuracyEstimator {
 		else {
 			currentSpreadPixels = Math.min(currentSpreadPixels + spreadPerShotPixels, maxSpreadPixels);  // This value can never go above Max Spread
 		}
-		spreadOverTime.put(timeElapsed, currentSpreadPixels);
+		spreadOverTime.put(timeElapsed + 0.001, currentSpreadPixels);
 		
 		double timeBetweenBursts = 1 / RoF;
 		double deltaTime;
@@ -224,7 +225,7 @@ public class AccuracyEstimator {
 			}
 			
 			// Add a point for the crosshair width after the bullet is fired, too
-			spreadOverTime.put(timeElapsed, currentSpreadPixels);
+			spreadOverTime.put(timeElapsed + 0.001, currentSpreadPixels);
 		}
 		
 		// Add a point at the end for how long it takes SRS to bring crosshair back to minimum size
@@ -233,7 +234,13 @@ public class AccuracyEstimator {
 			timeToResetSpread = (baseSpreadPixels - currentSpreadPixels) / spreadRecoverySpeedPixels;
 		}
 		else {
-			timeToResetSpread = (currentSpreadPixels - baseSpreadPixels) / spreadRecoverySpeedPixels;
+			// Special case: Engineer/Shotgun has no Spread changes, so its SRS is 0, and as a result it can't be used in a denominator.
+			if (spreadRecoverySpeedPixels > 0) {
+				timeToResetSpread = (currentSpreadPixels - baseSpreadPixels) / spreadRecoverySpeedPixels;
+			}
+			else {
+				timeToResetSpread = 0;
+			}
 		}
 		spreadOverTime.put(timeElapsed + timeToResetSpread, baseSpreadPixels);
 		
@@ -573,7 +580,43 @@ public class AccuracyEstimator {
 	public JPanel getVisualizer() {
 		JPanel toReturn = new JPanel();
 		
-		toReturn.add(new JLabel("This is placeholder until I get the animation figured out."));
+		// Part 1: figuring out stuff before rendering
+		Set<Double> unsortedTimestampKeys = spreadOverTime.keySet();
+		Double[] spreadOverTimeTimestamps = unsortedTimestampKeys.toArray(new Double[unsortedTimestampKeys.size()]);
+		Arrays.sort(spreadOverTimeTimestamps);
+		
+		unsortedTimestampKeys = recoilOverTime.keySet();
+		Double[] recoilOverTimeTimestamps = unsortedTimestampKeys.toArray(new Double[unsortedTimestampKeys.size()]);
+		Arrays.sort(recoilOverTimeTimestamps);
+		
+		// Both of these arrays have the last timestamp at the end
+		double loopDuration = Math.max(spreadOverTimeTimestamps[spreadOverTimeTimestamps.length - 1], recoilOverTimeTimestamps[recoilOverTimeTimestamps.length - 1]);
+		
+		int i;
+		double currentValue;
+		double maxSpread = 0.0;
+		for (i = 0; i < spreadOverTimeTimestamps.length; i++) {
+			currentValue = spreadOverTime.get(spreadOverTimeTimestamps[i]);
+			if (currentValue > maxSpread) {
+				maxSpread = currentValue;
+			}
+		}
+		
+		double maxRecoil = 0.0;
+		for (i = 0; i < recoilOverTimeTimestamps.length; i++) {
+			currentValue = recoilOverTime.get(recoilOverTimeTimestamps[i]);
+			if (currentValue > maxRecoil) {
+				maxRecoil = currentValue;
+			}
+		}
+		
+		LineGraph spreadGraph = new LineGraph(spreadOverTimeTimestamps, spreadOverTime, loopDuration, Math.max(maxSpread, 150));
+		LineGraph rawRecoilGraph = new LineGraph(recoilOverTimeTimestamps, recoilOverTime, loopDuration, Math.max(maxRecoil, 0.3));
+		LineGraph playerReducedRecoilGraph = new LineGraph(recoilOverTimeTimestamps, reducedRecoilOverTime, loopDuration, Math.max(maxRecoil, 0.3));
+		
+		toReturn.add(spreadGraph);
+		toReturn.add(rawRecoilGraph);
+		toReturn.add(playerReducedRecoilGraph);
 		
 		return toReturn;
 	}

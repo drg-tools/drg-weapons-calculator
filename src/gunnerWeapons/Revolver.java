@@ -726,6 +726,7 @@ public abstract class Revolver extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
+		// There's a bug with T2.B Recoil mod; its -80% SpS is truncating the last shot's SRS in the graph, and this is the only weapon I've found that does it.
 		double unchangingBaseSpread = 14;
 		double changingBaseSpread = 30;
 		double spreadVariance = 148;
