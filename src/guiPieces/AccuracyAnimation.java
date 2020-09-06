@@ -9,11 +9,13 @@ import java.util.HashMap;
 
 import javax.swing.JPanel;
 
-public class AccuracyAnimation extends JPanel {
+public class AccuracyAnimation extends JPanel implements Runnable {
 	private static final long serialVersionUID = 1L;
 
-	private int framesPerSecond;
-	private double refreshInterval;
+	private double framesPerSecond;
+	private long refreshInterval;
+	private boolean animate;
+	
 	private double currentTime;
 	private int spreadIndex;
 	private int recoilIndex;
@@ -31,7 +33,9 @@ public class AccuracyAnimation extends JPanel {
 	
 	public AccuracyAnimation(boolean generalAccuracy, double loopDuration, Double[] sT, HashMap<Double, Double> sKVP, double maxSpreadMeters, Double[] rT, HashMap<Double, Double> rKVP, double maxRecoilMeters) {
 		framesPerSecond = 60;
-		refreshInterval = 1.0 / ((int) framesPerSecond);
+		refreshInterval = (long) Math.round(1000.0 / framesPerSecond);
+		animate = true;
+		
 		currentTime = 0.0;
 		spreadIndex = 0;
 		recoilIndex = 0;
@@ -48,6 +52,37 @@ public class AccuracyAnimation extends JPanel {
 		maxRecoil = maxRecoilMeters;
 		
 		this.setPreferredSize(new Dimension(300, 900));
+	}
+	
+	@Override
+	public void run() {
+		while (animate) {
+			repaint();
+			
+			// Now that the last frame has been displayed, update variables accordingly to make it animate.
+			currentTime += 1.0 / framesPerSecond;
+			if (currentTime >= duration) {
+				currentTime = 0;
+				spreadIndex = 0;
+				recoilIndex = 0;
+			}
+			else {
+				if (spreadIndex < spreadTimestamps.length - 2 && currentTime > spreadTimestamps[spreadIndex + 1]) {
+					spreadIndex++;
+				}
+				
+				if (recoilIndex < recoilTimestamps.length - 2 && currentTime > recoilTimestamps[recoilIndex + 1]) {
+					recoilIndex++;
+				}
+			}
+			
+			try {
+				Thread.sleep(refreshInterval);
+			} 
+			catch (Exception e) {
+			
+			}
+		}
 	}
 	
 	@Override

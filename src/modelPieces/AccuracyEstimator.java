@@ -598,7 +598,8 @@ public class AccuracyEstimator {
 		// In addition to finding the biggest values in each group, these for loops will be used to duplicate the spread and playerRecoil arrays but sized into meters at distance
 		// for the animation to pull from
 		HashMap<Double, Double> spreadMeters = new HashMap<Double, Double>();
-		HashMap<Double, Double> recoilMeters = new HashMap<Double, Double>();
+		HashMap<Double, Double> rawRecoilMeters = new HashMap<Double, Double>();
+		HashMap<Double, Double> reducedRecoilMeters = new HashMap<Double, Double>();
 		int i;
 		double currentTimestamp, currentValue;
 		double maxSpread = 0.0;
@@ -621,12 +622,14 @@ public class AccuracyEstimator {
 				maxRawRecoil = currentValue;
 			}
 			
+			rawRecoilMeters.put(currentTimestamp, convertRadiansToMeters(currentValue));
+			
 			currentValue = reducedRecoilOverTime.get(currentTimestamp);
 			if (currentValue > maxReducedRecoil) {
 				maxReducedRecoil = currentValue;
 			}
 			
-			recoilMeters.put(currentTimestamp, this.convertRadiansToMeters(reducedRecoilOverTime.get(currentTimestamp)));
+			reducedRecoilMeters.put(currentTimestamp, convertRadiansToMeters(currentValue));
 		}
 		
 		JPanel lineGraphsPanel = new JPanel();
@@ -643,13 +646,15 @@ public class AccuracyEstimator {
 		
 		AccuracyAnimation rawRecoilGif = new AccuracyAnimation(visualizeGeneralAccuracy, loopDuration, 
 				spreadOverTimeTimestamps, spreadMeters, convertSpreadPixelsToMeters(maxSpread), 
-				recoilOverTimeTimestamps, recoilMeters, convertRadiansToMeters(maxReducedRecoil));
+				recoilOverTimeTimestamps, rawRecoilMeters, convertRadiansToMeters(maxReducedRecoil));
 		rawRecoilGif.setBorder(GuiConstants.blackLine);
+		new Thread(rawRecoilGif).start();
 		
 		AccuracyAnimation reducedRecoilGif = new AccuracyAnimation(visualizeGeneralAccuracy, loopDuration, 
 				spreadOverTimeTimestamps, spreadMeters, convertSpreadPixelsToMeters(maxSpread), 
-				recoilOverTimeTimestamps, recoilMeters, convertRadiansToMeters(maxReducedRecoil));
+				recoilOverTimeTimestamps, reducedRecoilMeters, convertRadiansToMeters(maxReducedRecoil));
 		reducedRecoilGif.setBorder(GuiConstants.blackLine);
+		new Thread(reducedRecoilGif).start();
 		
 		toReturn.add(lineGraphsPanel);
 		toReturn.add(rawRecoilGif);
