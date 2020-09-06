@@ -14,7 +14,6 @@ public class AccuracyAnimation extends JPanel implements Runnable {
 
 	private double framesPerSecond;
 	private long refreshInterval;
-	private boolean animate;
 	
 	private double currentTime;
 	private int spreadIndex;
@@ -25,16 +24,16 @@ public class AccuracyAnimation extends JPanel implements Runnable {
 	
 	private Double[] spreadTimestamps;
 	private HashMap<Double, Double> spreadValues;
+	private double minSpread;
 	private double maxSpread;
 	
 	private Double[] recoilTimestamps;
 	private HashMap<Double, Double> recoilValues;
 	private double maxRecoil;
 	
-	public AccuracyAnimation(boolean generalAccuracy, double loopDuration, Double[] sT, HashMap<Double, Double> sKVP, double maxSpreadMeters, Double[] rT, HashMap<Double, Double> rKVP, double maxRecoilMeters) {
+	public AccuracyAnimation(boolean generalAccuracy, double loopDuration, Double[] sT, HashMap<Double, Double> sKVP, double minSpreadMeters, double maxSpreadMeters, Double[] rT, HashMap<Double, Double> rKVP, double maxRecoilMeters) {
 		framesPerSecond = 60;
 		refreshInterval = (long) Math.round(1000.0 / framesPerSecond);
-		animate = true;
 		
 		currentTime = 0.0;
 		spreadIndex = 0;
@@ -45,6 +44,7 @@ public class AccuracyAnimation extends JPanel implements Runnable {
 		
 		spreadTimestamps = sT;
 		spreadValues = sKVP;
+		minSpread = minSpreadMeters;
 		maxSpread = maxSpreadMeters;
 		
 		recoilTimestamps = rT;
@@ -56,7 +56,7 @@ public class AccuracyAnimation extends JPanel implements Runnable {
 	
 	@Override
 	public void run() {
-		while (animate) {
+		while (true) {
 			repaint();
 			
 			// Now that the last frame has been displayed, update variables accordingly to make it animate.
@@ -108,7 +108,7 @@ public class AccuracyAnimation extends JPanel implements Runnable {
         double height = getHeight();
         
         double maxMetersHeightDifference = Math.max(maxSpread, targetRadius) + maxRecoil + Math.max(maxSpread, targetRadius);
-        double maxMetersWidthDifference = 2.0 * maxSpread;
+        double maxMetersWidthDifference = 2.0 * Math.max(maxSpread, targetRadius);
         // I want the max-width crosshair circle to take up 75% width at most, to leave a 12.5% buffer on either side
         double pixelToMeterRatio = 0.75 * width / maxMetersWidthDifference;
         
@@ -136,14 +136,14 @@ public class AccuracyAnimation extends JPanel implements Runnable {
         double proportionOfTimeElapsed = (currentTime - currentTimestamp) / (nextTimestamp - currentTimestamp);
         double oldValue = spreadValues.get(currentTimestamp);
         double newValue = spreadValues.get(nextTimestamp);
-        double interpolatedSpreadValue = oldValue + proportionOfTimeElapsed * (newValue - oldValue);
+        double interpolatedSpreadValue = Math.max(Math.min(oldValue + proportionOfTimeElapsed * (newValue - oldValue), maxSpread), minSpread);
         
         currentTimestamp = recoilTimestamps[recoilIndex];
         nextTimestamp = recoilTimestamps[recoilIndex + 1];
         proportionOfTimeElapsed = (currentTime - currentTimestamp) / (nextTimestamp - currentTimestamp);
         oldValue = recoilValues.get(currentTimestamp);
         newValue = recoilValues.get(nextTimestamp);
-        double interpolatedRecoilValue = oldValue + proportionOfTimeElapsed * (newValue - oldValue);
+        double interpolatedRecoilValue = Math.max(oldValue + proportionOfTimeElapsed * (newValue - oldValue), 0.0);
         
         /*
     		Step 4: determine crosshair size and location

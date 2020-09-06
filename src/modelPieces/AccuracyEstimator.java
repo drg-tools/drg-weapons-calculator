@@ -603,11 +603,16 @@ public class AccuracyEstimator {
 		int i;
 		double currentTimestamp, currentValue;
 		double maxSpread = 0.0;
+		double minSpread = 10000.0;
 		for (i = 0; i < spreadOverTimeTimestamps.length; i++) {
 			currentTimestamp = spreadOverTimeTimestamps[i];
 			currentValue = spreadOverTime.get(currentTimestamp);
 			if (currentValue > maxSpread) {
 				maxSpread = currentValue;
+			}
+			
+			if (currentValue < minSpread) {
+				minSpread = currentValue;
 			}
 			
 			spreadMeters.put(currentTimestamp, convertSpreadPixelsToMeters(currentValue));
@@ -645,13 +650,13 @@ public class AccuracyEstimator {
 		lineGraphsPanel.add(playerReducedRecoilGraph);
 		
 		AccuracyAnimation rawRecoilGif = new AccuracyAnimation(visualizeGeneralAccuracy, loopDuration, 
-				spreadOverTimeTimestamps, spreadMeters, convertSpreadPixelsToMeters(maxSpread), 
+				spreadOverTimeTimestamps, spreadMeters, convertSpreadPixelsToMeters(minSpread), convertSpreadPixelsToMeters(maxSpread), 
 				recoilOverTimeTimestamps, rawRecoilMeters, convertRadiansToMeters(maxReducedRecoil));
 		rawRecoilGif.setBorder(GuiConstants.blackLine);
 		new Thread(rawRecoilGif).start();
 		
 		AccuracyAnimation reducedRecoilGif = new AccuracyAnimation(visualizeGeneralAccuracy, loopDuration, 
-				spreadOverTimeTimestamps, spreadMeters, convertSpreadPixelsToMeters(maxSpread), 
+				spreadOverTimeTimestamps, spreadMeters, convertSpreadPixelsToMeters(minSpread), convertSpreadPixelsToMeters(maxSpread), 
 				recoilOverTimeTimestamps, reducedRecoilMeters, convertRadiansToMeters(maxReducedRecoil));
 		reducedRecoilGif.setBorder(GuiConstants.blackLine);
 		new Thread(reducedRecoilGif).start();
