@@ -641,8 +641,11 @@ public class AccuracyEstimator {
 		lineGraphsPanel.setLayout(new BoxLayout(lineGraphsPanel, BoxLayout.PAGE_AXIS));
 		
 		LineGraph spreadGraph = new LineGraph(spreadOverTimeTimestamps, spreadOverTime, loopDuration, Math.max(maxSpread, 150));
+		new Thread(spreadGraph).start();
 		LineGraph rawRecoilGraph = new LineGraph(recoilOverTimeTimestamps, recoilOverTime, loopDuration, Math.max(maxRawRecoil, 0.3));
+		new Thread(rawRecoilGraph).start();
 		LineGraph playerReducedRecoilGraph = new LineGraph(recoilOverTimeTimestamps, reducedRecoilOverTime, loopDuration, Math.max(maxRawRecoil, 0.3));
+		new Thread(playerReducedRecoilGraph).start();
 		
 		// TODO: add JLabels to describe what the line graphs are
 		lineGraphsPanel.add(spreadGraph);

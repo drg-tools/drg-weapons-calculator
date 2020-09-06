@@ -16,7 +16,7 @@ import java.util.List;
 import javax.swing.JPanel;
 
 // Adapted from this StackOverflow answer: https://stackoverflow.com/a/18413639
-public class LineGraph extends JPanel {
+public class LineGraph extends JPanel implements Runnable {
 	private static final long serialVersionUID = 1L;
 	
 	private int padding = 25;
@@ -32,13 +32,40 @@ public class LineGraph extends JPanel {
 	
 	private double maxX, maxY;
 	
+	private double currentTime, framesPerSecond;
+	private long refreshInterval;
+	
 	public LineGraph(Double[] sT, HashMap<Double, Double> kVP, double mX, double mY) {
 		sortedTimestamps = sT;
 		keyValuePairs = kVP;
 		maxX = mX;
 		maxY = mY;
 		
+		currentTime = 0.0;
+		framesPerSecond = 100;
+		refreshInterval = (long) Math.round(1000.0 / framesPerSecond);
+		
 		this.setPreferredSize(new Dimension(500, 300));
+	}
+	
+	@Override
+	public void run() {
+		while (true) {
+			repaint();
+			
+			// Now that the last frame has been displayed, update variables accordingly to make it animate.
+			currentTime += 1.0 / framesPerSecond;
+			if (currentTime >= maxX) {
+				currentTime = 0;
+			}
+			
+			try {
+				Thread.sleep(refreshInterval);
+			} 
+			catch (Exception e) {
+			
+			}
+		}
 	}
 	
 	@Override
@@ -104,8 +131,17 @@ public class LineGraph extends JPanel {
             g2.drawString(xLabel, x0 - labelWidth / 2, y0 + metrics.getHeight() + 3);
             g2.drawLine(x0, y0, x1, y1);
         }
+        
+        // Add a thin, red line that moves left-to-right to show the passage of time
+        x0 = (int) Math.round((getWidth() - padding * 2 - labelPadding) * currentTime / maxX) + padding + labelPadding;
+        x1 = x0;
+        y0 = getHeight() - padding - labelPadding;
+        y1 = padding;
+        g2.setColor(Color.red);
+        g2.drawLine(x0, y0, x1, y1);
 
         // create x and y axes 
+        g2.setColor(gridColor);
         g2.drawLine(padding + labelPadding, getHeight() - padding - labelPadding, padding + labelPadding, padding);
         g2.drawLine(padding + labelPadding, getHeight() - padding - labelPadding, getWidth() - padding, getHeight() - padding - labelPadding);
 

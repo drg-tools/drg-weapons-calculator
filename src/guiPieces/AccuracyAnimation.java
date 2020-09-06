@@ -32,7 +32,7 @@ public class AccuracyAnimation extends JPanel implements Runnable {
 	private double maxRecoil;
 	
 	public AccuracyAnimation(boolean generalAccuracy, double loopDuration, Double[] sT, HashMap<Double, Double> sKVP, double minSpreadMeters, double maxSpreadMeters, Double[] rT, HashMap<Double, Double> rKVP, double maxRecoilMeters) {
-		framesPerSecond = 60;
+		framesPerSecond = 100;
 		refreshInterval = (long) Math.round(1000.0 / framesPerSecond);
 		
 		currentTime = 0.0;
@@ -155,8 +155,8 @@ public class AccuracyAnimation extends JPanel implements Runnable {
     		Step 5: draw the two circles, smaller one first (doing bigger first causes some aliasing where they overlap)
         */
         // TODO: I'm not satisfied with these colors, would like to change them before finalizing.
-        Color target = new Color(0, 127, 127);
-        Color crosshair = new Color(0, 127, 0);
+        Color target = new Color(200, 0, 0);
+        Color crosshair = new Color(0, 0, 150);
         if (drawCrosshairRadius < drawTargetRadius) {
             g2.setColor(target);
             g2.fillOval(circlesCenterX - drawTargetRadius, drawTargetCenterY - drawTargetRadius, 2*drawTargetRadius, 2*drawTargetRadius);
