@@ -45,7 +45,7 @@ public class LineGraph extends JPanel implements Runnable {
 		framesPerSecond = 100;
 		refreshInterval = (long) Math.round(1000.0 / framesPerSecond);
 		
-		this.setPreferredSize(new Dimension(500, 300));
+		this.setPreferredSize(new Dimension(350, 210));
 	}
 	
 	@Override

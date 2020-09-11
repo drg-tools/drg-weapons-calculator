@@ -51,7 +51,8 @@ public class AccuracyAnimation extends JPanel implements Runnable {
 		recoilValues = rKVP;
 		maxRecoil = maxRecoilMeters;
 		
-		this.setPreferredSize(new Dimension(300, 900));
+		// Using this height to make it match the three linegraphs stacked on each other
+		this.setPreferredSize(new Dimension(228, 684));
 	}
 	
 	@Override

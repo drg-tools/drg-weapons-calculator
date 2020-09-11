@@ -30,8 +30,9 @@ public class AccuracyEstimator {
 	private HashMap<Double, Double> reducedRecoilOverTime;
 	
 	public AccuracyEstimator() {
-		delayBeforePlayerReaction = 0.2;  // seconds
-		playerRecoilRecoveryPerSecond = 0.8;  // Percentage of max recoil that the player recovers per second -- arbitrarily chosen
+		// With these two values, recoil should be reduced to 0% in exactly 0.5 seconds.
+		delayBeforePlayerReaction = 0.15;  // seconds
+		playerRecoilRecoveryPerSecond = 1.00/0.35;  // Percentage of max recoil that the player recovers per second
 		
 		// Start at 7m distance for all weapons in AccuracyEstimator, but let it be overwritten by shotgun classes.
 		targetDistanceMeters = 7.0;
@@ -359,7 +360,7 @@ public class AccuracyEstimator {
 			slopeAtT[i] = currentSlope;
 		}
 		
-		saveRecoilForVisualizer(inflectionPointTimestamps, slopeAtT);
+		saveRecoilForVisualizer(inflectionPointTimestamps, slopeAtT, RoF, magSize, burstSize);
 		
 		// With the array of slope changes and their corresponding timestamps, it should be possible to accurately recreate what the recoil will look like over time before player counter-action. (equivalent to integrating from the 1st derivative to the function itself)
 		double[] recoilAtEachShot = new double[magSize];
@@ -403,13 +404,19 @@ public class AccuracyEstimator {
 		}
 		
 		// Finally, reduce the predicted recoil as if the player was pulling the mouse downwards to compensate for the ever-increasing recoil.
-		// TODO: I'm not entirely satisfied with how this interacts with low RoF guns like Gunner/Revolver, Engie/Shotgun, Scout/M1k/Hipfire, or Gunner/BRT/-----2, but it's a fair enough approximation that I feel ok rolling it out for 1.0.
+		// I'm choosing to model it such that if the RoF <= 2, each shot has recoil but the player can account for it all in the 0.5+ sec between shots (functionally no recoil for slow RoF)
 		double timeSpentReducingRecoil, totalReduction;
 		for (i = 1; i < magSize; i++) {
-			if (bulletFiredTimestamps[i] > delayBeforePlayerReaction) {
-				timeSpentReducingRecoil = bulletFiredTimestamps[i] - delayBeforePlayerReaction;
-				totalReduction = Math.max(1.0 - timeSpentReducingRecoil * playerRecoilRecoveryPerSecond, 0);
-				recoilAtEachShot[i] = recoilAtEachShot[i] * totalReduction;
+			if (RoF > 2) {
+				if (bulletFiredTimestamps[i] > delayBeforePlayerReaction) {
+					timeSpentReducingRecoil = bulletFiredTimestamps[i] - delayBeforePlayerReaction;
+					totalReduction = Math.max(1.0 - timeSpentReducingRecoil * playerRecoilRecoveryPerSecond, 0);
+					recoilAtEachShot[i] = recoilAtEachShot[i] * totalReduction;
+				}
+			}
+			else {
+				// I could write a very long and complicated chunk of code to walk through the logic of this, but it's functionally equivalent to just use the first burst's recoil values for all bursts in the magazine
+				recoilAtEachShot[i] = recoilAtEachShot[i % burstSize];
 			}
 		}
 		
@@ -547,7 +554,7 @@ public class AccuracyEstimator {
 		return spreadOverTime.size() > 0;
 	}
 	
-	private void saveRecoilForVisualizer(Double[] inflectionPointTimestamps, double[] slopeAtT) {
+	private void saveRecoilForVisualizer(Double[] inflectionPointTimestamps, double[] slopeAtT, double RoF, int magSize, int burstSize) {
 		recoilOverTime = new HashMap<Double, Double>();
 		reducedRecoilOverTime = new HashMap<Double, Double>();
 		
@@ -568,7 +575,6 @@ public class AccuracyEstimator {
 			currentRecoilValue += slopeAtT[i - 1] * timeBetweenInflectionPoints;
 			recoilOverTime.put(inflectionPointTimestamps[i], currentRecoilValue);
 			
-			// I'm not entirely satisfied with how this interacts with low RoF guns like Gunner/Revolver, Engie/Shotgun, Scout/M1k/Hipfire, or Gunner/BRT/-----2, but it's a fair enough approximation that I feel ok rolling it out for 1.0.
 			if (timeElapsed > delayBeforePlayerReaction) {
 				timeSpentReducingRecoil = timeElapsed - delayBeforePlayerReaction;
 				totalReduction = Math.max(1.0 - timeSpentReducingRecoil * playerRecoilRecoveryPerSecond, 0);
@@ -578,6 +584,7 @@ public class AccuracyEstimator {
 				reducedRecoilOverTime.put(inflectionPointTimestamps[i], currentRecoilValue);
 			}
 		}
+		
 	}
 	
 	public JPanel getVisualizer() {
@@ -642,15 +649,30 @@ public class AccuracyEstimator {
 		
 		LineGraph spreadGraph = new LineGraph(spreadOverTimeTimestamps, spreadOverTime, loopDuration, Math.max(maxSpread, 150));
 		new Thread(spreadGraph).start();
+		JPanel spreadGraphAndLabel = new JPanel();
+		spreadGraphAndLabel.setLayout(new BoxLayout(spreadGraphAndLabel, BoxLayout.PAGE_AXIS));
+		spreadGraphAndLabel.add(new JLabel("Crosshair radius (pixels) vs Time (seconds)"));
+		spreadGraphAndLabel.add(spreadGraph);
+		spreadGraphAndLabel.setBorder(GuiConstants.blackLine);
+		lineGraphsPanel.add(spreadGraphAndLabel);
+		
 		LineGraph rawRecoilGraph = new LineGraph(recoilOverTimeTimestamps, recoilOverTime, loopDuration, Math.max(maxRawRecoil, 0.3));
 		new Thread(rawRecoilGraph).start();
+		JPanel rawRecoilGraphAndLabel = new JPanel();
+		rawRecoilGraphAndLabel.setLayout(new BoxLayout(rawRecoilGraphAndLabel, BoxLayout.PAGE_AXIS));
+		rawRecoilGraphAndLabel.add(new JLabel("Recoil offset (radians) vs Time (seconds)"));
+		rawRecoilGraphAndLabel.add(rawRecoilGraph);
+		rawRecoilGraphAndLabel.setBorder(GuiConstants.blackLine);
+		lineGraphsPanel.add(rawRecoilGraphAndLabel);
+		
 		LineGraph playerReducedRecoilGraph = new LineGraph(recoilOverTimeTimestamps, reducedRecoilOverTime, loopDuration, Math.max(maxRawRecoil, 0.3));
 		new Thread(playerReducedRecoilGraph).start();
-		
-		// TODO: add JLabels to describe what the line graphs are
-		lineGraphsPanel.add(spreadGraph);
-		lineGraphsPanel.add(rawRecoilGraph);
-		lineGraphsPanel.add(playerReducedRecoilGraph);
+		JPanel reducedRecoilAndGraph = new JPanel();
+		reducedRecoilAndGraph.setLayout(new BoxLayout(reducedRecoilAndGraph, BoxLayout.PAGE_AXIS));
+		reducedRecoilAndGraph.add(new JLabel("Player-reduced recoil offset (radians) vs Time (seconds)"));
+		reducedRecoilAndGraph.add(playerReducedRecoilGraph);
+		reducedRecoilAndGraph.setBorder(GuiConstants.blackLine);
+		lineGraphsPanel.add(reducedRecoilAndGraph);
 		
 		AccuracyAnimation rawRecoilGif = new AccuracyAnimation(visualizeGeneralAccuracy, loopDuration, 
 				spreadOverTimeTimestamps, spreadMeters, convertSpreadPixelsToMeters(minSpread), convertSpreadPixelsToMeters(maxSpread), 
