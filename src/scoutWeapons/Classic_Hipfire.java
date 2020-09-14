@@ -1,7 +1,6 @@
 package scoutWeapons;
 
 import guiPieces.ButtonIcons.modIcons;
-import modelPieces.AccuracyEstimator;
 import modelPieces.EnemyInformation;
 import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;

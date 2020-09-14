@@ -34,6 +34,7 @@ public class LineGraph extends JPanel implements Runnable {
 	
 	private double currentTime, framesPerSecond;
 	private long refreshInterval;
+	private boolean animate;
 	
 	public LineGraph(Double[] sT, HashMap<Double, Double> kVP, double mX, double mY) {
 		sortedTimestamps = sT;
@@ -44,13 +45,18 @@ public class LineGraph extends JPanel implements Runnable {
 		currentTime = 0.0;
 		framesPerSecond = 100;
 		refreshInterval = (long) Math.round(1000.0 / framesPerSecond);
+		animate = true;
 		
 		this.setPreferredSize(new Dimension(350, 210));
 	}
 	
+	public void setGraphAnimation(boolean newValue) {
+		animate = newValue;
+	}
+	
 	@Override
 	public void run() {
-		while (true) {
+		while (animate) {
 			repaint();
 			
 			// Now that the last frame has been displayed, update variables accordingly to make it animate.
@@ -132,13 +138,15 @@ public class LineGraph extends JPanel implements Runnable {
             g2.drawLine(x0, y0, x1, y1);
         }
         
-        // Add a thin, red line that moves left-to-right to show the passage of time
-        x0 = (int) Math.round((getWidth() - padding * 2 - labelPadding) * currentTime / maxX) + padding + labelPadding;
-        x1 = x0;
-        y0 = getHeight() - padding - labelPadding;
-        y1 = padding;
-        g2.setColor(Color.red);
-        g2.drawLine(x0, y0, x1, y1);
+        if (animate) {
+	        // Add a thin, red line that moves left-to-right to show the passage of time
+	        x0 = (int) Math.round((getWidth() - padding * 2 - labelPadding) * currentTime / maxX) + padding + labelPadding;
+	        x1 = x0;
+	        y0 = getHeight() - padding - labelPadding;
+	        y1 = padding;
+	        g2.setColor(Color.red);
+	        g2.drawLine(x0, y0, x1, y1);
+        }
 
         // create x and y axes 
         g2.setColor(gridColor);

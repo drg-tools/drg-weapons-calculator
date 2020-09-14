@@ -15,6 +15,7 @@ import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.Weapon;
+import spreadCurves.ClassicCurve;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
@@ -56,6 +57,8 @@ public abstract class Classic extends Weapon {
 		movespeedWhileFocusing = 0.3;
 		weakpointBonus = 0.1;
 		armorBreaking = 0.3;
+		
+		accEstimator.setSpreadCurve(new ClassicCurve());
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks

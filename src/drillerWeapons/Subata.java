@@ -9,7 +9,6 @@ import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.UtilityInformation;
-import modelPieces.AccuracyEstimator;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;

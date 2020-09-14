@@ -9,7 +9,6 @@ import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
-import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
@@ -18,6 +17,7 @@ import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
+import spreadCurves.AssaultRifleCurve;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
@@ -64,6 +64,8 @@ public class AssaultRifle extends Weapon {
 		stunDuration = 1.5;
 		reloadTime = 1.8;
 		weakpointBonus = 0.1;
+		
+		accEstimator.setSpreadCurve(new AssaultRifleCurve());
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks

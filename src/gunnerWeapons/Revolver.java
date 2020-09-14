@@ -9,7 +9,6 @@ import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
-import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
@@ -17,6 +16,7 @@ import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
+import spreadCurves.RevolverCurve;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
@@ -51,6 +51,8 @@ public abstract class Revolver extends Weapon {
 		stunChance = 0.5;
 		stunDuration = 1.5;  // seconds
 		weakpointBonus = 0.15;
+		
+		accEstimator.setSpreadCurve(new RevolverCurve());
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks

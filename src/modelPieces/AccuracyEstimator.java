@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import guiPieces.AccuracyAnimation;
 import guiPieces.GuiConstants;
 import guiPieces.LineGraph;
+import spreadCurves.SpreadCurve;
 import utilities.MathUtils;
 
 public class AccuracyEstimator {
@@ -23,6 +24,8 @@ public class AccuracyEstimator {
 	private double targetDistanceMeters;
 	private boolean modelRecoil;
 	private boolean visualizeGeneralAccuracy;
+	
+	private SpreadCurve spreadTransformer;
 	
 	private double[] bulletFiredTimestamps;
 	private HashMap<Double, Double> spreadOverTime;
@@ -38,6 +41,8 @@ public class AccuracyEstimator {
 		targetDistanceMeters = 7.0;
 		visualizeGeneralAccuracy = true;
 		modelRecoil = true;
+		
+		spreadTransformer = null;
 		
 		// Setting these all as length 0 arrays so that I can use length > 0 checks even if they never get values added to them.
 		// spreadOverTime should have length (2*MagSize + 1)
@@ -67,6 +72,10 @@ public class AccuracyEstimator {
 	}
 	public boolean visualizerShowsGeneralAccuracy() {
 		return visualizeGeneralAccuracy;
+	}
+	
+	public void setSpreadCurve(SpreadCurve sc) {
+		spreadTransformer = sc;
 	}
 	
 	// Other methods
@@ -575,6 +584,8 @@ public class AccuracyEstimator {
 			currentRecoilValue += slopeAtT[i - 1] * timeBetweenInflectionPoints;
 			recoilOverTime.put(inflectionPointTimestamps[i], currentRecoilValue);
 			
+			// I'm not satisfied with how this displays for RoF <= 2. I want each burst to have the same recoil as if it was the first burst fired, but after 8 attempts I couldn't get it to work.
+			// The actual values used are correctly imitating first burst, but I can't figure out a good way to visualize it...
 			if (timeElapsed > delayBeforePlayerReaction) {
 				timeSpentReducingRecoil = timeElapsed - delayBeforePlayerReaction;
 				totalReduction = Math.max(1.0 - timeSpentReducingRecoil * playerRecoilRecoveryPerSecond, 0);
@@ -584,7 +595,6 @@ public class AccuracyEstimator {
 				reducedRecoilOverTime.put(inflectionPointTimestamps[i], currentRecoilValue);
 			}
 		}
-		
 	}
 	
 	public JPanel getVisualizer() {
@@ -689,6 +699,14 @@ public class AccuracyEstimator {
 		toReturn.add(lineGraphsPanel);
 		toReturn.add(rawRecoilGif);
 		toReturn.add(reducedRecoilGif);
+		
+		/*
+			If I ever want to re-add the Spread Curve transformation graphs, this is where I could easily do it.
+			
+			if (spreadTransformer != null) {
+				toReturn.add(spreadTransformer.getGraph());
+			}
+		*/
 		
 		return toReturn;
 	}

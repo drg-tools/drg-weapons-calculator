@@ -16,6 +16,7 @@ import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
+import spreadCurves.MinigunCurve;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
@@ -78,6 +79,8 @@ public class Minigun extends Weapon {
 		movespeedWhileFiring = 0.5;
 		secondsBeforeHotBullets = 3.17805;  // See explanation in calculateIgnitionTime() 
 		cooldownAfterOverheat = 10;
+		
+		accEstimator.setSpreadCurve(new MinigunCurve());
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
