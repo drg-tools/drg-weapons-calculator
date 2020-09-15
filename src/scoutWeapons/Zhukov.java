@@ -18,7 +18,7 @@ import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
-// Embedded Detonators does 5 damage per ammo (10/bullet) on reload
+// TODO: change OC "Embedded Detonators" from 10 Explosive damage to 10 Kinetic damage
 public class Zhukov extends Weapon {
 	
 	/****************************************************************************************

@@ -432,6 +432,32 @@ public class AccuracyEstimator {
 		return recoilAtEachShot;
 	}
 	
+	public static void recoilPrep(double mass, double springStiffness, double verticalRecoilPerShot, double horizontalRecoilPerShot) {
+		// The total recoil per shot can be used as the "initial velocity" of the critically damped oscillating harmonic function
+		double v = Math.hypot(horizontalRecoilPerShot, verticalRecoilPerShot);
+		// Because GSG models all of the recoil as a critically damped function, it becomes trivial to calculate the "natural frequency"
+		double w = Math.sqrt(springStiffness / mass);
+		
+		// The highest value of this function is always at the first complete "natural wavelength", 1/frequency
+		double maxRecoilTime = 1 / w;
+		double maxRecoilValue = criticallyDampedHarmonicOscillatorFunction(v, w, maxRecoilTime);
+		
+		double recoilGoal = 0.1;
+		System.out.println("Necessary W[-1,z] z value: " + (-w * recoilGoal / v));
+		double timeRecoilCloseToZeroAgain = -1.0 * MathUtils.lambertInverseWNumericalApproximation(-w * recoilGoal / v) / w;
+		double endingRecoilValue = criticallyDampedHarmonicOscillatorFunction(v, w, timeRecoilCloseToZeroAgain);
+		
+		System.out.println("Given parameters: mass=" + mass + ", springStiffness=" + springStiffness + ", recoil=[" + verticalRecoilPerShot + ", " + horizontalRecoilPerShot + "]");
+		System.out.println("Calculated values: v=" + v + ", w=" + w);
+		System.out.println("Expected peak: t=" + maxRecoilTime + ", x(t)=" + maxRecoilValue);
+		System.out.println("Expected tail: t=" + timeRecoilCloseToZeroAgain + ", x(t)=" + endingRecoilValue);
+		System.out.println("For linear estimation: recoilPerShot=" + maxRecoilValue + ", Rup=" + maxRecoilTime + ", and Rdown=" + (timeRecoilCloseToZeroAgain - maxRecoilTime));
+	}
+	
+	private static double criticallyDampedHarmonicOscillatorFunction(double initialVelocity, double naturalFrequency, double time) {
+		return Math.pow(Math.E, -1 * naturalFrequency * time) * (initialVelocity * time);
+	}
+	
 	private double areaOfLens(double R, double r, double d) {
 		// Sourced from https://en.wikipedia.org/wiki/Lens_(geometry)
 		double firstThird = Math.pow(r, 2) * Math.acos((Math.pow(d, 2) + Math.pow(r, 2) - Math.pow(R, 2)) / (2 * d * r));

@@ -267,4 +267,16 @@ public class MathUtils {
 		
 		return NchooseX * probabilityOfSuccesses * probabilityOfFailures;
 	}
+	
+	public static double lambertInverseWNumericalApproximation(double z) {
+		// Due to how I'm using this method, I know that I'll be passing in values of z=[-0.026, -0.001] so I centered the approximation at z=-0.013
+		// Taylor Series approximation calculated for me by WolframAlpha, using input: Series[Re[ProductLog[-1, z]], {z,-0.013, 4}]
+		double A = -6.16105;
+		double B = -91.8276 * (z + 0.013);
+		double C = -3399.24 * Math.pow(z+0.013, 2);
+		double D = -172620 * Math.pow(z+0.013, 3);
+		double E = -9.90059 * Math.pow(10, 6) * Math.pow(z + 0.013, 4);
+		double F = -6.06824 * Math.pow(10, 8) * Math.pow(z + 0.013, 5);
+		return A + B + C + D + E + F;
+	}
 }
