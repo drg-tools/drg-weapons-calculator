@@ -19,6 +19,7 @@ import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
+// TODO: update Electro Minelets from 0.1 to 0.8 sec
 public class BurstPistol extends Weapon {
 	
 	/****************************************************************************************
@@ -108,7 +109,7 @@ public class BurstPistol extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Full Chamber Seal", "+1 Direct Damage, -0.2 Reload Time", overclockIcons.directDamage, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Mags", "+84 Max Ammo, -1 Rate of Fire, +0.4 Reload Time", overclockIcons.carriedAmmo, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Experimental Rounds", "+9 Direct Damage, -6 Magazine Size, -36 Max Ammo", overclockIcons.directDamage, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Electro Minelets", "Any bullets that impact terrain get converted to Electro Minelets. After 0.1 seconds of arming time, "
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Electro Minelets", "Any bullets that impact terrain get converted to Electro Minelets. After 0.8 seconds of arming time, "
 				+ "they inflict an Electrocute DoT to any enemies that pass within 1.5m of them. The Electrocute DoTs deal an average of " + MathUtils.round(DoTInformation.Electro_TicksPerSec * 2, GuiConstants.numDecimalPlaces) 
 				+ " Electric Damage per Second for 2 seconds. -3 Direct Damage, -6 Magazine Size.", overclockIcons.electricity, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Micro Flechettes", "+30 Magazine Size, x2 Max Ammo, x0.5 Spread per Shot, x0.5 Recoil, x0.5 Damage per bullet", overclockIcons.miniShells, 5);
@@ -635,22 +636,19 @@ public class BurstPistol extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		double unchangingBaseSpread = 14;
-		double changingBaseSpread = 54;
-		double spreadVariance = 94;
-		double spreadPerShot = 25;
-		double spreadRecoverySpeed = 83.72401183;
-		double recoilPerShot = 25;
-		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
-		double recoilUpInterval = 1.0 / 10.0;
-		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		double recoilDownInterval = 37.0 / 60.0;
+		double baseSpread = 2.25 * getBaseSpread();
+		double spreadPerShot = 1.2 * getSpreadPerShot();
+		double spreadRecoverySpeed = 5.0;
+		double spreadVariance = 4.0;
 		
-		double[] modifiers = {getBaseSpread(), getSpreadPerShot(), 1.0, 1.0, getRecoil()};
+		double recoilPitch = 30.0 * getRecoil();
+		double recoilYaw = 10.0 * getRecoil();
+		double mass = 1.0;
+		double springStiffness = 70.0;
 		
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), getBurstSize(), 
-				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
-				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override

@@ -403,7 +403,7 @@ public class AssaultRifle extends Weapon {
 	private double getSpreadRecoverySpeed() {
 		// I'm choosing to model it as if these two effects do not stack.
 		if (selectedOverclock == 5) {
-			return 10.0;
+			return 2.11;
 		}
 		else if (selectedTier5 == 1) {
 			// According to the MikeGSG, Battle Cool increases Spread Recovery Speed by x12.5 for 1.5 seconds after a kill.
@@ -411,6 +411,19 @@ public class AssaultRifle extends Weapon {
 		}
 		else {
 			return 1.0;
+		}
+	}
+	private double getSpreadRecoverySpeedValue() {
+		// I'm choosing to model it as if these two effects do not stack.
+		if (selectedOverclock == 5) {
+			return 17.1;
+		}
+		else if (selectedTier5 == 1) {
+			// According to the MikeGSG, Battle Cool increases Spread Recovery Speed by x12.5 for 1.5 seconds after a kill.
+			return 8.1 * averageBonusPerMagazineForShortEffects(12.5, 1.5, true, 0.0, getMagazineSize(), getRateOfFire());
+		}
+		else {
+			return 8.1;
 		}
 	}
 	private double getRecoil() {
@@ -592,32 +605,19 @@ public class AssaultRifle extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		/*
-			Scout's Assault Rifle seems to use a different model of accuracy than the other guns do. Specifically, it does the following things differently:
-			1. The Spread Recovery Speed seems to be non-linear; it seems to be more powerful at the start of the magazine and get weaker near the end
-			2. The Spread Recovery starts getting applied on the first shot, whereas all the other guns have it applied on every shot after the first.
-			3. When its Base Spread is reduced to 0, the Max Spread doesn't decrease as well (every other gun has Max Spread = Base Spread + Spread Variance)
-			
-			With those things in mind, I am choosing to model this slightly incorrectly with the current AccuracyEstimator because I want to get things finished up.
-			If I keep developing this app, I'd like to come back and make a method specifically for this weapon.
-		*/
+		double baseSpread = 0.9 * getBaseSpread();
+		double spreadPerShot = 1.4;
+		double spreadRecoverySpeed = getSpreadRecoverySpeedValue();
+		double spreadVariance = 4.2;
 		
-		double unchangingBaseSpread = 19;
-		double changingBaseSpread = 21;
-		double spreadVariance = 84;
-		double spreadPerShot = 30;
-		double spreadRecoverySpeed = 170.6869145;
-		double recoilPerShot = 41;
-		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
-		double recoilUpInterval = 1.0 / 6.0;
-		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		double recoilDownInterval = 2.0 / 3.0;
-		
-		double[] modifiers = {getBaseSpread(), 1.0, getSpreadRecoverySpeed(), 1.0, getRecoil()};
+		double recoilPitch = 35.0 * getRecoil();
+		double recoilYaw = 5.0 * getRecoil();
+		double mass = 1.0;
+		double springStiffness = 50.0;
 		
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
-				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
-				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override

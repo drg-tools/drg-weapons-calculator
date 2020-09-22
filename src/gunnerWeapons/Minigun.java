@@ -848,30 +848,24 @@ public class Minigun extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		// TODO: this has a weird spike in Spread after about 6sec?
-		// I'm choosing to model Minigun as if it has no recoil. Although it does, its so negligible that it would have no effect.
-		double unchangingBaseSpread = 61;
-		double changingBaseSpread = 68 * getBaseSpread();
-		
-		// I measured Spread Variance, and then used the 0.2/1.0/3.0 ratio that MikeGSG provided to reverse-engineer what the Spread per Shot and Spread Recovery Speed are
-		double spreadVariance = 334;
-		double spreadPerShot = spreadVariance / 15.0;
-		double spreadRecoverySpeed = spreadVariance / 3.0;
 		double effectiveRoF = getRateOfFire() / 2.0;
+		int effectiveMagSize = (int) calculateMaxNumPelletsFiredWithoutOverheating();
 		
-		// Using some cheeky negative values, I can bend AccuracyEstimator.calculateCircularAccuracy() for this method.
-		double cheekyBaseSpread = unchangingBaseSpread + changingBaseSpread + spreadVariance;
-		int cheekyMagSize = (int) calculateMaxNumPelletsFiredWithoutOverheating();
-		double[] cheekyModifiers = {
-			1.0,   // Base Spread
-			-1.0,  // Spread per Shot
-			-1.0,  // Spread Recovery Speed
-			-1.0,  // Spread Variance
-			0.0    // Recoil
-		};
+		// TODO: this has a weird spike in Spread after about 6sec?
+		double baseSpread = 5.0 * getBaseSpread();
+		double spreadPerShot = 0.2;
+		double spreadRecoverySpeed = 1.0;
+		double spreadVariance = 3.5;
 		
-		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, effectiveRoF, cheekyMagSize, 1, 
-				cheekyBaseSpread, 0, spreadVariance, spreadPerShot, spreadRecoverySpeed, 0, 0.5, 1.0, cheekyModifiers);
+		// I'm choosing to model Minigun as if it has no recoil. Although it does, it's so negligible that it would have no effect.
+		double recoilPitch = 0.0;  // 10
+		double recoilYaw = 0.0;  // 10
+		double mass = 1.0;
+		double springStiffness = 150.0;
+		
+		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, effectiveRoF, effectiveMagSize, 1, 
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override

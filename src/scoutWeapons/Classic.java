@@ -386,6 +386,19 @@ public abstract class Classic extends Weapon {
 		double toReturn = 1.0;
 		
 		if (selectedTier2 == 1) {
+			toReturn -= 0.3;
+		}
+		
+		if (selectedOverclock == 3) {
+			toReturn -= 0.1;
+		}
+		
+		return toReturn;
+	}
+	protected double getSpreadVariance() {
+		double toReturn = 1.0;
+		
+		if (selectedTier2 == 1) {
 			toReturn *= 0.8;
 		}
 		
@@ -394,14 +407,6 @@ public abstract class Classic extends Weapon {
 		}
 		
 		return toReturn;
-	}
-	protected double getSpreadRecoverySpeed() {
-		if (selectedOverclock == 3) {
-			return 1.75;
-		}
-		else {
-			return 1.0;
-		}
 	}
 	protected double getRecoil() {
 		double toReturn = 1.0;

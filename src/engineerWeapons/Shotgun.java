@@ -589,22 +589,20 @@ public class Shotgun extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		double unchangingBaseSpread = 104;
-		double changingBaseSpread = 96;
-		double spreadVariance = 0;
-		double spreadPerShot = 0;
-		double spreadRecoverySpeed = 0;
-		double recoilPerShot = 124.036285;
-		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
-		double recoilUpInterval = 1.0 / 3.0;
-		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		double recoilDownInterval = 4.0 / 3.0;
+		double horizontalBaseSpread = 12.0 * getBaseSpread();
+		double verticalBaseSpread = 6.0 * getBaseSpread();
+		double spreadPerShot = 0.0;
+		double spreadRecoverySpeed = 0.0; // Although functionally
+		double spreadVariance = 0.0;
 		
-		double[] modifiers = {getBaseSpread(), 1.0, 1.0, 1.0, getRecoil()};
+		double recoilPitch = 55.0 * getRecoil();
+		double recoilYaw = 40.0 * getRecoil();
+		double mass = 4.0;
+		double springStiffness = 75.0;
 		
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
-				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
-				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
+				horizontalBaseSpread, verticalBaseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override

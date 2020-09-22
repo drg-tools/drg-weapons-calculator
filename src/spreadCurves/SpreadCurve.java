@@ -1,8 +1,9 @@
 package spreadCurves;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 
 import guiPieces.LineGraph;
+import utilities.Point2D;
 
 public abstract class SpreadCurve {
 	
@@ -11,23 +12,21 @@ public abstract class SpreadCurve {
 	// This method is going to be primarily used for debugging purposes during development, but it might be cool to have in the Visualizer pane?
 	protected LineGraph generateGraph(double largestX) {
 		double largestY = 0.0;
-		Double[] sortedXvalues = new Double[1 + (int) (largestX * 10.0)];
-		HashMap<Double, Double> keyValuePairs = new HashMap<Double, Double>();
+		ArrayList<Point2D> values = new ArrayList<Point2D>();
 		
-		double x, y;
-		for (int i = 0; i < sortedXvalues.length; i++) {
-			x = i * 0.1;
+		double x = 0;
+		double y;
+		while(x <= largestX) {
 			y = convertSpreadValue(x);
+			largestY = Math.max(y, largestY);
 			
-			if (y > largestY) {
-				largestY = y;
-			}
+			values.add(new Point2D(x, y));
 			
-			sortedXvalues[i] = x;
-			keyValuePairs.put(x, y);
+			// This should match the FPS setting in LineGraph
+			x += 0.01;
 		}
 		
-		LineGraph toReturn = new LineGraph(sortedXvalues, keyValuePairs, largestX, largestY);
+		LineGraph toReturn = new LineGraph(values, largestX, largestY);
 		toReturn.setGraphAnimation(false);
 		
 		return toReturn;

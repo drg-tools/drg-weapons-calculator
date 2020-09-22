@@ -5,9 +5,11 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.util.HashMap;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
+
+import utilities.Point2D;
 
 public class AccuracyAnimation extends JPanel implements Runnable {
 	private static final long serialVersionUID = 1L;
@@ -16,39 +18,32 @@ public class AccuracyAnimation extends JPanel implements Runnable {
 	private long refreshInterval;
 	
 	private double currentTime;
-	private int spreadIndex;
-	private int recoilIndex;
+	private int dataIndex;
 	
 	private boolean drawGeneralAccuracy;
 	private double duration;
 	
-	private Double[] spreadTimestamps;
-	private HashMap<Double, Double> spreadValues;
-	private double minSpread;
+	private ArrayList<Point2D> spreadValues;
 	private double maxSpread;
 	
-	private Double[] recoilTimestamps;
-	private HashMap<Double, Double> recoilValues;
+	private ArrayList<Point2D> recoilValues;
 	private double maxRecoil;
 	
-	public AccuracyAnimation(boolean generalAccuracy, double loopDuration, Double[] sT, HashMap<Double, Double> sKVP, double minSpreadMeters, double maxSpreadMeters, Double[] rT, HashMap<Double, Double> rKVP, double maxRecoilMeters) {
+	public AccuracyAnimation(boolean generalAccuracy, double loopDuration, ArrayList<Point2D> spreadMetersData, double maxSpreadMeters, ArrayList<Point2D> recoilMetersData, double maxRecoilMeters) {
+		// This FPS should match the sampleRate in AccuracyEstimator
 		framesPerSecond = 100;
 		refreshInterval = (long) Math.round(1000.0 / framesPerSecond);
 		
 		currentTime = 0.0;
-		spreadIndex = 0;
-		recoilIndex = 0;
+		dataIndex = 0;
 		
 		drawGeneralAccuracy = generalAccuracy;
 		duration = loopDuration;
 		
-		spreadTimestamps = sT;
-		spreadValues = sKVP;
-		minSpread = minSpreadMeters;
+		spreadValues = spreadMetersData;
 		maxSpread = maxSpreadMeters;
 		
-		recoilTimestamps = rT;
-		recoilValues = rKVP;
+		recoilValues = recoilMetersData;
 		maxRecoil = maxRecoilMeters;
 		
 		// Using this height to make it match the three linegraphs stacked on each other
@@ -64,17 +59,10 @@ public class AccuracyAnimation extends JPanel implements Runnable {
 			currentTime += 1.0 / framesPerSecond;
 			if (currentTime >= duration) {
 				currentTime = 0;
-				spreadIndex = 0;
-				recoilIndex = 0;
+				dataIndex = 0;
 			}
 			else {
-				if (spreadIndex < spreadTimestamps.length - 2 && currentTime > spreadTimestamps[spreadIndex + 1]) {
-					spreadIndex++;
-				}
-				
-				if (recoilIndex < recoilTimestamps.length - 2 && currentTime > recoilTimestamps[recoilIndex + 1]) {
-					recoilIndex++;
-				}
+				dataIndex++;
 			}
 			
 			try {
@@ -109,7 +97,7 @@ public class AccuracyAnimation extends JPanel implements Runnable {
         double height = getHeight();
         
         double maxMetersHeightDifference = Math.max(maxSpread, targetRadius) + maxRecoil + Math.max(maxSpread, targetRadius);
-        double maxMetersWidthDifference = 2.0 * Math.max(maxSpread, targetRadius);
+        double maxMetersWidthDifference = 2.0 * Math.max(maxSpread / 2.0, targetRadius);
         // I want the max-width crosshair circle to take up 75% width at most, to leave a 12.5% buffer on either side
         double pixelToMeterRatio = 0.75 * width / maxMetersWidthDifference;
         
@@ -128,29 +116,16 @@ public class AccuracyAnimation extends JPanel implements Runnable {
         int drawTargetRadius = (int) Math.round(targetRadius * pixelToMeterRatio);
         
         /*
-        	Step 3: use linear interpolation and currentTime to calculate the correct crosshair radius and center displacement
-        	
-        	This only works if spreadIndex and recoilIndex are NOT the last indexes of their respective arrays!
+        	Step 3: fetch the current crosshair radius and recoil offset values
         */
-        double currentTimestamp = spreadTimestamps[spreadIndex];
-        double nextTimestamp = spreadTimestamps[spreadIndex + 1];
-        double proportionOfTimeElapsed = (currentTime - currentTimestamp) / (nextTimestamp - currentTimestamp);
-        double oldValue = spreadValues.get(currentTimestamp);
-        double newValue = spreadValues.get(nextTimestamp);
-        double interpolatedSpreadValue = Math.max(Math.min(oldValue + proportionOfTimeElapsed * (newValue - oldValue), maxSpread), minSpread);
-        
-        currentTimestamp = recoilTimestamps[recoilIndex];
-        nextTimestamp = recoilTimestamps[recoilIndex + 1];
-        proportionOfTimeElapsed = (currentTime - currentTimestamp) / (nextTimestamp - currentTimestamp);
-        oldValue = recoilValues.get(currentTimestamp);
-        newValue = recoilValues.get(nextTimestamp);
-        double interpolatedRecoilValue = Math.max(oldValue + proportionOfTimeElapsed * (newValue - oldValue), 0.0);
+        double spreadValue = spreadValues.get(dataIndex).y();
+        double recoilValue = recoilValues.get(dataIndex).y();
         
         /*
     		Step 4: determine crosshair size and location
         */
-        int drawCrosshairCenterY = drawTargetCenterY - (int) (Math.round(interpolatedRecoilValue * pixelToMeterRatio));
-        int drawCrosshairRadius = (int) Math.round(interpolatedSpreadValue * pixelToMeterRatio);
+        int drawCrosshairCenterY = drawTargetCenterY - (int) (Math.round(recoilValue * pixelToMeterRatio));
+        int drawCrosshairRadius = (int) Math.round(spreadValue * pixelToMeterRatio);
         
         /*
     		Step 5: draw the two circles, smaller one first (doing bigger first causes some aliasing where they overlap)

@@ -673,18 +673,19 @@ public class Boomstick extends Weapon {
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		// Even though this gun does have significant recoil, it recovers from that recoil entirely in 0.5 seconds. Rather than make an overly 
 		// complicated model for 2 shots, I'm just going to use the accuracy for a single shot.
-		double crosshairHeightPixels = 156;
-		double crosshairWidthPixels;
+		double horizontalBaseSpread = 35.0 * getBaseSpread();
+		double verticalBaseSpread = 10.0 * getBaseSpread();
 		
-		if (selectedOverclock == 4) {
-			// Base Spread = 65%
-			crosshairWidthPixels = 305;
-		}
-		else {
-			// Base Spread = 100%
-			crosshairWidthPixels = 468;
-		}
-		return accEstimator.calculateRectangularAccuracy(weakpointAccuracy, crosshairWidthPixels, crosshairHeightPixels);
+		/*
+			If I ever want to model recoil for rectangular crosshairs, these are the variables used:
+			
+		double recoilPitch = 120.0;
+		double recoilYaw = 10.0;
+		double mass = 2.0;
+		double springStiffness = 100.0;
+		*/
+		
+		return accEstimator.calculateRectangularAccuracy(weakpointAccuracy, horizontalBaseSpread, verticalBaseSpread);
 	}
 	
 	@Override

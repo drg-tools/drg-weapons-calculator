@@ -259,7 +259,7 @@ public abstract class Revolver extends Weapon {
 	* Setters and Getters
 	****************************************************************************************/
 
-	protected double getDirectDamage() {
+	private double getDirectDamage() {
 		double toReturn = directDamage;
 		// Start by adding flat damage bonuses
 		if (selectedTier2 == 0) {
@@ -288,7 +288,7 @@ public abstract class Revolver extends Weapon {
 		}
 		return toReturn;
 	}
-	protected int getAreaDamage() {
+	private int getAreaDamage() {
 		if (selectedTier3 == 1) {
 			return 30;
 		}
@@ -296,7 +296,7 @@ public abstract class Revolver extends Weapon {
 			return 0;
 		}
 	}
-	protected double getAoERadius() {
+	private double getAoERadius() {
 		if (selectedTier3 == 1) {
 			return 1.5;
 		}
@@ -304,7 +304,7 @@ public abstract class Revolver extends Weapon {
 			return 0;
 		}
 	}
-	protected int getCarriedAmmo() {
+	private int getCarriedAmmo() {
 		int toReturn = carriedAmmo;
 		if (selectedTier2 == 2) {
 			toReturn += 12;
@@ -321,7 +321,7 @@ public abstract class Revolver extends Weapon {
 		}
 		return toReturn;
 	}
-	protected int getMagazineSize() {
+	private int getMagazineSize() {
 		int toReturn = magazineSize;
 		if (selectedOverclock == 3) {
 			toReturn += 2;
@@ -339,7 +339,7 @@ public abstract class Revolver extends Weapon {
 		return toReturn;
 	}
 	protected abstract double getRateOfFire();
-	protected double getReloadTime() {
+	private double getReloadTime() {
 		double toReturn = reloadTime;
 		if (selectedTier1 == 0) {
 			toReturn -= 0.7;
@@ -350,7 +350,7 @@ public abstract class Revolver extends Weapon {
 		}
 		return toReturn;
 	}
-	protected int getMaxPenetrations() {
+	private int getMaxPenetrations() {
 		if (selectedTier3 == 0) {
 			return 3;
 		}
@@ -358,7 +358,7 @@ public abstract class Revolver extends Weapon {
 			return 0;
 		}
 	}
-	protected int getMaxRicochets() {
+	private int getMaxRicochets() {
 		if (selectedOverclock == 1 || selectedOverclock == 5) {
 			return 1;
 		}
@@ -366,7 +366,7 @@ public abstract class Revolver extends Weapon {
 			return 0;
 		}
 	}
-	protected double getWeakpointBonus() {
+	private double getWeakpointBonus() {
 		double toReturn = weakpointBonus;
 		if (selectedTier3 == 2) {
 			toReturn += 0.5;
@@ -400,13 +400,27 @@ public abstract class Revolver extends Weapon {
 		
 		return toReturn;
 	}
-	protected double getSpreadRecoverySpeed() {
+	protected double getSpreadPerShotValue() {
+		double toReturn = 7.0;
+		
+		if (selectedTier2 == 1) {
+			toReturn -= 5.6;
+		}
+		
 		if (selectedOverclock == 4) {
-			return 1.5;
+			toReturn += 5.0;
 		}
-		else {
-			return 1.0;
+		
+		return toReturn;
+	}
+	protected double getSpreadVariance() {
+		double toReturn = 1.0;
+		
+		if (selectedOverclock == 4) {
+			toReturn *= 1.5;
 		}
+		
+		return toReturn;
 	}
 	protected double getRecoil() {
 		double toReturn = 1.0;
@@ -415,16 +429,25 @@ public abstract class Revolver extends Weapon {
 			toReturn *= 0.75;
 		}
 		
+		// Although the in-game stat is 250%, it's only a x1.5 multiplier on the RecoilPitch and RecoilYaw. The other 100% comes from the change in Mass.
 		if (selectedOverclock == 4) {
-			toReturn *= 2.5;
+			toReturn *= 1.5;
 		}
 		
 		return toReturn;
 	}
+	protected double getMass() {
+		if (selectedOverclock == 4) {
+			return 5.5;
+		}
+		else {
+			return 2.0;
+		}
+	}
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[16];
+		StatsRow[] toReturn = new StatsRow[17];
 		
 		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
@@ -462,10 +485,12 @@ public abstract class Revolver extends Weapon {
 		boolean spreadPerShotModified = selectedTier2 == 1 || selectedOverclock == 4;
 		toReturn[14] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), modIcons.baseSpread, spreadPerShotModified, spreadPerShotModified);
 		
-		toReturn[15] = new StatsRow("Spread Recovery:", convertDoubleToPercentage(getSpreadRecoverySpeed()), modIcons.baseSpread, selectedOverclock == 4, selectedOverclock == 4);
+		toReturn[15] = new StatsRow("Spread Variance:", convertDoubleToPercentage(getSpreadVariance()), modIcons.baseSpread, selectedOverclock == 4, selectedOverclock == 4);
 		
 		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 4;
 		toReturn[15] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), modIcons.recoil, recoilModified, recoilModified);
+		
+		toReturn[16] = new StatsRow("Recoil Mass:", getMass(), modIcons.recoil, selectedOverclock == 4, selectedOverclock == 4);
 		
 		return toReturn;
 	}
@@ -729,40 +754,19 @@ public abstract class Revolver extends Weapon {
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		// TODO There's a bug with T2.B Recoil mod; its -80% SpS is truncating the last shot's SRS in the graph, and this is the only weapon I've found that does it.
-		double unchangingBaseSpread = 14;
-		double changingBaseSpread = 30;
-		double spreadVariance = 148;
-		double spreadPerShot = 129;
-		double spreadRecoverySpeed = 109.1390954;
-		double recoilPerShot = 155;
+		double baseSpread = 1.5 * getBaseSpread();
+		double spreadPerShot = getSpreadPerShotValue();
+		double spreadRecoverySpeed = 6.0;
+		double spreadVariance = 8.0 * getSpreadVariance();
 		
-		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
-		double recoilUpInterval = 1.0 / 6.0;
-		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		double recoilDownInterval = 1.0;
-		
-		// Elephant Rounds significantly reduces the recoil speeds in addition to increasing recoil per shot
-		double SpSModifier = getSpreadPerShot();
-		if (selectedOverclock == 4) {
-			// It also increases Max Spread
-			spreadVariance = 389;
-			
-			if (selectedTier2 != 1) {
-				// And if Floating Barrel isn't equipped, then the Spread per Shot takes it to Max Spread on first shot for some reason?
-				spreadPerShot = 389;
-				SpSModifier = 1.0;
-				
-			}
-			
-			recoilUpInterval = 16.0 / 60.0;
-			recoilDownInterval = 140.0 / 60.0;
-		}
-		
-		double[] modifiers = {getBaseSpread(), SpSModifier, getSpreadRecoverySpeed(), 1.0, getRecoil()};
+		double recoilPitch = 130.0 * getRecoil();
+		double recoilYaw = 10.0 * getRecoil();
+		double mass = getMass();
+		double springStiffness = 65.0;
 		
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
-				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
-				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override

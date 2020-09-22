@@ -10,10 +10,11 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.JPanel;
+
+import utilities.Point2D;
 
 // Adapted from this StackOverflow answer: https://stackoverflow.com/a/18413639
 public class LineGraph extends JPanel implements Runnable {
@@ -23,26 +24,24 @@ public class LineGraph extends JPanel implements Runnable {
 	private int labelPadding = 25;
 	private Color lineColor = new Color(44, 102, 230, 180);
     private Color gridColor = new Color(200, 200, 200, 200);
-    private static final Stroke GRAPH_STROKE = new BasicStroke(2f);
+    private static final Stroke GRAPH_STROKE = new BasicStroke(1.8f);
     private int pointWidth = 2;
     private int numberYDivisions = 10;
 	
-	private Double[] sortedTimestamps;
-	private HashMap<Double, Double> keyValuePairs;
-	
+	private ArrayList<Point2D> values;
 	private double maxX, maxY;
 	
 	private double currentTime, framesPerSecond;
 	private long refreshInterval;
 	private boolean animate;
 	
-	public LineGraph(Double[] sT, HashMap<Double, Double> kVP, double mX, double mY) {
-		sortedTimestamps = sT;
-		keyValuePairs = kVP;
+	public LineGraph(ArrayList<Point2D> v, double mX, double mY) {
+		values = v;
 		maxX = mX;
 		maxY = mY;
 		
 		currentTime = 0.0;
+		// This FPS should match the sampleRate in AccuracyEstimator
 		framesPerSecond = 100;
 		refreshInterval = (long) Math.round(1000.0 / framesPerSecond);
 		animate = true;
@@ -85,13 +84,13 @@ public class LineGraph extends JPanel implements Runnable {
 
         List<Point> graphPoints = new ArrayList<>();
         int i, x0, x1, x2, y0, y1, y2;
-        for (i = 0; i < sortedTimestamps.length; i++) {
-            x1 = (int) (sortedTimestamps[i] * xScale + padding + labelPadding);
-            y1 = (int) ((maxY - keyValuePairs.get(sortedTimestamps[i])) * yScale + padding);
+        for (i = 0; i < values.size(); i++) {
+            x1 = (int) (values.get(i).x() * xScale + padding + labelPadding);
+            y1 = (int) ((maxY - values.get(i).y()) * yScale + padding);
             graphPoints.add(new Point(x1, y1));
             
             // Special case: if the graph is supposed to extend beyond the last timestamp, add a Point at (maxX, last value) to draw at the end.
-            if (i == sortedTimestamps.length - 1 && sortedTimestamps[i] < maxX) {
+            if (i == values.size() - 1 && values.get(i).x() < maxX) {
             	x1 = (int) (maxX * xScale + padding + labelPadding);
             	graphPoints.add(new Point(x1, y1));
             }

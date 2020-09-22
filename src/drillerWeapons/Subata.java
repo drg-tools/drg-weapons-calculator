@@ -610,22 +610,19 @@ public class Subata extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		double unchangingBaseSpread = 20;
-		double changingBaseSpread = 28;
-		double spreadVariance = 53;
-		double spreadPerShot = 24;
-		double spreadRecoverySpeed = 127.2762815;
-		double recoilPerShot = 28.23118843;
-		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
-		double recoilUpInterval = 1.0 / 8.0;
-		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		double recoilDownInterval = 1.0 / 2.0;
+		double baseSpread = 1.5 * getBaseSpread();
+		double spreadPerShot = 1.5 * getSpreadPerShot();
+		double spreadRecoverySpeed = 7.5;
+		double spreadVariance = 3.0;
 		
-		double[] modifiers = {getBaseSpread(), getSpreadPerShot(), 1.0, 1.0, getRecoil()};
+		double recoilPitch = 30.0 * getRecoil();
+		double recoilYaw = 10.0 * getRecoil();
+		double mass = 1.0;
+		double springStiffness = 60.0;
 		
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
-				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
-				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override

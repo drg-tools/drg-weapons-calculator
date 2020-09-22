@@ -110,7 +110,7 @@ public class Classic_Hipfire extends Classic {
 		boolean spsModified = selectedTier2 == 1 || selectedOverclock == 3;
 		toReturn[8] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), modIcons.baseSpread, spsModified, spsModified);
 		
-		toReturn[9] = new StatsRow("Spread Recovery:", convertDoubleToPercentage(getSpreadRecoverySpeed()), modIcons.baseSpread, selectedOverclock == 3, selectedOverclock == 3);
+		toReturn[9] = new StatsRow("Spread Variance:", convertDoubleToPercentage(getSpreadVariance()), modIcons.baseSpread, spsModified, spsModified);
 		
 		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 3;
 		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), modIcons.recoil, recoilModified, recoilModified);
@@ -198,22 +198,20 @@ public class Classic_Hipfire extends Classic {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		double unchangingBaseSpread = 16;
-		double changingBaseSpread = 0;
-		double spreadVariance = 138;
-		double spreadPerShot = 94;
-		double spreadRecoverySpeed = 174;
-		double recoilPerShot = 86.83317338;
-		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
-		double recoilUpInterval = 3.0 / 10.0;
-		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		double recoilDownInterval = 6.0 / 5.0;
+		// Internally M1k starts with BaseSpread = 0, but that's only when fully zoomed in. When in hipfire mode, it has a +1 Base Spread penalty
+		double baseSpread = 1.0;
+		double spreadPerShot = 3.0 * getSpreadPerShot();
+		double spreadRecoverySpeed = 8.5;
+		double spreadVariance = 5.0 * getSpreadVariance();
 		
-		double[] modifiers = {1.0, getSpreadPerShot(), getSpreadRecoverySpeed(), 1.0, getRecoil()};
+		double recoilPitch = 50.0 * getRecoil();
+		double recoilYaw = 5.0 * getRecoil();
+		double mass = 4.0;
+		double springStiffness = 70.0;
 		
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
-				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
-				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override

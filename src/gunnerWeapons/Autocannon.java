@@ -436,12 +436,15 @@ public class Autocannon extends Weapon {
 	}
 	private double getBaseSpread() {
 		double toReturn = 1.0;
-		if (selectedTier2 == 0 && selectedOverclock == 4) {
-			toReturn -= 0.5;
+		
+		if (selectedTier2 == 0) {
+			toReturn *= 0.7;
 		}
-		else if (selectedTier2 == 0 || selectedOverclock == 4) {
-			toReturn -= 0.3;
+		
+		if (selectedOverclock == 4) {
+			toReturn *= 0.7;
 		}
+		
 		return toReturn;
 	}
 	private double getArmorBreaking() {
@@ -651,25 +654,19 @@ public class Autocannon extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		double crosshairHeightPixels, crosshairWidthPixels;
+		double horizontalBaseSpread = 22.0 * getBaseSpread();
+		double verticalBaseSpread = 8.0 * getBaseSpread();
 		
-		if (selectedTier2 == 0 && selectedOverclock == 4) {
-			// Base Spead = 50%
-			crosshairHeightPixels = 96;
-			crosshairWidthPixels = 206;
-		}
-		else if (selectedTier2 == 0 || selectedOverclock == 4) {
-			// Base Spread = 70%;
-			crosshairHeightPixels = 125;
-			crosshairWidthPixels = 279;
-		}
-		else {
-			// Base Spread = 100%
-			crosshairHeightPixels = 162;
-			crosshairWidthPixels = 397;
-		}
+		/*
+			If I ever want to model recoil for rectangular crosshairs, these are the variables used:
+			
+		double recoilPitch = 30.0;
+		double recoilYaw = 40.0;
+		double mass = 1.0;
+		double springStiffness = 200.0;
+		*/
 		
-		return accEstimator.calculateRectangularAccuracy(weakpointAccuracy, crosshairWidthPixels, crosshairHeightPixels);
+		return accEstimator.calculateRectangularAccuracy(weakpointAccuracy, horizontalBaseSpread, verticalBaseSpread);
 	}
 	
 	@Override

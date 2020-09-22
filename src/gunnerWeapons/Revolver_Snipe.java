@@ -54,6 +54,7 @@ public class Revolver_Snipe extends Revolver {
 		I'm a bit worried that this is counter-intuitive in comparison to how the rest of the weapons are modeled, but I think this is a better approximation for how this weapon gets used in-game.
 	*/
 	private double calculateAccurateRoF(double maxRoF) {
+		/*
 		// Variables copied from estimatedAccuracy() to reverse-calculate the slow RoF needed for high accuracy
 		double spreadPerShot = 129;
 		double spreadRecoverySpeed = 109.1390954;
@@ -89,5 +90,8 @@ public class Revolver_Snipe extends Revolver {
 		double longerTime = Math.max(timeToRecoverSpread, timeToRecoverRecoil);
 		
 		return Math.min(1.0 / longerTime, maxRoF);
+		*/
+		// TODO: redo this method using internal variables
+		return 1.0;
 	}
 }

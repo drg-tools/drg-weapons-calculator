@@ -19,6 +19,7 @@ import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
 // TODO: change OC "Embedded Detonators" from 10 Explosive damage to 10 Kinetic damage
+// TODO: update Cryo Minelets from 0.1 to 0.8 seconds.
 public class Zhukov extends Weapon {
 	
 	/****************************************************************************************
@@ -601,13 +602,19 @@ public class Zhukov extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		double unchangingWidth = 14;
-		double changingWidth = 384;
+		double horizontalBaseSpread = 36.0 * getBaseSpread();
+		double verticalBaseSpread = 5.0 * getBaseSpread();
 		
-		double crosshairHeightPixels = 98;
-		double crosshairWidthPixels = unchangingWidth + changingWidth * getBaseSpread();
+		/*
+			If I ever want to model recoil for rectangular crosshairs, these are the variables used:
+			
+		double recoilPitch = 20.0;
+		double recoilYaw = 20.0;
+		double mass = 1.0;
+		double springStiffness = 100.0;
+		*/
 		
-		return accEstimator.calculateRectangularAccuracy(weakpointAccuracy, crosshairWidthPixels, crosshairHeightPixels);
+		return accEstimator.calculateRectangularAccuracy(weakpointAccuracy, horizontalBaseSpread, verticalBaseSpread);
 	}
 	
 	@Override
