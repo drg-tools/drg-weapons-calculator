@@ -851,7 +851,6 @@ public class Minigun extends Weapon {
 		double effectiveRoF = getRateOfFire() / 2.0;
 		int effectiveMagSize = (int) calculateMaxNumPelletsFiredWithoutOverheating();
 		
-		// TODO: this has a weird spike in Spread after about 6sec?
 		double baseSpread = 5.0 * getBaseSpread();
 		double spreadPerShot = 0.2;
 		double spreadRecoverySpeed = 1.0;
@@ -883,6 +882,7 @@ public class Minigun extends Weapon {
 		};
 		
 		double[] areaDamage = {
+			0,  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost

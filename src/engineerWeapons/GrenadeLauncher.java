@@ -586,6 +586,7 @@ public class GrenadeLauncher extends Weapon {
 		};
 		
 		double[] areaDamage = {
+			0,  // Kinetic
 			getAreaDamage(),  // Explosive
 			0,  // Fire
 			0,  // Frost

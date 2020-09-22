@@ -708,6 +708,7 @@ public class Boomstick extends Weapon {
 		};
 		
 		double[] areaDamage = {
+			0,  // Kinetic
 			(1.0 - split) * area,  // Explosive
 			split * area,  // Fire
 			0,  // Frost

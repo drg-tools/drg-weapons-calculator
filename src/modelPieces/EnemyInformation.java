@@ -609,8 +609,7 @@ public class EnemyInformation {
 			6. Poison
 			7. Radiation
 			
-		It should be noted that Direct Damage is never Poison or Radiation, Area Damage is never Kinetic, and DoTs are never Kinetic, Explosive, or Frost, so none of the three types
-		of damage will have all seven elements.
+		It should be noted that Direct Damage is never Poison or Radiation and DoTs are never Kinetic, Explosive, or Frost.
 		
 		This method does NOT model Frozen x3 Direct Damage, IFG +30% damage, or Heavy Armor plates.
 	*/
@@ -710,7 +709,7 @@ public class EnemyInformation {
 			}
 			
 			totalDirectDamage = directDamageByType[0] + directDamageByType[1] * creatureResistances[0] + directDamageByType[2] * creatureResistances[1] + directDamageByType[3] * creatureResistances[2] + directDamageByType[4] * creatureResistances[3];
-			totalAreaDamage = areaDamageByType[0] * creatureResistances[0] + areaDamageByType[1] * creatureResistances[1] + areaDamageByType[2] * creatureResistances[2] + areaDamageByType[3] * creatureResistances[3];
+			totalAreaDamage = areaDamageByType[0] + areaDamageByType[1] * creatureResistances[0] + areaDamageByType[2] * creatureResistances[1] + areaDamageByType[3] * creatureResistances[2] + areaDamageByType[4] * creatureResistances[3];
 			// Technically Radioactive variant enemies have Radiation Resistance, but since I've chosen not to model biome-specific enemies I'm also choosing not to model Radiation Resistance.
 			// Additionally, I'm scaling the DoT damage up and down proportional to the creature's health to the average HP used to calculate DoT damage. It's not accurate, but it is intuitive.
 			totalDoTDamage = (DoTDamageByType[0] * creatureResistances[1] + DoTDamageByType[1] * creatureResistances[3] + DoTDamageByType[2] + DoTDamageByType[3]) * (creatureHP / avgHP);

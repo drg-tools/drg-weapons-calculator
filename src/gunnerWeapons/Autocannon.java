@@ -91,7 +91,7 @@ public class Autocannon extends Weapon {
 		tier1[2] = new Mod("Expanded Ammo Bags", "+220 Max Ammo", modIcons.carriedAmmo, 1, 2);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Tighter Barrel Alignment", "-30% Base Spread", modIcons.baseSpread, 2, 0);
+		tier2[0] = new Mod("Tighter Barrel Alignment", "x0.7 Base Spread", modIcons.baseSpread, 2, 0);
 		tier2[1] = new Mod("Improved Gas System", "+0.2 Min Rate of Fire, +1.5 Max Rate of Fire", modIcons.rateOfFire, 2, 1);
 		tier2[2] = new Mod("Lighter Barrel Assembly", "+1 Min Rate of Fire, x2 RoF Scaling Rate", modIcons.rateOfFire, 2, 2);
 		
@@ -114,7 +114,7 @@ public class Autocannon extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Splintering Shells", "+1 Area Damage, +0.3m AoE Radius", overclockIcons.aoeRadius, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Carpet Bomber", "+3 Area Damage, +0.7m AoE Radius, -6 Direct Damage", overclockIcons.areaDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Combat Mobility", "Increases movement speed while using from 50% to 65% of normal walk speed, -2 Direct Damage", overclockIcons.movespeed, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Big Bertha", "+12 Direct Damage, -30% Base Spread, x0.5 Magazine Size, -110 Max Ammo, -1.5 Max Rate of Fire", overclockIcons.directDamage, 4);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Big Bertha", "+12 Direct Damage, x0.7 Base Spread, x0.5 Magazine Size, -110 Max Ammo, -1.5 Max Rate of Fire", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neurotoxin Payload", "30% Chance to inflict a Neurotoxin DoT that deals an average of " + MathUtils.round(DoTInformation.Neuro_DPS, GuiConstants.numDecimalPlaces) + 
 				" Poison Damage per Second for 10 seconds to all enemies within the AoE Radius upon impact. +0.3m AoE Radius, -3 Direct Damage, -6 Area Damage", overclockIcons.neurotoxin, 5);
 	}
@@ -686,6 +686,7 @@ public class Autocannon extends Weapon {
 		};
 		
 		double[] areaDamage = {
+			0,  // Kinetic
 			getAreaDamage() * dmgMultiplier,  // Explosive
 			0,  // Fire
 			0,  // Frost

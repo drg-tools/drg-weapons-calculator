@@ -100,7 +100,7 @@ public abstract class Revolver extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 33% chance to ricochet into a nearby enemy.", overclockIcons.ricochet, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Bullets", "x4 Damage to Burning targets, -25 Direct Damage", overclockIcons.heatDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Six Shooter", "+2 Magazine Size, +8 Max Ammo, +4 Rate of Fire, x1.5 Base Spread, +0.5 Reload Time", overclockIcons.magSize, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -13 Max Ammo, x0.5 Base Spread, +71% Spread per Shot, x2.5 Recoil, +0.5 Reload Time", overclockIcons.directDamage, 4);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -13 Max Ammo, +0.5 Reload Time, x0.5 Base Spread, +71% Spread per Shot, x1.5 Spread Variance, x1.5 Recoil, +3.5 Mass", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Magic Bullets", "All bullets that impact terrain automatically ricochet to nearby enemies (effectively raising accuracy to 100%). +8 Max Ammo, -20 Direct Damage", overclockIcons.ricochet, 5);
 	}
 	
@@ -753,7 +753,6 @@ public abstract class Revolver extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		// TODO There's a bug with T2.B Recoil mod; its -80% SpS is truncating the last shot's SRS in the graph, and this is the only weapon I've found that does it.
 		double baseSpread = 1.5 * getBaseSpread();
 		double spreadPerShot = getSpreadPerShotValue();
 		double spreadRecoverySpeed = 6.0;
@@ -786,6 +785,7 @@ public abstract class Revolver extends Weapon {
 		};
 		
 		double[] areaDamage = {
+			0,  // Kinetic
 			getAreaDamage(),  // Explosive
 			0,  // Fire
 			0,  // Frost

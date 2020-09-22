@@ -1,5 +1,7 @@
 package gunnerWeapons;
 
+import utilities.MathUtils;
+
 public class Revolver_Snipe extends Revolver {
 	
 	/****************************************************************************************
@@ -54,44 +56,28 @@ public class Revolver_Snipe extends Revolver {
 		I'm a bit worried that this is counter-intuitive in comparison to how the rest of the weapons are modeled, but I think this is a better approximation for how this weapon gets used in-game.
 	*/
 	private double calculateAccurateRoF(double maxRoF) {
-		/*
 		// Variables copied from estimatedAccuracy() to reverse-calculate the slow RoF needed for high accuracy
-		double spreadPerShot = 129;
-		double spreadRecoverySpeed = 109.1390954;
-		double recoilPerShot = 155;
+		double spreadPerShot = getSpreadPerShotValue();
+		double spreadRecoverySpeed = 6.0;
 		
-		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
-		double recoilUpInterval = 1.0 / 6.0;
-		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		double recoilDownInterval = 1.0;
+		double recoilPitch = 130 * getRecoil();
+		double recoilYaw = 10 * getRecoil();
+		double mass = getMass();
+		double springStiffness = 65;
 		
-		// Elephant Rounds significantly reduces the recoil speeds in addition to increasing recoil per shot
-		double SpSModifier = getSpreadPerShot();
-		if (selectedOverclock == 4) {
-			
-			if (selectedTier2 != 1) {
-				// And if Floating Barrel isn't equipped, then the Spread per Shot takes it to Max Spread on first shot for some reason?
-				spreadPerShot = 389;
-				SpSModifier = 1.0;
-				
-			}
-			
-			recoilUpInterval = 16.0 / 60.0;
-			recoilDownInterval = 140.0 / 60.0;
-		}
+		double v = Math.hypot(recoilPitch, recoilYaw);
+		double w = Math.sqrt(springStiffness / mass);
 		
 		// These numbers are chosen arbitrarily.
-		double desiredIncreaseInSpread = 52;
-		double desiredIncreaseInRecoil = 62;
+		double desiredIncreaseInSpread = 2.5;
+		double desiredIncreaseInRecoil = 3.0;
 		
-		double timeToRecoverSpread = (spreadPerShot * SpSModifier - desiredIncreaseInSpread) / (spreadRecoverySpeed * getSpreadRecoverySpeed());
-		double timeToRecoverRecoil = recoilUpInterval + (recoilPerShot * getRecoil() - desiredIncreaseInRecoil) * recoilDownInterval / (recoilPerShot * getRecoil());
+		double timeToRecoverSpread = (spreadPerShot - desiredIncreaseInSpread) / spreadRecoverySpeed;
+		// This technically goes beyond the [-0.1, -0.001] range for this method, but I can't really be bothered to expand it beyond 20 segments...
+		double timeToRecoverRecoil = -1.0 * MathUtils.lambertInverseWNumericalApproximation(-w * desiredIncreaseInRecoil / v) / w;
 		
 		double longerTime = Math.max(timeToRecoverSpread, timeToRecoverRecoil);
 		
 		return Math.min(1.0 / longerTime, maxRoF);
-		*/
-		// TODO: redo this method using internal variables
-		return 1.0;
 	}
 }

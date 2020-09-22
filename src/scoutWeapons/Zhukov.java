@@ -18,8 +18,6 @@ import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
-// TODO: change OC "Embedded Detonators" from 10 Explosive damage to 10 Kinetic damage
-// TODO: update Cryo Minelets from 0.1 to 0.8 seconds.
 public class Zhukov extends Weapon {
 	
 	/****************************************************************************************
@@ -103,9 +101,10 @@ public class Zhukov extends Weapon {
 		overclocks = new Overclock[5];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Minimal Magazines", "+2 Rate of Fire, -0.4 Reload Time", overclockIcons.reloadSpeed, 0);
 		overclocks[1] = new Overclock(Overclock.classification.balanced, "Custom Casings", "+30 Mag Size, -1 Direct Damage", overclockIcons.magSize, 1);
-		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "Any bullets that impact terrain get converted to Cryo Minelets. After 0.1 seconds of arming time they will explode on any "
-				+ "enemies that get within 1.5m, dealing 10 Cold Damage each. They automatically explode after 4 seconds. -1 Direct Damage, -10 Magazine Size", overclockIcons.coldDamage, 2);
-		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 10 Explosive Damage to the enemy "
+		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "Any bullets that impact terrain get converted to Cryo Minelets. It takes 0.1 seconds to form the minelets, "
+				+ "0.8 seconds to arm them, and they only last for 3 seconds after being armed. If an enemy passes within 1.5m of a minelet, it will detonate and deal 10 Cold Damage to all enemies "
+				+ "within range. In exchange, -1 Direct Damage and -10 Magazine Size.", overclockIcons.coldDamage, 2);
+		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 10 Kinetic Damage to the enemy "
 				+ "upon reloading. -3 Direct Damage, -75 Max Ammo.", overclockIcons.specialReload, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Gas Recycling", "+5 Direct Damage, but it can no longer gain bonus damage from hitting a Weakpoint. Additionally, x1.5 Base Spread "
 				+ "and -50% Movement Speed while firing.", overclockIcons.directDamage, 4);
@@ -512,10 +511,9 @@ public class Zhukov extends Weapon {
 				bulletsThatHitTarget = (int) Math.round(effectiveMagazineSize * generalAccuracy);
 			}
 			else {
-				// First, you have to intentionally miss bullets in order to convert them to Cryo Minelets, then wait 0.1 seconds, and unload the rest of the clip into
+				// First, you have to intentionally miss bullets in order to convert them to Cryo Minelets, then wait 0.9 seconds, and unload the rest of the clip into
 				// the now-frozen enemy for x3 damage. Damage vs frozen enemies does NOT benefit from weakpoint damage on top of the frozen multiplier.
-				// Since most players won't be able to wait for exactly 0.1 seconds, I'm modeling it as if they wait 0.5 seconds.
-				duration += 0.5;
+				duration += 0.9;
 				double numBulletsMissedToBecomeCryoMinelets = calculateAvgNumBulletsNeededToFreeze();
 				directDamage *= UtilityInformation.Frozen_Damage_Multiplier;
 				bulletsThatHitTarget = (int) Math.round((effectiveMagazineSize - numBulletsMissedToBecomeCryoMinelets) * generalAccuracy);
@@ -628,7 +626,8 @@ public class Zhukov extends Weapon {
 		};
 		
 		double[] areaDamage = {
-			getAreaDamage(),  // Explosive
+			getAreaDamage(),  // Kinetic
+			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
 			0  // Electric
@@ -673,7 +672,7 @@ public class Zhukov extends Weapon {
 		
 		// OC "Cryo Minelets" applies Cryo damage to missed bullets
 		if (selectedOverclock == 2) {
-			// Cryo minelets: 1 placed per 2 ammo, minelets arm in 0.1 seconds, and detonate in 4 seconds if no enemy is around.
+			// Cryo minelets: 1 placed per 2 ammo, minelets arm in 0.9 seconds, and detonate in 4 seconds if no enemy is around.
 			// Minelets seem to do 10 Cold Damage each, and explode in a 1.5m radius.
 			int estimatedNumTargetsSlowedOrFrozen = calculateNumGlyphidsInRadius(1.5);
 			

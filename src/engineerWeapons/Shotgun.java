@@ -616,6 +616,7 @@ public class Shotgun extends Weapon {
 		};
 		
 		double[] areaDamage = {
+			0,  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost

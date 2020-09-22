@@ -219,6 +219,7 @@ public class EPC_ChargeShot extends EPC {
 		};
 		
 		double[] areaDamage = {
+			0,  // Kinetic
 			0.5 * getChargedAreaDamage(),  // Explosive
 			0,  // Fire
 			0,  // Frost
