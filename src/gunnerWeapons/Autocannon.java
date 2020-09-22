@@ -468,10 +468,19 @@ public class Autocannon extends Weapon {
 		StatsRow[] toReturn = new StatsRow[15];
 		
 		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 2 || (selectedOverclock > 1 && selectedOverclock < 6);
-		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
-		
 		boolean areaDamageModified = selectedTier3 == 1 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 5;
-		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), modIcons.areaDamage, areaDamageModified);
+		double dDmg = getDirectDamage();
+		double aDmg = getAreaDamage();
+		if (selectedTier5 == 0) {
+			double multiplier = feedbackLoopMultiplier();
+			dDmg *= multiplier;
+			aDmg *= multiplier;
+			directDamageModified = true;
+			areaDamageModified = true;
+		}
+		toReturn[0] = new StatsRow("Direct Damage:", dDmg, modIcons.directDamage, directDamageModified);
+		
+		toReturn[1] = new StatsRow("Area Damage:", aDmg, modIcons.areaDamage, areaDamageModified);
 		
 		boolean aoeRadiusModified = selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[2] = new StatsRow("AoE Radius:", aoeEfficiency[0], modIcons.aoeRadius, aoeRadiusModified);

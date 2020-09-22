@@ -515,7 +515,12 @@ public class Minigun extends Weapon {
 		StatsRow[] toReturn = new StatsRow[19];
 		
 		boolean damageModified = selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock > 3;
-		toReturn[0] = new StatsRow("Direct Damage per Pellet:", getDamagePerPellet(), modIcons.directDamage, damageModified);
+		double dmg = getDamagePerPellet();
+		if (selectedTier4 == 0) {
+			dmg *= variableChamberPressureMultiplier();
+			damageModified = true;
+		}
+		toReturn[0] = new StatsRow("Direct Damage per Pellet:", dmg, modIcons.directDamage, damageModified);
 		
 		toReturn[1] = new StatsRow("Ammo Consumed per Pellet:", 2, modIcons.blank, false);
 		
