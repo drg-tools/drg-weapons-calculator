@@ -20,18 +20,13 @@ import spreadCurves.MinigunCurve;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
-/*
-	Extracted via UUU:
-	Time between Burning Hell ticks: 0.25
-*/
-
 public class Minigun extends Weapon {
 
 	/****************************************************************************************
 	* Class Variables
 	****************************************************************************************/
 	
-	private int damagePerPellet;
+	private double damagePerPellet;
 	private double stunChancePerPellet;
 	private int stunDuration;
 	private int maxAmmo;
@@ -304,8 +299,11 @@ public class Minigun extends Weapon {
 	* Setters and Getters
 	****************************************************************************************/
 
-	public int getDamagePerPellet() {
-		int toReturn = damagePerPellet;
+	// This method has to be used to calculate the CatG increased duration, which in turn affects the VCP damage multiplier, creating an infinite loop. To side-step that I'm adding this boolean parameter.
+	private double getDamagePerPellet(boolean onlyAdditiveModifiers) {
+		double toReturn = damagePerPellet;
+		
+		// Additive bonuses first
 		if (selectedTier2 == 1) {
 			toReturn += 2;
 		}
@@ -321,6 +319,12 @@ public class Minigun extends Weapon {
 		else if (selectedOverclock == 6) {
 			toReturn += 4;
 		}
+		
+		// Multiplicative bonuses last
+		if (!onlyAdditiveModifiers && selectedTier4 == 0) {
+			toReturn *= variableChamberPressureMultiplier();
+		}
+		
 		return toReturn;
 	}
 	private double getStunChancePerPellet() {
@@ -465,7 +469,7 @@ public class Minigun extends Weapon {
 			double heatRemovedPerKill = 0.8;
 			
 			// This is a quick-and-dirty way to guess what the Ideal Burst DPS will be when it's all said and done without calculating Firing Period and causing an infinite loop.
-			double estimatedBurstDPS = getDamagePerPellet() * RoF / 2.0;
+			double estimatedBurstDPS = getDamagePerPellet(true) * RoF / 2.0;
 			if (selectedTier4 == 0) {
 				// Slight overestimation
 				estimatedBurstDPS *= 1.13;
@@ -514,13 +518,8 @@ public class Minigun extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[19];
 		
-		boolean damageModified = selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock > 3;
-		double dmg = getDamagePerPellet();
-		if (selectedTier4 == 0) {
-			dmg *= variableChamberPressureMultiplier();
-			damageModified = true;
-		}
-		toReturn[0] = new StatsRow("Direct Damage per Pellet:", dmg, modIcons.directDamage, damageModified);
+		boolean damageModified = selectedTier2 == 1 || selectedTier4 == 0 || selectedOverclock == 0 || selectedOverclock > 3;
+		toReturn[0] = new StatsRow("Direct Damage per Pellet:", getDamagePerPellet(false), modIcons.directDamage, damageModified);
 		
 		toReturn[1] = new StatsRow("Ammo Consumed per Pellet:", 2, modIcons.blank, false);
 		
@@ -608,7 +607,7 @@ public class Minigun extends Weapon {
 		if (selectedTier5 == 2 && selectedOverclock != 2) {
 			// Hot Bullets adds 50% of of each pellet's Direct Damage as Heat Damage while the Heat Meter on the Minigun is red.
 			// I'm choosing to reduce the heatPerPellet by the Accuracy of the gun to imitate when pellets miss the target
-			double heatPerPellet = ((double) getDamagePerPellet()) * generalAccuracy / 2.0;
+			double heatPerPellet = ((double) getDamagePerPellet(true)) * generalAccuracy / 2.0;
 			double RoF = getRateOfFire() / 2.0;
 			return timeBeforeHotBullets + EnemyInformation.averageTimeToIgnite(heatPerPellet, RoF);
 		}
@@ -625,7 +624,7 @@ public class Minigun extends Weapon {
 			timeBeforeHotBullets /= heatGain;
 			double timeAfterHotBullets = firingPeriod - timeBeforeHotBullets;
 			
-			double heatPerPellet = ((double) getDamagePerPellet()) * generalAccuracy / 2.0;
+			double heatPerPellet = ((double) getDamagePerPellet(true)) * generalAccuracy / 2.0;
 			double RoF = getRateOfFire() / 2.0;
 			double avgHeatPerSec = (timeBeforeHotBullets * burningHellHeatPerSec + timeAfterHotBullets * (heatPerPellet * RoF + burningHellHeatPerSec)) / firingPeriod;
 			return EnemyInformation.averageTimeToIgnite(avgHeatPerSec);
@@ -681,7 +680,7 @@ public class Minigun extends Weapon {
 			longDuration = firingPeriod + cooldownPeriod + spinup;
 		}
 		
-		double directDamage = getDamagePerPellet();
+		double directDamage = getDamagePerPellet(false);
 		
 		// Damage wasted by Armor
 		if (armorWasting && !statusEffects[1]) {
@@ -696,9 +695,6 @@ public class Minigun extends Weapon {
 		// IFG Grenade
 		if (statusEffects[3]) {
 			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
-		}
-		if (selectedTier4 == 0) {
-			directDamage *= variableChamberPressureMultiplier();
 		}
 		
 		double weakpointAccuracy;
@@ -760,12 +756,7 @@ public class Minigun extends Weapon {
 		int numTargets = calculateMaxNumTargets();
 		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
 		double numberOfBursts = (double) getMaxAmmo() / (2.0 * numPelletsFiredBeforeOverheat);
-		
-		double damageMultiplier = 1.0;
-		if (selectedTier4 == 0) {
-			damageMultiplier = variableChamberPressureMultiplier();
-		}
-		double damagePerBurst = numPelletsFiredBeforeOverheat * (double) getDamagePerPellet() * damageMultiplier;
+		double damagePerBurst = numPelletsFiredBeforeOverheat * getDamagePerPellet(false);
 		
 		double totalDamage = numberOfBursts * damagePerBurst * numTargets;
 		
@@ -849,7 +840,7 @@ public class Minigun extends Weapon {
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
-		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet());
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet(false));
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 
@@ -876,12 +867,8 @@ public class Minigun extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		double dmgPerPellet = getDamagePerPellet();
-		if (selectedTier4 == 0) {
-			dmgPerPellet *= variableChamberPressureMultiplier();
-		}
 		double[] directDamage = {
-			dmgPerPellet,  // Kinetic
+			getDamagePerPellet(false),  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
@@ -926,7 +913,7 @@ public class Minigun extends Weapon {
 		utilityScores[0] = (getMovespeedWhileFiring() - MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
 		
 		// Light Armor Breaking probability
-		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDamagePerPellet(), getArmorBreaking()) * UtilityInformation.ArmorBreak_Utility;
+		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDamagePerPellet(false), getArmorBreaking()) * UtilityInformation.ArmorBreak_Utility;
 		
 		// Mod Tier 5 "Aggressive Venting" induces Fear in a 10m radius (while also dealing 60 Heat Damage)
 		if (selectedTier5 == 0) {
@@ -953,13 +940,7 @@ public class Minigun extends Weapon {
 			The length of the burst is determined by the heat accumulated. Each burst duration should stop just shy of 
 			overheating the minigun so that it doesn't have the overheat cooldown penalty imposed.
 		*/
-		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
-		double damageMultiplier = 1.0;
-		if (selectedTier4 == 0) {
-			damageMultiplier = variableChamberPressureMultiplier();
-		}
-		
-		return numPelletsFiredBeforeOverheat * (double) getDamagePerPellet() * damageMultiplier;
+		return calculateMaxNumPelletsFiredWithoutOverheating() * getDamagePerPellet(false);
 	}
 	
 	@Override
@@ -969,7 +950,7 @@ public class Minigun extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet(), 0.0, getArmorBreaking(), 0.0, estimatedAccuracy(false), estimatedAccuracy(true));
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet(false), 0.0, getArmorBreaking(), 0.0, estimatedAccuracy(false), estimatedAccuracy(true));
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	

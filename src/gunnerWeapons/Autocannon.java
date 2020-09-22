@@ -26,8 +26,8 @@ public class Autocannon extends Weapon {
 	* Class Variables
 	****************************************************************************************/
 	
-	private int directDamage;
-	private int areaDamage;
+	private double directDamage;
+	private double areaDamage;
 	private double aoeRadius;
 	private int magazineSize;
 	private int carriedAmmo;
@@ -288,8 +288,10 @@ public class Autocannon extends Weapon {
 	* Setters and Getters
 	****************************************************************************************/
 
-	private int getDirectDamage() {
-		int toReturn = directDamage;
+	private double getDirectDamage() {
+		double toReturn = directDamage;
+		
+		// Additive bonuses first
 		if (selectedTier1 == 0) {
 			toReturn += 3;
 		}
@@ -308,10 +310,18 @@ public class Autocannon extends Weapon {
 		else if (selectedOverclock == 5) {
 			toReturn -= 3;
 		}
+		
+		// Multiplicative bonuses last
+		if (selectedTier5 == 0) {
+			toReturn *= feedbackLoopMultiplier();
+		}
+		
 		return toReturn;
 	}
-	private int getAreaDamage() {
-		int toReturn = areaDamage;
+	private double getAreaDamage() {
+		double toReturn = areaDamage;
+		
+		// Additive bonuses first
 		if (selectedTier3 == 1) {
 			toReturn += 2;
 		}
@@ -324,6 +334,12 @@ public class Autocannon extends Weapon {
 		else if (selectedOverclock == 5) {
 			toReturn -= 6;
 		}
+		
+		// Multiplicative bonuses last
+		if (selectedTier5 == 0) {
+			toReturn *= feedbackLoopMultiplier();
+		}
+		
 		return toReturn;
 	}
 	private double getAoERadius() {
@@ -467,20 +483,11 @@ public class Autocannon extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[15];
 		
-		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 2 || (selectedOverclock > 1 && selectedOverclock < 6);
-		boolean areaDamageModified = selectedTier3 == 1 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 5;
-		double dDmg = getDirectDamage();
-		double aDmg = getAreaDamage();
-		if (selectedTier5 == 0) {
-			double multiplier = feedbackLoopMultiplier();
-			dDmg *= multiplier;
-			aDmg *= multiplier;
-			directDamageModified = true;
-			areaDamageModified = true;
-		}
-		toReturn[0] = new StatsRow("Direct Damage:", dDmg, modIcons.directDamage, directDamageModified);
+		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 2 || selectedTier5 == 0 || (selectedOverclock > 1 && selectedOverclock < 6);
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
-		toReturn[1] = new StatsRow("Area Damage:", aDmg, modIcons.areaDamage, areaDamageModified);
+		boolean areaDamageModified = selectedTier3 == 1 || selectedTier5 == 0 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 5;
+		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), modIcons.areaDamage, areaDamageModified);
 		
 		boolean aoeRadiusModified = selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[2] = new StatsRow("AoE Radius:", aoeEfficiency[0], modIcons.aoeRadius, aoeRadiusModified);
@@ -569,12 +576,6 @@ public class Autocannon extends Weapon {
 			areaDamage *= UtilityInformation.IFG_Damage_Multiplier;
 		}
 		
-		if (selectedTier5 == 0) {
-			double feedbackLoopMultiplier = feedbackLoopMultiplier();
-			directDamage *= feedbackLoopMultiplier;
-			areaDamage *= feedbackLoopMultiplier;
-		}
-		
 		double weakpointAccuracy;
 		if (weakpoint && !statusEffects[1]) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
@@ -609,10 +610,6 @@ public class Autocannon extends Weapon {
 		double magSize = (double) getMagazineSize();
 		double areaDamage = getAreaDamage();
 		
-		if (selectedTier5 == 0) {
-			areaDamage *= feedbackLoopMultiplier();
-		}
-		
 		double areaDamagePerMag = areaDamage * aoeEfficiency[1] * magSize;
 		double sustainedAdditionalDPS = areaDamagePerMag / timeToFireMagazineAndReload;
 		
@@ -627,9 +624,6 @@ public class Autocannon extends Weapon {
 	public double calculateMaxMultiTargetDamage() {
 		double damagePerBullet = getDirectDamage() + getAreaDamage() * aoeEfficiency[2] * aoeEfficiency[1];
 		double damagePerMagazine = getMagazineSize() * damagePerBullet;
-		if (selectedTier5 == 0) {
-			damagePerMagazine *= feedbackLoopMultiplier();
-		}
 		double numberOfMagazines = numMagazines(getCarriedAmmo(), getMagazineSize());
 		
 		double neurotoxinDoTTotalDamage = 0;
@@ -683,14 +677,8 @@ public class Autocannon extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		double dmgMultiplier = 1.0;
-		
-		if (selectedTier5 == 0) {
-			dmgMultiplier = feedbackLoopMultiplier();
-		}
-		
 		double[] directDamage = {
-			getDirectDamage() * dmgMultiplier,  // Kinetic
+			getDirectDamage(),  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
@@ -699,7 +687,7 @@ public class Autocannon extends Weapon {
 		
 		double[] areaDamage = {
 			0,  // Kinetic
-			getAreaDamage() * dmgMultiplier,  // Explosive
+			getAreaDamage(),  // Explosive
 			0,  // Fire
 			0,  // Frost
 			0  // Electric
@@ -794,12 +782,7 @@ public class Autocannon extends Weapon {
 	@Override
 	public double damagePerMagazine() {
 		double damagePerBullet = getDirectDamage() + getAreaDamage() * aoeEfficiency[1] * aoeEfficiency[2];
-		double magSize = getMagazineSize();
-		double damageMultiplier = 1.0;
-		if (selectedTier5 == 0) {
-			damageMultiplier = feedbackLoopMultiplier();
-		}
-		return damagePerBullet * magSize * damageMultiplier;
+		return damagePerBullet * getMagazineSize();
 	}
 	
 	@Override
