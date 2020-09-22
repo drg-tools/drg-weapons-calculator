@@ -80,6 +80,8 @@ public class Minigun extends Weapon {
 		secondsBeforeHotBullets = 3.17805;  // See explanation in calculateIgnitionTime() 
 		cooldownAfterOverheat = 10;
 		
+		// Override default 10m distance
+		accEstimator.setDistance(7.0);
 		accEstimator.setSpreadCurve(new MinigunCurve());
 		
 		initializeModsAndOverclocks();

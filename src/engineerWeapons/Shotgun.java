@@ -61,8 +61,8 @@ public class Shotgun extends Weapon {
 		weakpointStunChance = 0.1;
 		stunDuration = 3;
 		
-		// Because this is a shotgun, overwrite the default accuracyDistance of 7m
-		accEstimator.setDistance(5.0);
+		// Override default 10m distance
+		accEstimator.setDistance(7.0);
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks

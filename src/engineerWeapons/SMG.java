@@ -62,6 +62,9 @@ public class SMG extends Weapon {
 		rateOfFire = 11.0;
 		reloadTime = 2.0;
 		
+		// Override default 10m distance
+		accEstimator.setDistance(7.0);
+		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
 		setBaselineStats();

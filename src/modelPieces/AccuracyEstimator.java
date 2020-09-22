@@ -37,8 +37,8 @@ public class AccuracyEstimator {
 		delayBeforePlayerReaction = 0.15;  // seconds
 		playerRecoilRecoveryPerSecond = 1.00/0.35;  // Percentage of max recoil that the player recovers per second
 		
-		// Start at 7m distance for all weapons in AccuracyEstimator, but let it be overwritten by shotgun classes.
-		targetDistanceMeters = 7.0;
+		// Start at 10m distance for all weapons in AccuracyEstimator, but let it be changed by individual weapons as necessary.
+		targetDistanceMeters = 10.0;
 		visualizeGeneralAccuracy = true;
 		modelRecoil = true;
 		

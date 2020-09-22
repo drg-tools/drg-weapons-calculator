@@ -52,6 +52,8 @@ public abstract class Revolver extends Weapon {
 		stunDuration = 1.5;  // seconds
 		weakpointBonus = 0.15;
 		
+		// Override default 10m distance
+		accEstimator.setDistance(7.0);
 		accEstimator.setSpreadCurve(new RevolverCurve());
 		
 		initializeModsAndOverclocks();
