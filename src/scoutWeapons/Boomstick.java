@@ -577,10 +577,10 @@ public class Boomstick extends Weapon {
 		}
 		
 		int numPelletsPerShot = getNumberOfPellets();
-		int pelletsThatHitWeakpointPerShot = (int) Math.round(numPelletsPerShot * weakpointAccuracy);
-		int pelletsThatHitTargetPerShot = (int) Math.round(numPelletsPerShot * generalAccuracy) - pelletsThatHitWeakpointPerShot;
+		double pelletsThatHitWeakpointPerShot = numPelletsPerShot * weakpointAccuracy;
+		double pelletsThatHitTargetPerShot = numPelletsPerShot * generalAccuracy - pelletsThatHitWeakpointPerShot;
 		
-		return (pelletsThatHitWeakpointPerShot * directWeakpointDamagePerPellet + pelletsThatHitTargetPerShot * getDamagePerPellet() + getBlastwaveDamage()) * magSize / duration + burnDPS;
+		return (pelletsThatHitWeakpointPerShot * directWeakpointDamagePerPellet + pelletsThatHitTargetPerShot * dmgPerPellet + getBlastwaveDamage()) * magSize / duration + burnDPS;
 	}
 
 	@Override
@@ -690,7 +690,7 @@ public class Boomstick extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		double direct = getDamagePerPellet() * getNumberOfPellets();
+		double direct = getDamagePerPellet() * getNumberOfPellets() * estimatedAccuracy(false) / 100.0;
 		double area = getBlastwaveDamage();
 		
 		// According to Elythnwaen, White Phosphorus Shells not only adds 50% of kinetic + explosive damage to Heat, it also converts 50% to Fire.

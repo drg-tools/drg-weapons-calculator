@@ -551,8 +551,8 @@ public class Shotgun extends Weapon {
 		}
 		
 		int numPelletsPerShot = getNumberOfPellets();
-		int pelletsThatHitWeakpointPerShot = (int) Math.round(numPelletsPerShot * weakpointAccuracy);
-		int pelletsThatHitTargetPerShot = (int) Math.round(numPelletsPerShot * generalAccuracy) - pelletsThatHitWeakpointPerShot;
+		double pelletsThatHitWeakpointPerShot = numPelletsPerShot * weakpointAccuracy;
+		double pelletsThatHitTargetPerShot = numPelletsPerShot * generalAccuracy - pelletsThatHitWeakpointPerShot;
 		
 		return (pelletsThatHitWeakpointPerShot * directWeakpointDamagePerPellet + pelletsThatHitTargetPerShot * dmgPerPellet) * getMagazineSize() / duration;
 	}
@@ -608,7 +608,7 @@ public class Shotgun extends Weapon {
 	@Override
 	public int breakpoints() {
 		double[] directDamage = {
-			getDamagePerPellet() * getNumberOfPellets(),  // Kinetic
+			getDamagePerPellet() * getNumberOfPellets() * estimatedAccuracy(false) / 100.0,  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
