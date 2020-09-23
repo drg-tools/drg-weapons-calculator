@@ -1,5 +1,7 @@
 package modelPieces;
 
+import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
@@ -30,7 +32,8 @@ public class AccuracyEstimator {
 	private double rateOfFire;
 	private int magSize, burstSize;
 	private double baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance;
-	private double naturalFrequency, initialVelocity, recoilGoal, maxRecoilPerShotTime, recoilPerShotEndTime;
+	private double recoilPitch, recoilYaw, mass, springStiffness;
+	private double naturalFrequency, initialVelocity, recoilGoal, recoilPerShotEndTime;
 	
 	public AccuracyEstimator() {
 		// With these two values, recoil should be reduced to 0% in exactly 0.5 seconds.
@@ -220,7 +223,7 @@ public class AccuracyEstimator {
 	public double calculateCircularAccuracy(
 			boolean weakpointTarget, double RoF, int mSize, int bSize, 
 			double horizontalBaseSpread, double verticalBaseSpread, double SpS, double SRS, double SV, 
-			double recoilPitch, double recoilYaw, double mass, double springStiffness
+			double rPitch, double rYaw, double m, double sStiffness
 		) {
 		/*
 			Step 1: Calculate when bullets will be fired for this magazine, and store the timestamps internally
@@ -242,8 +245,11 @@ public class AccuracyEstimator {
 		/*
 			Step 3: Calculate what the recoil will be at any given time, t, and then store both the raw recoil and player-reduced recoil for use later
 		*/
+		recoilPitch = rPitch;
+		recoilYaw = rYaw;
+		mass = m;
+		springStiffness = sStiffness;
 		naturalFrequency = Math.sqrt(springStiffness / mass);
-		maxRecoilPerShotTime = 1.0 / naturalFrequency;
 		initialVelocity = Math.hypot(recoilPitch, recoilYaw);
 		if (initialVelocity > 0) {
 			recoilPerShotEndTime = -1.0 * MathUtils.lambertInverseWNumericalApproximation(-naturalFrequency * recoilGoal / initialVelocity) / naturalFrequency;
@@ -396,6 +402,45 @@ public class AccuracyEstimator {
 		}
 		
 		// Part 3: displaying the data
+		JPanel granularDataPanel = new JPanel();
+		granularDataPanel.setPreferredSize(new Dimension(420, 684));
+		granularDataPanel.setLayout(new BoxLayout(granularDataPanel, BoxLayout.PAGE_AXIS));
+		JPanel variables = new JPanel();
+		variables.setLayout(new GridLayout(4, 4));
+		variables.add(new JLabel("Base Spread:"));
+		variables.add(new JLabel(baseSpread + ""));
+		variables.add(new JLabel("Recoil Pitch:"));
+		variables.add(new JLabel(recoilPitch + ""));
+		variables.add(new JLabel("Spread per Shot:"));
+		variables.add(new JLabel(spreadPerShot + ""));
+		variables.add(new JLabel("Recoil Yaw:"));
+		variables.add(new JLabel(recoilYaw + ""));
+		variables.add(new JLabel("Spread Recovery:"));
+		variables.add(new JLabel(spreadRecoverySpeed + ""));
+		variables.add(new JLabel("Mass:"));
+		variables.add(new JLabel(mass + ""));
+		variables.add(new JLabel("Spread Variance:"));
+		variables.add(new JLabel(spreadVariance + ""));
+		variables.add(new JLabel("Spring Stiffness:"));
+		variables.add(new JLabel(springStiffness + ""));
+		granularDataPanel.add(variables);
+		
+		JPanel recoilPerShotPanel = new JPanel();
+		//recoilPerShotPanel.setPreferredSize(new Dimension(228, 162));
+		recoilPerShotPanel.setLayout(new BoxLayout(recoilPerShotPanel, BoxLayout.PAGE_AXIS));
+		recoilPerShotPanel.add(new JLabel("Recoil per Shot Graph"));
+		ArrayList<Point2D> recoilPerShotData = new ArrayList<Point2D>();
+		double t;
+		for (i = 0; i < (int) Math.ceil(recoilPerShotEndTime * sampleDensity) + 1; i++) {
+			t = i*0.01;
+			recoilPerShotData.add(new Point2D(t, getRecoilPerShotOverTime(t)));
+		}
+		double maxRecoilPerShot = getRecoilPerShotOverTime(1.0 / naturalFrequency);
+		LineGraph recoilPerShot = new LineGraph(recoilPerShotData, recoilPerShotEndTime, Math.max(3.0, maxRecoilPerShot));
+		recoilPerShot.setGraphAnimation(false);
+		recoilPerShotPanel.add(recoilPerShot);
+		granularDataPanel.add(recoilPerShotPanel);
+		
 		JPanel lineGraphsPanel = new JPanel();
 		lineGraphsPanel.setLayout(new BoxLayout(lineGraphsPanel, BoxLayout.PAGE_AXIS));
 		
@@ -438,6 +483,7 @@ public class AccuracyEstimator {
 		reducedRecoilGif.setBorder(GuiConstants.blackLine);
 		new Thread(reducedRecoilGif).start();
 		
+		toReturn.add(granularDataPanel);
 		toReturn.add(lineGraphsPanel);
 		toReturn.add(rawRecoilGif);
 		toReturn.add(reducedRecoilGif);

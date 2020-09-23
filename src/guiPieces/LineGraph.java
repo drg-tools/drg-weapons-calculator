@@ -23,10 +23,10 @@ public class LineGraph extends JPanel implements Runnable {
 	private int padding = 25;
 	private int labelPadding = 25;
 	private Color lineColor = new Color(44, 102, 230, 180);
-    private Color gridColor = new Color(200, 200, 200, 200);
-    private static final Stroke GRAPH_STROKE = new BasicStroke(1.8f);
-    private int pointWidth = 2;
-    private int numberYDivisions = 10;
+	private Color gridColor = new Color(200, 200, 200, 200);
+	private static final Stroke GRAPH_STROKE = new BasicStroke(1.8f);
+	private int pointWidth = 2;
+	private int numberYDivisions = 10;
 	
 	private ArrayList<Point2D> values;
 	private double maxX, maxY;

@@ -75,7 +75,7 @@ public class Boomstick extends Weapon {
 		stunChance = 0.3;
 		stunDuration = 2.5;
 		
-		// Because this is a shotgun, overwrite the default accuracyDistance of 7m
+		// Override default 10m distance
 		accEstimator.setDistance(5.0);
 		
 		initializeModsAndOverclocks();

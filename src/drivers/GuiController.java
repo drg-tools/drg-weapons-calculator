@@ -54,6 +54,16 @@ import scoutWeapons.Zhukov;
 		8000 Total Damage
 */
 
+/*
+	TODO list for 1.0.5:
+	1. Finalize AccuracyVisualizer
+	2. Break out Average Overkill into granular pane like Breakpoints
+	3. Add "Avg Time to Ignite/Freeze" metric
+	4. Review/edit all Information Tabs
+	5. Click through everything to make sure it's all working as intended
+	6. Export build_metrics.sql and check for NaN errors
+*/
+
 public class GuiController implements ActionListener {
 	
 	private Weapon[] drillerWeapons;

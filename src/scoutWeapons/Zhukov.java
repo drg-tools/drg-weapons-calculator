@@ -56,7 +56,7 @@ public class Zhukov extends Weapon {
 		rateOfFire = 30.0;  // Really 15
 		reloadTime = 1.8;
 		
-		// Similar to the shotguns, overwrite the default accuracyDistance of 7m
+		// Override default 10m distance
 		accEstimator.setDistance(5.0);
 		
 		initializeModsAndOverclocks();

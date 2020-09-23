@@ -592,7 +592,7 @@ public class Shotgun extends Weapon {
 		double horizontalBaseSpread = 12.0 * getBaseSpread();
 		double verticalBaseSpread = 6.0 * getBaseSpread();
 		double spreadPerShot = 0.0;
-		double spreadRecoverySpeed = 0.0; // Although functionally
+		double spreadRecoverySpeed = 0.0;
 		double spreadVariance = 0.0;
 		
 		double recoilPitch = 55.0 * getRecoil();
