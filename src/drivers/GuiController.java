@@ -56,8 +56,6 @@ import scoutWeapons.Zhukov;
 
 /*
 	TODO list for 1.0.5:
-	1. Finalize AccuracyVisualizer
-	2. Break out Average Overkill into granular pane like Breakpoints
 	3. Add "Avg Time to Ignite/Freeze" metric
 	4. Review/edit all Information Tabs
 	5. Click through everything to make sure it's all working as intended

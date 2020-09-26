@@ -715,7 +715,7 @@ public class EnemyInformation {
 			totalDoTDamage = (DoTDamageByType[0] * creatureResistances[1] + DoTDamageByType[1] * creatureResistances[3] + DoTDamageByType[2] + DoTDamageByType[3]) * (creatureHP / avgHP);
 			
 			// Enemies can have Temperatures above their Ignite temperatures, and that makes them Burn longer than the "avg Burn duration" I have modeled. This is important for Grunts and 
-			// Mactera Spawns on Engie/GL/Mod/3/Incendiary Compound and Scout/Boomstick/Mod/5/WPS
+			// Mactera Spawns on Engie/GL/Mod/3/A Incendiary Compound and Scout/Boomstick/Mod/5/C WPS
 			if (!frozen && singleBurstOfHeat >= enemyTemperatures[creatureIndex][0]) {
 				// If I choose to implement Temperature Shock in breakpoints, I'll have to add it here too.
 				totalDoTDamage += creatureResistances[1] * burnDPS * (singleBurstOfHeat - enemyTemperatures[creatureIndex][1]) / enemyTemperatures[creatureIndex][2];
@@ -985,6 +985,57 @@ public class EnemyInformation {
 			toReturn[0][i] = exactSpawnRates[creatureIndex];
 			toReturn[1][i] = 1.0 - actualDamageDealt / totalDamageSpent;
 			// System.out.println("For this enemy, " + (percentageWastedPerCreature*100.0) + "% of total damage was wasted by Armor.");
+		}
+		
+		return toReturn;
+	}
+	
+	/*
+		This method intentionally ignores elemental resistances/weaknesses and weakpoint damage bonuses because I don't want to repeat the Breakpoints insanity.
+	*/
+	public static double[][] overkillPerCreature(double totalDamagePerShot){
+		double[][] toReturn = new double[2][exactSpawnRates.length];
+		toReturn[0] = new double[exactSpawnRates.length];
+		toReturn[1] = new double[exactSpawnRates.length];
+		
+		// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
+		double[] normalEnemyResistances = {
+			0.7,  // Haz1
+			1.0,  // Haz2
+			1.1,  // Haz3
+			1.2,  // Haz4
+			1.2   // Haz5
+		};
+		double normalResistance = normalEnemyResistances[hazardLevel - 1];
+		
+		// On the other hand, large and extra-large enemies have their health scale by both player count and Hazard Level for all 20 combinations.
+		// Currently, it looks like the only extra-large enemy is a Dreadnought which I've chosen not to model for now.
+		double[][] largeEnemyResistances = {
+			{0.45, 0.55, 0.70, 0.85},  // Haz1
+			{0.65, 0.75, 0.90, 1.00},  // Haz2
+			{0.80, 0.90, 1.00, 1.10},  // Haz3
+			{1.00, 1.00, 1.20, 1.30},  // Haz4
+			{1.20, 1.20, 1.40, 1.50}   // Haz5
+		};
+		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
+		
+		HashSet<Integer> normalEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 1, 2, 3, 5, 8, 9, 14, 20}));
+		HashSet<Integer> largeEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {4, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19}));
+		
+		double creatureHP;
+		for (int i = 0; i < exactSpawnRates.length; i++) {
+			if (normalEnemyScalingIndexes.contains(i)) {
+				creatureHP = enemyHealthPools[i] * normalResistance;
+			}
+			else if (largeEnemyScalingIndexes.contains(i)) {
+				creatureHP = enemyHealthPools[i] * largeResistance;
+			}
+			else {
+				creatureHP = enemyHealthPools[i];
+			}
+			
+			toReturn[0][i] = 1.0 / ((double) exactSpawnRates.length);
+			toReturn[1][i] = ((Math.ceil(creatureHP / totalDamagePerShot) * totalDamagePerShot) / creatureHP - 1.0) * 100.0;
 		}
 		
 		return toReturn;

@@ -59,6 +59,13 @@ public abstract class Weapon extends Observable {
 		{0, 0, 0, 0, 0, 0, 0, 0, 0}
 	};
 	
+	protected double[][] overkillPercentages = {
+		// Spawn Probabilities
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		// Overkill Percentages
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}	
+	};
+	
 	// Burning, Frozen, Electrocuted, IFG Grenade
 	protected boolean[] statusEffects = {false, false, false, false};
 	
@@ -1084,9 +1091,7 @@ public abstract class Weapon extends Observable {
 		return EnemyInformation.averageHealthPool(useExactSpawnRates) / calculateSingleTargetDPS(false, true, false, false);
 	}
 	protected abstract double averageDamageToKillEnemy();
-	public double averageOverkill() {
-		return ((averageDamageToKillEnemy() / EnemyInformation.averageHealthPool()) - 1.0) * 100.0;
-	}
+	public abstract double averageOverkill();
 	public double ammoEfficiency() {
 		return calculateMaxMultiTargetDamage() / averageDamageToKillEnemy();
 	}
@@ -1161,6 +1166,34 @@ public abstract class Weapon extends Observable {
 		toReturn[6] = new StatsRow("Glyphid Menace:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][6], GuiConstants.numDecimalPlaces) + "%", null, false);
 		toReturn[7] = new StatsRow("Glyphid Warden:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][7], GuiConstants.numDecimalPlaces) + "%", null, false);
 		toReturn[8] = new StatsRow("Q'ronar Shellback:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][8], GuiConstants.numDecimalPlaces) + "%", null, false);
+		
+		return toReturn;
+	}
+	
+	public StatsRow[] overkillExplanation() {
+		StatsRow[] toReturn = new StatsRow[overkillPercentages[1].length];
+		
+		toReturn[0] = new StatsRow("Glypid Swarmer:", MathUtils.round(overkillPercentages[1][0], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[1] = new StatsRow("Glypid Grunt:", MathUtils.round(overkillPercentages[1][1], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[2] = new StatsRow("Glypid Grunt Guard:", MathUtils.round(overkillPercentages[1][2], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[3] = new StatsRow("Glypid Grunt Slasher:", MathUtils.round(overkillPercentages[1][3], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[4] = new StatsRow("Glypid Praetorian:", MathUtils.round(overkillPercentages[1][4], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[5] = new StatsRow("Glypid Exploder:", MathUtils.round(overkillPercentages[1][5], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[6] = new StatsRow("Glypid Bulk Detonator:", MathUtils.round(overkillPercentages[1][6], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[7] = new StatsRow("Glypid Crassus Detonator:    ", MathUtils.round(overkillPercentages[1][7], GuiConstants.numDecimalPlaces) + "%", null, false);  // Added spaces at the end to create some whitespace in the JPanel
+		toReturn[8] = new StatsRow("Glypid Web Spitter:", MathUtils.round(overkillPercentages[1][8], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[9] = new StatsRow("Glypid Acid Spitter:", MathUtils.round(overkillPercentages[1][9], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[10] = new StatsRow("Glypid Menace:", MathUtils.round(overkillPercentages[1][10], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[11] = new StatsRow("Glypid Warden:", MathUtils.round(overkillPercentages[1][11], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[12] = new StatsRow("Glypid Oppressor:", MathUtils.round(overkillPercentages[1][12], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[13] = new StatsRow("Q'ronar Shellback:", MathUtils.round(overkillPercentages[1][13], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[14] = new StatsRow("Mactera Spawn:", MathUtils.round(overkillPercentages[1][14], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[15] = new StatsRow("Mactera Grabber:", MathUtils.round(overkillPercentages[1][15], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[16] = new StatsRow("Mactera Goo Bomber:", MathUtils.round(overkillPercentages[1][16], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[17] = new StatsRow("Naedocyte Breeder:", MathUtils.round(overkillPercentages[1][17], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[18] = new StatsRow("Glyphid Brood Nexus:", MathUtils.round(overkillPercentages[1][18], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[19] = new StatsRow("Spitball Infector:", MathUtils.round(overkillPercentages[1][19], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[20] = new StatsRow("Cave Leech:", MathUtils.round(overkillPercentages[1][20], GuiConstants.numDecimalPlaces) + "%", null, false);
 		
 		return toReturn;
 	}

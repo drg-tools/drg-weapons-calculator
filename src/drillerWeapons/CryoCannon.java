@@ -626,6 +626,12 @@ public class CryoCannon extends Weapon {
 	}
 	
 	@Override
+	public double averageOverkill() {
+		overkillPercentages = EnemyInformation.overkillPerCreature(getParticleDamage());
+		return MathUtils.vectorDotProduct(overkillPercentages[0], overkillPercentages[1]);
+	}
+	
+	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		// This stat is only applicable to "gun"-type weapons
 		return -1.0;

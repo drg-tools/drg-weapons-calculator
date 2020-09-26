@@ -391,7 +391,7 @@ public class WeaponTab extends JPanel {
 		double damageWastedByArmor = myWeapon.damageWastedByArmor();
 		roundedNumber = leftPadSpaces + MathUtils.round(damageWastedByArmor, GuiConstants.numDecimalPlaces) + "%";
 		if (damageWastedByArmor > 0) {
-			ArmorWastingButton AWButton = new ArmorWastingButton(this, roundedNumber, myWeapon);
+			GranularMetricButton AWButton = new GranularMetricButton(this, roundedNumber, "% Damage Wasted by Armor per Creature", myWeapon.armorWastingExplanation());
 			if (damageWastedByArmor > originalStats[4]) {
 				AWButton.setForeground(GuiConstants.drgNegativeChangeRed);
 			}
@@ -426,7 +426,7 @@ public class WeaponTab extends JPanel {
 			toReturn.add(visualizer);
 		}
 		else {
-			value = new JLabel(leftPadSpaces + "Manually Aimed");
+			value = new JLabel(leftPadSpaces + "Not visualized");
 			value.setFont(GuiConstants.customFontBold);
 			value.setForeground(GuiConstants.drgHighlightedYellow);
 			toReturn.add(value);
@@ -522,24 +522,23 @@ public class WeaponTab extends JPanel {
 		
 		double overkill = myWeapon.averageOverkill();
 		roundedNumber = leftPadSpaces + MathUtils.round(overkill, GuiConstants.numDecimalPlaces) + "%";
-		value = new JLabel(roundedNumber);
-		value.setFont(GuiConstants.customFontBold);
+		GranularMetricButton overkillButton = new GranularMetricButton(this, roundedNumber, "Overkill % per Creature", myWeapon.overkillExplanation());
 		if (overkill > originalStats[9]) {
-			value.setForeground(GuiConstants.drgNegativeChangeRed);
+			overkillButton.setForeground(GuiConstants.drgNegativeChangeRed);
 		}
 		else if (overkill < originalStats[9]) {
-			value.setForeground(GuiConstants.drgOverclockCleanGreen);
+			overkillButton.setForeground(GuiConstants.drgOverclockCleanGreen);
 		}
 		else {
 			// Implicitly means that they're equal
-			value.setForeground(GuiConstants.drgHighlightedYellow);
+			overkillButton.setForeground(GuiConstants.drgHighlightedYellow);
 		}
-		toReturn.add(value);
+		toReturn.add(overkillButton);
 		
 		int breakpoints = myWeapon.breakpoints();
 		roundedNumber = leftPadSpaces + breakpoints;
 		if (breakpoints > 0) {
-			BreakpointsButton breakButton = new BreakpointsButton(this, roundedNumber, myWeapon);
+			GranularMetricButton breakButton = new GranularMetricButton(this, roundedNumber, "Breakpoints", myWeapon.breakpointsExplanation());
 			if (breakpoints > originalStats[10]) {
 				breakButton.setForeground(GuiConstants.drgOverclockUnstableRed);
 			}
@@ -562,7 +561,7 @@ public class WeaponTab extends JPanel {
 		
 		double utility = myWeapon.utilityScore();
 		roundedNumber = leftPadSpaces + MathUtils.round(utility, GuiConstants.numDecimalPlaces);
-		UtilityBreakdownButton utilButton = new UtilityBreakdownButton(this, roundedNumber, myWeapon);
+		GranularMetricButton utilButton = new GranularMetricButton(this, roundedNumber, "Utility Score Breakdown", myWeapon.utilityExplanation());
 		if (utility < originalStats[11]) {
 			utilButton.setForeground(GuiConstants.drgOverclockUnstableRed);
 		}

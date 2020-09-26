@@ -185,6 +185,12 @@ public class EPC_RegularShot extends EPC {
 	}
 	
 	@Override
+	public double averageOverkill() {
+		overkillPercentages = EnemyInformation.overkillPerCreature(getDirectDamage());
+		return MathUtils.vectorDotProduct(overkillPercentages[0], overkillPercentages[1]);
+	}
+	
+	@Override
 	public int breakpoints() {
 		double[] directDamage = {
 			0.5 * getDirectDamage(),  // Kinetic

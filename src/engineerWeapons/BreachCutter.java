@@ -788,6 +788,12 @@ public class BreachCutter extends Weapon {
 		double dmgPerShot = calculateAverageDamagePerGrunt(true, true, false, true);
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
+	
+	@Override
+	public double averageOverkill() {
+		overkillPercentages = EnemyInformation.overkillPerCreature(calculateAverageDamagePerGrunt(true, true, false, true));
+		return MathUtils.vectorDotProduct(overkillPercentages[0], overkillPercentages[1]);
+	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
