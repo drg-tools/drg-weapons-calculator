@@ -684,6 +684,11 @@ public class SMG extends Weapon {
 	}
 	
 	@Override
+	public double avgTimeToCauterize() {
+		return 0.0;
+	}
+	
+	@Override
 	public double damagePerMagazine() {
 		double timeBeforeElectrocute = MathUtils.meanRolls(getElectrocutionDoTChance()) / getRateOfFire();
 		return (getDirectDamage() + getElectricDamage()) * getMagazineSize() + calculateAverageDoTDamagePerEnemy(timeBeforeElectrocute, DoTInformation.Electro_SecsDuration, DoTInformation.Electro_DPS);

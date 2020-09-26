@@ -694,6 +694,17 @@ public class Zhukov extends Weapon {
 	}
 	
 	@Override
+	public double avgTimeToCauterize() {
+		if (selectedOverclock == 2) {
+			double effectiveRoF = getRateOfFire() / 2.0;
+			return EnemyInformation.averageTimeToFreeze(-10, effectiveRoF);
+		}
+		else {
+			return 0.0;
+		}
+	}
+	
+	@Override
 	public double damagePerMagazine() {
 		double effectiveMagazineSize = getMagazineSize() / 2.0;
 		return effectiveMagazineSize * (getDirectDamage() + getAreaDamage()) * calculateMaxNumTargets();

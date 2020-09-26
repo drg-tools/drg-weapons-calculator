@@ -642,6 +642,22 @@ public class Flamethrower extends Weapon {
 	}
 	
 	@Override
+	public double avgTimeToCauterize() {
+		double directHeatPerSec = getParticleHeat() * getFlowRate();
+		double stickyFlamesHeatPerSec = stickyFlamesHeatPerTick * stickyFlamesTicksPerSec / 2.0;
+		
+		double heatRadianceDmgAndHeatPerTick = 0;
+		if (selectedTier5 == 0) {
+			// 80 Heat/sec in a 3m radius
+			// I want this to be less effective with far-reaching streams to model how the further the steam flies the less likely it is that the enemies will be within the 3m.
+			heatRadianceDmgAndHeatPerTick = 80.0 * 3.0 / getFlameReach();
+		}
+		
+		double totalHeatPerSec = directHeatPerSec + stickyFlamesHeatPerSec + heatRadianceDmgAndHeatPerTick ;
+		return EnemyInformation.averageTimeToIgnite(totalHeatPerSec);
+	}
+	
+	@Override
 	public double damagePerMagazine() {
 		double numTargets = calculateMaxNumTargets();
 		

@@ -669,6 +669,11 @@ public class Shotgun extends Weapon {
 	}
 	
 	@Override
+	public double avgTimeToCauterize() {
+		return 0.0;
+	}
+	
+	@Override
 	public double damagePerMagazine() {
 		return getDamagePerPellet() * getNumberOfPellets() * getMagazineSize();
 	}

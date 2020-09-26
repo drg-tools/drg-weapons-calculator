@@ -257,6 +257,11 @@ public class EPC_ChargeShot extends EPC {
 	}
 	
 	@Override
+	public double avgTimeToCauterize() {
+		return 0.0;
+	}
+	
+	@Override
 	public double damagePerMagazine() {
 		// Instead of damage per mag, this will be damage per Charged Shot
 		if (selectedTier5 == 0) {

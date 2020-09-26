@@ -471,6 +471,12 @@ public abstract class Classic extends Weapon {
 	}
 	
 	@Override
+	public double avgTimeToCauterize() {
+		// Neither Hipfire nor Focused Shots can deal Temperature Damage
+		return 0.0;
+	}
+	
+	@Override
 	public ArrayList<String> exportModsToMySQL(boolean exportAllMods) {
 		ConditionalArrayList<String> toReturn = new ConditionalArrayList<String>();
 		

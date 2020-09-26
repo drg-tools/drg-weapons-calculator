@@ -662,6 +662,18 @@ public class GrenadeLauncher extends Weapon {
 	}
 	
 	@Override
+	public double avgTimeToCauterize() {
+		if (selectedTier3 == 0) {
+			// These methods already divide by 2 when this mod is selected; no need to do it again.
+			double heatPerGrenade = getDirectDamage() + getAreaDamage();
+			return EnemyInformation.averageTimeToIgnite(heatPerGrenade, 1.0 / reloadTime);
+		}
+		else {
+			return 0.0;
+		}
+	}
+	
+	@Override
 	public double damagePerMagazine() {
 		// Instead of damage per mag, this will be damage per grenade
 		double burnDoTDamagePerEnemy = 0;

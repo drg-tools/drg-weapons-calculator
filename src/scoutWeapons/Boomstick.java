@@ -772,6 +772,16 @@ public class Boomstick extends Weapon {
 	}
 	
 	@Override
+	public double avgTimeToCauterize() {
+		if (selectedTier5 == 2) {
+			return calculateTimeToIgnite(false);
+		}
+		else {
+			return 0.0;
+		}
+	}
+	
+	@Override
 	public double damagePerMagazine() {
 		// 20 degree isosceles triangle, 4m height; 1.41m base. 4 grunts can be hit in a 1-2-1 stack.
 		int gruntsHitByBlastwave = 4;

@@ -837,6 +837,11 @@ public abstract class Revolver extends Weapon {
 	}
 	
 	@Override
+	public double avgTimeToCauterize() {
+		return 0.0;
+	}
+	
+	@Override
 	public double damagePerMagazine() {
 		double damagePerShot;
 		if (selectedTier3 == 0) {

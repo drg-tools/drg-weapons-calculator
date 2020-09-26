@@ -688,6 +688,11 @@ public class Subata extends Weapon {
 	}
 	
 	@Override
+	public double avgTimeToCauterize() {
+		return 0.0;
+	}
+	
+	@Override
 	public double damagePerMagazine() {
 		return getMagazineSize() * (getDirectDamage() + getAreaDamage());
 	}

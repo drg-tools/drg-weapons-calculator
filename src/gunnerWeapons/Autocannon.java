@@ -784,6 +784,11 @@ public class Autocannon extends Weapon {
 		
 		return MathUtils.sum(utilityScores);
 	}
+	
+	@Override
+	public double avgTimeToCauterize() {
+		return 0.0;
+	}
 
 	@Override
 	public double damagePerMagazine() {

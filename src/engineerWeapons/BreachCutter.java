@@ -845,6 +845,17 @@ public class BreachCutter extends Weapon {
 	}
 	
 	@Override
+	public double avgTimeToCauterize() {
+		if (selectedOverclock == 6) {
+			// OC "Inferno" adds 90% of the Beam DPS as Heat Damage, so the time to Ignite is pretty darn fast
+			return EnemyInformation.averageTimeToIgnite(0.9 * getDamagePerTick() * damageTickRate);
+		}
+		else {
+			return 0.0;
+		}
+	}
+	
+	@Override
 	public double damagePerMagazine() {
 		return calculateMaxNumTargets() * calculateAverageDamagePerGrunt(true, true, false, true) * getMagazineSize();
 	}
