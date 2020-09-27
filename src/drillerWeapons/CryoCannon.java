@@ -665,7 +665,7 @@ public class CryoCannon extends Weapon {
 	}
 	
 	@Override
-	public double avgTimeToCauterize() {
+	public double averageTimeToCauterize() {
 		return averageTimeToFreeze(false);
 	}
 	

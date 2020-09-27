@@ -150,7 +150,7 @@ public class View extends JFrame implements Observer {
 		menuBar = new JMenuBar();
 		
 		// Overall Best Combinations menu
-		overallBestCombinations = new JMenuItem[14];
+		overallBestCombinations = new JMenuItem[15];
 		overallBestCombinations[0] = new JMenuItem("Best Burst DPS");
 		overallBestCombinations[1] = new JMenuItem("Best Sustained DPS");
 		overallBestCombinations[2] = new JMenuItem("Best Additional Target DPS");
@@ -165,9 +165,10 @@ public class View extends JFrame implements Observer {
 		overallBestCombinations[11] = new JMenuItem("Lowest Avg Overkill");
 		overallBestCombinations[12] = new JMenuItem("Lowest Breakpoints");
 		overallBestCombinations[13] = new JMenuItem("Most Utility");
+		overallBestCombinations[14] = new JMenuItem("Fastest Avg Time to Ignite/Freeze");
 		
 		// Subset Best Combinations menu
-		subsetBestCombinations = new JMenuItem[14];
+		subsetBestCombinations = new JMenuItem[15];
 		subsetBestCombinations[0] = new JMenuItem("Best Burst DPS");
 		subsetBestCombinations[1] = new JMenuItem("Best Sustained DPS");
 		subsetBestCombinations[2] = new JMenuItem("Best Additional Target DPS");
@@ -182,6 +183,7 @@ public class View extends JFrame implements Observer {
 		subsetBestCombinations[11] = new JMenuItem("Lowest Avg Overkill");
 		subsetBestCombinations[12] = new JMenuItem("Lowest Breakpoints");
 		subsetBestCombinations[13] = new JMenuItem("Most Utility");
+		subsetBestCombinations[14] = new JMenuItem("Fastest Avg Time to Ignite/Freeze");
 		
 		overallBestCombinationsMenu = new JMenu("Best Combinations (All)");
 		subsetBestCombinationsMenu = new JMenu("Best Combinations (Subset)");
@@ -453,16 +455,16 @@ public class View extends JFrame implements Observer {
 		// Realistically, it should be improved to do object ID matching to items in each of the arrays.
 		
 		// In theory, these if and for statements should work together to only update the one WeaponTab that got updated by a button click, instead of rebuilding every tab on every button click.
-		String packageName, weaponName;
+		String className, weaponName;
 		if (o instanceof Weapon) {
-			packageName = ((Weapon) o).getDwarfClass();
+			className = ((Weapon) o).getDwarfClass();
 			weaponName = ((Weapon) o).getFullName();
 		}
 		else {
 			return;
 		}
 		
-		if (packageName == "Driller") {
+		if (className == "Driller") {
 			for (int i = 0; i < drillerWeapons.length; i++) {
 				if (drillerWeapons[i].getFullName() == weaponName) {
 					drillerTabs.setComponentAt(i, new WeaponTab(drillerWeapons[i]));
@@ -470,7 +472,7 @@ public class View extends JFrame implements Observer {
 				}
 			}
 		}
-		else if (packageName == "Engineer") {
+		else if (className == "Engineer") {
 			for (int i = 0; i < engineerWeapons.length; i++) {
 				if (engineerWeapons[i].getFullName() == weaponName) {
 					engineerTabs.setComponentAt(i, new WeaponTab(engineerWeapons[i]));
@@ -478,7 +480,7 @@ public class View extends JFrame implements Observer {
 				}
 			}
 		}
-		else if (packageName == "Gunner") {
+		else if (className == "Gunner") {
 			for (int i = 0; i < gunnerWeapons.length; i++) {
 				if (gunnerWeapons[i].getFullName() == weaponName) {
 					gunnerTabs.setComponentAt(i, new WeaponTab(gunnerWeapons[i]));
@@ -486,7 +488,7 @@ public class View extends JFrame implements Observer {
 				}
 			}
 		}
-		else if (packageName == "Scout") {
+		else if (className == "Scout") {
 			for (int i = 0; i < scoutWeapons.length; i++) {
 				if (scoutWeapons[i].getFullName() == weaponName) {
 					scoutTabs.setComponentAt(i, new WeaponTab(scoutWeapons[i]));

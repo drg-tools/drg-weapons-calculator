@@ -574,14 +574,20 @@ public class WeaponTab extends JPanel {
 		}
 		toReturn.add(utilButton);
 		
-		double avgTimeToIgniteOrFreeze = myWeapon.avgTimeToCauterize();
-		if (avgTimeToIgniteOrFreeze > 0.0) {
+		double avgTimeToIgniteOrFreeze = myWeapon.averageTimeToCauterize();
+		if (avgTimeToIgniteOrFreeze < 0.0) {
+			value = new JLabel(leftPadSpaces + "N/A");
+			value.setFont(GuiConstants.customFontBold);
+			value.setForeground(GuiConstants.drgHighlightedYellow);
+			toReturn.add(value);
+		}
+		else {
 			roundedNumber = leftPadSpaces + MathUtils.round(avgTimeToIgniteOrFreeze, GuiConstants.numDecimalPlaces);
 			value = new JLabel(roundedNumber);
 			value.setFont(GuiConstants.customFontBold);
 			
-			if (originalStats[12] == 0.0) {
-				// If changing from zero to greater than zero, that means the weapon changed from unable to deal Temperature Damage to able. Highlight it green, regardless of the number.
+			if (originalStats[12] < 0.0) {
+				// If changing from negative to non-negative, that means the weapon changed from unable to deal Temperature Damage to able. Highlight it green, regardless of the number.
 				value.setForeground(GuiConstants.drgOverclockCleanGreen);
 			}
 			else {
@@ -596,12 +602,6 @@ public class WeaponTab extends JPanel {
 					value.setForeground(GuiConstants.drgHighlightedYellow);
 				}
 			}
-			toReturn.add(value);
-		}
-		else {
-			value = new JLabel(leftPadSpaces + "N/A");
-			value.setFont(GuiConstants.customFontBold);
-			value.setForeground(GuiConstants.drgHighlightedYellow);
 			toReturn.add(value);
 		}
 		

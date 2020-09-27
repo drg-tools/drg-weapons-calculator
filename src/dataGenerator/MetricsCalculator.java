@@ -88,13 +88,13 @@ public class MetricsCalculator {
 				"Ideal Burst DPS", "Burst DPS (+WP)", "Burst DPS (+Acc)", "Burst DPS (+AW)", "Burst DPS (+WP, +Acc)", "Burst DPS (+WP, +AW)", "Burst DPS (+Acc, +AW)", "Burst DPS (+WP, +Acc, +AW)", 
 				"Ideal Sustained DPS", "Sustained DPS (+WP)", "Sustained DPS (+Acc)", "Sustained DPS (+AW)", "Sustained DPS (+WP, +Acc)", "Sustained DPS (+WP, +AW)", "Sustained DPS (+Acc, +AW)", "Sustained DPS (+WP, +Acc, +AW)", 
 				"Ideal Additional Target DPS", "Max Num Targets", "Max Multi-Target Dmg", "Ammo Efficiency", "Avg Damage Wasted by Armor",
-				"General Accuracy", "Weakpoint Accuracy", "Firing Duration", "Avg TTK", "Avg Overkill", "Breakpoints", "Utility"};
+				"General Accuracy", "Weakpoint Accuracy", "Firing Duration", "Avg TTK", "Avg Overkill", "Breakpoints", "Utility", "Avg Time to Ignite/Freeze"};
 		String headerLine = String.join(",", headers) + ",\n";
 		// Set append=False so that it clears existing lines
 		writeFile(headerLine, filename, false);
 		
 		// One String for the combination, and then 16 DPS and 12 other metrics
-		String format = "%s, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f,\n";
+		String format = "%s, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f,\n";
 		
 		int[] tier1 = weaponToTest.getModsAtTier(1, false);
 		int[] tier2 = weaponToTest.getModsAtTier(2, false);
@@ -134,7 +134,7 @@ public class MetricsCalculator {
 									weaponToTest.calculateAdditionalTargetDPS(), weaponToTest.calculateMaxNumTargets(), weaponToTest.calculateMaxMultiTargetDamage(), 
 									weaponToTest.ammoEfficiency(), weaponToTest.damageWastedByArmor(), weaponToTest.estimatedAccuracy(false), weaponToTest.estimatedAccuracy(true),
 									weaponToTest.calculateFiringDuration(), weaponToTest.averageTimeToKill(), weaponToTest.averageOverkill(), weaponToTest.breakpoints(), 
-									weaponToTest.utilityScore()
+									weaponToTest.utilityScore(), weaponToTest.averageTimeToCauterize()
 								));
 								
 							}
@@ -169,7 +169,7 @@ public class MetricsCalculator {
 		
 		String format = "INSERT INTO `%s` VALUES(NULL, %d, %d, '%s', '%s', "  			// Identifying this row
 				+ "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, "  	// 16 primary target DPS calculations
-				+ "%f, %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %f, %d);\n";  	// 14 other metrics and patch ID
+				+ "%f, %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %f, %f, %d);\n";  	// 15 other metrics and patch ID
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc: overclocks) {
@@ -203,10 +203,11 @@ public class MetricsCalculator {
 									weaponToTest.calculateSingleTargetDPS(false, false, true, false), weaponToTest.calculateSingleTargetDPS(false, false, false, true), 
 									weaponToTest.calculateSingleTargetDPS(false, true, true, false), weaponToTest.calculateSingleTargetDPS(false, true, false, true), 
 									weaponToTest.calculateSingleTargetDPS(false, false, true, true), weaponToTest.calculateSingleTargetDPS(false, true, true, true), 
-									// 14 Other metrics and patch ID
+									// 15 Other metrics and patch ID
 									weaponToTest.calculateAdditionalTargetDPS(), weaponToTest.calculateMaxNumTargets(), weaponToTest.calculateMaxMultiTargetDamage(), weaponToTest.ammoEfficiency(), weaponToTest.damageWastedByArmor(),
 									weaponToTest.estimatedAccuracy(false), weaponToTest.estimatedAccuracy(true), weaponToTest.calculateFiringDuration(), weaponToTest.averageTimeToKill(), 
-									weaponToTest.averageOverkill(), weaponToTest.breakpoints(), weaponToTest.utilityScore(), weaponToTest.damagePerMagazine(), weaponToTest.timeToFireMagazine(), DatabaseConstants.patchNumberID
+									weaponToTest.averageOverkill(), weaponToTest.breakpoints(), weaponToTest.utilityScore(), weaponToTest.averageTimeToCauterize(), 
+									weaponToTest.damagePerMagazine(), weaponToTest.timeToFireMagazine(), DatabaseConstants.patchNumberID
 								));
 							}
 						}
@@ -222,13 +223,13 @@ public class MetricsCalculator {
 	}
 	
 	public String getBestMetricCombination(int metricIndex, boolean subset) {
-		// Currently there are 14 metrics on display in the GUI (with the first 2 technically representing 8 different varieties of DPS each)
-		if (metricIndex < 0 || metricIndex > 13) {
+		// Currently there are 15 metrics on display in the GUI (with the first 2 technically representing 8 different varieties of DPS each)
+		if (metricIndex < 0 || metricIndex > 14) {
 			return "------";
 		}
 		
-		// Damage Wasted by Armor, Fastest TTK, Lowest Overkill, and Breakpoints should all be lowest-possible values
-		Integer[] indexesThatShouldUseLessThan = new Integer[] {6, 10, 11, 12};
+		// Damage Wasted by Armor, Fastest TTK, Lowest Overkill, Breakpoints, and Cauterize should all be lowest-possible values
+		Integer[] indexesThatShouldUseLessThan = new Integer[] {6, 10, 11, 12, 14};
 		boolean comparatorShouldBeLessThan = new HashSet<Integer>(Arrays.asList(indexesThatShouldUseLessThan)).contains(metricIndex);
 		
 		String bestCombination = "------";
@@ -293,60 +294,64 @@ public class MetricsCalculator {
 								}
 								
 								switch (metricIndex) {
-									case 0:{
+									case 0: {
 										currentValue = weaponToTest.calculateSingleTargetDPS(true);
 										break;
 									}
-									case 1:{
+									case 1: {
 										currentValue = weaponToTest.calculateSingleTargetDPS(false);
 										break;
 									}
-									case 2:{
+									case 2: {
 										currentValue = weaponToTest.calculateAdditionalTargetDPS();
 										break;
 									}
-									case 3:{
+									case 3: {
 										currentValue = weaponToTest.calculateMaxNumTargets();
 										break;
 									}
-									case 4:{
+									case 4: {
 										currentValue = weaponToTest.calculateMaxMultiTargetDamage();
 										break;
 									}
-									case 5:{
+									case 5: {
 										currentValue = weaponToTest.ammoEfficiency();
 										break;
 									}
-									case 6:{
+									case 6: {
 										currentValue = weaponToTest.damageWastedByArmor();
 										break;
 									}
-									case 7:{
+									case 7: {
 										currentValue = weaponToTest.estimatedAccuracy(false);
 										break;
 									}
-									case 8:{
+									case 8: {
 										currentValue = weaponToTest.estimatedAccuracy(true);
 										break;
 									}
-									case 9:{
+									case 9: {
 										currentValue = weaponToTest.calculateFiringDuration();
 										break;
 									}
-									case 10:{
+									case 10: {
 										currentValue = weaponToTest.averageTimeToKill();
 										break;
 									}
-									case 11:{
+									case 11: {
 										currentValue = weaponToTest.averageOverkill();
 										break;
 									}
-									case 12:{
+									case 12: {
 										currentValue = weaponToTest.breakpoints();
 										break;
 									}
-									case 13:{
+									case 13: {
 										currentValue = weaponToTest.utilityScore();
+										break;
+									}
+									case 14: {
+										currentValue = weaponToTest.averageTimeToCauterize();
 										break;
 									}
 									default: {
@@ -356,7 +361,8 @@ public class MetricsCalculator {
 								}
 								
 								if (comparatorShouldBeLessThan) {
-									if (currentValue < bestValue) {
+									// Adding the >= 0 check just for Cauterize, but it should be safe for all the other metrics too...
+									if (currentValue >= 0 && currentValue < bestValue) {
 										bestCombination = weaponToTest.getCombination();
 										bestValue = currentValue;
 									}

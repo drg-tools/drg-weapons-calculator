@@ -547,7 +547,7 @@ public abstract class Weapon extends Observable {
 		baselineCalculatedStats = new double[] {
 			calculateAdditionalTargetDPS(), calculateMaxNumTargets(), calculateMaxMultiTargetDamage(), ammoEfficiency(), damageWastedByArmor(), 
 			estimatedAccuracy(false), estimatedAccuracy(true), calculateFiringDuration(), averageTimeToKill(), averageOverkill(), breakpoints(), 
-			utilityScore(), avgTimeToCauterize()
+			utilityScore(), averageTimeToCauterize()
 		};
 		selectedTier1 = oldT1;
 		selectedTier2 = oldT2;
@@ -1150,12 +1150,12 @@ public abstract class Weapon extends Observable {
 	}
 	
 	/*
-		This metric will show the average time to ignite or freeze if the weapon can deal Temperature Damage. Negative numbers are Avg Time to Freeze, positive numbers are Avg Time to Ignite, 
-		and zero means that the weapon currently doesn't do Temperature Damage.
+		This metric will show the average time to ignite or freeze if the weapon can deal Temperature Damage. Non-negative numbers are Avg Time to Ignite or Freeze, 
+		and negative means that the weapon currently doesn't do Temperature Damage.
 		
 		The name "cauterize" was the only term I was able to find that encompassed both freezing and burning, but it honestly has no relation to what this metric does.
 	*/
-	public abstract double avgTimeToCauterize();
+	public abstract double averageTimeToCauterize();
 	
 	// These two methods will be added as columns to the MySQL metrics dump, but I have no plans to add them to the 15 metrics in the bottom panel.
 	public abstract double damagePerMagazine();

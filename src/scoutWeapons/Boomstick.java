@@ -772,12 +772,12 @@ public class Boomstick extends Weapon {
 	}
 	
 	@Override
-	public double avgTimeToCauterize() {
+	public double averageTimeToCauterize() {
 		if (selectedTier5 == 2) {
 			return calculateTimeToIgnite(false);
 		}
 		else {
-			return 0.0;
+			return -1;
 		}
 	}
 	

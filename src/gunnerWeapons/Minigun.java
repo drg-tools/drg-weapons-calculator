@@ -941,12 +941,12 @@ public class Minigun extends Weapon {
 	}
 	
 	@Override
-	public double avgTimeToCauterize() {
+	public double averageTimeToCauterize() {
 		if (selectedTier5 == 2 || selectedOverclock == 2) {
 			return calculateIgnitionTime(false);
 		}
 		else {
-			return 0.0;
+			return -1;
 		}
 	}
 	

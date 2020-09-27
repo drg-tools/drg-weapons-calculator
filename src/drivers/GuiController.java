@@ -166,6 +166,7 @@ public class GuiController implements ActionListener {
 		mysqlCommands.add("    `average_overkill` DOUBLE NOT NULL,\n");
 		mysqlCommands.add("    `breakpoints` INT NOT NULL,\n");
 		mysqlCommands.add("    `utility` DOUBLE NOT NULL,\n");
+		mysqlCommands.add("    `average_time_to_ignite_or_freeze` DOUBLE NOT NULL,\n");
 		
 		// Metrics not on GUI 
 		mysqlCommands.add("    `damage_per_magazine` DOUBLE NOT NULL,\n");
@@ -364,8 +365,8 @@ public class GuiController implements ActionListener {
 		}
 		calculator.changeWeapon(currentlySelectedWeapon);
 		
-		// There are currently 14 options for Best Combinations menus
-		for (int i = 0; i < 14; i++) {
+		// There are currently 15 options for Best Combinations menus
+		for (int i = 0; i < 15; i++) {
 			if (e == gui.getOverallBestCombination(i)) {
 				
 				gui.activateThinkingCursor();

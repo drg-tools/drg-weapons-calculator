@@ -642,7 +642,7 @@ public class Flamethrower extends Weapon {
 	}
 	
 	@Override
-	public double avgTimeToCauterize() {
+	public double averageTimeToCauterize() {
 		double directHeatPerSec = getParticleHeat() * getFlowRate();
 		double stickyFlamesHeatPerSec = stickyFlamesHeatPerTick * stickyFlamesTicksPerSec / 2.0;
 		

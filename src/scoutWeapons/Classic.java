@@ -471,9 +471,9 @@ public abstract class Classic extends Weapon {
 	}
 	
 	@Override
-	public double avgTimeToCauterize() {
+	public double averageTimeToCauterize() {
 		// Neither Hipfire nor Focused Shots can deal Temperature Damage
-		return 0.0;
+		return -1;
 	}
 	
 	@Override

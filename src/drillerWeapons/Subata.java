@@ -688,8 +688,8 @@ public class Subata extends Weapon {
 	}
 	
 	@Override
-	public double avgTimeToCauterize() {
-		return 0.0;
+	public double averageTimeToCauterize() {
+		return -1;
 	}
 	
 	@Override
