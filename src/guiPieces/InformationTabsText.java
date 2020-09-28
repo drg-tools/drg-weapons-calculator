@@ -68,21 +68,17 @@ public class InformationTabsText {
 	
 	public static JPanel getMetricsExplanation() {
 		String[][] metricsExplanationtext = {
-			{"Ideal Burst DPS", "For weapons with a magazine size larger than 1, this metric represents what the DPS would be of emptying an entire magazine at max rate of fire into an enemy, "
-					+ "modeled as if every projectile hits flesh (not Armor or a Weakpoint). DoTs have their DPS added to this metric multiplied by the coefficient of how long the DoT afflicts the "
-					+ "enemy divided by how long it takes to empty the magazine. If the weapon only fires 1 projectile before reloading, then this is the damage of that single shot divided by "
-					+ "reload time, and DoTs are multiplied by the estimated percentage of enemies that the single shot would ignite."},
-			{"Ideal Sustained DPS", "Very similar to Ideal Burst DPS, this metric models what the DPS would be if you were to start firing the weapon and not let go of the trigger until the "
-					+ "weapon ran out of ammo. Again, this is modeled as if every bullet hits flesh, instead of Armor or a Weakpoint, and DoTs have their full DPS added to this value."},
-			{"Sustained DPS + Weakpoints", "This metric is virtually identical to Ideal Sustained DPS, with the key difference being that the weapon's Weakpoint Accuracy is used to estimate "
-					+ "how many projectiles would hit an enemy's Weakpoint and thus would have their Direct Damage increased. If the weapon is Manually Aimed, then the Weakpoint Accuracy is "
-					+ "instead just an estimate how what percentage of enemies' bodies are weakpoints. If a weapon deals Direct Damage and can score a Weakpoint hit, this should always be a "
-					+ "higher value than Ideal Sustained DPS. Keep in mind that Freezing an enemy removes Weakpoint multipliers and instead makes the whole enemy take x3 damage."},
-			{"Sustained DPS + Weakpoints + Accuracy", "Adding another layer on top of Sustained DPS + Weakpoints, this metric models how projectiles can be missed due to General Accuracy. "
-					+ "A low General Accuracy will result in a low value for this metric since so many projectiles will miss. If a weapon is Manually Aimed, then this metric will be identical "
-					+ "to Sustained DPS + Weakpoints."},
-			{"Ideal Additional Target DPS", "If the currently selected weapon can hit more than one enemy per projectile, then this metric will represent what the Ideal Sustained DPS dealt to "
-					+ "non-primary targets would be. Again, modeled as if it doesn't hit Armor or Weakpoints."},
+			{"Burst DPS", "This metric is the maximum Damage Per Second that any weapon can do before having to either reload or cool down. For weapons with a magazine size larger than 1, this "
+					+ "metric represents what the DPS would be while emptying an entire magazine at max rate of fire into an enemy. DoTs have their DPS added to this metric multiplied by the "
+					+ "coefficient of how long the DoT would damage the enemy during the magazine firing divided by how long it takes to empty the magazine. If the weapon only fires 1 shot "
+					+ "before reloading, then this is the damage of that single shot divided by reload time, and DoTs are multiplied by the estimated percentage of enemies that the single shot "
+					+ "would ignite. There are three buttons that can enable/disable whether or not Weakpoint damage is modeled, whether or not projectiles miss their target due to General "
+					+ "Accuracy, and whether or not Direct Damage gets reduced by the Armor Wasting metric."},
+			{"Sustained DPS", "Very similar to Burst DPS, this metric models what the average DPS would be if you were to fire every magazine at max RoF, reload, and continue firing again until the "
+					+ "weapon ran out of ammo. Because this metric models the average DPS over a long period of time, DoTs have their full DPS added to this value. The Weakpoint, Accuracy, and "
+					+ "Armor Wasting toggles all affect this metric just like Burst DPS."},
+			{"Additional Target DPS", "If the currently selected weapon can hit more than one enemy per projectile, then this metric will represent what the average Sustained DPS dealt to "
+					+ "non-primary targets would be. This metric is modeled without respect to Weakpoints, Accuracy, or Armor Wasting."},
 			{"Max Num Targets", "This metric represents the theoretical maximum number of Glyphid Grunts that take damage from a single projectile fired by the current weapon. For weapons "
 					+ "that deal splash damage, like Engineer's Grenade Launcher or Gunner's Autocannon, you can click on this metric to see a visualization of how this program estimates "
 					+ "enemies hit by a splash radius."},
@@ -94,22 +90,30 @@ public class InformationTabsText {
 					+ "As a result of that formula, higher damage per bullet and higher Weakpoint bonus will yield a smaller denominator, while higher damage per bullet, more targets per shot, "
 					+ "and more carried ammo will result in a higher numerator. Using a combination of those 4 upgrades will result in a very high AE score. Higher AE allows you to deal with "
 					+ "more enemies without needing as many resupplies."},
-			{"General Accuracy", "A pretty straight-forward metric to understand, General Accuracy is an estimate of what percentage of projectiles would hit a target from 7m away using sustained "
-					+ "fire. For the two shotguns, the distance has been reduced to 5m. Some weapons like both of Driller's primary weapons, Engineer's secondary weapons, or Scout's M1000 "
-					+ "Classic (Focused Shots) can't have their accuracy modeled and will instead say \"Manually Aimed\"."},
-			{"Weakpoint Accuracy", "Just like General Accuracy, this metric represents what percentage of projectiles would hit an enemy's Weakpoint from 7m away (5m for the two shotguns). "
-					+ "For weapons that can't have their accuracy modeled, it will instead say \"Manually Aimed\"."},
+			{"Average Damage Lost vs Armored Enemies", "Certain enemies in DRG have Light, Medium, and Heavy Armor on them which either reduces or negates incoming Direct Damage until the Armor "
+					+ "plates are broken off. This metric is an estimate of how much total damage has to be dealt to those enemies to both break through their Armor plates and kill them, and how "
+					+ "much damage is \"wasted\" by Armor as a result. Click on the button to see the list of Armored enemies modeled, along with the percentage wasted per creature."},
+			{"Accuracy Visualizer", "For weapons that use elliptical crosshairs, there will be a button that brings up a detailed overview of the variables used to generate the Accuracy percentages seen, "
+					+ "graphs of Spread, Recoil, and player-reduced Recoil, an animation of \"raw\" Accuracy, and an animation of player-affected Accuracy."},
+			{"General Accuracy", "A pretty straight-forward metric to understand, General Accuracy is an estimate of what percentage of projectiles would hit a target from 5-10m away using sustained "
+					+ "fire. Some weapons like both of Driller's primary weapons, Engineer's secondary weapons, or Scout's M1000 Classic (Focused Shots) can't have their accuracy modeled and will "
+					+ "instead say \"Manually Aimed\". Clicking on General Accuracy will bring up a Settings panel that will let you change how the Accuracy gets modeled, as well as which target gets"},
+			{"Weakpoint Accuracy", "Just like General Accuracy, this metric represents what percentage of projectiles would hit an enemy's Weakpoint from 5-10m away. For weapons that can't have their "
+					+ "Accuracy modeled, it will instead say \"Manually Aimed\"."},
 			{"Firing Duration", "This answers the question of how long it will take to fire every projectile from the weapon if you were to fire continuously, even through reloads or cooldowns. "
 					+ "Slower rates of fire and large carried ammo capacities increase the duration, whereas faster rates of fire and faster reloads decrease duration."},
-			{"Avg Overkill", "This is an estimate of how much damage gets \"wasted\" by bullets when enemies have lower remaining health than the damage per projectile. Because different creatures have "
-					+ "different healthpools that scale with Hazard Level and Player Count, this uses a weighted average of all enemies' healthpools for its Overkill calculations."},
 			{"Avg Time to Kill", "A very simple metric; all this does is divide the weighted average healthpool of all enemies by the current Sustained + Weakpoint DPS to get an estimate of "
 					+ "how quickly the current weapon and build can kill an enemy."},
+			{"Avg Overkill", "This is an estimate of how much damage gets \"wasted\" by bullets when enemies have lower remaining health than the damage per projectile. Because different creatures have "
+					+ "different healthpools that scale with Hazard Level and Player Count, this uses a weighted average of all enemies' healthpools for its Overkill calculations."},
 			{"Breakpoints", "Although the number displayed is pretty meaningless by itself, clicking on this metric will have a small window pop up that shows you the fewest number of projectiles "
-					+ "needed to kill various enemies under different conditions."},
+					+ "needed to kill various enemies under different conditions. Weapons that shoot multiple pellets per shot (Engineer/Shotgun and Scout/Boomstick) have the damage per shot multiplied by "
+					+ "General Accuracy to be slightly more realistic."},
 			{"Utility", "Another abstract metric, this tries to numerically represent the value of certain mods that don't affect DPS or total damage, but do things like slow or stun enemies. "
 					+ "Additionally, if the weapon can break Light Armor Plates, then the average probability that each shot can break a Light Armor plate will be listed."},
-			// {"", ""},
+			{"Average Time to Ignite or Freeze", "As the name implies, if a weapon can deal either Heat Damage or Cold Damage, then this number will tell you the average time it would take to ignite or freeze "
+					+ "enemies. If this value is zero, that means that so much Heat or Cold Damage is being done in a single burst that it instantly ignites or freezes all enemies."},
+			// {"Haz5 Viable", "TODO"},
 		};
 		
 		JPanel panelContainedWithinScrollPane = new JPanel();
@@ -131,7 +135,7 @@ public class InformationTabsText {
 			{"I think something is wrong/missing, how do I communicate that to you?", "In the 'Misc. Actions' Menu, there's an option to suggest changes. That should automatically open up this project's GitHub issue creation page for you."},
 			{"Can I help improve to this project?", "Yes! This is an open-source, freeware fan project. Although it's started out as just one developer, I would love to have help."},
 			{"How frequently will this be updated?", "There are a couple features that I want to add before calling this 'done', but I'm planning to update each weapon's stats as GSG devs update them in-game on their production build."},
-			{"Will this be made available as a live website?", "Probably not. Thousands of lines of Java code do not port well into HTML/CSS/Javascript. The data generated by this program will be available on karl.gg at some point in the future."},
+			{"Will this be made available as a live website?", "Probably not. Thousands of lines of Java code do not port well into HTML/CSS/Javascript. The data generated by this program will be available on karl.gg in the near future."},
 			{"How did you model [insert mechanic here]?", "This is an open-source project. Feel free to look around the source code and see how it was done. In general though: I chose to model everything like a continuous function instead of "
 					+ "discrete. Slight loss of precision, but significantly easier."},
 			{"How are Status Effect Utility scores calculated?", "The formula I chose to use is (% Chance to Proc) * (Number of Targets) * (Effect Duration) * (Utility Factor), where 'Utility Factor' is some scalar value assigned to each effect."},
@@ -175,7 +179,7 @@ public class InformationTabsText {
 			{"Direct Damage", "One of the three main Types of damage dealt by weapons, Direct Damage is the only one of the three that is affected by Armor, Weakpoints, and the Frozen Status Effect. Direct Damage gets reduced when passing through Light Armor, negated entirely by Heavy Armor "
 					+ "and Unbreakable Armor, and gets multiplied when impacting a creature's Weakpoint or a Frozen enemy. Direct Damage can be any of these 5 Elements: Kinetic, Explosive, Fire, Frost, or Electric."},
 			{"Area Damage", "The second of the three main Types of damage, Area Damage ignores Armor, Weakpoints, and the Frozen Status Effect. Any Area Damage inflicted to a creature simply reduces their healthbar. Not all Area Damage is dealt in an Area-of-Effect, like Embedded Detonators "
-					+ "or Explosive Reload. Area Damage can be any of these 4 elements: Explosive, Fire, Frost, or Electric"},
+					+ "or Explosive Reload. Area Damage can be any of these 5 elements: Kinetic, Explosive, Fire, Frost, or Electric"},
 			{"Temperature Damage", "The third Type of damage dealt by weapons, all forms of Temperature Damage only affect a creature's Temperature meter and do not directly affect the enemies' healthbars. Heat Damage increases the Temperature Meter, and Cold Damage decreases it."},
 			{"Elemental Damage Types", "All Direct Damage, Area Damage, and Damage Over Time is comprised of one or more of the following types: Kinetic, Explosive, Fire, Frost, Electric, Poison, or Radiation. Depending on the creature being shot and the biome you're in, each of these "
 					+ "elements can either be more effective against or resisted by the creature."},
@@ -203,8 +207,11 @@ public class InformationTabsText {
 			{"Base Spread", "This stat affects how accurate the first shot will be. At 0%, that means the first shot is guaranteed to go exactly where your crosshair is pointing. As the percentage goes higher, the probability that the first shot will hit decreases."},
 			{"Spread Per Shot", "After every shot gets fired, the maximum area of the crosshair increases by this amount. Thus, successive shots get increasingly less likely to hit your intended target until it reaches Max Spread."},
 			{"Spread Recovery", "This stat is constantly reducing the current Spread of the gun, trying to return to Base Spread. Because this is a constant rate, it's more effective the lower the Rate of Fire."},
-			{"Recoil", "Recoil is an estimate of how far off-axis the center of the Spread is after each shot. Typically, Recoil is primarily a vertical climb with a little horizontal movement, but some weapons have significantly more hotizontal movement than others. "
-					+ "While Spread has 4 different pieces (Base, Per Shot, Max, and Recovery), Recoil is only per-shot. Higher RoF means more total recoil."},
+			{"Spread Variance", "This value is added to Base Spread to determine the Max Spread. Spread per Shot can't add to the current Spread value if it would go beyond Max Spread."},
+			{"Recoil Pitch", "Recoil Pitch determines how far the HUD gets moved vertically per shot."},
+			{"Recoil Yaw", "Recoil Yaw determines how far the HUD gets moved horizontally per shot."},
+			{"Mass (Recoil)", "Mass affects both how far the HUD moves in relation to Recoil Pitch and Yaw, as well as how long it takes for the weapon to recover from the Recoil per Shot."},
+			{"Spring Stiffness (Recoil)", "Spring Stiffness determines how much this weapon resists moving around due to recoil, as well as helping it to return to center more quickly."},
 			{"Time to Kill (TTK)", "As the name implies, this metric is used to estimate how quickly a weapon can kill an enemy. Because there are so many enemy types with different healthbars and spawn rates, this metric gets evaluated as the weighted average of all "
 					+ "healthbars divided by the Sustained Weakpoint DPS of the weapon."},
 			{"Overkill", "Because enemy healthbars don't normally come in multiples of the damage done by each Weapon, there's inevitably some damage going to be wasted. Overkill is an approximation of how much damage gets wasted by a Weapon as it kills the weighted average healthbar."},
@@ -230,7 +237,7 @@ public class InformationTabsText {
 		String[][] acknowledgementsText = {
 			{"Ghost Ship Games", "Thank you for making the game Deep Rock Galactic and letting me use some images and artwork from the game in this program."},
 			{"Mike @ GSG / Dagadegatto", "Thank you for being willing to answer so many of my technical questions about DRG and helping to improve the quality of this program's models."},
-			{"Elythnwaen", "Thank you for collecting data about elemental weaknesses, resistances, Burn/Freeze temperatures, and more! Also, thank you for letting me know about Subata's 50% Armor Breaking penalty."},
+			{"Elythnwaen", "Thank you for collecting data about elemental weaknesses, resistances, Burn/Freeze temperatures, and more! Also, thank you for finding a bunch of information for me."},
 			{"Ian McDonagh", "Thank you for creating the open-source JAR 'image4j' that allows me to use .ico files natively."},
 			{"Chris Kroells", "Thank you for creating the open-source JAR 'thumbnailator' that does a better job compressing image files than Java Graphics2D can do natively."},
 			{"USteppin", "Thank you for collecting some data and testing weapon builds for me on Hazard 5. Twitch Channel: https://www.twitch.tv/usteppin"},
