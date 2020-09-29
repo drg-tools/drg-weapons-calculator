@@ -89,11 +89,11 @@ public class MetricsCalculator {
 				"Ideal Sustained DPS", "Sustained DPS (+WP)", "Sustained DPS (+Acc)", "Sustained DPS (+AW)", "Sustained DPS (+WP, +Acc)", "Sustained DPS (+WP, +AW)", "Sustained DPS (+Acc, +AW)", "Sustained DPS (+WP, +Acc, +AW)", 
 				"Ideal Additional Target DPS", "Max Num Targets", "Max Multi-Target Dmg", "Ammo Efficiency", "Avg Damage Wasted by Armor",
 				"General Accuracy", "Weakpoint Accuracy", "Firing Duration", "Avg TTK", "Avg Overkill", "Breakpoints", "Utility", "Avg Time to Ignite/Freeze"};
-		String headerLine = String.join(",", headers) + ",\n";
+		String headerLine = String.join(", ", headers) + ",\n";
 		// Set append=False so that it clears existing lines
 		writeFile(headerLine, filename, false);
 		
-		// One String for the combination, and then 16 DPS and 12 other metrics
+		// One String for the combination, and then 16 DPS and 13 other metrics
 		String format = "%s, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f,\n";
 		
 		int[] tier1 = weaponToTest.getModsAtTier(1, false);

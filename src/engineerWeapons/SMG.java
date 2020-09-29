@@ -18,6 +18,7 @@ import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
+// TODO: apply the same changes to Conductive Bullets that I did to Autocannon's Feedback Loop and Minigun's Variable Chamber Pressure
 public class SMG extends Weapon {
 	
 	/****************************************************************************************

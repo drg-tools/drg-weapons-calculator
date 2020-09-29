@@ -265,6 +265,8 @@ public class WeaponTab extends JPanel {
 		JLabel header, value;
 		String roundedNumber;
 		String leftPadSpaces = "  ";
+		double originalBurstDPS = myWeapon.getBaselineBurstDPS();
+		double originalSustainedDPS = myWeapon.getBaselineSustainedDPS();
 		double[] originalStats = myWeapon.getBaselineStats();
 		
 		/******************************************
@@ -277,20 +279,36 @@ public class WeaponTab extends JPanel {
 			toReturn.add(header);
 		}
 		
-		double idealBurstDPS = myWeapon.calculateSingleTargetDPS(true);
-		roundedNumber = leftPadSpaces + MathUtils.round(idealBurstDPS, GuiConstants.numDecimalPlaces);
+		double burstDPS = myWeapon.calculateSingleTargetDPS(true);
+		roundedNumber = leftPadSpaces + MathUtils.round(burstDPS, GuiConstants.numDecimalPlaces);
 		value = new JLabel(roundedNumber);
 		value.setFont(GuiConstants.customFontBold);
-		// Because this one display will have 8 different numbers without changing builds, I'm choosing to just leave it as yellow
-		value.setForeground(GuiConstants.drgHighlightedYellow);
+		if (burstDPS < originalBurstDPS) {
+			value.setForeground(GuiConstants.drgNegativeChangeRed);
+		}
+		else if (burstDPS > originalBurstDPS) {
+			value.setForeground(GuiConstants.drgOverclockCleanGreen);
+		}
+		else {
+			// Implicitly means that they're equal
+			value.setForeground(GuiConstants.drgHighlightedYellow);
+		}
 		toReturn.add(value);
 		
-		double idealSustainedDPS = myWeapon.calculateSingleTargetDPS(false);
-		roundedNumber = leftPadSpaces + MathUtils.round(idealSustainedDPS, GuiConstants.numDecimalPlaces);
+		double sustainedDPS = myWeapon.calculateSingleTargetDPS(false);
+		roundedNumber = leftPadSpaces + MathUtils.round(sustainedDPS, GuiConstants.numDecimalPlaces);
 		value = new JLabel(roundedNumber);
 		value.setFont(GuiConstants.customFontBold);
-		// Because this one display will have 8 different numbers without changing builds, I'm choosing to just leave it as yellow
-		value.setForeground(GuiConstants.drgHighlightedYellow);
+		if (sustainedDPS < originalSustainedDPS) {
+			value.setForeground(GuiConstants.drgNegativeChangeRed);
+		}
+		else if (sustainedDPS > originalSustainedDPS) {
+			value.setForeground(GuiConstants.drgOverclockCleanGreen);
+		}
+		else {
+			// Implicitly means that they're equal
+			value.setForeground(GuiConstants.drgHighlightedYellow);
+		}
 		toReturn.add(value);
 		
 		// These three buttons toggle Weakpoints, General Accuracy, and Armor Wasting metrics for DPS calculations.

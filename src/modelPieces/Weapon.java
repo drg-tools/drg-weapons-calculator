@@ -73,6 +73,8 @@ public abstract class Weapon extends Observable {
 	protected boolean enableGeneralAccuracyDPS = false;
 	protected boolean enableArmorWastingDPS = false;
 	
+	protected double[] baselineBurstDPS;
+	protected double[] baselineSustainedDPS;
 	protected double[] baselineCalculatedStats;
 	private AoEVisualizer illustration = null;
 	
@@ -544,6 +546,28 @@ public abstract class Weapon extends Observable {
 		
 		damageWastedByArmor();
 		
+		baselineBurstDPS = new double[]{
+			calculateSingleTargetDPS(true, false, false, false),  // Ideal
+			calculateSingleTargetDPS(true, true, false, false),  // Weakpoint
+			calculateSingleTargetDPS(true, false, true, false),  // Accuracy
+			calculateSingleTargetDPS(true, false, false, true),  // Armor Wasting
+			calculateSingleTargetDPS(true, true, true, false),  // WP + Acc
+			calculateSingleTargetDPS(true, true, false, true),  // WP + AW
+			calculateSingleTargetDPS(true, false, true, true),  // Acc + AW
+			calculateSingleTargetDPS(true, true, true, true)  // WP + Acc + AW
+		};
+		
+		baselineSustainedDPS = new double[]{
+			calculateSingleTargetDPS(false, false, false, false),  // Ideal
+			calculateSingleTargetDPS(false, true, false, false),  // Weakpoint
+			calculateSingleTargetDPS(false, false, true, false),  // Accuracy
+			calculateSingleTargetDPS(false, false, false, true),  // Armor Wasting
+			calculateSingleTargetDPS(false, true, true, false),  // WP + Acc
+			calculateSingleTargetDPS(false, true, false, true),  // WP + AW
+			calculateSingleTargetDPS(false, false, true, true),  // Acc + AW
+			calculateSingleTargetDPS(false, true, true, true)  // WP + Acc + AW
+		};
+		
 		baselineCalculatedStats = new double[] {
 			calculateAdditionalTargetDPS(), calculateMaxNumTargets(), calculateMaxMultiTargetDamage(), ammoEfficiency(), damageWastedByArmor(), 
 			estimatedAccuracy(false), estimatedAccuracy(true), calculateFiringDuration(), averageTimeToKill(), averageOverkill(), breakpoints(), 
@@ -556,7 +580,81 @@ public abstract class Weapon extends Observable {
 		selectedTier5 = oldT5;
 		selectedOverclock = oldOC;
 	}
-	// This gets used in WeaponTab for making the associated numbers change red/green/yellow
+	// These get used in WeaponTab for making the associated numbers change red/green/yellow
+	public double getBaselineBurstDPS() {
+		// Ideal
+		if (!enableWeakpointsDPS &&  !enableGeneralAccuracyDPS && !enableArmorWastingDPS) {
+			return baselineBurstDPS[0];
+		}
+		// Wakpoint
+		else if (enableWeakpointsDPS &&  !enableGeneralAccuracyDPS && !enableArmorWastingDPS) {
+			return baselineBurstDPS[1];
+		}
+		// Accuracy
+		else if (!enableWeakpointsDPS &&  enableGeneralAccuracyDPS && !enableArmorWastingDPS) {
+			return baselineBurstDPS[2];	
+		}
+		// Armor Wasting
+		else if (!enableWeakpointsDPS &&  !enableGeneralAccuracyDPS && enableArmorWastingDPS) {
+			return baselineBurstDPS[3];
+		}
+		// WP + Acc
+		else if (enableWeakpointsDPS &&  enableGeneralAccuracyDPS && !enableArmorWastingDPS) {
+			return baselineBurstDPS[4];
+		}
+		// WP + AW
+		else if (enableWeakpointsDPS &&  !enableGeneralAccuracyDPS && enableArmorWastingDPS) {
+			return baselineBurstDPS[5];
+		}
+		// Acc + AW
+		else if (!enableWeakpointsDPS &&  enableGeneralAccuracyDPS && enableArmorWastingDPS) {
+			return baselineBurstDPS[6];
+		}
+		// WP + Acc + AW
+		else if (enableWeakpointsDPS &&  enableGeneralAccuracyDPS && enableArmorWastingDPS) {
+			return baselineBurstDPS[7];
+		}
+		else {
+			return -1;
+		}
+	}
+	public double getBaselineSustainedDPS() {
+		// Ideal
+		if (!enableWeakpointsDPS &&  !enableGeneralAccuracyDPS && !enableArmorWastingDPS) {
+			return baselineSustainedDPS[0];
+		}
+		// Wakpoint
+		else if (enableWeakpointsDPS &&  !enableGeneralAccuracyDPS && !enableArmorWastingDPS) {
+			return baselineSustainedDPS[1];
+		}
+		// Accuracy
+		else if (!enableWeakpointsDPS &&  enableGeneralAccuracyDPS && !enableArmorWastingDPS) {
+			return baselineSustainedDPS[2];	
+		}
+		// Armor Wasting
+		else if (!enableWeakpointsDPS &&  !enableGeneralAccuracyDPS && enableArmorWastingDPS) {
+			return baselineSustainedDPS[3];
+		}
+		// WP + Acc
+		else if (enableWeakpointsDPS &&  enableGeneralAccuracyDPS && !enableArmorWastingDPS) {
+			return baselineSustainedDPS[4];
+		}
+		// WP + AW
+		else if (enableWeakpointsDPS &&  !enableGeneralAccuracyDPS && enableArmorWastingDPS) {
+			return baselineSustainedDPS[5];
+		}
+		// Acc + AW
+		else if (!enableWeakpointsDPS &&  enableGeneralAccuracyDPS && enableArmorWastingDPS) {
+			return baselineSustainedDPS[6];
+		}
+		// WP + Acc + AW
+		else if (enableWeakpointsDPS &&  enableGeneralAccuracyDPS && enableArmorWastingDPS) {
+			return baselineSustainedDPS[7];
+		}
+		else {
+			return -1;
+		}
+	}
 	public double[] getBaselineStats() {
 		return baselineCalculatedStats;
 	}
