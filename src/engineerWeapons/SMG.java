@@ -18,7 +18,6 @@ import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
-// TODO: apply the same changes to Conductive Bullets that I did to Autocannon's Feedback Loop and Minigun's Variable Chamber Pressure
 public class SMG extends Weapon {
 	
 	/****************************************************************************************
@@ -26,8 +25,8 @@ public class SMG extends Weapon {
 	****************************************************************************************/
 	
 	private double electrocutionDoTChance;
-	private int directDamage;
-	private int electricDamage;
+	private double directDamage;
+	private double electricDamage;
 	private int magazineSize;
 	private int carriedAmmo;
 	private double rateOfFire;
@@ -292,17 +291,16 @@ public class SMG extends Weapon {
 		
 		return toReturn;
 	}
-	private int getDirectDamage() {
-		int toReturn = directDamage;
+	private double getDirectDamage() {
+		double toReturn = directDamage;
 		
+		// Additive bonuses first
 		if (selectedTier1 == 0) {
 			toReturn += 2;
 		}
-		
 		if (selectedTier3 == 0) {
 			toReturn += 2;
 		}
-		
 		if (selectedOverclock == 3) {
 			toReturn -= 1;
 		}
@@ -310,13 +308,24 @@ public class SMG extends Weapon {
 			toReturn -= 3;
 		}
 		
+		// Multiplicative bonuses last
+		if (selectedTier4 == 1) {
+			toReturn *= conductiveBulletsMultiplier();
+		}
+		
 		return toReturn;
 	}
-	private int getElectricDamage() {
-		int toReturn = electricDamage;
+	private double getElectricDamage() {
+		double toReturn = electricDamage;
 		
+		// Additive bonuses first
 		if (selectedOverclock == 2) {
 			toReturn += 2;
+		}
+		
+		// Multiplicative bonuses last
+		if (selectedTier4 == 1) {
+			toReturn *= conductiveBulletsMultiplier();
 		}
 		
 		return toReturn;
@@ -417,6 +426,18 @@ public class SMG extends Weapon {
 		return toReturn;
 	}
 	
+	private double conductiveBulletsMultiplier() {
+		double conductiveBulletsDamageMultiplier = 1.3;
+		if (statusEffects[2] || statusEffects[3]) {
+			return conductiveBulletsDamageMultiplier;
+		}
+		else {
+			// To model a 30% direct damage increase to electrocuted targets, average out how many bullets/mag that would get the buff after a DoT proc, and then spread that bonus across every bullet.
+			double numBulletsBeforeElectrocute = Math.ceil(MathUtils.meanRolls(getElectrocutionDoTChance()));
+			return averageBonusPerMagazineForLongEffects(conductiveBulletsDamageMultiplier, numBulletsBeforeElectrocute, getMagazineSize());
+		}
+	}
+	
 	@Override
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[11];
@@ -424,10 +445,10 @@ public class SMG extends Weapon {
 		toReturn[0] = new StatsRow("Electrocute DoT Chance:", convertDoubleToPercentage(getElectrocutionDoTChance()), modIcons.homebrewPowder, selectedTier1 == 1 || selectedOverclock == 5);
 		toReturn[1] = new StatsRow("Electrocute DoT DPS:", DoTInformation.Electro_DPS, modIcons.electricity, false);
 		
-		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 0 || selectedOverclock == 3 || selectedOverclock == 5;
+		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 0 || selectedTier4 == 1 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[2] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
-		toReturn[3] = new StatsRow("Electric Damage:", getElectricDamage(), modIcons.directDamage, selectedOverclock == 2, selectedOverclock == 2);
+		toReturn[3] = new StatsRow("Electric Damage:", getElectricDamage(), modIcons.directDamage, selectedTier4 == 1 || selectedOverclock == 2, selectedTier4 == 1 || selectedOverclock == 2);
 		
 		boolean magSizeModified = selectedTier2 == 0 || selectedTier5 == 0 || selectedOverclock == 0;
 		toReturn[4] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, magSizeModified);
@@ -454,45 +475,6 @@ public class SMG extends Weapon {
 	* Other Methods
 	****************************************************************************************/
 	
-	private double calculateDamagePerBullet(boolean weakpointBonus, boolean armorWasting) {
-		// TODO: maybe refactor this into the calculateSingleTargetDPS() method?
-		double directDamage = getDirectDamage() + getElectricDamage();
-		
-		if (selectedTier4 == 1) {
-			double conductiveBulletsDamageMultiplier = 1.3;
-			if (statusEffects[2] || statusEffects[3]) {
-				directDamage *= conductiveBulletsDamageMultiplier;
-			}
-			else {
-				// To model a 30% direct damage increase to electrocuted targets, average out how many bullets/mag that would get the buff after a DoT proc, and then spread that bonus across every bullet.
-				double numBulletsBeforeElectrocute = Math.ceil(MathUtils.meanRolls(getElectrocutionDoTChance()));
-				directDamage *= averageBonusPerMagazineForLongEffects(conductiveBulletsDamageMultiplier, numBulletsBeforeElectrocute, getMagazineSize());
-			}
-		}
-		
-		// Damage wasted by Armor
-		if (armorWasting && !statusEffects[1]) {
-			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
-			directDamage *= armorWaste;
-		}
-		
-		// Frozen
-		if (statusEffects[1]) {
-			directDamage *= UtilityInformation.Frozen_Damage_Multiplier;
-		}
-		// IFG Grenade
-		if (statusEffects[3]) {
-			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
-		}
-		
-		if (weakpointBonus && !statusEffects[1]) {
-			return increaseBulletDamageForWeakpoints2(directDamage, getWeakpointBonus());
-		}
-		else {
-			return directDamage;
-		}
-	}
-	
 	private double calculateBurstElectrocutionDoTDPS() {
 		return calculateRNGDoTDPSPerMagazine(getElectrocutionDoTChance(), DoTInformation.Electro_DPS, getMagazineSize());
 	}
@@ -506,7 +488,7 @@ public class SMG extends Weapon {
 	// Single-target calculations
 	@Override
 	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
-		double generalAccuracy, duration;
+		double generalAccuracy, duration, directWeakpointDamage;
 		
 		if (accuracy) {
 			generalAccuracy = estimatedAccuracy(false) / 100.0;
@@ -526,14 +508,30 @@ public class SMG extends Weapon {
 		}
 		
 		double weakpointAccuracy;
-		double directWeakpointDamage = calculateDamagePerBullet(weakpoint, armorWasting);
-		double directDamage = calculateDamagePerBullet(false, armorWasting);
+		double directDamage = getDirectDamage() + getElectricDamage();
 		
-		if (weakpoint) {
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			directDamage *= armorWaste;
+		}
+		
+		// Frozen
+		if (statusEffects[1]) {
+			directDamage *= UtilityInformation.Frozen_Damage_Multiplier;
+		}
+		// IFG Grenade
+		if (statusEffects[3]) {
+			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
+		}
+		
+		if (weakpoint && !statusEffects[1]) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+			directWeakpointDamage = increaseBulletDamageForWeakpoints2(directDamage);
 		}
 		else {
 			weakpointAccuracy = 0.0;
+			directWeakpointDamage = directDamage;
 		}
 		
 		int magSize = getMagazineSize();
@@ -557,7 +555,7 @@ public class SMG extends Weapon {
 	public double calculateMaxMultiTargetDamage() {
 		// First, how much direct damage can be dealt without DoT calculations. Second, add the DoTs on the primary targets. Third, if necessary, add the secondary target DoTs.
 		double totalDamage = 0;
-		totalDamage += calculateDamagePerBullet(false, false) * (getMagazineSize() + getCarriedAmmo());
+		totalDamage += (getDirectDamage() + getElectricDamage()) * (getMagazineSize() + getCarriedAmmo());
 		
 		/* 
 			There's no good way to model RNG-based mechanics' max damage, such as the Electrocute DoT. I'm choosing
@@ -595,14 +593,13 @@ public class SMG extends Weapon {
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
-		// TODO: calculateDamagePerBullet uses weakpointBonus2 (not the weighted average) which makes this different from all other models. Maybe refactor in the future?
-		double dmgPerShot = calculateDamagePerBullet(true, false);
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage() + getElectricDamage());
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 	
 	@Override
 	public double averageOverkill() {
-		overkillPercentages = EnemyInformation.overkillPerCreature( calculateDamagePerBullet(false, false));
+		overkillPercentages = EnemyInformation.overkillPerCreature(getDirectDamage() + getElectricDamage());
 		return MathUtils.vectorDotProduct(overkillPercentages[0], overkillPercentages[1]);
 	}
 
@@ -650,11 +647,6 @@ public class SMG extends Weapon {
 			0,  // Poison
 			0  // Radiation
 		};
-		
-		// T4.B Conductive Bullets multiplies by an additional x1.3 when hitting enemies electrocuted or affected by IFG
-		if (selectedTier4 == 1 && (statusEffects[2] || statusEffects[3])) {
-			directDamage = MathUtils.vectorScalarMultiply(1.3, directDamage);
-		}
 		
 		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0, statusEffects[1], statusEffects[3], false);
 		return MathUtils.sum(breakpoints);
