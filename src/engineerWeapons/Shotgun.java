@@ -8,7 +8,6 @@ import dataGenerator.DatabaseConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
-import modelPieces.AccuracyEstimator;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
@@ -62,6 +61,9 @@ public class Shotgun extends Weapon {
 		weakpointStunChance = 0.1;
 		stunDuration = 3;
 		
+		// Override default 10m distance
+		accEstimator.setDistance(7.0);
+		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
 		setBaselineStats();
@@ -98,7 +100,8 @@ public class Shotgun extends Weapon {
 		tier4[1] = new Mod("Bigger Pellets", "+1 Damage per Pellet", modIcons.directDamage, 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1m Radius. 10 Sentry ammo per shot, 3 second cooldown per Sentry.", modIcons.special, 5, 0, false);
+		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1.5m Radius. Turret Whip projectile has a 100% chance to Stun for 1.5 seconds "
+				+ "inflicts 0.5 Fear to all enemies it damages. 10 Sentry ammo per shot, 3 second cooldown per Sentry.", modIcons.special, 5, 0, false);
 		tier5[1] = new Mod("Miner Adjustments", "Changes the Shotgun from semi-automatic to fully automatic, +0.5 Rate of Fire", modIcons.rateOfFire, 5, 1);
 		
 		overclocks = new Overclock[5];
@@ -107,7 +110,7 @@ public class Shotgun extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Light-Weight Magazines", "+20 Max Ammo, -0.4 Reload Time", overclockIcons.carriedAmmo, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Magnetic Pellet Alignment", "x0.5 Base Spread, +30% Weakpoint Bonus, x0.75 Rate of Fire", overclockIcons.baseSpread, 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Cycle Overload", "+1 Damage per Pellet, +2 Rate of Fire, +0.5 Reload Time, x1.5 Base Spread", overclockIcons.rateOfFire, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Mini Shells", "+90 Max Ammo, +6 Magazine Size, x0.5 Recoil, -2 Damage per Pellet", overclockIcons.miniShells, 4);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Mini Shells", "+90 Max Ammo, +6 Magazine Size, x0.5 Recoil, -2 Damage per Pellet, and no longer able to stun enemies", overclockIcons.miniShells, 4);
 	}
 	
 	@Override
@@ -497,7 +500,8 @@ public class Shotgun extends Weapon {
 	}
 	
 	// Single-target calculations
-	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+	@Override
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		double generalAccuracy, duration, directWeakpointDamagePerPellet;
 		
 		if (accuracy) {
@@ -516,6 +520,12 @@ public class Shotgun extends Weapon {
 		
 		double dmgPerPellet = getDamagePerPellet();
 		
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			dmgPerPellet *= armorWaste;
+		}
+		
 		// Frozen
 		if (statusEffects[1]) {
 			dmgPerPellet *= UtilityInformation.Frozen_Damage_Multiplier;
@@ -527,13 +537,7 @@ public class Shotgun extends Weapon {
 		
 		if (selectedOverclock == 0) {
 			// Stunner OC damage multiplier
-			double stunChancePerShot = calculateCumulativeStunChancePerShot();
-			double numShotsBeforeStun = Math.round(MathUtils.meanRolls(stunChancePerShot));
-			double numShotsFiredWhileStunned = Math.min(Math.round(getStunDuration() * getRateOfFire()), getMagazineSize() - numShotsBeforeStun);
-			
-			double stunnerAverageDamageMultiplier = (numShotsBeforeStun + 1.3 * numShotsFiredWhileStunned) / (numShotsBeforeStun + numShotsFiredWhileStunned);
-			
-			dmgPerPellet *= stunnerAverageDamageMultiplier;
+			dmgPerPellet *= averageBonusPerMagazineForShortEffects(1.3, 3.0, false, calculateCumulativeStunChancePerShot(), getMagazineSize(), getRateOfFire());
 		}
 		
 		double weakpointAccuracy;
@@ -547,30 +551,10 @@ public class Shotgun extends Weapon {
 		}
 		
 		int numPelletsPerShot = getNumberOfPellets();
-		int pelletsThatHitWeakpointPerShot = (int) Math.round(numPelletsPerShot * weakpointAccuracy);
-		int pelletsThatHitTargetPerShot = (int) Math.round(numPelletsPerShot * generalAccuracy) - pelletsThatHitWeakpointPerShot;
+		double pelletsThatHitWeakpointPerShot = numPelletsPerShot * weakpointAccuracy;
+		double pelletsThatHitTargetPerShot = numPelletsPerShot * generalAccuracy - pelletsThatHitWeakpointPerShot;
 		
 		return (pelletsThatHitWeakpointPerShot * directWeakpointDamagePerPellet + pelletsThatHitTargetPerShot * dmgPerPellet) * getMagazineSize() / duration;
-	}
-
-	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS(true, false, false);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(false, false, false);
-	}
-	
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(false, false, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	@Override
@@ -599,34 +583,38 @@ public class Shotgun extends Weapon {
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
-		double dmgPerShot = increaseBulletDamageForWeakpoints(increaseBulletDamageForWeakpoints(getDamagePerPellet()) * getNumberOfPellets());
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet(), getWeakpointBonus()) * getNumberOfPellets();
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
+	}
+	
+	@Override
+	public double averageOverkill() {
+		overkillPercentages = EnemyInformation.overkillPerCreature(getDamagePerPellet() * getNumberOfPellets());
+		return MathUtils.vectorDotProduct(overkillPercentages[0], overkillPercentages[1]);
 	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		double unchangingBaseSpread = 104;
-		double changingBaseSpread = 96;
-		double spreadVariance = 0;
-		double spreadPerShot = 0;
-		double spreadRecoverySpeed = 0;
-		double recoilPerShot = 124.036285;
-		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
-		double recoilUpInterval = 1.0 / 3.0;
-		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		double recoilDownInterval = 4.0 / 3.0;
+		double horizontalBaseSpread = 12.0 * getBaseSpread();
+		double verticalBaseSpread = 6.0 * getBaseSpread();
+		double spreadPerShot = 0.0;
+		double spreadRecoverySpeed = 0.0;
+		double spreadVariance = 0.0;
 		
-		double[] modifiers = {getBaseSpread(), 1.0, 1.0, 1.0, getRecoil()};
+		double recoilPitch = 55.0 * getRecoil();
+		double recoilYaw = 40.0 * getRecoil();
+		double mass = 4.0;
+		double springStiffness = 75.0;
 		
-		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, true, getRateOfFire(), getMagazineSize(), 1, 
-				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
-				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
+		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
+				horizontalBaseSpread, verticalBaseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override
 	public int breakpoints() {
 		double[] directDamage = {
-			getDamagePerPellet() * getNumberOfPellets(),  // Kinetic
+			getDamagePerPellet() * getNumberOfPellets() * estimatedAccuracy(false) / 100.0,  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
@@ -634,6 +622,7 @@ public class Shotgun extends Weapon {
 		};
 		
 		double[] areaDamage = {
+			0,  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
@@ -646,8 +635,7 @@ public class Shotgun extends Weapon {
 			0,  // Poison
 			0  // Radiation
 		};
-		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0, statusEffects[1], statusEffects[3], false);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -659,10 +647,30 @@ public class Shotgun extends Weapon {
 		double probabilityToBreakLightArmorPlatePerPellet = calculateProbabilityToBreakLightArmor(getDamagePerPellet() * numPelletsThatHitLightArmorPlate, getArmorBreaking());
 		utilityScores[2] = probabilityToBreakLightArmorPlatePerPellet * UtilityInformation.ArmorBreak_Utility;
 		
+		// Fear
+		if (selectedTier5 == 0) {
+			// Turret Whip projectile does 0.5 Fear Factor in its 1.5m radius
+			utilityScores[4] = calculateFearProcProbability(0.5) * calculateNumGlyphidsInRadius(1.5) * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
+		}
+		else {
+			utilityScores[4] = 0;
+		}
+		
+		// Stun
 		// Weakpoint = 10% stun chance per pellet, 3 sec duration (upgraded with Mod Tier 3 "Stun Duration", or OC "Stunner")
 		utilityScores[5] = calculateCumulativeStunChancePerShot() * getStunDuration() * UtilityInformation.Stun_Utility;
 		
+		if (selectedTier5 == 0) {
+			// Turret Whip projectile has 100% chance to stun for 1.5sec in its 1.5m radius
+			utilityScores[5] += calculateNumGlyphidsInRadius(1.5) * 1.5 * UtilityInformation.Stun_Utility;
+		}
+		
 		return MathUtils.sum(utilityScores);
+	}
+	
+	@Override
+	public double averageTimeToCauterize() {
+		return -1;
 	}
 	
 	@Override
@@ -673,6 +681,12 @@ public class Shotgun extends Weapon {
 	@Override
 	public double timeToFireMagazine() {
 		return getMagazineSize() / getRateOfFire();
+	}
+	
+	@Override
+	public double damageWastedByArmor() {
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet() * getNumberOfPellets(), 0.0, getArmorBreaking(), getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true));
+		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	
 	@Override

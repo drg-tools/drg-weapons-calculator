@@ -105,7 +105,7 @@ public class Flamethrower extends Weapon {
 		tier3[2] = new Mod("More Fuel", "+75 Max Fuel", modIcons.carriedAmmo, 3, 2);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("It Burns!", "Every second that the direct stream is applied to an enemy, there's a 13% chance that it will inflict Fear", modIcons.fear, 4, 0);
+		tier4[0] = new Mod("It Burns!", "Every ammo consumed deals 0.13 Fear Factor to all enemies hit by that particle", modIcons.fear, 4, 0);
 		tier4[1] = new Mod("Sticky Flame Duration", "+3 sec Sticky Flames duration", modIcons.hourglass, 4, 1);
 		tier4[2] = new Mod("More Fuel", "+75 Max Fuel", modIcons.carriedAmmo, 4, 2);
 		
@@ -446,7 +446,7 @@ public class Flamethrower extends Weapon {
 		
 		toReturn[6] = new StatsRow("Reload Time:", reloadTime, modIcons.reloadSpeed, false);
 		
-		toReturn[7] = new StatsRow("Fear Chance per Second:", convertDoubleToPercentage(0.13), modIcons.fear, selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[7] = new StatsRow("Fear Factor per Particle:", 0.13, modIcons.fear, selectedTier4 == 0, selectedTier4 == 0);
 		
 		toReturn[8] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), modIcons.movespeed, selectedOverclock == 4, selectedOverclock == 4);
 		
@@ -512,9 +512,11 @@ public class Flamethrower extends Weapon {
 		
 		double directDamagePerParticle = getParticleDamage();
 		
+		double temperatureShock = 0;
 		// Frozen
 		if (primaryTarget && statusEffects[1]) {
 			burnDPS = 0;
+			temperatureShock = 200;
 		}
 		// IFG Grenade
 		if (primaryTarget && statusEffects[3]) {
@@ -522,28 +524,13 @@ public class Flamethrower extends Weapon {
 		}
 		
 		double heatRadianceDamagePerTank = heatRadianceDmgAndHeatPerTick * numTicksHeatRadianceWillProc;
-		return (directDamagePerParticle * getFuelTankSize() + heatRadianceDamagePerTank) / duration + stickyFlamesDPS + burnDPS;
+		return (directDamagePerParticle * getFuelTankSize() + heatRadianceDamagePerTank + temperatureShock) / duration + stickyFlamesDPS + burnDPS;
 	}
 
 	// Single-target calculations
 	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateDPS(true, true);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateDPS(false, true);
-	}
-	
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateDPS(false, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		return calculateDPS(false, true);
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
+		return calculateDPS(burst, true);
 	}
 
 	// Multi-target calculations
@@ -608,6 +595,12 @@ public class Flamethrower extends Weapon {
 		double dmgPerShot = getParticleDamage();
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
+	
+	@Override
+	public double averageOverkill() {
+		overkillPercentages = EnemyInformation.overkillPerCreature(getParticleDamage());
+		return MathUtils.vectorDotProduct(overkillPercentages[0], overkillPercentages[1]);
+	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
@@ -637,13 +630,31 @@ public class Flamethrower extends Weapon {
 		
 		// Fear
 		if (selectedTier4 == 0) {
-			utilityScores[4] = 0.13 * numTargets * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			double probabilityToFear = calculateFearProcProbability(0.13);
+			double fearDuration = EnemyInformation.averageFearDuration(getSFSlow(), getSFDuration());
+			utilityScores[4] = probabilityToFear * numTargets * fearDuration * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;
 		}
 		
 		return MathUtils.sum(utilityScores);
+	}
+	
+	@Override
+	public double averageTimeToCauterize() {
+		double directHeatPerSec = getParticleHeat() * getFlowRate();
+		double stickyFlamesHeatPerSec = stickyFlamesHeatPerTick * stickyFlamesTicksPerSec / 2.0;
+		
+		double heatRadianceDmgAndHeatPerTick = 0;
+		if (selectedTier5 == 0) {
+			// 80 Heat/sec in a 3m radius
+			// I want this to be less effective with far-reaching streams to model how the further the steam flies the less likely it is that the enemies will be within the 3m.
+			heatRadianceDmgAndHeatPerTick = 80.0 * 3.0 / getFlameReach();
+		}
+		
+		double totalHeatPerSec = directHeatPerSec + stickyFlamesHeatPerSec + heatRadianceDmgAndHeatPerTick ;
+		return EnemyInformation.averageTimeToIgnite(totalHeatPerSec);
 	}
 	
 	@Override
@@ -664,6 +675,12 @@ public class Flamethrower extends Weapon {
 	@Override
 	public double timeToFireMagazine() {
 		return getFuelTankSize() / getFlowRate();
+	}
+	
+	@Override
+	public double damageWastedByArmor() {
+		// Flamethrower's stream ignores all armor.
+		return 0;
 	}
 	
 	@Override

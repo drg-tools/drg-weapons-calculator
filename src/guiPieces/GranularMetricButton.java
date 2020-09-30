@@ -15,18 +15,20 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import guiPieces.ButtonIcons.modIcons;
 import modelPieces.StatsRow;
-import modelPieces.Weapon;
 
-public class BreakpointsButton extends JButton implements ActionListener {
+public class GranularMetricButton extends JButton implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	
 	private JComponent parentComponent;
-	private Weapon toDisplay;
+	private String popoutTitle;
+	private StatsRow[] toDisplay;
 
-	public BreakpointsButton(JComponent parent, String textToDisplay, Weapon weaponWithStats) {
+	public GranularMetricButton(JComponent parent, String textToDisplay, String title, StatsRow[] granularStats) {
 		parentComponent = parent;
-		toDisplay = weaponWithStats;
+		popoutTitle = title;
+		toDisplay = granularStats;
 		
 		// Font color will be set by the parent WeaponTab, in constructCalculationsPanel()
 		this.setBackground(GuiConstants.drgBackgroundBrown);
@@ -38,35 +40,39 @@ public class BreakpointsButton extends JButton implements ActionListener {
 		this.addActionListener(this);
 	}
 	
-	private JPanel getBreakpointsPanel() {
-		StatsRow[] breakpoints = toDisplay.breakpointsExplanation();
-		
-		JPanel toReturn = new JPanel();
+	private JPanel getGranularStatsPanel() {JPanel toReturn = new JPanel();
 		toReturn.setBackground(GuiConstants.drgBackgroundBrown);
 		toReturn.setBorder(GuiConstants.blackLine);
 		toReturn.setLayout(new BoxLayout(toReturn, BoxLayout.Y_AXIS));
 		
-		JPanel row;
+		modIcons statsRowIcon;
+		JPanel row, statIcon;
 		JLabel statLabel, statValue;
-		int paddingPixels = 2*GuiConstants.paddingPixels;
-		for (int i = 0; i < breakpoints.length; i++) {
+		for (int i = 0; i < toDisplay.length; i++) {
 			row = new JPanel();
 			row.setOpaque(false);
 			row.setLayout(new BorderLayout());
 			
-			statLabel = new JLabel(breakpoints[i].getName());
+			statLabel = new JLabel(toDisplay[i].getName());
 			statLabel.setFont(GuiConstants.customFont);
 			statLabel.setForeground(Color.white);
-			// Left-pad the label text
-			statLabel.setBorder(new EmptyBorder(0, paddingPixels, 0, 0));
-			row.add(statLabel, BorderLayout.LINE_START);
 			
-			statValue = new JLabel(breakpoints[i].getValue());
+			statsRowIcon = toDisplay[i].getIcon();
+			if (statsRowIcon != null) {
+				statIcon = new StatsRowIconPanel(ButtonIcons.getModIcon(statsRowIcon, false));
+				row.add(statIcon, BorderLayout.LINE_START);
+				row.add(statLabel, BorderLayout.CENTER);
+			}
+			else {
+				row.add(statLabel, BorderLayout.LINE_START);
+			}
+			
+			statValue = new JLabel(toDisplay[i].getValue());
 			statValue.setFont(GuiConstants.customFont);
 			statValue.setForeground(GuiConstants.drgRegularOrange);
-			// Right-pad the value text
-			statValue.setBorder(new EmptyBorder(0, 0, 0, paddingPixels));
 			row.add(statValue, BorderLayout.LINE_END);
+			
+			row.setBorder(new EmptyBorder(0, GuiConstants.paddingPixels, 0, GuiConstants.paddingPixels));
 			
 			toReturn.add(row);
 		}
@@ -77,8 +83,8 @@ public class BreakpointsButton extends JButton implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// Adapted from https://stackoverflow.com/a/13760416
-		JOptionPane a = new JOptionPane(getBreakpointsPanel(), JOptionPane.INFORMATION_MESSAGE);
-		JDialog d = a.createDialog(null, "Breakpoints");
+		JOptionPane a = new JOptionPane(getGranularStatsPanel(), JOptionPane.INFORMATION_MESSAGE);
+		JDialog d = a.createDialog(null, popoutTitle);
 		d.setLocationRelativeTo(parentComponent);
 		d.setVisible(true);
 	}

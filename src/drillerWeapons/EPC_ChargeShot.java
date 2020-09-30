@@ -98,8 +98,14 @@ public class EPC_ChargeShot extends EPC {
 	
 	@Override
 	protected void setAoEEfficiency() {
-		// According to Elythnwaen, EPC has a 1.25m full damage radius, and 33% damage falloff at full radius
-		aoeEfficiency = calculateAverageAreaDamage(getChargedAoERadius(), 1.25, 0.33);
+		// Special case: Thin Containment Field
+		if (selectedTier5 == 1) {
+			aoeEfficiency = calculateAverageAreaDamage(3.0, 3.0, 1.0);
+		}
+		else {
+			// According to Elythnwaen, EPC has a 1.25m full damage radius, and 33% damage falloff at full radius
+			aoeEfficiency = calculateAverageAreaDamage(getChargedAoERadius(), 1.25, 0.33);
+		}
 	}
 
 	// Single-target calculations
@@ -128,25 +134,7 @@ public class EPC_ChargeShot extends EPC {
 	}
 	
 	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS();
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		// Because it can only fire one charged shot before having to cool down, its sustained DPS = burst DPS
-		return calculateSingleTargetDPS();
-	}
-
-	@Override
-	public double sustainedWeakpointDPS() {
-		// EPC can't get weakpoint bonus damage, and sustained = burst in this mode.
-		return calculateSingleTargetDPS();
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		// Because the Charged Shots have to be aimed manually, Accuracy isn't applicable.
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		return calculateSingleTargetDPS();
 	}
 
@@ -221,6 +209,12 @@ public class EPC_ChargeShot extends EPC {
 	}
 	
 	@Override
+	public double averageOverkill() {
+		overkillPercentages = EnemyInformation.overkillPerCreature(getChargedDirectDamage() + getChargedAreaDamage());
+		return MathUtils.vectorDotProduct(overkillPercentages[0], overkillPercentages[1]);
+	}
+	
+	@Override
 	public int breakpoints() {
 		double[] directDamage = {
 			0,  // Kinetic
@@ -231,6 +225,7 @@ public class EPC_ChargeShot extends EPC {
 		};
 		
 		double[] areaDamage = {
+			0,  // Kinetic
 			0.5 * getChargedAreaDamage(),  // Explosive
 			0,  // Fire
 			0,  // Frost
@@ -248,7 +243,7 @@ public class EPC_ChargeShot extends EPC {
 			0  // Radiation
 		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, -1.0, 0.0, 0.0);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, -1.0, 0.0, 0.0, statusEffects[1], statusEffects[3], selectedTier5 == 0);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -259,6 +254,11 @@ public class EPC_ChargeShot extends EPC {
 		// Additionally, to average out this probability to break all Light Armor plates inside the AoE, multiply it by its AoE Efficiency coefficient, too.
 		utilityScores[2] = calculateProbabilityToBreakLightArmor(aoeEfficiency[1] * 0.5 * getChargedAreaDamage()) * UtilityInformation.ArmorBreak_Utility;
 		return MathUtils.sum(utilityScores);
+	}
+	
+	@Override
+	public double averageTimeToCauterize() {
+		return -1;
 	}
 	
 	@Override
@@ -273,6 +273,12 @@ public class EPC_ChargeShot extends EPC {
 		else {
 			return getChargedDirectDamage() + getChargedAreaDamage() * aoeEfficiency[1] * aoeEfficiency[2];
 		}
+	}
+	
+	@Override
+	public double damageWastedByArmor() {
+		// The charged shots of the EPC need to have more research done before I model them like the other bullet-based weapons.
+		return 0;
 	}
 	
 	@Override

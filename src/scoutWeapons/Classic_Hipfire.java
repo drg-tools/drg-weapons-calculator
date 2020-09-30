@@ -1,7 +1,6 @@
 package scoutWeapons;
 
 import guiPieces.ButtonIcons.modIcons;
-import modelPieces.AccuracyEstimator;
 import modelPieces.EnemyInformation;
 import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
@@ -111,7 +110,7 @@ public class Classic_Hipfire extends Classic {
 		boolean spsModified = selectedTier2 == 1 || selectedOverclock == 3;
 		toReturn[8] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), modIcons.baseSpread, spsModified, spsModified);
 		
-		toReturn[9] = new StatsRow("Spread Recovery:", convertDoubleToPercentage(getSpreadRecoverySpeed()), modIcons.baseSpread, selectedOverclock == 3, selectedOverclock == 3);
+		toReturn[9] = new StatsRow("Spread Variance:", convertDoubleToPercentage(getSpreadVariance()), modIcons.baseSpread, spsModified, spsModified);
 		
 		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 3;
 		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), modIcons.recoil, recoilModified, recoilModified);
@@ -125,7 +124,7 @@ public class Classic_Hipfire extends Classic {
 	
 	// Single-target calculations
 	@Override
-	protected double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		double generalAccuracy, duration, directWeakpointDamage;
 		
 		if (accuracy) {
@@ -143,6 +142,12 @@ public class Classic_Hipfire extends Classic {
 		}
 		
 		double directDamage = getDirectDamage();
+		
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			directDamage *= armorWaste;
+		}
 		
 		// Frozen
 		if (statusEffects[1]) {
@@ -175,14 +180,7 @@ public class Classic_Hipfire extends Classic {
 	// Multi-target calculations
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		double totalDamage = (getMagazineSize() + getCarriedAmmo()) * getDirectDamage();
-		
-		if (selectedTier4 == 0) {
-			return 4.0 * totalDamage;
-		}
-		else {
-			return totalDamage;
-		}
+		return (getMagazineSize() + getCarriedAmmo()) * getDirectDamage() * calculateMaxNumTargets();
 	}
 	
 	@Override
@@ -190,25 +188,29 @@ public class Classic_Hipfire extends Classic {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus());
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
+	
+	@Override
+	public double averageOverkill() {
+		overkillPercentages = EnemyInformation.overkillPerCreature(getDirectDamage());
+		return MathUtils.vectorDotProduct(overkillPercentages[0], overkillPercentages[1]);
+	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		double unchangingBaseSpread = 16;
-		double changingBaseSpread = 0;
-		double spreadVariance = 138;
-		double spreadPerShot = 94;
-		double spreadRecoverySpeed = 174;
-		double recoilPerShot = 86.83317338;
-		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
-		double recoilUpInterval = 3.0 / 10.0;
-		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		double recoilDownInterval = 6.0 / 5.0;
+		// Internally M1k starts with BaseSpread = 0, but that's only when fully zoomed in. When in hipfire mode, it has a +1 Base Spread penalty
+		double baseSpread = 1.0;
+		double spreadPerShot = 3.0 * getSpreadPerShot();
+		double spreadRecoverySpeed = 8.5;
+		double spreadVariance = 5.0 * getSpreadVariance();
 		
-		double[] modifiers = {1.0, getSpreadPerShot(), getSpreadRecoverySpeed(), 1.0, getRecoil()};
+		double recoilPitch = 50.0 * getRecoil();
+		double recoilYaw = 5.0 * getRecoil();
+		double mass = 4.0;
+		double springStiffness = 70.0;
 		
-		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
-				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
-				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
+		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override
@@ -222,6 +224,7 @@ public class Classic_Hipfire extends Classic {
 		};
 		
 		double[] areaDamage = {
+			0,  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
@@ -234,7 +237,7 @@ public class Classic_Hipfire extends Classic {
 			0  // Radiation
 		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0, statusEffects[1], statusEffects[3], false);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -251,5 +254,11 @@ public class Classic_Hipfire extends Classic {
 	@Override
 	public double damagePerMagazine() {
 		return getDirectDamage() * getMagazineSize() * calculateMaxNumTargets();
+	}
+	
+	@Override
+	public double damageWastedByArmor() {
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 0.0, getArmorBreaking(), getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true));
+		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 }

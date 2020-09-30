@@ -29,6 +29,7 @@ public class View extends JFrame implements Observer {
 	private JMenuBar menuBar;
 	private JMenu overallBestCombinationsMenu;
 	private JMenuItem[] overallBestCombinations;
+	private CustomJMenuCheckbox bcaWeakpointsCheckbox, bcaAccuracyCheckbox, bcaArmorCheckbox;
 	private CustomJMenuCheckbox doAllWeaponsPerBCAClick;
 	private JMenu subsetBestCombinationsMenu;
 	private JMenuItem[] subsetBestCombinations;
@@ -68,7 +69,7 @@ public class View extends JFrame implements Observer {
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("MeatShield's DRG DPS Calculator (DRG Update " + DatabaseConstants.patchNumber + ")");
-		setPreferredSize(new Dimension(1500, 950));
+		setPreferredSize(new Dimension(1500, 1020));
 		
 		// Add the icon
 		setIconImages(ResourceLoader.loadIcoFile("/images/meatShield_composite.ico"));
@@ -150,39 +151,39 @@ public class View extends JFrame implements Observer {
 		
 		// Overall Best Combinations menu
 		overallBestCombinations = new JMenuItem[15];
-		overallBestCombinations[0] = new JMenuItem("Best Ideal Burst DPS");
-		overallBestCombinations[1] = new JMenuItem("Best Ideal Sustained DPS");
-		overallBestCombinations[2] = new JMenuItem("Best Sustained + Weakpoint DPS");
-		overallBestCombinations[3] = new JMenuItem("Best Sustained + Weakpoint + Accuracy DPS");
-		overallBestCombinations[4] = new JMenuItem("Best Additional Target DPS");
-		overallBestCombinations[5] = new JMenuItem("Most Number of Targets Hit");
-		overallBestCombinations[6] = new JMenuItem("Most Multi-Target Damage");
-		overallBestCombinations[7] = new JMenuItem("Most Ammo Efficient");
-		overallBestCombinations[8] = new JMenuItem("Highest General Accuracy");
-		overallBestCombinations[9] = new JMenuItem("Highest Weakpoint Accuracy");
-		overallBestCombinations[10] = new JMenuItem("Longest Firing Duration");
+		overallBestCombinations[0] = new JMenuItem("Best Burst DPS");
+		overallBestCombinations[1] = new JMenuItem("Best Sustained DPS");
+		overallBestCombinations[2] = new JMenuItem("Best Additional Target DPS");
+		overallBestCombinations[3] = new JMenuItem("Most Number of Targets Hit");
+		overallBestCombinations[4] = new JMenuItem("Most Multi-Target Damage");
+		overallBestCombinations[5] = new JMenuItem("Most Ammo Efficient");
+		overallBestCombinations[6] = new JMenuItem("Least Damage Wasted by Armor");
+		overallBestCombinations[7] = new JMenuItem("Highest General Accuracy");
+		overallBestCombinations[8] = new JMenuItem("Highest Weakpoint Accuracy");
+		overallBestCombinations[9] = new JMenuItem("Longest Firing Duration");
+		overallBestCombinations[10] = new JMenuItem("Fastest Avg Time To Kill");
 		overallBestCombinations[11] = new JMenuItem("Lowest Avg Overkill");
-		overallBestCombinations[12] = new JMenuItem("Fastest Avg Time To Kill");
-		overallBestCombinations[13] = new JMenuItem("Lowest Breakpoints");
-		overallBestCombinations[14] = new JMenuItem("Most Utility");
+		overallBestCombinations[12] = new JMenuItem("Lowest Breakpoints");
+		overallBestCombinations[13] = new JMenuItem("Most Utility");
+		overallBestCombinations[14] = new JMenuItem("Fastest Avg Time to Ignite/Freeze");
 		
 		// Subset Best Combinations menu
 		subsetBestCombinations = new JMenuItem[15];
-		subsetBestCombinations[0] = new JMenuItem("Best Ideal Burst DPS");
-		subsetBestCombinations[1] = new JMenuItem("Best Ideal Sustained DPS");
-		subsetBestCombinations[2] = new JMenuItem("Best Sustained + Weakpoint DPS");
-		subsetBestCombinations[3] = new JMenuItem("Best Sustained + Weakpoint + Accuracy DPS");
-		subsetBestCombinations[4] = new JMenuItem("Best Additional Target DPS");
-		subsetBestCombinations[5] = new JMenuItem("Most Number of Targets Hit");
-		subsetBestCombinations[6] = new JMenuItem("Most Multi-Target Damage");
-		subsetBestCombinations[7] = new JMenuItem("Most Ammo Efficient");
-		subsetBestCombinations[8] = new JMenuItem("Highest General Accuracy");
-		subsetBestCombinations[9] = new JMenuItem("Highest Weakpoint Accuracy");
-		subsetBestCombinations[10] = new JMenuItem("Longest Firing Duration");
+		subsetBestCombinations[0] = new JMenuItem("Best Burst DPS");
+		subsetBestCombinations[1] = new JMenuItem("Best Sustained DPS");
+		subsetBestCombinations[2] = new JMenuItem("Best Additional Target DPS");
+		subsetBestCombinations[3] = new JMenuItem("Most Number of Targets Hit");
+		subsetBestCombinations[4] = new JMenuItem("Most Multi-Target Damage");
+		subsetBestCombinations[5] = new JMenuItem("Most Ammo Efficient");
+		subsetBestCombinations[6] = new JMenuItem("Least Damage Wasted by Armor");
+		subsetBestCombinations[7] = new JMenuItem("Highest General Accuracy");
+		subsetBestCombinations[8] = new JMenuItem("Highest Weakpoint Accuracy");
+		subsetBestCombinations[9] = new JMenuItem("Longest Firing Duration");
+		subsetBestCombinations[10] = new JMenuItem("Fastest Avg Time To Kill");
 		subsetBestCombinations[11] = new JMenuItem("Lowest Avg Overkill");
-		subsetBestCombinations[12] = new JMenuItem("Fastest Avg Time To Kill");
-		subsetBestCombinations[13] = new JMenuItem("Lowest Breakpoints");
-		subsetBestCombinations[14] = new JMenuItem("Most Utility");
+		subsetBestCombinations[12] = new JMenuItem("Lowest Breakpoints");
+		subsetBestCombinations[13] = new JMenuItem("Most Utility");
+		subsetBestCombinations[14] = new JMenuItem("Fastest Avg Time to Ignite/Freeze");
 		
 		overallBestCombinationsMenu = new JMenu("Best Combinations (All)");
 		subsetBestCombinationsMenu = new JMenu("Best Combinations (Subset)");
@@ -191,6 +192,17 @@ public class View extends JFrame implements Observer {
 		for (int i = 0; i < overallBestCombinations.length; i++) {
 			overallBestCombinationsMenu.add(overallBestCombinations[i]);
 			subsetBestCombinationsMenu.add(subsetBestCombinations[i]);
+			
+			// Add these checkboxes to BCA (All) so that if anyone does the same metric for all weapons, it will standardize their choices.
+			if (i == 1) {
+				bcaWeakpointsCheckbox = new CustomJMenuCheckbox("Enable Weakpoints");
+				bcaAccuracyCheckbox = new CustomJMenuCheckbox("Enable Accuracy");
+				bcaArmorCheckbox = new CustomJMenuCheckbox("Enable Armor");
+				overallBestCombinationsMenu.add(bcaWeakpointsCheckbox);
+				overallBestCombinationsMenu.add(bcaAccuracyCheckbox);
+				overallBestCombinationsMenu.add(bcaArmorCheckbox);
+				overallBestCombinationsMenu.addSeparator();
+			}
 		}
 		
 		overallBestCombinationsMenu.addSeparator();
@@ -288,6 +300,14 @@ public class View extends JFrame implements Observer {
 		}
 		
 		return overallBestCombinations[index];
+	}
+	
+	public boolean[] getDPSCheckboxValues() {
+		return new boolean[] {
+			bcaWeakpointsCheckbox.isSelected(), 
+			bcaAccuracyCheckbox.isSelected(), 
+			bcaArmorCheckbox.isSelected()
+		};
 	}
 	
 	public boolean calculateBestMetricAllModelsEnabled() {
@@ -435,16 +455,16 @@ public class View extends JFrame implements Observer {
 		// Realistically, it should be improved to do object ID matching to items in each of the arrays.
 		
 		// In theory, these if and for statements should work together to only update the one WeaponTab that got updated by a button click, instead of rebuilding every tab on every button click.
-		String packageName, weaponName;
+		String className, weaponName;
 		if (o instanceof Weapon) {
-			packageName = ((Weapon) o).getDwarfClass();
+			className = ((Weapon) o).getDwarfClass();
 			weaponName = ((Weapon) o).getFullName();
 		}
 		else {
 			return;
 		}
 		
-		if (packageName == "Driller") {
+		if (className == "Driller") {
 			for (int i = 0; i < drillerWeapons.length; i++) {
 				if (drillerWeapons[i].getFullName() == weaponName) {
 					drillerTabs.setComponentAt(i, new WeaponTab(drillerWeapons[i]));
@@ -452,7 +472,7 @@ public class View extends JFrame implements Observer {
 				}
 			}
 		}
-		else if (packageName == "Engineer") {
+		else if (className == "Engineer") {
 			for (int i = 0; i < engineerWeapons.length; i++) {
 				if (engineerWeapons[i].getFullName() == weaponName) {
 					engineerTabs.setComponentAt(i, new WeaponTab(engineerWeapons[i]));
@@ -460,7 +480,7 @@ public class View extends JFrame implements Observer {
 				}
 			}
 		}
-		else if (packageName == "Gunner") {
+		else if (className == "Gunner") {
 			for (int i = 0; i < gunnerWeapons.length; i++) {
 				if (gunnerWeapons[i].getFullName() == weaponName) {
 					gunnerTabs.setComponentAt(i, new WeaponTab(gunnerWeapons[i]));
@@ -468,7 +488,7 @@ public class View extends JFrame implements Observer {
 				}
 			}
 		}
-		else if (packageName == "Scout") {
+		else if (className == "Scout") {
 			for (int i = 0; i < scoutWeapons.length; i++) {
 				if (scoutWeapons[i].getFullName() == weaponName) {
 					scoutTabs.setComponentAt(i, new WeaponTab(scoutWeapons[i]));

@@ -9,7 +9,6 @@ import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
-import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
@@ -76,6 +75,9 @@ public class Boomstick extends Weapon {
 		stunChance = 0.3;
 		stunDuration = 2.5;
 		
+		// Override default 10m distance
+		accEstimator.setDistance(5.0);
+		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
 		setBaselineStats();
@@ -113,8 +115,9 @@ public class Boomstick extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Auto Reload", "Reloads automatically when unequipped for more than 5 seconds", modIcons.reloadSpeed, 5, 0, false);
-		tier5[1] = new Mod("Fear The Boomstick", "50% chance to inflict Fear on enemies within 5m of you every time you pull the trigger", modIcons.fear, 5, 1);
-		tier5[2] = new Mod("White Phosphorous Shells", "Add 50% of the Damage per Pellet as Heat Damage, which can ignite enemies. Burn DoT does an average of " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 5, 2);
+		tier5[1] = new Mod("Fear The Boomstick", "Deal 0.5 Fear to all enemies within 5m of you every time you pull the trigger", modIcons.fear, 5, 1);
+		tier5[2] = new Mod("White Phosphorous Shells", "Convert 50% of Pellet and Blastwave damage to Fire Damage and add 50% of the Damage per Pellet as Heat Damage, which can ignite enemies. "
+				+ "Burn DoT does an average of " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Shells", "+6 Max Ammo, -0.2 Reload Time", overclockIcons.carriedAmmo, 0);
@@ -450,7 +453,7 @@ public class Boomstick extends Weapon {
 		
 		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier4 == 1, selectedTier4 == 1);
 		
-		toReturn[8] = new StatsRow("Fear Chance:", "50%", modIcons.fear, selectedTier5 == 1, selectedTier5 == 1);
+		toReturn[8] = new StatsRow("Fear Factor:", 0.5, modIcons.fear, selectedTier5 == 1, selectedTier5 == 1);
 		
 		toReturn[9] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(stunChance), modIcons.homebrewPowder, false);
 		
@@ -508,7 +511,8 @@ public class Boomstick extends Weapon {
 	}
 	
 	// Single-target calculations
-	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+	@Override
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		double generalAccuracy, duration, directWeakpointDamagePerPellet;
 		
 		if (accuracy) {
@@ -532,6 +536,13 @@ public class Boomstick extends Weapon {
 		}
 		
 		double dmgPerPellet = getDamagePerPellet();
+		
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			dmgPerPellet *= armorWaste;
+		}
+		
 		// Frozen
 		if (statusEffects[1]) {
 			dmgPerPellet *= UtilityInformation.Frozen_Damage_Multiplier;
@@ -566,63 +577,30 @@ public class Boomstick extends Weapon {
 		}
 		
 		int numPelletsPerShot = getNumberOfPellets();
-		int pelletsThatHitWeakpointPerShot = (int) Math.round(numPelletsPerShot * weakpointAccuracy);
-		int pelletsThatHitTargetPerShot = (int) Math.round(numPelletsPerShot * generalAccuracy) - pelletsThatHitWeakpointPerShot;
+		double pelletsThatHitWeakpointPerShot = numPelletsPerShot * weakpointAccuracy;
+		double pelletsThatHitTargetPerShot = numPelletsPerShot * generalAccuracy - pelletsThatHitWeakpointPerShot;
 		
-		return (pelletsThatHitWeakpointPerShot * directWeakpointDamagePerPellet + pelletsThatHitTargetPerShot * getDamagePerPellet() + getBlastwaveDamage()) * magSize / duration + burnDPS;
-	}
-	
-	private double calculateDamagePerMagazine(boolean weakpointBonus) {
-		// TODO: I'd like to refactor this method out if possible
-		double damagePerShot;
-		if (weakpointBonus) {
-			damagePerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet() * getNumberOfPellets()) + getBlastwaveDamage();
-			return (double) damagePerShot * getMagazineSize();
-		}
-		else {
-			damagePerShot = getDamagePerPellet() * getNumberOfPellets() + getBlastwaveDamage();
-			return (double) damagePerShot * getMagazineSize();
-		}
-	}
-
-	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS(true, false, false);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(false, false, false);
-	}
-	
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(false, false, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		return calculateSingleTargetDPS(false, true, true);
+		return (pelletsThatHitWeakpointPerShot * directWeakpointDamagePerPellet + pelletsThatHitTargetPerShot * dmgPerPellet + getBlastwaveDamage()) * magSize / duration + burnDPS;
 	}
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
 		int magSize = getMagazineSize();
-		double secondaryDamage;
+		double secondaryDamagePerShot;
 		if (selectedTier4 == 0) {
-			secondaryDamage = calculateDamagePerMagazine(false);
+			secondaryDamagePerShot = getDamagePerPellet() * getNumberOfPellets() + getBlastwaveDamage();
 		}
 		else {
-			secondaryDamage = getBlastwaveDamage();
+			secondaryDamagePerShot = getBlastwaveDamage();
 		}
 		
 		double additionalDPS = 0;
 		if (magSize > 1) {
-			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-			additionalDPS += secondaryDamage / timeToFireMagazineAndReload;
+			double timeToFireMagazineAndReload = (((double) magSize) / getRateOfFire()) + getReloadTime();
+			additionalDPS = secondaryDamagePerShot * magSize / timeToFireMagazineAndReload;
 		}
 		else {
-			additionalDPS += secondaryDamage / getReloadTime();
+			additionalDPS = secondaryDamagePerShot / getReloadTime();
 		}
 		
 		// Penetrations can ignite, too
@@ -687,41 +665,58 @@ public class Boomstick extends Weapon {
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
-		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet()) * getNumberOfPellets();
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet()) * getNumberOfPellets() + getBlastwaveDamage();
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
+	}
+	
+	@Override
+	public double averageOverkill() {
+		overkillPercentages = EnemyInformation.overkillPerCreature(getDamagePerPellet() * getNumberOfPellets() + getBlastwaveDamage());
+		return MathUtils.vectorDotProduct(overkillPercentages[0], overkillPercentages[1]);
 	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		// Even though this gun does have significant recoil, it recovers from that recoil entirely in 0.5 seconds. Rather than make an overly 
 		// complicated model for 2 shots, I'm just going to use the accuracy for a single shot.
-		double crosshairHeightPixels = 156;
-		double crosshairWidthPixels;
+		double horizontalBaseSpread = 35.0 * getBaseSpread();
+		double verticalBaseSpread = 10.0 * getBaseSpread();
 		
-		if (selectedOverclock == 4) {
-			// Base Spread = 65%
-			crosshairWidthPixels = 305;
-		}
-		else {
-			// Base Spread = 100%
-			crosshairWidthPixels = 468;
-		}
-		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, true, crosshairWidthPixels, crosshairHeightPixels);
+		/*
+			If I ever want to model recoil for rectangular crosshairs, these are the variables used:
+			
+		double recoilPitch = 120.0;
+		double recoilYaw = 10.0;
+		double mass = 2.0;
+		double springStiffness = 100.0;
+		*/
+		
+		return accEstimator.calculateRectangularAccuracy(weakpointAccuracy, horizontalBaseSpread, verticalBaseSpread);
 	}
 	
 	@Override
 	public int breakpoints() {
+		double direct = getDamagePerPellet() * getNumberOfPellets() * estimatedAccuracy(false) / 100.0;
+		double area = getBlastwaveDamage();
+		
+		// According to Elythnwaen, White Phosphorus Shells not only adds 50% of kinetic + explosive damage to Heat, it also converts 50% to Fire.
+		double split = 0;
+		if (selectedTier5 == 2) {
+			split = 0.5;
+		}
+		
 		double[] directDamage = {
-			getDamagePerPellet() * getNumberOfPellets(),  // Kinetic
+			(1.0 - split) * direct,  // Kinetic
 			0,  // Explosive
-			0,  // Fire
+			split * direct,  // Fire
 			0,  // Frost
 			0  // Electric
 		};
 		
 		double[] areaDamage = {
-			getBlastwaveDamage(),  // Explosive
-			0,  // Fire
+			0,  // Kinetic
+			(1.0 - split) * area,  // Explosive
+			split * area,  // Fire
 			0,  // Frost
 			0  // Electric
 		};
@@ -729,7 +724,7 @@ public class Boomstick extends Weapon {
 		// Because White Phosphorus Shells is a burst of Heat, it's not modeled like other DoTs are
 		double burstOfHeatPerShot = 0;
 		if (selectedTier5 == 2) {
-			burstOfHeatPerShot = 0.5 * getDamagePerPellet() * getNumberOfPellets();
+			burstOfHeatPerShot = 0.5 * (direct + area);
 		}
 		
 		double[] DoTDamage = {
@@ -739,7 +734,7 @@ public class Boomstick extends Weapon {
 			0  // Radiation
 		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, burstOfHeatPerShot);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, burstOfHeatPerShot, statusEffects[1], statusEffects[3], false);
 		return MathUtils.sum(breakpoints);
 	}
 	@Override
@@ -759,12 +754,12 @@ public class Boomstick extends Weapon {
 		double probabilityToBreakLightArmorPlatePerPellet = calculateProbabilityToBreakLightArmor(getDamagePerPellet() * numPelletsThatHitLightArmorPlate, getArmorBreaking());
 		utilityScores[2] = probabilityToBreakLightArmorPlatePerPellet * UtilityInformation.ArmorBreak_Utility;
 		
-		// Mod Tier 5 "Fear the Boomstick" = 50% chance to Fear enemies within 5m
+		// Mod Tier 5 "Fear the Boomstick" = 0.5 Fear to enemies within 5m
 		if (selectedTier5 == 1) {
 			// A 5m radius returns 41 grunts, which is just too many. I'm choosing to reduce the radius by half, which brings it down to 12.
-			// From my tests, it seems that the 0.5 Fear corresponds to about 30% fear proc
 			int gruntsHitByBlastwave = calculateNumGlyphidsInRadius(5.0 / 2.0);
-			utilityScores[4] = 0.5 * gruntsHitByBlastwave * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			double probabilityToFear = calculateFearProcProbability(0.5);
+			utilityScores[4] = probabilityToFear * gruntsHitByBlastwave * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;
@@ -774,6 +769,16 @@ public class Boomstick extends Weapon {
 		utilityScores[5] = calculateCumulativeStunChancePerShot() * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
 		
 		return MathUtils.sum(utilityScores);
+	}
+	
+	@Override
+	public double averageTimeToCauterize() {
+		if (selectedTier5 == 2) {
+			return calculateTimeToIgnite(false);
+		}
+		else {
+			return -1;
+		}
 	}
 	
 	@Override
@@ -792,6 +797,12 @@ public class Boomstick extends Weapon {
 		else {
 			return 0;
 		}
+	}
+	
+	@Override
+	public double damageWastedByArmor() {
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet() * getNumberOfPellets(), getBlastwaveDamage(), getArmorBreaking(), 0.0, estimatedAccuracy(false), estimatedAccuracy(true), true);
+		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	
 	@Override

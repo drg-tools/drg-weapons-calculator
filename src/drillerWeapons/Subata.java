@@ -9,7 +9,6 @@ import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.UtilityInformation;
-import modelPieces.AccuracyEstimator;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
@@ -467,7 +466,7 @@ public class Subata extends Weapon {
 		toReturn[9] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, tranqRoundsEquipped, tranqRoundsEquipped);
 		
 		boolean chainHitEquipped = selectedOverclock == 0;
-		toReturn[10] = new StatsRow("Weakpoint Chain Hit Chance:", "50%", modIcons.homebrewPowder, chainHitEquipped, chainHitEquipped);
+		toReturn[10] = new StatsRow("Weakpoint Chain Hit Chance:", convertDoubleToPercentage(0.5), modIcons.homebrewPowder, chainHitEquipped, chainHitEquipped);
 		toReturn[11] = new StatsRow("Max Ricochets:", getMaxRicochets(), modIcons.ricochet, chainHitEquipped, chainHitEquipped);
 		
 		boolean baseSpreadModified = selectedTier1 == 0 || selectedOverclock == 3;
@@ -491,7 +490,8 @@ public class Subata extends Weapon {
 	}
 	
 	// Single-target calculations
-	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+	@Override
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		double generalAccuracy, duration, directWeakpointDamage;
 		
 		if (accuracy) {
@@ -510,6 +510,12 @@ public class Subata extends Weapon {
 		
 		double directDamage = getDirectDamage();
 		double areaDamage = getAreaDamage();
+		
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			directDamage *= armorWaste;
+		}
 		
 		// Frozen
 		if (statusEffects[1]) {
@@ -542,26 +548,6 @@ public class Subata extends Weapon {
 		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
 		
 		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * directDamage + (bulletsThatHitWeakpoint + bulletsThatHitTarget) * areaDamage) / duration;
-	}
-
-	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS(true, false, false);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(false, false, false);
-	}
-	
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(false, false, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	// Multi-target calculations
@@ -621,43 +607,47 @@ public class Subata extends Weapon {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus());
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
+	
+	@Override
+	public double averageOverkill() {
+		overkillPercentages = EnemyInformation.overkillPerCreature(getDirectDamage() + getAreaDamage());
+		return MathUtils.vectorDotProduct(overkillPercentages[0], overkillPercentages[1]);
+	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		double unchangingBaseSpread = 20;
-		double changingBaseSpread = 28;
-		double spreadVariance = 53;
-		double spreadPerShot = 24;
-		double spreadRecoverySpeed = 127.2762815;
-		double recoilPerShot = 28.23118843;
-		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
-		double recoilUpInterval = 1.0 / 8.0;
-		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		double recoilDownInterval = 1.0 / 2.0;
+		double baseSpread = 1.5 * getBaseSpread();
+		double spreadPerShot = 1.5 * getSpreadPerShot();
+		double spreadRecoverySpeed = 7.5;
+		double spreadVariance = 3.0;
 		
-		double[] modifiers = {getBaseSpread(), getSpreadPerShot(), 1.0, 1.0, getRecoil()};
+		double recoilPitch = 30.0 * getRecoil();
+		double recoilYaw = 10.0 * getRecoil();
+		double mass = 1.0;
+		double springStiffness = 60.0;
 		
-		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
-				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
-				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
+		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override
 	public int breakpoints() {
-		double direct = getDirectDamage();
+		double directFireDamage = 0;
 		if (selectedTier5 == 0 && statusEffects[0]) {
-			direct *= 1.5;
+			directFireDamage = 0.5 * getDirectDamage();
 		}
 		
 		double[] directDamage = {
-			direct,  // Kinetic
+			getDirectDamage(),  // Kinetic
 			0,  // Explosive
-			0,  // Fire
+			directFireDamage,  // Fire
 			0,  // Frost
 			0  // Electric
 		};
 		
 		double[] areaDamage = {
+			0,  // Kinetic
 			getAreaDamage(),  // Explosive
 			0,  // Fire
 			0,  // Frost
@@ -676,7 +666,7 @@ public class Subata extends Weapon {
 			macteraBonus = 0.2;
 		}
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), macteraBonus, 0.0);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), macteraBonus, 0.0, statusEffects[1], statusEffects[3], false);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -686,7 +676,7 @@ public class Subata extends Weapon {
 		// The Area damage from Explosive Reload doesn't affect the chance to break the Light Armor plates since it's not part of the initial projectile
 		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDirectDamage(), armorBreaking) * UtilityInformation.ArmorBreak_Utility;
 		
-		// Tranq rounds = 50% chance to stun, 5 second stun
+		// Tranq rounds = 50% chance to stun, 6 second stun
 		if (selectedOverclock == 5) {
 			utilityScores[5] = getStunChance() * getStunDuration() * UtilityInformation.Stun_Utility;
 		}
@@ -698,6 +688,11 @@ public class Subata extends Weapon {
 	}
 	
 	@Override
+	public double averageTimeToCauterize() {
+		return -1;
+	}
+	
+	@Override
 	public double damagePerMagazine() {
 		return getMagazineSize() * (getDirectDamage() + getAreaDamage());
 	}
@@ -705,6 +700,12 @@ public class Subata extends Weapon {
 	@Override
 	public double timeToFireMagazine() {
 		return getMagazineSize() / getRateOfFire();
+	}
+	
+	@Override
+	public double damageWastedByArmor() {
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), getAreaDamage(), armorBreaking, getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true), true);
+		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	
 	@Override

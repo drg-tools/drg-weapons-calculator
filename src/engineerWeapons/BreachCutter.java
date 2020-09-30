@@ -738,23 +738,8 @@ public class BreachCutter extends Weapon {
 	}
 	
 	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS(true, true, false);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(false, true, false);
-	}
-	
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(false, true, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		return calculateSingleTargetDPS(false, true, true);
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
+		return calculateSingleTargetDPS(burst, true, weakpoint);
 	}
 
 	// Multi-target calculations
@@ -778,7 +763,8 @@ public class BreachCutter extends Weapon {
 			numGruntsHitSimultaneouslyPerRow = calculateNumGlyphidsInRadius(width / 2.0);
 		}
 		else {
-			numGruntsHitSimultaneouslyPerRow = (int) (1.0 + 2.0 * Math.ceil(((width / 2.0) - EnemyInformation.GlyphidGruntBodyRadius) / EnemyInformation.GlyphidGruntBodyAndLegsRadius));
+			// ArcticEcho recommended (width + 1) as an estimate for average number of enemies hit by a line simultaneously
+			numGruntsHitSimultaneouslyPerRow = (int) (width + 1);
 		}
 		
 		int numRowsOfGruntsHitDuringProjectileLifetime = (int) Math.ceil((velocity / (4.0 * EnemyInformation.GlyphidGruntBodyAndLegsRadius)) * lifetime);
@@ -802,6 +788,12 @@ public class BreachCutter extends Weapon {
 		double dmgPerShot = calculateAverageDamagePerGrunt(true, true, false, true);
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
+	
+	@Override
+	public double averageOverkill() {
+		overkillPercentages = EnemyInformation.overkillPerCreature(calculateAverageDamagePerGrunt(true, true, false, true));
+		return MathUtils.vectorDotProduct(overkillPercentages[0], overkillPercentages[1]);
+	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
@@ -820,30 +812,47 @@ public class BreachCutter extends Weapon {
 		// Light Armor Breaking probability
 		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDamagePerTick(), getArmorBreaking()) * UtilityInformation.ArmorBreak_Utility;
 		
+		int maxNumTargets = calculateMaxNumTargets();
+		
 		// Slow
-		// OC "High Voltage Crossover" applies an Electrocute DoT that slows movement by 80% for 4 seconds
 		if (selectedOverclock == 4) {
-			// In order to prevent double-counting the 80% slow while enemies are stunned by T4.B, I'm going to reduce the Slow duration by the Stun duration when both are selected
-			double slowDuration = 4.0;
-			if (selectedTier4 == 1) {
-				slowDuration -= 3.0;
-			}
-			utilityScores[3] = calculateMaxNumTargets() * slowDuration * UtilityInformation.Electrocute_Slow_Utility;
+			// OC "High Voltage Crossover" applies an Electrocute DoT that slows movement by 80% for 4 seconds
+			// This overrides the built-in 70% slow during intersection, instead of adding to it.
+			utilityScores[3] += maxNumTargets * 4.0 * UtilityInformation.Electrocute_Slow_Utility;
 		}
 		else {
-			utilityScores[3] = 0;
+			// Breach Cutter slows enemy movement by 70% while the line intersects their hitbox.
+			double intersectionTime;
+			if (selectedOverclock == 5) {
+				intersectionTime = calculateAverageGruntIntersectionTimePerSpinningDeathProjectile();
+			}
+			else {
+				intersectionTime = calculateGruntIntersectionTimePerRegularProjectile();
+			}
+			utilityScores[3] = maxNumTargets * intersectionTime * 0.7;
 		}
 		
 		// Stun
 		// T4.B has a 100% chance to stun for 3 seconds
 		if (selectedTier4 == 1) {
-			utilityScores[5] = calculateMaxNumTargets() * 3.0 * UtilityInformation.Stun_Utility;
+			utilityScores[5] = maxNumTargets * 3.0 * UtilityInformation.Stun_Utility;
 		}
 		else {
 			utilityScores[5] = 0;
 		}
 		
 		return MathUtils.sum(utilityScores);
+	}
+	
+	@Override
+	public double averageTimeToCauterize() {
+		if (selectedOverclock == 6) {
+			// OC "Inferno" adds 90% of the Beam DPS as Heat Damage, so the time to Ignite is pretty darn fast
+			return EnemyInformation.averageTimeToIgnite(0.9 * getDamagePerTick() * damageTickRate);
+		}
+		else {
+			return -1;
+		}
 	}
 	
 	@Override
@@ -861,6 +870,11 @@ public class BreachCutter extends Weapon {
 			// Spinning Death without T2.B Mag Size only has one shot before reloading, so much like the Grenade Launcher its time to fire magazine would be zero.
 			return 0;
 		}
+	}
+	
+	@Override
+	public double damageWastedByArmor() {
+		return 0;
 	}
 	
 	@Override

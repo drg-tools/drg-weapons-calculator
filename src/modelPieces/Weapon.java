@@ -7,6 +7,7 @@ import java.util.Observable;
 import javax.swing.JPanel;
 
 import guiPieces.AoEVisualizer;
+import guiPieces.GuiConstants;
 import guiPieces.ButtonIcons.modIcons;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
@@ -39,6 +40,7 @@ public abstract class Weapon extends Observable {
 	protected Overclock[] overclocks;
 	protected int selectedOverclock;
 	
+	// AoE Radius, AoE Efficiency Coefficient, Total num Grunts hit in AoE radius
 	protected double[] aoeEfficiency;
 	
 	// There are 24 breakpoints: 7 normal damage, 12 weakpoints, and 5 Light Armor. They're in the same order as the enemy indexes in EnemyInformation.
@@ -49,11 +51,34 @@ public abstract class Weapon extends Observable {
 	// Set them all to zero to start, then override values in child objects as necessary.
 	protected double[] utilityScores = {0, 0, 0, 0, 0, 0, 0};
 	
+	
+	protected double[][] damageWastedByArmorPerCreature = {
+		// Spawn Probabilities
+		{0, 0, 0, 0, 0, 0, 0, 0, 0},
+		// Damage Wasted
+		{0, 0, 0, 0, 0, 0, 0, 0, 0}
+	};
+	
+	protected double[][] overkillPercentages = {
+		// Spawn Probabilities
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		// Overkill Percentages
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}	
+	};
+	
 	// Burning, Frozen, Electrocuted, IFG Grenade
 	protected boolean[] statusEffects = {false, false, false, false};
 	
+	protected boolean enableWeakpointsDPS = false;
+	protected boolean enableGeneralAccuracyDPS = false;
+	protected boolean enableArmorWastingDPS = false;
+	
+	protected double[] baselineBurstDPS;
+	protected double[] baselineSustainedDPS;
 	protected double[] baselineCalculatedStats;
 	private AoEVisualizer illustration = null;
+	
+	protected AccuracyEstimator accEstimator = new AccuracyEstimator();
 	
 	/****************************************************************************************
 	* Setters and Getters
@@ -211,6 +236,8 @@ public abstract class Weapon extends Observable {
 				setAoEEfficiency();
 			}
 			
+			damageWastedByArmor();
+			
 			if (updateGUI && countObservers() > 0) {
 				setChanged();
 				notifyObservers();
@@ -285,6 +312,8 @@ public abstract class Weapon extends Observable {
 				setAoEEfficiency();
 			}
 			
+			damageWastedByArmor();
+			
 			if (countObservers() > 0) {
 				setChanged();
 				notifyObservers();
@@ -320,6 +349,8 @@ public abstract class Weapon extends Observable {
 				setAoEEfficiency();
 			}
 			
+			damageWastedByArmor();
+			
 			if (updateGUI && countObservers() > 0) {
 				setChanged();
 				notifyObservers();
@@ -342,6 +373,8 @@ public abstract class Weapon extends Observable {
 			if (currentlyDealsSplashDamage()) {
 				setAoEEfficiency();
 			}
+			
+			damageWastedByArmor();
 			
 			if (countObservers() > 0) {
 				setChanged();
@@ -511,10 +544,34 @@ public abstract class Weapon extends Observable {
 			setAoEEfficiency();
 		}
 		
+		damageWastedByArmor();
+		
+		baselineBurstDPS = new double[]{
+			calculateSingleTargetDPS(true, false, false, false),  // Ideal
+			calculateSingleTargetDPS(true, true, false, false),  // Weakpoint
+			calculateSingleTargetDPS(true, false, true, false),  // Accuracy
+			calculateSingleTargetDPS(true, false, false, true),  // Armor Wasting
+			calculateSingleTargetDPS(true, true, true, false),  // WP + Acc
+			calculateSingleTargetDPS(true, true, false, true),  // WP + AW
+			calculateSingleTargetDPS(true, false, true, true),  // Acc + AW
+			calculateSingleTargetDPS(true, true, true, true)  // WP + Acc + AW
+		};
+		
+		baselineSustainedDPS = new double[]{
+			calculateSingleTargetDPS(false, false, false, false),  // Ideal
+			calculateSingleTargetDPS(false, true, false, false),  // Weakpoint
+			calculateSingleTargetDPS(false, false, true, false),  // Accuracy
+			calculateSingleTargetDPS(false, false, false, true),  // Armor Wasting
+			calculateSingleTargetDPS(false, true, true, false),  // WP + Acc
+			calculateSingleTargetDPS(false, true, false, true),  // WP + AW
+			calculateSingleTargetDPS(false, false, true, true),  // Acc + AW
+			calculateSingleTargetDPS(false, true, true, true)  // WP + Acc + AW
+		};
+		
 		baselineCalculatedStats = new double[] {
-			calculateIdealBurstDPS(), calculateIdealSustainedDPS(), sustainedWeakpointDPS(), sustainedWeakpointAccuracyDPS(), calculateAdditionalTargetDPS(), 
-			calculateMaxNumTargets(), calculateMaxMultiTargetDamage(), ammoEfficiency(), estimatedAccuracy(false), estimatedAccuracy(true),
-			calculateFiringDuration(), averageOverkill(), averageTimeToKill(), breakpoints(), utilityScore()
+			calculateAdditionalTargetDPS(), calculateMaxNumTargets(), calculateMaxMultiTargetDamage(), ammoEfficiency(), damageWastedByArmor(), 
+			estimatedAccuracy(false), estimatedAccuracy(true), calculateFiringDuration(), averageTimeToKill(), averageOverkill(), breakpoints(), 
+			utilityScore(), averageTimeToCauterize()
 		};
 		selectedTier1 = oldT1;
 		selectedTier2 = oldT2;
@@ -523,8 +580,114 @@ public abstract class Weapon extends Observable {
 		selectedTier5 = oldT5;
 		selectedOverclock = oldOC;
 	}
+	// These get used in WeaponTab for making the associated numbers change red/green/yellow
+	public double getBaselineBurstDPS() {
+		// Ideal
+		if (!enableWeakpointsDPS &&  !enableGeneralAccuracyDPS && !enableArmorWastingDPS) {
+			return baselineBurstDPS[0];
+		}
+		// Wakpoint
+		else if (enableWeakpointsDPS &&  !enableGeneralAccuracyDPS && !enableArmorWastingDPS) {
+			return baselineBurstDPS[1];
+		}
+		// Accuracy
+		else if (!enableWeakpointsDPS &&  enableGeneralAccuracyDPS && !enableArmorWastingDPS) {
+			return baselineBurstDPS[2];	
+		}
+		// Armor Wasting
+		else if (!enableWeakpointsDPS &&  !enableGeneralAccuracyDPS && enableArmorWastingDPS) {
+			return baselineBurstDPS[3];
+		}
+		// WP + Acc
+		else if (enableWeakpointsDPS &&  enableGeneralAccuracyDPS && !enableArmorWastingDPS) {
+			return baselineBurstDPS[4];
+		}
+		// WP + AW
+		else if (enableWeakpointsDPS &&  !enableGeneralAccuracyDPS && enableArmorWastingDPS) {
+			return baselineBurstDPS[5];
+		}
+		// Acc + AW
+		else if (!enableWeakpointsDPS &&  enableGeneralAccuracyDPS && enableArmorWastingDPS) {
+			return baselineBurstDPS[6];
+		}
+		// WP + Acc + AW
+		else if (enableWeakpointsDPS &&  enableGeneralAccuracyDPS && enableArmorWastingDPS) {
+			return baselineBurstDPS[7];
+		}
+		else {
+			return -1;
+		}
+	}
+	public double getBaselineSustainedDPS() {
+		// Ideal
+		if (!enableWeakpointsDPS &&  !enableGeneralAccuracyDPS && !enableArmorWastingDPS) {
+			return baselineSustainedDPS[0];
+		}
+		// Wakpoint
+		else if (enableWeakpointsDPS &&  !enableGeneralAccuracyDPS && !enableArmorWastingDPS) {
+			return baselineSustainedDPS[1];
+		}
+		// Accuracy
+		else if (!enableWeakpointsDPS &&  enableGeneralAccuracyDPS && !enableArmorWastingDPS) {
+			return baselineSustainedDPS[2];	
+		}
+		// Armor Wasting
+		else if (!enableWeakpointsDPS &&  !enableGeneralAccuracyDPS && enableArmorWastingDPS) {
+			return baselineSustainedDPS[3];
+		}
+		// WP + Acc
+		else if (enableWeakpointsDPS &&  enableGeneralAccuracyDPS && !enableArmorWastingDPS) {
+			return baselineSustainedDPS[4];
+		}
+		// WP + AW
+		else if (enableWeakpointsDPS &&  !enableGeneralAccuracyDPS && enableArmorWastingDPS) {
+			return baselineSustainedDPS[5];
+		}
+		// Acc + AW
+		else if (!enableWeakpointsDPS &&  enableGeneralAccuracyDPS && enableArmorWastingDPS) {
+			return baselineSustainedDPS[6];
+		}
+		// WP + Acc + AW
+		else if (enableWeakpointsDPS &&  enableGeneralAccuracyDPS && enableArmorWastingDPS) {
+			return baselineSustainedDPS[7];
+		}
+		else {
+			return -1;
+		}
+	}
 	public double[] getBaselineStats() {
 		return baselineCalculatedStats;
+	}
+	
+	public boolean getWeakpointDPSEnabled() {
+		return enableWeakpointsDPS;
+	}
+	public void setWeakpointDPS(boolean newValue, boolean updateGUI) {
+		enableWeakpointsDPS = newValue;
+		if (updateGUI && countObservers() > 0) {
+			setChanged();
+			notifyObservers();
+		}
+	}
+	public boolean getAccuracyDPSEnabled() {
+		return enableGeneralAccuracyDPS;
+	}
+	public void setAccuracyDPS(boolean newValue, boolean updateGUI) {
+		enableGeneralAccuracyDPS = newValue;
+		if (updateGUI && countObservers() > 0) {
+			setChanged();
+			notifyObservers();
+		}
+	}
+	public boolean getArmorWastingDPSEnabled() {
+		return enableArmorWastingDPS;
+	}
+	public void setArmorWastingDPS(boolean newValue, boolean updateGUI) {
+		enableArmorWastingDPS = newValue;
+		if (updateGUI && countObservers() > 0) {
+			setChanged();
+			notifyObservers();
+		}
 	}
 	
 	protected void setAoEEfficiency() {
@@ -538,6 +701,52 @@ public abstract class Weapon extends Observable {
 			}
 		*/
 		aoeEfficiency = new double[3];
+	}
+	
+	// These methods are mostly pass-through to the internal AccuracyEstimator object
+	public void setAccuracyDistance(double newDistance) {
+		// Input sanitization
+		if (newDistance > 0 && newDistance < 20) {
+			accEstimator.setDistance(newDistance);
+			// Because this method will only be called from the GUI, it doesn't need the updateGUI flag
+			if (countObservers() > 0) {
+				setChanged();
+				notifyObservers();
+			}
+		}
+	}
+	public double getAccuracyDistance() {
+		return accEstimator.getDistance();
+	}
+	
+	public boolean isRecoilModeledInAccuracy() {
+		return accEstimator.isModelingRecoil();
+	}
+	public void setModelRecoilInAccuracy(boolean newValue) {
+		accEstimator.setModelRecoil(newValue);
+		// Because this method will only be called from the GUI, it doesn't need the updateGUI flag
+		if (countObservers() > 0) {
+			setChanged();
+			notifyObservers();
+		}
+	}
+	
+	public boolean accuracyCanBeVisualized() {
+		return accEstimator.visualizerIsReady();
+	}
+	public boolean accuracyVisualizerShowsGeneralAccuracy() {
+		return accEstimator.visualizerShowsGeneralAccuracy();
+	}
+	public void setAccuracyVisualizerToShowGeneralAccuracy(boolean newValue) {
+		accEstimator.makeVisualizerShowGeneralAccuracy(newValue);
+		// Because this method will only be called from the GUI, it doesn't need the updateGUI flag
+		if (countObservers() > 0) {
+			setChanged();
+			notifyObservers();
+		}
+	}
+	public JPanel getVisualizerPanel() {
+		return accEstimator.getVisualizer();
 	}
 	
 	/****************************************************************************************
@@ -634,8 +843,11 @@ public abstract class Weapon extends Observable {
 		return calculateProbabilityToBreakLightArmor(baseDamage, 1.0);
 	}
 	protected double calculateProbabilityToBreakLightArmor(double baseDamage, double armorBreaking) {
-		double averageArmorStrength = EnemyInformation.averageLightArmorStrength();
-		return EnemyInformation.lightArmorBreakProbabilityLookup(baseDamage, armorBreaking, averageArmorStrength);
+		return EnemyInformation.lightArmorBreakProbabilityLookup(baseDamage, armorBreaking, EnemyInformation.averageLightArmorStrength());
+	}
+	
+	protected double calculateFearProcProbability(double fearFactor) {
+		return Math.min(fearFactor * (1.0 - EnemyInformation.averageCourage()), 1.0);
 	}
 	
 	protected double calculateRNGDoTDPSPerMagazine(double DoTProcChance, double DoTDPS, int magazineSize) {
@@ -660,7 +872,7 @@ public abstract class Weapon extends Observable {
 			I'm choosing to model the DoT total damage as "How much damage does the DoT do to the average enemy while it's still alive?"
 		*/
 		// Special case: Revolver can have a lower TTK than time to proc.
-		double avgTTK = averageTimeToKill();
+		double avgTTK = averageTimeToKill(false);
 		if (avgTTK < timeBeforeProc) {
 			return 0;
 		}
@@ -724,6 +936,109 @@ public abstract class Weapon extends Observable {
 		toReturn[0][1] = avgDmg / totalNumGlyphids;
 		
 		return toReturn[0];
+	}
+	
+	/*
+		This method will be used to model what the average multiplier of a short-duration conditional effect would be if spread out across 
+		every bullet of the magazine. Depending on the duration of the effect, the size of the magazine, and the rate of fire of the gun, 
+		the multiplier could only apply to 1-2 shots or upwards of 10 before it wears off.
+		
+		I'm writing this as "pessimistically" as possible, assuming it takes ceil() num shots to start the effect and that the effect 
+		only lasts for floor() number of shots. This may return a very slight underestimation of efficacy, but I think it's a safer route
+		than writing it "optimistically" and over-promising.
+		
+		Engineer/Shotgun/OC/"Stunner" x1.3 damage while enemies are stunned for 3 seconds
+		Scout/AssaultRifle/OC/"Bullets of Mercy" x1.33 damage while enemies are stunned for 1.5 seconds
+		Scout/AssaultRifle/Mod/5/B "Battle Cool" x12.5 Spread Recovery Speed for 1.5 seconds on kill
+	*/
+	protected double averageBonusPerMagazineForShortEffects(double conditionalMultiplier, double conditionDuration, boolean onKillEffect, double probabilityPerShot, double magazineSize, double RoF) {
+		double numShotsWithoutMultiplier = 0;
+		double numShotsWithMultiplier = 0;
+		double numShotsFiredDuringEffect = 0;
+		double shotsRemaining;
+		
+		if (onKillEffect) {
+			// This section is for effects that happen any time this weapon scores a killing blow, like Scout/AssaultRifle/Mod/5/B/"Battle Cool"
+			// Intentionally using incorrect "guessed" spawn rates to get better numbers.
+			double burstTTK = EnemyInformation.averageHealthPool(false) / calculateSingleTargetDPS(true, false, false, false);
+			double numShotsFiredPerKill = Math.ceil(RoF * burstTTK);
+			if (burstTTK < conditionDuration) {
+				// Early exit condition: if this weapon can score kills to trigger the On-Kill effect again before the effect duration ends, 
+				// it effectively turns into a Long Effect because the Short Effect never ends after first activation.
+				return averageBonusPerMagazineForLongEffects(conditionalMultiplier, numShotsFiredPerKill, magazineSize);
+			}
+			numShotsFiredDuringEffect = Math.floor(RoF * conditionDuration);
+			
+			double numKillsPerMag = Math.floor(magazineSize / numShotsFiredPerKill);
+			if (numKillsPerMag == 0) {
+				// Early exit condition: if the weapon can't achieve a kill with its Ideal Burst DPS before the magazine runs out, the On-Kill effect never triggers during the magazine
+				numShotsWithoutMultiplier = magazineSize;
+				numShotsWithMultiplier = 0;
+			}
+			else {
+				// All the bullets fired from the start of the magazine to score the first kill don't get the multiplier
+				numShotsWithoutMultiplier += numShotsFiredPerKill;
+				if (numKillsPerMag > 1) {
+					numShotsWithMultiplier += (numKillsPerMag - 1) * numShotsFiredDuringEffect;
+					numShotsWithoutMultiplier += (numKillsPerMag - 1) * (numShotsFiredPerKill - numShotsFiredDuringEffect);
+				}
+				// At this point in the sequence, the last kill of the magazine should have happened on the bullet before this one, and there aren't enough bullets left in the mag to kill another enemy
+				shotsRemaining = magazineSize % numShotsFiredPerKill;
+				double timeToFire = shotsRemaining / RoF;
+				if (timeToFire < conditionDuration) {
+					numShotsWithMultiplier += shotsRemaining;
+				}
+				else {
+					numShotsWithMultiplier += numShotsFiredDuringEffect;
+					numShotsWithoutMultiplier += (shotsRemaining - numShotsFiredDuringEffect);
+				}
+			}
+		}
+		else {
+			// This section is for effects that have a chance to start on any shot of the magazine, like Engineer/Shotgun/OC/"Stunner"
+			double numShotsFiredBeforeProc = Math.ceil(MathUtils.meanRolls(probabilityPerShot));
+			if (numShotsFiredBeforeProc >= magazineSize) {
+				// Early exit condition: if the mag size is really small or the probability is really low, there's a possibility that the effect never procs during one magazine
+				numShotsWithoutMultiplier = magazineSize;
+				numShotsWithMultiplier = 0;
+			}
+			else {
+				numShotsFiredDuringEffect = Math.floor(RoF * conditionDuration);
+				double numberOfFullCycles = Math.floor(magazineSize / (numShotsFiredBeforeProc + numShotsFiredDuringEffect));
+				if (numberOfFullCycles == 0) {
+					numShotsWithoutMultiplier += numShotsFiredBeforeProc;
+					numShotsWithMultiplier += (magazineSize - numShotsFiredBeforeProc);
+				}
+				else {
+					numShotsWithoutMultiplier += numberOfFullCycles * numShotsFiredBeforeProc;
+					numShotsWithMultiplier += numberOfFullCycles * numShotsFiredDuringEffect;
+					
+					shotsRemaining = magazineSize % (numShotsFiredBeforeProc + numShotsFiredDuringEffect);
+					if (shotsRemaining > numShotsFiredBeforeProc) {
+						numShotsWithoutMultiplier += numShotsFiredBeforeProc;
+						numShotsWithMultiplier += (shotsRemaining - numShotsFiredBeforeProc);
+					}
+					else {
+						numShotsWithoutMultiplier += shotsRemaining;
+					}
+				}
+			}
+		}
+		
+		return (numShotsWithoutMultiplier * 1.0 + numShotsWithMultiplier * conditionalMultiplier) / magazineSize;
+	}
+	
+	/*
+		This method will be used to model what the average multiplier of a long-duration conditional effect would be if spread out across
+		every bullet of the magazine. Effects of this nature are generally activated partway through the magazine and then stay active until 
+		the magazine's end when reload happens.
+		
+		Engineer/SMG/Mod/4/B "Conductive Bullets" x1.3 damage after enemy is electrocuted by the SMG
+		Gunner/Minigun/Mod/4/A "Variable Chamber Pressure" x1.15 damage after max stability
+		Gunner/Autocannon/Mod/5/A "Feedback Loop" x1.2 damage after full RoF
+	*/
+	protected double averageBonusPerMagazineForLongEffects(double conditionalMultiplier, double bulletsBeforeConditionStarts, double magazineSize) {
+		return (bulletsBeforeConditionStarts * 1.0 + (magazineSize - bulletsBeforeConditionStarts) * conditionalMultiplier) / magazineSize;
 	}
 	
 	protected int calculateNumGlyphidsInRadius(double radius) {
@@ -841,10 +1156,10 @@ public abstract class Weapon extends Observable {
 	*/
 	
 	// Single-target calculations
-	public abstract double calculateIdealBurstDPS();
-	public abstract double calculateIdealSustainedDPS();
-	public abstract double sustainedWeakpointDPS();
-	public abstract double sustainedWeakpointAccuracyDPS();
+	public double calculateSingleTargetDPS(boolean burst) {
+		return calculateSingleTargetDPS(burst, enableWeakpointsDPS, enableGeneralAccuracyDPS, enableArmorWastingDPS);
+	}
+	public abstract double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting);
 	
 	// Multi-target calculations (based on "ideal" sustained DPS calculations)
 	// I'm choosing not to implement Status Effects on the additional targets
@@ -872,12 +1187,10 @@ public abstract class Weapon extends Observable {
 		return averageTimeToKill(true);
 	}
 	public double averageTimeToKill(boolean useExactSpawnRates) {
-		return EnemyInformation.averageHealthPool(useExactSpawnRates) / sustainedWeakpointDPS();
+		return EnemyInformation.averageHealthPool(useExactSpawnRates) / calculateSingleTargetDPS(false, true, false, false);
 	}
 	protected abstract double averageDamageToKillEnemy();
-	public double averageOverkill() {
-		return ((averageDamageToKillEnemy() / EnemyInformation.averageHealthPool()) - 1.0) * 100.0;
-	}
+	public abstract double averageOverkill();
 	public double ammoEfficiency() {
 		return calculateMaxMultiTargetDamage() / averageDamageToKillEnemy();
 	}
@@ -899,10 +1212,10 @@ public abstract class Weapon extends Observable {
 		toReturn[8] = new StatsRow("Glypid Praetorian (Weakpoint):", breakpoints[8], null, false);
 		toReturn[9] = new StatsRow("Glypid Exploder:", breakpoints[9], null, false);
 		toReturn[10] = new StatsRow("Glypid Exploder (Weakpoint):", breakpoints[10], null, false);
-		toReturn[11] = new StatsRow("Glypid Webspitter (Light Armor):", breakpoints[11], null, false);
-		toReturn[12] = new StatsRow("Glypid Webspitter (Weakpoint):", breakpoints[12], null, false);
-		toReturn[13] = new StatsRow("Glypid Acidspitter (Light Armor):", breakpoints[13], null, false);
-		toReturn[14] = new StatsRow("Glypid Acidspitter (Weakpoint):", breakpoints[14], null, false);
+		toReturn[11] = new StatsRow("Glypid Web Spitter (Light Armor):", breakpoints[11], null, false);
+		toReturn[12] = new StatsRow("Glypid Web Spitter (Weakpoint):", breakpoints[12], null, false);
+		toReturn[13] = new StatsRow("Glypid Acid Spitter (Light Armor):", breakpoints[13], null, false);
+		toReturn[14] = new StatsRow("Glypid Acid Spitter (Weakpoint):", breakpoints[14], null, false);
 		toReturn[15] = new StatsRow("Glypid Warden:", breakpoints[15], null, false);
 		toReturn[16] = new StatsRow("Glypid Warden (Orb):", breakpoints[16], null, false);
 		toReturn[17] = new StatsRow("Glypid Oppressor (Weakpoint):", breakpoints[17], null, false);
@@ -912,6 +1225,7 @@ public abstract class Weapon extends Observable {
 		toReturn[21] = new StatsRow("Mactera Grabber (Weakpoint):", breakpoints[21], null, false);
 		toReturn[22] = new StatsRow("Mactera Goo Bomber:", breakpoints[22], null, false);
 		toReturn[23] = new StatsRow("Mactera Goo Bomber (Weakpoint):    ", breakpoints[23], null, false);  // Added spaces at the end to create some whitespace in the JPanel
+		toReturn[24] = new StatsRow("Cave Leech:", breakpoints[24], null, false);
 		
 		return toReturn;
 	}
@@ -933,17 +1247,62 @@ public abstract class Weapon extends Observable {
 		return toReturn;
 	}
 	
+	/*
+		This metric will show the average time to ignite or freeze if the weapon can deal Temperature Damage. Non-negative numbers are Avg Time to Ignite or Freeze, 
+		and negative means that the weapon currently doesn't do Temperature Damage.
+		
+		The name "cauterize" was the only term I was able to find that encompassed both freezing and burning, but it honestly has no relation to what this metric does.
+	*/
+	public abstract double averageTimeToCauterize();
+	
 	// These two methods will be added as columns to the MySQL metrics dump, but I have no plans to add them to the 15 metrics in the bottom panel.
 	public abstract double damagePerMagazine();
 	public abstract double timeToFireMagazine();
 	
-	// Shortcut method for WeaponStatsGenerator
-	public double[] getMetrics() {
-		return new double[]{
-			calculateIdealBurstDPS(), calculateIdealSustainedDPS(), sustainedWeakpointDPS(), sustainedWeakpointAccuracyDPS(), calculateAdditionalTargetDPS(), 
-			calculateMaxNumTargets(), calculateMaxMultiTargetDamage(), ammoEfficiency(), estimatedAccuracy(false), estimatedAccuracy(true),
-			calculateFiringDuration(), averageOverkill(), averageTimeToKill(), breakpoints(), utilityScore()
-		};
+	public abstract double damageWastedByArmor();
+	
+	public StatsRow[] armorWastingExplanation() {
+		StatsRow[] toReturn = new StatsRow[damageWastedByArmorPerCreature[1].length];
+		
+		toReturn[0] = new StatsRow("Glyphid Grunt:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][0], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[1] = new StatsRow("Glyphid Guard:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][1], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[2] = new StatsRow("Glyphid Slasher:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][2], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[3] = new StatsRow("Glyphid Praetorian:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][3], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[4] = new StatsRow("Glyphid Web Spitter:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][4], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[5] = new StatsRow("Glyphid Acid Spitter:      ", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][5], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[6] = new StatsRow("Glyphid Menace:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][6], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[7] = new StatsRow("Glyphid Warden:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][7], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[8] = new StatsRow("Q'ronar Shellback:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][8], GuiConstants.numDecimalPlaces) + "%", null, false);
+		
+		return toReturn;
+	}
+	
+	public StatsRow[] overkillExplanation() {
+		StatsRow[] toReturn = new StatsRow[overkillPercentages[1].length];
+		
+		toReturn[0] = new StatsRow("Glypid Swarmer:", MathUtils.round(overkillPercentages[1][0], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[1] = new StatsRow("Glypid Grunt:", MathUtils.round(overkillPercentages[1][1], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[2] = new StatsRow("Glypid Grunt Guard:", MathUtils.round(overkillPercentages[1][2], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[3] = new StatsRow("Glypid Grunt Slasher:", MathUtils.round(overkillPercentages[1][3], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[4] = new StatsRow("Glypid Praetorian:", MathUtils.round(overkillPercentages[1][4], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[5] = new StatsRow("Glypid Exploder:", MathUtils.round(overkillPercentages[1][5], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[6] = new StatsRow("Glypid Bulk Detonator:", MathUtils.round(overkillPercentages[1][6], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[7] = new StatsRow("Glypid Crassus Detonator:    ", MathUtils.round(overkillPercentages[1][7], GuiConstants.numDecimalPlaces) + "%", null, false);  // Added spaces at the end to create some whitespace in the JPanel
+		toReturn[8] = new StatsRow("Glypid Web Spitter:", MathUtils.round(overkillPercentages[1][8], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[9] = new StatsRow("Glypid Acid Spitter:", MathUtils.round(overkillPercentages[1][9], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[10] = new StatsRow("Glypid Menace:", MathUtils.round(overkillPercentages[1][10], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[11] = new StatsRow("Glypid Warden:", MathUtils.round(overkillPercentages[1][11], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[12] = new StatsRow("Glypid Oppressor:", MathUtils.round(overkillPercentages[1][12], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[13] = new StatsRow("Q'ronar Shellback:", MathUtils.round(overkillPercentages[1][13], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[14] = new StatsRow("Mactera Spawn:", MathUtils.round(overkillPercentages[1][14], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[15] = new StatsRow("Mactera Grabber:", MathUtils.round(overkillPercentages[1][15], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[16] = new StatsRow("Mactera Goo Bomber:", MathUtils.round(overkillPercentages[1][16], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[17] = new StatsRow("Naedocyte Breeder:", MathUtils.round(overkillPercentages[1][17], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[18] = new StatsRow("Glyphid Brood Nexus:", MathUtils.round(overkillPercentages[1][18], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[19] = new StatsRow("Spitball Infector:", MathUtils.round(overkillPercentages[1][19], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[20] = new StatsRow("Cave Leech:", MathUtils.round(overkillPercentages[1][20], GuiConstants.numDecimalPlaces) + "%", null, false);
+		
+		return toReturn;
 	}
 	
 	public abstract ArrayList<String> exportModsToMySQL(boolean exportAllMods);

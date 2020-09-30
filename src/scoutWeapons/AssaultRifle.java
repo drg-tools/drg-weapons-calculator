@@ -9,7 +9,6 @@ import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
-import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
@@ -18,6 +17,7 @@ import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
+import spreadCurves.AssaultRifleCurve;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
@@ -65,6 +65,8 @@ public class AssaultRifle extends Weapon {
 		reloadTime = 1.8;
 		weakpointBonus = 0.1;
 		
+		accEstimator.setSpreadCurve(new AssaultRifleCurve());
+		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
 		setBaselineStats();
@@ -83,7 +85,7 @@ public class AssaultRifle extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Gyro Stabilisation", "-100% Base Spread", modIcons.baseSpread, 1, 0);
+		tier1[0] = new Mod("Gyro Stabilisation", "x0 Base Spread", modIcons.baseSpread, 1, 0);
 		tier1[1] = new Mod("Supercharged Feed Mechanism", "+2 Rate of Fire", modIcons.rateOfFire, 1, 1);
 		
 		tier2 = new Mod[2];
@@ -111,7 +113,7 @@ public class AssaultRifle extends Weapon {
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, overclockIcons.homebrewPowder, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Overclocked Firing Mechanism", "+3 Rate of Fire, x2.5 Recoil", overclockIcons.rateOfFire, 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Bullets of Mercy", "+33% Damage dealt to enemies that are burning, electrocuted, poisoned, stunned, or frozen. In exchange, -5 Magazine Size", overclockIcons.directDamage, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "AI Stability Engine", "x0 Recoil, x10 Spread Recovery Speed, -1 Direct Damage, -2 Rate of Fire", overclockIcons.baseSpread, 5);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "AI Stability Engine", "x0 Recoil, x2.11 Spread Recovery Speed, -1 Direct Damage, -2 Rate of Fire", overclockIcons.baseSpread, 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Electrifying Reload", "If any bullets from a magazine damage an enemy's healthbar, then those enemies will have an Electrocute DoT applied when that "
 				+ "magazine gets reloaded. Electrocute does an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per Second for 3 seconds. -3 Direct Damage, -5 Magazine Size", overclockIcons.specialReload, 6);
 	}
@@ -401,17 +403,27 @@ public class AssaultRifle extends Weapon {
 	private double getSpreadRecoverySpeed() {
 		// I'm choosing to model it as if these two effects do not stack.
 		if (selectedOverclock == 5) {
-			return 10.0;
+			return 2.11;
 		}
 		else if (selectedTier5 == 1) {
 			// According to the MikeGSG, Battle Cool increases Spread Recovery Speed by x12.5 for 1.5 seconds after a kill.
-			// Similar to Gunner/Minigun/Mod/5/CatG, I'm choosing to use the incorrect "guessed" spawn rates for this avg HP value for a more believable uptimeCoefficient
-			double burstTTK = EnemyInformation.averageHealthPool(false) / calculateIdealBurstDPS();
-			double battleCoolUptimeCoefficient = 1.5 / burstTTK;
-			return 12.5 * battleCoolUptimeCoefficient;
+			return averageBonusPerMagazineForShortEffects(12.5, 1.5, true, 0.0, getMagazineSize(), getRateOfFire());
 		}
 		else {
 			return 1.0;
+		}
+	}
+	private double getSpreadRecoverySpeedValue() {
+		// I'm choosing to model it as if these two effects do not stack.
+		if (selectedOverclock == 5) {
+			return 17.1;
+		}
+		else if (selectedTier5 == 1) {
+			// According to the MikeGSG, Battle Cool increases Spread Recovery Speed by x12.5 for 1.5 seconds after a kill.
+			return 8.1 * averageBonusPerMagazineForShortEffects(12.5, 1.5, true, 0.0, getMagazineSize(), getRateOfFire());
+		}
+		else {
+			return 8.1;
 		}
 	}
 	private double getRecoil() {
@@ -480,7 +492,8 @@ public class AssaultRifle extends Weapon {
 	}
 	
 	// Single-target calculations
-	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+	@Override
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		double generalAccuracy, duration, directWeakpointDamage;
 		
 		if (accuracy) {
@@ -498,6 +511,13 @@ public class AssaultRifle extends Weapon {
 		}
 		
 		double directDamage = getDirectDamage();
+		
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			directDamage *= armorWaste;
+		}
+		
 		// Frozen
 		if (statusEffects[1]) {
 			directDamage *= UtilityInformation.Frozen_Damage_Multiplier;
@@ -515,13 +535,7 @@ public class AssaultRifle extends Weapon {
 			}
 			else {
 				// If no Status Effects are active, then it only procs on the weapon's built-in Stun.
-				double stunChancePerShot = getWeakpointStunChance();
-				double numShotsBeforeStun = Math.round(MathUtils.meanRolls(stunChancePerShot));
-				double numShotsFiredWhileStunned = Math.min(Math.round(stunDuration * getRateOfFire()), getMagazineSize() - numShotsBeforeStun);
-				
-				double averageBoMDamageMultiplier = (numShotsBeforeStun + BoMDamageMultiplier * numShotsFiredWhileStunned) / (numShotsBeforeStun + numShotsFiredWhileStunned);
-				
-				directDamage *= averageBoMDamageMultiplier;
+				directDamage *= averageBonusPerMagazineForShortEffects(BoMDamageMultiplier, 1.5, false, getWeakpointStunChance(), getMagazineSize(), getRateOfFire());
 			}
 		}
 		
@@ -546,26 +560,6 @@ public class AssaultRifle extends Weapon {
 		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
 		
 		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * directDamage) / duration + electroDPS;
-	}
-
-	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS(true, false, false);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(false, false, false);
-	}
-	
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(false, false, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	@Override
@@ -608,35 +602,28 @@ public class AssaultRifle extends Weapon {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus());
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
+	
+	@Override
+	public double averageOverkill() {
+		overkillPercentages = EnemyInformation.overkillPerCreature(getDirectDamage());
+		return MathUtils.vectorDotProduct(overkillPercentages[0], overkillPercentages[1]);
+	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		/*
-			Scout's Assault Rifle seems to use a different model of accuracy than the other guns do. Specifically, it does the following things differently:
-			1. The Spread Recovery Speed seems to be non-linear; it seems to be more powerful at the start of the magazine and get weaker near the end
-			2. The Spread Recovery starts getting applied on the first shot, whereas all the other guns have it applied on every shot after the first.
-			3. When its Base Spread is reduced to 0, the Max Spread doesn't decrease as well (every other gun has Max Spread = Base Spread + Spread Variance)
-			
-			With those things in mind, I am choosing to model this slightly incorrectly with the current AccuracyEstimator because I want to get things finished up.
-			If I keep developing this app, I'd like to come back and make a method specifically for this weapon.
-		*/
+		double baseSpread = 0.9 * getBaseSpread();
+		double spreadPerShot = 1.4;
+		double spreadRecoverySpeed = getSpreadRecoverySpeedValue();
+		double spreadVariance = 4.2;
 		
-		double unchangingBaseSpread = 19;
-		double changingBaseSpread = 21;
-		double spreadVariance = 84;
-		double spreadPerShot = 30;
-		double spreadRecoverySpeed = 170.6869145;
-		double recoilPerShot = 41;
-		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
-		double recoilUpInterval = 1.0 / 6.0;
-		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		double recoilDownInterval = 2.0 / 3.0;
+		double recoilPitch = 35.0 * getRecoil();
+		double recoilYaw = 5.0 * getRecoil();
+		double mass = 1.0;
+		double springStiffness = 50.0;
 		
-		double[] modifiers = {getBaseSpread(), 1.0, getSpreadRecoverySpeed(), 1.0, getRecoil()};
-		
-		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
-				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
-				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
+		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override
@@ -650,6 +637,7 @@ public class AssaultRifle extends Weapon {
 		};
 		
 		double[] areaDamage = {
+			0,  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
@@ -667,7 +655,7 @@ public class AssaultRifle extends Weapon {
 			0  // Radiation
 		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0, statusEffects[1], statusEffects[3], false);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -703,6 +691,11 @@ public class AssaultRifle extends Weapon {
 	}
 	
 	@Override
+	public double averageTimeToCauterize() {
+		return -1;
+	}
+	
+	@Override
 	public double damagePerMagazine() {
 		double baseDamage = getMagazineSize() * getDirectDamage();
 		
@@ -717,6 +710,12 @@ public class AssaultRifle extends Weapon {
 	@Override
 	public double timeToFireMagazine() {
 		return getMagazineSize() / getRateOfFire();
+	}
+	
+	@Override
+	public double damageWastedByArmor() {
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 0.0, getArmorBreaking(), getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true));
+		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	
 	@Override
@@ -816,7 +815,7 @@ public class AssaultRifle extends Weapon {
 				+ "\"ex10\": { \"name\": \"Spread Recovery Speed\", \"value\": 10, \"percent\": true, \"multiply\": true }, \"dmg\": { \"name\": \"Damage\", \"value\": 1, \"subtract\": true }, \"rate\": { \"name\": \"Rate of Fire\", \"value\": 2, \"subtract\": true } }", "Icon_Upgrade_Aim"),
 				exportAllOCs || false);
 		toReturn.conditionalAdd(
-				String.format(rowFormat, "Unstable", overclocks[6].getShortcutRepresentation(), overclocks[6].getName(), 1000, 65, 105, 135, 0, 0, 0, overclocks[6].getText(true), "{ \"ex11\": { \"name\": \"Electric Reload (100% chance)\", \"value\": 1, \"boolean\": true }, "
+				String.format(rowFormat, "Unstable", overclocks[6].getShortcutRepresentation(), overclocks[6].getName(), 7750, 65, 105, 135, 0, 0, 0, overclocks[6].getText(true), "{ \"ex11\": { \"name\": \"Electric Reload (100% chance)\", \"value\": 1, \"boolean\": true }, "
 				+ "\"dmg\": { \"name\": \"Damage\", \"value\": 3, \"subtract\": true }, \"clip\": { \"name\": \"Magazine Size\", \"value\": 5, \"subtract\": true } }", "Icon_Overclock_Special_Magazine"),
 				exportAllOCs || false);
 		

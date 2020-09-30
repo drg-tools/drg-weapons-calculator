@@ -8,7 +8,6 @@ import dataGenerator.DatabaseConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
-import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
@@ -26,8 +25,8 @@ public class SMG extends Weapon {
 	****************************************************************************************/
 	
 	private double electrocutionDoTChance;
-	private int directDamage;
-	private int electricDamage;
+	private double directDamage;
+	private double electricDamage;
 	private int magazineSize;
 	private int carriedAmmo;
 	private double rateOfFire;
@@ -63,6 +62,9 @@ public class SMG extends Weapon {
 		rateOfFire = 11.0;
 		reloadTime = 2.0;
 		
+		// Override default 10m distance
+		accEstimator.setDistance(7.0);
+		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
 		setBaselineStats();
@@ -96,11 +98,11 @@ public class SMG extends Weapon {
 		
 		tier4 = new Mod[2];
 		tier4[0] = new Mod("Hollow-Point Bullets", "+30% Weakpoint Bonus", modIcons.weakpointBonus, 4, 0);
-		tier4[1] = new Mod("Conductive Bullets", "+30% Kinetic Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 4, 1);
+		tier4[1] = new Mod("Conductive Bullets", "+30% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 4, 1);
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Magazine Capacity Tweak", "+20 Magazine Size", modIcons.magSize, 5, 0);
-		tier5[1] = new Mod("Electric Arc", "Every time the SMG either applies or refreshes an Electrocute DoT, there's a 25% chance that enemies near the primary target will be electrocuted as well.", modIcons.electricity, 5, 1);
+		tier5[1] = new Mod("Electric Arc", "Every time the SMG either applies or refreshes an Electrocute DoT, there's a 25% chance that all enemies within a 2.75m radius of the primary target will be electrocuted as well.", modIcons.electricity, 5, 1);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Super-Slim Rounds", "+5 Magazine Size, x0.8 Base Spread", overclockIcons.magSize, 0);
@@ -109,8 +111,8 @@ public class SMG extends Weapon {
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Light-Weight Rounds", "+180 Max Ammo, -1 Direct Damage, -2 Rate of Fire", overclockIcons.carriedAmmo, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Turret Arc", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, that turret deals constant Electric Damage in a small radius around it. "
 				+ "Additionally, if 2 turrets are less than 10m apart and both are electrocuted at the same time, then an electric arc will pass between them for 10 seconds. -120 Max Ammo, -2 Rate of Fire", overclockIcons.electricity, 4, false);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Turret EM Discharge", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, then an explosion deals electric damage to all enemies "
-				+ "with a 5m radius. -5% Chance to Electrocute an enemy, -3 Direct Damage", overclockIcons.areaDamage, 5, false);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Turret EM Discharge", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, it triggers an explosion that deals 40 Electric Damage and 0.5 Fear to all enemies "
+				+ "within a 5m radius. There's a 1.5 second cooldown between explosions. -5% Chance to Electrocute an enemy, -3 Direct Damage", overclockIcons.areaDamage, 5, false);
 	}
 	
 	@Override
@@ -289,17 +291,16 @@ public class SMG extends Weapon {
 		
 		return toReturn;
 	}
-	private int getDirectDamage() {
-		int toReturn = directDamage;
+	private double getDirectDamage() {
+		double toReturn = directDamage;
 		
+		// Additive bonuses first
 		if (selectedTier1 == 0) {
 			toReturn += 2;
 		}
-		
 		if (selectedTier3 == 0) {
 			toReturn += 2;
 		}
-		
 		if (selectedOverclock == 3) {
 			toReturn -= 1;
 		}
@@ -307,13 +308,24 @@ public class SMG extends Weapon {
 			toReturn -= 3;
 		}
 		
+		// Multiplicative bonuses last
+		if (selectedTier4 == 1) {
+			toReturn *= conductiveBulletsMultiplier();
+		}
+		
 		return toReturn;
 	}
-	private int getElectricDamage() {
-		int toReturn = electricDamage;
+	private double getElectricDamage() {
+		double toReturn = electricDamage;
 		
+		// Additive bonuses first
 		if (selectedOverclock == 2) {
 			toReturn += 2;
+		}
+		
+		// Multiplicative bonuses last
+		if (selectedTier4 == 1) {
+			toReturn *= conductiveBulletsMultiplier();
 		}
 		
 		return toReturn;
@@ -414,6 +426,18 @@ public class SMG extends Weapon {
 		return toReturn;
 	}
 	
+	private double conductiveBulletsMultiplier() {
+		double conductiveBulletsDamageMultiplier = 1.3;
+		if (statusEffects[2] || statusEffects[3]) {
+			return conductiveBulletsDamageMultiplier;
+		}
+		else {
+			// To model a 30% direct damage increase to electrocuted targets, average out how many bullets/mag that would get the buff after a DoT proc, and then spread that bonus across every bullet.
+			double numBulletsBeforeElectrocute = Math.ceil(MathUtils.meanRolls(getElectrocutionDoTChance()));
+			return averageBonusPerMagazineForLongEffects(conductiveBulletsDamageMultiplier, numBulletsBeforeElectrocute, getMagazineSize());
+		}
+	}
+	
 	@Override
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[11];
@@ -421,10 +445,10 @@ public class SMG extends Weapon {
 		toReturn[0] = new StatsRow("Electrocute DoT Chance:", convertDoubleToPercentage(getElectrocutionDoTChance()), modIcons.homebrewPowder, selectedTier1 == 1 || selectedOverclock == 5);
 		toReturn[1] = new StatsRow("Electrocute DoT DPS:", DoTInformation.Electro_DPS, modIcons.electricity, false);
 		
-		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 0 || selectedOverclock == 3 || selectedOverclock == 5;
+		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 0 || selectedTier4 == 1 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[2] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
-		toReturn[3] = new StatsRow("Electric Damage:", getElectricDamage(), modIcons.directDamage, selectedOverclock == 2, selectedOverclock == 2);
+		toReturn[3] = new StatsRow("Electric Damage:", getElectricDamage(), modIcons.directDamage, selectedTier4 == 1 || selectedOverclock == 2, selectedTier4 == 1 || selectedOverclock == 2);
 		
 		boolean magSizeModified = selectedTier2 == 0 || selectedTier5 == 0 || selectedOverclock == 0;
 		toReturn[4] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, magSizeModified);
@@ -451,56 +475,20 @@ public class SMG extends Weapon {
 	* Other Methods
 	****************************************************************************************/
 	
-	private double calculateDamagePerBullet(boolean weakpointBonus) {
-		double directDamage = getDirectDamage();
-		
-		if (selectedTier4 == 1) {
-			double conductiveBulletsDamageMultiplier = 1.3;
-			if (statusEffects[2] || statusEffects[3]) {
-				directDamage *= conductiveBulletsDamageMultiplier;
-			}
-			else {
-				// To model a 30% physical damage increase to electrocuted targets, average out how many bullets/mag that would get the buff after a DoT proc, and then spread that bonus across every bullet.
-				double DoTChance = getElectrocutionDoTChance();
-				double meanBulletsFiredBeforeProc = MathUtils.meanRolls(DoTChance);
-				double numBulletsFiredAfterProc = getMagazineSize() - meanBulletsFiredBeforeProc;
-				
-				directDamage *= (meanBulletsFiredBeforeProc + numBulletsFiredAfterProc * conductiveBulletsDamageMultiplier) / getMagazineSize();
-			}
-		}
-		
-		// According to the wiki, Electric damage gets bonus from Weakpoints too
-		double totalDamage = directDamage + getElectricDamage();
-		
-		// Frozen
-		if (statusEffects[1]) {
-			totalDamage *= UtilityInformation.Frozen_Damage_Multiplier;
-		}
-		// IFG Grenade
-		if (statusEffects[3]) {
-			totalDamage *= UtilityInformation.IFG_Damage_Multiplier;
-		}
-		
-		if (weakpointBonus && !statusEffects[1]) {
-			return increaseBulletDamageForWeakpoints2(totalDamage, getWeakpointBonus());
-		}
-		else {
-			return totalDamage;
-		}
-	}
-	
 	private double calculateBurstElectrocutionDoTDPS() {
 		return calculateRNGDoTDPSPerMagazine(getElectrocutionDoTChance(), DoTInformation.Electro_DPS, getMagazineSize());
 	}
 
 	@Override
 	public boolean currentlyDealsSplashDamage() {
-		return false;
+		// T5.B Electric Arc has a 2.75m radius AoE that can electrocute nearby enemies
+		return selectedTier5 == 1;
 	}
 	
 	// Single-target calculations
-	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
-		double generalAccuracy, duration;
+	@Override
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
+		double generalAccuracy, duration, directWeakpointDamage;
 		
 		if (accuracy) {
 			generalAccuracy = estimatedAccuracy(false) / 100.0;
@@ -520,14 +508,30 @@ public class SMG extends Weapon {
 		}
 		
 		double weakpointAccuracy;
-		double directWeakpointDamage = calculateDamagePerBullet(weakpoint);
-		double directDamage = calculateDamagePerBullet(false);
+		double directDamage = getDirectDamage() + getElectricDamage();
 		
-		if (weakpoint) {
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			directDamage *= armorWaste;
+		}
+		
+		// Frozen
+		if (statusEffects[1]) {
+			directDamage *= UtilityInformation.Frozen_Damage_Multiplier;
+		}
+		// IFG Grenade
+		if (statusEffects[3]) {
+			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
+		}
+		
+		if (weakpoint && !statusEffects[1]) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+			directWeakpointDamage = increaseBulletDamageForWeakpoints2(directDamage);
 		}
 		else {
 			weakpointAccuracy = 0.0;
+			directWeakpointDamage = directDamage;
 		}
 		
 		int magSize = getMagazineSize();
@@ -535,26 +539,6 @@ public class SMG extends Weapon {
 		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
 		
 		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * directDamage) / duration + electrocuteDPS;
-	}
-
-	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS(true, false, false);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(false, false, false);
-	}
-	
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(false, false, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		return calculateSingleTargetDPS(false, true, true);
 	}
 
 	@Override
@@ -571,7 +555,7 @@ public class SMG extends Weapon {
 	public double calculateMaxMultiTargetDamage() {
 		// First, how much direct damage can be dealt without DoT calculations. Second, add the DoTs on the primary targets. Third, if necessary, add the secondary target DoTs.
 		double totalDamage = 0;
-		totalDamage += calculateDamagePerBullet(false) * (getMagazineSize() + getCarriedAmmo());
+		totalDamage += (getDirectDamage() + getElectricDamage()) * (getMagazineSize() + getCarriedAmmo());
 		
 		/* 
 			There's no good way to model RNG-based mechanics' max damage, such as the Electrocute DoT. I'm choosing
@@ -581,7 +565,8 @@ public class SMG extends Weapon {
 		totalDamage += calculateBurstElectrocutionDoTDPS() * calculateFiringDuration();
 		
 		if (selectedTier5 == 1) {
-			totalDamage += calculateAdditionalTargetDPS() * calculateFiringDuration();
+			// Don't double-count the DoTs already calculated for the primary target
+			totalDamage += (calculateMaxNumTargets() - 1) * calculateAdditionalTargetDPS() * calculateFiringDuration();
 		}
 		
 		return totalDamage;
@@ -589,9 +574,9 @@ public class SMG extends Weapon {
 
 	@Override
 	public int calculateMaxNumTargets() {
-		// TODO: I had modeled this method like it could only hit one other target, but looking at its visual effect I think it might be able to hit more than 1 around the primary target.
 		if (selectedTier5 == 1) {
-			return 2;
+			// T5.B "Electric Arc" causes a 2.75m AoE around the primary target 25% of the time that it procs an Electrocute DoT
+			return calculateNumGlyphidsInRadius(2.75);
 		}
 		else {
 			return 1;
@@ -608,28 +593,32 @@ public class SMG extends Weapon {
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
-		double dmgPerShot = calculateDamagePerBullet(true);
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage() + getElectricDamage());
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
+	}
+	
+	@Override
+	public double averageOverkill() {
+		overkillPercentages = EnemyInformation.overkillPerCreature(getDirectDamage() + getElectricDamage());
+		return MathUtils.vectorDotProduct(overkillPercentages[0], overkillPercentages[1]);
 	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		double unchangingBaseSpread = 59.5;
-		double changingBaseSpread = 33.5;
-		double spreadVariance = 36;
-		double spreadPerShot = 12;
-		double spreadRecoverySpeed = 72;
-		double recoilPerShot = 41;
-		// Fractional representation of how many seconds this gun takes to reach full recoil per shot
-		double recoilUpInterval = 5.0 / 64.0;
-		// Fractional representation of how many seconds this gun takes to recover fully from each shot's recoil
-		double recoilDownInterval = 5.0 / 16.0;
+		double baseSpread = 3.0 * getBaseSpread();
+		double spreadPerShot = 1.5;
+		double spreadRecoverySpeed = 10.0;
+		double spreadVariance = 4.0;
 		
-		double[] modifiers = {getBaseSpread(), 1.0, 1.0, 1.0, getRecoil()};
+		// Technically the SMG can have its RecoilPitch range anywhere from 35 to 45, but for simplicity's sake I'm choosing to use the average of 40.
+		double recoilPitch = 40.0 * getRecoil();
+		double recoilYaw = 7.0 * getRecoil();
+		double mass = 1.0;
+		double springStiffness = 40.0;
 		
-		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, getRateOfFire(), getMagazineSize(), 1, 
-				unchangingBaseSpread, changingBaseSpread, spreadVariance, spreadPerShot, spreadRecoverySpeed, 
-				recoilPerShot, recoilUpInterval, recoilDownInterval, modifiers);
+		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override
@@ -643,6 +632,7 @@ public class SMG extends Weapon {
 		};
 		
 		double[] areaDamage = {
+			0,  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
@@ -658,7 +648,7 @@ public class SMG extends Weapon {
 			0  // Radiation
 		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0, statusEffects[1], statusEffects[3], false);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -668,9 +658,27 @@ public class SMG extends Weapon {
 		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDirectDamage() + getElectricDamage()) * UtilityInformation.ArmorBreak_Utility;
 		
 		// Innate ability to Electrocute applies an 80% slow to enemies (proc chance increased/decreased by mods and OCs)
-		utilityScores[3] = getElectrocutionDoTChance() * calculateMaxNumTargets() * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+		utilityScores[3] = getElectrocutionDoTChance() * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+		if (selectedTier5 == 1) {
+			utilityScores[3] += getElectrocutionDoTChance() * 0.25 * (calculateMaxNumTargets() - 1) * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+		}
+		
+		// Fear
+		if (selectedOverclock == 5) {
+			// OC "Turret EM Discharge" inflicts 0.5 Fear in a 5m radius around the sentry. Also, since the enemies will be electrocuted the Fear duration gets increased.
+			// 5m radius returns 41 Grunts, which is more than I think would realistically be hit by these explosions. As such, I'm artificially halving the Fear radius to 2.5m
+			utilityScores[4] = calculateFearProcProbability(0.5) * calculateNumGlyphidsInRadius(5.0/2.0) * EnemyInformation.averageFearDuration(0.8, 3) * UtilityInformation.Fear_Utility;
+		}
+		else {
+			utilityScores[4] = 0;
+		}
 		
 		return MathUtils.sum(utilityScores);
+	}
+	
+	@Override
+	public double averageTimeToCauterize() {
+		return -1;
 	}
 	
 	@Override
@@ -682,6 +690,12 @@ public class SMG extends Weapon {
 	@Override
 	public double timeToFireMagazine() {
 		return getMagazineSize() / getRateOfFire();
+	}
+	
+	@Override
+	public double damageWastedByArmor() {
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 0.0, 1.0, getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true));
+		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	
 	@Override

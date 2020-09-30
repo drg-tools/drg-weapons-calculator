@@ -137,7 +137,7 @@ public class Classic_FocusShot extends Classic {
 
 	// Single-target calculations
 	@Override
-	protected double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		double duration;
 		if (burst) {
 			duration = ((double) getMagazineSize()) / getRateOfFire();
@@ -147,6 +147,12 @@ public class Classic_FocusShot extends Classic {
 		}
 		
 		double directDamage = getDirectDamage() * getFocusedShotMultiplier();
+		
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			directDamage *= armorWaste;
+		}
 		
 		// Frozen
 		if (statusEffects[1]) {
@@ -192,6 +198,12 @@ public class Classic_FocusShot extends Classic {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage() * getFocusedShotMultiplier(), getWeakpointBonus());
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
+	
+	@Override
+	public double averageOverkill() {
+		overkillPercentages = EnemyInformation.overkillPerCreature(getDirectDamage() * getFocusedShotMultiplier());
+		return MathUtils.vectorDotProduct(overkillPercentages[0], overkillPercentages[1]);
+	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
@@ -210,6 +222,7 @@ public class Classic_FocusShot extends Classic {
 		};
 		
 		double[] areaDamage = {
+			0,  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
@@ -228,7 +241,7 @@ public class Classic_FocusShot extends Classic {
 			0  // Radiation
 		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0, statusEffects[1], statusEffects[3], false);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -259,10 +272,10 @@ public class Classic_FocusShot extends Classic {
 		// According to MikeGSG, Mod Tier 5 "Precision Terror" does 1 Fear in a 3.5m radius
 		if (selectedTier5 == 1) {
 			double probabilityToHitWeakpoint = EnemyInformation.probabilityBulletWillHitWeakpoint();
-			// Again, intentionally using the incorrect "guess" spawn rates to create a believable uptime coefficient
-			double uptimeCoefficient = Math.min(UtilityInformation.Fear_Duration / averageTimeToKill(false), 1);
-			int numGlyphidsFeared = 22;  // calculateNumGlyphidsInRadius(3.5);
-			utilityScores[4] = probabilityToHitWeakpoint * uptimeCoefficient * numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			int numGlyphidsFeared = calculateNumGlyphidsInRadius(3.5);
+			double probabilityToFear = calculateFearProcProbability(1.0);
+			// Although it is technically possible to electrocute a Feared enemy with Electrocuting Focus Shots and Blowthrough Rounds, it's so unlikely to happen that I'm choosing not to model that overlap.
+			utilityScores[4] = probabilityToHitWeakpoint * probabilityToFear * numGlyphidsFeared * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;
@@ -290,5 +303,12 @@ public class Classic_FocusShot extends Classic {
 		}
 		
 		return (bulletDamage + electrocuteDamage) * calculateMaxNumTargets();
+	}
+	
+	@Override
+	public double damageWastedByArmor() {
+		double weakpointAccuracy = EnemyInformation.probabilityBulletWillHitWeakpoint() * 100.0;
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage() * getFocusedShotMultiplier(), 0.0, getArmorBreaking(), getWeakpointBonus(), 100.0, weakpointAccuracy);
+		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 }

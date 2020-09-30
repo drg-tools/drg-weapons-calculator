@@ -84,7 +84,8 @@ public class EPC_RegularShot extends EPC {
 	}
 
 	// Single-target calculations
-	private double calculateSingleTargetDPS(boolean burst, boolean weakpoint) {
+	@Override
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		double damagePerProjectile;
 		if (weakpoint && !statusEffects[1]) {
 			// Because this weapon doesn't have its Accuracy handled like the other weapons, I'm choosing to just increase the damage by a weighted average.
@@ -92,6 +93,12 @@ public class EPC_RegularShot extends EPC {
 		}
 		else {
 			damagePerProjectile = getDirectDamage();
+		}
+		
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			damagePerProjectile *= armorWaste;
 		}
 		
 		// Frozen
@@ -129,27 +136,6 @@ public class EPC_RegularShot extends EPC {
 		}
 		
 		return damagePerProjectile * burstSize / duration + burnDPS;
-	}
-	
-	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS(true, false);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(false, false);
-	}
-
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(false, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		// EPC has no recoil and no spread per shot, so it can effectively be considered 100% accurate
-		return calculateSingleTargetDPS(false, true);
 	}
 
 	// Multi-target calculations
@@ -194,9 +180,14 @@ public class EPC_RegularShot extends EPC {
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
-		// TODO: should this be increased by Weakpoint bonus?
-		double dmgPerShot = getDirectDamage();
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage());
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
+	}
+	
+	@Override
+	public double averageOverkill() {
+		overkillPercentages = EnemyInformation.overkillPerCreature(getDirectDamage());
+		return MathUtils.vectorDotProduct(overkillPercentages[0], overkillPercentages[1]);
 	}
 	
 	@Override
@@ -210,6 +201,7 @@ public class EPC_RegularShot extends EPC {
 		};
 		
 		double[] areaDamage = {
+			0,  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
@@ -227,7 +219,7 @@ public class EPC_RegularShot extends EPC {
 			0  // Radiation
 		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, 0.0);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, 0.0, statusEffects[1], statusEffects[3], false);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -236,6 +228,18 @@ public class EPC_RegularShot extends EPC {
 		// EPC doesn't have any utility
 		// EPC regular shots also cannot break Light Armor plates
 		return 0;
+	}
+	
+	@Override
+	public double averageTimeToCauterize() {
+		if (selectedTier5 == 2) {
+			// 50% of Direct Damage from the Regular Shots gets added on as Heat Damage.
+			double heatDamagePerShot = 0.5 * getDirectDamage();
+			return EnemyInformation.averageTimeToIgnite(heatDamagePerShot, rateOfFire);
+		}
+		else {
+			return -1;
+		}
 	}
 	
 	@Override
@@ -253,5 +257,12 @@ public class EPC_RegularShot extends EPC {
 	@Override
 	public double timeToFireMagazine() {
 		return getNumRegularShotsBeforeOverheat() / rateOfFire;
+	}
+	
+	@Override
+	public double damageWastedByArmor() {
+		double weakpointAccuracy = EnemyInformation.probabilityBulletWillHitWeakpoint() * 100.0;
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 0.0, 1.0, 0.0, 100.0, weakpointAccuracy);
+		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 }

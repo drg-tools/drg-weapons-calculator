@@ -15,6 +15,7 @@ import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.Weapon;
+import spreadCurves.ClassicCurve;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
@@ -57,6 +58,8 @@ public abstract class Classic extends Weapon {
 		weakpointBonus = 0.1;
 		armorBreaking = 0.3;
 		
+		accEstimator.setSpreadCurve(new ClassicCurve());
+		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
 		setBaselineStats();
@@ -80,7 +83,7 @@ public abstract class Classic extends Weapon {
 		
 		tier2 = new Mod[2];
 		tier2[0] = new Mod("Fast-Charging Coils", "x1.6 Focus Speed", modIcons.chargeSpeed, 2, 0);
-		tier2[1] = new Mod("Better Weight Balance", "x0.8 Spread per Shot, x0.5 Recoil", modIcons.recoil, 2, 1);
+		tier2[1] = new Mod("Better Weight Balance", "-30% Spread per Shot, x0.8 Spread Variance, x0.5 Recoil", modIcons.recoil, 2, 1);
 		
 		tier3 = new Mod[2];
 		tier3[0] = new Mod("Killer Focus", "+25% Focused Shot Multiplier", modIcons.directDamage, 3, 0);
@@ -93,14 +96,14 @@ public abstract class Classic extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Hitting Where it Hurts", "Focused shots Stun enemies for 3 seconds", modIcons.stun, 5, 0);
-		tier5[1] = new Mod("Precision Terror", "Killing an enemy with a focused shot to a weakspot will inflict Fear on enemies within 3.5m of the kill", modIcons.fear, 5, 1);
+		tier5[1] = new Mod("Precision Terror", "Killing an enemy with a focused shot to a weakspot will inflict 1.0 Fear on enemies within 3.5m of the kill", modIcons.fear, 5, 1);
 		tier5[2] = new Mod("Killing Machine", "Manually reloading within 1 second after a kill reduces reload time by 0.75 seconds", modIcons.reloadSpeed, 5, 2);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Hoverclock", "Your movement slows down for a few seconds while using focus mode in the air.", overclockIcons.hoverclock, 0);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Hoverclock", "While Focusing in midair, your current velocity is reduced by 80% for about a second or until you fire/stop focusing. Getting a kill or touching the ground lets you Hover again.", overclockIcons.hoverclock, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Minimal Clips", "+16 Max Ammo, -0.2 Reload Time", overclockIcons.carriedAmmo, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Active Stability System", "No movement penalty while Focusing, -25% Focused Shot Multiplier", overclockIcons.movespeed, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Hipster", "+3 Rate of Fire, x1.75 Max Ammo, x0.4 Delay Before Focusing, x0.85 Spread per Shot, +75% Spread Recovery Speed, x0.5 Recoil, x0.6 Direct Damage", overclockIcons.baseSpread, 3);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Hipster", "+3 Rate of Fire, x1.75 Max Ammo, x0.4 Delay Before Focusing, -10% Spread per Shot, x0.85 Spread Variance, x0.5 Recoil, x0.6 Direct Damage", overclockIcons.baseSpread, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Electrocuting Focus Shots", "Focused Shots apply an Electrocute DoT which does "
 				+ "an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per Second for 4 seconds, -25% Focused Shot Multiplier", overclockIcons.electricity, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Supercooling Chamber", "+125% Focused Shot Multiplier, x0.635 Max Ammo, x0.5 Focus Speed, no movement while focusing", overclockIcons.directDamage, 5);
@@ -306,7 +309,7 @@ public abstract class Classic extends Weapon {
 			double killingMachineManualReloadWindow = 1.0;
 			double killingMachineReloadReduction = 0.75;
 			// Just like Gunner/Minigun/Mod/5/CatG, I'm using the incorrect "guess" spawn rates to create a more believable uptime coefficient
-			double burstTTK = EnemyInformation.averageHealthPool(false) / calculateIdealBurstDPS();
+			double burstTTK = EnemyInformation.averageHealthPool(false) / calculateSingleTargetDPS(true, false, false, false);
 			// Don't let a high Burst DPS increase this beyond a 100% uptime
 			double killingMachineUptimeCoefficient = Math.min(killingMachineManualReloadWindow / burstTTK, 1.0);
 			double effectiveReloadReduction = killingMachineUptimeCoefficient * killingMachineReloadReduction;
@@ -383,6 +386,19 @@ public abstract class Classic extends Weapon {
 		double toReturn = 1.0;
 		
 		if (selectedTier2 == 1) {
+			toReturn -= 0.3;
+		}
+		
+		if (selectedOverclock == 3) {
+			toReturn -= 0.1;
+		}
+		
+		return toReturn;
+	}
+	protected double getSpreadVariance() {
+		double toReturn = 1.0;
+		
+		if (selectedTier2 == 1) {
 			toReturn *= 0.8;
 		}
 		
@@ -391,14 +407,6 @@ public abstract class Classic extends Weapon {
 		}
 		
 		return toReturn;
-	}
-	protected double getSpreadRecoverySpeed() {
-		if (selectedOverclock == 3) {
-			return 1.75;
-		}
-		else {
-			return 1.0;
-		}
 	}
 	protected double getRecoil() {
 		double toReturn = 1.0;
@@ -432,33 +440,12 @@ public abstract class Classic extends Weapon {
 	}
 	
 	// Single-target calculations
-	protected abstract double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint);
-
-	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS(true, false, false);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(false, false, false);
-	}
-
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(false, false, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		return calculateSingleTargetDPS(false, true, true);
-	}
 
 	// Multi-target calculations
 	@Override
 	public double calculateAdditionalTargetDPS() {
 		if (selectedTier4 == 0) {
-			return calculateIdealSustainedDPS();
+			return calculateSingleTargetDPS(false, false, false, false);
 		}
 		else {
 			return 0;
@@ -481,6 +468,12 @@ public abstract class Classic extends Weapon {
 	@Override
 	public double timeToFireMagazine() {
 		return getMagazineSize() / getRateOfFire();
+	}
+	
+	@Override
+	public double averageTimeToCauterize() {
+		// Neither Hipfire nor Focused Shots can deal Temperature Damage
+		return -1;
 	}
 	
 	@Override

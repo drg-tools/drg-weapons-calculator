@@ -30,7 +30,7 @@ public class GrenadeLauncher extends Weapon {
 	private int carriedAmmo;
 	private int magazineSize;
 	private double reloadTime;
-	private double fearChance;
+	private double fearFactor;
 	private double armorBreaking;
 	
 	/****************************************************************************************
@@ -58,7 +58,7 @@ public class GrenadeLauncher extends Weapon {
 		carriedAmmo = 8;
 		magazineSize = 1;
 		reloadTime = 2.0;
-		fearChance = 1.0;
+		fearFactor = 1.0;
 		armorBreaking = 0.5;
 		
 		initializeModsAndOverclocks();
@@ -434,7 +434,7 @@ public class GrenadeLauncher extends Weapon {
 		
 		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier3 == 1);
 		
-		toReturn[8] = new StatsRow("Fear Chance:", convertDoubleToPercentage(fearChance), modIcons.fear, false);
+		toReturn[8] = new StatsRow("Fear Factor:", fearFactor, modIcons.fear, false);
 		
 		boolean stunEquipped = selectedTier4 == 2;
 		toReturn[9] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), modIcons.homebrewPowder, stunEquipped, stunEquipped);
@@ -458,7 +458,8 @@ public class GrenadeLauncher extends Weapon {
 		aoeEfficiency = calculateAverageAreaDamage(getAoERadius(), 1.5, 0.15);
 	}
 	
-	private double calculateSingleTargetDPS(boolean burst, boolean weakpoint) {
+	@Override
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		double directDamage;
 		if (weakpoint && !statusEffects[1]) {
 			directDamage = increaseBulletDamageForWeakpoints(getDirectDamage());
@@ -467,6 +468,12 @@ public class GrenadeLauncher extends Weapon {
 			directDamage = getDirectDamage();
 		}
 		double areaDamage = getAreaDamage();
+		
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			directDamage *= armorWaste;
+		}
 		
 		// Frozen
 		if (statusEffects[1]) {
@@ -505,27 +512,6 @@ public class GrenadeLauncher extends Weapon {
 		}
 		
 		return baseDPS + burnDPS + radDPS;
-	}
-
-	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS(true, false);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(false, false);
-	}
-	
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(false, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		// Because the Grenade Launcher has to be aimed manually, its Accuracy isn't applicable.
-		return calculateSingleTargetDPS(false, true);
 	}
 
 	@Override
@@ -582,6 +568,12 @@ public class GrenadeLauncher extends Weapon {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage()) + getAreaDamage();
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
+	
+	@Override
+	public double averageOverkill() {
+		overkillPercentages = EnemyInformation.overkillPerCreature(getDirectDamage() + getAreaDamage());
+		return MathUtils.vectorDotProduct(overkillPercentages[0], overkillPercentages[1]);
+	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
@@ -600,6 +592,7 @@ public class GrenadeLauncher extends Weapon {
 		};
 		
 		double[] areaDamage = {
+			0,  // Kinetic
 			getAreaDamage(),  // Explosive
 			0,  // Fire
 			0,  // Frost
@@ -624,7 +617,7 @@ public class GrenadeLauncher extends Weapon {
 			radDamage  // Radiation
 		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, heatPerGrenade);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, heatPerGrenade, statusEffects[1], statusEffects[3], false);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -653,20 +646,31 @@ public class GrenadeLauncher extends Weapon {
 		else {
 			utilityScores[2] = areaDamageAB * UtilityInformation.ArmorBreak_Utility;
 		}
+
+		// Fear (baseline function of the Grenade Launcher)
+		utilityScores[4] = calculateFearProcProbability(fearFactor) * aoeEfficiency[2] * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
 		
-		// Because the Stun from Concussive Blast keeps them immobolized while they're trying to run in Fear, I'm choosing to make the Stun/Fear Utility scores NOT additive.
+		// Stun (T4.C 100% stun chance, 3 sec duration)
 		if (selectedTier4 == 2) {
-			// Concussive Blast = 100% stun, 2 sec duration
-			utilityScores[4] = 0;
 			utilityScores[5] = getStunChance() * aoeEfficiency[2] * getStunDuration() * UtilityInformation.Stun_Utility;
 		}
 		else {
-			// Built-in Fear is 100%, but it doesn't seem to work 100% of the time... 
-			utilityScores[4] = fearChance * aoeEfficiency[2] * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
 			utilityScores[5] = 0;
 		}
 		
 		return MathUtils.sum(utilityScores);
+	}
+	
+	@Override
+	public double averageTimeToCauterize() {
+		if (selectedTier3 == 0) {
+			// These methods already divide by 2 when this mod is selected; no need to do it again.
+			double heatPerGrenade = getDirectDamage() + getAreaDamage();
+			return EnemyInformation.averageTimeToIgnite(heatPerGrenade, 1.0 / reloadTime);
+		}
+		else {
+			return -1;
+		}
 	}
 	
 	@Override
@@ -691,6 +695,13 @@ public class GrenadeLauncher extends Weapon {
 	public double timeToFireMagazine() {
 		// Grenade Launcher fires its projectile instantly, and then reloads.
 		return 0;
+	}
+	
+	@Override
+	public double damageWastedByArmor() {
+		double weakpointAccuracy = EnemyInformation.probabilityBulletWillHitWeakpoint() * 100.0;
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), getAreaDamage(), getArmorBreaking(), 0.0, 100.0, weakpointAccuracy);
+		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	
 	@Override

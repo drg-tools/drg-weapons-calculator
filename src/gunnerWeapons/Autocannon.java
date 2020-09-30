@@ -9,7 +9,6 @@ import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
-import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
@@ -27,8 +26,8 @@ public class Autocannon extends Weapon {
 	* Class Variables
 	****************************************************************************************/
 	
-	private int directDamage;
-	private int areaDamage;
+	private double directDamage;
+	private double areaDamage;
 	private double aoeRadius;
 	private int magazineSize;
 	private int carriedAmmo;
@@ -69,6 +68,9 @@ public class Autocannon extends Weapon {
 		maxRateOfFire = 5.5;
 		reloadTime = 5.0;  // seconds
 		
+		// Override default 10m distance
+		accEstimator.setDistance(7.0);
+		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
 		setBaselineStats();
@@ -92,7 +94,7 @@ public class Autocannon extends Weapon {
 		tier1[2] = new Mod("Expanded Ammo Bags", "+220 Max Ammo", modIcons.carriedAmmo, 1, 2);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Tighter Barrel Alignment", "-30% Base Spread", modIcons.baseSpread, 2, 0);
+		tier2[0] = new Mod("Tighter Barrel Alignment", "x0.7 Base Spread", modIcons.baseSpread, 2, 0);
 		tier2[1] = new Mod("Improved Gas System", "+0.2 Min Rate of Fire, +1.5 Max Rate of Fire", modIcons.rateOfFire, 2, 1);
 		tier2[2] = new Mod("Lighter Barrel Assembly", "+1 Min Rate of Fire, x2 RoF Scaling Rate", modIcons.rateOfFire, 2, 2);
 		
@@ -107,7 +109,7 @@ public class Autocannon extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Feedback Loop", "x1.2 Direct and Area Damage when at Max Rate of Fire", modIcons.directDamage, 5, 0);
-		tier5[1] = new Mod("Suppressive Fire", "50% chance to inflict Fear to enemies within a 1m radius on impact.", modIcons.fear, 5, 1);
+		tier5[1] = new Mod("Suppressive Fire", "Deal 0.5 Fear to enemies within a 1m radius of bullet impact", modIcons.fear, 5, 1);
 		tier5[2] = new Mod("Damage Resistance At Full RoF", "33% Damage Resistance when at Max Rate of Fire", modIcons.damageResistance, 5, 2);
 		
 		overclocks = new Overclock[6];
@@ -115,9 +117,9 @@ public class Autocannon extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Splintering Shells", "+1 Area Damage, +0.3m AoE Radius", overclockIcons.aoeRadius, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Carpet Bomber", "+3 Area Damage, +0.7m AoE Radius, -6 Direct Damage", overclockIcons.areaDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Combat Mobility", "Increases movement speed while using from 50% to 65% of normal walk speed, -2 Direct Damage", overclockIcons.movespeed, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Big Bertha", "+12 Direct Damage, -30% Base Spread, x0.5 Magazine Size, -110 Max Ammo, -1.5 Max Rate of Fire", overclockIcons.directDamage, 4);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Big Bertha", "+12 Direct Damage, x0.7 Base Spread, x0.5 Magazine Size, -110 Max Ammo, -1.5 Max Rate of Fire", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neurotoxin Payload", "30% Chance to inflict a Neurotoxin DoT that deals an average of " + MathUtils.round(DoTInformation.Neuro_DPS, GuiConstants.numDecimalPlaces) + 
-				" Poison Damage per Second to all enemies within the AoE Radius upon impact. +0.3m AoE Radius, -3 Direct Damage, -6 Area Damage", overclockIcons.neurotoxin, 5);
+				" Poison Damage per Second for 10 seconds to all enemies within the AoE Radius upon impact. +0.3m AoE Radius, -3 Direct Damage, -6 Area Damage", overclockIcons.neurotoxin, 5);
 	}
 	
 	@Override
@@ -286,8 +288,10 @@ public class Autocannon extends Weapon {
 	* Setters and Getters
 	****************************************************************************************/
 
-	private int getDirectDamage() {
-		int toReturn = directDamage;
+	private double getDirectDamage() {
+		double toReturn = directDamage;
+		
+		// Additive bonuses first
 		if (selectedTier1 == 0) {
 			toReturn += 3;
 		}
@@ -306,10 +310,18 @@ public class Autocannon extends Weapon {
 		else if (selectedOverclock == 5) {
 			toReturn -= 3;
 		}
+		
+		// Multiplicative bonuses last
+		if (selectedTier5 == 0) {
+			toReturn *= feedbackLoopMultiplier();
+		}
+		
 		return toReturn;
 	}
-	private int getAreaDamage() {
-		int toReturn = areaDamage;
+	private double getAreaDamage() {
+		double toReturn = areaDamage;
+		
+		// Additive bonuses first
 		if (selectedTier3 == 1) {
 			toReturn += 2;
 		}
@@ -322,6 +334,12 @@ public class Autocannon extends Weapon {
 		else if (selectedOverclock == 5) {
 			toReturn -= 6;
 		}
+		
+		// Multiplicative bonuses last
+		if (selectedTier5 == 0) {
+			toReturn *= feedbackLoopMultiplier();
+		}
+		
 		return toReturn;
 	}
 	private double getAoERadius() {
@@ -437,12 +455,15 @@ public class Autocannon extends Weapon {
 	}
 	private double getBaseSpread() {
 		double toReturn = 1.0;
-		if (selectedTier2 == 0 && selectedOverclock == 4) {
-			toReturn -= 0.5;
+		
+		if (selectedTier2 == 0) {
+			toReturn *= 0.7;
 		}
-		else if (selectedTier2 == 0 || selectedOverclock == 4) {
-			toReturn -= 0.3;
+		
+		if (selectedOverclock == 4) {
+			toReturn *= 0.7;
 		}
+		
 		return toReturn;
 	}
 	private double getArmorBreaking() {
@@ -455,19 +476,17 @@ public class Autocannon extends Weapon {
 	}
 	
 	private double feedbackLoopMultiplier() {
-		double magSize = getMagazineSize();
-		double numBulletsRampup = getNumBulletsRampup();
-		return (numBulletsRampup + 1.2*(magSize - numBulletsRampup)) / magSize;
+		return averageBonusPerMagazineForLongEffects(1.2, getNumBulletsRampup(), getMagazineSize());
 	}
 	
 	@Override
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[15];
 		
-		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 2 || (selectedOverclock > 1 && selectedOverclock < 6);
+		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 2 || selectedTier5 == 0 || (selectedOverclock > 1 && selectedOverclock < 6);
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
-		boolean areaDamageModified = selectedTier3 == 1 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 5;
+		boolean areaDamageModified = selectedTier3 == 1 || selectedTier5 == 0 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), modIcons.areaDamage, areaDamageModified);
 		
 		boolean aoeRadiusModified = selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 5;
@@ -492,7 +511,7 @@ public class Autocannon extends Weapon {
 		
 		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier4 == 0, selectedTier4 == 0);
 		
-		toReturn[11] = new StatsRow("Fear Chance:", "50%", modIcons.fear, selectedTier5 == 1, selectedTier5 == 1);
+		toReturn[11] = new StatsRow("Fear Factor:", 0.5, modIcons.fear, selectedTier5 == 1, selectedTier5 == 1);
 		
 		boolean baseSpreadModified = selectedTier2 == 0 || selectedOverclock == 4;
 		toReturn[12] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, baseSpreadModified, baseSpreadModified);
@@ -519,7 +538,8 @@ public class Autocannon extends Weapon {
 	}
 	
 	// Single-target calculations
-	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+	@Override
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		double generalAccuracy, duration, directWeakpointDamage;
 		
 		if (accuracy) {
@@ -540,6 +560,12 @@ public class Autocannon extends Weapon {
 		double directDamage = getDirectDamage();
 		double areaDamage = getAreaDamage();
 		
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			directDamage *= armorWaste;
+		}
+		
 		// Frozen
 		if (statusEffects[1]) {
 			directDamage *= UtilityInformation.Frozen_Damage_Multiplier;
@@ -548,12 +574,6 @@ public class Autocannon extends Weapon {
 		if (statusEffects[3]) {
 			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
 			areaDamage *= UtilityInformation.IFG_Damage_Multiplier;
-		}
-		
-		if (selectedTier5 == 0) {
-			double feedbackLoopMultiplier = feedbackLoopMultiplier();
-			directDamage *= feedbackLoopMultiplier;
-			areaDamage *= feedbackLoopMultiplier;
 		}
 		
 		double weakpointAccuracy;
@@ -583,61 +603,12 @@ public class Autocannon extends Weapon {
 		// I'm choosing to model this as if the splash damage from every bullet were to hit the primary target, even if the bullets themselves don't.
 		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * directDamage + magSize * areaDamage) / duration + neuroDPS;
 	}
-	
-	private double calculateDamagePerMagazine(boolean weakpointBonus, int numTargets) {
-		// TODO: I'd like to refactor out this method if possible
-		double damagePerBullet;
-		double averageAreaDamage;
-		if (numTargets > 1) {
-			averageAreaDamage = aoeEfficiency[1];
-		}
-		else {
-			averageAreaDamage = 1.0;
-		}
-		
-		if (weakpointBonus) {
-			damagePerBullet = increaseBulletDamageForWeakpoints(getDirectDamage()) + numTargets * getAreaDamage() * averageAreaDamage;
-		}
-		else {
-			damagePerBullet = getDirectDamage() + numTargets * getAreaDamage() * averageAreaDamage;
-		}
-		double magSize = (double) getMagazineSize();
-		double damageMultiplier = 1.0;
-		if (selectedTier5 == 0) {
-			damageMultiplier = feedbackLoopMultiplier();
-		}
-		return damagePerBullet * magSize * damageMultiplier;
-	}
-
-	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS(true, false, false);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(false, false, false);
-	}
-	
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(false, false, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		return calculateSingleTargetDPS(false, true, true);
-	}
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
 		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getAverageRateOfFire()) + getReloadTime();
 		double magSize = (double) getMagazineSize();
 		double areaDamage = getAreaDamage();
-		
-		if (selectedTier5 == 0) {
-			areaDamage *= feedbackLoopMultiplier();
-		}
 		
 		double areaDamagePerMag = areaDamage * aoeEfficiency[1] * magSize;
 		double sustainedAdditionalDPS = areaDamagePerMag / timeToFireMagazineAndReload;
@@ -651,9 +622,8 @@ public class Autocannon extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		// TODO: refactor this
-		int numTargets = (int) aoeEfficiency[2];
-		double damagePerMagazine = calculateDamagePerMagazine(false, numTargets);
+		double damagePerBullet = getDirectDamage() + getAreaDamage() * aoeEfficiency[2] * aoeEfficiency[1];
+		double damagePerMagazine = getMagazineSize() * damagePerBullet;
 		double numberOfMagazines = numMagazines(getCarriedAmmo(), getMagazineSize());
 		
 		double neurotoxinDoTTotalDamage = 0;
@@ -661,7 +631,7 @@ public class Autocannon extends Weapon {
 			double timeBeforeNeuroProc = MathUtils.meanRolls(0.3) / getAverageRateOfFire();
 			double neurotoxinDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeNeuroProc, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
 			
-			double estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
+			double estimatedNumEnemiesKilled = aoeEfficiency[2] * (calculateFiringDuration() / averageTimeToKill());
 			
 			neurotoxinDoTTotalDamage = neurotoxinDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		}
@@ -687,40 +657,34 @@ public class Autocannon extends Weapon {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage()) + getAreaDamage();
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
+	
+	@Override
+	public double averageOverkill() {
+		overkillPercentages = EnemyInformation.overkillPerCreature(getDirectDamage() + getAreaDamage());
+		return MathUtils.vectorDotProduct(overkillPercentages[0], overkillPercentages[1]);
+	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		double crosshairHeightPixels, crosshairWidthPixels;
+		double horizontalBaseSpread = 22.0 * getBaseSpread();
+		double verticalBaseSpread = 8.0 * getBaseSpread();
 		
-		if (selectedTier2 == 0 && selectedOverclock == 4) {
-			// Base Spead = 50%
-			crosshairHeightPixels = 96;
-			crosshairWidthPixels = 206;
-		}
-		else if (selectedTier2 == 0 || selectedOverclock == 4) {
-			// Base Spread = 70%;
-			crosshairHeightPixels = 125;
-			crosshairWidthPixels = 279;
-		}
-		else {
-			// Base Spread = 100%
-			crosshairHeightPixels = 162;
-			crosshairWidthPixels = 397;
-		}
+		/*
+			If I ever want to model recoil for rectangular crosshairs, these are the variables used:
+			
+		double recoilPitch = 30.0;
+		double recoilYaw = 40.0;
+		double mass = 1.0;
+		double springStiffness = 200.0;
+		*/
 		
-		return AccuracyEstimator.calculateRectangularAccuracy(weakpointAccuracy, false, crosshairWidthPixels, crosshairHeightPixels);
+		return accEstimator.calculateRectangularAccuracy(weakpointAccuracy, horizontalBaseSpread, verticalBaseSpread);
 	}
 	
 	@Override
 	public int breakpoints() {
-		double dmgMultiplier = 1.0;
-		
-		if (selectedTier5 == 0) {
-			dmgMultiplier = feedbackLoopMultiplier();
-		}
-		
 		double[] directDamage = {
-			getDirectDamage() * dmgMultiplier,  // Kinetic
+			getDirectDamage(),  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
@@ -728,7 +692,8 @@ public class Autocannon extends Weapon {
 		};
 		
 		double[] areaDamage = {
-			getAreaDamage() * dmgMultiplier,  // Explosive
+			0,  // Kinetic
+			getAreaDamage(),  // Explosive
 			0,  // Fire
 			0,  // Frost
 			0  // Electric
@@ -747,7 +712,7 @@ public class Autocannon extends Weapon {
 			0  // Radiation
 		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, 0.0);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, 0.0, statusEffects[1], statusEffects[3], false);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -803,7 +768,15 @@ public class Autocannon extends Weapon {
 		// According to MikeGSG, Mod Tier 5 "Suppressive Fire" does 0.5 Fear in a 1m radius
 		if (selectedTier5 == 1) {
 			int numGlyphidsFeared = 5;  // calculateNumGlyphidsInRadius(1.0);
-			utilityScores[4] = 0.5 * numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			double probabilityToFear = calculateFearProcProbability(0.5);
+			double fearDuration = 0;
+			if (selectedOverclock == 5) {
+				fearDuration = EnemyInformation.averageFearDuration(UtilityInformation.Neuro_Slow_Utility, 10.0);
+			}
+			else {
+				fearDuration = EnemyInformation.averageFearDuration();
+			}
+			utilityScores[4] = probabilityToFear * numGlyphidsFeared * fearDuration * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;
@@ -811,21 +784,27 @@ public class Autocannon extends Weapon {
 		
 		return MathUtils.sum(utilityScores);
 	}
+	
+	@Override
+	public double averageTimeToCauterize() {
+		return -1;
+	}
 
 	@Override
 	public double damagePerMagazine() {
 		double damagePerBullet = getDirectDamage() + getAreaDamage() * aoeEfficiency[1] * aoeEfficiency[2];
-		double magSize = getMagazineSize();
-		double damageMultiplier = 1.0;
-		if (selectedTier5 == 0) {
-			damageMultiplier = feedbackLoopMultiplier();
-		}
-		return damagePerBullet * magSize * damageMultiplier;
+		return damagePerBullet * getMagazineSize();
 	}
 	
 	@Override
 	public double timeToFireMagazine() {
 		return getMagazineSize() / getAverageRateOfFire();
+	}
+	
+	@Override
+	public double damageWastedByArmor() {
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), getAreaDamage(), getArmorBreaking(), 0.0, estimatedAccuracy(false), estimatedAccuracy(true));
+		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	
 	@Override

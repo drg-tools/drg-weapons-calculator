@@ -8,7 +8,6 @@ import dataGenerator.DatabaseConstants;
 import guiPieces.WeaponPictures;
 import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
-import modelPieces.AccuracyEstimator;
 import modelPieces.DoTInformation;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
@@ -17,13 +16,9 @@ import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
 import modelPieces.Weapon;
+import spreadCurves.MinigunCurve;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
-
-/*
-	Extracted via UUU:
-	Time between Burning Hell ticks: 0.25
-*/
 
 public class Minigun extends Weapon {
 
@@ -31,7 +26,7 @@ public class Minigun extends Weapon {
 	* Class Variables
 	****************************************************************************************/
 	
-	private int damagePerPellet;
+	private double damagePerPellet;
 	private double stunChancePerPellet;
 	private int stunDuration;
 	private int maxAmmo;
@@ -80,6 +75,10 @@ public class Minigun extends Weapon {
 		secondsBeforeHotBullets = 3.17805;  // See explanation in calculateIgnitionTime() 
 		cooldownAfterOverheat = 10;
 		
+		// Override default 10m distance
+		accEstimator.setDistance(7.0);
+		accEstimator.setSpreadCurve(new MinigunCurve());
+		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
 		setBaselineStats();
@@ -117,7 +116,7 @@ public class Minigun extends Weapon {
 		tier4[2] = new Mod("Magnetic Bearings", "+3 seconds spindown time", modIcons.special, 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Aggressive Venting", "After overheating, deal 60 Heat Damage and 100% chance to apply Fear to all enemies within a 10m radius", modIcons.addedExplosion, 5, 0);
+		tier5[0] = new Mod("Aggressive Venting", "After overheating, deal 60 Heat Damage and 10 Fear to all enemies within a 10m radius", modIcons.addedExplosion, 5, 0);
 		tier5[1] = new Mod("Cold As The Grave", "Every kill subtracts 0.8 Heat from the Heat Meter (maxes at 9.5 Heat) and thus increases the firing duration before overheating", modIcons.coolingRate, 5, 1);
 		tier5[2] = new Mod("Hot Bullets", "After the Heat Meter turns red, 50% of the Damage per Pellet gets added as Heat Damage", modIcons.heatDamage, 5, 2);
 		
@@ -300,8 +299,11 @@ public class Minigun extends Weapon {
 	* Setters and Getters
 	****************************************************************************************/
 
-	public int getDamagePerPellet() {
-		int toReturn = damagePerPellet;
+	// This method has to be used to calculate the CatG increased duration, which in turn affects the VCP damage multiplier, creating an infinite loop. To side-step that I'm adding this boolean parameter.
+	private double getDamagePerPellet(boolean onlyAdditiveModifiers) {
+		double toReturn = damagePerPellet;
+		
+		// Additive bonuses first
 		if (selectedTier2 == 1) {
 			toReturn += 2;
 		}
@@ -317,6 +319,12 @@ public class Minigun extends Weapon {
 		else if (selectedOverclock == 6) {
 			toReturn += 4;
 		}
+		
+		// Multiplicative bonuses last
+		if (!onlyAdditiveModifiers && selectedTier4 == 0) {
+			toReturn *= variableChamberPressureMultiplier();
+		}
+		
 		return toReturn;
 	}
 	private double getStunChancePerPellet() {
@@ -449,9 +457,7 @@ public class Minigun extends Weapon {
 		return (int) Math.floor(exactAnswer);
 	}
 	private double variableChamberPressureMultiplier() {
-		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
-		double pelletsFiredWhileNotStabilized = numPelletsFiredTilMaxAccuracy();
-		return (pelletsFiredWhileNotStabilized + 1.15*(numPelletsFiredBeforeOverheat - pelletsFiredWhileNotStabilized)) / numPelletsFiredBeforeOverheat;
+		return averageBonusPerMagazineForLongEffects(1.15, numPelletsFiredTilMaxAccuracy(), calculateMaxNumPelletsFiredWithoutOverheating());
 	}
 	private double calculateFiringPeriod() {
 		double heatPerSecond = getHeatPerSecond();
@@ -463,7 +469,7 @@ public class Minigun extends Weapon {
 			double heatRemovedPerKill = 0.8;
 			
 			// This is a quick-and-dirty way to guess what the Ideal Burst DPS will be when it's all said and done without calculating Firing Period and causing an infinite loop.
-			double estimatedBurstDPS = getDamagePerPellet() * RoF / 2.0;
+			double estimatedBurstDPS = getDamagePerPellet(true) * RoF / 2.0;
 			if (selectedTier4 == 0) {
 				// Slight overestimation
 				estimatedBurstDPS *= 1.13;
@@ -512,8 +518,8 @@ public class Minigun extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[19];
 		
-		boolean damageModified = selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock > 3;
-		toReturn[0] = new StatsRow("Direct Damage per Pellet:", getDamagePerPellet(), modIcons.directDamage, damageModified);
+		boolean damageModified = selectedTier2 == 1 || selectedTier4 == 0 || selectedOverclock == 0 || selectedOverclock > 3;
+		toReturn[0] = new StatsRow("Direct Damage per Pellet:", getDamagePerPellet(false), modIcons.directDamage, damageModified);
 		
 		toReturn[1] = new StatsRow("Ammo Consumed per Pellet:", 2, modIcons.blank, false);
 		
@@ -601,7 +607,7 @@ public class Minigun extends Weapon {
 		if (selectedTier5 == 2 && selectedOverclock != 2) {
 			// Hot Bullets adds 50% of of each pellet's Direct Damage as Heat Damage while the Heat Meter on the Minigun is red.
 			// I'm choosing to reduce the heatPerPellet by the Accuracy of the gun to imitate when pellets miss the target
-			double heatPerPellet = ((double) getDamagePerPellet()) * generalAccuracy / 2.0;
+			double heatPerPellet = ((double) getDamagePerPellet(true)) * generalAccuracy / 2.0;
 			double RoF = getRateOfFire() / 2.0;
 			return timeBeforeHotBullets + EnemyInformation.averageTimeToIgnite(heatPerPellet, RoF);
 		}
@@ -618,7 +624,7 @@ public class Minigun extends Weapon {
 			timeBeforeHotBullets /= heatGain;
 			double timeAfterHotBullets = firingPeriod - timeBeforeHotBullets;
 			
-			double heatPerPellet = ((double) getDamagePerPellet()) * generalAccuracy / 2.0;
+			double heatPerPellet = ((double) getDamagePerPellet(true)) * generalAccuracy / 2.0;
 			double RoF = getRateOfFire() / 2.0;
 			double avgHeatPerSec = (timeBeforeHotBullets * burningHellHeatPerSec + timeAfterHotBullets * (heatPerPellet * RoF + burningHellHeatPerSec)) / firingPeriod;
 			return EnemyInformation.averageTimeToIgnite(avgHeatPerSec);
@@ -630,7 +636,8 @@ public class Minigun extends Weapon {
 	}
 	
 	// Single-target calculations
-	private double calculateSingleTargetDPS(boolean burst, boolean accuracy, boolean weakpoint) {
+	@Override
+	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		double generalAccuracy, shortDuration, longDuration, directWeakpointDamage;
 		
 		if (accuracy) {
@@ -673,7 +680,13 @@ public class Minigun extends Weapon {
 			longDuration = firingPeriod + cooldownPeriod + spinup;
 		}
 		
-		double directDamage = getDamagePerPellet();
+		double directDamage = getDamagePerPellet(false);
+		
+		// Damage wasted by Armor
+		if (armorWasting && !statusEffects[1]) {
+			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
+			directDamage *= armorWaste;
+		}
 		
 		// Frozen
 		if (statusEffects[1]) {
@@ -682,9 +695,6 @@ public class Minigun extends Weapon {
 		// IFG Grenade
 		if (statusEffects[3]) {
 			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
-		}
-		if (selectedTier4 == 0) {
-			directDamage *= variableChamberPressureMultiplier();
 		}
 		
 		double weakpointAccuracy;
@@ -719,51 +729,10 @@ public class Minigun extends Weapon {
 		
 		return (pelletsThatHitWeakpoint * directWeakpointDamage + pelletsThatHitTarget * directDamage) / longDuration + burningHellAreaDPS + burnDPS;
 	}
-	
-	private double calculateDamagePerBurst(boolean weakpointBonus) {
-		/* 
-			The length of the burst is determined by the heat accumulated. Each burst duration should stop just shy of 
-			overheating the minigun so that it doesn't have the overheat cooldown penalty imposed.
-			
-			TODO: I'd like to refactor out this method if at all possible
-		*/
-		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
-		double damageMultiplier = 1.0;
-		if (selectedTier4 == 0) {
-			damageMultiplier = variableChamberPressureMultiplier();
-		}
-		
-		if (weakpointBonus) {
-			return numPelletsFiredBeforeOverheat * increaseBulletDamageForWeakpoints((double) getDamagePerPellet()) * damageMultiplier;
-		}
-		else {
-			return numPelletsFiredBeforeOverheat * (double) getDamagePerPellet() * damageMultiplier;
-		}
-	}
-	
-	@Override
-	public double calculateIdealBurstDPS() {
-		return calculateSingleTargetDPS(true, false, false);
-	}
-
-	@Override
-	public double calculateIdealSustainedDPS() {
-		return calculateSingleTargetDPS(false, false, false);
-	}
-	
-	@Override
-	public double sustainedWeakpointDPS() {
-		return calculateSingleTargetDPS(false, false, true);
-	}
-
-	@Override
-	public double sustainedWeakpointAccuracyDPS() {
-		return calculateSingleTargetDPS(false, true, true);
-	}
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		double idealSustained = calculateIdealSustainedDPS();
+		double idealSustained = calculateSingleTargetDPS(false, false, false, false);
 		
 		if (selectedTier3 == 2) {
 			// Blowthrough Rounds are just the same DPS, with Burn DPS already added if Burning Hell or Hot Bullets is already equipped
@@ -787,7 +756,9 @@ public class Minigun extends Weapon {
 		int numTargets = calculateMaxNumTargets();
 		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
 		double numberOfBursts = (double) getMaxAmmo() / (2.0 * numPelletsFiredBeforeOverheat);
-		double totalDamage = numberOfBursts * calculateDamagePerBurst(false) * numTargets;
+		double damagePerBurst = numPelletsFiredBeforeOverheat * getDamagePerPellet(false);
+		
+		double totalDamage = numberOfBursts * damagePerBurst * numTargets;
 		
 		double burningHellAoEDamage = 0;
 		
@@ -869,94 +840,41 @@ public class Minigun extends Weapon {
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
-		// TODO: Should this and all other weapons increase based on the weighted average, or just straight increase due to having Accuracy modeled now?
-		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet());
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet(false));
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
+	}
+	
+	@Override
+	public double averageOverkill() {
+		overkillPercentages = EnemyInformation.overkillPerCreature(getDamagePerPellet(false));
+		return MathUtils.vectorDotProduct(overkillPercentages[0], overkillPercentages[1]);
 	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		// I'm choosing to model Minigun as if it has no recoil. Although it does, its so negligible that it would have no effect.
-		double unchangingBaseSpread = 61;
-		double changingBaseSpread = 68 * getBaseSpread();
-		
-		// I measured Spread Variance, and then used the 0.2/1.0/3.0 ratio that MikeGSG provided to reverse-engineer what the Spread per Shot and Spread Recovery Speed are
-		double spreadVariance = 334;
-		double spreadPerShot = spreadVariance / 15.0;
-		double spreadRecoverySpeed = spreadVariance / 3.0;
 		double effectiveRoF = getRateOfFire() / 2.0;
+		int effectiveMagSize = (int) calculateMaxNumPelletsFiredWithoutOverheating();
 		
-		// Using some cheeky negative values, I can bend AccuracyEstimator.calculateCircularAccuracy() for this method.
-		double cheekyBaseSpread = unchangingBaseSpread + changingBaseSpread + spreadVariance;
-		int cheekyMagSize = (int) calculateMaxNumPelletsFiredWithoutOverheating();
-		double[] cheekyModifiers = {
-			1.0,   // Base Spread
-			-1.0,  // Spread per Shot
-			-1.0,  // Spread Recovery Speed
-			-1.0,  // Spread Variance
-			0.0    // Recoil
-		};
+		double baseSpread = 5.0 * getBaseSpread();
+		double spreadPerShot = 0.2;
+		double spreadRecoverySpeed = 1.0;
+		double spreadVariance = 3.5;
 		
-		return AccuracyEstimator.calculateCircularAccuracy(weakpointAccuracy, false, effectiveRoF, cheekyMagSize, 1, 
-				cheekyBaseSpread, 0, spreadVariance, spreadPerShot, spreadRecoverySpeed, 0, 0.5, 1.0, cheekyModifiers);
+		// I'm choosing to model Minigun as if it has no recoil. Although it does, it's so negligible that it would have no effect.
+		double recoilPitch = 0.0;  // 10
+		double recoilYaw = 0.0;  // 10
+		double mass = 1.0;
+		double springStiffness = 150.0;
 		
-		/* 
-			I'm keeping this old model here for posterity's sake. TODO: After I re-do a lot of the Accuracy value tests, delete this block comment.
-		
-		// Because it's being modeled without recoil, and its crosshair gets smaller as it fires, I'm making a quick-and-dirty estimate here instead of using AccuracyEstimator. 
-		double spreadVariance = 334;
-		double spreadPerShot = 16.7;
-		double spreadRecoverySpeed = 95.42857143;
-		
-		double baseSpread = unchangingBaseSpread + changingBaseSpread;
-		double maxSpread = baseSpread + spreadVariance;
-		
-		// Adapted from AccuracyEstimator
-		// Because this is modeled without recoil, there are only two options: one where the crosshair is larger than the target, and one where it's <=.
-		double sumOfAllProbabilities = 0.0;
-		double targetRadius;
-		if (weakpointAccuracy) {
-			targetRadius = 0.2;
-		}
-		else {
-			targetRadius = 0.4;
-		}
-		int numPelletsFired = (int) calculateMaxNumPelletsFiredWithoutOverheating();
-		int numPelletsUntilStable = numPelletsFiredTilMaxAccuracy();
-		double currentSpreadRadius;
-		for (int i = 0; i < numPelletsUntilStable; i++) {
-			currentSpreadRadius = AccuracyEstimator.convertSpreadPixelsToMeters(maxSpread - i*spreadPerShot, false);
-			
-			if (currentSpreadRadius > targetRadius) {
-				sumOfAllProbabilities += Math.pow((targetRadius / currentSpreadRadius), 2);
-			}
-			else {
-				sumOfAllProbabilities += 1.0;
-			}
-		}
-		
-		// Because only the first 20 shots have an accuracy penalty, the rest can be modeled with simple multiplication
-		int numPelletsFiredAfterStable = numPelletsFired - numPelletsUntilStable;
-		currentSpreadRadius = AccuracyEstimator.convertSpreadPixelsToMeters(baseSpread, false);
-		if (currentSpreadRadius > targetRadius) {
-			sumOfAllProbabilities += numPelletsFiredAfterStable * Math.pow((targetRadius / currentSpreadRadius), 2);
-		}
-		else {
-			sumOfAllProbabilities += numPelletsFiredAfterStable;
-		}
-		
-		return sumOfAllProbabilities / numPelletsFired * 100.0;
-		*/
+		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, effectiveRoF, effectiveMagSize, 1, 
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override
 	public int breakpoints() {
-		double dmgPerPellet = getDamagePerPellet();
-		if (selectedTier4 == 0) {
-			dmgPerPellet *= variableChamberPressureMultiplier();
-		}
 		double[] directDamage = {
-			dmgPerPellet,  // Kinetic
+			getDamagePerPellet(false),  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
@@ -964,6 +882,7 @@ public class Minigun extends Weapon {
 		};
 		
 		double[] areaDamage = {
+			0,  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
@@ -990,7 +909,7 @@ public class Minigun extends Weapon {
 			0  // Radiation
 		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, 0.0);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, 0.0, statusEffects[1], statusEffects[3], false);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -1000,15 +919,16 @@ public class Minigun extends Weapon {
 		utilityScores[0] = (getMovespeedWhileFiring() - MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
 		
 		// Light Armor Breaking probability
-		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDamagePerPellet(), getArmorBreaking()) * UtilityInformation.ArmorBreak_Utility;
+		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDamagePerPellet(false), getArmorBreaking()) * UtilityInformation.ArmorBreak_Utility;
 		
 		// Mod Tier 5 "Aggressive Venting" induces Fear in a 10m radius (while also dealing 60 Heat Damage)
 		if (selectedTier5 == 0) {
-			// This returns 135 Grunts with radus 10, so I'm choosing to reduce the number by the AoE Efficiency (about 76%) which brings the number feared down to 103.
+			// This returns 135 Grunts with radius 10, so I'm choosing to reduce the number by the AoE Efficiency (about 76%) which brings the number feared down to 103.
 			// That still might be too high?
 			double[] aggressiveVentingAoeEfficiency = calculateAverageAreaDamage(10, 6, 0.25);
 			int numGlyphidsFeared = (int) Math.round(aggressiveVentingAoeEfficiency[1] * aggressiveVentingAoeEfficiency[2]);
-			utilityScores[4] = numGlyphidsFeared * UtilityInformation.Fear_Duration * UtilityInformation.Fear_Utility;
+			double probabilityToFear = calculateFearProcProbability(10.0);
+			utilityScores[4] = probabilityToFear * numGlyphidsFeared * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;
@@ -1021,13 +941,33 @@ public class Minigun extends Weapon {
 	}
 	
 	@Override
+	public double averageTimeToCauterize() {
+		if (selectedTier5 == 2 || selectedOverclock == 2) {
+			return calculateIgnitionTime(false);
+		}
+		else {
+			return -1;
+		}
+	}
+	
+	@Override
 	public double damagePerMagazine() {
-		return calculateDamagePerBurst(false);
+		/* 
+			The length of the burst is determined by the heat accumulated. Each burst duration should stop just shy of 
+			overheating the minigun so that it doesn't have the overheat cooldown penalty imposed.
+		*/
+		return calculateMaxNumPelletsFiredWithoutOverheating() * getDamagePerPellet(false);
 	}
 	
 	@Override
 	public double timeToFireMagazine() {
 		return calculateFiringPeriod();
+	}
+	
+	@Override
+	public double damageWastedByArmor() {
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet(false), 0.0, getArmorBreaking(), 0.0, estimatedAccuracy(false), estimatedAccuracy(true));
+		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	
 	@Override
