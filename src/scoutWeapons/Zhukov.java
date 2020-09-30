@@ -553,18 +553,7 @@ public class Zhukov extends Weapon {
 		double effectiveMagazineSize = getMagazineSize() / 2.0;
 		// If there's an odd number carried ammo, round up since you can fire the last "odd" ammo as a full-damage shot
 		double effectiveCarriedAmmo = Math.ceil(getCarriedAmmo() / 2.0);
-		
-		if (selectedOverclock == 2) {
-			double bulletsIntentionallyMissedPerMag = calculateAvgNumBulletsNeededToFreeze();
-			double numMags = numMagazines((int) effectiveCarriedAmmo, (int) effectiveMagazineSize);
-			double totalBulletsIntentionallyWasted = Math.round(bulletsIntentionallyMissedPerMag * numMags);
-			
-			return (effectiveMagazineSize + effectiveCarriedAmmo - totalBulletsIntentionallyWasted) * (getDirectDamage() * UtilityInformation.Frozen_Damage_Multiplier) * calculateMaxNumTargets();
-		}
-		else {
-			// Area Damage only applies when using OC "Embedded Detonators", so it doesn't need to be modeled for the Cryo Minelets' max damage.
-			return (effectiveMagazineSize + effectiveCarriedAmmo) * (getDirectDamage() + getAreaDamage()) * calculateMaxNumTargets();
-		}
+		return (effectiveMagazineSize + effectiveCarriedAmmo) * (getDirectDamage() + getAreaDamage()) * calculateMaxNumTargets();
 	}
 
 	@Override
