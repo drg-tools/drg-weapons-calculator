@@ -90,7 +90,7 @@ public class BreachCutter extends Weapon {
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
 		tier1[0] = new Mod("Prolonged Power Generation", "+1.5 Projectile Lifetime", modIcons.hourglass, 1, 0);
-		tier1[1] = new Mod("High Capacity Magazine", "+2 Clip Size", modIcons.magSize, 1, 1);
+		tier1[1] = new Mod("High Capacity Magazine", "+2 Magazine Size", modIcons.magSize, 1, 1);
 		
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("Expanded Ammo Bags", "+8 Max Ammo", modIcons.carriedAmmo, 2, 0);
