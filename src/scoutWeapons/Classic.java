@@ -87,7 +87,7 @@ public abstract class Classic extends Weapon {
 		
 		tier3 = new Mod[2];
 		tier3[0] = new Mod("Killer Focus", "+25% Focused Shot Multiplier", modIcons.directDamage, 3, 0);
-		tier3[1] = new Mod("Extended Clip", "+6 Magazine Size", modIcons.magSize, 3, 1);
+		tier3[1] = new Mod("Extended Clip", "+6 Clip Size", modIcons.magSize, 3, 1);
 		
 		tier4 = new Mod[3];
 		tier4[0] = new Mod("Super Blowthrough Rounds", "+3 Penetrations", modIcons.blowthrough, 4, 0);
