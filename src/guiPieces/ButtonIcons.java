@@ -437,7 +437,8 @@ public class ButtonIcons {
 		hourglass,
 		special,
 		rollControl,
-		returnToSender
+		returnToSender,
+		slowdown
 	}
 	
 	public static BufferedImage getOverclockIcon(overclockIcons iconSelection) {
@@ -537,6 +538,9 @@ public class ButtonIcons {
 			}
 			case returnToSender: {
 				return breachCutterReturn;
+			}
+			case slowdown: {
+				return slowdownWhite;
 			}
 			default: {
 				return null;
