@@ -10,7 +10,6 @@ import guiPieces.ButtonIcons.modIcons;
 import guiPieces.ButtonIcons.overclockIcons;
 import modelPieces.UtilityInformation;
 import modelPieces.DoTInformation;
-import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
