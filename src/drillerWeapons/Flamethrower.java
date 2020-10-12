@@ -70,8 +70,8 @@ public class Flamethrower extends Weapon {
 		stickyFlamesDamagePerTick = 15;
 		stickyFlamesHeatPerTick = 5;
 		stickyFlamesTicksPerSec = 2.0 / (0.25 + 0.75);
-		stickyFlamesDuration = 2.0;
-		stickyFlamesSlow = 0.1;
+		stickyFlamesDuration = 4.0;
+		stickyFlamesSlow = 0.3;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -90,36 +90,36 @@ public class Flamethrower extends Weapon {
 	
 	@Override
 	protected void initializeModsAndOverclocks() {
-		tier1 = new Mod[2];
-		tier1[0] = new Mod("High Capacity Tanks", "+25 Tank Size", modIcons.magSize, 1, 0);
-		tier1[1] = new Mod("High Pressure Ejector", "+5m Flame Reach", modIcons.distance, 1, 1);
+		tier1 = new Mod[3];
+		tier1[0] = new Mod("High Pressure Ejector", "+5m Flame Reach", modIcons.distance, 1, 0);
+		tier1[1] = new Mod("More Fuel", "+75 Max Fuel", modIcons.carriedAmmo, 1, 1);
+		tier1[2] = new Mod("Sticky Flame Duration", "+3 sec Sticky Flames duration", modIcons.hourglass, 1, 2);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Unfiltered Fuel", "+5 Damage per Particle", modIcons.directDamage, 2, 0);
-		tier2[1] = new Mod("Triple Filtered Fuel", "+10 Heat per Particle", modIcons.heatDamage, 2, 1);
-		tier2[2] = new Mod("Sticky Flame Duration", "+3 sec Sticky Flames duration", modIcons.hourglass, 2, 2);
+		tier2[0] = new Mod("High Capacity Tanks", "+25 Tank Size", modIcons.magSize, 2, 0);
+		tier2[1] = new Mod("Oversized Valves", "+1.8 Flow Rate", modIcons.rateOfFire, 2, 1);
+		tier2[2] = new Mod("Sticky Flame Slowdown", "+20% Sticky Flames Slow", modIcons.slowdown, 2, 2);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Oversized Valves", "+1.8 Flow Rate", modIcons.rateOfFire, 3, 0);
-		tier3[1] = new Mod("Sticky Flame Slowdown", "Increases Sticky Flames' slow from 10% to 55%", modIcons.slowdown, 3, 1);
-		tier3[2] = new Mod("More Fuel", "+75 Max Fuel", modIcons.carriedAmmo, 3, 2);
+		tier3[0] = new Mod("Unfiltered Fuel", "+5 Damage per Particle", modIcons.directDamage, 3, 0);
+		tier3[1] = new Mod("More Fuel", "+75 Max Fuel", modIcons.carriedAmmo, 3, 1);
+		tier3[2] = new Mod("Sticky Flame Duration", "+3 sec Sticky Flames duration", modIcons.hourglass, 3, 2);
 		
-		tier4 = new Mod[3];
+		tier4 = new Mod[2];
 		tier4[0] = new Mod("It Burns!", "Every ammo consumed deals 0.13 Fear Factor to all enemies hit by that particle", modIcons.fear, 4, 0);
-		tier4[1] = new Mod("Sticky Flame Duration", "+3 sec Sticky Flames duration", modIcons.hourglass, 4, 1);
-		tier4[2] = new Mod("More Fuel", "+75 Max Fuel", modIcons.carriedAmmo, 4, 2);
+		tier4[1] = new Mod("Triple Filtered Fuel", "+20 Heat per Particle", modIcons.heatDamage, 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Heat Radiance", "Deal 80 Fire Damage per second and 80 Heat per second to all enemies within 3m of you. The Heat/sec stacks with the direct stream and Sticky Flames' heat sources as well.", modIcons.heatDamage, 5, 0);
-		tier5[1] = new Mod("Targets Explode", "If the direct stream kills an enemy, there's a 50% chance that they will explode and deal 55 Fire Damage and 55 Heat to all enemies within a 3m radius.", modIcons.addedExplosion, 5, 1);
+		tier5[0] = new Mod("Heat Radiance", "Deal 60 Fire Damage per second and 60 Heat per second to all enemies within 3m of you. The Heat/sec stacks with the direct stream and Sticky Flames' heat sources as well.", modIcons.heatDamage, 5, 0);
+		tier5[1] = new Mod("Targets Explode", "If the direct stream kills an enemy, there's a 50% chance that they will explode and deal 55 Fire Damage and 55 Heat Damage to all enemies within a 3m radius.", modIcons.addedExplosion, 5, 1, false);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Lighter Tanks", "+75 Max Fuel", overclockIcons.carriedAmmo, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Sticky Additive", "+1 Damage per Particle, +1 sec Sticky Flame duration", overclockIcons.hourglass, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Feed Valves", "+25 Fuel Tank Size, -2m Flame Reach", overclockIcons.magSize, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Fuel Stream Diffuser", "+5m Flame Reach, -1.2 Flow Rate", overclockIcons.distance, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Face Melter", "+2 Damage per Particle, +1.8 Flow Rate, -75 Max Fuel, x0.5 Movement Speed while using", overclockIcons.directDamage, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Sticky Fuel", "+5 Sticky Flames damage, +6 sec Sticky Flames duration, -25 Tank Size, -75 Max Fuel", overclockIcons.hourglass, 5);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Lighter Tanks", "+75 Max Fuel, -0.5 Reload", overclockIcons.carriedAmmo, 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Sticky Additive", "+2 Damage per Particle, +3 sec Sticky Flame duration", overclockIcons.hourglass, 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Fuel Stream Diffuser", "+5m Flame Reach, +1.2 Flow Rate, -75 Ammo", overclockIcons.distance, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Face Melter", "+5 Damage per Particle, -25 Tank Size, x0.3 Heat per Particle", overclockIcons.directDamage, 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Sticky Flame Damage", "+5 Sticky Flame Damage/Tick, +4 sec Sticky Flame Duration, -20% Sticky Flame Slow, -25 Tank Size", overclockIcons.directDamage, 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Sticky Flame Crowd Control", "+30% Sticky Flame Slow, +4 sec Sticky Flame Duration, -5 Sticky Flame Damage/Tick, -1.2 Flow Rate", overclockIcons.slowdown, 5);
 	}
 	
 	@Override
@@ -138,8 +138,8 @@ public class Flamethrower extends Weapon {
 					combinationIsValid = false;
 				}
 			}
-			if (symbols[0] == 'C') {
-				System.out.println("Flamethrower's first tier of mods only has two choices, so 'C' is an invalid choice.");
+			if (symbols[3] == 'C') {
+				System.out.println("Flamethrower's fourth tier of mods only has two choices, so 'C' is an invalid choice.");
 				combinationIsValid = false;
 			}
 			if (symbols[4] == 'C') {
@@ -169,6 +169,10 @@ public class Flamethrower extends Weapon {
 				}
 				case 'B': {
 					setSelectedModAtTier(1, 1, false);
+					break;
+				}
+				case 'C': {
+					setSelectedModAtTier(1, 2, false);
 					break;
 				}
 			}
@@ -210,10 +214,6 @@ public class Flamethrower extends Weapon {
 				}
 				case 'B': {
 					setSelectedModAtTier(4, 1, false);
-					break;
-				}
-				case 'C': {
-					setSelectedModAtTier(4, 2, false);
 					break;
 				}
 			}
@@ -291,15 +291,15 @@ public class Flamethrower extends Weapon {
 	private double getParticleDamage() {
 		double toReturn = particleDamage;
 		
-		if (selectedTier2 == 0) {
+		if (selectedTier3 == 0) {
 			toReturn += 5;
 		}
 		
 		if (selectedOverclock == 1) {
-			toReturn += 1;
-		}
-		else if (selectedOverclock == 4) {
 			toReturn += 2;
+		}
+		else if (selectedOverclock == 3) {
+			toReturn += 5;
 		}
 		
 		return toReturn;
@@ -307,8 +307,12 @@ public class Flamethrower extends Weapon {
 	private double getParticleHeat() {
 		double toReturn = particleHeat;
 		
-		if (selectedTier2 == 1) {
-			toReturn += 10;
+		if (selectedTier4 == 1) {
+			toReturn += 20;
+		}
+		
+		if (selectedOverclock == 3) {
+			toReturn *= 0.3;
 		}
 		
 		return toReturn;
@@ -316,17 +320,17 @@ public class Flamethrower extends Weapon {
 	private int getCarriedFuel() {
 		int toReturn = carriedFuel;
 		
-		if (selectedTier3 == 2) {
+		if (selectedTier1 == 1) {
 			toReturn += 75;
 		}
-		if (selectedTier4 == 2) {
+		if (selectedTier3 == 1) {
 			toReturn += 75;
 		}
 		
 		if (selectedOverclock == 0) {
 			toReturn += 75;
 		}
-		else if (selectedOverclock == 4 || selectedOverclock == 5) {
+		else if (selectedOverclock == 2) {
 			toReturn -= 75;
 		}
 		
@@ -335,14 +339,11 @@ public class Flamethrower extends Weapon {
 	private int getFuelTankSize() {
 		int toReturn = fuelTankSize;
 		
-		if (selectedTier1 == 0) {
+		if (selectedTier2 == 0) {
 			toReturn += 25;
 		}
 		
-		if (selectedOverclock == 2) {
-			toReturn += 25;
-		}
-		else if (selectedOverclock == 5) {
+		if (selectedOverclock == 3 || selectedOverclock == 4) {
 			toReturn -= 25;
 		}
 		
@@ -351,15 +352,24 @@ public class Flamethrower extends Weapon {
 	private double getFlowRate() {
 		double toReturn = flowRate;
 		
-		if (selectedTier3 == 0) {
+		if (selectedTier2 == 1) {
 			toReturn += 1.8;
 		}
 		
-		if (selectedOverclock == 3) {
+		if (selectedOverclock == 2) {
+			toReturn += 1.2;
+		}
+		else if (selectedOverclock == 5) {
 			toReturn -= 1.2;
 		}
-		else if (selectedOverclock == 4) {
-			toReturn += 1.8;
+		
+		return toReturn;
+	}
+	private double getReloadTime() {
+		double toReturn = reloadTime;
+		
+		if (selectedOverclock == 0) {
+			toReturn -= 0.5;
 		}
 		
 		return toReturn;
@@ -367,14 +377,11 @@ public class Flamethrower extends Weapon {
 	private double getFlameReach() {
 		double toReturn = flameReach;
 		
-		if (selectedTier1 == 1) {
+		if (selectedTier1 == 0) {
 			toReturn += 5;
 		}
 		
 		if (selectedOverclock == 2) {
-			toReturn -= 2;
-		}
-		else if (selectedOverclock == 3) {
 			toReturn += 5;
 		}
 		
@@ -383,8 +390,11 @@ public class Flamethrower extends Weapon {
 	private double getSFDamagePerTick() {
 		double toReturn = stickyFlamesDamagePerTick;
 		
-		if (selectedOverclock == 5) {
+		if (selectedOverclock == 4) {
 			toReturn += 5;
+		}
+		else if (selectedOverclock == 5) {
+			toReturn -= 5;
 		}
 		
 		return toReturn;
@@ -392,18 +402,18 @@ public class Flamethrower extends Weapon {
 	private double getSFDuration() {
 		double toReturn = stickyFlamesDuration;
 		
-		if (selectedTier2 == 2) {
+		if (selectedTier1 == 2) {
 			toReturn += 3;
 		}
-		if (selectedTier4 == 1) {
+		if (selectedTier3 == 2) {
 			toReturn += 3;
 		}
 		
 		if (selectedOverclock == 1) {
-			toReturn += 1;
+			toReturn += 3;
 		}
-		else if (selectedOverclock == 5) {
-			toReturn += 6;
+		else if (selectedOverclock == 4 || selectedOverclock == 5) {
+			toReturn += 4;
 		}
 		
 		return toReturn;
@@ -412,62 +422,60 @@ public class Flamethrower extends Weapon {
 		// From Elythnwaen: T3.B is actually a x0.5 multiplier applied to the baseline x0.9, so 0.9 * 0.5 = 0.45, which is a 55% slow, not 50%.
 		double toReturn = stickyFlamesSlow;
 		
-		if (selectedTier3 == 1) {
-			toReturn += 0.45;
+		if (selectedTier2 == 2) {
+			toReturn += 0.2;
+		}
+		
+		if (selectedOverclock == 4) {
+			toReturn -= 0.2;
+		}
+		else if (selectedOverclock == 5) {
+			toReturn += 0.3;
 		}
 		
 		return toReturn;
 	}
-	private double getMovespeedWhileFiring() {
-		double modifier = 1.0;
-		if (selectedOverclock == 4) {
-			modifier -= 0.5;
-		}
-		return MathUtils.round(modifier * DwarfInformation.walkSpeed, 2);
-	}
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[15];
+		StatsRow[] toReturn = new StatsRow[14];
 		
 		// Stats about the direct stream's DPS
-		boolean damageModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 4;
+		boolean damageModified = selectedTier3 == 0 || selectedOverclock == 1 || selectedOverclock == 3;
 		toReturn[0] = new StatsRow("Damage per Particle:", getParticleDamage(), modIcons.directDamage, damageModified);
 		
-		toReturn[1] = new StatsRow("Heat per Particle:", getParticleHeat(), modIcons.heatDamage, selectedTier2 == 1);
+		toReturn[1] = new StatsRow("Heat per Particle:", getParticleHeat(), modIcons.heatDamage, selectedTier4 == 1 || selectedOverclock == 3);
 		
-		boolean reachModified = selectedTier1 == 1 || selectedOverclock == 2 || selectedOverclock == 3;
-		toReturn[2] = new StatsRow("Flame Reach:", getFlameReach(), modIcons.distance, reachModified);
+		toReturn[2] = new StatsRow("Flame Reach:", getFlameReach(), modIcons.distance, selectedTier1 == 0 || selectedOverclock == 2);
 		
-		boolean tankSizeModified = selectedTier1 == 0 || selectedOverclock == 2 || selectedOverclock == 5;
+		boolean tankSizeModified = selectedTier2 == 0 || selectedOverclock == 3 || selectedOverclock == 4;
 		toReturn[3] = new StatsRow("Fuel Tank Size:", getFuelTankSize(), modIcons.magSize, tankSizeModified);
 		
-		boolean carriedFuelModified = selectedTier3 == 2 || selectedTier4 == 2 || selectedOverclock == 0 || selectedOverclock == 4 || selectedOverclock == 5;
+		boolean carriedFuelModified = selectedTier1 == 1 || selectedTier3 == 1 || selectedOverclock == 0 || selectedOverclock == 2;
 		toReturn[4] = new StatsRow("Max Fuel:", getCarriedFuel(), modIcons.carriedAmmo, carriedFuelModified);
 		
-		boolean flowRateModified = selectedTier3 == 0 || selectedOverclock == 3 || selectedOverclock == 4;
+		boolean flowRateModified = selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[5] = new StatsRow("Flow Rate:", getFlowRate(), modIcons.rateOfFire, flowRateModified);
 		
-		toReturn[6] = new StatsRow("Reload Time:", reloadTime, modIcons.reloadSpeed, false);
+		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 0);
 		
 		toReturn[7] = new StatsRow("Fear Factor per Particle:", 0.13, modIcons.fear, selectedTier4 == 0, selectedTier4 == 0);
 		
-		toReturn[8] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), modIcons.movespeed, selectedOverclock == 4, selectedOverclock == 4);
-		
 		// Burn DPS
-		toReturn[9] = new StatsRow("Burn DoT DPS:", DoTInformation.Burn_DPS, modIcons.heatDamage, false);
+		toReturn[8] = new StatsRow("Burn DoT DPS:", DoTInformation.Burn_DPS, modIcons.heatDamage, false);
 		
 		// Stats about the Sticky Flames
-		toReturn[10] = new StatsRow("Sticky Flames Dmg per Tick:", getSFDamagePerTick(), modIcons.directDamage, selectedOverclock == 5);
+		toReturn[9] = new StatsRow("Sticky Flames Dmg per Tick:", getSFDamagePerTick(), modIcons.directDamage, selectedOverclock == 4 || selectedOverclock == 5);
 		
-		toReturn[11] = new StatsRow("Sticky Flames Heat per Tick:", stickyFlamesHeatPerTick, modIcons.heatDamage, false);
+		toReturn[10] = new StatsRow("Sticky Flames Heat per Tick:", stickyFlamesHeatPerTick, modIcons.heatDamage, false);
 		
-		toReturn[12] = new StatsRow("Sticky Flames Avg Ticks/Sec:", stickyFlamesTicksPerSec, modIcons.blank, false);
+		toReturn[11] = new StatsRow("Sticky Flames Avg Ticks/Sec:", stickyFlamesTicksPerSec, modIcons.blank, false);
 		
-		boolean SFDurationModified = selectedTier2 == 2 || selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 5;
-		toReturn[13] = new StatsRow("Sticky Flames Duration:", getSFDuration(), modIcons.hourglass, SFDurationModified);
+		boolean SFDurationModified = selectedTier1 == 2 || selectedTier3 == 2 || selectedOverclock == 1 || selectedOverclock == 4 || selectedOverclock == 5;
+		toReturn[12] = new StatsRow("Sticky Flames Duration:", getSFDuration(), modIcons.hourglass, SFDurationModified);
 		
-		toReturn[14] = new StatsRow("Sticky Flames Slow:", convertDoubleToPercentage(getSFSlow()), modIcons.slowdown, selectedTier3 == 1);
+		boolean SFSlowModified = selectedTier2 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
+		toReturn[13] = new StatsRow("Sticky Flames Slow:", convertDoubleToPercentage(getSFSlow()), modIcons.slowdown, SFSlowModified);
 		
 		return toReturn;
 	}
@@ -499,9 +507,9 @@ public class Flamethrower extends Weapon {
 		double heatRadianceDmgAndHeatPerTick = 0;
 		int numTicksHeatRadianceWillProc = 0; 
 		if (selectedTier5 == 0) {
-			// 80 Heat/sec in a 3m radius
+			// 60 Heat/sec in a 3m radius
 			// I want this to be less effective with far-reaching streams to model how the further the steam flies the less likely it is that the enemies will be within the 3m.
-			heatRadianceDmgAndHeatPerTick = 80.0 * 3.0 / getFlameReach();
+			heatRadianceDmgAndHeatPerTick = 60.0 * 3.0 / getFlameReach();
 			// Because Heat Radiance only procs after every full second of firing, I'm choosing to take the floor() of how many seconds a single magazine can be fired.
 			numTicksHeatRadianceWillProc = (int) Math.floor(((double) getFuelTankSize()) / getFlowRate()); 
 		}
@@ -515,7 +523,7 @@ public class Flamethrower extends Weapon {
 			burnDPS = burnDoTUptimeCoefficient * DoTInformation.Burn_DPS;
 		}
 		else {
-			duration = (((double) getFuelTankSize()) / getFlowRate()) + reloadTime;
+			duration = (((double) getFuelTankSize()) / getFlowRate()) + getReloadTime();
 			burnDPS = DoTInformation.Burn_DPS;
 		}
 		
@@ -573,11 +581,11 @@ public class Flamethrower extends Weapon {
 		// Total Heat Radiance Damage
 		double heatRadianceTotalDamage = 0;
 		if (selectedTier5 == 0) {
-			// 80 Fire + Heat/sec in a 3m radius
+			// 60 Fire + Heat/sec in a 3m radius
 			double numTicksOfHeatRadiance = numMagazines(getCarriedFuel(), getFuelTankSize()) * (int) Math.floor(((double) getFuelTankSize()) / getFlowRate());
 			// I'm choosing to model this as if the player is kiting enemies, keeping them about 1.5m away so that they don't receive melee attacks.
 			int numGlyphidsHitByHeatRadiancePerTick = calculateNumGlyphidsInRadius(3.0) - calculateNumGlyphidsInRadius(1.5);
-			heatRadianceTotalDamage = 80 * numTicksOfHeatRadiance * numGlyphidsHitByHeatRadiancePerTick;
+			heatRadianceTotalDamage = 60 * numTicksOfHeatRadiance * numGlyphidsHitByHeatRadiancePerTick;
 		}
 		
 		// Total Targets Explode Damage
@@ -608,7 +616,7 @@ public class Flamethrower extends Weapon {
 		int magSize = getFuelTankSize();
 		int carriedAmmo = getCarriedFuel();
 		double timeToFireMagazine = ((double) magSize) / getFlowRate();
-		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * reloadTime;
+		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
 	
 	@Override
@@ -639,9 +647,6 @@ public class Flamethrower extends Weapon {
 	public double utilityScore() {
 		double numTargets = calculateMaxNumTargets();
 		
-		// Mobility
-		utilityScores[0] = (getMovespeedWhileFiring() - DwarfInformation.walkSpeed) * UtilityInformation.Movespeed_Utility;
-		
 		// Armor Break -- Flamethrower ignores Armor of all kinds, so this will always be zero.
 		
 		// Slow
@@ -668,9 +673,9 @@ public class Flamethrower extends Weapon {
 		
 		double heatRadianceDmgAndHeatPerTick = 0;
 		if (selectedTier5 == 0) {
-			// 80 Heat/sec in a 3m radius
+			// 60 Heat/sec in a 3m radius
 			// I want this to be less effective with far-reaching streams to model how the further the steam flies the less likely it is that the enemies will be within the 3m.
-			heatRadianceDmgAndHeatPerTick = 80.0 * 3.0 / getFlameReach();
+			heatRadianceDmgAndHeatPerTick = 60.0 * 3.0 / getFlameReach();
 		}
 		
 		return EnemyInformation.averageTimeToIgnite(0, getParticleHeat(), getFlowRate(), stickyFlamesHeatPerSec + heatRadianceDmgAndHeatPerTick);
