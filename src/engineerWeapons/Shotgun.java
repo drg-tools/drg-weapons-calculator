@@ -53,13 +53,13 @@ public class Shotgun extends Weapon {
 		customizableRoF = true;
 		
 		// Base stats, before mods or overclocks alter them:
-		damagePerPellet = 7;
-		numberOfPellets = 8;
-		carriedAmmo = 90;
+		damagePerPellet = 12;
+		numberOfPellets = 6;
+		carriedAmmo = 78;
 		magazineSize = 6;
-		rateOfFire = 2.0;
+		rateOfFire = 1.6;
 		reloadTime = 2.0;
-		weakpointStunChance = 0.1;
+		weakpointStunChance = 0.12;
 		stunDuration = 3;
 		
 		// Override default 10m distance
@@ -82,36 +82,36 @@ public class Shotgun extends Weapon {
 	
 	@Override
 	protected void initializeModsAndOverclocks() {
-		tier1 = new Mod[2];
-		tier1[0] = new Mod("Supercharged Feed Mechanism", "+1 Rate of Fire", modIcons.rateOfFire, 1, 0);
+		tier1 = new Mod[3];
+		tier1[0] = new Mod("Supercharged Feed Mechanism", "+0.3 Rate of Fire", modIcons.rateOfFire, 1, 0);
 		tier1[1] = new Mod("Overstuffed Magazine", "+2 Magazine Size", modIcons.magSize, 1, 1);
+		tier1[2] = new Mod("Quickfire Ejector", "-0.5 Reload Time", modIcons.reloadSpeed, 1, 2);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Expanded Ammo Bags", "+40 Max Ammo", modIcons.carriedAmmo, 2, 0);
-		tier2[1] = new Mod("Loaded Shells", "+2 Pellets per Shot", modIcons.pelletsPerShot, 2, 1);
+		tier2[0] = new Mod("Expanded Ammo Bags", "+15 Max Ammo", modIcons.carriedAmmo, 2, 0);
+		tier2[1] = new Mod("Loaded Shells", "+1 Pellet per Shot", modIcons.pelletsPerShot, 2, 1);
 		tier2[2] = new Mod("Choke", "x0.5 Base Spread", modIcons.baseSpread, 2, 2);
 		
-		tier3 = new Mod[3];
-		tier3[0] = new Mod("Recoil Dampener", "x0.4 Recoil", modIcons.recoil, 3, 0);
-		tier3[1] = new Mod("Quickfire Ejector", "-0.5 Reload Time", modIcons.reloadSpeed, 3, 1);
-		tier3[2] = new Mod("High Capacity Magazine", "+3 Magazine Size", modIcons.magSize, 3, 2);
+		tier3 = new Mod[2];
+		tier3[0] = new Mod("Expanded Ammo Bags", "+15 Max Ammo", modIcons.carriedAmmo, 3, 0);
+		tier3[1] = new Mod("Bigger Pellets", "+2 Damage per Pellet", modIcons.directDamage, 3, 1);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Tungsten Coated Buckshot", "+400% Armor Breaking", modIcons.armorBreaking, 4, 0);
-		tier4[1] = new Mod("Bigger Pellets", "+1 Damage per Pellet", modIcons.directDamage, 4, 1);
+		tier4[0] = new Mod("Tungsten Coated Buckshot", "+300% Armor Breaking", modIcons.armorBreaking, 4, 0);
+		tier4[1] = new Mod("Recoil Dampener", "x0.4 Recoil", modIcons.recoil, 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1.5m Radius. Turret Whip projectile has a 100% chance to Stun for 1.5 seconds and "
-				+ "inflicts 0.5 Fear to all enemies it damages. 10 Sentry ammo per shot, 3 second cooldown per Sentry.", modIcons.special, 5, 0, false);
-		tier5[1] = new Mod("Miner Adjustments", "Changes the Shotgun from semi-automatic to fully automatic, +0.5 Rate of Fire", modIcons.rateOfFire, 5, 1);
+		tier5[0] = new Mod("Quickerfire Ejectorer", "-0.7 Reload Time", modIcons.reloadSpeed, 5, 0);
+		tier5[1] = new Mod("Miner Adjustments", "Changes the Shotgun from semi-automatic to fully automatic, +0.4 Rate of Fire", modIcons.rateOfFire, 5, 1);
 		
 		overclocks = new Overclock[5];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Stunner", "Pellets can now stun an enemy on any body part instead of just weakpoints, and any shots that hit a "
 				+ "target that's already stunned deal x1.3 damage.", overclockIcons.stun, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Light-Weight Magazines", "+20 Max Ammo, -0.4 Reload Time", overclockIcons.carriedAmmo, 1);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1.5m Radius. Turret Whip projectile has a 100% chance to Stun for 1.5 seconds "
+				+ "inflicts 0.5 Fear to all enemies it damages. 10 Sentry ammo per shot, 3 second cooldown per Sentry.", overclockIcons.special, 1, false);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Magnetic Pellet Alignment", "x0.5 Base Spread, +30% Weakpoint Bonus, x0.75 Rate of Fire", overclockIcons.baseSpread, 2);
-		overclocks[3] = new Overclock(Overclock.classification.unstable, "Cycle Overload", "+1 Damage per Pellet, +2 Rate of Fire, +0.5 Reload Time, x1.5 Base Spread", overclockIcons.rateOfFire, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Mini Shells", "+90 Max Ammo, +6 Magazine Size, x0.5 Recoil, -2 Damage per Pellet, and no longer able to stun enemies", overclockIcons.miniShells, 4);
+		overclocks[3] = new Overclock(Overclock.classification.unstable, "Cycle Overload", "+1 Damage per Pellet, +0.8 Rate of Fire, +0.5 Reload Time, x1.5 Base Spread", overclockIcons.rateOfFire, 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Mini Shells", "+72 Max Ammo, +6 Magazine Size, x0.5 Recoil, -3 Damage per Pellet, and no longer able to stun enemies", overclockIcons.miniShells, 4);
 	}
 	
 	@Override
@@ -130,8 +130,8 @@ public class Shotgun extends Weapon {
 					combinationIsValid = false;
 				}
 			}
-			if (symbols[0] == 'C') {
-				System.out.println("Shotgun's first tier of mods only has two choices, so 'C' is an invalid choice.");
+			if (symbols[2] == 'C') {
+				System.out.println("Shotgun's third tier of mods only has two choices, so 'C' is an invalid choice.");
 				combinationIsValid = false;
 			}
 			if (symbols[3] == 'C') {
@@ -276,15 +276,15 @@ public class Shotgun extends Weapon {
 	private int getDamagePerPellet() {
 		int toReturn = damagePerPellet;
 		
-		if (selectedTier4 == 1) {
-			toReturn += 1;
+		if (selectedTier3 == 1) {
+			toReturn += 2;
 		}
 		
 		if (selectedOverclock == 3) {
 			toReturn += 1;
 		}
 		else if (selectedOverclock == 4) {
-			toReturn -= 2;
+			toReturn -= 3;
 		}
 		
 		return toReturn;
@@ -293,7 +293,7 @@ public class Shotgun extends Weapon {
 		int toReturn = numberOfPellets;
 		
 		if (selectedTier2 == 1) {
-			toReturn += 2;
+			toReturn += 1;
 		}
 		
 		return toReturn;
@@ -302,14 +302,14 @@ public class Shotgun extends Weapon {
 		int toReturn = carriedAmmo;
 		
 		if (selectedTier2 == 0) {
-			toReturn += 40;
+			toReturn += 15;
+		}
+		if (selectedTier3 == 0) {
+			toReturn += 15;
 		}
 		
-		if (selectedOverclock == 1) {
-			toReturn += 20;
-		}
-		else if (selectedOverclock == 4) {
-			toReturn += 90;
+		if (selectedOverclock == 4) {
+			toReturn += 72;
 		}
 		
 		return toReturn;
@@ -319,9 +319,6 @@ public class Shotgun extends Weapon {
 		
 		if (selectedTier1 == 1) {
 			toReturn += 2;
-		}
-		if (selectedTier3 == 2) {
-			toReturn += 3;
 		}
 		
 		if (selectedOverclock == 4) {
@@ -335,18 +332,18 @@ public class Shotgun extends Weapon {
 		double toReturn = rateOfFire;
 		
 		if (selectedTier1 == 0) {
-			toReturn += 1.0;
+			toReturn += 0.3;
 		}
 		
 		if (selectedTier5 == 1) {
-			toReturn += 0.5;
+			toReturn += 0.4;
 		}
 		
 		if (selectedOverclock == 2) {
 			toReturn *= 0.75;
 		}
 		else if (selectedOverclock == 3) {
-			toReturn += 2.0;
+			toReturn += 0.8;
 		}
 		
 		return toReturn;
@@ -354,14 +351,14 @@ public class Shotgun extends Weapon {
 	private double getReloadTime() {
 		double toReturn = reloadTime;
 		
-		if (selectedTier3 == 1) {
+		if (selectedTier1 == 2) {
 			toReturn -= 0.5;
 		}
-		
-		if (selectedOverclock == 1) {
-			toReturn -= 0.4;
+		if (selectedTier5 == 0) {
+			toReturn -= 0.7;
 		}
-		else if (selectedOverclock == 3) {
+		
+		if (selectedOverclock == 3) {
 			toReturn += 0.5;
 		}
 		
@@ -397,7 +394,7 @@ public class Shotgun extends Weapon {
 	}
 	private double getArmorBreaking() {
 		if (selectedTier4 == 0) {
-			return 5.0;
+			return 4.0;
 		}
 		else {
 			return 1.0;
@@ -422,7 +419,7 @@ public class Shotgun extends Weapon {
 	private double getRecoil() {
 		double toReturn = 1.0;
 		
-		if (selectedTier3 == 0) {
+		if (selectedTier4 == 1) {
 			toReturn *= 0.4;
 		}
 		
@@ -437,21 +434,21 @@ public class Shotgun extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[12];
 		
-		boolean damageModified = selectedTier4 == 1 || selectedOverclock == 3 || selectedOverclock == 4;
+		boolean damageModified = selectedTier3 == 1 || selectedOverclock == 3 || selectedOverclock == 4;
 		toReturn[0] = new StatsRow("Damage per Pellet:", getDamagePerPellet(), modIcons.directDamage, damageModified);
 		
 		toReturn[1] = new StatsRow("Number of Pellets/Shot:", getNumberOfPellets(), modIcons.pelletsPerShot, selectedTier2 == 1);
 		
-		boolean magSizeModified = selectedTier1 == 1 || selectedTier3 == 2 || selectedOverclock == 4;
+		boolean magSizeModified = selectedTier1 == 1 || selectedOverclock == 4;
 		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, magSizeModified);
 		
-		boolean carriedAmmoModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 4;
+		boolean carriedAmmoModified = selectedTier2 == 0 || selectedTier3 == 0 || selectedOverclock == 4;
 		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
 		boolean RoFModified = selectedTier1 == 0 || selectedTier5 == 1 || selectedOverclock == 2 || selectedOverclock == 3;
 		toReturn[4] = new StatsRow("Rate of Fire:", getCustomRoF(), modIcons.rateOfFire, RoFModified);
 		
-		boolean reloadModified = selectedTier3 == 1 || selectedOverclock == 1 || selectedOverclock == 3;
+		boolean reloadModified = selectedTier1 == 2 || selectedTier5 == 0 || selectedOverclock == 3;
 		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, reloadModified);
 		
 		toReturn[6] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedOverclock == 2, selectedOverclock == 2);
@@ -472,7 +469,7 @@ public class Shotgun extends Weapon {
 		boolean baseSpreadModified = selectedTier2 == 2 || selectedOverclock == 2 || selectedOverclock == 3;
 		toReturn[10] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, baseSpreadModified, baseSpreadModified);
 		
-		boolean recoilModified = selectedTier3 == 0 || selectedOverclock == 4;
+		boolean recoilModified = selectedTier4 == 1 || selectedOverclock == 4;
 		toReturn[11] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), modIcons.recoil, recoilModified, recoilModified);
 		
 		return toReturn;
@@ -671,7 +668,7 @@ public class Shotgun extends Weapon {
 		}
 		
 		// Stun
-		// Weakpoint = 10% stun chance per pellet, 3 sec duration (upgraded with Mod Tier 3 "Stun Duration", or OC "Stunner")
+		// Weakpoint = 15% stun chance per pellet, 3 sec duration (upgraded with Mod Tier 3 "Stun Duration", or OC "Stunner")
 		utilityScores[5] = calculateCumulativeStunChancePerShot() * getStunDuration() * UtilityInformation.Stun_Utility;
 		
 		if (selectedTier5 == 0) {
