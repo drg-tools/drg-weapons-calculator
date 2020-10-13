@@ -111,7 +111,7 @@ public abstract class EPC extends Weapon {
 		
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("Expanded Plasma Splash", "+1m Charged Shot AoE Radius", modIcons.aoeRadius, 2, 0);
-		tier2[1] = new Mod("Overcharged Plasma Accelerator", "+25% Regular Shot Velocity", modIcons.projectileVelocity, 2, 1, false);
+		tier2[1] = new Mod("High Density Battery", "+24 Battery Size", modIcons.carriedAmmo, 2, 1);
 		tier2[2] = new Mod("Reactive Shockwave", "+15 Charged Shot Direct Damage, +15 Charged Shot Area Damage", modIcons.areaDamage, 2, 2);
 		
 		tier3 = new Mod[3];
@@ -121,22 +121,22 @@ public abstract class EPC extends Weapon {
 		
 		tier4 = new Mod[2];
 		tier4[0] = new Mod("Heat Shield", "x0.4 Heat per Second when fully charged", modIcons.coolingRate, 4, 0);
-		tier4[1] = new Mod("High Density Battery", "+24 Battery Size", modIcons.carriedAmmo, 4, 1);
+		tier4[1] = new Mod("Overcharged Plasma Accelerator", "+25% Regular Shot Velocity", modIcons.projectileVelocity, 4, 1, false);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Flying Nightmare", "Charged Shots now deal their Direct Damage to enemies hit by the AoE while in-flight but it no longer explodes upon impact. Additionally, x0.55 AoE radius, x0.7 Charge Speed.", modIcons.aoeRadius, 5, 0);
-		tier5[1] = new Mod("Thin Containment Field", "Shoot the Charged Shot with a Regular Shot before it impacts anything to make it detonate for 240 Damage and carve terrain within a 3m radius. "
+		tier5[0] = new Mod("Flying Nightmare", "Charged Shots now deal their Direct Damage to enemies hit by the AoE while in-flight but it no longer explodes upon impact. Additionally, x0.6 AoE radius, x0.8 Charge Speed.", modIcons.aoeRadius, 5, 0);
+		tier5[1] = new Mod("Thin Containment Field", "Shoot the Charged Shot with a Regular Shot before it impacts anything to make it detonate for 210 Damage and carve terrain within a 2.5m radius. "
 				+ "Additionally, x0.8 Heat per Regular Shot, and x0.8 Heat per Charged Shot which means it no longer overheats on charged shots.", modIcons.special, 5, 1);
 		tier5[2] = new Mod("Plasma Burn", "Regular Shots have 50% of their Direct Damage added on as Heat Damage per shot", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Energy Rerouting", "+16 Battery Size, x1.5 Charge Speed.", overclockIcons.chargeSpeed, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Magnetic Cooling Unit", "+25% Cooling Rate, x0.7 Heat per Second while Charged.", overclockIcons.coolingRate, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Heat Pipe", "-2 Ammo per Charged Shot, x1.3 Charge Speed, x1.5 Heat per Regular Shot", overclockIcons.fuel, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Heavy Hitter", "x1.6 Regular Shot Direct Damage, x1.5 Heat per Regular Shot, -32 Battery Size", overclockIcons.directDamage, 3);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Magnetic Cooling Unit", "+25% Cooling Rate, +20% Regular Shot Weakpoint Bonus", overclockIcons.coolingRate, 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Heat Pipe", "-2 Ammo per Charged Shot, x1.3 Charge Speed, -0.5m AoE Radius", overclockIcons.fuel, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Heavy Hitter", "x1.6 Regular Shot Direct Damage, x1.5 Heat per Regular Shot, +200% Recoil, -32 Battery Size", overclockIcons.directDamage, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Overcharger", "x1.5 Charged Shot Direct Damage, x1.5 Charged Shot Area Damage, x1.2 Charged Shot AoE Radius, x1.5 Ammo per Charged Shot, -25% Cooling Rate", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Persistent Plasma", "Upon impact, Charged Shots leave behind a 3m radius field of Persistent Plasma that deals " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + 
-				" Electric Damage per Second for 7.6 seconds. -20 Charged Shot Direct Damage, -20 Charged Shot Area Damage", overclockIcons.hourglass, 5);
+				" Electric Damage per Second for 7.6 seconds. -10 Charged Shot Direct Damage, -10 Charged Shot Area Damage", overclockIcons.hourglass, 5);
 	}
 	
 	@Override
@@ -310,6 +310,14 @@ public abstract class EPC extends Weapon {
 		
 		return toReturn;
 	}
+	protected double getRegularShotWeakpointBonus() {
+		if (selectedOverclock == 1) {
+			return 0.2;
+		}
+		else {
+			return 0.0;
+		}
+	}
 	protected double getChargedDirectDamage() {
 		double toReturn = chargedDirectDamage;
 		
@@ -329,7 +337,7 @@ public abstract class EPC extends Weapon {
 			toReturn *= 1.5;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn -= 20;
+			toReturn -= 10;
 		}
 		
 		return toReturn;
@@ -351,14 +359,14 @@ public abstract class EPC extends Weapon {
 		
 		// Special case: Thin Containment Field
 		if (selectedTier5 == 1) {
-			return 240;
+			return 210;
 		}
 		
 		if (selectedOverclock == 4) {
 			toReturn *= 1.5;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn -= 20;
+			toReturn -= 10;
 		}
 		
 		return toReturn;
@@ -369,9 +377,12 @@ public abstract class EPC extends Weapon {
 		if (selectedTier2 == 0) {
 			toReturn += 1.0;
 		}
+		if (selectedOverclock == 2) {
+			toReturn -= 0.5;
+		}
 		
 		if (selectedTier5 == 0) {
-			toReturn *= 0.55;
+			toReturn *= 0.6;
 		}
 		if (selectedOverclock == 4) {
 			toReturn *= 1.2;
@@ -379,7 +390,7 @@ public abstract class EPC extends Weapon {
 		
 		// Special case: Thin Containment Field
 		if (selectedTier5 == 1) {
-			return 3.0;
+			return 2.5;
 		}
 		
 		return toReturn;
@@ -453,7 +464,7 @@ public abstract class EPC extends Weapon {
 			toReturn /= 2.5;
 		}
 		if (selectedTier5 == 0) {
-			toReturn /= 0.7;
+			toReturn /= 0.8;
 		}
 		
 		if (selectedOverclock == 0) {
@@ -472,7 +483,7 @@ public abstract class EPC extends Weapon {
 			toReturn *= 0.8;
 		}
 		
-		if (selectedOverclock == 2 || selectedOverclock == 3) {
+		if (selectedOverclock == 3) {
 			toReturn *= 1.5;
 		}
 		
@@ -494,10 +505,6 @@ public abstract class EPC extends Weapon {
 		
 		if (selectedTier4 == 0) {
 			toReturn *= 0.4;
-		}
-		
-		if (selectedOverclock == 1) {
-			toReturn *= 0.7;
 		}
 		
 		return toReturn;

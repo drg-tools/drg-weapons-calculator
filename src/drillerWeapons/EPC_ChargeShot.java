@@ -100,7 +100,7 @@ public class EPC_ChargeShot extends EPC {
 	protected void setAoEEfficiency() {
 		// Special case: Thin Containment Field
 		if (selectedTier5 == 1) {
-			aoeEfficiency = calculateAverageAreaDamage(3.0, 3.0, 1.0);
+			aoeEfficiency = calculateAverageAreaDamage(2.5, 2.5, 1.0);
 		}
 		else {
 			// According to Elythnwaen, EPC has a 1.25m full damage radius, and 33% damage falloff at full radius
