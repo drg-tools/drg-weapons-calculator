@@ -77,17 +77,16 @@ public class Subata extends Weapon {
 	
 	@Override
 	protected void initializeModsAndOverclocks() {
-		tier1 = new Mod[3];
-		tier1[0] = new Mod("Improved Alignment", "x0 Base Spread", modIcons.baseSpread, 1, 0);
-		tier1[1] = new Mod("High Capacity Magazine", "+5 Magazine Size", modIcons.magSize, 1, 1);
-		tier1[2] = new Mod("Quickfire Ejector", "-0.6 Reload Time", modIcons.reloadSpeed, 1, 2);
+		tier1 = new Mod[2];
+		tier1[0] = new Mod("High Capacity Magazine", "+6 Magazine Size", modIcons.magSize, 1, 0);
+		tier1[1] = new Mod("Quickfire Ejector", "-0.6 Reload Time", modIcons.reloadSpeed, 1, 1);
 		
 		tier2 = new Mod[2];
-		tier2[0] = new Mod("Expanded Ammo Bags", "+40 Max Ammo", modIcons.carriedAmmo, 2, 0);
-		tier2[1] = new Mod("Increased Caliber Rounds", "+1 Direct Damage", modIcons.directDamage, 2, 1);
+		tier2[0] = new Mod("Expanded Ammo Bags", "+25 Max Ammo", modIcons.carriedAmmo, 2, 0);
+		tier2[1] = new Mod("Improved Alignment", "-100% Base Spread", modIcons.baseSpread, 2, 1);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Improved Propellant", "+1 Direct Damage", modIcons.directDamage, 3, 0);
+		tier3[0] = new Mod("Increased Caliber Rounds", "+2 Direct Damage", modIcons.directDamage, 3, 0);
 		tier3[1] = new Mod("Recoil Compensator", "-20% Spread per Shot, x0.5 Recoil", modIcons.recoil, 3, 1);
 		tier3[2] = new Mod("Expanded Ammo Bags", "+40 Max Ammo", modIcons.carriedAmmo, 3, 2);
 		
@@ -96,17 +95,17 @@ public class Subata extends Weapon {
 		tier4[1] = new Mod("High Velocity Rounds", "+3 Direct Damage", modIcons.directDamage, 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Volatile Bullets", "+50% Damage dealt to Burning enemies", modIcons.heatDamage, 5, 0);
-		tier5[1] = new Mod("Mactera Neurotoxin Coating", "+20% Damage dealt to Mactera-type enemies", modIcons.special, 5, 1);
+		tier5[0] = new Mod("Chain Hit", "Any shot that hits a weakspot has a 50% chance to ricochet into a nearby enemy.", modIcons.ricochet, 5, 0);
+		tier5[1] = new Mod("Mactera Neurotoxin Coating", "+50% Damage dealt to Mactera-type enemies", modIcons.special, 5, 1);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 50% chance to ricochet into a nearby enemy.", overclockIcons.ricochet, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, overclockIcons.homebrewPowder, 1);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Elemental Rounds", "+30% Direct Damage dealt to enemies that are either Chilled or Heated (have a non-zero Temperature)", overclockIcons.directDamage, 0);
+		overclocks[1] = new Overclock(Overclock.classification.balanced, "Burst Fire", "Changes the Subata from semi-automatic to burst fire. In exchange, -4.8 Rate of Fire", overclockIcons.rateOfFire, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Oversized Magazine", "+10 Magazine Size, +0.5 Reload Time", overclockIcons.magSize, 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Automatic Fire", "Changes the Subata from semi-automatic to fully automatic, +2 Rate of Fire, +100% Base Spread, x2.5 Recoil", overclockIcons.rateOfFire, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Explosive Reload", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 15 Explosive Damage to the "
 				+ "enemy upon reloading. -3 Direct Damage, -3 Magazine Size, -40 Max Ammo.", overclockIcons.specialReload, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Tranquilizer Rounds", "Every bullet has a 50% chance to stun an enemy for 6 seconds. -4 Magazine Size, -4 Rate of Fire.", overclockIcons.stun, 5);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Tranquilizer Rounds", "Every bullet has a 50% chance to stun an enemy for 6 seconds. -4 Magazine Size, -2 Rate of Fire.", overclockIcons.stun, 5);
 	}
 	
 	@Override
@@ -124,6 +123,10 @@ public class Subata extends Weapon {
 					System.out.println("Symbol #" + (i+1) + ", " + symbols[i] + ", is not a capital letter between A-C or a hyphen");
 					combinationIsValid = false;
 				}
+			}
+			if (symbols[0] == 'C') {
+				System.out.println("Subata's first tier of mods only has two choices, so 'C' is an invalid choice.");
+				combinationIsValid = false;
 			}
 			if (symbols[1] == 'C') {
 				System.out.println("Subata's second tier of mods only has two choices, so 'C' is an invalid choice.");
@@ -275,21 +278,20 @@ public class Subata extends Weapon {
 	private double getDirectDamage() {
 		double toReturn = directDamage;
 		
-		if (selectedTier2 == 1) {
-			toReturn += 1;
-		}
 		if (selectedTier3 == 0) {
-			toReturn += 1;
+			toReturn += 2;
 		}
 		if (selectedTier4 == 1) {
 			toReturn += 3;
 		}
 		
-		if (selectedOverclock == 1) {
-			toReturn *= homebrewPowderCoefficient;
-		}
-		else if (selectedOverclock == 4) {
+		if (selectedOverclock == 4) {
 			toReturn -= 3;
+		}
+		
+		// OC "Elemental Bullets" adds 30% of the total damage per bullet as Disintegrate damage if the bullet hits a Chilled or Heated target
+		if (selectedOverclock == 0 && (statusEffects[0] || statusEffects[1])) {
+			toReturn *= 1.3;
 		}
 		
 		return toReturn;
@@ -307,7 +309,7 @@ public class Subata extends Weapon {
 		int toReturn = carriedAmmo;
 		
 		if (selectedTier2 == 0) {
-			toReturn += 40;
+			toReturn += 25;
 		}
 		if (selectedTier3 == 2) {
 			toReturn += 40;
@@ -322,8 +324,8 @@ public class Subata extends Weapon {
 	private int getMagazineSize() {
 		int toReturn = magazineSize;
 		
-		if (selectedTier1 == 1) {
-			toReturn += 5;
+		if (selectedTier1 == 0) {
+			toReturn += 6;
 		}
 		
 		if (selectedOverclock == 2) {
@@ -341,11 +343,14 @@ public class Subata extends Weapon {
 	private double getRateOfFire() {
 		double toReturn = rateOfFire;
 		
-		if (selectedOverclock == 3) {
+		if (selectedOverclock == 1) {
+			toReturn -= 4.8;
+		}
+		else if (selectedOverclock == 3) {
 			toReturn += 2.0;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn -= 4.0;
+			toReturn -= 2.0;
 		}
 		
 		return toReturn;
@@ -353,7 +358,7 @@ public class Subata extends Weapon {
 	private double getReloadTime() {
 		double toReturn = reloadTime;
 		
-		if (selectedTier1 == 2) {
+		if (selectedTier1 == 1) {
 			toReturn -= 0.6;
 		}
 		
@@ -373,7 +378,7 @@ public class Subata extends Weapon {
 		return toReturn;
 	}
 	private int getMaxRicochets() {
-		if (selectedOverclock == 0) {
+		if (selectedTier5 == 0) {
 			return 1;
 		}
 		else {
@@ -383,14 +388,12 @@ public class Subata extends Weapon {
 	private double getBaseSpread() {
 		double toReturn = 1.0;
 		
-		// Additive bonuses first
-		if (selectedOverclock == 3) {
-			toReturn += 1.0;
+		if (selectedTier2 == 1) {
+			toReturn -= 1.0;
 		}
 		
-		// Multiplicative bonuses last
-		if (selectedTier1 == 0) {
-			toReturn *= 0.0;
+		if (selectedOverclock == 3) {
+			toReturn += 1.0;
 		}
 		
 		return toReturn;
@@ -438,21 +441,22 @@ public class Subata extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[15];
 		
-		boolean directDamageModified = selectedTier2 == 1 || selectedTier3 == 0 || selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 4;
+		boolean directDamageModified = selectedTier3 == 0 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 4;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
 		// This stat only applies to OC "Explosive Reload"
 		toReturn[1] = new StatsRow("Explosive Reload Damage:", getAreaDamage(), modIcons.areaDamage, selectedOverclock == 4, selectedOverclock == 4);
 		
-		boolean magSizeModified = selectedTier1 == 1 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
+		boolean magSizeModified = selectedTier1 == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier2 == 0 || selectedTier3 == 2 || selectedOverclock == 4;
 		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
-		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedOverclock == 3 || selectedOverclock == 5);
+		boolean RoFModified = selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
+		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, RoFModified);
 		
-		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier1 == 2 || selectedOverclock == 2);
+		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier1 == 1 || selectedOverclock == 2);
 		
 		toReturn[6] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedTier4 == 0);
 		
@@ -465,7 +469,7 @@ public class Subata extends Weapon {
 		
 		toReturn[9] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, tranqRoundsEquipped, tranqRoundsEquipped);
 		
-		boolean chainHitEquipped = selectedOverclock == 0;
+		boolean chainHitEquipped = selectedTier5 == 0;
 		toReturn[10] = new StatsRow("Weakpoint Chain Hit Chance:", convertDoubleToPercentage(0.5), modIcons.homebrewPowder, chainHitEquipped, chainHitEquipped);
 		toReturn[11] = new StatsRow("Max Ricochets:", getMaxRicochets(), modIcons.ricochet, chainHitEquipped, chainHitEquipped);
 		
@@ -501,11 +505,13 @@ public class Subata extends Weapon {
 			generalAccuracy = 1.0;
 		}
 		
+		double timeToFireMagazine = timeToFireMagazine();
+		
 		if (burst) {
-			duration = ((double) getMagazineSize()) / getRateOfFire();
+			duration = timeToFireMagazine;
 		}
 		else {
-			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+			duration = timeToFireMagazine + getReloadTime();
 		}
 		
 		double directDamage = getDirectDamage();
@@ -525,12 +531,6 @@ public class Subata extends Weapon {
 		if (statusEffects[3]) {
 			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
 			areaDamage *= UtilityInformation.IFG_Damage_Multiplier;
-		}
-		
-		// T5.A Volatile Bullets adds 50% of the total damage per bullet as Fire damage (not Heat Damage) if the bullet hits a Burning target
-		if (selectedTier5 == 0 && statusEffects[0]) {
-			directDamage *= 1.5;
-			areaDamage *= 1.5;
 		}
 		
 		double weakpointAccuracy;
@@ -554,14 +554,14 @@ public class Subata extends Weapon {
 	@Override
 	public double calculateAdditionalTargetDPS() {
 		// If "Chain Hit" is equipped, 50% of bullets that hit a weakpoint will ricochet to nearby enemies.
-		if (selectedOverclock == 0) {
+		if (selectedTier5 == 0) {
 			// Making the assumption that the ricochet won't hit another weakpoint, and will just do normal damage.
 			double ricochetProbability = 0.5 * estimatedAccuracy(true) / 100.0;
 			double numBulletsRicochetPerMagazine = Math.round(ricochetProbability * getMagazineSize());
 			
-			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+			double timeToFireMagazineAndReload = timeToFireMagazine() + getReloadTime();
 			
-			return numBulletsRicochetPerMagazine * getDirectDamage() / timeToFireMagazineAndReload;
+			return numBulletsRicochetPerMagazine * (getDirectDamage() + getAreaDamage()) / timeToFireMagazineAndReload;
 		}
 		else {
 			return 0.0;
@@ -570,23 +570,20 @@ public class Subata extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		if (selectedOverclock == 0) {
+		double totalNumRicochets = 0;
+		if (selectedTier5 == 0) {
 			// Chain Hit
-			double ricochetProbability = 0.5 * EnemyInformation.probabilityBulletWillHitWeakpoint();
-			double totalNumRicochets = Math.round(ricochetProbability * (getMagazineSize() + getCarriedAmmo()));
-			
-			return (getMagazineSize() + getCarriedAmmo() + totalNumRicochets) * getDirectDamage();
+			double ricochetProbability = 0.5 * estimatedAccuracy(true) / 100.0;
+			totalNumRicochets = Math.round(ricochetProbability * (getMagazineSize() + getCarriedAmmo()));
 		}
-		else {
-			// Because the OCs Chain Hit and Explosive Reload are mutually exclusive, the Area Damage only needs to be called here.
-			return (getMagazineSize() + getCarriedAmmo()) * (getDirectDamage() + getAreaDamage());
-		}
+		
+		return (getMagazineSize() + getCarriedAmmo() + totalNumRicochets) * (getDirectDamage() + getAreaDamage());
 	}
 
 	@Override
 	public int calculateMaxNumTargets() {
-		if (selectedOverclock == 0) {
-			// OC "Chain Hit"
+		if (selectedTier5 == 0) {
+			// T5.A "Chain Hit"
 			return 2;
 		}
 		else {
@@ -598,13 +595,13 @@ public class Subata extends Weapon {
 	public double calculateFiringDuration() {
 		int magSize = getMagazineSize();
 		int carriedAmmo = getCarriedAmmo();
-		double timeToFireMagazine = ((double) magSize) / getRateOfFire();
+		double timeToFireMagazine = timeToFireMagazine();
 		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
-		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus());
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) + getAreaDamage();
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 	
@@ -626,22 +623,22 @@ public class Subata extends Weapon {
 		double mass = 1.0;
 		double springStiffness = 60.0;
 		
-		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
+		int burstSize = 1;
+		if (selectedOverclock == 1) {
+			burstSize = 3;
+		}
+		
+		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), burstSize, 
 				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
 				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override
 	public int breakpoints() {
-		double directFireDamage = 0;
-		if (selectedTier5 == 0 && statusEffects[0]) {
-			directFireDamage = 0.5 * getDirectDamage();
-		}
-		
 		double[] directDamage = {
 			getDirectDamage(),  // Kinetic
 			0,  // Explosive
-			directFireDamage,  // Fire
+			0,  // Fire
 			0,  // Frost
 			0  // Electric
 		};
@@ -663,7 +660,7 @@ public class Subata extends Weapon {
 		
 		double macteraBonus = 0;
 		if (selectedTier5 == 1) {
-			macteraBonus = 0.2;
+			macteraBonus = 0.5;
 		}
 		
 		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), macteraBonus, 0.0, statusEffects[1], statusEffects[3], false);
@@ -699,7 +696,16 @@ public class Subata extends Weapon {
 	
 	@Override
 	public double timeToFireMagazine() {
-		return getMagazineSize() / getRateOfFire();
+		if (selectedOverclock == 1) {
+			double timeToFireBurst = (3 - 1) * 0.05;
+			double delayBetweenBursts = 1.0 / getRateOfFire();
+			int numBurstsPerMagazine = getMagazineSize() / 3;
+			
+			return numBurstsPerMagazine * timeToFireBurst + (numBurstsPerMagazine - 1) * delayBetweenBursts;
+		}
+		else {
+			return ((double) getMagazineSize()) / getRateOfFire();
+		}
 	}
 	
 	@Override
