@@ -58,7 +58,7 @@ public class SMG extends Weapon {
 		electricDamage = 0; 
 		// Added onto the direct damage of each bullet; does not affect DoT damage. Affected by weakpoint bonuses and elemental weaknesses/resistances
 		magazineSize = 30;
-		carriedAmmo = 420;
+		carriedAmmo = 440;
 		rateOfFire = 11.0;
 		reloadTime = 2.0;
 		
@@ -85,34 +85,34 @@ public class SMG extends Weapon {
 		tier1 = new Mod[3];
 		tier1[0] = new Mod("Increased Caliber Rounds", "+2 Direct Damage", modIcons.directDamage, 1, 0);
 		tier1[1] = new Mod("Upgraded Capacitors", "+30% Chance to Electrocute an enemy", modIcons.electricity, 1, 1);
-		tier1[2] = new Mod("Expanded Ammo Bags", "+120 Max Ammo", modIcons.carriedAmmo, 1, 2);
+		tier1[2] = new Mod("Expanded Ammo Bags", "+110 Max Ammo", modIcons.carriedAmmo, 1, 2);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("High Capacity Magazine", "+10 Magazine Size", modIcons.magSize, 2, 0);
+		tier2[0] = new Mod("High Capacity Magazine", "+15 Magazine Size", modIcons.magSize, 2, 0);
 		tier2[1] = new Mod("Recoil Dampener", "x0.5 Recoil", modIcons.recoil, 2, 1);
 		tier2[2] = new Mod("Improved Gas System", "+3 Rate of Fire", modIcons.rateOfFire, 2, 2);
 		
 		tier3 = new Mod[2];
 		tier3[0] = new Mod("High Velocity Rounds", "+2 Direct Damage", modIcons.directDamage, 3, 0);
-		tier3[1] = new Mod("Expanded Ammo Bags", "+120 Max Ammo", modIcons.carriedAmmo, 3, 1);
+		tier3[1] = new Mod("Expanded Ammo Bags", "+110 Max Ammo", modIcons.carriedAmmo, 3, 1);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Hollow-Point Bullets", "+30% Weakpoint Bonus", modIcons.weakpointBonus, 4, 0);
-		tier4[1] = new Mod("Conductive Bullets", "+30% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 4, 1);
+		tier4[0] = new Mod("Hollow-Point Bullets", "+40% Weakpoint Bonus", modIcons.weakpointBonus, 4, 0);
+		tier4[1] = new Mod("Magazine Capacity Tweak", "+15 Magazine Size", modIcons.magSize, 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Magazine Capacity Tweak", "+20 Magazine Size", modIcons.magSize, 5, 0);
+		tier5[0] = new Mod("Conductive Bullets", "+30% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 5, 0);
 		tier5[1] = new Mod("Electric Arc", "Every time the SMG either applies or refreshes an Electrocute DoT, there's a 25% chance that all enemies within a 2.75m radius of the primary target will be electrocuted as well.", modIcons.electricity, 5, 1);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Super-Slim Rounds", "+5 Magazine Size, x0.8 Base Spread", overclockIcons.magSize, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Well Oiled Machine", "+2 Rate of Fire, -0.2 Reload Time", overclockIcons.rateOfFire, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "EM Refire Booster", "+2 Electric Damage per bullet, +4 Rate of Fire, x1.5 Base Spread", overclockIcons.rateOfFire, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Light-Weight Rounds", "+180 Max Ammo, -1 Direct Damage, -2 Rate of Fire", overclockIcons.carriedAmmo, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Turret Arc", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, that turret deals constant Electric Damage in a small radius around it. "
-				+ "Additionally, if 2 turrets are less than 10m apart and both are electrocuted at the same time, then an electric arc will pass between them for 10 seconds. -120 Max Ammo, -2 Rate of Fire", overclockIcons.electricity, 4, false);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Turret EM Discharge", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, it triggers an explosion that deals 40 Electric Damage and 0.5 Fear to all enemies "
-				+ "within a 5m radius. There's a 1.5 second cooldown between explosions. -5% Chance to Electrocute an enemy, -3 Direct Damage", overclockIcons.areaDamage, 5, false);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Turret Arc", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, that turret deals constant Electric Damage in a small radius around it. "
+				+ "Additionally, if 2 turrets are less than 10m apart and both are electrocuted at the same time, then an electric arc will pass between them for 10 seconds.", overclockIcons.electricity, 0, false);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Turret EM Discharge", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, it triggers an explosion that deals 40 Electric Damage and 0.5 Fear to all enemies "
+				+ "within a 5m radius. There's a 1.5 second cooldown between explosions.", overclockIcons.areaDamage, 1, false);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "EM Refire Booster", "+2 Electric Damage per bullet, +4 Rate of Fire, x0.8 Max Ammo", overclockIcons.rateOfFire, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Light-Weight Rounds", "+165 Max Ammo, -1 Direct Damage, -2 Rate of Fire", overclockIcons.carriedAmmo, 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "High Voltage Electrocution", "x2 Electrocute DoT Damage per Tick, -1 sec Electrocute DoT Duration", overclockIcons.electricity, 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Sniper", "x0.6 Base Spread, -33% Spread per Shot, -1 Rate of Fire", overclockIcons.baseSpread, 5);
 	}
 	
 	@Override
@@ -285,11 +285,23 @@ public class SMG extends Weapon {
 			toReturn += 0.3;
 		}
 		
-		if (selectedOverclock == 5) {
-			toReturn -= 0.05;
-		}
-		
 		return toReturn;
+	}
+	private double getElectrocutionDoTDamagePerTick() {
+		if (selectedOverclock == 4) {
+			return 2.0 * DoTInformation.Electro_DmgPerTick;
+		}
+		else {
+			return DoTInformation.Electro_DmgPerTick;
+		}
+	}
+	private double getElectrocutionDoTDuration() {
+		if (selectedOverclock == 4) {
+			return DoTInformation.Electro_SecsDuration - 1.0;
+		}
+		else {
+			return DoTInformation.Electro_SecsDuration;
+		}
 	}
 	private double getDirectDamage() {
 		double toReturn = directDamage;
@@ -304,12 +316,9 @@ public class SMG extends Weapon {
 		if (selectedOverclock == 3) {
 			toReturn -= 1;
 		}
-		else if (selectedOverclock == 5) {
-			toReturn -= 3;
-		}
 		
 		// Multiplicative bonuses last
-		if (selectedTier4 == 1) {
+		if (selectedTier5 == 0) {
 			toReturn *= conductiveBulletsMultiplier();
 		}
 		
@@ -324,7 +333,7 @@ public class SMG extends Weapon {
 		}
 		
 		// Multiplicative bonuses last
-		if (selectedTier4 == 1) {
+		if (selectedTier5 == 0) {
 			toReturn *= conductiveBulletsMultiplier();
 		}
 		
@@ -334,15 +343,11 @@ public class SMG extends Weapon {
 		int toReturn = magazineSize;
 		
 		if (selectedTier2 == 0) {
-			toReturn += 10;
+			toReturn += 15;
 		}
 		
-		if (selectedTier5 == 0) {
-			toReturn += 20;
-		}
-		
-		if (selectedOverclock == 0) {
-			toReturn += 5;
+		if (selectedTier4 == 1) {
+			toReturn += 15;
 		}
 		
 		return toReturn;
@@ -351,18 +356,18 @@ public class SMG extends Weapon {
 		int toReturn = carriedAmmo;
 		
 		if (selectedTier1 == 2) {
-			toReturn += 120;
+			toReturn += 110;
 		}
 		
 		if (selectedTier3 == 1) {
-			toReturn += 120;
+			toReturn += 110;
 		}
 		
-		if (selectedOverclock == 3) {
-			toReturn += 180;
+		if (selectedOverclock == 2) {
+			toReturn *= 0.8;
 		}
-		else if (selectedOverclock == 4) {
-			toReturn -= 120;
+		if (selectedOverclock == 3) {
+			toReturn += 165;
 		}
 		
 		return toReturn;
@@ -374,14 +379,11 @@ public class SMG extends Weapon {
 			toReturn += 3.0;
 		}
 		
-		if (selectedOverclock == 1) {
-			toReturn += 2.0;
-		}
-		else if (selectedOverclock == 2) {
+		if (selectedOverclock == 2) {
 			toReturn += 4.0;
 		}
-		else if (selectedOverclock == 3 || selectedOverclock == 4) {
-			toReturn -= 2.0;
+		else if (selectedOverclock == 5) {
+			toReturn -= 1.0;
 		}
 		
 		return toReturn;
@@ -389,20 +391,22 @@ public class SMG extends Weapon {
 	private double getReloadTime() {
 		double toReturn = reloadTime;
 		
-		if (selectedOverclock == 1) {
-			toReturn -= 0.2;
-		}
-		
 		return toReturn;
 	}
 	private double getBaseSpread() {
 		double toReturn = 1.0;
 
-		if (selectedOverclock == 0) {
-			toReturn *= 0.8;
+		if (selectedOverclock == 5) {
+			toReturn *= 0.6;
 		}
-		else if (selectedOverclock == 2) {
-			toReturn *= 1.5;
+		
+		return toReturn;
+	}
+	private double getSpreadPerShot() {
+		double toReturn = 1.0;
+		
+		if (selectedOverclock == 5) {
+			toReturn *= 2.0 / 3.0;
 		}
 		
 		return toReturn;
@@ -420,7 +424,7 @@ public class SMG extends Weapon {
 		double toReturn = 0.0;
 		
 		if (selectedTier4 == 0) {
-			toReturn += 0.3;
+			toReturn += 0.4;
 		}
 		
 		return toReturn;
@@ -440,33 +444,34 @@ public class SMG extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[11];
+		StatsRow[] toReturn = new StatsRow[13];
 		
-		toReturn[0] = new StatsRow("Electrocute DoT Chance:", convertDoubleToPercentage(getElectrocutionDoTChance()), modIcons.homebrewPowder, selectedTier1 == 1 || selectedOverclock == 5);
-		toReturn[1] = new StatsRow("Electrocute DoT DPS:", DoTInformation.Electro_DPS, modIcons.electricity, false);
+		toReturn[0] = new StatsRow("Electrocute DoT Chance:", convertDoubleToPercentage(getElectrocutionDoTChance()), modIcons.homebrewPowder, selectedTier1 == 1);
+		toReturn[1] = new StatsRow("Electrocute DoT DPS:", DoTInformation.Electro_TicksPerSec * getElectrocutionDoTDamagePerTick(), modIcons.electricity, selectedOverclock == 4);
+		toReturn[2] = new StatsRow("Electrocute DoT Duration:", getElectrocutionDoTDuration(), modIcons.electricity, selectedOverclock == 4);
 		
-		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 0 || selectedTier4 == 1 || selectedOverclock == 3 || selectedOverclock == 5;
-		toReturn[2] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
+		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 0 || selectedTier5 == 0 || selectedOverclock == 3;
+		toReturn[3] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
-		toReturn[3] = new StatsRow("Electric Damage:", getElectricDamage(), modIcons.directDamage, selectedTier4 == 1 || selectedOverclock == 2, selectedTier4 == 1 || selectedOverclock == 2);
+		toReturn[4] = new StatsRow("Electric Damage:", getElectricDamage(), modIcons.directDamage, selectedTier5 == 0 || selectedOverclock == 2, selectedTier5 == 0 || selectedOverclock == 2);
 		
-		boolean magSizeModified = selectedTier2 == 0 || selectedTier5 == 0 || selectedOverclock == 0;
-		toReturn[4] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, magSizeModified);
+		toReturn[5] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, selectedTier2 == 0 || selectedTier4 == 1);
 		
-		boolean carriedAmmoModified = selectedTier1 == 2 || selectedTier3 == 1 || selectedOverclock == 3 || selectedOverclock == 4;
-		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
+		boolean carriedAmmoModified = selectedTier1 == 2 || selectedTier3 == 1 || selectedOverclock == 2 || selectedOverclock == 3;
+		toReturn[6] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
-		boolean RoFModified = selectedTier2 == 2 || (selectedOverclock > 0 && selectedOverclock < 5);
-		toReturn[6] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, RoFModified);
+		boolean RoFModified = selectedTier2 == 2 || selectedOverclock == 2 || selectedOverclock == 5;
+		toReturn[7] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, RoFModified);
 		
-		toReturn[7] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 1);
+		toReturn[8] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, false);
 		
-		toReturn[8] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[9] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedTier4 == 0, selectedTier4 == 0);
 		
-		boolean baseSpreadModified = selectedOverclock == 0 || selectedOverclock == 2;
-		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, baseSpreadModified, baseSpreadModified);
+		toReturn[10] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, selectedOverclock == 5, selectedOverclock == 5);
 		
-		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), modIcons.recoil, selectedTier2 == 1, selectedTier2 == 1);
+		toReturn[11] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), modIcons.baseSpread, selectedOverclock == 5, selectedOverclock == 5);
+		
+		toReturn[12] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), modIcons.recoil, selectedTier2 == 1, selectedTier2 == 1);
 		
 		return toReturn;
 	}
@@ -476,7 +481,7 @@ public class SMG extends Weapon {
 	****************************************************************************************/
 	
 	private double calculateBurstElectrocutionDoTDPS() {
-		return calculateRNGDoTDPSPerMagazine(getElectrocutionDoTChance(), DoTInformation.Electro_DPS, getMagazineSize());
+		return calculateRNGDoTDPSPerMagazine(getElectrocutionDoTChance(), getElectrocutionDoTDamagePerTick() * DoTInformation.Electro_TicksPerSec, getMagazineSize());
 	}
 
 	@Override
@@ -504,7 +509,7 @@ public class SMG extends Weapon {
 		}
 		else {
 			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
-			electrocuteDPS = DoTInformation.Electro_DPS;
+			electrocuteDPS = getElectrocutionDoTDamagePerTick() * DoTInformation.Electro_TicksPerSec;
 		}
 		
 		double weakpointAccuracy;
@@ -606,7 +611,7 @@ public class SMG extends Weapon {
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		double baseSpread = 3.0 * getBaseSpread();
-		double spreadPerShot = 1.5;
+		double spreadPerShot = 1.5 * getSpreadPerShot();
 		double spreadRecoverySpeed = 10.0;
 		double spreadVariance = 4.0;
 		
@@ -643,7 +648,7 @@ public class SMG extends Weapon {
 		
 		double[] DoTDamage = {
 			0,  // Fire
-			calculateAverageDoTDamagePerEnemy(timeToElectrocute, DoTInformation.Electro_SecsDuration, DoTInformation.Electro_DPS),  // Electric
+			calculateAverageDoTDamagePerEnemy(timeToElectrocute, getElectrocutionDoTDuration(), getElectrocutionDoTDamagePerTick() * DoTInformation.Electro_TicksPerSec),  // Electric
 			0,  // Poison
 			0  // Radiation
 		};
@@ -658,16 +663,16 @@ public class SMG extends Weapon {
 		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDirectDamage() + getElectricDamage()) * UtilityInformation.ArmorBreak_Utility;
 		
 		// Innate ability to Electrocute applies an 80% slow to enemies (proc chance increased/decreased by mods and OCs)
-		utilityScores[3] = getElectrocutionDoTChance() * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+		utilityScores[3] = getElectrocutionDoTChance() * getElectrocutionDoTDuration() * UtilityInformation.Electrocute_Slow_Utility;
 		if (selectedTier5 == 1) {
-			utilityScores[3] += getElectrocutionDoTChance() * 0.25 * (calculateMaxNumTargets() - 1) * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
+			utilityScores[3] += getElectrocutionDoTChance() * 0.25 * (calculateMaxNumTargets() - 1) * getElectrocutionDoTDuration() * UtilityInformation.Electrocute_Slow_Utility;
 		}
 		
 		// Fear
 		if (selectedOverclock == 5) {
 			// OC "Turret EM Discharge" inflicts 0.5 Fear in a 5m radius around the sentry. Also, since the enemies will be electrocuted the Fear duration gets increased.
 			// 5m radius returns 41 Grunts, which is more than I think would realistically be hit by these explosions. As such, I'm artificially halving the Fear radius to 2.5m
-			utilityScores[4] = calculateFearProcProbability(0.5) * calculateNumGlyphidsInRadius(5.0/2.0) * EnemyInformation.averageFearDuration(0.8, 3) * UtilityInformation.Fear_Utility;
+			utilityScores[4] = calculateFearProcProbability(0.5) * calculateNumGlyphidsInRadius(5.0/2.0) * EnemyInformation.averageFearDuration(0.8, getElectrocutionDoTDuration()) * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;
@@ -684,7 +689,7 @@ public class SMG extends Weapon {
 	@Override
 	public double damagePerMagazine() {
 		double timeBeforeElectrocute = MathUtils.meanRolls(getElectrocutionDoTChance()) / getRateOfFire();
-		return (getDirectDamage() + getElectricDamage()) * getMagazineSize() + calculateAverageDoTDamagePerEnemy(timeBeforeElectrocute, DoTInformation.Electro_SecsDuration, DoTInformation.Electro_DPS);
+		return (getDirectDamage() + getElectricDamage()) * getMagazineSize() + calculateAverageDoTDamagePerEnemy(timeBeforeElectrocute, getElectrocutionDoTDuration(), getElectrocutionDoTDamagePerTick() * DoTInformation.Electro_TicksPerSec);
 	}
 	
 	@Override
