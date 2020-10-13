@@ -81,7 +81,7 @@ public class EPC_RegularShot extends EPC {
 	public StatsRow[] getStats() {
 		boolean coolingRateModified = selectedTier3 == 2 || selectedOverclock == 1 || selectedOverclock == 4;
 		
-		StatsRow[] toReturn = new StatsRow[8];
+		StatsRow[] toReturn = new StatsRow[9];
 		
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, selectedTier1 == 0 || selectedOverclock == 3);
 		
@@ -100,6 +100,8 @@ public class EPC_RegularShot extends EPC {
 		toReturn[6] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), modIcons.coolingRate, coolingRateModified);
 		
 		toReturn[7] = new StatsRow("Cooldown After Overheating:", getCooldownDuration(), modIcons.hourglass, coolingRateModified);
+		
+		toReturn[8] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getRegularShotWeakpointBonus()), modIcons.weakpointBonus, selectedOverclock == 1, selectedOverclock == 1);
 		
 		return toReturn;
 	}
@@ -120,7 +122,7 @@ public class EPC_RegularShot extends EPC {
 		double damagePerProjectile;
 		if (weakpoint && !statusEffects[1]) {
 			// Because this weapon doesn't have its Accuracy handled like the other weapons, I'm choosing to just increase the damage by a weighted average.
-			damagePerProjectile = increaseBulletDamageForWeakpoints(getDirectDamage());
+			damagePerProjectile = increaseBulletDamageForWeakpoints(getDirectDamage(), getRegularShotWeakpointBonus());
 		}
 		else {
 			damagePerProjectile = getDirectDamage();
@@ -206,7 +208,7 @@ public class EPC_RegularShot extends EPC {
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
-		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage());
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getRegularShotWeakpointBonus());
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 	
@@ -278,7 +280,7 @@ public class EPC_RegularShot extends EPC {
 	@Override
 	public double damageWastedByArmor() {
 		double weakpointAccuracy = EnemyInformation.probabilityBulletWillHitWeakpoint() * 100.0;
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, 0.0, 1.0, 0.0, 100.0, weakpointAccuracy);
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, 0.0, 1.0, getRegularShotWeakpointBonus(), 100.0, weakpointAccuracy);
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 }
