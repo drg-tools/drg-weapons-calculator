@@ -572,7 +572,7 @@ public class Subata extends Weapon {
 	public double calculateMaxMultiTargetDamage() {
 		if (selectedOverclock == 0) {
 			// Chain Hit
-			double ricochetProbability = 0.5 * EnemyInformation.probabilityBulletWillHitWeakpoint();
+			double ricochetProbability = 0.5 * estimatedAccuracy(true) / 100.0;
 			double totalNumRicochets = Math.round(ricochetProbability * (getMagazineSize() + getCarriedAmmo()));
 			
 			return (getMagazineSize() + getCarriedAmmo() + totalNumRicochets) * getDirectDamage();
@@ -604,7 +604,7 @@ public class Subata extends Weapon {
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
-		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus());
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) + getAreaDamage();
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 	
