@@ -107,7 +107,7 @@ public class SMG extends Weapon {
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Turret Arc", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, that turret deals constant Electric Damage in a small radius around it. "
 				+ "Additionally, if 2 turrets are less than 10m apart and both are electrocuted at the same time, then an electric arc will pass between them for 10 seconds.", overclockIcons.electricity, 0, false);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Turret EM Discharge", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, it triggers an explosion that deals 40 Electric Damage and 0.5 Fear to all enemies "
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Turret EM Discharge", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, it triggers an explosion that deals 60 Electric Damage and 0.5 Fear to all enemies "
 				+ "within a 5m radius. There's a 1.5 second cooldown between explosions.", overclockIcons.areaDamage, 1, false);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "EM Refire Booster", "+2 Electric Damage per bullet, +4 Rate of Fire, x0.8 Max Ammo", overclockIcons.rateOfFire, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Light-Weight Rounds", "+165 Max Ammo, -1 Direct Damage, -2 Rate of Fire", overclockIcons.carriedAmmo, 3);
