@@ -438,7 +438,8 @@ public class ButtonIcons {
 		special,
 		rollControl,
 		returnToSender,
-		slowdown
+		slowdown,
+		weakpointBonus
 	}
 	
 	public static BufferedImage getOverclockIcon(overclockIcons iconSelection) {
@@ -541,6 +542,9 @@ public class ButtonIcons {
 			}
 			case slowdown: {
 				return slowdownWhite;
+			}
+			case weakpointBonus: {
+				return weakpointBonusWhite;
 			}
 			default: {
 				return null;
