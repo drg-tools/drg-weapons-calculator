@@ -48,18 +48,18 @@ public class BreachCutter_Projectile extends BreachCutter {
 		
 		toReturn[0] = new StatsRow("Burst Damage on First Impact:", getImpactDamage(), modIcons.areaDamage, selectedOverclock == 5);
 		
-		boolean dmgPerTickModified = selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 5 || selectedOverclock == 6;
+		boolean dmgPerTickModified = selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 3 || selectedOverclock == 5 || selectedOverclock == 6;
 		toReturn[1] = new StatsRow("Damage per Tick:", getDamagePerTick(), modIcons.directDamage, dmgPerTickModified);
 		
 		toReturn[2] = new StatsRow("Damage Ticks per Second:", damageTickRate, modIcons.blank, false);
-		
-		toReturn[3] = new StatsRow("Projectile Width:", getProjectileWidth(), modIcons.aoeRadius, selectedTier2 == 2 || selectedOverclock == 5);
+
+		toReturn[3] = new StatsRow("Projectile Width:", getProjectileWidth(), modIcons.aoeRadius, selectedTier3 == 1 || selectedOverclock == 5);
 		
 		toReturn[4] = new StatsRow("Projectile Velocity (m/sec):", getProjectileVelocity(), modIcons.projectileVelocity, selectedOverclock == 5);
 		
-		toReturn[5] = new StatsRow("Delay Before Opening:", getDelayBeforeOpening(), modIcons.duration, selectedTier3 == 0);
+		toReturn[5] = new StatsRow("Delay Before Opening:", getDelayBeforeOpening(), modIcons.duration, selectedTier4 == 2);
 		
-		boolean lifetimeModified = selectedTier1 == 0 || selectedOverclock == 2 || selectedOverclock == 5;
+		boolean lifetimeModified = selectedTier3 == 0 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[6] = new StatsRow("Projectile Lifetime (sec):", getProjectileLifetime(), modIcons.hourglass, lifetimeModified);
 		
 		toReturn[7] = new StatsRow("In-Game Listed DPS:", getDamagePerTick() * damageTickRate, modIcons.special, dmgPerTickModified);

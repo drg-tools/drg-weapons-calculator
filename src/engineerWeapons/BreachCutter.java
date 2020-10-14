@@ -60,13 +60,13 @@ public class BreachCutter extends Weapon {
 		// Base stats, before mods or overclocks alter them:
 		projectileVelocity = 10;  // m/sec
 		// In the game files this is listed as "Burn" damage, which translates to Fire Element damage in this program's terminology
-		burstDamageOnFirstImpact = 50;
+		burstDamageOnFirstImpact = 35;
 		damageTickRate = 50;  // ticks/sec
-		damagePerTick = 11.5;
+		damagePerTick = 10.0;
 		delayBeforeOpening = 0.2;
 		projectileLifetime = 1.5;
 		projectileWidth = 1.5;
-		magazineSize = 3;
+		magazineSize = 4;
 		carriedAmmo = 12;
 		rateOfFire = 1.5;
 		reloadTime = 3.4;
@@ -89,44 +89,46 @@ public class BreachCutter extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Prolonged Power Generation", "+1.5 Projectile Lifetime", modIcons.hourglass, 1, 0);
-		tier1[1] = new Mod("High Capacity Magazine", "+3 Magazine Size", modIcons.magSize, 1, 1);
+		tier1[0] = new Mod("Improved Case Ejector", "-1.0 Reload Time", modIcons.reloadSpeed, 1, 0);
+		tier1[1] = new Mod("High Capacity Magazine", "+2 Magazine Size", modIcons.magSize, 1, 1);
 		
-		tier2 = new Mod[3];
-		tier2[0] = new Mod("Expanded Ammo Bags", "+6 Max Ammo", modIcons.carriedAmmo, 2, 0);
-		tier2[1] = new Mod("Condensed Plasma", "+3.5 Damage per Tick", modIcons.directDamage, 2, 1);
-		tier2[2] = new Mod("Loosened Node Cohesion", "+1.5m Plasma Beam Width", modIcons.aoeRadius, 2, 2);
+		tier2 = new Mod[2];
+		tier2[0] = new Mod("Expanded Ammo Bags", "+4 Max Ammo", modIcons.carriedAmmo, 2, 0);
+		tier2[1] = new Mod("Condensed Plasma", "+3.4 Damage per Tick", modIcons.directDamage, 2, 1);
 		
 		tier3 = new Mod[2];
 		// Although getStats() shows this change, it has no effect on any numbers in this model. As such, I'm marking as "not modeled".
-		tier3[0] = new Mod("Quick Deploy", "-0.2 Plasma Expansion Delay", modIcons.duration, 3, 0, false);
-		tier3[1] = new Mod("Improved Case Ejector", "-0.4 Reload Time", modIcons.reloadSpeed, 3, 1);
+		tier3[0] = new Mod("Prolonged Power Generation", "+1.5 Projectile Lifetime", modIcons.hourglass, 3, 0);
+		tier3[1] = new Mod("Loosened Node Cohesion", "+1.5m Plasma Beam Width", modIcons.aoeRadius, 3, 1);
 		
-		tier4 = new Mod[2];
+		tier4 = new Mod[3];
 		tier4[0] = new Mod("Armor Breaking", "+200% Armor Breaking", modIcons.armorBreaking, 4, 0);
-		tier4[1] = new Mod("Disruptive Frequency Tuning", "+100% Stun Chance, 3 sec Stun duration", modIcons.stun, 4, 1);
+		tier4[1] = new Mod("Disruptive Frequency Tuning", "+100% Stun Chance, 2 sec Stun duration", modIcons.stun, 4, 1);
+		// Although getStats() shows this change, it has no effect on any numbers in this model. As such, I'm marking as "not modeled".
+		tier4[2] = new Mod("Quick Deploy", "-0.2 Plasma Expansion Delay", modIcons.duration, 4, 2, false);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Explosive Goodbye", "When the line either expires or the trigger gets pulled again, the current line explodes for 40 Explosive Damage in a 3m radius AoE, and leaves behind a field of Persistent Plasma "
-				+ " that does an average of " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per second for 4.6 seconds in a 3m radius sphere.", modIcons.addedExplosion, 5, 0);
-		tier5[1] = new Mod("Plasma Trail", "Leaves behind a Persistent Plasma field that does an average of " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per second for 4.6 seconds "
+		tier5[0] = new Mod("Explosive Goodbye", "When the line either expires or the trigger gets pulled again, the current line explodes for 60 Explosive Damage in a 3m radius AoE, and leaves behind a field of Persistent Plasma "
+				+ " that does an average of " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per second for 4.6 seconds in a 3m radius sphere.", modIcons.addedExplosion, 5, 0);
+		tier5[1] = new Mod("Plasma Trail", "Leaves behind a Persistent Plasma field that does an average of " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per second for 4.6 seconds "
 				+ "along the entire length of the line's path", modIcons.areaDamage, 5, 1);
 		// Since the additional lines neither increase targets hit nor DPS per target, I'm marking it as "not modeled"
 		tier5[2] = new Mod("Triple Split Line", "Adds a line above and below the primary projectile (multiple lines hitting doesn't increase DPS)", modIcons.aoeRadius, 5, 2, false);
 		
 		overclocks = new Overclock[7];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Light-Weight Cases", "+3 Max Ammo, -0.2 Reload Time", overclockIcons.carriedAmmo, 0);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "High Voltage Crossover", "100% chance to electrocute enemies, which deals an average of " + MathUtils.round(4.0 * DoTInformation.Electro_TicksPerSec, GuiConstants.numDecimalPlaces) + " Electric Damage per "
+				+ "Second for 4 seconds.", overclockIcons.electricity, 0);
 		// Roll Control has no effect on DPS stats, so it gets marked as "not modeled"
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Roll Control", "Holding down the trigger after the line leaves the gun causes the line to start rolling. On release of the trigger, the line stops rolling.", overclockIcons.rollControl, 1, false);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Roll Control", "Doubles the number of lines, and orients them like a flattened X. Holding down the trigger after the lines leave the gun causes the sets of lines to start rolling in opposite directions. "
+				+ "On release of the trigger, the lines stop rolling.", overclockIcons.rollControl, 1, false);
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Stronger Plasma Current", "+1 Damage per Tick, +0.5 Projectile Lifetime", overclockIcons.directDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Return to Sender", "Holding down the trigger after line leaves the gun activates a remote connection, which on release of the trigger causes "
-				+ "the line to change direction and move back towards the gun. In exchange, -6 Max Ammo", overclockIcons.returnToSender, 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "High Voltage Crossover", "100% chance to electrocute enemies, which deals an average of " + MathUtils.round(4.0 * DoTInformation.Electro_TicksPerSec, GuiConstants.numDecimalPlaces) + " Electric Damage per "
-				+ "Second for 4 seconds. In exchange, x0.67 Magazine Size.", overclockIcons.electricity, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Spinning Death", "Instead of flying in a straight line, the projectile now rotates 2 times per second about the Yaw axis. Additionally: x0.05 Projectile Velocity, x0 Impact Damage, "
-				+ "x2.5 Projectile Lifetime, x0.2 Damage per Tick, +1.5m Plasma Beam Width, x0.5 Max Ammo, and x0.33 Magazine Size", overclockIcons.special, 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "The first time the beam hits an enemy, it inflicts 75 Heat and applies a DoT that does 7 Fire Damage and 7 Heat at a rate of 2 ticks/sec for 5 seconds (does 11 ticks total). "
-				+ "Additionally, it converts 90% of the Damage per Tick from Electric element to Fire element and adds the amount converted as Heat per tick. In exchange: -3.5 Damage per Tick, -6 Max Ammo, and x0.25 Armor Breaking", overclockIcons.heatDamage, 6);
+				+ "the line to change direction and move back towards the gun. In exchange, -1.6 Damage per Tick", overclockIcons.returnToSender, 3);
+		// TODO: figure out and implement OC "Lance"
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Lance", "Changes orientation of line to fire like a spear as it moves. Either -Dmg/Tick or +Velocity to balance. Or maybe -Width?", overclockIcons.projectileVelocity, 4, false);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Spinning Death", "Instead of flying in a straight line, the projectile now rotates 2 times per second about the Yaw axis. Additionally: x0.09 Projectile Velocity, x0 Impact Damage, "
+				+ "x2.5 Projectile Lifetime, +1m Plasma Beam Width, x0.25 Damage per Tick, x0.75 Max Ammo, and x0.5 Magazine Size", overclockIcons.special, 5);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "Adds 110% of Damage per Tick as Heat Damage which ignites enemies almost instantly in exchange for -0.6 Damage per Tick and x0.25 Armor Breaking", overclockIcons.heatDamage, 6);
 	}
 	
 	@Override
@@ -306,7 +308,7 @@ public class BreachCutter extends Weapon {
 		
 		// Spinning Death makes it move a lot slower
 		if (selectedOverclock == 5) {
-			toReturn *= 0.05;
+			toReturn *= 0.09;
 		}
 		
 		return toReturn;
@@ -323,17 +325,20 @@ public class BreachCutter extends Weapon {
 		double toReturn = damagePerTick;
 		
 		if (selectedTier2 == 1) {
-			toReturn += 3.5;
+			toReturn += 3.4;
 		}
 		
 		if (selectedOverclock == 2) {
 			toReturn += 1.0;
 		}
+		else if (selectedOverclock == 3) {
+			toReturn -= 1.6;
+		}
 		else if (selectedOverclock == 5) {
-			toReturn *= 0.2;
+			toReturn *= 0.25;
 		}
 		else if (selectedOverclock == 6) {
-			toReturn -= 3.5;
+			toReturn -= 0.6;
 		}
 		
 		return toReturn;
@@ -341,7 +346,7 @@ public class BreachCutter extends Weapon {
 	protected double getDelayBeforeOpening() {
 		double toReturn = delayBeforeOpening;
 		
-		if (selectedTier3 == 0) {
+		if (selectedTier4 == 2) {
 			toReturn -= 0.2;
 		}
 		
@@ -350,7 +355,7 @@ public class BreachCutter extends Weapon {
 	protected double getProjectileLifetime() {
 		double toReturn = projectileLifetime;
 		
-		if (selectedTier1 == 0) {
+		if (selectedTier3 == 0) {
 			toReturn += 1.5;
 		}
 		
@@ -366,49 +371,41 @@ public class BreachCutter extends Weapon {
 	protected double getProjectileWidth() {
 		double toReturn = projectileWidth;
 		
-		if (selectedTier2 == 2) {
+		if (selectedTier3 == 1) {
 			toReturn += 1.5;
 		}
+		
 		if (selectedOverclock == 5) {
-			toReturn += 1.5;
+			toReturn += 1.0;
 		}
 		
 		return toReturn;
 	}
 	protected int getMagazineSize() {
-		int toReturn = magazineSize;
+		double toReturn = magazineSize;
 		
 		if (selectedTier1 == 1) {
-			toReturn += 3;
+			toReturn += 2.0;
 		}
 		
-		if (selectedOverclock == 4) {
-			toReturn = (int) Math.round(toReturn * 2.0 / 3.0);
-		}
-		else if (selectedOverclock == 5) {
-			toReturn /= 3;
+		if (selectedOverclock == 5) {
+			toReturn /= 2.0;
 		}
 		
-		return toReturn;
+		return (int) toReturn;
 	}
 	protected int getCarriedAmmo() {
-		int toReturn = carriedAmmo;
+		double toReturn = carriedAmmo;
 		
 		if (selectedTier2 == 0) {
-			toReturn += 6;
+			toReturn += 4;
 		}
 		
-		if (selectedOverclock == 0) {
-			toReturn += 3;
-		}
-		else if (selectedOverclock == 3 || selectedOverclock == 6) {
-			toReturn -= 6;
-		}
-		else if (selectedOverclock == 5) {
-			toReturn /= 2;
+		if (selectedOverclock == 5) {
+			toReturn *= 0.75;
 		}
 		
-		return toReturn;
+		return (int) toReturn;
 	}
 	public double getRateOfFire() {
 		// OC "Return to Sender" changes max RoF from 1.5 to 1/(2/3 * Lifetime)
@@ -423,11 +420,8 @@ public class BreachCutter extends Weapon {
 	protected double getReloadTime() {
 		double toReturn = reloadTime;
 		
-		if (selectedTier3 == 1) {
-			toReturn -= 0.4;
-		}
-		if (selectedOverclock == 0) {
-			toReturn -= 0.2;
+		if (selectedTier1 == 0) {
+			toReturn -= 1.0;
 		}
 		
 		return toReturn;
@@ -452,31 +446,30 @@ public class BreachCutter extends Weapon {
 		
 		toReturn[0] = new StatsRow("Burst Damage on First Impact:", getImpactDamage(), modIcons.areaDamage, selectedOverclock == 5);
 		
-		boolean dmgPerTickModified = selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 5 || selectedOverclock == 6;
+		boolean dmgPerTickModified = selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 3 || selectedOverclock == 5 || selectedOverclock == 6;
 		toReturn[1] = new StatsRow("Damage per Tick:", getDamagePerTick(), modIcons.directDamage, dmgPerTickModified);
 		
 		toReturn[2] = new StatsRow("Damage Ticks per Second:", damageTickRate, modIcons.blank, false);
 		
-		toReturn[3] = new StatsRow("Projectile Width:", getProjectileWidth(), modIcons.aoeRadius, selectedTier2 == 2 || selectedOverclock == 5);
+		toReturn[3] = new StatsRow("Projectile Width:", getProjectileWidth(), modIcons.aoeRadius, selectedTier3 == 1 || selectedOverclock == 5);
 		
 		toReturn[4] = new StatsRow("Projectile Velocity (m/sec):", getProjectileVelocity(), modIcons.projectileVelocity, selectedOverclock == 5);
 		
-		toReturn[5] = new StatsRow("Delay Before Opening:", getDelayBeforeOpening(), modIcons.duration, selectedTier3 == 0);
+		toReturn[5] = new StatsRow("Delay Before Opening:", getDelayBeforeOpening(), modIcons.duration, selectedTier4 == 2);
 		
-		boolean lifetimeModified = selectedTier1 == 0 || selectedOverclock == 2 || selectedOverclock == 5;
+		boolean lifetimeModified = selectedTier3 == 0 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[6] = new StatsRow("Projectile Lifetime (sec):", getProjectileLifetime(), modIcons.hourglass, lifetimeModified);
 		
 		toReturn[7] = new StatsRow("Avg Damage per Projectile to Single Grunt:", calculateAverageDamagePerGrunt(true, true, false, true), modIcons.special, false);
 		
-		boolean magSizeModified = selectedTier1 == 1 || selectedOverclock == 4 || selectedOverclock == 5;
-		toReturn[8] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, magSizeModified);
+		toReturn[8] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, selectedTier1 == 1 || selectedOverclock == 5);
 		
-		boolean carriedAmmoModified = selectedTier2 == 0 || selectedOverclock == 0 || selectedOverclock == 3 || selectedOverclock == 5 || selectedOverclock == 6;
+		boolean carriedAmmoModified = selectedTier2 == 0 || selectedOverclock == 5;
 		toReturn[9] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
 		toReturn[10] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedOverclock == 3);
 		
-		toReturn[11] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier3 == 1 || selectedOverclock == 0);
+		toReturn[11] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier1 == 0);
 		
 		boolean armorBreakingModified = selectedTier4 == 0 || selectedOverclock == 6;
 		toReturn[12] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, armorBreakingModified, armorBreakingModified);
@@ -484,7 +477,7 @@ public class BreachCutter extends Weapon {
 		boolean stunEquipped = selectedTier4 == 1;
 		toReturn[13] = new StatsRow("Stun Chance:", convertDoubleToPercentage(1.0), modIcons.homebrewPowder, stunEquipped, stunEquipped);
 		
-		toReturn[14] = new StatsRow("Stun Duration:", 3, modIcons.stun, stunEquipped, stunEquipped);
+		toReturn[14] = new StatsRow("Stun Duration:", 2, modIcons.stun, stunEquipped, stunEquipped);
 		
 		return toReturn;
 	}
@@ -513,11 +506,11 @@ public class BreachCutter extends Weapon {
 		double R = sdWidth / 2.0;
 		double r = EnemyInformation.GlyphidGruntBodyAndLegsRadius;
 		
-		double maxNumHitsDownDiameter = ((sdRotationSpeed / Math.PI) / sdProjectileVelocity) * sdWidth;  // 8*w
-		double avgNumHitsDownChords = ((sdRotationSpeed / Math.PI) / sdProjectileVelocity) * ((Math.PI * Math.pow(R, 2)) / sdWidth);  // 2Pi*w
+		// double maxNumHitsDownDiameter = ((sdRotationSpeed / Math.PI) / sdProjectileVelocity) * sdWidth;  // 8*w
+		// double avgNumHitsDownChords = ((sdRotationSpeed / Math.PI) / sdProjectileVelocity) * ((Math.PI * Math.pow(R, 2)) / sdWidth);  // 2Pi*w
 		
 		// I'm choosing to model this as if the Spinning Death projectile is centered on (0, 0) and doesn't move, and a Grunt is moving through its damage area at the Projectile Velocity. It helps simplify the math a little bit.
-		double horizontalOffsetFromCenterForRepresentativeChord = (Math.sqrt(Math.pow(maxNumHitsDownDiameter, 2) - Math.pow(avgNumHitsDownChords, 2)) / maxNumHitsDownDiameter) * R; // 0.3095*w
+		double horizontalOffsetFromCenterForRepresentativeChord = 1.0;  // (Math.sqrt(Math.pow(maxNumHitsDownDiameter, 2) - Math.pow(avgNumHitsDownChords, 2)) / maxNumHitsDownDiameter) * R; // 0.3095*w
 		double representativeChordLength = 2.0 * Math.sqrt(Math.pow(R, 2));
 		double verticalOffsetForCenterOfGrunt = Math.sqrt(Math.pow(R + r, 2) - Math.pow(horizontalOffsetFromCenterForRepresentativeChord, 2));
 		
@@ -598,7 +591,7 @@ public class BreachCutter extends Weapon {
 		double dmgPerTick = getDamagePerTick();
 		double explosiveGoodbyeDmg = 0;
 		if (selectedTier5 == 0 && primaryTarget) {
-			explosiveGoodbyeDmg = 40.0;
+			explosiveGoodbyeDmg = 60.0;
 		}
 		
 		if (!ignoreStatusEffects) {
@@ -650,7 +643,7 @@ public class BreachCutter extends Weapon {
 		}
 		
 		double electrocuteDamage = 0;
-		if (selectedOverclock == 4) {
+		if (selectedOverclock == 0) {
 			double electrocuteDoTDuration;
 			if (extendDoTsBeyondIntersection) {
 				// OC "High Voltage Crossover" has an increased duration of 4 sec
@@ -710,11 +703,7 @@ public class BreachCutter extends Weapon {
 		double dmgPerMag = damagePerProjectileToSingleGrunt * getMagazineSize();
 		
 		double duration;
-		// Special case when OC "Spinning Death" is equipped and T1.B more mag size isn't equipped, the mag size is 1.
-		if (selectedOverclock == 5 && selectedTier1 != 1) {
-			duration = getReloadTime();
-		}
-		else if (burst) {
+		if (burst) {
 			duration = getMagazineSize() / getRateOfFire();
 		}
 		else {
@@ -732,7 +721,7 @@ public class BreachCutter extends Weapon {
 		}
 		
 		double electroDPS = 0;
-		if (selectedOverclock == 4) {
+		if (selectedOverclock == 0) {
 			// OC "High Voltage Crossover" has an increased damage of 4 dmg/tick
 			electroDPS = 4.0 * DoTInformation.Electro_TicksPerSec;
 		}
@@ -772,7 +761,7 @@ public class BreachCutter extends Weapon {
 		}
 		else {
 			// ArcticEcho recommended (width + 1) as an estimate for average number of enemies hit by a line simultaneously
-			numGruntsHitSimultaneouslyPerRow = (int) (width + 1);
+			numGruntsHitSimultaneouslyPerRow = (int) Math.floor(width + 1);
 		}
 		
 		int numRowsOfGruntsHitDuringProjectileLifetime = (int) Math.ceil((velocity / (4.0 * EnemyInformation.GlyphidGruntBodyAndLegsRadius)) * lifetime);
@@ -823,7 +812,7 @@ public class BreachCutter extends Weapon {
 		int maxNumTargets = calculateMaxNumTargets();
 		
 		// Slow
-		if (selectedOverclock == 4) {
+		if (selectedOverclock == 0) {
 			// OC "High Voltage Crossover" applies an Electrocute DoT that slows movement by 80% for 4 seconds
 			// This overrides the built-in 70% slow during intersection, instead of adding to it.
 			utilityScores[3] = maxNumTargets * 4.0 * UtilityInformation.Electrocute_Slow_Utility;
@@ -861,7 +850,7 @@ public class BreachCutter extends Weapon {
 				2. A hidden DoT that does 7 Fire + 7 Heat per tick, 2 ticks/sec, 5 sec duration (11 ticks)
 				3. 90% of the Dmg/Tick as Heat while intersecting enemies
 			*/
-			return EnemyInformation.averageTimeToIgnite(75, 0.9 * getDamagePerTick(), damageTickRate, 7.0 * 2);
+			return EnemyInformation.averageTimeToIgnite(75, 1.1 * getDamagePerTick(), damageTickRate, 7.0 * 2);
 		}
 		else {
 			return -1;
