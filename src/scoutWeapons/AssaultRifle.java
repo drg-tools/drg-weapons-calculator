@@ -57,8 +57,8 @@ public class AssaultRifle extends Weapon {
 		
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 15;
-		carriedAmmo = 350;
-		magazineSize =25;
+		carriedAmmo = 390;
+		magazineSize = 25;
 		rateOfFire = 7.0;
 		weakpointStunChance = 0.1;
 		stunDuration = 1.5;
@@ -84,23 +84,23 @@ public class AssaultRifle extends Weapon {
 	
 	@Override
 	protected void initializeModsAndOverclocks() {
-		tier1 = new Mod[2];
+		tier1 = new Mod[3];
 		tier1[0] = new Mod("Gyro Stabilisation", "x0 Base Spread", modIcons.baseSpread, 1, 0);
 		tier1[1] = new Mod("Supercharged Feed Mechanism", "+2 Rate of Fire", modIcons.rateOfFire, 1, 1);
+		tier1[2] = new Mod("High Capacity Magazine", "+15 Magazine Size", modIcons.magSize, 1, 2);
 		
 		tier2 = new Mod[2];
 		tier2[0] = new Mod("Increased Caliber Rounds", "+2 Direct Damage", modIcons.directDamage, 2, 0);
-		tier2[1] = new Mod("Expanded Ammo Bags", "+100 Max Ammo", modIcons.carriedAmmo, 2, 1);
+		tier2[1] = new Mod("Expanded Ammo Bags", "+60 Max Ammo", modIcons.carriedAmmo, 2, 1);
 		
-		tier3 = new Mod[3];
+		tier3 = new Mod[2];
 		tier3[0] = new Mod("Floating Barrel", "x0.5 Recoil", modIcons.recoil, 3, 0);
-		tier3[1] = new Mod("Improved Propellant", "+1 Direct Damage", modIcons.directDamage, 3, 1);
-		tier3[2] = new Mod("High Capacity Magazine", "+10 Magazine Size", modIcons.magSize, 3, 2);
+		tier3[1] = new Mod("Hardened Rounds", "+500% Armor Breaking", modIcons.armorBreaking, 3, 1);
 		
 		tier4 = new Mod[3];
 		tier4[0] = new Mod("Hollow-Point Bullets", "+20% Weakpoint Bonus", modIcons.weakpointBonus, 4, 0);
-		tier4[1] = new Mod("Hardened Rounds", "+500% Armor Breaking", modIcons.armorBreaking, 4, 1);
-		tier4[2] = new Mod("Improved Gas System", "+2 Rate of Fire", modIcons.rateOfFire, 4, 2);
+		tier4[1] = new Mod("Improved Propellant", "+2 Direct Damage", modIcons.directDamage, 4, 1);
+		tier4[2] = new Mod("Improved Gas System", "+1 Rate of Fire", modIcons.rateOfFire, 4, 2);
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Battle Frenzy", "After killing an enemy, gain +50% Movement Speed for 2.5 seconds", modIcons.movespeed, 5, 0);
@@ -108,14 +108,14 @@ public class AssaultRifle extends Weapon {
 		tier5[2] = new Mod("Stun", "+30% chance to Stun on Weakpoint hit", modIcons.stun, 5, 2);
 		
 		overclocks = new Overclock[7];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Ammo", "+5 Magazine Size, x0.7 Recoil", overclockIcons.magSize, 0);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Ammo", "+10 Magazine Size, x0.7 Recoil", overclockIcons.magSize, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Gas Rerouting", "+1 Rate of Fire, -0.3 Reload Time", overclockIcons.rateOfFire, 1);
-		overclocks[2] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, overclockIcons.homebrewPowder, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Overclocked Firing Mechanism", "+3 Rate of Fire, x2.5 Recoil", overclockIcons.rateOfFire, 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Bullets of Mercy", "+33% Damage dealt to enemies that are burning, electrocuted, poisoned, stunned, or frozen. In exchange, -5 Magazine Size", overclockIcons.directDamage, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "AI Stability Engine", "+40% Weakpoint Bonus, x0 Recoil, x2.11 Spread Recovery Speed, -2 Direct Damage, -2 Rate of Fire", overclockIcons.baseSpread, 5);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Light Machine Gun", "+20 Mag Size, +80 Max Ammo, +1 Rate of Fire, -3 Direct Damage", overclockIcons.magSize, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Overclocked Firing Mechanism", "+3 Rate of Fire, x2 Recoil, x0.75 Spread Recovery Speed", overclockIcons.rateOfFire, 3);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Bullets of Mercy", "+25% Damage dealt to enemies that are burning, electrocuted, poisoned, stunned, or frozen. In exchange, -5 Magazine Size", overclockIcons.directDamage, 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "AI Stability Engine", "x0 Recoil, x2.11 Spread Recovery Speed, +40% Weakpoint Bonus -2 Direct Damage, -2 Rate of Fire", overclockIcons.baseSpread, 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Electrifying Reload", "If any bullets from a magazine damage an enemy's healthbar, then those enemies will have an Electrocute DoT applied when that "
-				+ "magazine gets reloaded. Electrocute does an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per Second for 4 seconds. -3 Direct Damage, -5 Magazine Size", overclockIcons.specialReload, 6);
+				+ "magazine gets reloaded. Electrocute does an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per Second for 3 seconds. In exchange, -1 Direct Damage", overclockIcons.specialReload, 6);
 	}
 	
 	@Override
@@ -134,12 +134,12 @@ public class AssaultRifle extends Weapon {
 					combinationIsValid = false;
 				}
 			}
-			if (symbols[0] == 'C') {
-				System.out.println("Deepcore's first tier of mods only has two choices, so 'C' is an invalid choice.");
-				combinationIsValid = false;
-			}
 			if (symbols[1] == 'C') {
 				System.out.println("Deepcore's second tier of mods only has two choices, so 'C' is an invalid choice.");
+				combinationIsValid = false;
+			}
+			if (symbols[2] == 'C') {
+				System.out.println("Deepcore's third tier of mods only has two choices, so 'C' is an invalid choice.");
 				combinationIsValid = false;
 			}
 			List<Character> validOverclockSymbols = Arrays.asList(new Character[] {'1', '2', '3', '4', '5', '6', '7', '-'});
@@ -288,24 +288,21 @@ public class AssaultRifle extends Weapon {
 	private double getDirectDamage() {
 		double toReturn = directDamage;
 		
-		// First do additive bonuses
 		if (selectedTier2 == 0) {
 			toReturn += 2;
 		}
-		if (selectedTier3 == 1) {
-			toReturn += 1;
+		if (selectedTier4 == 1) {
+			toReturn += 2;
 		}
 		
-		if (selectedOverclock == 5) {
+		if (selectedOverclock == 2) {
+			toReturn -= 3;
+		}
+		else if (selectedOverclock == 5) {
 			toReturn -= 2;
 		}
 		else if (selectedOverclock == 6) {
-			toReturn -= 3;
-		}
-		
-		// Then do multiplicative bonuses
-		if (selectedOverclock == 2) {
-			toReturn *= homebrewPowderCoefficient;
+			toReturn -= 1;
 		}
 		
 		return toReturn;
@@ -314,7 +311,11 @@ public class AssaultRifle extends Weapon {
 		int toReturn = carriedAmmo;
 		
 		if (selectedTier2 == 1) {
-			toReturn += 100;
+			toReturn += 60;
+		}
+		
+		if (selectedOverclock == 2) {
+			toReturn += 80;
 		}
 		
 		return toReturn;
@@ -322,14 +323,17 @@ public class AssaultRifle extends Weapon {
 	private int getMagazineSize() {
 		int toReturn = magazineSize;
 		
-		if (selectedTier3 == 2) {
-			toReturn += 10;
+		if (selectedTier1 == 2) {
+			toReturn += 15;
 		}
 		
 		if (selectedOverclock == 0) {
-			toReturn += 5;
+			toReturn += 10;
 		}
-		else if (selectedOverclock == 4 || selectedOverclock == 6) {
+		else if (selectedOverclock == 2) {
+			toReturn += 20;
+		}
+		else if (selectedOverclock == 4) {
 			toReturn -= 5;
 		}
 		
@@ -343,10 +347,10 @@ public class AssaultRifle extends Weapon {
 			toReturn += 2.0;
 		}
 		if (selectedTier4 == 2) {
-			toReturn += 2.0;
+			toReturn += 1.0;
 		}
 		
-		if (selectedOverclock == 1) {
+		if (selectedOverclock == 1 || selectedOverclock == 2) {
 			toReturn += 1.0;
 		}
 		else if (selectedOverclock == 3) {
@@ -390,7 +394,7 @@ public class AssaultRifle extends Weapon {
 		return toReturn;
 	}
 	private double getArmorBreaking() {
-		if (selectedTier4 == 1) {
+		if (selectedTier3 == 1) {
 			return 6.0;
 		}
 		else {
@@ -406,30 +410,39 @@ public class AssaultRifle extends Weapon {
 		}
 	}
 	private double getSpreadRecoverySpeed() {
+		double toReturn = 1.0;
 		// I'm choosing to model it as if these two effects do not stack.
 		if (selectedOverclock == 5) {
 			return 2.11;
 		}
-		else if (selectedTier5 == 1) {
+		
+		if (selectedTier5 == 1) {
 			// According to the MikeGSG, Battle Cool increases Spread Recovery Speed by x12.5 for 1.5 seconds after a kill.
-			return averageBonusPerMagazineForShortEffects(12.5, 1.5, true, 0.0, getMagazineSize(), getRateOfFire());
+			toReturn *= averageBonusPerMagazineForShortEffects(12.5, 1.5, true, 0.0, getMagazineSize(), getRateOfFire());
 		}
-		else {
-			return 1.0;
+		if (selectedOverclock == 3){
+			toReturn *= 0.75;
 		}
+		
+		return toReturn;
 	}
 	private double getSpreadRecoverySpeedValue() {
+		double toReturn = 8.1;
 		// I'm choosing to model it as if these two effects do not stack.
 		if (selectedOverclock == 5) {
 			return 17.1;
 		}
-		else if (selectedTier5 == 1) {
+		
+		if (selectedOverclock == 3){
+			toReturn -= 2.0;
+		}
+		
+		if (selectedTier5 == 1) {
 			// According to the MikeGSG, Battle Cool increases Spread Recovery Speed by x12.5 for 1.5 seconds after a kill.
-			return 8.1 * averageBonusPerMagazineForShortEffects(12.5, 1.5, true, 0.0, getMagazineSize(), getRateOfFire());
+			toReturn *= averageBonusPerMagazineForShortEffects(12.5, 1.5, true, 0.0, getMagazineSize(), getRateOfFire());
 		}
-		else {
-			return 8.1;
-		}
+		
+		return toReturn;
 	}
 	private double getRecoil() {
 		double toReturn = 1.0;
@@ -442,7 +455,7 @@ public class AssaultRifle extends Weapon {
 			toReturn *= 0.7;
 		}
 		else if (selectedOverclock == 3) {
-			toReturn *= 2.5;
+			toReturn *= 2.0;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn *= 0;
@@ -455,22 +468,22 @@ public class AssaultRifle extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[12];
 		
-		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 || selectedOverclock == 2 || selectedOverclock == 5 || selectedOverclock == 6;
+		boolean directDamageModified = selectedTier2 == 0 || selectedTier4 == 1 || selectedOverclock == 2 || selectedOverclock == 5 || selectedOverclock == 6;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
-		boolean magSizeModified = selectedTier3 == 2 || selectedOverclock == 0 || selectedOverclock == 4 || selectedOverclock == 6;
+		boolean magSizeModified = selectedTier1 == 2 || selectedOverclock == 0 || selectedOverclock == 2 || selectedOverclock == 4;
 		toReturn[1] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, magSizeModified);
 		
-		toReturn[2] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, selectedTier2 == 1);
+		toReturn[2] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, selectedTier2 == 1 || selectedOverclock == 2);
 		
-		boolean rofModified = selectedTier1 == 1 || selectedTier4 == 2 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
+		boolean rofModified = selectedTier1 == 1 || selectedTier4 == 2 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[3] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, rofModified);
 		
 		toReturn[4] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 1);
 		
 		toReturn[5] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedTier4 == 0 || selectedOverclock == 5);
 		
-		toReturn[6] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier4 == 1, selectedTier4 == 1);
+		toReturn[6] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier3 == 1, selectedTier3 == 1);
 		
 		toReturn[7] = new StatsRow("Weakpoint Stun Chance:", convertDoubleToPercentage(getWeakpointStunChance()), modIcons.homebrewPowder, selectedTier5 == 2);
 		
@@ -478,7 +491,7 @@ public class AssaultRifle extends Weapon {
 		
 		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, selectedTier1 == 0, selectedTier1 == 0);
 		
-		boolean SRSmodified = selectedTier5 == 1 || selectedOverclock == 5;
+		boolean SRSmodified = selectedTier5 == 1 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[10] = new StatsRow("Spread Recovery:", convertDoubleToPercentage(getSpreadRecoverySpeed()), modIcons.baseSpread, SRSmodified, SRSmodified);
 		
 		boolean recoilModified = selectedTier3 == 0 || selectedOverclock == 0 || selectedOverclock == 3 || selectedOverclock == 5;
@@ -534,7 +547,7 @@ public class AssaultRifle extends Weapon {
 		
 		// Bullets of Mercy OC damage increase
 		if (selectedOverclock == 4) {
-			double BoMDamageMultiplier = 1.33;
+			double BoMDamageMultiplier = 1.25;
 			if (statusEffects[0] || statusEffects[1] || statusEffects[2] || statusEffects[3]) {
 				directDamage *= BoMDamageMultiplier;
 			}
