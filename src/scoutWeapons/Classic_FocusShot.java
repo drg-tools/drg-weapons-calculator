@@ -59,14 +59,15 @@ public class Classic_FocusShot extends Classic {
 		double toReturn = carriedAmmo;
 		
 		if (selectedTier1 == 0) {
-			toReturn += 32;
+			toReturn += 24;
 		}
 		
-		if (selectedOverclock == 1) {
+		if (selectedTier3 == 1) {
 			toReturn += 16;
 		}
-		else if (selectedOverclock == 3) {
-			toReturn += 72;
+		
+		if (selectedOverclock == 3) {
+			toReturn *= 1.5;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn *= 0.635;
@@ -80,8 +81,12 @@ public class Classic_FocusShot extends Classic {
 	protected int getMagazineSize() {
 		int toReturn = magazineSize;
 		
-		if (selectedTier3 == 1) {
-			toReturn += 6;
+		if (selectedTier4 == 2) {
+			toReturn += 4;
+		}
+		
+		if (selectedOverclock == 1) {
+			toReturn += 2;
 		}
 		
 		// Divide by 2 to account for firing two ammo per focused shot
@@ -90,43 +95,45 @@ public class Classic_FocusShot extends Classic {
 	@Override
 	protected double getRateOfFire() {
 		// Because the max RoF will never be achieved with Focus Shots, instead model the RoF as the inverse of the Focus Duration
-		return 1.0 / (getFocusDelay() + getFocusDuration());
+		double baseRoF = rateOfFire;
+		if (selectedOverclock == 3) {
+			baseRoF += 2;
+		}
+		return 1.0 / ((1.0/baseRoF) + getFocusDuration());
 	}
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[14];
+		StatsRow[] toReturn = new StatsRow[13];
 		
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, selectedOverclock == 3 || selectedTier1 == 1);
 		
-		boolean multiplierModified = selectedTier3 == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
+		boolean multiplierModified = selectedTier3 == 0 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[1] = new StatsRow("Focused Shot Multiplier:", convertDoubleToPercentage(getFocusedShotMultiplier()), modIcons.directDamage, multiplierModified);
 		
-		toReturn[2] = new StatsRow("Delay Before Focusing:", getFocusDelay(), modIcons.duration, selectedOverclock == 3);
+		toReturn[2] = new StatsRow("Focus Shot Charge-up Duration:", getFocusDuration(), modIcons.chargeSpeed, selectedTier2 == 0 || selectedOverclock == 2 || selectedOverclock == 5);
 		
-		toReturn[3] = new StatsRow("Focus Shot Charge-up Duration:", getFocusDuration(), modIcons.chargeSpeed, selectedTier2 == 0 || selectedOverclock == 5);
+		toReturn[3] = new StatsRow("Clip Size:", getMagazineSize(), modIcons.magSize, selectedTier4 == 2 || selectedOverclock == 1);
 		
-		toReturn[4] = new StatsRow("Clip Size:", getMagazineSize(), modIcons.magSize, selectedTier3 == 1);
+		boolean carriedAmmoModified = selectedTier1 == 0 || selectedTier3 == 1 || selectedOverclock == 3 || selectedOverclock == 5;
+		toReturn[4] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
-		boolean carriedAmmoModified = selectedTier1 == 0 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
-		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
+		toReturn[5] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier2 == 0 || selectedOverclock == 2 || selectedOverclock == 3 || selectedOverclock == 5);
 		
-		toReturn[6] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier2 == 0 || selectedOverclock == 5);
+		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier5 == 2 || selectedOverclock == 2 || selectedOverclock == 3);
 		
-		toReturn[7] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier5 == 2 || selectedOverclock == 1);
+		toReturn[7] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedTier4 == 1 || selectedOverclock == 1);
 		
-		toReturn[8] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedTier4 == 1);
+		toReturn[8] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier2 == 2);
 		
-		toReturn[9] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier4 == 2);
+		toReturn[9] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, selectedTier5 == 0, selectedTier5 == 0);
 		
-		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, selectedTier5 == 0, selectedTier5 == 0);
-		
-		toReturn[11] = new StatsRow("Max Penetrations:", getMaxPenetrations(), modIcons.blowthrough, selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[10] = new StatsRow("Max Penetrations:", getMaxPenetrations(), modIcons.blowthrough, selectedTier4 == 0, selectedTier4 == 0);
 		
 		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 3;
-		toReturn[12] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), modIcons.recoil, recoilModified, recoilModified);
+		toReturn[11] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), modIcons.recoil, recoilModified, recoilModified);
 		
-		toReturn[13] = new StatsRow("Movespeed While Focusing: (m/sec)", getMovespeedWhileFocusing(), modIcons.movespeed, selectedOverclock == 2 || selectedOverclock == 5);
+		toReturn[12] = new StatsRow("Movespeed While Focusing: (m/sec)", getMovespeedWhileFocusing(), modIcons.movespeed, selectedOverclock == 2 || selectedOverclock == 5);
 		
 		return toReturn;
 	}
