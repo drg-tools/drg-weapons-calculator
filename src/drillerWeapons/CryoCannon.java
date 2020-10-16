@@ -89,8 +89,8 @@ public class CryoCannon extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
-		tier1[0] = new Mod("Larger Pressure Chamber", "x0.5 Pressure Drop Rate", modIcons.magSize, 1, 0);
-		tier1[1] = new Mod("Improved Pump", "x1.7 Pressure Gain Rate", modIcons.chargeSpeed, 1, 1);
+		tier1[0] = new Mod("Larger Pressure Chamber", "x0.65 Pressure Drop Rate", modIcons.magSize, 1, 0);
+		tier1[1] = new Mod("Improved Pump", "x1.8 Pressure Gain Rate", modIcons.chargeSpeed, 1, 1);
 		tier1[2] = new Mod("Increased Flow Volume", "+1.6 Flow Rate", modIcons.rateOfFire, 1, 2);
 		
 		tier2 = new Mod[3];
@@ -104,7 +104,7 @@ public class CryoCannon extends Weapon {
 		
 		tier4 = new Mod[3];
 		tier4[0] = new Mod("High Water Content", "+3 Damage per Particle", modIcons.directDamage, 4, 0);
-		tier4[1] = new Mod("Overclocked Ejection Turbine", "+8m Cold Stream Reach", modIcons.distance, 4, 1);
+		tier4[1] = new Mod("Overclocked Ejection Turbine", "+5m Cold Stream Reach", modIcons.distance, 4, 1);
 		tier4[2] = new Mod("Larger Reserve Tank", "+150 Tank Size", modIcons.carriedAmmo, 4, 2);
 		
 		tier5 = new Mod[2];
@@ -348,7 +348,7 @@ public class CryoCannon extends Weapon {
 		double modifier = 1.0;
 		
 		if (selectedTier1 == 0) {
-			modifier *= 0.33;
+			modifier *= 0.65;
 		}
 		
 		if (selectedOverclock == 0) {
@@ -386,7 +386,7 @@ public class CryoCannon extends Weapon {
 		double modifier = 1.0;
 		
 		if (selectedTier1 == 1) {
-			modifier *= 1.7;
+			modifier *= 1.8;
 		}
 		
 		return modifier;
@@ -395,7 +395,7 @@ public class CryoCannon extends Weapon {
 		double toReturn = coldStreamReach;
 		
 		if (selectedTier4 == 1) {
-			toReturn += 8;
+			toReturn += 5;
 		}
 		
 		return toReturn;

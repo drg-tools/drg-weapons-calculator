@@ -96,7 +96,7 @@ public class Flamethrower extends Weapon {
 		
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("High Capacity Tanks", "+25 Tank Size", modIcons.magSize, 2, 0);
-		tier2[1] = new Mod("Oversized Valves", "+1.8 Flow Rate", modIcons.rateOfFire, 2, 1);
+		tier2[1] = new Mod("Oversized Valves", "+0.9 Flow Rate", modIcons.rateOfFire, 2, 1);
 		tier2[2] = new Mod("Sticky Flame Slowdown", "+20% Sticky Flames Slow", modIcons.slowdown, 2, 2);
 		
 		tier3 = new Mod[3];
@@ -113,9 +113,9 @@ public class Flamethrower extends Weapon {
 		tier5[1] = new Mod("Targets Explode", "If the direct stream kills an enemy, there's a 50% chance that they will explode and deal 55 Fire Damage and 55 Heat Damage to all enemies within a 3m radius.", modIcons.addedExplosion, 5, 1, false);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Lighter Tanks", "+75 Max Fuel, -0.5 Reload", overclockIcons.carriedAmmo, 0);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Lighter Tanks", "+75 Max Fuel, -1 Reload", overclockIcons.carriedAmmo, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Sticky Additive", "+2 Damage per Particle, +3 sec Sticky Flame duration", overclockIcons.hourglass, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Fuel Stream Diffuser", "+5m Flame Reach, +1.2 Flow Rate, -75 Ammo", overclockIcons.distance, 2);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Fuel Stream Diffuser", "+5m Flame Reach, +1.5 Flow Rate, -75 Ammo", overclockIcons.distance, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Face Melter", "+5 Damage per Particle, -25 Tank Size, x0.3 Heat per Particle", overclockIcons.directDamage, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Sticky Flame Damage", "+5 Sticky Flame Damage/Tick, +4 sec Sticky Flame Duration, -20% Sticky Flame Slow, -25 Tank Size", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Sticky Flame Crowd Control", "+30% Sticky Flame Slow, +4 sec Sticky Flame Duration, -5 Sticky Flame Damage/Tick, -1.2 Flow Rate", overclockIcons.slowdown, 5);
@@ -352,11 +352,11 @@ public class Flamethrower extends Weapon {
 		double toReturn = flowRate;
 		
 		if (selectedTier2 == 1) {
-			toReturn += 1.8;
+			toReturn += 0.9;
 		}
 		
 		if (selectedOverclock == 2) {
-			toReturn += 1.2;
+			toReturn += 1.5;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn -= 1.2;
@@ -368,7 +368,7 @@ public class Flamethrower extends Weapon {
 		double toReturn = reloadTime;
 		
 		if (selectedOverclock == 0) {
-			toReturn -= 0.5;
+			toReturn -= 1.0;
 		}
 		
 		return toReturn;
