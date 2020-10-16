@@ -66,9 +66,9 @@ public class Boomstick extends Weapon {
 		
 		// Base stats, before mods or overclocks alter them:
 		damagePerPellet = 12;
-		numberOfPellets = 8;
+		numberOfPellets = 9;
 		frontalConeDamage = 20;
-		carriedAmmo = 24;
+		carriedAmmo = 22;
 		magazineSize = 2;
 		rateOfFire = 1.5;
 		reloadTime = 2.0;
@@ -96,37 +96,37 @@ public class Boomstick extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Expanded Ammo Bags", "+8 Max Ammo", modIcons.carriedAmmo, 1, 0);
-		tier1[1] = new Mod("Double-Sized Buckshot", "+3 Damage per Pellet", modIcons.directDamage, 1, 1);
+		tier1[0] = new Mod("Expanded Ammo Bags", "+9 Max Ammo", modIcons.carriedAmmo, 1, 0);
+		tier1[1] = new Mod("Double-Sized Buckshot", "+4 Damage per Pellet", modIcons.directDamage, 1, 1);
 		
 		tier2 = new Mod[2];
-		tier2[0] = new Mod("Double Trigger", "+7.5 Rate of Fire", modIcons.rateOfFire, 2, 0);
+		tier2[0] = new Mod("Double Trigger", "+1.7 Rate of Fire", modIcons.rateOfFire, 2, 0);
 		tier2[1] = new Mod("Quickfire Ejector", "-0.7 Reload Time", modIcons.reloadSpeed, 2, 1);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Stun Duration", "+2.5 seconds Stun duration", modIcons.stun, 3, 0);
-		tier3[1] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", modIcons.carriedAmmo, 3, 1);
+		tier3[0] =  new Mod("Blowthrough Rounds", "+1 Penetration", modIcons.blowthrough, 3, 0);
+		tier3[1] = new Mod("Expanded Ammo Bags", "+9 Max Ammo", modIcons.carriedAmmo, 3, 1);
 		tier3[2] = new Mod("High Capacity Shells", "+3 Pellets per Shot", modIcons.pelletsPerShot, 3, 2);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Super Blowthrough Rounds", "+3 Penetrations", modIcons.blowthrough, 4, 0);
+		tier4[0] =new Mod("Stun Duration", "+2.5 seconds Stun duration", modIcons.stun, 4, 0);
 		tier4[1] = new Mod("Tungsten Coated Buckshot", "+300% Armor Breaking", modIcons.armorBreaking, 4, 1);
-		tier4[2] = new Mod("Improved Blast Wave", "+20 Blastwave Damage to any enemies in the area extending 4m infront of you.", modIcons.special, 4, 2);
+		tier4[2] = new Mod("Improved Blast Wave", "+10 Blastwave Damage to any enemies in the area extending 4m infront of you.", modIcons.special, 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Auto Reload", "Reloads automatically when unequipped for more than 5 seconds", modIcons.reloadSpeed, 5, 0, false);
+		tier5[0] = new Mod("Auto Reload", "Reloads automatically when unequipped for more than 4 seconds", modIcons.reloadSpeed, 5, 0, false);
 		tier5[1] = new Mod("Fear The Boomstick", "Deal 0.5 Fear to all enemies within 5m of you every time you pull the trigger", modIcons.fear, 5, 1);
 		tier5[2] = new Mod("White Phosphorous Shells", "Convert 50% of Pellet and Blastwave damage to Fire Damage and add 50% of the Damage per Pellet as Heat Damage, which can ignite enemies. "
 				+ "Burn DoT does an average of " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Shells", "+6 Max Ammo, -0.2 Reload Time", overclockIcons.carriedAmmo, 0);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Shells", "+4 Max Ammo, +0.5 Rate of Fire", overclockIcons.carriedAmmo, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Double Barrel", "Fire both barrels with a single tigger pull. As a result, both Magazine Size and Max Ammo are effectively halved, while the "
-				+ "number of Pellets per Shot gets doubled. Additionally, +1 Damage per Pellet.", overclockIcons.rateOfFire, 1);
-		overclocks[2] = new Overclock(Overclock.classification.clean, "Special Powder", "Jump off of the ground and fire the shotgun to \"blast jump\" around the caves for increased mobility.", overclockIcons.shotgunJump, 2);
-		overclocks[3] = new Overclock(Overclock.classification.clean, "Stuffed Shells", "+1 Damage per Pellet, +1 Pellet per Shot", overclockIcons.pelletsPerShot, 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "-35% Base Spread, -2 Pellets per Shot", overclockIcons.baseSpread, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Jumbo Shells", "+8 Damage per Pellet, -10 Max Ammo, +0.5 Reload Time", overclockIcons.directDamage, 5);
+				+ "number of Pellets per Shot gets doubled. Additionally, x2 Blastwave Damage and -0.1 Reload.", overclockIcons.rateOfFire, 1);
+		overclocks[2] = new Overclock(Overclock.classification.clean, "Stuffed Shells", "+1 Damage per Pellet, +1 Pellet per Shot", overclockIcons.pelletsPerShot, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Special Powder", "Jump off of the ground and fire the shotgun to \"blast jump\" around the caves for increased mobility. In exchange, -20 Blastwave Damage.", overclockIcons.shotgunJump, 3);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "-45% Base Spread, -2 Pellets per Shot", overclockIcons.baseSpread, 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Jumbo Shells", "+7 Damage per Pellet, -7 Max Ammo, +0.8 Reload Time", overclockIcons.directDamage, 5);
 	}
 	
 	@Override
@@ -296,14 +296,14 @@ public class Boomstick extends Weapon {
 		int toReturn = damagePerPellet;
 		
 		if (selectedTier1 == 1) {
-			toReturn += 3;
+			toReturn += 4;
 		}
 		
-		if (selectedOverclock == 1 || selectedOverclock == 3) {
+		if (selectedOverclock == 2) {
 			toReturn += 1;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn += 8;
+			toReturn += 7;
 		}
 		
 		return toReturn;
@@ -318,7 +318,7 @@ public class Boomstick extends Weapon {
 		if (selectedOverclock == 1) {
 			toReturn *= 2;
 		}
-		else if (selectedOverclock == 3) {
+		else if (selectedOverclock == 2) {
 			toReturn += 1;
 		}
 		else if (selectedOverclock == 4) {
@@ -333,7 +333,14 @@ public class Boomstick extends Weapon {
 		int toReturn = frontalConeDamage;
 		
 		if (selectedTier4 == 2) {
-			toReturn += 20;
+			toReturn += 10;
+		}
+		
+		if (selectedOverclock == 1) {
+			toReturn *= 2;
+		}
+		else if (selectedOverclock == 3) {
+			toReturn -= 20;
 		}
 		
 		return toReturn;
@@ -351,21 +358,21 @@ public class Boomstick extends Weapon {
 		int toReturn = carriedAmmo;
 		
 		if (selectedTier1 == 0) {
-			toReturn += 8;
+			toReturn += 9;
 		}
 		if (selectedTier3 == 1) {
-			toReturn += 12;
+			toReturn += 9;
 		}
 		
 		if (selectedOverclock == 0) {
-			toReturn += 6;
+			toReturn += 4;
 		}
 		else if (selectedOverclock == 1) {
 			// For the math of Double Barrel to work out correctly, the Carried Ammo should be halved since it fires 2 ammo per shot.
 			toReturn /= 2;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn -= 10;
+			toReturn -= 7;
 		}
 		
 		return toReturn;
@@ -374,7 +381,11 @@ public class Boomstick extends Weapon {
 		double toReturn = rateOfFire;
 		
 		if (selectedTier2 == 0) {
-			toReturn += 7.5;
+			toReturn += 1.7;
+		}
+		
+		if (selectedOverclock == 0) {
+			toReturn += 0.5;
 		}
 		
 		return toReturn;
@@ -386,11 +397,11 @@ public class Boomstick extends Weapon {
 			toReturn -= 0.7;
 		}
 		
-		if (selectedOverclock == 0) {
-			toReturn -= 0.2;
+		if (selectedOverclock == 1) {
+			toReturn -= 0.1;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn += 0.5;
+			toReturn += 0.8;
 		}
 		
 		return toReturn;
@@ -398,15 +409,15 @@ public class Boomstick extends Weapon {
 	private double getStunDuration() {
 		double toReturn = stunDuration;
 		
-		if (selectedTier3 == 0) {
+		if (selectedTier4 == 0) {
 			toReturn += 2.5;
 		}
 		
 		return toReturn;
 	}
 	private int getMaxPenetrations() {
-		if (selectedTier4 == 0) {
-			return 3;
+		if (selectedTier3 == 0) {
+			return 1;
 		}
 		else {
 			return 0;
@@ -422,7 +433,7 @@ public class Boomstick extends Weapon {
 	}
 	private double getBaseSpread() {
 		if (selectedOverclock == 4) {
-			return 0.65;
+			return 0.55;
 		}
 		else {
 			return 1.0;
@@ -433,22 +444,22 @@ public class Boomstick extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[13];
 		
-		boolean damageModified = selectedTier1 == 1 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
+		boolean damageModified = selectedTier1 == 1 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Damage per Pellet:", getDamagePerPellet(), modIcons.directDamage, damageModified);
 		
-		boolean pelletsModified = selectedTier3 == 2 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 4;
+		boolean pelletsModified = selectedTier3 == 2 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 4;
 		toReturn[1] = new StatsRow("Number of Pellets/Shot:", getNumberOfPellets(), modIcons.pelletsPerShot, pelletsModified);
 		
-		toReturn[2] = new StatsRow("Blastwave Damage:", getBlastwaveDamage(), modIcons.areaDamage, selectedTier4 == 2);
+		toReturn[2] = new StatsRow("Blastwave Damage:", getBlastwaveDamage(), modIcons.areaDamage, selectedTier4 == 2 || selectedOverclock == 3);
 		
 		toReturn[3] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, selectedOverclock == 1);
 		
 		boolean carriedAmmoModified = selectedTier1 == 0 || selectedTier3 == 1 || selectedOverclock == 0 || selectedOverclock == 1 || selectedOverclock == 5;
 		toReturn[4] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
-		toReturn[5] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier2 == 0);
+		toReturn[5] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier2 == 0 || selectedOverclock == 0);
 		
-		boolean reloadTimeModified = selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock == 5;
+		boolean reloadTimeModified = selectedTier2 == 1 || selectedOverclock == 1 || selectedOverclock == 5;
 		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, reloadTimeModified);
 		
 		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier4 == 1, selectedTier4 == 1);
@@ -457,9 +468,9 @@ public class Boomstick extends Weapon {
 		
 		toReturn[9] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(stunChance), modIcons.homebrewPowder, false);
 		
-		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, selectedTier3 == 0);
+		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, selectedTier4 == 0);
 		
-		toReturn[11] = new StatsRow("Max Penetrations:", getMaxPenetrations(), modIcons.blowthrough, selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[11] = new StatsRow("Max Penetrations:", getMaxPenetrations(), modIcons.blowthrough, selectedTier3 == 0, selectedTier3 == 0);
 		
 		toReturn[12] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, selectedOverclock == 4, selectedOverclock == 4);
 		
@@ -587,7 +598,7 @@ public class Boomstick extends Weapon {
 	public double calculateAdditionalTargetDPS() {
 		int magSize = getMagazineSize();
 		double secondaryDamagePerShot;
-		if (selectedTier4 == 0) {
+		if (selectedTier3 == 0) {
 			secondaryDamagePerShot = getDamagePerPellet() * getNumberOfPellets() + getBlastwaveDamage();
 		}
 		else {
@@ -604,7 +615,7 @@ public class Boomstick extends Weapon {
 		}
 		
 		// Penetrations can ignite, too
-		if (selectedTier4 == 0 && selectedTier5 == 2) {
+		if (selectedTier3 == 0 && selectedTier5 == 2) {
 			additionalDPS += DoTInformation.Burn_DPS;
 		}
 		
