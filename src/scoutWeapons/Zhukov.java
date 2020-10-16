@@ -50,8 +50,8 @@ public class Zhukov extends Weapon {
 		weaponPic = WeaponPictures.zhukovs;
 		
 		// Base stats, before mods or overclocks alter them:
-		directDamage = 11;
-		carriedAmmo = 600;
+		directDamage = 12;
+		carriedAmmo = 680;
 		magazineSize = 50;  // Really 25
 		rateOfFire = 30.0;  // Really 15
 		reloadTime = 1.8;
@@ -77,36 +77,35 @@ public class Zhukov extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Expanded Ammo Bags", "+75 Max Ammo", modIcons.carriedAmmo, 1, 0);
+		tier1[0] = new Mod("Hollow-Point Bullets", "+15% Weakpoint Bonus", modIcons.weakpointBonus, 1, 0);
 		tier1[1] = new Mod("High Velocity Rounds", "+1 Direct Damage", modIcons.directDamage, 1, 1);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("High Capacity Magazine", "+10 Magazine Size", modIcons.magSize, 2, 0);
+		tier2[0] = new Mod("High Capacity Magazine", "+12 Magazine Size", modIcons.magSize, 2, 0);
 		tier2[1] = new Mod("Supercharged Feed Mechanism", "+8 Rate of Fire", modIcons.rateOfFire, 2, 1);
-		tier2[2] = new Mod("Quickfire Ejector", "-0.6 Reload Time", modIcons.reloadSpeed, 2, 2);
+		tier2[2] = new Mod("Quickfire Ejector", "-0.35 Reload Time", modIcons.reloadSpeed, 2, 2);
 		
 		tier3 = new Mod[2];
-		tier3[0] = new Mod("Increased Caliber Rounds", "+2 Direct Damage", modIcons.directDamage, 3, 0);
+		tier3[0] = new Mod("Increased Caliber Rounds", "+1 Direct Damage", modIcons.directDamage, 3, 0);
 		tier3[1] = new Mod("Better Weight Balance", "x0.5 Base Spread", modIcons.baseSpread, 3, 1);
 		
-		tier4 = new Mod[3];
+		tier4 = new Mod[2];
 		tier4[0] = new Mod("Blowthrough Rounds", "+1 Penetration", modIcons.blowthrough, 4, 0);
-		tier4[1] = new Mod("Hollow-Point Bullets", "+30% Weakpoint Bonus", modIcons.weakpointBonus, 4, 1);
-		tier4[2] = new Mod("Expanded Ammo Bags", "+150 Max Ammo", modIcons.carriedAmmo, 4, 2);
+		tier4[1] = new Mod("Expanded Ammo Bags", "+170 Max Ammo", modIcons.carriedAmmo, 4, 1);
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Conductive Bullets", "+30% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 5, 0);
 		tier5[1] = new Mod("Get In, Get Out", "+50% Movement Speed for 2.5 seconds after reloading an empty magazine", modIcons.movespeed, 5, 1);
 		
 		overclocks = new Overclock[5];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Minimal Magazines", "+2 Rate of Fire, -0.4 Reload Time", overclockIcons.reloadSpeed, 0);
-		overclocks[1] = new Overclock(Overclock.classification.balanced, "Custom Casings", "+30 Mag Size, -1 Direct Damage", overclockIcons.magSize, 1);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Minimal Magazines", "+2 Rate of Fire, +50 Max Ammo", overclockIcons.carriedAmmo, 0);
+		overclocks[1] = new Overclock(Overclock.classification.balanced, "Custom Casings", "+40 Mag Size, -1 Direct Damage", overclockIcons.magSize, 1);
 		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "Any bullets that impact terrain get converted to Cryo Minelets. It takes 0.1 seconds to form the minelets, "
 				+ "0.8 seconds to arm them, and they only last for 3 seconds after being armed. If an enemy passes within 1.5m of a minelet, it will detonate and deal 10 Cold Damage to all enemies "
-				+ "within range. In exchange, -1 Direct Damage and -10 Magazine Size.", overclockIcons.coldDamage, 2);
+				+ "within range. In exchange, -2 Direct Damage and -12 Magazine Size.", overclockIcons.coldDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 10 Kinetic Damage to the enemy "
-				+ "upon reloading. -3 Direct Damage, -75 Max Ammo.", overclockIcons.specialReload, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Gas Recycling", "+5 Direct Damage, but it can no longer gain bonus damage from hitting a Weakpoint. Additionally, x1.5 Base Spread "
+				+ "upon reloading. -3 Direct Damage, -80 Max Ammo.", overclockIcons.specialReload, 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Gas Recycling", "+4 Direct Damage, but it can no longer gain bonus damage from hitting a Weakpoint. Additionally, x1.5 Base Spread "
 				+ "and -50% Movement Speed while firing.", overclockIcons.directDamage, 4);
 	}
 	
@@ -132,6 +131,10 @@ public class Zhukov extends Weapon {
 			}
 			if (symbols[2] == 'C') {
 				System.out.println("Zhukov's third tier of mods only has two choices, so 'C' is an invalid choice.");
+				combinationIsValid = false;
+			}
+			if (symbols[3] == 'C') {
+				System.out.println("Zhukov's fourth tier of mods only has two choices, so 'C' is an invalid choice.");
 				combinationIsValid = false;
 			}
 			if (symbols[4] == 'C') {
@@ -276,17 +279,20 @@ public class Zhukov extends Weapon {
 			toReturn += 1;
 		}
 		if (selectedTier3 == 0) {
-			toReturn += 2;
+			toReturn += 1;
 		}
 		
-		if (selectedOverclock == 1 || selectedOverclock == 2) {
+		if (selectedOverclock == 1) {
 			toReturn -= 1;
+		}
+		else if (selectedOverclock == 2) {
+			toReturn -= 2;
 		}
 		else if (selectedOverclock == 3) {
 			toReturn -= 3;
 		}
 		else if (selectedOverclock == 4) {
-			toReturn += 5;
+			toReturn += 4;
 		}
 		
 		return toReturn;
@@ -303,15 +309,15 @@ public class Zhukov extends Weapon {
 	private int getCarriedAmmo() {
 		int toReturn = carriedAmmo;
 		
-		if (selectedTier1 == 0) {
-			toReturn += 75;
-		}
-		if (selectedTier4 == 2) {
-			toReturn += 150;
+		if (selectedTier4 == 1) {
+			toReturn += 170;
 		}
 		
-		if (selectedOverclock == 3) {
-			toReturn -= 75;
+		if (selectedOverclock == 0) {
+			toReturn += 50;
+		}
+		else if (selectedOverclock == 3) {
+			toReturn -= 80;
 		}
 		
 		return toReturn;
@@ -320,14 +326,14 @@ public class Zhukov extends Weapon {
 		int toReturn = magazineSize;
 		
 		if (selectedTier2 == 0) {
-			toReturn += 10;
+			toReturn += 12;
 		}
 		
 		if (selectedOverclock == 1) {
-			toReturn += 30;
+			toReturn += 40;
 		}
 		else if (selectedOverclock == 2) {
-			toReturn -= 10;
+			toReturn -= 12;
 		}
 		
 		return toReturn;
@@ -349,11 +355,7 @@ public class Zhukov extends Weapon {
 		double toReturn = reloadTime;
 		
 		if (selectedTier2 == 2) {
-			toReturn -= 0.6;
-		}
-		
-		if (selectedOverclock == 0) {
-			toReturn -= 0.4;
+			toReturn -= 0.35;
 		}
 		
 		return toReturn;
@@ -384,7 +386,7 @@ public class Zhukov extends Weapon {
 			// Since this removes the Zhukov's ability to get weakpoint bonus damage, return a -100% to symbolize it.
 			return -1.0;
 		}
-		else if (selectedTier4 == 1){
+		else if (selectedTier1 == 0){
 			return 0.3;
 		}
 		else {
@@ -414,19 +416,19 @@ public class Zhukov extends Weapon {
 		boolean magSizeModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2;
 		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, magSizeModified);
 		
-		boolean carriedAmmoModified = selectedTier1 == 0 || selectedTier4 == 2 || selectedOverclock == 3;
+		boolean carriedAmmoModified = selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 3;
 		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
 		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier2 == 1 || selectedOverclock == 0);
 		
-		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier2 == 2 || selectedOverclock == 0);
+		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier2 == 2);
 		
 		String sign = "";
 		if (selectedOverclock != 4) {
 			sign = "+";
 		}
 		
-		boolean weakpointModified = selectedTier4 == 1 || selectedOverclock == 4;
+		boolean weakpointModified = selectedTier1 == 0 || selectedOverclock == 4;
 		toReturn[6] = new StatsRow("Weakpoint Bonus:", sign + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, weakpointModified, weakpointModified);
 		
 		toReturn[7] = new StatsRow("Max Penetrations:", getMaxPenetrations(), modIcons.blowthrough, selectedTier4 == 0, selectedTier4 == 0);
