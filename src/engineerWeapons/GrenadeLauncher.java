@@ -485,7 +485,7 @@ public class GrenadeLauncher extends Weapon {
 		toReturn[6] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		toReturn[7] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 2);
 		
-		toReturn[8] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier3 == 1 || selectedTier5 == 2);
+		toReturn[8] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier3 == 1 || selectedTier5 == 2, selectedTier3 == 1 || selectedTier5 == 2);
 		
 		toReturn[9] = new StatsRow("Fear Factor:", getFearFactor(), modIcons.fear, selectedTier4 == 0);
 		

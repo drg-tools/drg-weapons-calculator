@@ -455,6 +455,7 @@ public class Boomstick extends Weapon {
 		// Only display this row when OC "Double Barrel" is equipped
 		toReturn[3] = new StatsRow("Burst Size:", getBurstSize(), modIcons.rateOfFire, selectedOverclock == 1, selectedOverclock == 1);
 		
+
 		toReturn[4] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, false);
 		
 		boolean carriedAmmoModified = selectedTier1 == 0 || selectedTier3 == 1 || selectedOverclock == 0 || selectedOverclock == 5;

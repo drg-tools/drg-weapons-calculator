@@ -494,7 +494,7 @@ public class Subata extends Weapon {
 		toReturn[10] = new StatsRow("Weakpoint Chain Hit Chance:", convertDoubleToPercentage(0.5), modIcons.homebrewPowder, chainHitEquipped, chainHitEquipped);
 		toReturn[11] = new StatsRow("Max Ricochets:", getMaxRicochets(), modIcons.ricochet, chainHitEquipped, chainHitEquipped);
 		
-		boolean baseSpreadModified = selectedTier1 == 0 || selectedOverclock == 3;
+		boolean baseSpreadModified = selectedTier2 == 1 || selectedOverclock == 3;
 		toReturn[12] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, baseSpreadModified, baseSpreadModified);
 		
 		toReturn[13] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), modIcons.baseSpread, selectedTier3 == 1, selectedTier3 == 1);
