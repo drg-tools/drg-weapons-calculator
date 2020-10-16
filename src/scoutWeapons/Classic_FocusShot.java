@@ -70,7 +70,7 @@ public class Classic_FocusShot extends Classic {
 			toReturn *= 1.5;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn *= 0.635;
+			toReturn *= 0.75;
 		}
 		
 		// Divide by 2 to account for firing two ammo per focused shot
@@ -99,6 +99,9 @@ public class Classic_FocusShot extends Classic {
 		if (selectedOverclock == 3) {
 			baseRoF += 2;
 		}
+		else if (selectedOverclock == 5) {
+			baseRoF -= 2.5;
+		}
 		return 1.0 / ((1.0/baseRoF) + getFocusDuration());
 	}
 	
@@ -111,7 +114,7 @@ public class Classic_FocusShot extends Classic {
 		boolean multiplierModified = selectedTier3 == 0 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[1] = new StatsRow("Focused Shot Multiplier:", convertDoubleToPercentage(getFocusedShotMultiplier()), modIcons.directDamage, multiplierModified);
 		
-		toReturn[2] = new StatsRow("Focus Shot Charge-up Duration:", getFocusDuration(), modIcons.chargeSpeed, selectedTier2 == 0 || selectedOverclock == 2 || selectedOverclock == 5);
+		toReturn[2] = new StatsRow("Focus Shot Charge-up Duration:", getFocusDuration(), modIcons.chargeSpeed, selectedTier2 == 0 || selectedOverclock == 2);
 		
 		toReturn[3] = new StatsRow("Clip Size:", getMagazineSize(), modIcons.magSize, selectedTier4 == 2 || selectedOverclock == 1);
 		

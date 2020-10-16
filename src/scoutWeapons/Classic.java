@@ -105,7 +105,7 @@ public abstract class Classic extends Weapon {
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Hipster", "+2 Rate of Fire, -0.7 Reload Time, x1.5 Max Ammo, -10% Spread per Shot, x0.85 Spread Variance, x0.5 Recoil, x0.7 Direct Damage", overclockIcons.baseSpread, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Electrocuting Focus Shots", "Focused Shots apply an Electrocute DoT which does "
 				+ "an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per Second for 4 seconds, -25% Focused Shot Multiplier", overclockIcons.electricity, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Supercooling Chamber", "+130% Focused Shot Multiplier, x0.61 Max Ammo, x0.625 Focus Speed, no movement while focusing", overclockIcons.directDamage, 5);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Supercooling Chamber", "+80% Focused Shot Multiplier, x0.75 Max Ammo, -2.5 Rate of Fire, no movement while focusing", overclockIcons.directDamage, 5);
 	}
 	
 	@Override
@@ -286,7 +286,7 @@ public abstract class Classic extends Weapon {
 			toReturn -= 0.25;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn += 1.3;
+			toReturn += 0.8;
 		}
 		
 		return toReturn;
@@ -329,9 +329,6 @@ public abstract class Classic extends Weapon {
 		
 		if (selectedOverclock == 2) {
 			focusSpeedCoefficient += 0.2;
-		}
-		else if (selectedOverclock == 5) {
-			focusSpeedCoefficient *= 0.625;
 		}
 		
 		return focusDuration / focusSpeedCoefficient;
