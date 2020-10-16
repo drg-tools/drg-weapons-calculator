@@ -112,7 +112,7 @@ public class Autocannon extends Weapon {
 		tier5[2] = new Mod("Damage Resistance At Full RoF", "33% Damage Resistance when at Max Rate of Fire", modIcons.damageResistance, 5, 2);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Drums", "+220 Max Ammo", overclockIcons.carriedAmmo, 0);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Drums", "+110 Max Ammo", overclockIcons.carriedAmmo, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Flak Cannon", "If a bullet would miss an enemy but passes within 0.75m of their hitbox, it detonates in midair automatically. Additionally raises Damage Falloff at outer radius from 50% to 90%", overclockIcons.aoeRadius, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Carpet Bomber", "+3 Area Damage, +0.7m AoE Radius, -7 Direct Damage", overclockIcons.areaDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Combat Mobility", "Increases movement speed while using from 50% to 85% of normal walk speed, -1 sec Reload Time, x1.3 Base Spread", overclockIcons.movespeed, 3);
@@ -319,7 +319,8 @@ public class Autocannon extends Weapon {
 		if (selectedTier2 == 0) {
 			toReturn += 2;
 		}
-		else if (selectedOverclock == 2) {
+		
+		if (selectedOverclock == 2) {
 			toReturn += 3;
 		}
 		else if (selectedOverclock == 5) {
@@ -369,7 +370,7 @@ public class Autocannon extends Weapon {
 			toReturn += 220;
 		}
 		if (selectedOverclock == 0) {
-			toReturn += 220;
+			toReturn += 110;
 		}
 		else if (selectedOverclock == 4 || selectedOverclock == 5) {
 			toReturn -= 110;

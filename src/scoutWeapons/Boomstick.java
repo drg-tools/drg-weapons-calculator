@@ -123,7 +123,7 @@ public class Boomstick extends Weapon {
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Shells", "+4 Max Ammo, +0.5 Rate of Fire", overclockIcons.carriedAmmo, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Double Barrel", "Fire both barrels with a single tigger pull as a 2-round burst. Additionally, +1 Damage per Pellet and -0.1 Reload.", overclockIcons.rateOfFire, 1);
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Stuffed Shells", "+1 Damage per Pellet, +1 Pellet per Shot", overclockIcons.pelletsPerShot, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Special Powder", "Jump off of the ground and fire the shotgun to \"blast jump\" around the caves for increased mobility. In exchange, -20 Blastwave Damage.", overclockIcons.shotgunJump, 3);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Special Powder", "Jump off of the ground and fire the shotgun to \"blast jump\" around the caves for increased mobility. In exchange, x0.45 Blastwave Damage.", overclockIcons.shotgunJump, 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "-45% Base Spread, -2 Pellets per Shot", overclockIcons.baseSpread, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Jumbo Shells", "+7 Damage per Pellet, -7 Max Ammo, +0.8 Reload Time", overclockIcons.directDamage, 5);
 	}
@@ -324,10 +324,10 @@ public class Boomstick extends Weapon {
 		
 		return toReturn;
 	}
-	private int getBlastwaveDamage() {
+	private double getBlastwaveDamage() {
 		// Hits enemies within 4m in front of Scout
 		// Explosive-element Area-type damage, instead of direct damage. Bulks + Dreads resist it.
-		int toReturn = frontalConeDamage;
+		double toReturn = frontalConeDamage;
 		
 		if (selectedTier4 == 2) {
 			toReturn += 10;
@@ -337,7 +337,7 @@ public class Boomstick extends Weapon {
 			toReturn *= 2;
 		}
 		else if (selectedOverclock == 3) {
-			toReturn -= 20;
+			toReturn *= 0.45;
 		}
 		
 		return toReturn;
@@ -630,7 +630,7 @@ public class Boomstick extends Weapon {
 		int directDamagePerShot = getDamagePerPellet() * getNumberOfPellets();
 		// The frontal blastwave is a 20 degree isosceles triangle, 4m height; 1.41m base. 4 grunts can be hit in a 1-2-1 stack.
 		int gruntsHitByBlastwave = 4;
-		int blastwaveDamagePerShot = gruntsHitByBlastwave * getBlastwaveDamage();
+		double blastwaveDamagePerShot = gruntsHitByBlastwave * getBlastwaveDamage();
 		int numTargets = calculateMaxNumTargets();
 		int numShots = getMagazineSize() + getCarriedAmmo();
 		double totalDamage = numShots * (directDamagePerShot*numTargets + blastwaveDamagePerShot);
