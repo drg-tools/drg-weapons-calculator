@@ -120,12 +120,12 @@ public class Minigun extends Weapon {
 		
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Faster Barrel Alignment", "-0.2 seconds spinup time, x1.5 Spread per Shot, x0.5 Spread Recovery Speed (makes the Minigun reach max Accuracy 50% faster and lose Accuracy 50% slower)", overclockIcons.baseSpread, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Health Funnel", "If the Minigun scores the killing blow on a medium or larger enemy, you gain +2 health.", overclockIcons.special, 1);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Health Funnel", "If the Minigun scores the killing blow on a medium or larger enemy, you gain +2 health.", overclockIcons.special, 1, false);
 		// Burning Hell info comes straight from MikeGSG -- thanks Mike!
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Burning Hell", "While firing, the Minigun deals 20 Area Damage per second and 80 Heat per Second in a cone 5m in front of the muzzle. +50% heat accumulation in the "
 				+ "weapon's heat meter, which translates to 2/3 the firing period", overclockIcons.heatDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Compact Feed Mechanism", "+700 Ammo, -4 Rate of Fire", overclockIcons.carriedAmmo, 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Montana", "+3 seconds Firing Period, but damages the player for 5 Fire Damage per tick at 4 ticks per second during those three seconds (costs up to 60 health to fire longer)", overclockIcons.heatDamage, 4);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Feel the Burn", "+3 seconds Firing Period, but damages the player for 5 Fire Damage per tick at 4 ticks per second during those three seconds (costs up to 60 health to fire longer)", overclockIcons.heatDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Bullet Hell", "67% chance for bullets that impact an enemy or terrain to ricochet into another enemy. -2 Damage per Pellet, x4.8 Base Spread", overclockIcons.ricochet, 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Storm", "+3 Damage per Pellet, x0 Movespeed while using, -0.5 Cooling Rate", overclockIcons.directDamage, 6);
 	}
