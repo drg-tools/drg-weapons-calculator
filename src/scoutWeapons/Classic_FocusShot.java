@@ -60,13 +60,14 @@ public class Classic_FocusShot extends Classic {
 	}
 	@Override
 	public double getRateOfFire() {
-		double delayBetweenShots = 1 / rateOfFire;
+		double maxRoF = 1 rateOfFire;
 		if (selectedOverclock == 3) {
-			// Hipster's +3 RoF translates to a shorter delay between focused shots.
-			delayBetweenShots = 1 / 7.0;
+			maxRoF += 2;
 		}
-		// Because the max RoF will never be achieved with Focus Shots, instead model the RoF as the inverse of the Focus Duration
-		return 1.0 / (delayBetweenShots + getFocusDuration());
+		else if (selectedOverclock == 5) {
+			maxRoF -= 2.5;
+		}
+		return 1.0 / ((1.0 / maxRoF) + getFocusDuration());
 	}
 	
 	@Override
@@ -78,14 +79,7 @@ public class Classic_FocusShot extends Classic {
 		boolean multiplierModified = selectedTier3 == 0 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[1] = new StatsRow("Focused Shot Multiplier:", convertDoubleToPercentage(getFocusedShotMultiplier()), modIcons.directDamage, multiplierModified);
 		
-		double delayBetweenShots = 1 / rateOfFire;
-		if (selectedOverclock == 3) {
-			// Hipster's +3 RoF translates to a shorter delay between focused shots.
-			delayBetweenShots = 1 / 7.0;
-		}
-		toReturn[2] = new StatsRow("Delay Between Focused Shots:", delayBetweenShots, modIcons.duration, selectedOverclock == 3);
-		
-		toReturn[3] = new StatsRow("Focus Shot Charge-up Duration:", getFocusDuration(), modIcons.chargeSpeed, selectedTier2 == 0 || selectedOverclock == 2 || selectedOverclock == 5);
+		toReturn[2] = new StatsRow("Focus Shot Charge-up Duration:", getFocusDuration(), modIcons.chargeSpeed, selectedTier2 == 0 || selectedOverclock == 2);
 		
 		toReturn[3] = new StatsRow("Clip Size:", getMagazineSize(), modIcons.magSize, selectedTier4 == 2 || selectedOverclock == 1);
 		

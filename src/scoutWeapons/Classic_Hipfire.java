@@ -52,6 +52,9 @@ public class Classic_Hipfire extends Classic {
 		if (selectedOverclock == 3) {
 			toReturn += 2;
 		}
+		else if (selectedOverclock == 5) {
+			toReturn -= 2.5;
+		}
 		
 		return toReturn;
 	}
@@ -67,7 +70,7 @@ public class Classic_Hipfire extends Classic {
 		boolean carriedAmmoModified = selectedTier1 == 0 || selectedTier3 == 1 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[2] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
-		toReturn[3] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedOverclock == 3);
+		toReturn[3] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedOverclock == 3 || selectedOverclock == 5);
 		
 		toReturn[4] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier5 == 2 || selectedOverclock == 2 || selectedOverclock == 3);
 		
