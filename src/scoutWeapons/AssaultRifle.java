@@ -87,7 +87,7 @@ public class AssaultRifle extends Weapon {
 		tier1 = new Mod[3];
 		tier1[0] = new Mod("Gyro Stabilisation", "x0 Base Spread", modIcons.baseSpread, 1, 0);
 		tier1[1] = new Mod("Supercharged Feed Mechanism", "+2 Rate of Fire", modIcons.rateOfFire, 1, 1);
-		tier1[2] = new Mod("High Capacity Magazine", "+15 Magazine Size", modIcons.magSize, 1, 2);
+		tier1[2] = new Mod("High Capacity Magazine", "+20 Magazine Size", modIcons.magSize, 1, 2);
 		
 		tier2 = new Mod[2];
 		tier2[0] = new Mod("Increased Caliber Rounds", "+2 Direct Damage", modIcons.directDamage, 2, 0);
@@ -98,7 +98,7 @@ public class AssaultRifle extends Weapon {
 		tier3[1] = new Mod("Hardened Rounds", "+500% Armor Breaking", modIcons.armorBreaking, 3, 1);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Hollow-Point Bullets", "+20% Weakpoint Bonus", modIcons.weakpointBonus, 4, 0);
+		tier4[0] = new Mod("Hollow-Point Bullets", "+15% Weakpoint Bonus", modIcons.weakpointBonus, 4, 0);
 		tier4[1] = new Mod("Improved Propellant", "+2 Direct Damage", modIcons.directDamage, 4, 1);
 		tier4[2] = new Mod("Improved Gas System", "+1 Rate of Fire", modIcons.rateOfFire, 4, 2);
 		
@@ -108,9 +108,9 @@ public class AssaultRifle extends Weapon {
 		tier5[2] = new Mod("Stun", "+30% chance to Stun on Weakpoint hit", modIcons.stun, 5, 2);
 		
 		overclocks = new Overclock[7];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Ammo", "+10 Magazine Size, x0.7 Recoil", overclockIcons.magSize, 0);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Ammo", "+15 Magazine Size, x0.7 Recoil", overclockIcons.magSize, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Gas Rerouting", "+1 Rate of Fire, -0.3 Reload Time", overclockIcons.rateOfFire, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Light Machine Gun", "+20 Mag Size, +80 Max Ammo, +1 Rate of Fire, -3 Direct Damage", overclockIcons.magSize, 2);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Light Machine Gun", "+20 Mag Size, +30 Max Ammo, +2 Rate of Fire, -3 Direct Damage", overclockIcons.magSize, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Overclocked Firing Mechanism", "+3 Rate of Fire, x2 Recoil, x0.75 Spread Recovery Speed", overclockIcons.rateOfFire, 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Bullets of Mercy", "+25% Damage dealt to enemies that are burning, electrocuted, poisoned, stunned, or frozen. In exchange, -5 Magazine Size", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "AI Stability Engine", "x0 Recoil, x2.11 Spread Recovery Speed, +40% Weakpoint Bonus -2 Direct Damage, -2 Rate of Fire", overclockIcons.baseSpread, 5);
@@ -315,7 +315,7 @@ public class AssaultRifle extends Weapon {
 		}
 		
 		if (selectedOverclock == 2) {
-			toReturn += 80;
+			toReturn += 30;
 		}
 		
 		return toReturn;
@@ -324,14 +324,14 @@ public class AssaultRifle extends Weapon {
 		int toReturn = magazineSize;
 		
 		if (selectedTier1 == 2) {
-			toReturn += 15;
+			toReturn += 20;
 		}
 		
 		if (selectedOverclock == 0) {
-			toReturn += 10;
+			toReturn += 15;
 		}
 		else if (selectedOverclock == 2) {
-			toReturn += 20;
+			toReturn += 25;
 		}
 		else if (selectedOverclock == 4) {
 			toReturn -= 5;
@@ -349,8 +349,11 @@ public class AssaultRifle extends Weapon {
 			toReturn += 1.0;
 		}
 		
-		if (selectedOverclock == 1 || selectedOverclock == 2) {
+		if (selectedOverclock == 1) {
 			toReturn += 1.0;
+		}
+		else if (selectedOverclock == 2) {
+			toReturn += 2.0;
 		}
 		else if (selectedOverclock == 3) {
 			toReturn += 3.0;
@@ -383,7 +386,7 @@ public class AssaultRifle extends Weapon {
 		double toReturn = weakpointBonus;
 		
 		if (selectedTier4 == 0) {
-			toReturn += 0.2;
+			toReturn += 0.15;
 		}
 		
 		if (selectedOverclock == 5) {

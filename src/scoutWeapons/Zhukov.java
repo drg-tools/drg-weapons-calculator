@@ -77,7 +77,7 @@ public class Zhukov extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Hollow-Point Bullets", "+15% Weakpoint Bonus", modIcons.weakpointBonus, 1, 0);
+		tier1[0] = new Mod("Hollow-Point Bullets", "+30% Weakpoint Bonus", modIcons.weakpointBonus, 1, 0);
 		tier1[1] = new Mod("High Velocity Rounds", "+1 Direct Damage", modIcons.directDamage, 1, 1);
 		
 		tier2 = new Mod[3];
@@ -471,7 +471,7 @@ public class Zhukov extends Weapon {
 			generalAccuracy = 1.0;
 		}
 		
-		double effectiveMagazineSize = getMagazineSize() / 2;
+		double effectiveMagazineSize = getMagazineSize() / 2.0;
 		double effectiveRoF = getRateOfFire() / 2.0;
 		if (burst) {
 			duration = effectiveMagazineSize / effectiveRoF;
