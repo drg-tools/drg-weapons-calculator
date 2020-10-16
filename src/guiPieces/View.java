@@ -69,7 +69,7 @@ public class View extends JFrame implements Observer {
 		TCA = new ThinkingCursorAnimation(this);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("MeatShield's DRG DPS Calculator (DRG Update " + DatabaseConstants.patchNumber + ")");
+		setTitle("MeatShield's DRG DPS Calculator (Proposed Balance Changes)");
 		setPreferredSize(new Dimension(1500, 1020));
 		
 		// Add the icon

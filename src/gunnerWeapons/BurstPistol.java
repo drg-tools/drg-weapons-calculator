@@ -88,7 +88,7 @@ public class BurstPistol extends Weapon {
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("High Capacity Magazine", "+12 Magazine Size", modIcons.magSize, 2, 0);
 		tier2[1] = new Mod("Quickfire Ejector", "-0.7 Reload Time", modIcons.reloadSpeed, 2, 1);
-		tier2[2] = new Mod("Disabled Safety", "+1 Rate of Fire (translates to less time between bursts)", modIcons.rateOfFire, 2, 2);
+		tier2[2] = new Mod("Disabled Safety", "+1.3 Rate of Fire (translates to less time between bursts)", modIcons.rateOfFire, 2, 2);
 		
 		tier3 = new Mod[2];
 		tier3[0] = new Mod("Hardened Rounds", "+200% Armor Breaking", modIcons.armorBreaking, 3, 0);
@@ -105,8 +105,8 @@ public class BurstPistol extends Weapon {
 		tier5[2] = new Mod("Blowthrough Rounds", "+1 Penetration", modIcons.blowthrough, 5, 2);
 		
 		overclocks = new Overclock[7];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Casings", "+36 Max Ammo, +1 Rate of Fire", overclockIcons.rateOfFire, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Antidote Syringes", "Deal 60 Poison Damage to enemies afflicted by Neurotoxin, but remove the remaining duration of the Status Effect.", overclockIcons.neurotoxin, 1);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Casings", "+36 Max Ammo, +1.5 Rate of Fire", overclockIcons.rateOfFire, 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Antidote Syringes", "Deal 60 Poison Damage to enemies afflicted by Neurotoxin, but remove the remaining duration of the Status Effect.", overclockIcons.neurotoxin, 1, false);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Glass Bullets", "+50% Weakpoint Bonus, x0.2 Armor Breaking, x0 Penetrations", overclockIcons.weakpointBonus, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Experimental Rounds", "+9 Direct Damage, -6 Magazine Size, -36 Max Ammo", overclockIcons.directDamage, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Electro Minelets", "Any bullets that impact terrain get converted to Electro Minelets. It takes 0.1 seconds to form the minelets, "
@@ -364,11 +364,11 @@ public class BurstPistol extends Weapon {
 		double toReturn = rateOfFire;
 		
 		if (selectedTier2 == 2) {
-			toReturn += 1.0;
+			toReturn += 1.3;
 		}
 		
 		if (selectedOverclock == 0) {
-			toReturn += 1.0;
+			toReturn += 1.5;
 		}
 		
 		return toReturn;
@@ -608,6 +608,10 @@ public class BurstPistol extends Weapon {
 		
 		if (selectedTier1 == 2) {
 			totalDamage *= (1 + getMaxPenetrations());
+		}
+		
+		if (selectedTier5 == 2) {
+			totalDamage *= 2;
 		}
 		
 		if (selectedOverclock == 4) {

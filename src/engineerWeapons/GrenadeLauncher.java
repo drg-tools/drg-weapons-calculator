@@ -104,7 +104,7 @@ public class GrenadeLauncher extends Weapon {
 		tier5[2] = new Mod("Incendiary Compound", "Lose 50% of Direct and Area Damage, and convert it to Heat Damage that will ignite enemies, dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Clean Sweep", "Raises Damage Falloff at outer radius from 15% to 85%", overclockIcons.aoeRadius, 0);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Clean Sweep", "Raises Damage Falloff at outer radius from 15% to 76%", overclockIcons.aoeRadius, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Pack Rat", "+3 Max Ammo", overclockIcons.carriedAmmo, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "RJ250 Compound", "Jump and shoot the ground beneath you to Grenade Jump. Can also be used on allies who are jumping. -30% Fall Damage reduction, -0.5 Reload Speed, -25 Area Damage.", overclockIcons.grenadeJump, 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Fat Boy", "x3.25 Area Damage, +1m AoE Radius, x0.3 Max Ammo, x0.7 Projectile Velocity. Also leaves behind an 8m radius field that does "
@@ -361,7 +361,7 @@ public class GrenadeLauncher extends Weapon {
 		double toReturn = damageFalloff;
 		
 		if (selectedOverclock == 0) {
-			toReturn = 0.85;
+			toReturn = 0.76;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn = 0.5;
