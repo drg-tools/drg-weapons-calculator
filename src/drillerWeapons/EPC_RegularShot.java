@@ -54,9 +54,9 @@ public class EPC_RegularShot extends EPC {
 		
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, selectedTier1 == 0 || selectedOverclock == 3);
 		
-		toReturn[1] = new StatsRow("Projectile Velocity:", convertDoubleToPercentage(getRegularShotVelocity()), modIcons.projectileVelocity, selectedTier4 == 1, selectedTier2 == 1);
+		toReturn[1] = new StatsRow("Projectile Velocity:", convertDoubleToPercentage(getRegularShotVelocity()), modIcons.projectileVelocity, selectedTier4 == 1, selectedTier4 == 1);
 		
-		boolean heatPerShotModified = selectedTier5 == 1 || selectedOverclock == 2 || selectedOverclock == 3;
+		boolean heatPerShotModified = selectedTier5 == 1 || selectedOverclock == 3;
 		toReturn[2] = new StatsRow("Heat/Shot:", getHeatPerRegularShot(), modIcons.blank, heatPerShotModified);
 		
 		toReturn[3] = new StatsRow("Shots Fired Before Overheating:", getNumRegularShotsBeforeOverheat(), modIcons.magSize, coolingRateModified || heatPerShotModified);

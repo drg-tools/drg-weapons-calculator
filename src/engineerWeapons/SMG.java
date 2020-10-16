@@ -453,7 +453,7 @@ public class SMG extends Weapon {
 		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 0 || selectedTier5 == 0 || selectedOverclock == 3;
 		toReturn[3] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
-		toReturn[4] = new StatsRow("Electric Damage:", getElectricDamage(), modIcons.directDamage, selectedTier5 == 0 || selectedOverclock == 2, selectedTier5 == 0 || selectedOverclock == 2);
+		toReturn[4] = new StatsRow("Electric Damage:", getElectricDamage(), modIcons.directDamage, selectedTier5 == 0 || selectedOverclock == 2, selectedOverclock == 2);
 		
 		toReturn[5] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, selectedTier2 == 0 || selectedTier4 == 1);
 		

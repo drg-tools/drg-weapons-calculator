@@ -547,7 +547,7 @@ public class Minigun extends Weapon {
 		boolean pelletsPerBurstModified = selectedTier5 == 1 || selectedOverclock == 2 || selectedTier1 == 1 || selectedOverclock == 3 || selectedOverclock == 4;
 		toReturn[4] = new StatsRow("Max Num Pellets Fired per Burst:", calculateMaxNumPelletsFiredWithoutOverheating(), modIcons.magSize, pelletsPerBurstModified);
 		
-		boolean ammoModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 3;
+		boolean ammoModified = selectedTier2 == 0 || selectedTier4 == 1 || selectedOverclock == 3;
 		toReturn[5] = new StatsRow("Max Ammo:", getMaxAmmo(), modIcons.carriedAmmo, ammoModified);
 		
 		toReturn[6] = new StatsRow("Rate of Fire (Ammo/Sec):", getRateOfFire(), modIcons.rateOfFire, selectedTier1 == 1 || selectedOverclock == 3);
