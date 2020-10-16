@@ -125,7 +125,7 @@ public class Boomstick extends Weapon {
 				+ "number of Pellets per Shot gets doubled. Additionally, x2 Blastwave Damage and -0.1 Reload.", overclockIcons.rateOfFire, 1);
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Stuffed Shells", "+1 Damage per Pellet, +1 Pellet per Shot", overclockIcons.pelletsPerShot, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Special Powder", "Jump off of the ground and fire the shotgun to \"blast jump\" around the caves for increased mobility. In exchange, x0.45 Blastwave Damage.", overclockIcons.shotgunJump, 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "-45% Base Spread, -2 Pellets per Shot", overclockIcons.baseSpread, 4);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "-45% Base Spread, +4 Ammo, -2 Pellets per Shot", overclockIcons.baseSpread, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Jumbo Shells", "+7 Damage per Pellet, -7 Max Ammo, +0.8 Reload Time", overclockIcons.directDamage, 5);
 	}
 	
@@ -370,6 +370,9 @@ public class Boomstick extends Weapon {
 		else if (selectedOverclock == 1) {
 			// For the math of Double Barrel to work out correctly, the Carried Ammo should be halved since it fires 2 ammo per shot.
 			toReturn /= 2;
+		}
+		else if (selectedOverclock == 4) {
+			toReturn += 4;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn -= 7;
