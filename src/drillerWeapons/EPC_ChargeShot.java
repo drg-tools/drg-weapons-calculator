@@ -52,13 +52,13 @@ public class EPC_ChargeShot extends EPC {
 		
 		StatsRow[] toReturn = new StatsRow[11];
 		
-		boolean chargedDirectDamageModified = selectedTier1 == 2 || selectedTier2 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
+		boolean chargedDirectDamageModified = selectedTier1 == 2 || selectedTier2 == 2 || selectedTier5 == 0 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Direct Damage:", getChargedDirectDamage(), modIcons.directDamage, chargedDirectDamageModified);
 		
 		boolean chargedAreaDamageModified = selectedTier1 == 2 || selectedTier2 == 2 || selectedTier5 == 0 || selectedTier5 == 1 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[1] = new StatsRow("Area Damage:", getChargedAreaDamage(), modIcons.areaDamage, chargedAreaDamageModified);
 		
-		boolean radiusModified = selectedTier2 == 0 || selectedTier5 == 0 || selectedOverclock == 4;
+		boolean radiusModified = selectedTier2 == 0 || selectedTier5 == 0 || selectedOverclock == 2 || selectedOverclock == 4;
 		toReturn[2] = new StatsRow("AoE Radius:", aoeEfficiency[0], modIcons.aoeRadius, radiusModified);
 		
 		boolean windupModified = selectedTier3 == 1 || selectedTier5 == 0 || selectedOverclock == 0 || selectedOverclock == 2;
@@ -71,7 +71,7 @@ public class EPC_ChargeShot extends EPC {
 		boolean ammoPerShotModified = selectedTier3 == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedTier5 == 1;
 		toReturn[6] = new StatsRow("Ammo/Charged Shot:", getAmmoPerChargedShot(), modIcons.fuel, ammoPerShotModified);
 		
-		boolean batterySizeModified = selectedTier1 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 3;
+		boolean batterySizeModified = selectedTier1 == 1 || selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock == 3;
 		toReturn[7] = new StatsRow("Battery Size:", getBatterySize(), modIcons.carriedAmmo, batterySizeModified);
 		
 		// This is equivalent to "Did either the time to charge a shot or the time to cool down after a shot change?"
