@@ -46,14 +46,14 @@ public class BreachCutter_Projectile extends BreachCutter {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[10];
 		
-		toReturn[0] = new StatsRow("Burst Damage on First Impact:", getImpactDamage(), modIcons.areaDamage, selectedOverclock == 5);
+		toReturn[0] = new StatsRow("Burst Damage on First Impact:", getImpactDamage(), modIcons.areaDamage, selectedOverclock == 4 || selectedOverclock == 5);
 		
 		boolean dmgPerTickModified = selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 3 || selectedOverclock == 5 || selectedOverclock == 6;
 		toReturn[1] = new StatsRow("Damage per Tick:", getDamagePerTick(), modIcons.directDamage, dmgPerTickModified);
 		
 		toReturn[2] = new StatsRow("Damage Ticks per Second:", damageTickRate, modIcons.blank, false);
 		
-		toReturn[3] = new StatsRow("Projectile Width:", getProjectileWidth(), modIcons.aoeRadius, selectedTier3 == 1 || selectedOverclock == 5);
+		toReturn[3] = new StatsRow("Projectile Width:", getProjectileWidth(), modIcons.aoeRadius, selectedTier3 == 1 || selectedOverclock == 4 || selectedOverclock == 5);
 		
 		toReturn[4] = new StatsRow("Projectile Velocity (m/sec):", getProjectileVelocity(), modIcons.projectileVelocity, selectedOverclock == 5);
 		
@@ -67,7 +67,10 @@ public class BreachCutter_Projectile extends BreachCutter {
 		toReturn[8] = new StatsRow("Avg Damage per Projectile to Single Grunt:", calculateAverageDamagePerGrunt(true, true, false, true), modIcons.special, false);
 		
 		double intersectionTime;
-		if (selectedOverclock == 5) {
+		if (selectedOverclock == 4) {
+			intersectionTime = calculateGruntIntersectionTimePerLanceProjectile();
+		}
+		else if (selectedOverclock == 5) {
 			intersectionTime = calculateAverageGruntIntersectionTimePerSpinningDeathProjectile();
 		}
 		else {
@@ -100,7 +103,10 @@ public class BreachCutter_Projectile extends BreachCutter {
 	// Single-target calculations
 	private double calculateSingleTargetDPS(boolean primaryTarget, boolean weakpoint) {
 		double intersectionTime;
-		if (selectedOverclock == 5) {
+		if (selectedOverclock == 4) {
+			intersectionTime = calculateGruntIntersectionTimePerLanceProjectile();
+		}
+		else if (selectedOverclock == 5) {
 			intersectionTime = calculateAverageGruntIntersectionTimePerSpinningDeathProjectile();
 		}
 		else {

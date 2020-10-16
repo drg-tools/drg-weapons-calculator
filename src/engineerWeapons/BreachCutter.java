@@ -124,8 +124,7 @@ public class BreachCutter extends Weapon {
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Stronger Plasma Current", "+1 Damage per Tick, +0.5 Projectile Lifetime", overclockIcons.directDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Return to Sender", "Holding down the trigger after line leaves the gun activates a remote connection, which on release of the trigger causes "
 				+ "the line to change direction and move back towards the gun. In exchange, -1.6 Damage per Tick", overclockIcons.returnToSender, 3);
-		// TODO: figure out and implement OC "Lance"
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Lance", "Changes orientation of line to fire like a spear as it moves. Either -Dmg/Tick or +Velocity to balance. Or maybe -Width?", overclockIcons.projectileVelocity, 4, false);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Lance", "Changes orientation of line to fire like a spear as it moves. In addition, +0.5m Projectile Width and +15 Impact Damage", overclockIcons.projectileVelocity, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Spinning Death", "Instead of flying in a straight line, the projectile now rotates 2 times per second about the Yaw axis. Additionally: x0.09 Projectile Velocity, x0 Impact Damage, "
 				+ "x2.5 Projectile Lifetime, +1m Plasma Beam Width, x0.25 Damage per Tick, x0.75 Max Ammo, and x0.5 Magazine Size", overclockIcons.special, 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "Adds 110% of Damage per Tick as Heat Damage which ignites enemies almost instantly in exchange for -0.6 Damage per Tick and x0.25 Armor Breaking", overclockIcons.heatDamage, 6);
@@ -314,12 +313,16 @@ public class BreachCutter extends Weapon {
 		return toReturn;
 	}
 	protected double getImpactDamage() {
-		if (selectedOverclock == 5) {
-			return 0.0;
+		double toReturn = burstDamageOnFirstImpact;
+		
+		if (selectedOverclock == 4) {
+			toReturn += 15;
 		}
-		else {
-			return burstDamageOnFirstImpact;
+		else if (selectedOverclock == 5) {
+			toReturn *= 0;
 		}
+		
+		return toReturn;
 	}
 	protected double getDamagePerTick() {
 		double toReturn = damagePerTick;
@@ -375,7 +378,10 @@ public class BreachCutter extends Weapon {
 			toReturn += 1.5;
 		}
 		
-		if (selectedOverclock == 5) {
+		if (selectedOverclock == 4) {
+			toReturn += 0.5;
+		}
+		else if (selectedOverclock == 5) {
 			toReturn += 1.0;
 		}
 		
@@ -444,14 +450,14 @@ public class BreachCutter extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[15];
 		
-		toReturn[0] = new StatsRow("Burst Damage on First Impact:", getImpactDamage(), modIcons.areaDamage, selectedOverclock == 5);
+		toReturn[0] = new StatsRow("Burst Damage on First Impact:", getImpactDamage(), modIcons.areaDamage, selectedOverclock == 4 || selectedOverclock == 5);
 		
 		boolean dmgPerTickModified = selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 3 || selectedOverclock == 5 || selectedOverclock == 6;
 		toReturn[1] = new StatsRow("Damage per Tick:", getDamagePerTick(), modIcons.directDamage, dmgPerTickModified);
 		
 		toReturn[2] = new StatsRow("Damage Ticks per Second:", damageTickRate, modIcons.blank, false);
 		
-		toReturn[3] = new StatsRow("Projectile Width:", getProjectileWidth(), modIcons.aoeRadius, selectedTier3 == 1 || selectedOverclock == 5);
+		toReturn[3] = new StatsRow("Projectile Width:", getProjectileWidth(), modIcons.aoeRadius, selectedTier3 == 1 || selectedOverclock == 4 || selectedOverclock == 5);
 		
 		toReturn[4] = new StatsRow("Projectile Velocity (m/sec):", getProjectileVelocity(), modIcons.projectileVelocity, selectedOverclock == 5);
 		
@@ -500,6 +506,17 @@ public class BreachCutter extends Weapon {
 		}
 		
 		return secondsOfIntersection;
+	}
+	
+	protected double calculateGruntIntersectionTimePerLanceProjectile() {
+		/*
+			Because the Lance shoots out like a thrown spear, its intersection time will be equivalent to how long it takes for the back of the Lance to get through the back of the enemy once the front of the Lance
+			starts hitting the front of the enemy
+		*/
+		double lengthOfLance = getProjectileWidth();
+		double lengthOfGrunt = 2.0 * EnemyInformation.GlyphidGruntBodyAndLegsRadius;
+		return (lengthOfLance + lengthOfGrunt) / getProjectileVelocity();
+		
 	}
 	
 	// This method isn't perfect but it's a good start. It should eventually model how the enemies move instead of stand still and work out a couple of math/logic overlaps that I'm choosing to neglect for right now.
@@ -586,7 +603,10 @@ public class BreachCutter extends Weapon {
 	*/
 	protected double calculateAverageDamagePerGrunt(boolean extendDoTsBeyondIntersection, boolean primaryTarget, boolean weakpoint, boolean ignoreStatusEffects) {
 		double intersectionTime;
-		if (selectedOverclock == 5) {
+		if (selectedOverclock == 4) {
+			intersectionTime = calculateGruntIntersectionTimePerLanceProjectile();
+		}
+		else if (selectedOverclock == 5) {
 			intersectionTime = calculateAverageGruntIntersectionTimePerSpinningDeathProjectile();
 		}
 		else {
@@ -752,7 +772,10 @@ public class BreachCutter extends Weapon {
 		double width = getProjectileWidth();
 		double velocity = getProjectileVelocity();
 		double lifetime = getProjectileLifetime();
-		if (selectedOverclock == 5) {
+		if (selectedOverclock == 4) {
+			numGruntsHitSimultaneouslyPerRow = 1;
+		}
+		else if (selectedOverclock == 5) {
 			numGruntsHitSimultaneouslyPerRow = calculateNumGlyphidsInRadius(width / 2.0);
 		}
 		else {
