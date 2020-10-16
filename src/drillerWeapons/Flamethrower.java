@@ -113,7 +113,7 @@ public class Flamethrower extends Weapon {
 		tier5[1] = new Mod("Targets Explode", "If the direct stream kills an enemy, there's a 50% chance that they will explode and deal 55 Fire Damage and 55 Heat Damage to all enemies within a 3m radius.", modIcons.addedExplosion, 5, 1, false);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Lighter Tanks", "+75 Max Fuel, -1 Reload Time", overclockIcons.carriedAmmo, 0);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Lighter Tanks", "+75 Max Fuel", overclockIcons.carriedAmmo, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Sticky Additive", "+2 Damage per Particle, +3 sec Sticky Flame duration", overclockIcons.hourglass, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Fuel Stream Diffuser", "+5m Flame Reach, +1.5 Flow Rate, -75 Ammo", overclockIcons.distance, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Face Melter", "+5 Damage per Particle, -25 Tank Size, x0.3 Heat per Particle", overclockIcons.directDamage, 3);
@@ -364,10 +364,6 @@ public class Flamethrower extends Weapon {
 	private double getReloadTime() {
 		double toReturn = reloadTime;
 		
-		if (selectedOverclock == 0) {
-			toReturn -= 1.0;
-		}
-		
 		return toReturn;
 	}
 	private double getFlameReach() {
@@ -452,7 +448,7 @@ public class Flamethrower extends Weapon {
 		boolean flowRateModified = selectedTier2 == 1 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[5] = new StatsRow("Flow Rate:", getFlowRate(), modIcons.rateOfFire, flowRateModified);
 		
-		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 0);
+		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, false);
 		
 		toReturn[7] = new StatsRow("Fear Factor per Particle:", 0.13, modIcons.fear, selectedTier4 == 0, selectedTier4 == 0);
 		
