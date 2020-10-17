@@ -113,7 +113,7 @@ public class AssaultRifle extends Weapon {
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Light Machine Gun", "+25 Mag Size, +30 Max Ammo, +2 Rate of Fire, -3 Direct Damage", overclockIcons.magSize, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Overclocked Firing Mechanism", "+3 Rate of Fire, x2 Recoil, x0.75 Spread Recovery Speed", overclockIcons.rateOfFire, 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Bullets of Mercy", "+25% Damage dealt to enemies that are burning, electrocuted, poisoned, stunned, or frozen. In exchange, -5 Magazine Size", overclockIcons.directDamage, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "AI Stability Engine", "x0 Recoil, x2.11 Spread Recovery Speed, +40% Weakpoint Bonus -2 Direct Damage, -2 Rate of Fire", overclockIcons.baseSpread, 5);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "AI Stability Engine", "x0 Recoil, x2.11 Spread Recovery Speed, +40% Weakpoint Bonus, -2 Direct Damage, -2 Rate of Fire", overclockIcons.baseSpread, 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Electrifying Reload", "If any bullets from a magazine damage an enemy's healthbar, then those enemies will have an Electrocute DoT applied when that "
 				+ "magazine gets reloaded. Electrocute does an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per Second for 3 seconds. In exchange, -1 Direct Damage", overclockIcons.specialReload, 6);
 	}

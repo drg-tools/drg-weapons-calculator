@@ -124,7 +124,7 @@ public class Boomstick extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Double Barrel", "Fire both barrels with a single tigger pull as a 2-round burst. Additionally, +1 Damage per Pellet and -0.1 Reload.", overclockIcons.rateOfFire, 1);
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Stuffed Shells", "+1 Damage per Pellet, +1 Pellet per Shot", overclockIcons.pelletsPerShot, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Special Powder", "Jump off of the ground and fire the shotgun to \"blast jump\" around the caves for increased mobility. In exchange, x0.45 Blastwave Damage.", overclockIcons.shotgunJump, 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "-45% Base Spread, +4 Ammo, -2 Pellets per Shot", overclockIcons.baseSpread, 4);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "-45% Base Spread, +1 Penetration, -2 Pellets per Shot", overclockIcons.baseSpread, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Jumbo Shells", "+7 Damage per Pellet, -7 Max Ammo, +0.8 Reload Time", overclockIcons.directDamage, 5);
 	}
 	
@@ -416,12 +416,17 @@ public class Boomstick extends Weapon {
 		return toReturn;
 	}
 	private int getMaxPenetrations() {
+		int toReturn = 0;
+		
 		if (selectedTier3 == 0) {
-			return 1;
+			toReturn += 1;
 		}
-		else {
-			return 0;
+		
+		if (selectedOverclock == 4) {
+			toReturn += 1;
 		}
+		
+		return toReturn;
 	}
 	private double getArmorBreaking() {
 		if (selectedTier4 == 1) {
@@ -454,11 +459,10 @@ public class Boomstick extends Weapon {
 		
 		// Only display this row when OC "Double Barrel" is equipped
 		toReturn[3] = new StatsRow("Burst Size:", getBurstSize(), modIcons.rateOfFire, selectedOverclock == 1, selectedOverclock == 1);
-		
 
 		toReturn[4] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, false);
 		
-		boolean carriedAmmoModified = selectedTier1 == 0 || selectedTier3 == 1 || selectedOverclock == 0 || selectedOverclock == 5;
+		boolean carriedAmmoModified = selectedTier1 == 0 || selectedTier3 == 1 || selectedOverclock == 0 || selectedOverclock == 1 || selectedOverclock == 5;
 		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 
 		toReturn[5] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier2 == 0 || selectedOverclock == 0);
@@ -474,7 +478,8 @@ public class Boomstick extends Weapon {
 		
 		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, selectedTier4 == 0);
 		
-		toReturn[11] = new StatsRow("Max Penetrations:", getMaxPenetrations(), modIcons.blowthrough, selectedTier3 == 0, selectedTier3 == 0);
+		boolean penetrationsModified = selectedTier3 == 0 || selectedOverclock == 4;
+		toReturn[11] = new StatsRow("Max Penetrations:", getMaxPenetrations(), modIcons.blowthrough, penetrationsModified, penetrationsModified);
 		
 		toReturn[13] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, selectedOverclock == 4, selectedOverclock == 4);
 		

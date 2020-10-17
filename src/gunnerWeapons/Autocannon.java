@@ -112,13 +112,13 @@ public class Autocannon extends Weapon {
 		tier5[2] = new Mod("Damage Resistance At Full RoF", "33% Damage Resistance when at Max Rate of Fire", modIcons.damageResistance, 5, 2);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Drums", "+110 Max Ammo", overclockIcons.carriedAmmo, 0);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Drums", "+110 Max Ammo, -0.5 Reload Time", overclockIcons.carriedAmmo, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Flak Cannon", "If a bullet would miss an enemy but passes within 0.75m of their hitbox, it detonates in midair automatically. Additionally raises Damage Falloff at outer radius from 50% to 90%", overclockIcons.aoeRadius, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Carpet Bomber", "+3 Area Damage, +0.7m AoE Radius, -7 Direct Damage", overclockIcons.areaDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Combat Mobility", "Increases movement speed while using from 50% to 85% of normal walk speed, -1 sec Reload Time, x1.3 Base Spread", overclockIcons.movespeed, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Big Bertha", "+12 Direct Damage, x0.7 Base Spread, x0.5 Magazine Size, -110 Max Ammo, -1.5 Max Rate of Fire", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neurotoxin Payload", "30% Chance to inflict a Neurotoxin DoT that deals an average of " + MathUtils.round(DoTInformation.Neuro_DPS, GuiConstants.numDecimalPlaces) + 
-				" Poison Damage per Second for 10 seconds to all enemies within the AoE Radius upon impact. -3 Area Damage, -110 Max Ammo", overclockIcons.neurotoxin, 5);
+				" Poison Damage per Second for 10 seconds to all enemies within the AoE Radius upon impact. +0.3m AoE Radius, -3 Area Damage, -110 Max Ammo", overclockIcons.neurotoxin, 5);
 	}
 	
 	@Override
@@ -343,6 +343,10 @@ public class Autocannon extends Weapon {
 		if (selectedOverclock == 2) {
 			toReturn += 0.7;
 		}
+		else if (selectedOverclock == 5) {
+			toReturn += 0.3;
+		}
+		
 		return toReturn;
 	}
 	private double getFalloff() {
@@ -448,8 +452,11 @@ public class Autocannon extends Weapon {
 	}
 	private double getReloadTime() {
 		double toReturn = reloadTime;
-
-		if (selectedOverclock == 3) {
+		
+		if (selectedOverclock == 0) {
+			toReturn -= 0.5;
+		}
+		else if (selectedOverclock == 3) {
 			toReturn -= 1.0;
 		}
 		
@@ -494,7 +501,7 @@ public class Autocannon extends Weapon {
 		boolean areaDamageModified = selectedTier2 == 0 || selectedTier5 == 0 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), modIcons.areaDamage, areaDamageModified);
 		
-		boolean aoeRadiusModified = selectedTier1 == 0 || selectedOverclock == 2;
+		boolean aoeRadiusModified = selectedTier1 == 0 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[2] = new StatsRow("AoE Radius:", aoeEfficiency[0], modIcons.aoeRadius, aoeRadiusModified);
 		
 		toReturn[3] = new StatsRow("Falloff:", convertDoubleToPercentage(getFalloff()), modIcons.aoeRadius, selectedOverclock == 1);
@@ -514,7 +521,7 @@ public class Autocannon extends Weapon {
 		
 		toReturn[9] = new StatsRow("Average Rate of Fire:", getAverageRateOfFire(), modIcons.rateOfFire, minRoFModified || maxRoFModified);
 		
-		toReturn[10] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 3);
+		toReturn[10] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 0 || selectedOverclock == 3);
 		
 		toReturn[11] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier4 == 0, selectedTier4 == 0);
 		
