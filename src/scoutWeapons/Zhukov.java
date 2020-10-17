@@ -98,8 +98,8 @@ public class Zhukov extends Weapon {
 		tier5[1] = new Mod("Get In, Get Out", "+50% Movement Speed for 2.5 seconds after reloading an empty magazine", modIcons.movespeed, 5, 1);
 		
 		overclocks = new Overclock[5];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Minimal Magazines", "+2 Rate of Fire, +50 Max Ammo", overclockIcons.carriedAmmo, 0);
-		overclocks[1] = new Overclock(Overclock.classification.balanced, "Custom Casings", "+40 Mag Size, -1 Direct Damage", overclockIcons.magSize, 1);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Minimal Magazines", "+2 Rate of Fire, +40 Max Ammo", overclockIcons.carriedAmmo, 0);
+		overclocks[1] = new Overclock(Overclock.classification.balanced, "Custom Casings", "+40 Mag Size, -2 Rate of Fire", overclockIcons.magSize, 1);
 		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "Any bullets that impact terrain get converted to Cryo Minelets. It takes 0.1 seconds to form the minelets, "
 				+ "0.8 seconds to arm them, and they only last for 3 seconds after being armed. If an enemy passes within 1.5m of a minelet, it will detonate and deal 10 Cold Damage to all enemies "
 				+ "within range. In exchange, -2 Direct Damage and -12 Magazine Size.", overclockIcons.coldDamage, 2);
@@ -282,10 +282,7 @@ public class Zhukov extends Weapon {
 			toReturn += 1;
 		}
 		
-		if (selectedOverclock == 1) {
-			toReturn -= 1;
-		}
-		else if (selectedOverclock == 2) {
+		if (selectedOverclock == 2) {
 			toReturn -= 2;
 		}
 		else if (selectedOverclock == 3) {
@@ -314,7 +311,7 @@ public class Zhukov extends Weapon {
 		}
 		
 		if (selectedOverclock == 0) {
-			toReturn += 50;
+			toReturn += 40;
 		}
 		else if (selectedOverclock == 3) {
 			toReturn -= 80;
@@ -347,6 +344,9 @@ public class Zhukov extends Weapon {
 		
 		if (selectedOverclock == 0) {
 			toReturn += 2.0;
+		}
+		else if (selectedOverclock == 1) {
+			toReturn -= 2.0;
 		}
 		
 		return toReturn;
@@ -407,7 +407,7 @@ public class Zhukov extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[10];
 		
-		boolean directDamageModified = selectedTier1 == 1 || selectedTier3 == 0 || (selectedOverclock > 0 && selectedOverclock < 5);
+		boolean directDamageModified = selectedTier1 == 1 || selectedTier3 == 0 || (selectedOverclock > 1 && selectedOverclock < 5);
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
 		// This stat only applies to OC "Embedded Detonators"
@@ -419,7 +419,7 @@ public class Zhukov extends Weapon {
 		boolean carriedAmmoModified = selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 3;
 		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
-		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier2 == 1 || selectedOverclock == 0);
+		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock == 1);
 		
 		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier2 == 2);
 		
