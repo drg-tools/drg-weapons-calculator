@@ -58,7 +58,7 @@ public class Shotgun extends Weapon {
 		magazineSize = 6;
 		rateOfFire = 1.6;
 		reloadTime = 2.0;
-		weakpointStunChance = 0.12;
+		weakpointStunChance = 0.15;
 		stunDuration = 3;
 		
 		// Override default 10m distance
