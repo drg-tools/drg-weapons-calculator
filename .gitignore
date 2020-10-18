@@ -4,3 +4,4 @@ bin/*
 .project
 builds/*
 jars/v*.jar
+jars/proposedBalanceChanges.jar
