@@ -610,7 +610,7 @@ public class Boomstick extends Weapon {
 	public double calculateAdditionalTargetDPS() {
 		double magSize = getMagazineSize();
 		double secondaryDamagePerShot;
-		if (selectedTier3 == 0) {
+		if (selectedTier3 == 0 || selectedOverclock == 4) {
 			secondaryDamagePerShot = getDamagePerPellet() * getNumberOfPellets() + getBlastwaveDamage();
 		}
 		else {
@@ -766,7 +766,7 @@ public class Boomstick extends Weapon {
 	@Override
 	public double utilityScore() {
 		// OC "Special Powder" gives a lot of Mobility (7.8m vertical per shot, 13m horizontal per shot)
-		if (selectedOverclock == 2) {
+		if (selectedOverclock == 3) {
 			// Multiply by 2 for mobility per shot
 			utilityScores[0] = 2 * (0.5 * 7.8 + 0.5 * 13) * UtilityInformation.BlastJump_Utility;
 		}
