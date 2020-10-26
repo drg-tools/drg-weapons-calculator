@@ -59,7 +59,7 @@ public class CryoCannon extends Weapon {
 		// Base stats, before mods or overclocks alter them:
 		particleDamage = 6;
 		particleCold = -8;
-		tankSize = 400;
+		tankSize = 500;
 		chargeupTime = 0.5;
 		pressureDropDuration = 6.5;
 		flowRate = 8.0;
@@ -89,12 +89,12 @@ public class CryoCannon extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
-		tier1[0] = new Mod("Larger Pressure Chamber", "x0.5 Pressure Drop Rate", modIcons.magSize, 1, 0);
+		tier1[0] = new Mod("Larger Pressure Chamber", "x0.33 Pressure Drop Rate", modIcons.magSize, 1, 0);
 		tier1[1] = new Mod("Improved 2nd Stage Pump", "-0.4 sec Chargeup Time", modIcons.chargeSpeed, 1, 1);
 		tier1[2] = new Mod("Stronger Cooling Unit", "+1 Cold per Particle", modIcons.coldDamage, 1, 2);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Larger Reserve Tank", "+50 Tank Size", modIcons.carriedAmmo, 2, 0);
+		tier2[0] = new Mod("Larger Reserve Tank", "+75 Tank Size", modIcons.carriedAmmo, 2, 0);
 		tier2[1] = new Mod("Overclocked Ejection Turbine", "+5m Cold Stream Reach", modIcons.distance, 2, 1);
 		tier2[2] = new Mod("Bypassed Integrity Check", "-1 sec Repressurization Delay", modIcons.coolingRate, 2, 2);
 		
@@ -322,7 +322,7 @@ public class CryoCannon extends Weapon {
 		int toReturn = tankSize;
 		
 		if (selectedTier2 == 0) {
-			toReturn += 50;
+			toReturn += 75;
 		}
 		if (selectedTier4 == 2) {
 			toReturn += 150;
@@ -353,7 +353,7 @@ public class CryoCannon extends Weapon {
 		double modifier = 1.0;
 		
 		if (selectedTier1 == 0) {
-			modifier *= 0.5;
+			modifier *= 0.33;
 		}
 		
 		if (selectedOverclock == 0) {
@@ -695,7 +695,7 @@ public class CryoCannon extends Weapon {
 		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
 		// Tier 1
 		toReturn.conditionalAdd(
-				String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1200, 0, 0, 0, 25, 0, 0, tier1[0].getText(true), "{ \"ex3\": { \"name\": \"Pressure Drop Rate\", \"value\": 0.5, \"multiply\": true } }", "Icon_Upgrade_ClipSize", "Magazine Size"),
+				String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1200, 0, 0, 0, 25, 0, 0, tier1[0].getText(true), "{ \"ex3\": { \"name\": \"Pressure Drop Rate\", \"value\": 0.33, \"multiply\": true } }", "Icon_Upgrade_ClipSize", "Magazine Size"),
 				exportAllMods || false);
 		toReturn.conditionalAdd(
 				String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1200, 0, 0, 0, 0, 25, 0, tier1[1].getText(true), "{ \"rate\": { \"name\": \"Chargeup Time\", \"value\": 0.4, \"subtract\": true } }", "Icon_Upgrade_ChargeUp", "Charge Speed"),
@@ -706,7 +706,7 @@ public class CryoCannon extends Weapon {
 		
 		// Tier 2
 		toReturn.conditionalAdd(
-				String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 2000, 0, 0, 0, 0, 15, 24, tier2[0].getText(true), "{ \"clip\": { \"name\": \"Tank Capacity\", \"value\": 50 } }", "Icon_Upgrade_Ammo", "Total Ammo"),
+				String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 2000, 0, 0, 0, 0, 15, 24, tier2[0].getText(true), "{ \"clip\": { \"name\": \"Tank Capacity\", \"value\": 75 } }", "Icon_Upgrade_Ammo", "Total Ammo"),
 				exportAllMods || false);
 		toReturn.conditionalAdd(
 				String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 2000, 24, 0, 0, 0, 15, 0, tier2[1].getText(true), "{ \"ex1\": { \"name\": \"Cold Stream Reach\", \"value\": 5 } }", "Icon_Upgrade_Distance", "Reach"),
