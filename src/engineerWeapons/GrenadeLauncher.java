@@ -31,7 +31,6 @@ public class GrenadeLauncher extends Weapon {
 	private int magazineSize;
 	private double reloadTime;
 	private double fearFactor;
-	private double armorBreaking;
 	
 	/****************************************************************************************
 	* Constructors
@@ -54,12 +53,11 @@ public class GrenadeLauncher extends Weapon {
 		
 		// Base stats, before mods or overclocks alter them:
 		areaDamage = 110;
-		aoeRadius = 2.5;
+		aoeRadius = 3;
 		carriedAmmo = 8;
 		magazineSize = 1;
 		reloadTime = 2.0;
 		fearFactor = 1.0;
-		armorBreaking = 0.5;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -89,12 +87,12 @@ public class GrenadeLauncher extends Weapon {
 		tier2[2] = new Mod("High Velocity Grenades", "+180% Projectile Velocity", modIcons.projectileVelocity, 2, 2, false);
 		
 		tier3 = new Mod[2];
-		tier3[0] = new Mod("Incendiary Compound", "Lose 50% of Direct and Area Damage, and convert it to Heat Damage that will ignite enemies, dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 3, 0);
+		tier3[0] = new Mod("Incendiary Compound", "Lose 50% of Direct, Area, and Armor Damage, and convert it to Heat Damage that will ignite enemies, dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 3, 0);
 		tier3[1] = new Mod("Pressure Wave", "+500% Armor Breaking", modIcons.armorBreaking, 3, 1);
 		
 		tier4 = new Mod[3];
 		tier4[0] = new Mod("Homebrew Explosive", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, modIcons.homebrewPowder, 4, 0);
-		tier4[1] = new Mod("Nails + Tape", "+1.5m AoE Radius", modIcons.aoeRadius, 4, 1);
+		tier4[1] = new Mod("Nails + Tape", "+1m AoE Radius", modIcons.aoeRadius, 4, 1);
 		tier4[2] = new Mod("Concussive Blast", "Stuns creatures within the blast radius for 3 seconds", modIcons.stun, 4, 2);
 		
 		tier5 = new Mod[2];
@@ -109,7 +107,8 @@ public class GrenadeLauncher extends Weapon {
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "RJ250 Compound", "Jump and shoot the ground beneath you to Grenade Jump. Can also be used on allies who are jumping. In exchange, -25 Area Damage.", overclockIcons.grenadeJump, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Fat Boy", "x4 Area Damage, +1m AoE Radius, x0.3 Max Ammo, x0.7 Projectile Velocity. Also leaves behind an 8m radius field that does "
 				+ "an average of " + MathUtils.round(DoTInformation.Rad_FB_DPS, GuiConstants.numDecimalPlaces) + " Radiation Damage per Second for 15 seconds.", overclockIcons.areaDamage, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Hyper Propellant", "+250 Direct Damage, +350% Projectile Velocity, x0.3 AoE Radius", overclockIcons.projectileVelocity, 5);
+		// TODO: check LoneXG's claim that HP only changes Direct Damage element to Disintegrate, not Area Damage. Also check Spiky Grenade's interaction with the element change.
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Hyper Propellant", "+385 Direct Damage, +350% Projectile Velocity, changes element from Explosive to Disintegrate, x0.3 AoE Radius, -2 Max Ammo", overclockIcons.projectileVelocity, 5);
 	}
 	
 	@Override
@@ -278,16 +277,16 @@ public class GrenadeLauncher extends Weapon {
 	* Setters and Getters
 	****************************************************************************************/
 	
-	private int getDirectDamage() {
-		int toReturn = 0;
+	private double getDirectDamage() {
+		double toReturn = 0;
 		if (selectedTier5 == 1) {
 			toReturn += 60;
 		}
 		if (selectedOverclock == 5) {
-			toReturn += 250;
+			toReturn += 385;
 		}
 		if (selectedTier3 == 0) {
-			toReturn /= 2;
+			toReturn /= 2.0;
 		}
 		return toReturn;
 	}
@@ -330,7 +329,7 @@ public class GrenadeLauncher extends Weapon {
 			toReturn += 1.0;
 		}
 		if (selectedTier4 == 1) {
-			toReturn += 1.5;
+			toReturn += 1.0;
 		}
 		
 		if (selectedOverclock == 0) {
@@ -367,12 +366,18 @@ public class GrenadeLauncher extends Weapon {
 		else if (selectedOverclock == 4) {
 			toReturn *= 0.3;
 		}
+		else if (selectedOverclock == 5) {
+			toReturn -= 2;
+		}
 		
 		return (int) Math.round(toReturn);
 	}
 	private double getArmorBreaking() {
-		double toReturn = armorBreaking;
-		if (selectedTier3 == 1) {
+		double toReturn = 1.0;
+		if (selectedTier3 == 0) {
+			toReturn -= 0.5;
+		}
+		else if (selectedTier3 == 1) {
 			toReturn += 5.0;
 		}
 		return toReturn;
@@ -428,11 +433,11 @@ public class GrenadeLauncher extends Weapon {
 		
 		toReturn[4] = new StatsRow("Magazine Size:", magazineSize, modIcons.magSize, false);
 		
-		boolean carriedAmmoModified = selectedTier1 == 1 || selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 4;
+		boolean carriedAmmoModified = selectedTier1 == 1 || selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		toReturn[6] = new StatsRow("Reload Time:", reloadTime, modIcons.reloadSpeed, false);
 		
-		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier3 == 1);
+		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier3 > -1, selectedTier3 > -1);
 		
 		toReturn[8] = new StatsRow("Fear Factor:", fearFactor, modIcons.fear, false);
 		
@@ -583,6 +588,7 @@ public class GrenadeLauncher extends Weapon {
 	
 	@Override
 	public int breakpoints() {
+		// TODO: investigate how HP's element change affects these values
 		double[] directDamage = {
 			0,  // Kinetic
 			getDirectDamage(),  // Explosive
