@@ -104,8 +104,8 @@ public class Subata extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, overclockIcons.homebrewPowder, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Oversized Magazine", "+10 Magazine Size, +0.5 Reload Time", overclockIcons.magSize, 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Automatic Fire", "Changes the Subata from semi-automatic to fully automatic, +2 Rate of Fire, +100% Base Spread, x2.5 Recoil", overclockIcons.rateOfFire, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Explosive Reload", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 15 Explosive Damage to the "
-				+ "enemy upon reloading. -3 Direct Damage, -3 Magazine Size, -40 Max Ammo.", overclockIcons.specialReload, 4);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Explosive Reload", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 42 Internal Damage to the enemy upon reloading. "
+				+ "If reloading can kill an enemy, an icon will appear next to their healthbar. In exchange, x0.5 Magazine Size and x0.5 Max Ammo ", overclockIcons.specialReload, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Tranquilizer Rounds", "Every bullet has a 50% chance to stun an enemy for 6 seconds. -4 Magazine Size, -4 Rate of Fire.", overclockIcons.stun, 5);
 	}
 	
@@ -288,16 +288,13 @@ public class Subata extends Weapon {
 		if (selectedOverclock == 1) {
 			toReturn *= homebrewPowderCoefficient;
 		}
-		else if (selectedOverclock == 4) {
-			toReturn -= 3;
-		}
 		
 		return toReturn;
 	}
 	private int getAreaDamage() {
-		// Equipping the Overclock "Explosive Reload" leaves a detonator inside enemies that does 15 Area Damage per Bullet that deals damage to an enemy upon reloading the Subata
+		// Equipping the Overclock "Explosive Reload" leaves a detonator inside enemies that does 42 Area Damage per Bullet that deals damage to an enemy upon reloading the Subata
 		if (selectedOverclock == 4) {
-			return 15;
+			return 42;
 		}
 		else { 
 			return 0;
@@ -314,7 +311,7 @@ public class Subata extends Weapon {
 		}
 		
 		if (selectedOverclock == 4) {
-			toReturn -= 40;
+			toReturn /= 2;
 		}
 		
 		return toReturn;
@@ -330,7 +327,8 @@ public class Subata extends Weapon {
 			toReturn += 10;
 		}
 		else if (selectedOverclock == 4) {
-			toReturn -= 3;
+			// Because this is integer division, it will truncate 8.5 down to 8, just like in-game does.
+			toReturn /= 2;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn -= 4;
@@ -647,8 +645,9 @@ public class Subata extends Weapon {
 		};
 		
 		double[] areaDamage = {
-			0,  // Kinetic
-			getAreaDamage(),  // Explosive
+			// Internal, Disintegrate, and Kinetic all share the same "no resistances" property in U32.
+			getAreaDamage(),  // Kinetic
+			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
 			0  // Electric
@@ -795,7 +794,7 @@ public class Subata extends Weapon {
 				exportAllOCs || false);
 		toReturn.conditionalAdd(
 				String.format(rowFormat, "Unstable", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 8100, 65, 0, 125, 0, 95, 0, overclocks[4].getText(true), "{ \"ex9\": { \"name\": \"Explosive Reload\", \"value\": 1, \"boolean\": true }, "
-				+ "\"dmg\": { \"name\": \"Damage\", \"value\": 3, \"subtract\": true }, \"ammo\": { \"name\": \"Max Ammo\", \"value\": 40, \"subtract\": true }, \"clip\": { \"name\": \"Magazine Size\", \"value\": 3, \"subtract\": true } }", "Icon_Overclock_Special_Magazine"),
+				+ "\"ammo\": { \"name\": \"Max Ammo\", \"value\": 0.5, \"multiply\": true }, \"clip\": { \"name\": \"Magazine Size\", \"value\": 0.5, \"multiply\": true } }", "Icon_Overclock_Special_Magazine"),
 				exportAllOCs || false);
 		toReturn.conditionalAdd(
 				String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 7150, 0, 0, 75, 95, 0, 135, overclocks[5].getText(true), "{ \"ex10\": { \"name\": \"Stun Chance\", \"value\": 50, \"percent\": true }, "
