@@ -769,7 +769,7 @@ public class GrenadeLauncher extends Weapon {
 				"Icon_Overclock_ChangeOfHigherDamage", "Randomized Damage"),
 				exportAllMods || false);
 		toReturn.conditionalAdd(
-				String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 3800, 0, 0, 0, 25, 15, 36, tier4[1].getText(true), "{ \"ex1\": { \"name\": \"Effect Radius\", \"value\": 1.5 } }", "Icon_Upgrade_Area", "Area of effect"),
+				String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 3800, 0, 0, 0, 25, 15, 36, tier4[1].getText(true), "{ \"ex1\": { \"name\": \"Effect Radius\", \"value\": 1 } }", "Icon_Upgrade_Area", "Area of effect"),
 				exportAllMods || false);
 		toReturn.conditionalAdd(
 				String.format(rowFormat, 4, tier4[2].getLetterRepresentation(), tier4[2].getName(), 3800, 15, 0, 0, 0, 36, 25, tier4[2].getText(true), "{ \"ex6\": { \"name\": \"Stun Chance\", \"value\": 100, \"percent\": true } }", "Icon_Upgrade_Stun", "Stun"),
@@ -818,8 +818,8 @@ public class GrenadeLauncher extends Weapon {
 				+ "\"ex1\": { \"name\": \"Effect Radius\", \"value\": 1 }, \"ammo\": { \"name\": \"Max Ammo\", \"value\": 0.3, \"multiply\": true }, \"ex4\": { \"name\": \"Projectile Velocity\", \"value\": 0.7, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_AreaDamage"),
 				exportAllOCs || false);
 		toReturn.conditionalAdd(
-				String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 8950, 130, 0, 0, 90, 0, 70, overclocks[5].getText(true), "{ \"ex8\": { \"name\": \"Direct Damage\", \"value\": 250 }, "
-				+ "\"ex4\": { \"name\": \"Projectile Velocity\", \"value\": 350, \"percent\": true }, \"ex1\": { \"name\": \"Effect Radius\", \"value\": 0.3, \"multiply\": true } }", "Icon_Upgrade_ProjectileSpeed"),
+				String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 8950, 130, 0, 0, 90, 0, 70, overclocks[5].getText(true), "{ \"ex8\": { \"name\": \"Direct Damage\", \"value\": 385 }, "
+				+ "\"ex4\": { \"name\": \"Projectile Velocity\", \"value\": 350, \"percent\": true }, \"ex1\": { \"name\": \"Effect Radius\", \"value\": 0.3, \"multiply\": true }, \"ammo\": { \"name\": \"Max Ammo\", \"value\": 2, \"subtract\": true } }", "Icon_Upgrade_ProjectileSpeed"),
 				exportAllOCs || false);
 		
 		return toReturn;

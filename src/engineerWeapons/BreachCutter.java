@@ -903,18 +903,18 @@ public class BreachCutter extends Weapon {
 				String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1000, 0, 0, 20, 0, 0, 0, tier1[0].getText(true), "{ \"ex1\": { \"name\": \"Projectile Lifetime\", \"value\": 1.5 } }", "Icon_Upgrade_Duration", "Delay"),
 				exportAllMods || false);
 		toReturn.conditionalAdd(
-				String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[1].getText(true), "{ \"clip\": { \"name\": \"Magazine Size\", \"value\": 2 } }", "Icon_Upgrade_ClipSize", "Magazine Size"),
+				String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[1].getText(true), "{ \"clip\": { \"name\": \"Magazine Size\", \"value\": 3 } }", "Icon_Upgrade_ClipSize", "Magazine Size"),
 				exportAllMods || false);
 		
 		// Tier 2
 		toReturn.conditionalAdd(
-				String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 1800, 0, 18, 12, 0, 0, 0, tier2[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 8 } }", "Icon_Upgrade_Ammo", "Total Ammo"),
+				String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 1800, 0, 18, 12, 0, 0, 0, tier2[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 6 } }", "Icon_Upgrade_Ammo", "Total Ammo"),
 				exportAllMods || false);
 		toReturn.conditionalAdd(
 				String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 1800, 0, 0, 18, 0, 12, 0, tier2[1].getText(true), "{ \"dmg\": { \"name\": \"Beam DPS\", \"value\": 175 } }", "Icon_Upgrade_DamageGeneral", "Damage"),
 				exportAllMods || false);
 		toReturn.conditionalAdd(
-				String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 1800, 12, 0, 0, 18, 0, 0, tier2[2].getText(true), "{ \"ex2\": { \"name\": \"Plasma Beam Width\", \"value\": 1 } }", "Icon_Upgrade_Area", "Area of effect"),
+				String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 1800, 12, 0, 0, 18, 0, 0, tier2[2].getText(true), "{ \"ex2\": { \"name\": \"Plasma Beam Width\", \"value\": 1.5 } }", "Icon_Upgrade_Area", "Area of effect"),
 				exportAllMods || false);
 		
 		// Tier 3
@@ -922,7 +922,7 @@ public class BreachCutter extends Weapon {
 				String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2200, 0, 0, 20, 0, 30, 0, tier3[0].getText(true), "{ \"ex3\": { \"name\": \"Plasma Expansion Delay\", \"value\": 0.2, \"subtract\": true } }", "Icon_Upgrade_Duration", "Charge Speed"),
 				exportAllMods || false);
 		toReturn.conditionalAdd(
-				String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2200, 20, 30, 0, 0, 0, 0, tier3[1].getText(true), "{ \"ex2\": { \"name\": \"Plasma Beam Width\", \"value\": 1 } }", "Icon_Upgrade_Area", "Area of effect"),
+				String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2200, 20, 30, 0, 0, 0, 0, tier3[1].getText(true), "{ \"reload\": { \"name\": \"Reload Time\", \"value\": 0.4, \"subtract\": true } }", "Icon_Upgrade_Speed", "Reload Speed"),
 				exportAllMods || false);
 		
 		// Tier 4
@@ -957,7 +957,7 @@ public class BreachCutter extends Weapon {
 		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
 		// Clean
 		toReturn.conditionalAdd(
-				String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 8700, 0, 130, 0, 100, 0, 80, overclocks[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 4 }, "
+				String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 8700, 0, 130, 0, 100, 0, 80, overclocks[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 3 }, "
 				+ "\"reload\": { \"name\": \"Reload Time\", \"value\": 0.2, \"subtract\": true } }", "Icon_Upgrade_Ammo"),
 				exportAllOCs || false);
 		toReturn.conditionalAdd(
@@ -971,22 +971,22 @@ public class BreachCutter extends Weapon {
 		// Balanced
 		toReturn.conditionalAdd(
 				String.format(rowFormat, "Balanced", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 7950, 0, 140, 80, 0, 100, 0, overclocks[3].getText(true), "{ \"ex9\": { \"name\": \"Return to Sender\", \"value\": 1, \"boolean\": true }, "
-				+ "\"ammo\": { \"name\": \"Max Ammo\", \"value\": 4, \"subtract\": true } }", "Icon_Overclock_ForthAndBack_Linecutter"),
+				+ "\"ammo\": { \"name\": \"Max Ammo\", \"value\": 6, \"subtract\": true } }", "Icon_Overclock_ForthAndBack_Linecutter"),
 				exportAllOCs || false);
 		toReturn.conditionalAdd(
 				String.format(rowFormat, "Balanced", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 7300, 0, 75, 120, 95, 0, 0, overclocks[4].getText(true), "{ \"ex11\": { \"name\": \"High Voltage Crossover\", \"value\": 1, \"boolean\": true }, "
-				+ "\"clip\": { \"name\": \"Magazine Size\", \"value\": 2, \"subtract\": true } }", "Icon_Upgrade_Electricity"),
+				+ "\"clip\": { \"name\": \"Magazine Size\", \"value\": 1, \"subtract\": true } }", "Icon_Upgrade_Electricity"),
 				exportAllOCs || false);
 		
 		// Unstable
 		toReturn.conditionalAdd(
 				String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 8250, 100, 120, 0, 0, 80, 0, overclocks[5].getText(true), "{ \"ex10\": { \"name\": \"Spinning Death\", \"value\": 1, \"boolean\": true }, "
-				+ "\"dmg\": { \"name\": \"Beam DPS\", \"value\": 0.2, \"multiply\": true }, \"ex1\": { \"name\": \"Projectile Lifetime\", \"value\": 2.5, \"multiply\": true }, \"ammo\": { \"name\": \"Max Ammo\", \"value\": 0.5, \"multiply\": true }, "
-				+ "\"clip\": { \"name\": \"Magazine Size\", \"value\": 0.25, \"multiply\": true } }", "Icon_Upgrade_Special"),
+				+ "\"dmg\": { \"name\": \"Beam DPS\", \"value\": 0.2, \"multiply\": true }, \"ex1\": { \"name\": \"Projectile Lifetime\", \"value\": 2.5, \"multiply\": true }, \"ex2\": { \"name\": \"Plasma Beam Width\", \"value\": 1.5 }, "
+				+ "\"ammo\": { \"name\": \"Max Ammo\", \"value\": 0.5, \"multiply\": true }, \"clip\": { \"name\": \"Magazine Size\", \"value\": 0.33, \"multiply\": true } }", "Icon_Upgrade_Special"),
 				exportAllOCs || false);
 		toReturn.conditionalAdd(
 				String.format(rowFormat, "Unstable", overclocks[6].getShortcutRepresentation(), overclocks[6].getName(), 7550, 135, 0, 0, 70, 0, 90, overclocks[6].getText(true), "{ \"ex12\": { \"name\": \"Inferno\", \"value\": 1, \"boolean\": true }, "
-				+ "\"dmg\": { \"name\": \"Beam DPS\", \"value\": 175, \"subtract\": true }, \"ammo\": { \"name\": \"Max Ammo\", \"value\": 4, \"subtract\": true }, \"ex4\": { \"name\": \"Armor Breaking\", \"value\": 0.25, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_Heat"),
+				+ "\"dmg\": { \"name\": \"Beam DPS\", \"value\": 175, \"subtract\": true }, \"ammo\": { \"name\": \"Max Ammo\", \"value\": 6, \"subtract\": true }, \"ex4\": { \"name\": \"Armor Breaking\", \"value\": 0.25, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_Heat"),
 				exportAllOCs || false);
 		
 		return toReturn;
