@@ -123,10 +123,7 @@ public class EPC_RegularShot extends EPC {
 		double burnDPS = 0;
 		if (selectedTier5 == 2 && !statusEffects[1]) {
 			if (burst) {
-				// 50% of Direct Damage from the Regular Shots gets added on as Heat Damage.
-				double heatDamagePerShot = 0.5 * getDirectDamage();
-				double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatDamagePerShot, rateOfFire);
-				double fireDoTUptimeCoefficient = (duration - timeToIgnite) / duration;
+				double fireDoTUptimeCoefficient = (duration - averageTimeToCauterize()) / duration;
 				
 				burnDPS = fireDoTUptimeCoefficient * DoTInformation.Burn_DPS;
 			}
@@ -153,9 +150,7 @@ public class EPC_RegularShot extends EPC {
 		if (selectedTier5 == 2) {
 			
 			double estimatedNumEnemiesKilled = calculateFiringDuration() / averageTimeToKill();
-			double heatDamagePerShot = 0.5 * getDirectDamage();
-			double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatDamagePerShot, rateOfFire);
-			double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
+			double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(averageTimeToCauterize(), DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 			
 			fireDoTTotalDamage = fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		}
@@ -210,7 +205,7 @@ public class EPC_RegularShot extends EPC {
 		
 		double burnDmg = 0;
 		if (selectedTier5 == 2) {
-			burnDmg = calculateAverageDoTDamagePerEnemy(EnemyInformation.averageTimeToIgnite(0.5 * getDirectDamage(), rateOfFire), DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
+			burnDmg = calculateAverageDoTDamagePerEnemy(averageTimeToCauterize(), DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 		}
 		double[] DoTDamage = {
 			burnDmg,  // Fire
@@ -235,7 +230,7 @@ public class EPC_RegularShot extends EPC {
 		if (selectedTier5 == 2) {
 			// 50% of Direct Damage from the Regular Shots gets added on as Heat Damage.
 			double heatDamagePerShot = 0.5 * getDirectDamage();
-			return EnemyInformation.averageTimeToIgnite(heatDamagePerShot, rateOfFire);
+			return EnemyInformation.averageTimeToIgnite(0, heatDamagePerShot, rateOfFire, 0);
 		}
 		else {
 			return -1;
@@ -247,9 +242,7 @@ public class EPC_RegularShot extends EPC {
 		double baseDamage = getNumRegularShotsBeforeOverheat() * getDirectDamage();
 		double fireDoTDamage = 0;
 		if (selectedTier5 == 2) {
-			double heatDamagePerShot = 0.5 * getDirectDamage();
-			double timeToIgnite = EnemyInformation.averageTimeToIgnite(heatDamagePerShot, rateOfFire);
-			fireDoTDamage = calculateAverageDoTDamagePerEnemy(timeToIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
+			fireDoTDamage = calculateAverageDoTDamagePerEnemy(averageTimeToCauterize(), DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 		}
 		return baseDamage + fireDoTDamage;
 	}

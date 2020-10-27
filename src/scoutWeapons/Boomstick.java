@@ -503,10 +503,10 @@ public class Boomstick extends Weapon {
 		// 50% of Direct Damage from the pellets gets added on as Heat Damage.
 		double heatDamagePerShot = 0.5 * getDamagePerPellet() * numPelletsThatApplyHeat;
 		if (getMagazineSize() > 1) {
-			return EnemyInformation.averageTimeToIgnite(heatDamagePerShot * getRateOfFire());
+			return EnemyInformation.averageTimeToIgnite(0, heatDamagePerShot, getRateOfFire(), 0);
 		}
 		else {
-			return EnemyInformation.averageTimeToIgnite(heatDamagePerShot / getReloadTime());
+			return EnemyInformation.averageTimeToIgnite(0, heatDamagePerShot, 1.0 / getReloadTime(), 0);
 		}
 	}
 	

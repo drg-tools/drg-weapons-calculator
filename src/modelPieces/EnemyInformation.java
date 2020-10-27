@@ -202,7 +202,7 @@ public class EnemyInformation {
 		{35, 5, 10, -100, 0, 40},		// Mactera Spawn
 		{30, 0, 10, -180, 0, 40},		// Mactera Grabber
 		{35, 5, 10, -320, 0, 50},		// Mactera Bomber
-		{60, 30, 10, -150, 0, 0},		// Naedocyte Breeder
+		{60, 30, 10, -150, 0, 40},		// Naedocyte Breeder
 		{30/4.0, 0, 4, -50/4.0, 0, 4},	// Glyphid Brood Nexus
 		{30, 0, 10, -50, 0, 10},		// Spitball Infector
 		{30, 0, 10, -50, 0, 10}			// Cave Leech
@@ -364,32 +364,32 @@ public class EnemyInformation {
 		return normalEnemyHealth + largeEnemyHealth;
 	}
 	
-	public static double averageTimeToIgnite(double heatPerShot, double RoF) {
-		// Early exit: if Heat/Shot > 100, then all enemies get ignited instantly since the largest Ignite Temp is 100.
-		if (heatPerShot >= 100) {
-			return 0;
-		}
-		
-		return averageTimeToIgnite(heatPerShot * RoF);
-	}
-	public static double averageTimeToIgnite(double heatPerSecond) {
+	
+	
+	public static double averageTimeToIgnite(double burstOfHeat, double heatPerShot, double RoF, double heatPerSec) {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
 		}
 		
 		int numEnemyTypes = exactSpawnRates.length;
-		double[] igniteTemps = new double[numEnemyTypes];
-		double[] heatLossRates = new double[numEnemyTypes];
+		double[] ignitionTimes = new double[numEnemyTypes];
+		double igniteTemp, coolingRate;
 		
 		for (int i = 0; i < numEnemyTypes; i++) {
-			igniteTemps[i] = enemyTemperatures[i][0];
-			heatLossRates[i] = enemyTemperatures[i][2];
+			igniteTemp = enemyTemperatures[i][0];
+			
+			// Early exit: if Heat/Shot >= 100, then all enemies get ignited instantly since the largest Ignite Temp modeled in this program is 100.
+			if (burstOfHeat >= igniteTemp || heatPerShot >= igniteTemp || burstOfHeat + heatPerShot >= igniteTemp) {
+				ignitionTimes[i] = 0.0;
+				break;
+			}
+			
+			coolingRate = enemyTemperatures[i][2];
+			
+			ignitionTimes[i] = (igniteTemp - burstOfHeat) / (heatPerShot * RoF + heatPerSec - coolingRate);
 		}
 		
-		double avgIgniteTemp = MathUtils.vectorDotProduct(exactSpawnRates, igniteTemps);
-		double avgHeatLossRate = MathUtils.vectorDotProduct(exactSpawnRates, heatLossRates);
-		
-		return avgIgniteTemp / (heatPerSecond - avgHeatLossRate);
+		return MathUtils.vectorDotProduct(exactSpawnRates, ignitionTimes);
 	}
 	public static double averageBurnDuration() {
 		if (!verifySpawnRatesTotalIsOne()) {
@@ -397,21 +397,17 @@ public class EnemyInformation {
 		}
 		
 		int numEnemyTypes = exactSpawnRates.length;
-		double[] igniteTemps = new double[numEnemyTypes];
-		double[] douseTemps = new double[numEnemyTypes];
-		double[] heatLossRates = new double[numEnemyTypes];
+		double burnDurations[] = new double[numEnemyTypes];
+		double igniteTemp, douseTemp, coolingRate;
 		
 		for (int i = 0; i < numEnemyTypes; i++) {
-			igniteTemps[i] = enemyTemperatures[i][0];
-			douseTemps[i] = enemyTemperatures[i][1];
-			heatLossRates[i] = enemyTemperatures[i][2];
+			igniteTemp = enemyTemperatures[i][0];
+			douseTemp = enemyTemperatures[i][1];
+			coolingRate = enemyTemperatures[i][2];
+			burnDurations[i] = (igniteTemp - douseTemp) / coolingRate;
 		}
 		
-		double avgIgniteTemp = MathUtils.vectorDotProduct(exactSpawnRates, igniteTemps);
-		double avgDouseTemp = MathUtils.vectorDotProduct(exactSpawnRates, douseTemps);
-		double avgHeatLossRate = MathUtils.vectorDotProduct(exactSpawnRates, heatLossRates);
-		
-		return (avgIgniteTemp - avgDouseTemp) / avgHeatLossRate;
+		return MathUtils.vectorDotProduct(exactSpawnRates, burnDurations);
 	}
 	// This method is currently only used by Gunner/Minigun/Mod/5/Aggressive Venting in maxDamage() and Engineer/GrenadeLauncher/Mod/3/Incendiary Compound single-target DPS
 	public static double percentageEnemiesIgnitedBySingleBurstOfHeat(double heatPerBurst) {
@@ -421,7 +417,7 @@ public class EnemyInformation {
 		
 		double sum = 0;
 		for (int i = 0; i < exactSpawnRates.length; i++) {
-			if (enemyTemperatures[i][0] < heatPerBurst) {
+			if (enemyTemperatures[i][0] <= heatPerBurst) {
 				sum += exactSpawnRates[i];
 			}
 		}
@@ -433,58 +429,53 @@ public class EnemyInformation {
 		From what Elythnwaen and I have been able to figure out, creatures with positive temperatures lose Heat constantly. 
 		However, when creatures have negative temperatures, they all have 1-2 second "WarmingCooldown" windows before they 
 		start gaining Heat. Most of these Freeze temperatures are achieved in less than 2 seconds, so I'm choosing to model 
-		this as if the Heat Gain rate has no effect on the average Freeze time.
+		this as if the warming rate has no effect on the average Freeze time.
 		
 		Cold per shot should be a negative number to indicate that the enemy's temperature is being decreased
 	*/
-	public static double averageTimeToFreeze(double coldPerShot, double RoF) {
-		// Early exit: if Cold/Shot > 300, then all enemies get frozen instantly since the largest Freeze Temp is 300.
-		if (coldPerShot <= -300) {
-			return 0;
-		}
-		
-		return averageTimeToFreeze(coldPerShot * RoF);
-	}
-	public static double averageTimeToFreeze(double coldPerSecond) {
+	public static double averageTimeToFreeze(double burstOfCold, double coldPerShot, double RoF, double coldPerSec) {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
 		}
 		
 		int numEnemyTypes = exactSpawnRates.length;
-		double[] freezeTemps = new double[numEnemyTypes];
+		double[] freezeTimes = new double[numEnemyTypes];
+		double freezeTemp;
 		
 		for (int i = 0; i < numEnemyTypes; i++) {
-			freezeTemps[i] = enemyTemperatures[i][3];
+			freezeTemp = enemyTemperatures[i][3];
+			
+			// Early exit: if Cold/Shot >= 300, then all enemies get ignited instantly since the largest Freeze Temp modeled in this program is 300.
+			if (burstOfCold <= freezeTemp || coldPerShot <= freezeTemp || burstOfCold + coldPerShot <= freezeTemp) {
+				freezeTimes[i] = 0.0;
+				break;
+			}
+			
+			freezeTimes[i] = (freezeTemp - burstOfCold) / (coldPerShot * RoF + coldPerSec);
 		}
 		
-		double avgFreezeTemp = MathUtils.vectorDotProduct(exactSpawnRates, freezeTemps);
-		
-		// Negative Freeze temps divided by negative cold per seconds results in a positive number of seconds
-		return avgFreezeTemp / coldPerSecond;
+		return MathUtils.vectorDotProduct(exactSpawnRates, freezeTimes);
 	}
-	// Because the creatures have had a negative temperature for longer than 2 seconds (due to being Frozen already) I'm keeping heatGainRate in the refreeze method
+	// Because the creatures have had a negative temperature for longer than 2 seconds (due to being Frozen already) I'm keeping warming rate in the refreeze method
 	public static double averageTimeToRefreeze(double coldPerSecond) {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
 		}
 		
 		int numEnemyTypes = exactSpawnRates.length;
-		double[] freezeTemps = new double[numEnemyTypes];
-		double[] thawTemps = new double[numEnemyTypes];
-		double[] heatGainRates = new double[numEnemyTypes];
+		double[] refreezeTimes = new double[numEnemyTypes];
+		double freezeTemp, thawTemp, warmingRate;
 		
 		for (int i = 0; i < numEnemyTypes; i++) {
-			freezeTemps[i] = enemyTemperatures[i][3];
-			thawTemps[i] = enemyTemperatures[i][4];
-			heatGainRates[i] = enemyTemperatures[i][5];
+			freezeTemp = enemyTemperatures[i][3];
+			thawTemp = enemyTemperatures[i][4];
+			warmingRate = enemyTemperatures[i][5];
+			
+			// Negative Freeze temps divided by negative cold per seconds results in a positive number of seconds
+			refreezeTimes[i] = (freezeTemp - thawTemp) / (coldPerSecond + warmingRate);
 		}
 		
-		double avgFreezeTemp = MathUtils.vectorDotProduct(exactSpawnRates, freezeTemps);
-		double avgThawTemp = MathUtils.vectorDotProduct(exactSpawnRates, thawTemps);
-		double avgHeatGainRate = MathUtils.vectorDotProduct(exactSpawnRates, heatGainRates);
-		
-		// Negative Freeze temps divided by negative cold per seconds results in a positive number of seconds
-		return (avgFreezeTemp - avgThawTemp) / (coldPerSecond + avgHeatGainRate);
+		return MathUtils.vectorDotProduct(exactSpawnRates, refreezeTimes);
 	}
 	public static double averageFreezeDuration() {
 		if (!verifySpawnRatesTotalIsOne()) {
@@ -492,22 +483,20 @@ public class EnemyInformation {
 		}
 		
 		int numEnemyTypes = exactSpawnRates.length;
-		double[] freezeTemps = new double[numEnemyTypes];
-		double[] thawTemps = new double[numEnemyTypes];
-		double[] heatGainRates = new double[numEnemyTypes];
+		double freezeDurations[] = new double[numEnemyTypes];
+		double freezeTemp, thawTemp, warmingRate;
 		
 		for (int i = 0; i < numEnemyTypes; i++) {
-			freezeTemps[i] = enemyTemperatures[i][3];
-			thawTemps[i] = enemyTemperatures[i][4];
-			heatGainRates[i] = enemyTemperatures[i][5];
+			freezeTemp = enemyTemperatures[i][3];
+			thawTemp = enemyTemperatures[i][4];
+			warmingRate = enemyTemperatures[i][5];
+			
+			// Because every Freeze temp is negative and is strictly less than the corresponding Thaw temp, subtracting Freeze from Thaw guarantees a positive number.
+			freezeDurations[i] = (thawTemp - freezeTemp) / warmingRate;
+			System.out.println(freezeDurations[i]);
 		}
 		
-		double avgFreezeTemp = MathUtils.vectorDotProduct(exactSpawnRates, freezeTemps);
-		double avgThawTemp = MathUtils.vectorDotProduct(exactSpawnRates, thawTemps);
-		double avgHeatGainRate = MathUtils.vectorDotProduct(exactSpawnRates, heatGainRates);
-		
-		// Because every Freeze temp is negative and is strictly less than the corresponding Thaw temp, subtracting Freeze from Thaw guarantees a positive number.
-		return (avgThawTemp - avgFreezeTemp) / avgHeatGainRate;
+		return MathUtils.vectorDotProduct(exactSpawnRates, freezeDurations);
 	}
 	// This method is currently only used by Driller/CryoCannon/OC/Snowball in Utility
 	public static double percentageEnemiesFrozenBySingleBurstOfCold(double coldPerBurst) {
@@ -517,7 +506,7 @@ public class EnemyInformation {
 		
 		double sum = 0;
 		for (int i = 0; i < exactSpawnRates.length; i++) {
-			if (enemyTemperatures[i][3] > coldPerBurst) {
+			if (enemyTemperatures[i][3] >= coldPerBurst) {
 				sum += exactSpawnRates[i];
 			}
 		}

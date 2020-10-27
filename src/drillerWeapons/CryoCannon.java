@@ -472,7 +472,6 @@ public class CryoCannon extends Weapon {
 	}
 	
 	private double averageTimeToFreeze(boolean refreeze) {
-		double streamColdPerSec = getParticleCold() * getFlowRate();
 		double icePathColdPerSec = icePathColdPerTick * icePathTicksPerSec / 2.0;
 		
 		double coldRadianceColdPerSec = 0;
@@ -482,13 +481,11 @@ public class CryoCannon extends Weapon {
 			coldRadianceColdPerSec = -60.0 * 4.0 / getColdStreamReach();
 		}
 		
-		double totalColdPerSec = streamColdPerSec + icePathColdPerSec + coldRadianceColdPerSec;
-		
 		if (refreeze) {
-			return EnemyInformation.averageTimeToRefreeze(totalColdPerSec);
+			return EnemyInformation.averageTimeToRefreeze(getParticleCold() * getFlowRate() + icePathColdPerSec + coldRadianceColdPerSec);
 		}
 		else {
-			return EnemyInformation.averageTimeToFreeze(totalColdPerSec);
+			return EnemyInformation.averageTimeToFreeze(0, getParticleCold(), getFlowRate(), icePathColdPerSec + coldRadianceColdPerSec);
 		}
 	}
 	
@@ -651,7 +648,7 @@ public class CryoCannon extends Weapon {
 		
 		// Freeze
 		double freezeDuration = EnemyInformation.averageFreezeDuration();
-		double freezeUptime = freezeDuration / (EnemyInformation.averageTimeToFreeze(getParticleCold() * getFlowRate() + icePathColdPerTick * icePathTicksPerSec / 2.0) + freezeDuration);
+		double freezeUptime = freezeDuration / (averageTimeToFreeze(false) + freezeDuration);
 		utilityScores[6] = freezeUptime * numTargets * UtilityInformation.Frozen_Utility;
 		
 		// According to Elythnwaen, Snowball does 200 Cold Damage in a 4m radius, 2m full damage, 50% falloff at edge

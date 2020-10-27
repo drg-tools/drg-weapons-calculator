@@ -453,7 +453,7 @@ public class Zhukov extends Weapon {
 		// Minelets do 10 Cold Damage upon detonation, but they have to take 0.1 seconds to arm first.
 		// While Frozen, bullets do x3 Direct Damage.
 		double effectiveRoF = getRateOfFire() / 2.0;
-		double timeToFreeze = EnemyInformation.averageTimeToFreeze(-10, effectiveRoF);
+		double timeToFreeze = EnemyInformation.averageTimeToFreeze(0, -10, effectiveRoF, 0);
 		return Math.ceil(timeToFreeze * effectiveRoF);
 	}
 	
@@ -668,7 +668,7 @@ public class Zhukov extends Weapon {
 		// OC "Cryo Minelets" applies Cryo damage to missed bullets
 		if (selectedOverclock == 2) {
 			// Cryo minelets: 1 placed per 2 ammo, minelets arm in 0.9 seconds, and detonate in 4 seconds if no enemy is around.
-			// Minelets seem to do 10 Cold Damage each, and explode in a 1.5m radius.
+			// Minelets do 10 Cold Damage each, and explode in a 1.5m radius.
 			int estimatedNumTargetsSlowedOrFrozen = calculateNumGlyphidsInRadius(1.5);
 			
 			utilityScores[3] = estimatedNumTargetsSlowedOrFrozen * UtilityInformation.Cold_Utility;
@@ -686,7 +686,8 @@ public class Zhukov extends Weapon {
 	public double averageTimeToCauterize() {
 		if (selectedOverclock == 2) {
 			double effectiveRoF = getRateOfFire() / 2.0;
-			return EnemyInformation.averageTimeToFreeze(-10, effectiveRoF);
+			// I'm choosing to add 0.9 to model the 0.1 creation time and 0.8 arming time before minelets deal their Cold damage
+			return 0.9 + EnemyInformation.averageTimeToFreeze(0, -10, effectiveRoF, 0);
 		}
 		else {
 			return -1;

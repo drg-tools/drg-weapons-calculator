@@ -672,7 +672,7 @@ public class GrenadeLauncher extends Weapon {
 		if (selectedTier3 == 0) {
 			// These methods already divide by 2 when this mod is selected; no need to do it again.
 			double heatPerGrenade = getDirectDamage() + getAreaDamage();
-			return EnemyInformation.averageTimeToIgnite(heatPerGrenade, 1.0 / reloadTime);
+			return EnemyInformation.averageTimeToIgnite(0, heatPerGrenade, 1.0 / reloadTime, 0);
 		}
 		else {
 			return -1;
