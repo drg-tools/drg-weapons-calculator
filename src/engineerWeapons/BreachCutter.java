@@ -626,18 +626,27 @@ public class BreachCutter extends Weapon {
 		double baseDamage = impactDamage + intersectionTime * damageTickRate * dmgPerTick + explosiveGoodbyeDmg;
 		
 		double burnDamage = 0;
-		// If Frozen, then they can't Burn. However, the logic gets tricky when trying to ingore Status Effects like Frozen for max damage calculations.
+		// If Frozen, then they can't Burn. However, the logic gets tricky when trying to ignore Status Effects like Frozen for max damage calculations.
 		if ((selectedOverclock == 6 && ignoreStatusEffects) || (selectedOverclock == 6 && !ignoreStatusEffects && !statusEffects[1])) {
+			/* 
+				OC "Inferno" adds 3 different Heat sources:
+				1. 75 Heat Damage in a single burst
+				2. A hidden DoT that does 7 Fire + 7 Heat per tick, 2 ticks/sec, 5 sec duration (11 ticks)
+				3. 90% of the Dmg/Tick as Heat while intersecting enemies
+				
+				As a result of this, for every enemy except Oppressor the Burn DoT is extended by 5 sec (because 14 heat/sec > cooling rate) and they take 14 additional DPS during those 5 sec
+			*/
+			
 			double ignitionTime = averageTimeToCauterize();
 			double burnDoTDuration;
 			if (extendDoTsBeyondIntersection) {
-				burnDoTDuration = DoTInformation.Burn_SecsDuration;
+				burnDoTDuration = DoTInformation.Burn_SecsDuration + 5.0;
+				burnDamage = DoTInformation.Burn_DPS * burnDoTDuration + 11.0 * 7.0;  // Add the 11 ticks of 7 Fire Damage
 			}
 			else {
 				burnDoTDuration = intersectionTime - ignitionTime;
+				burnDamage = burnDoTDuration * DoTInformation.Burn_DPS + intersectionTime * 14.0;
 			}
-			
-			burnDamage = DoTInformation.Burn_DPS * burnDoTDuration;
 		}
 		
 		double electrocuteDamage = 0;
@@ -718,7 +727,8 @@ public class BreachCutter extends Weapon {
 		// Frozen negates the Burn DoT
 		if (selectedOverclock == 6 && !statusEffects[1]) {
 			// Because OC "Inferno" ignites all enemies just so dang fast, I'm choosing to over-estimate the Burn DPS for bursts as if they ignite instantly.
-			burnDPS = DoTInformation.Burn_DPS;
+			// Additionally, add the hidden DoT's 14 DPS for 5 seconds
+			burnDPS = DoTInformation.Burn_DPS + 14.0;
 		}
 		
 		double electroDPS = 0;
