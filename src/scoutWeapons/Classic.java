@@ -31,7 +31,6 @@ public abstract class Classic extends Weapon {
 	protected int magazineSize;
 	protected double rateOfFire;
 	private double reloadTime;
-	protected double delayBeforeFocusing;
 	private double focusDuration;
 	protected double movespeedWhileFocusing;
 	private double weakpointBonus;
@@ -42,7 +41,6 @@ public abstract class Classic extends Weapon {
 	****************************************************************************************/
 	
 	public Classic(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
-		fullName = "M1000 Classic (Hipfired)";
 		weaponPic = WeaponPictures.classic;
 		
 		// Base stats, before mods or overclocks alter them:
@@ -52,8 +50,7 @@ public abstract class Classic extends Weapon {
 		magazineSize = 8;
 		rateOfFire = 4.0;
 		reloadTime = 2.5;
-		delayBeforeFocusing = 0.2;  // seconds
-		focusDuration = 0.8;  // seconds
+		focusDuration = 1.0 / 1.55;  // seconds
 		movespeedWhileFocusing = 0.3;
 		weakpointBonus = 0.1;
 		armorBreaking = 0.3;
@@ -78,11 +75,11 @@ public abstract class Classic extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Expanded Ammo Bags", "+32 Max Ammo", modIcons.carriedAmmo, 1, 0);
-		tier1[1] = new Mod("Increased Caliber Rounds", "x1.2 Direct Damage", modIcons.directDamage, 1, 1);
+		tier1[0] = new Mod("Expanded Ammo Bags", "+40 Max Ammo", modIcons.carriedAmmo, 1, 0);
+		tier1[1] = new Mod("Increased Caliber Rounds", "+10 Direct Damage", modIcons.directDamage, 1, 1);
 		
 		tier2 = new Mod[2];
-		tier2[0] = new Mod("Fast-Charging Coils", "x1.6 Focus Speed", modIcons.chargeSpeed, 2, 0);
+		tier2[0] = new Mod("Fast-Charging Coils", "+30% Focus Speed", modIcons.chargeSpeed, 2, 0);
 		tier2[1] = new Mod("Better Weight Balance", "-30% Spread per Shot, x0.8 Spread Variance, x0.5 Recoil", modIcons.recoil, 2, 1);
 		
 		tier3 = new Mod[2];
@@ -102,7 +99,7 @@ public abstract class Classic extends Weapon {
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Hoverclock", "While Focusing in midair, your current velocity is reduced by 80% for about a second or until you fire/stop focusing. Getting a kill or touching the ground lets you Hover again.", overclockIcons.hoverclock, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Minimal Clips", "+16 Max Ammo, -0.2 Reload Time", overclockIcons.carriedAmmo, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Active Stability System", "No movement penalty while Focusing, -25% Focused Shot Multiplier", overclockIcons.movespeed, 2);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Active Stability System", "No movement penalty while Focusing, +20% Focus Speed, +0.5 Reload Time", overclockIcons.movespeed, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Hipster", "+3 Rate of Fire, x1.75 Max Ammo, x0.4 Delay Before Focusing, -10% Spread per Shot, x0.85 Spread Variance, x0.5 Recoil, x0.6 Direct Damage", overclockIcons.baseSpread, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Electrocuting Focus Shots", "Focused Shots apply an Electrocute DoT which does "
 				+ "an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per Second for 4 seconds, -25% Focused Shot Multiplier", overclockIcons.electricity, 4);
@@ -268,13 +265,13 @@ public abstract class Classic extends Weapon {
 		double toReturn = directDamage;
 		
 		// Additive bonuses first
-		if (selectedOverclock == 3) {
-			toReturn -= 20;
+		if (selectedTier1 == 1) {
+			toReturn += 10;
 		}
 		
 		// Multiplicative bonuses last
-		if (selectedTier1 == 1) {
-			toReturn *= 1.2;
+		if (selectedOverclock == 3) {
+			toReturn *= 0.6;
 		}
 		
 		return toReturn;
@@ -287,7 +284,7 @@ public abstract class Classic extends Weapon {
 			toReturn += 0.25;
 		}
 		
-		if (selectedOverclock == 2 || selectedOverclock == 4) {
+		if (selectedOverclock == 4) {
 			toReturn -= 0.25;
 		}
 		else if (selectedOverclock == 5) {
@@ -320,14 +317,8 @@ public abstract class Classic extends Weapon {
 		if (selectedOverclock == 1) {
 			toReturn -= 0.2;
 		}
-		
-		return toReturn;
-	}
-	protected double getFocusDelay() {
-		double toReturn = delayBeforeFocusing;
-		// Thanks to LoneXG for telling me that Hipster reduces delay before Focusing
-		if (selectedOverclock == 3) {
-			toReturn *= 0.4;
+		else if (selectedOverclock == 2) {
+			toReturn += 0.5;
 		}
 		
 		return toReturn;
@@ -335,10 +326,13 @@ public abstract class Classic extends Weapon {
 	protected double getFocusDuration() {
 		double focusSpeedCoefficient = 1.0;
 		if (selectedTier2 == 0) {
-			focusSpeedCoefficient *= 1.6;
+			focusSpeedCoefficient += 0.3;
 		}
 		
-		if (selectedOverclock == 5) {
+		if (selectedOverclock == 2) {
+			focusSpeedCoefficient += 0.2;
+		}
+		else if (selectedOverclock == 5) {
 			focusSpeedCoefficient *= 0.5;
 		}
 		
@@ -486,15 +480,15 @@ public abstract class Classic extends Weapon {
 		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
 		// Tier 1
 		toReturn.conditionalAdd(
-				String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1200, 0, 25, 0, 0, 0, 0, tier1[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 32 } }", "Icon_Upgrade_Ammo", "Total Ammo"),
+				String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1200, 0, 25, 0, 0, 0, 0, tier1[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 40 } }", "Icon_Upgrade_Ammo", "Total Ammo"),
 				exportAllMods || false);
 		toReturn.conditionalAdd(
-				String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1200, 0, 0, 0, 0, 25, 0, tier1[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 1.2, \"multiply\": true } }", "Icon_Upgrade_DamageGeneral", "Damage"),
+				String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1200, 0, 0, 0, 0, 25, 0, tier1[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 10 } }", "Icon_Upgrade_DamageGeneral", "Damage"),
 				exportAllMods || false);
 		
 		// Tier 2
 		toReturn.conditionalAdd(
-				String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 2000, 0, 0, 0, 24, 15, 0, tier2[0].getText(true), "{ \"ex1\": { \"name\": \"Focus Speed\", \"value\": 1.6, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_ChargeUp", "Accuracy"),
+				String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 2000, 0, 0, 0, 24, 15, 0, tier2[0].getText(true), "{ \"ex1\": { \"name\": \"Focus Speed\", \"value\": 30, \"percent\": true } }", "Icon_Upgrade_ChargeUp", "Accuracy"),
 				exportAllMods || false);
 		toReturn.conditionalAdd(
 				String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 2000, 0, 24, 0, 15, 0, 0, tier2[1].getText(true), "{ \"ex3\": { \"name\": \"Recoil\", \"value\": 0.5, \"multiply\": true } }", "Icon_Upgrade_Recoil", "Recoil"),
@@ -552,7 +546,7 @@ public abstract class Classic extends Weapon {
 		// Balanced
 		toReturn.conditionalAdd(
 				String.format(rowFormat, "Balanced", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 8150, 70, 90, 135, 0, 0, 0, overclocks[2].getText(true), "{ \"ex8\": { \"name\": \"Focus Mode Movement Speed\", \"value\": 70, \"percent\": true }, "
-				+ "\"ex2\": { \"name\": \"Focused Shot Damage Bonus\", \"value\": 25, \"percent\": true, \"subtract\": true } }", "Icon_Upgrade_MovementSpeed"),
+				+ "\"ex1\": { \"name\": \"Focus Speed\", \"value\": 20, \"percent\": true }, \"reload\": { \"name\": \"Reload Time\", \"value\": 0.5 } }", "Icon_Upgrade_MovementSpeed"),
 				exportAllOCs || false);
 		toReturn.conditionalAdd(
 				String.format(rowFormat, "Balanced", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 8900, 0, 0, 80, 125, 105, 0, overclocks[3].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 1.75, \"multiply\": true }, "

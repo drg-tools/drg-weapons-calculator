@@ -83,7 +83,7 @@ public abstract class EPC extends Weapon {
 		maxHeat = 1.0;
 		coolingRate = 0.4;
 		ammoPerChargedShot = 8;
-		chargeShotWindup = 1.5;  // seconds
+		chargeShotWindup = 1.0 / 0.7;  // seconds
 		heatPerRegularShot = 0.13;
 		heatPerSecondWhileCharged = 2.0;
 		
