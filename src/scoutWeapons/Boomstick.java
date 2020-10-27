@@ -697,7 +697,15 @@ public class Boomstick extends Weapon {
 	@Override
 	public int breakpoints() {
 		double direct = getDamagePerPellet() * getNumberOfPellets() * estimatedAccuracy(false) / 100.0;
-		double area = getBlastwaveDamage();
+		
+		// Because Accuracy affects these Breakpoints, I'm choosing to implement Asher's suggestion to only add Blastwave damage when AccuracyEstimator.distance <= 4
+		double area;
+		if (accEstimator.getDistance() <= 4.0) {
+			area = getBlastwaveDamage();
+		}
+		else {
+			area = 0;
+		}
 		
 		// According to Elythnwaen, White Phosphorus Shells not only adds 50% of kinetic + explosive damage to Heat, it also converts 50% to Fire.
 		double split = 0;
