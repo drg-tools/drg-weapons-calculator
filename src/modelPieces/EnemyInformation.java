@@ -493,7 +493,6 @@ public class EnemyInformation {
 			
 			// Because every Freeze temp is negative and is strictly less than the corresponding Thaw temp, subtracting Freeze from Thaw guarantees a positive number.
 			freezeDurations[i] = (thawTemp - freezeTemp) / warmingRate;
-			System.out.println(freezeDurations[i]);
 		}
 		
 		return MathUtils.vectorDotProduct(exactSpawnRates, freezeDurations);

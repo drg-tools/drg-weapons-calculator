@@ -107,7 +107,6 @@ public class GrenadeLauncher extends Weapon {
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "RJ250 Compound", "Jump and shoot the ground beneath you to Grenade Jump. Can also be used on allies who are jumping. In exchange, -25 Area Damage.", overclockIcons.grenadeJump, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Fat Boy", "x4 Area Damage, +1m AoE Radius, x0.3 Max Ammo, x0.7 Projectile Velocity. Also leaves behind an 8m radius field that does "
 				+ "an average of " + MathUtils.round(DoTInformation.Rad_FB_DPS, GuiConstants.numDecimalPlaces) + " Radiation Damage per Second for 15 seconds.", overclockIcons.areaDamage, 4);
-		// TODO: check LoneXG's claim that HP only changes Direct Damage element to Disintegrate, not Area Damage. Also check Spiky Grenade's interaction with the element change.
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Hyper Propellant", "+385 Direct Damage, +350% Projectile Velocity, changes element from Explosive to Disintegrate, x0.3 AoE Radius, -2 Max Ammo", overclockIcons.projectileVelocity, 5);
 	}
 	
@@ -282,12 +281,16 @@ public class GrenadeLauncher extends Weapon {
 		if (selectedTier5 == 1) {
 			toReturn += 60;
 		}
-		if (selectedOverclock == 5) {
-			toReturn += 385;
-		}
+		
+		// There's currently a bug in U32 where Incendiary Compound is only affecting Spiky Grenade's damage. I'm going to model it like it's currently bugged, but this will have to be changed if the bug gets fixed.
 		if (selectedTier3 == 0) {
 			toReturn /= 2.0;
 		}
+		
+		if (selectedOverclock == 5) {
+			toReturn += 385;
+		}
+		
 		return toReturn;
 	}
 	private double getAreaDamage() {
@@ -588,18 +591,30 @@ public class GrenadeLauncher extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		// TODO: investigate how HP's element change affects these values
+		double dDamage = getDirectDamage();
+		double aDamage = getAreaDamage();
+		double explosiveMultiplier, disintegrateMultiplier;
+		if (selectedOverclock == 5) {
+			disintegrateMultiplier = 1.0;
+			explosiveMultiplier = 0.0;
+		}
+		else {
+			explosiveMultiplier = 1.0;
+			disintegrateMultiplier = 0.0;
+		}
+		
+		// Disintegrate, Internal, and Kinetic damage are all resistance-less so I can overload the Kinetic portion in Breakpoints()
 		double[] directDamage = {
-			0,  // Kinetic
-			getDirectDamage(),  // Explosive
+			disintegrateMultiplier * dDamage,  // Kinetic
+			explosiveMultiplier * dDamage,  // Explosive
 			0,  // Fire
 			0,  // Frost
 			0  // Electric
 		};
 		
 		double[] areaDamage = {
-			0,  // Kinetic
-			getAreaDamage(),  // Explosive
+			disintegrateMultiplier * aDamage,  // Kinetic
+			explosiveMultiplier * aDamage,  // Explosive
 			0,  // Fire
 			0,  // Frost
 			0  // Electric
