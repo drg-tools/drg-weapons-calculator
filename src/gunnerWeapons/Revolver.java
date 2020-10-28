@@ -53,7 +53,7 @@ public abstract class Revolver extends Weapon {
 		weakpointBonus = 0.15;
 		
 		// Override default 10m distance
-		accEstimator.setDistance(7.0);
+		accEstimator.setDistance(9.0);
 		accEstimator.setSpreadCurve(new RevolverCurve());
 		
 		initializeModsAndOverclocks();
@@ -290,13 +290,19 @@ public abstract class Revolver extends Weapon {
 		}
 		return toReturn;
 	}
-	private int getAreaDamage() {
+	private double getAreaDamage() {
+		double toReturn = 0;
+		
 		if (selectedTier3 == 1) {
-			return 30;
+			toReturn = 30.0;
 		}
-		else {
-			return 0;
+		
+		if (selectedOverclock == 0) {
+			toReturn *= homebrewPowderCoefficient;
 		}
+		
+		return toReturn;
+		
 	}
 	private double getAoERadius() {
 		if (selectedTier3 == 1) {
@@ -455,7 +461,7 @@ public abstract class Revolver extends Weapon {
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
 		boolean explosiveEquipped = selectedTier3 == 1;
-		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), modIcons.areaDamage, explosiveEquipped, explosiveEquipped);
+		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), modIcons.areaDamage, explosiveEquipped || selectedOverclock == 0, explosiveEquipped);
 		
 		toReturn[2] = new StatsRow("AoE Radius:", getAoERadius(), modIcons.aoeRadius, explosiveEquipped, explosiveEquipped);
 		

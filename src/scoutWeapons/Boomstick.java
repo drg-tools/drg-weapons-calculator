@@ -76,7 +76,7 @@ public class Boomstick extends Weapon {
 		stunDuration = 2.5;
 		
 		// Override default 10m distance
-		accEstimator.setDistance(5.0);
+		accEstimator.setDistance(4.0);
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
