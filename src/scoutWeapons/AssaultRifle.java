@@ -110,7 +110,7 @@ public class AssaultRifle extends Weapon {
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Ammo", "+15 Magazine Size, x0.7 Recoil", overclockIcons.magSize, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Gas Rerouting", "+1 Rate of Fire, -0.3 Reload Time", overclockIcons.rateOfFire, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Light Machine Gun", "+25 Mag Size, +30 Max Ammo, +2 Rate of Fire, -3 Direct Damage", overclockIcons.magSize, 2);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Light Machine Gun", "+25 Mag Size, +40 Max Ammo, +2 Rate of Fire, -3 Direct Damage", overclockIcons.magSize, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Overclocked Firing Mechanism", "+3 Rate of Fire, x2 Recoil, x0.75 Spread Recovery Speed", overclockIcons.rateOfFire, 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Bullets of Mercy", "+25% Damage dealt to enemies that are burning, electrocuted, poisoned, stunned, or frozen. In exchange, -5 Magazine Size", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "AI Stability Engine", "x0 Recoil, x2.11 Spread Recovery Speed, +40% Weakpoint Bonus, -2 Direct Damage, -2 Rate of Fire", overclockIcons.baseSpread, 5);
@@ -315,7 +315,7 @@ public class AssaultRifle extends Weapon {
 		}
 		
 		if (selectedOverclock == 2) {
-			toReturn += 30;
+			toReturn += 40;
 		}
 		
 		return toReturn;
