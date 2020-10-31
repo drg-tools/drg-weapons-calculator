@@ -92,13 +92,14 @@ public class SMG extends Weapon {
 		tier2[1] = new Mod("Recoil Dampener", "x0.5 Recoil", modIcons.recoil, 2, 1);
 		tier2[2] = new Mod("Improved Gas System", "+3 Rate of Fire", modIcons.rateOfFire, 2, 2);
 		
-		tier3 = new Mod[2];
+		tier3 = new Mod[3];
 		tier3[0] = new Mod("High Velocity Rounds", "+2 Direct Damage", modIcons.directDamage, 3, 0);
 		tier3[1] = new Mod("Expanded Ammo Bags", "+110 Max Ammo", modIcons.carriedAmmo, 3, 1);
+		tier3[2] = new Mod("Hollow-Point Bullets", "+40% Weakpoint Bonus", modIcons.weakpointBonus, 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Hollow-Point Bullets", "+40% Weakpoint Bonus", modIcons.weakpointBonus, 4, 0);
-		tier4[1] = new Mod("Magazine Capacity Tweak", "+15 Magazine Size", modIcons.magSize, 4, 1);
+		tier4[0] = new Mod("Quickfire Ejector", "-0.5 Reload Time", modIcons.reloadSpeed, 4, 0);
+		tier4[1] = new Mod("Magazine Capacity Tweak", "+10 Magazine Size", modIcons.magSize, 4, 1);
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Conductive Bullets", "+30% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 5, 0);
@@ -130,10 +131,6 @@ public class SMG extends Weapon {
 					System.out.println("Symbol #" + (i+1) + ", " + symbols[i] + ", is not a capital letter between A-C or a hyphen");
 					combinationIsValid = false;
 				}
-			}
-			if (symbols[2] == 'C') {
-				System.out.println("SMG's third tier of mods only has two choices, so 'C' is an invalid choice.");
-				combinationIsValid = false;
 			}
 			if (symbols[3] == 'C') {
 				System.out.println("SMG's fourth tier of mods only has two choices, so 'C' is an invalid choice.");
@@ -347,7 +344,7 @@ public class SMG extends Weapon {
 		}
 		
 		if (selectedTier4 == 1) {
-			toReturn += 15;
+			toReturn += 10;
 		}
 		
 		return toReturn;
@@ -392,6 +389,10 @@ public class SMG extends Weapon {
 	private double getReloadTime() {
 		double toReturn = reloadTime;
 		
+		if (selectedTier4 == 0) {
+			toReturn -= 0.5;
+		}
+		
 		return toReturn;
 	}
 	private double getBaseSpread() {
@@ -424,7 +425,7 @@ public class SMG extends Weapon {
 	private double getWeakpointBonus() {
 		double toReturn = 0.0;
 		
-		if (selectedTier4 == 0) {
+		if (selectedTier3 == 2) {
 			toReturn += 0.4;
 		}
 		
@@ -464,9 +465,9 @@ public class SMG extends Weapon {
 		boolean RoFModified = selectedTier2 == 2 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[7] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, RoFModified);
 		
-		toReturn[8] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, false);
+		toReturn[8] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier4 == 0);
 		
-		toReturn[9] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[9] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedTier3 == 2, selectedTier3 == 2);
 		
 		toReturn[10] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, selectedOverclock == 5, selectedOverclock == 5);
 		
