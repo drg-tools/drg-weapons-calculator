@@ -116,7 +116,7 @@ public class Autocannon extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Flak Cannon", "If a bullet would miss an enemy but passes within 0.75m of their hitbox, it detonates in midair automatically. Additionally raises Damage Falloff at outer radius from 50% to 90%", overclockIcons.aoeRadius, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Carpet Bomber", "+3 Area Damage, +0.7m AoE Radius, -7 Direct Damage", overclockIcons.areaDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Combat Mobility", "Increases movement speed while using from 50% to 85% of normal walk speed, -1 sec Reload Time, x1.3 Base Spread", overclockIcons.movespeed, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Big Bertha", "+12 Direct Damage, x0.7 Base Spread, x0.5 Magazine Size, -110 Max Ammo, -1.5 Max Rate of Fire", overclockIcons.directDamage, 4);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Big Bertha", "+9 Direct Damage, x0.7 Base Spread, x0.5 Magazine Size, -110 Max Ammo, -1.5 Max Rate of Fire", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neurotoxin Payload", "30% Chance to inflict a Neurotoxin DoT that deals an average of " + MathUtils.round(DoTInformation.Neuro_DPS, GuiConstants.numDecimalPlaces) + 
 				" Poison Damage per Second for 10 seconds to all enemies within the AoE Radius upon impact. +0.3m AoE Radius, -3 Area Damage, -110 Max Ammo", overclockIcons.neurotoxin, 5);
 	}
@@ -302,7 +302,7 @@ public class Autocannon extends Weapon {
 			toReturn -= 7;
 		}
 		else if (selectedOverclock == 4) {
-			toReturn += 12;
+			toReturn += 9;
 		}
 		
 		// Multiplicative bonuses last
