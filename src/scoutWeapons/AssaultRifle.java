@@ -86,8 +86,8 @@ public class AssaultRifle extends Weapon {
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
 		tier1[0] = new Mod("Gyro Stabilisation", "x0 Base Spread", modIcons.baseSpread, 1, 0);
-		tier1[1] = new Mod("Supercharged Feed Mechanism", "+2 Rate of Fire", modIcons.rateOfFire, 1, 1);
-		tier1[2] = new Mod("High Capacity Magazine", "+20 Magazine Size", modIcons.magSize, 1, 2);
+		tier1[1] = new Mod("Supercharged Feed Mechanism", "+1 Rate of Fire", modIcons.rateOfFire, 1, 1);
+		tier1[2] = new Mod("High Capacity Magazine", "+10 Magazine Size", modIcons.magSize, 1, 2);
 		
 		tier2 = new Mod[2];
 		tier2[0] = new Mod("Increased Caliber Rounds", "+2 Direct Damage", modIcons.directDamage, 2, 0);
@@ -324,7 +324,7 @@ public class AssaultRifle extends Weapon {
 		int toReturn = magazineSize;
 		
 		if (selectedTier1 == 2) {
-			toReturn += 20;
+			toReturn += 10;
 		}
 		
 		if (selectedOverclock == 0) {
@@ -343,7 +343,7 @@ public class AssaultRifle extends Weapon {
 		double toReturn = rateOfFire;
 		
 		if (selectedTier1 == 1) {
-			toReturn += 2.0;
+			toReturn += 1.0;
 		}
 		if (selectedTier4 == 2) {
 			toReturn += 1.0;
