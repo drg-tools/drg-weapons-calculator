@@ -105,7 +105,7 @@ public class Shotgun extends Weapon {
 		
 		overclocks = new Overclock[5];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Stunner", "Pellets can now stun an enemy on any body part instead of just weakpoints, and any shots that hit a "
-				+ "target that's already stunned deal x1.3 damage.", overclockIcons.stun, 0);
+				+ "target that's already stunned deal x1.4 damage.", overclockIcons.stun, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1.5m Radius. Turret Whip projectile has a 100% chance to Stun for 1.5 seconds "
 				+ "inflicts 0.5 Fear to all enemies it damages. 10 Sentry ammo per shot, 3 second cooldown per Sentry.", overclockIcons.special, 1, false);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Magnetic Pellet Alignment", "x0.5 Base Spread, +30% Weakpoint Bonus, x0.75 Rate of Fire", overclockIcons.baseSpread, 2);
@@ -534,7 +534,7 @@ public class Shotgun extends Weapon {
 		
 		if (selectedOverclock == 0) {
 			// Stunner OC damage multiplier
-			dmgPerPellet *= averageBonusPerMagazineForShortEffects(1.3, getStunDuration(), false, calculateCumulativeStunChancePerShot(), getMagazineSize(), getRateOfFire());
+			dmgPerPellet *= averageBonusPerMagazineForShortEffects(1.4, getStunDuration(), false, calculateCumulativeStunChancePerShot(), getMagazineSize(), getRateOfFire());
 		}
 		
 		double weakpointAccuracy;
