@@ -69,7 +69,7 @@ public class BreachCutter extends Weapon {
 		magazineSize = 4;
 		carriedAmmo = 12;
 		rateOfFire = 1.5;
-		reloadTime = 3.0;
+		reloadTime = 3.4;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -89,7 +89,7 @@ public class BreachCutter extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Improved Case Ejector", "-1.0 Reload Time", modIcons.reloadSpeed, 1, 0);
+		tier1[0] = new Mod("Disruptive Frequency Tuning", "+100% Stun Chance, 2 sec Stun duration", modIcons.stun, 1, 0);
 		tier1[1] = new Mod("High Capacity Magazine", "+2 Magazine Size", modIcons.magSize, 1, 1);
 		
 		tier2 = new Mod[2];
@@ -103,7 +103,7 @@ public class BreachCutter extends Weapon {
 		
 		tier4 = new Mod[3];
 		tier4[0] = new Mod("Armor Breaking", "+200% Armor Breaking", modIcons.armorBreaking, 4, 0);
-		tier4[1] = new Mod("Disruptive Frequency Tuning", "+100% Stun Chance, 2 sec Stun duration", modIcons.stun, 4, 1);
+		tier4[1] = new Mod("Improved Case Ejector", "-0.4 Reload Time", modIcons.reloadSpeed, 4, 1);
 		// Although getStats() shows this change, it has no effect on any numbers in this model. As such, I'm marking as "not modeled".
 		tier4[2] = new Mod("Quick Deploy", "-0.2 Plasma Expansion Delay", modIcons.duration, 4, 2, false);
 		
@@ -426,8 +426,8 @@ public class BreachCutter extends Weapon {
 	protected double getReloadTime() {
 		double toReturn = reloadTime;
 		
-		if (selectedTier1 == 0) {
-			toReturn -= 1.0;
+		if (selectedTier4 == 1) {
+			toReturn -= 0.4;
 		}
 		
 		return toReturn;
@@ -475,12 +475,12 @@ public class BreachCutter extends Weapon {
 		
 		toReturn[10] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedOverclock == 3);
 		
-		toReturn[11] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier1 == 0);
+		toReturn[11] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier4 == 1);
 		
 		boolean armorBreakingModified = selectedTier4 == 0 || selectedOverclock == 6;
 		toReturn[12] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, armorBreakingModified, armorBreakingModified);
 		
-		boolean stunEquipped = selectedTier4 == 1;
+		boolean stunEquipped = selectedTier1 == 0;
 		toReturn[13] = new StatsRow("Stun Chance:", convertDoubleToPercentage(1.0), modIcons.homebrewPowder, stunEquipped, stunEquipped);
 		
 		toReturn[14] = new StatsRow("Stun Duration:", 2, modIcons.stun, stunEquipped, stunEquipped);
@@ -849,9 +849,9 @@ public class BreachCutter extends Weapon {
 		}
 		
 		// Stun
-		// T4.B has a 100% chance to stun for 3 seconds
-		if (selectedTier4 == 1) {
-			utilityScores[5] = maxNumTargets * 3.0 * UtilityInformation.Stun_Utility;
+		// T4.B has a 100% chance to stun for 2 seconds
+		if (selectedTier1 == 0) {
+			utilityScores[5] = maxNumTargets * 2.0 * UtilityInformation.Stun_Utility;
 		}
 		else {
 			utilityScores[5] = 0;
