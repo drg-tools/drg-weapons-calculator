@@ -829,6 +829,7 @@ public class EnemyInformation {
 		double proportionOfDamageThatHitsArmor, proportionOfDamageThatHitsWeakpoint;
 		double avgNumHitsToBreakArmorStrengthPlate, numHitsToBreakArmorHealthPlate;
 		double weakpointDamagePerShot, idealDamageDealtPerShot, reducedDamageDealtPerShot;
+		double rawArmorDamage, remainingArmorPlateHP, damageLostOnShotThatBreaksHeavyArmorPlate;
 		int shotCounter = 1;
 		double totalDamageSpent = 0, actualDamageDealt = 0;
 		for (int i = 0; i < creaturesArmorMatrix.length; i++) {
@@ -847,7 +848,8 @@ public class EnemyInformation {
 				proportionOfDamageThatHitsArmor = (100.0 - generalAccuracy) / 100.0;
 				double proportionOfDamageThatHitsMouth = generalAccuracy / 100.0;
 				
-				numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / ((proportionOfDamageThatHitsArmor * directDamage + areaDamageAppliedToArmor) * armorBreaking));
+				rawArmorDamage = proportionOfDamageThatHitsArmor * directDamage + areaDamageAppliedToArmor;
+				numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / (rawArmorDamage * armorBreaking));
 				
 				// Because I'm modeling it as if you're shooting at its mouth, Weakpoint bonuses are ignored.
 				double mouthDamagePerShot = directDamage * proportionOfDamageThatHitsMouth + areaDamageAppliedToHealthbar;
@@ -858,6 +860,15 @@ public class EnemyInformation {
 				actualDamageDealt = 0;
 				while (baseHealth > 0) {
 					reducedDamageDealtPerShot = mouthDamagePerShot;
+					
+					// U32 changed it such that the shot that breaks Heavy Armor will have the "overkill" portion transfer to enemy's healthbar if AB mod is equipped
+					if (armorBreaking > 1.0 && shotCounter == numHitsToBreakArmorHealthPlate) {
+						remainingArmorPlateHP = creaturesArmorMatrix[i][4] % (rawArmorDamage * armorBreaking);
+						damageLostOnShotThatBreaksHeavyArmorPlate = remainingArmorPlateHP / armorBreaking;
+						if (damageLostOnShotThatBreaksHeavyArmorPlate < proportionOfDamageThatHitsArmor * directDamage) {
+							reducedDamageDealtPerShot += (proportionOfDamageThatHitsArmor * directDamage - damageLostOnShotThatBreaksHeavyArmorPlate);
+						}
+					}
 					
 					if (shotCounter > numHitsToBreakArmorHealthPlate) {
 						reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor;
@@ -873,7 +884,8 @@ public class EnemyInformation {
 				// Special case: Q'ronar Shellback
 				baseHealth *= largeResistance;
 				
-				numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / ((directDamage + areaDamageAppliedToArmor) * armorBreaking));
+				rawArmorDamage = directDamage + areaDamageAppliedToArmor;
+				numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / (rawArmorDamage * armorBreaking));
 				
 				// Because I'm modeling it as if you're shooting at it while curled up and rolling around, Weakpoint bonuses are ignored.
 				idealDamageDealtPerShot = directDamage + areaDamageAppliedToHealthbar;
@@ -883,6 +895,15 @@ public class EnemyInformation {
 				actualDamageDealt = 0;
 				while (baseHealth > 0) {
 					reducedDamageDealtPerShot = areaDamageAppliedToArmor;
+					
+					// U32 changed it such that the shot that breaks Heavy Armor will have the "overkill" portion transfer to enemy's healthbar if AB mod is equipped
+					if (armorBreaking > 1.0 && shotCounter == numHitsToBreakArmorHealthPlate) {
+						remainingArmorPlateHP = creaturesArmorMatrix[i][4] % (rawArmorDamage * armorBreaking);
+						damageLostOnShotThatBreaksHeavyArmorPlate = remainingArmorPlateHP / armorBreaking;
+						if (damageLostOnShotThatBreaksHeavyArmorPlate < directDamage) {
+							reducedDamageDealtPerShot += (directDamage - damageLostOnShotThatBreaksHeavyArmorPlate);
+						}
+					}
 					
 					if (shotCounter > numHitsToBreakArmorHealthPlate) {
 						if (embeddedDetonators) {
@@ -911,15 +932,17 @@ public class EnemyInformation {
 				proportionOfDamageThatHitsArmor = (100.0 - weakpointAccuracy) / 100.0;
 				proportionOfDamageThatHitsWeakpoint = weakpointAccuracy / 100.0;
 				
+				rawArmorDamage = proportionOfDamageThatHitsArmor * directDamage + areaDamageAppliedToArmor;
+				
 				if (creaturesArmorMatrix[i][2] > 0) {
-					avgNumHitsToBreakArmorStrengthPlate = Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(proportionOfDamageThatHitsArmor * directDamage + areaDamageAppliedToArmor, armorBreaking, creaturesArmorMatrix[i][2])));
+					avgNumHitsToBreakArmorStrengthPlate = Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(rawArmorDamage, armorBreaking, creaturesArmorMatrix[i][2])));
 				}
 				else {
 					avgNumHitsToBreakArmorStrengthPlate = 0;
 				}
 				
 				if (creaturesArmorMatrix[i][4] > 0) {
-					numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / ((proportionOfDamageThatHitsArmor * directDamage + areaDamageAppliedToArmor) * armorBreaking));
+					numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / (rawArmorDamage * armorBreaking));
 				}
 				else {
 					numHitsToBreakArmorHealthPlate = 0;
@@ -943,7 +966,14 @@ public class EnemyInformation {
 					
 					// First, Light Armor plates (always Armor Strength, mixes with Heavy Armor plates on Guards)
 					if (creaturesArmorMatrix[i][1] > 0) {
-						if (shotCounter <= avgNumHitsToBreakArmorStrengthPlate) {
+						if (shotCounter < avgNumHitsToBreakArmorStrengthPlate) {
+							reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor * UtilityInformation.LightArmor_DamageReduction * creaturesArmorMatrix[i][1] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+						}
+						else if (armorBreaking > 1.0 && shotCounter == avgNumHitsToBreakArmorStrengthPlate) {
+							// U32 changed it such that the shot that breaks Light Armor will do full Direct Damage if AB mod is equipped
+							reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor * creaturesArmorMatrix[i][1] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+						}
+						else if (shotCounter == avgNumHitsToBreakArmorStrengthPlate) {
 							reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor * UtilityInformation.LightArmor_DamageReduction * creaturesArmorMatrix[i][1] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
 						}
 						else {
@@ -953,11 +983,20 @@ public class EnemyInformation {
 					
 					if (creaturesArmorMatrix[i][3] > 0) {
 						// Second, Heavy Armor Plates with health (mixes with Light Armor plates on Guards)
-						if (creaturesArmorMatrix[i][4] > 0 && shotCounter > numHitsToBreakArmorHealthPlate) {
-							reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor * creaturesArmorMatrix[i][3] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+						if (creaturesArmorMatrix[i][4] > 0) { 
+							if (armorBreaking > 1.0 && shotCounter == numHitsToBreakArmorHealthPlate) {
+								remainingArmorPlateHP = creaturesArmorMatrix[i][4] % (rawArmorDamage * armorBreaking);
+								damageLostOnShotThatBreaksHeavyArmorPlate = remainingArmorPlateHP / armorBreaking;
+								if (damageLostOnShotThatBreaksHeavyArmorPlate < directDamage * proportionOfDamageThatHitsArmor) {
+									reducedDamageDealtPerShot += (directDamage * proportionOfDamageThatHitsArmor - damageLostOnShotThatBreaksHeavyArmorPlate) * creaturesArmorMatrix[i][3] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+								}
+							}
+							else if (shotCounter > numHitsToBreakArmorHealthPlate) {
+								reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor * creaturesArmorMatrix[i][3] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+							}
 						}
 						// Third, Heavy Armor plates with Armor Strength (mutually exclusive with Light Armor plates)
-						else if (creaturesArmorMatrix[i][1] == 0 && creaturesArmorMatrix[i][2] > 0 && shotCounter > avgNumHitsToBreakArmorStrengthPlate) {
+						else if (creaturesArmorMatrix[i][1] == 0 && creaturesArmorMatrix[i][2] > 0 && ((armorBreaking > 1.0 && shotCounter == numHitsToBreakArmorHealthPlate) || shotCounter > avgNumHitsToBreakArmorStrengthPlate)) {
 							reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor;
 						}
 					}
