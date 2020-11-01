@@ -77,8 +77,8 @@ public class Zhukov extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Hollow-Point Bullets", "+30% Weakpoint Bonus", modIcons.weakpointBonus, 1, 0);
-		tier1[1] = new Mod("High Velocity Rounds", "+1 Direct Damage", modIcons.directDamage, 1, 1);
+		tier1[0] = new Mod("Hollow-Point Bullets", "+35% Weakpoint Bonus", modIcons.weakpointBonus, 1, 0);
+		tier1[1] = new Mod("High Velocity Rounds", "+2 Direct Damage", modIcons.directDamage, 1, 1);
 		
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("High Capacity Magazine", "+12 Magazine Size", modIcons.magSize, 2, 0);
@@ -86,7 +86,7 @@ public class Zhukov extends Weapon {
 		tier2[2] = new Mod("Quickfire Ejector", "-0.35 Reload Time", modIcons.reloadSpeed, 2, 2);
 		
 		tier3 = new Mod[2];
-		tier3[0] = new Mod("Increased Caliber Rounds", "+1 Direct Damage", modIcons.directDamage, 3, 0);
+		tier3[0] = new Mod("Conductive Bullets", "+30% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 3, 0);
 		tier3[1] = new Mod("Better Weight Balance", "x0.5 Base Spread", modIcons.baseSpread, 3, 1);
 		
 		tier4 = new Mod[2];
@@ -94,7 +94,7 @@ public class Zhukov extends Weapon {
 		tier4[1] = new Mod("Expanded Ammo Bags", "+170 Max Ammo", modIcons.carriedAmmo, 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Conductive Bullets", "+30% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 5, 0);
+		tier5[0] = new Mod("Heavy Slugs", "Enemies that are hit by the Zhukovs' bullets are slowed by 30% for 2 seconds", modIcons.slowdown, 5, 0);
 		tier5[1] = new Mod("Get In, Get Out", "+50% Movement Speed for 2.5 seconds after reloading an empty magazine", modIcons.movespeed, 5, 1);
 		
 		overclocks = new Overclock[5];
@@ -276,10 +276,7 @@ public class Zhukov extends Weapon {
 		int toReturn = directDamage;
 		
 		if (selectedTier1 == 1) {
-			toReturn += 1;
-		}
-		if (selectedTier3 == 0) {
-			toReturn += 1;
+			toReturn += 2;
 		}
 		
 		if (selectedOverclock == 2) {
@@ -387,7 +384,7 @@ public class Zhukov extends Weapon {
 			return -1.0;
 		}
 		else if (selectedTier1 == 0){
-			return 0.3;
+			return 0.35;
 		}
 		else {
 			return 0;
@@ -407,7 +404,7 @@ public class Zhukov extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[10];
 		
-		boolean directDamageModified = selectedTier1 == 1 || selectedTier3 == 0 || (selectedOverclock > 1 && selectedOverclock < 5);
+		boolean directDamageModified = selectedTier1 == 1 || (selectedOverclock > 1 && selectedOverclock < 5);
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
 		// This stat only applies to OC "Embedded Detonators"
@@ -500,7 +497,7 @@ public class Zhukov extends Weapon {
 		}
 		
 		// Conductive Bullets is x1.3 multiplier on Electrocuted targets or targets inside IFG field
-		if (selectedTier5 == 0 && (statusEffects[2] || statusEffects[3])) {
+		if (selectedTier3 == 0 && (statusEffects[2] || statusEffects[3])) {
 			directDamage *= 1.3;
 		}
 		
@@ -667,17 +664,27 @@ public class Zhukov extends Weapon {
 		// Light Armor Breaking probability
 		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDirectDamage()) * UtilityInformation.ArmorBreak_Utility;
 		
+		// T5.A slows enemies by 30% for 2 seconds
+		if (selectedTier5 == 0) {
+			// This formula is entirely made up. It's designed to increase number electrocuted with Mag Size, and decrease it with Rate of Fire.
+			int numEnemiesElectrocutedPerMagazine = (int) Math.ceil(2.0 * getMagazineSize() / getRateOfFire());
+			utilityScores[3] = numEnemiesElectrocutedPerMagazine * 2.0 * 0.3;
+		}
+		else {
+			utilityScores[3] = 0;
+		}
+		
 		// OC "Cryo Minelets" applies Cryo damage to missed bullets
 		if (selectedOverclock == 2) {
 			// Cryo minelets: 1 placed per 2 ammo, minelets arm in 0.9 seconds, and detonate in 4 seconds if no enemy is around.
 			// Minelets seem to do 10 Cold Damage each, and explode in a 1.5m radius.
 			int estimatedNumTargetsSlowedOrFrozen = calculateNumGlyphidsInRadius(1.5);
 			
-			utilityScores[3] = estimatedNumTargetsSlowedOrFrozen * UtilityInformation.Cold_Utility;
+			utilityScores[3] += estimatedNumTargetsSlowedOrFrozen * UtilityInformation.Cold_Utility;
 			utilityScores[6] = estimatedNumTargetsSlowedOrFrozen * UtilityInformation.Frozen_Utility;
 		}
 		else {
-			utilityScores[3] = 0;
+			utilityScores[3] += 0;
 			utilityScores[6] = 0;
 		}
 		
