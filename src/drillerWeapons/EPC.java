@@ -48,10 +48,10 @@ public abstract class EPC extends Weapon {
 		Damage type is 50% Electric and 50% Kinetic.
 		
 		Charged Shot (direct damage)
-		Damage Type is 50% Electric and 50% Fire.
+		65% Electric / 25 % Fire / 10% Disintegrate for the single target part.
 		
 		Charged Shot (area damage)
-		Damage type is 50% Electric and 50% Explosive.
+		65% Explosive / 25% Fire / 10% Disintegrate for the AoE part.
 		
 		Flying Nightmare
 		Damage type is Fire.
