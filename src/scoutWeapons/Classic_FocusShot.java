@@ -319,7 +319,7 @@ public class Classic_FocusShot extends Classic {
 	@Override
 	public double damageWastedByArmor() {
 		double weakpointAccuracy = EnemyInformation.probabilityBulletWillHitWeakpoint() * 100.0;
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage() * getFocusedShotMultiplier(), 0.0, getArmorBreaking(), getWeakpointBonus(), 100.0, weakpointAccuracy);
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage() * getFocusedShotMultiplier(), 1, 0.0, getArmorBreaking(), getWeakpointBonus(), 100.0, weakpointAccuracy);
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 }

@@ -774,10 +774,10 @@ public class EnemyInformation {
 		(100% - General Accuracy) percent of Direct Damage hit the Heavy Armor plates around the mouth. Shellbacks will have General Accuracy percentage of Direct Damage
 		hit its plates until they're broken.
 	*/
-	public static double[][] percentageDamageWastedByArmor(double directDamage, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy) {
-		return percentageDamageWastedByArmor(directDamage, areaDamage, armorBreaking, weakpointModifier, generalAccuracy, weakpointAccuracy, false);
+	public static double[][] percentageDamageWastedByArmor(double directDamage, int numPellets, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy) {
+		return percentageDamageWastedByArmor(directDamage, numPellets, areaDamage, armorBreaking, weakpointModifier, generalAccuracy, weakpointAccuracy, false);
 	}
-	public static double[][] percentageDamageWastedByArmor(double directDamage, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy, boolean embeddedDetonators) {
+	public static double[][] percentageDamageWastedByArmor(double directDamage, int numPellets, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy, boolean embeddedDetonators) {
 		double[][] creaturesArmorMatrix = {
 			// Creature Index, Number of Light Armor plates, Avg Armor Strength, Number of Heavy Armor plates, Avg Armor Plate HP
 			{1, 6, 15, 0, 0},  					// Glyphid Grunt
