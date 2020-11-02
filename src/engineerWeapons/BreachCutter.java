@@ -127,7 +127,8 @@ public class BreachCutter extends Weapon {
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Lance", "Changes orientation of line to fire like a spear as it moves. In addition, +0.5m Projectile Width and +15 Impact Damage", overclockIcons.projectileVelocity, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Spinning Death", "Instead of flying in a straight line, the projectile now rotates 2 times per second about the Yaw axis. Additionally: x0.09 Projectile Velocity, x0 Impact Damage, "
 				+ "x2.5 Projectile Lifetime, +1m Plasma Beam Width, x0.25 Damage per Tick, x0.75 Max Ammo, and x0.5 Magazine Size", overclockIcons.special, 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "Adds 110% of Damage per Tick as Heat Damage which ignites enemies almost instantly in exchange for -0.6 Damage per Tick and x0.25 Armor Breaking", overclockIcons.heatDamage, 6);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "Deals 75 Heat Damage and applies a DoT that does 7 Fire and 7 Heat Damage per tick at 2 ticks/sec for 5 seconds. Additionally, adds 110% of Damage per Tick as Heat Damage per tick. "
+				+ "In exchange: -1.9 Damage per Tick and x0.25 Armor Breaking", overclockIcons.heatDamage, 6);
 	}
 	
 	@Override
@@ -341,7 +342,7 @@ public class BreachCutter extends Weapon {
 			toReturn *= 0.25;
 		}
 		else if (selectedOverclock == 6) {
-			toReturn -= 0.6;
+			toReturn -= 1.9;
 		}
 		
 		return toReturn;
@@ -650,13 +651,13 @@ public class BreachCutter extends Weapon {
 			double ignitionTime = calculateAverageIgnitionTime();
 			double burnDoTDuration;
 			if (extendDoTsBeyondIntersection) {
-				burnDoTDuration = DoTInformation.Burn_SecsDuration;
+				burnDoTDuration = DoTInformation.Burn_SecsDuration + 5.0;
+				burnDamage = DoTInformation.Burn_DPS * burnDoTDuration + 11.0 * 7.0;  // Add the 11 ticks of 7 Fire Damage
 			}
 			else {
 				burnDoTDuration = intersectionTime - ignitionTime;
+				burnDamage = burnDoTDuration * DoTInformation.Burn_DPS + intersectionTime * 14.0;
 			}
-			
-			burnDamage = DoTInformation.Burn_DPS * burnDoTDuration;
 		}
 		
 		double electrocuteDamage = 0;
@@ -733,7 +734,7 @@ public class BreachCutter extends Weapon {
 		// Frozen negates the Burn DoT
 		if (selectedOverclock == 6 && !statusEffects[1]) {
 			// Because OC "Inferno" ignites all enemies just so dang fast, I'm choosing to over-estimate the Burn DPS for bursts as if they ignite instantly.
-			burnDPS = DoTInformation.Burn_DPS;
+			burnDPS = DoTInformation.Burn_DPS + 14.0;
 		}
 		
 		double electroDPS = 0;
