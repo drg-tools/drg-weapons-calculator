@@ -773,6 +773,8 @@ public class EnemyInformation {
 		There will be a couple exceptions to this pattern: Praetorian and Shellback. Praetorian will have General Accuracy percent of Direct Damage hit its mouth, and 
 		(100% - General Accuracy) percent of Direct Damage hit the Heavy Armor plates around the mouth. Shellbacks will have General Accuracy percentage of Direct Damage
 		hit its plates until they're broken.
+		
+		I'm choosing to let Overkill damage be counted as damage dealt. Too complicated to keep track of while simultaneously doing Armor stuff.
 	*/
 	public static double[][] percentageDamageWastedByArmor(double directDamage, int numPellets, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy) {
 		return percentageDamageWastedByArmor(directDamage, numPellets, areaDamage, armorBreaking, weakpointModifier, generalAccuracy, weakpointAccuracy, false);
@@ -814,31 +816,21 @@ public class EnemyInformation {
 		};
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
-		
-		double areaDamageAppliedToHealthbar = areaDamage; 
-		double areaDamageAppliedToArmor;
-		if (embeddedDetonators) {
-			areaDamageAppliedToArmor = 0;
-		}
-		else {
-			areaDamageAppliedToArmor = areaDamage;
-		}
-		
-		int creatureIndex;
-		double baseHealth;
-		double proportionOfDamageThatHitsArmor, proportionOfDamageThatHitsWeakpoint;
-		double avgNumHitsToBreakArmorStrengthPlate, numHitsToBreakArmorHealthPlate;
-		double weakpointDamagePerShot, idealDamageDealtPerShot, reducedDamageDealtPerShot;
-		double rawArmorDamage, remainingArmorPlateHP, damageLostOnShotThatBreaksHeavyArmorPlate;
-		int shotCounter = 1;
-		double totalDamageSpent = 0, actualDamageDealt = 0;
-		for (int i = 0; i < creaturesArmorMatrix.length; i++) {
+		int creatureIndex, i, j;
+		double baseHealth, heavyArmorPlateHealth;
+		double damageDealtPerPellet, proportionOfDamageThatHitsArmor, proportionOfDamageThatHitsWeakpoint;
+		int avgNumHitsToBreakArmorStrengthPlate, numHitsOnArmorStrengthPlate;
+		double totalDamageSpent, actualDamageDealt;
+		for (i = 0; i < creaturesArmorMatrix.length; i++) {
 			creatureIndex = (int) creaturesArmorMatrix[i][0];
 			baseHealth = enemyHealthPools[creatureIndex];
 			
 			if (creaturesArmorMatrix[i][4] > 0) {
 				// All Heavy Armor plates with healthbars have their health scale with normal resistance.
-				creaturesArmorMatrix[i][4] *= normalResistance;
+				heavyArmorPlateHealth = creaturesArmorMatrix[i][4] * normalResistance;
+			}
+			else {
+				heavyArmorPlateHealth = 0;
 			}
 			
 			if (i == 3) {
@@ -848,74 +840,98 @@ public class EnemyInformation {
 				proportionOfDamageThatHitsArmor = (100.0 - generalAccuracy) / 100.0;
 				double proportionOfDamageThatHitsMouth = generalAccuracy / 100.0;
 				
-				rawArmorDamage = proportionOfDamageThatHitsArmor * directDamage + areaDamageAppliedToArmor;
-				numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / (rawArmorDamage * armorBreaking));
-				
-				// Because I'm modeling it as if you're shooting at its mouth, Weakpoint bonuses are ignored.
-				double mouthDamagePerShot = directDamage * proportionOfDamageThatHitsMouth + areaDamageAppliedToHealthbar;
-				idealDamageDealtPerShot = mouthDamagePerShot + directDamage * proportionOfDamageThatHitsArmor;
-				
-				shotCounter = 1;
 				totalDamageSpent = 0;
 				actualDamageDealt = 0;
 				while (baseHealth > 0) {
-					reducedDamageDealtPerShot = mouthDamagePerShot;
+					// First, Direct Damage
+					for (j = 0; j < numPellets; j++) {
+						totalDamageSpent += directDamage;
+						damageDealtPerPellet = proportionOfDamageThatHitsMouth * directDamage;
+						if (heavyArmorPlateHealth > 0) {
+							if (directDamage * proportionOfDamageThatHitsArmor * armorBreaking > heavyArmorPlateHealth) {
+								if (armorBreaking > 1.0) {
+									damageDealtPerPellet += proportionOfDamageThatHitsArmor * directDamage - heavyArmorPlateHealth / armorBreaking;
+								}
+								heavyArmorPlateHealth = 0;
+							}
+							else {
+								// Direct Damage insufficient to break the Heavy Armor Plate
+								heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
+							}
+						}
+						else {
+							damageDealtPerPellet += proportionOfDamageThatHitsArmor * directDamage;
+						}
+						
+						actualDamageDealt += damageDealtPerPellet;
+						baseHealth -= damageDealtPerPellet;
+					}
 					
-					// U32 changed it such that the shot that breaks Heavy Armor will have the "overkill" portion transfer to enemy's healthbar if AB mod is equipped
-					if (armorBreaking > 1.0 && shotCounter == numHitsToBreakArmorHealthPlate) {
-						remainingArmorPlateHP = creaturesArmorMatrix[i][4] % (rawArmorDamage * armorBreaking);
-						damageLostOnShotThatBreaksHeavyArmorPlate = remainingArmorPlateHP / armorBreaking;
-						if (damageLostOnShotThatBreaksHeavyArmorPlate < proportionOfDamageThatHitsArmor * directDamage) {
-							reducedDamageDealtPerShot += (proportionOfDamageThatHitsArmor * directDamage - damageLostOnShotThatBreaksHeavyArmorPlate);
+					// Second, Area Damage
+					totalDamageSpent += areaDamage;
+					if (embeddedDetonators) {
+						if (heavyArmorPlateHealth == 0) {
+							actualDamageDealt += areaDamage;
+							baseHealth -= areaDamage;
 						}
 					}
-					
-					if (shotCounter > numHitsToBreakArmorHealthPlate) {
-						reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor;
+					else {
+						if (heavyArmorPlateHealth > 0) {
+							heavyArmorPlateHealth = Math.max(heavyArmorPlateHealth - areaDamage * armorBreaking, 0);
+						}
+						
+						actualDamageDealt += areaDamage;
+						baseHealth -= areaDamage;
 					}
-					
-					totalDamageSpent += idealDamageDealtPerShot;
-					actualDamageDealt += reducedDamageDealtPerShot;
-					baseHealth -= reducedDamageDealtPerShot;
-					shotCounter++;
 				}
 			}
 			else if (i == 8) {
 				// Special case: Q'ronar Shellback
 				baseHealth *= largeResistance;
 				
-				rawArmorDamage = directDamage + areaDamageAppliedToArmor;
-				numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / (rawArmorDamage * armorBreaking));
-				
-				// Because I'm modeling it as if you're shooting at it while curled up and rolling around, Weakpoint bonuses are ignored.
-				idealDamageDealtPerShot = directDamage + areaDamageAppliedToHealthbar;
-				
-				shotCounter = 1;
 				totalDamageSpent = 0;
 				actualDamageDealt = 0;
 				while (baseHealth > 0) {
-					reducedDamageDealtPerShot = areaDamageAppliedToArmor;
-					
-					// U32 changed it such that the shot that breaks Heavy Armor will have the "overkill" portion transfer to enemy's healthbar if AB mod is equipped
-					if (armorBreaking > 1.0 && shotCounter == numHitsToBreakArmorHealthPlate) {
-						remainingArmorPlateHP = creaturesArmorMatrix[i][4] % (rawArmorDamage * armorBreaking);
-						damageLostOnShotThatBreaksHeavyArmorPlate = remainingArmorPlateHP / armorBreaking;
-						if (damageLostOnShotThatBreaksHeavyArmorPlate < directDamage) {
-							reducedDamageDealtPerShot += (directDamage - damageLostOnShotThatBreaksHeavyArmorPlate);
+					// First, Direct Damage
+					for (j = 0; j < numPellets; j++) {
+						totalDamageSpent += directDamage;
+						damageDealtPerPellet = 0;
+						if (heavyArmorPlateHealth > 0) {
+							if (directDamage * armorBreaking > heavyArmorPlateHealth) {
+								if (armorBreaking > 1.0) {
+									damageDealtPerPellet += directDamage - heavyArmorPlateHealth / armorBreaking;
+								}
+								heavyArmorPlateHealth = 0;
+							}
+							else {
+								// Direct Damage insufficient to break the Heavy Armor Plate
+								heavyArmorPlateHealth -= directDamage * armorBreaking;
+							}
 						}
+						else {
+							damageDealtPerPellet += directDamage;
+						}
+						
+						actualDamageDealt += damageDealtPerPellet;
+						baseHealth -= damageDealtPerPellet;
 					}
 					
-					if (shotCounter > numHitsToBreakArmorHealthPlate) {
-						if (embeddedDetonators) {
-							reducedDamageDealtPerShot = areaDamageAppliedToHealthbar;
+					// Second, Area Damage
+					totalDamageSpent += areaDamage;
+					if (embeddedDetonators) {
+						if (heavyArmorPlateHealth == 0) {
+							actualDamageDealt += areaDamage;
+							baseHealth -= areaDamage;
 						}
-						reducedDamageDealtPerShot += directDamage;
 					}
-					
-					totalDamageSpent += idealDamageDealtPerShot;
-					actualDamageDealt += reducedDamageDealtPerShot;
-					baseHealth -= reducedDamageDealtPerShot;
-					shotCounter++;
+					else {
+						if (heavyArmorPlateHealth > 0) {
+							heavyArmorPlateHealth = Math.max(heavyArmorPlateHealth - areaDamage * armorBreaking, 0);
+						}
+						
+						actualDamageDealt += areaDamage;
+						baseHealth -= areaDamage;
+					}
 				}
 			}
 			else {
@@ -932,86 +948,114 @@ public class EnemyInformation {
 				proportionOfDamageThatHitsArmor = (100.0 - weakpointAccuracy) / 100.0;
 				proportionOfDamageThatHitsWeakpoint = weakpointAccuracy / 100.0;
 				
-				rawArmorDamage = proportionOfDamageThatHitsArmor * directDamage + areaDamageAppliedToArmor;
-				
 				if (creaturesArmorMatrix[i][2] > 0) {
-					avgNumHitsToBreakArmorStrengthPlate = Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(rawArmorDamage, armorBreaking, creaturesArmorMatrix[i][2])));
+					if (embeddedDetonators || (areaDamage > 0 && numPellets > 1)) {
+						// Boomstick special case -- I'm choosing to model it as if the Blastwave doesn't break Light Armor Plates for simplicity later in the method
+						avgNumHitsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(directDamage, armorBreaking, creaturesArmorMatrix[i][2])));
+					}
+					else {
+						avgNumHitsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(directDamage + areaDamage, armorBreaking, creaturesArmorMatrix[i][2])));
+					}
 				}
 				else {
 					avgNumHitsToBreakArmorStrengthPlate = 0;
 				}
+				numHitsOnArmorStrengthPlate = 0;
 				
-				if (creaturesArmorMatrix[i][4] > 0) {
-					numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / (rawArmorDamage * armorBreaking));
-				}
-				else {
-					numHitsToBreakArmorHealthPlate = 0;
-				}
-				
-				if (weakpointModifier < 0) {
-					weakpointDamagePerShot = directDamage * proportionOfDamageThatHitsWeakpoint + areaDamageAppliedToHealthbar;
-				}
-				else {
-					weakpointDamagePerShot = directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex] + areaDamageAppliedToHealthbar;
-				}
-				
-				// Don't double-count Area Damage; already counted in Weakpoint.
-				idealDamageDealtPerShot = weakpointDamagePerShot + directDamage * proportionOfDamageThatHitsArmor;
-				
-				shotCounter = 1;
 				totalDamageSpent = 0;
 				actualDamageDealt = 0;
 				while (baseHealth > 0) {
-					reducedDamageDealtPerShot = weakpointDamagePerShot;
-					
-					// First, Light Armor plates (always Armor Strength, mixes with Heavy Armor plates on Guards)
-					if (creaturesArmorMatrix[i][1] > 0) {
-						if (shotCounter < avgNumHitsToBreakArmorStrengthPlate) {
-							reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor * UtilityInformation.LightArmor_DamageReduction * creaturesArmorMatrix[i][1] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
-						}
-						else if (armorBreaking > 1.0 && shotCounter == avgNumHitsToBreakArmorStrengthPlate) {
-							// U32 changed it such that the shot that breaks Light Armor will do full Direct Damage if AB mod is equipped
-							reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor * creaturesArmorMatrix[i][1] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
-						}
-						else if (shotCounter == avgNumHitsToBreakArmorStrengthPlate) {
-							reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor * UtilityInformation.LightArmor_DamageReduction * creaturesArmorMatrix[i][1] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+					// First, Direct Damage
+					for (j = 0; j < numPellets; j++) {
+						if (weakpointModifier < 0) {
+							totalDamageSpent += directDamage;
+							damageDealtPerPellet = directDamage * proportionOfDamageThatHitsWeakpoint;
 						}
 						else {
-							reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor * creaturesArmorMatrix[i][1] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+							totalDamageSpent += directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex] + directDamage * proportionOfDamageThatHitsArmor;
+							damageDealtPerPellet = directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex];
 						}
-					}
-					
-					if (creaturesArmorMatrix[i][3] > 0) {
-						// Second, Heavy Armor Plates with health (mixes with Light Armor plates on Guards)
-						if (creaturesArmorMatrix[i][4] > 0) { 
-							if (armorBreaking > 1.0 && shotCounter == numHitsToBreakArmorHealthPlate) {
-								remainingArmorPlateHP = creaturesArmorMatrix[i][4] % (rawArmorDamage * armorBreaking);
-								damageLostOnShotThatBreaksHeavyArmorPlate = remainingArmorPlateHP / armorBreaking;
-								if (damageLostOnShotThatBreaksHeavyArmorPlate < directDamage * proportionOfDamageThatHitsArmor) {
-									reducedDamageDealtPerShot += (directDamage * proportionOfDamageThatHitsArmor - damageLostOnShotThatBreaksHeavyArmorPlate) * creaturesArmorMatrix[i][3] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+						
+						// 1. Light Armor plates (always Armor Strength, mixes with Heavy Armor plates on Guards)
+						if (creaturesArmorMatrix[i][1] > 0) {
+							numHitsOnArmorStrengthPlate++;
+							if (numHitsOnArmorStrengthPlate > avgNumHitsToBreakArmorStrengthPlate || (armorBreaking > 1.0 && numHitsOnArmorStrengthPlate == avgNumHitsToBreakArmorStrengthPlate)) {
+								damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * creaturesArmorMatrix[i][1] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+							}
+							else {
+								damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * UtilityInformation.LightArmor_DamageReduction * creaturesArmorMatrix[i][1] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+							}
+						}
+						
+						if (creaturesArmorMatrix[i][3] > 0) {
+							// 2. Heavy Armor Plates with health (mixes with Light Armor plates on Guards)
+							if (creaturesArmorMatrix[i][4] > 0) { 
+								if (heavyArmorPlateHealth > 0) {
+									if (directDamage * proportionOfDamageThatHitsArmor * armorBreaking > heavyArmorPlateHealth) {
+										if (armorBreaking > 1.0) {
+											damageDealtPerPellet += (directDamage * proportionOfDamageThatHitsArmor - heavyArmorPlateHealth / armorBreaking) * creaturesArmorMatrix[i][3] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+										}
+										heavyArmorPlateHealth = 0;
+									}
+									else {
+										// Direct Damage insufficient to break the Heavy Armor Plate
+										heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
+									}
+								}
+								else {
+									damageDealtPerPellet += proportionOfDamageThatHitsArmor * directDamage * creaturesArmorMatrix[i][3] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
 								}
 							}
-							else if (shotCounter > numHitsToBreakArmorHealthPlate) {
-								reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor * creaturesArmorMatrix[i][3] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+							// 3. Heavy Armor plates with Armor Strength (mutually exclusive with Light Armor plates)
+							else if (creaturesArmorMatrix[i][1] == 0 && creaturesArmorMatrix[i][2] > 0) {
+								numHitsOnArmorStrengthPlate++;
+								if (numHitsOnArmorStrengthPlate > avgNumHitsToBreakArmorStrengthPlate || (armorBreaking > 1.0 && numHitsOnArmorStrengthPlate == avgNumHitsToBreakArmorStrengthPlate)) {
+									damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor;
+								}
 							}
 						}
-						// Third, Heavy Armor plates with Armor Strength (mutually exclusive with Light Armor plates)
-						else if (creaturesArmorMatrix[i][1] == 0 && creaturesArmorMatrix[i][2] > 0 && ((armorBreaking > 1.0 && shotCounter == numHitsToBreakArmorHealthPlate) || shotCounter > avgNumHitsToBreakArmorStrengthPlate)) {
-							reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor;
-						}
+						
+						actualDamageDealt += damageDealtPerPellet;
+						baseHealth -= damageDealtPerPellet;
 					}
 					
-					totalDamageSpent += idealDamageDealtPerShot;
-					actualDamageDealt += reducedDamageDealtPerShot;
-					baseHealth -= reducedDamageDealtPerShot;
-					shotCounter++;
+					// Second, Area Damage
+					totalDamageSpent += areaDamage;
+					if (embeddedDetonators) {
+						// Case 1: Guards' front leg plates have HP and block Embedded Detonators' damage until they're broken
+						if (creaturesArmorMatrix[i][4] > 0) {
+							if (heavyArmorPlateHealth == 0) {
+								actualDamageDealt += areaDamage;
+								baseHealth -= areaDamage;
+							}
+						}
+						// Case 2: Wardens and Menaces have Heavy Armor that uses Armor Strength
+						else if (creaturesArmorMatrix[i][1] == 0 && creaturesArmorMatrix[i][2] > 0) {
+							// Detonators aren't placed until after the Heavy Armor plate is broken
+							if (numHitsOnArmorStrengthPlate > avgNumHitsToBreakArmorStrengthPlate) {
+								actualDamageDealt += areaDamage;
+								baseHealth -= areaDamage;
+							}
+						}
+						// Case 3: Light Armor plates don't stop the embedded detonators from dealing damage
+						else if (creaturesArmorMatrix[i][1] > 0) {
+							actualDamageDealt += areaDamage;
+							baseHealth -= areaDamage;
+						}
+					}
+					else {
+						if (heavyArmorPlateHealth > 0) {
+							heavyArmorPlateHealth = Math.max(heavyArmorPlateHealth - areaDamage * armorBreaking, 0);
+						}
+						
+						actualDamageDealt += areaDamage;
+						baseHealth -= areaDamage;
+					}
 				}
 			}
 			
-			// System.out.println("Armored creature index #" + i + ": Took " + shotCounter + " shots to deal " + actualDamageDealt + " damage and kill this enemy, whereas theoretically the same number of shots could have done " + totalDamageSpent + " damage.");
 			toReturn[0][i] = exactSpawnRates[creatureIndex];
 			toReturn[1][i] = 1.0 - actualDamageDealt / totalDamageSpent;
-			// System.out.println("For this enemy, " + (percentageWastedPerCreature*100.0) + "% of total damage was wasted by Armor.");
 		}
 		
 		return toReturn;
