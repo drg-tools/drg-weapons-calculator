@@ -598,8 +598,11 @@ public class BurstPistol extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		double numberOfMagazines = numMagazines(getCarriedAmmo(), getMagazineSize());
-		double totalDamage = (getDirectDamage() * getMagazineSize()) * numberOfMagazines;
+		double totalDamage = getDirectDamage() * (getMagazineSize() + getCarriedAmmo());
+		
+		if (selectedTier1 == 2) {
+			totalDamage *= (1 + getMaxPenetrations());
+		}
 		
 		if (selectedOverclock == 4) {
 			double accuracy = estimatedAccuracy(false) / 100.0;
