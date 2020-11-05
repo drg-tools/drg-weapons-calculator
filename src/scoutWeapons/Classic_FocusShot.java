@@ -59,7 +59,7 @@ public class Classic_FocusShot extends Classic {
 		double toReturn = carriedAmmo;
 		
 		if (selectedTier1 == 0) {
-			toReturn += 32;
+			toReturn += 40;
 		}
 		
 		if (selectedOverclock == 1) {
@@ -89,8 +89,13 @@ public class Classic_FocusShot extends Classic {
 	}
 	@Override
 	protected double getRateOfFire() {
+		double delayBetweenShots = 1 / rateOfFire;
+		if (selectedOverclock == 3) {
+			// Hipster's +3 RoF translates to a shorter delay between focused shots.
+			delayBetweenShots = 1 / 7.0;
+		}
 		// Because the max RoF will never be achieved with Focus Shots, instead model the RoF as the inverse of the Focus Duration
-		return 1.0 / (getFocusDelay() + getFocusDuration());
+		return 1.0 / (delayBetweenShots + getFocusDuration());
 	}
 	
 	@Override
@@ -99,21 +104,27 @@ public class Classic_FocusShot extends Classic {
 		
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, selectedOverclock == 3 || selectedTier1 == 1);
 		
-		boolean multiplierModified = selectedTier3 == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
+		boolean multiplierModified = selectedTier3 == 0 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[1] = new StatsRow("Focused Shot Multiplier:", convertDoubleToPercentage(getFocusedShotMultiplier()), modIcons.directDamage, multiplierModified);
 		
-		toReturn[2] = new StatsRow("Delay Before Focusing:", getFocusDelay(), modIcons.duration, selectedOverclock == 3);
+		double delayBetweenShots = 1 / rateOfFire;
+		if (selectedOverclock == 3) {
+			// Hipster's +3 RoF translates to a shorter delay between focused shots.
+			delayBetweenShots = 1 / 7.0;
+		}
+		toReturn[2] = new StatsRow("Delay Between Focused Shots:", delayBetweenShots, modIcons.duration, selectedOverclock == 3);
 		
-		toReturn[3] = new StatsRow("Focus Shot Charge-up Duration:", getFocusDuration(), modIcons.chargeSpeed, selectedTier2 == 0 || selectedOverclock == 5);
+		toReturn[3] = new StatsRow("Focus Shot Charge-up Duration:", getFocusDuration(), modIcons.chargeSpeed, selectedTier2 == 0 || selectedOverclock == 2 || selectedOverclock == 5);
 		
 		toReturn[4] = new StatsRow("Clip Size:", getMagazineSize(), modIcons.magSize, selectedTier3 == 1);
 		
 		boolean carriedAmmoModified = selectedTier1 == 0 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
-		toReturn[6] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier2 == 0 || selectedOverclock == 5);
+		boolean RoFmodified = selectedTier2 == 0 || selectedOverclock == 2 || selectedOverclock == 3 || selectedOverclock == 5;
+		toReturn[6] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, RoFmodified);
 		
-		toReturn[7] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier5 == 2 || selectedOverclock == 1);
+		toReturn[7] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier5 == 2 || selectedOverclock == 1 || selectedOverclock ==  2);
 		
 		toReturn[8] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedTier4 == 1);
 		
@@ -308,7 +319,7 @@ public class Classic_FocusShot extends Classic {
 	@Override
 	public double damageWastedByArmor() {
 		double weakpointAccuracy = EnemyInformation.probabilityBulletWillHitWeakpoint() * 100.0;
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage() * getFocusedShotMultiplier(), 0.0, getArmorBreaking(), getWeakpointBonus(), 100.0, weakpointAccuracy);
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage() * getFocusedShotMultiplier(), 1, 0.0, getArmorBreaking(), getWeakpointBonus(), 100.0, weakpointAccuracy);
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 }

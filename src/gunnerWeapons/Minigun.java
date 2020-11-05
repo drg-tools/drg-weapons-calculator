@@ -609,12 +609,12 @@ public class Minigun extends Weapon {
 			// I'm choosing to reduce the heatPerPellet by the Accuracy of the gun to imitate when pellets miss the target
 			double heatPerPellet = ((double) getDamagePerPellet(true)) * generalAccuracy / 2.0;
 			double RoF = getRateOfFire() / 2.0;
-			return timeBeforeHotBullets + EnemyInformation.averageTimeToIgnite(heatPerPellet, RoF);
+			return timeBeforeHotBullets + EnemyInformation.averageTimeToIgnite(0, heatPerPellet, RoF, 0);
 		}
 		// Burning Hell only
 		else if (selectedTier5 != 2 && selectedOverclock == 2) {
 			// Burning Hell burns everything within 5m in a 20 degree arc in front of you at a rate of 80 heat/sec
-			return EnemyInformation.averageTimeToIgnite(burningHellHeatPerSec);
+			return EnemyInformation.averageTimeToIgnite(0, 0, 0, burningHellHeatPerSec);
 		}
 		// Both Hot Bullets AND Burning Hell
 		else if (selectedTier5 == 2 && selectedOverclock == 2) {
@@ -627,7 +627,7 @@ public class Minigun extends Weapon {
 			double heatPerPellet = ((double) getDamagePerPellet(true)) * generalAccuracy / 2.0;
 			double RoF = getRateOfFire() / 2.0;
 			double avgHeatPerSec = (timeBeforeHotBullets * burningHellHeatPerSec + timeAfterHotBullets * (heatPerPellet * RoF + burningHellHeatPerSec)) / firingPeriod;
-			return EnemyInformation.averageTimeToIgnite(avgHeatPerSec);
+			return EnemyInformation.averageTimeToIgnite(0, 0, 0, avgHeatPerSec);
 		}
 		// Neither are equipped.
 		else {
@@ -966,7 +966,7 @@ public class Minigun extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet(false), 0.0, getArmorBreaking(), 0.0, estimatedAccuracy(false), estimatedAccuracy(true));
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet(false), 1, 0.0, getArmorBreaking(), 0.0, estimatedAccuracy(false), estimatedAccuracy(true));
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	

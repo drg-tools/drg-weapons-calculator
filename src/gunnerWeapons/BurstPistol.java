@@ -598,8 +598,11 @@ public class BurstPistol extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		double numberOfMagazines = numMagazines(getCarriedAmmo(), getMagazineSize());
-		double totalDamage = (getDirectDamage() * getMagazineSize()) * numberOfMagazines;
+		double totalDamage = getDirectDamage() * (getMagazineSize() + getCarriedAmmo());
+		
+		if (selectedTier1 == 2) {
+			totalDamage *= (1 + getMaxPenetrations());
+		}
 		
 		if (selectedOverclock == 4) {
 			double accuracy = estimatedAccuracy(false) / 100.0;
@@ -739,7 +742,7 @@ public class BurstPistol extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 0.0, getArmorBreaking(), getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true));
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, 0.0, getArmorBreaking(), getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true));
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	

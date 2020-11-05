@@ -116,7 +116,7 @@ public class Autocannon extends Weapon {
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Drums", "+110 Max Ammo, -0.5 Reload Time", overclockIcons.carriedAmmo, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Splintering Shells", "+1 Area Damage, +0.3m AoE Radius", overclockIcons.aoeRadius, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Carpet Bomber", "+3 Area Damage, +0.7m AoE Radius, -6 Direct Damage", overclockIcons.areaDamage, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Combat Mobility", "Increases movement speed while using from 50% to 65% of normal walk speed, -2 Direct Damage", overclockIcons.movespeed, 3);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Combat Mobility", "Increases movement speed while using from 50% to 85% of normal walk speed, -1 Reload Time, x0.7 Base Spread, x0.5 Magazine Size", overclockIcons.movespeed, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Big Bertha", "+12 Direct Damage, x0.7 Base Spread, x0.5 Magazine Size, -110 Max Ammo, -1.5 Max Rate of Fire", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neurotoxin Payload", "30% Chance to inflict a Neurotoxin DoT that deals an average of " + MathUtils.round(DoTInformation.Neuro_DPS, GuiConstants.numDecimalPlaces) + 
 				" Poison Damage per Second for 10 seconds to all enemies within the AoE Radius upon impact. +0.3m AoE Radius, -3 Direct Damage, -6 Area Damage", overclockIcons.neurotoxin, 5);
@@ -301,9 +301,6 @@ public class Autocannon extends Weapon {
 		if (selectedOverclock == 2) {
 			toReturn -= 6;
 		}
-		else if (selectedOverclock == 3) {
-			toReturn -= 2;
-		}
 		else if (selectedOverclock == 4) {
 			toReturn += 12;
 		}
@@ -361,7 +358,7 @@ public class Autocannon extends Weapon {
 			toReturn *= 2.0;
 		}
 		
-		if (selectedOverclock == 4) {
+		if (selectedOverclock == 3 || selectedOverclock == 4) {
 			toReturn *= 0.5;
 		}
 		return toReturn;
@@ -382,7 +379,7 @@ public class Autocannon extends Weapon {
 	private double getMovespeedWhileFiring() {
 		double modifier = movespeedWhileFiring;
 		if (selectedOverclock == 3) {
-			modifier += 0.15;
+			modifier += 0.35;
 		}
 		return MathUtils.round(modifier * DwarfInformation.walkSpeed, 2);
 	}
@@ -448,9 +445,14 @@ public class Autocannon extends Weapon {
 	}
 	private double getReloadTime() {
 		double toReturn = reloadTime;
+		
 		if (selectedOverclock == 0) {
 			toReturn -= 0.5;
 		}
+		else if (selectedOverclock == 3) {
+			toReturn -= 1.0;
+		}
+		
 		return toReturn;
 	}
 	private double getBaseSpread() {
@@ -460,7 +462,7 @@ public class Autocannon extends Weapon {
 			toReturn *= 0.7;
 		}
 		
-		if (selectedOverclock == 4) {
+		if (selectedOverclock == 3 || selectedOverclock == 4) {
 			toReturn *= 0.7;
 		}
 		
@@ -483,7 +485,7 @@ public class Autocannon extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[15];
 		
-		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 2 || selectedTier5 == 0 || (selectedOverclock > 1 && selectedOverclock < 6);
+		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 2 || selectedTier5 == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
 		boolean areaDamageModified = selectedTier3 == 1 || selectedTier5 == 0 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 5;
@@ -492,7 +494,7 @@ public class Autocannon extends Weapon {
 		boolean aoeRadiusModified = selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[2] = new StatsRow("AoE Radius:", aoeEfficiency[0], modIcons.aoeRadius, aoeRadiusModified);
 		
-		toReturn[3] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, selectedTier1 == 1 || selectedOverclock == 4);
+		toReturn[3] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, selectedTier1 == 1 || selectedOverclock == 3 || selectedOverclock == 4);
 		
 		boolean carriedAmmoModified = selectedTier1 == 2 || selectedOverclock == 0 || selectedOverclock == 4;
 		toReturn[4] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
@@ -507,13 +509,13 @@ public class Autocannon extends Weapon {
 		
 		toReturn[8] = new StatsRow("Average Rate of Fire:", getAverageRateOfFire(), modIcons.rateOfFire, minRoFModified || maxRoFModified);
 		
-		toReturn[9] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 0);
+		toReturn[9] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 0 || selectedOverclock == 3);
 		
 		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier4 == 0, selectedTier4 == 0);
 		
 		toReturn[11] = new StatsRow("Fear Factor:", 0.5, modIcons.fear, selectedTier5 == 1, selectedTier5 == 1);
 		
-		boolean baseSpreadModified = selectedTier2 == 0 || selectedOverclock == 4;
+		boolean baseSpreadModified = selectedTier2 == 0 || selectedOverclock == 3 || selectedOverclock == 4;
 		toReturn[12] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, baseSpreadModified, baseSpreadModified);
 		
 		toReturn[13] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), modIcons.movespeed, selectedOverclock == 3);
@@ -803,7 +805,7 @@ public class Autocannon extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), getAreaDamage(), getArmorBreaking(), 0.0, estimatedAccuracy(false), estimatedAccuracy(true));
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, getAreaDamage(), getArmorBreaking(), 0.0, estimatedAccuracy(false), estimatedAccuracy(true));
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	
@@ -893,8 +895,8 @@ public class Autocannon extends Weapon {
 				+ "\"ex2\": { \"name\": \"Effect Radius\", \"value\": 0.7 }, \"dmg\": { \"name\": \"Damage\", \"value\": 6, \"subtract\": true } }", "Icon_Upgrade_AreaDamage"),
 				exportAllOCs || false);
 		toReturn.conditionalAdd(
-				String.format(rowFormat, "Balanced", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 7650, 95, 0, 0, 70, 0, 120, overclocks[3].getText(true), "{ \"ex6\": { \"name\": \"Movement Speed While Using\", \"value\": 15, \"percent\": true }, "
-				+ "\"dmg\": { \"name\": \"Damage\", \"value\": 2, \"subtract\": true } }", "Icon_Upgrade_MovementSpeed"),
+				String.format(rowFormat, "Balanced", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 7650, 95, 0, 0, 70, 0, 120, overclocks[3].getText(true), "{ \"ex6\": { \"name\": \"Movement Speed While Using\", \"value\": 35, \"percent\": true }, "
+				+ "\"reload\": { \"name\": \"Reload Time\", \"value\": 1, \"subtract\": true }, \"ex3\": { \"name\": \"Base Spread\", \"value\": 30, \"percent\": true, \"subtract\": true }, \"clip\": { \"name\": \"Magazine Size\", \"value\": 0.5, \"multiply\": true } }", "Icon_Upgrade_MovementSpeed"),
 				exportAllOCs || false);
 		
 		// Unstable

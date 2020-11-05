@@ -53,7 +53,7 @@ public class BreachCutter_Projectile extends BreachCutter {
 		
 		toReturn[2] = new StatsRow("Damage Ticks per Second:", damageTickRate, modIcons.blank, false);
 		
-		toReturn[3] = new StatsRow("Projectile Width:", getProjectileWidth(), modIcons.aoeRadius, selectedTier2 == 2 || selectedTier3 == 1);
+		toReturn[3] = new StatsRow("Projectile Width:", getProjectileWidth(), modIcons.aoeRadius, selectedTier2 == 2 || selectedOverclock == 5);
 		
 		toReturn[4] = new StatsRow("Projectile Velocity (m/sec):", getProjectileVelocity(), modIcons.projectileVelocity, selectedOverclock == 5);
 		

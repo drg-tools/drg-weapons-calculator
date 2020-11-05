@@ -432,8 +432,15 @@ public class WeaponTab extends JPanel {
 		/******************************************
 			Row 3
 		******************************************/
+		double generalAccuracy = myWeapon.estimatedAccuracy(false);
 		for (i = 2*headers.length/4; i < 3*headers.length/4; i++) {
-			header = new JLabel(headers[i]);
+			// Special case: add the current AccEstimator distance on the Gen/WP Acc labels
+			if (generalAccuracy >= 0.0 && (i == 2*headers.length/4 + 1 || i == 2*headers.length/4 + 2)) {
+				header = new JLabel(headers[i] + " (at " + ((int) Math.round(myWeapon.getAccuracyDistance())) + "m)");
+			}
+			else {
+				header = new JLabel(headers[i]);
+			}
 			header.setFont(GuiConstants.customFont);
 			header.setForeground(GuiConstants.drgRegularOrange);
 			toReturn.add(header);
@@ -450,7 +457,6 @@ public class WeaponTab extends JPanel {
 			toReturn.add(value);
 		}
 		
-		double generalAccuracy = myWeapon.estimatedAccuracy(false);
 		if (generalAccuracy < 0) {
 			value = new JLabel(leftPadSpaces + "Manually Aimed");
 			value.setFont(GuiConstants.customFontBold);

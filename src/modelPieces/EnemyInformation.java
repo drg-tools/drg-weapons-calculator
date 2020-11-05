@@ -202,7 +202,7 @@ public class EnemyInformation {
 		{35, 5, 10, -100, 0, 40},		// Mactera Spawn
 		{30, 0, 10, -180, 0, 40},		// Mactera Grabber
 		{35, 5, 10, -320, 0, 50},		// Mactera Bomber
-		{60, 30, 10, -150, 0, 0},		// Naedocyte Breeder
+		{60, 30, 10, -150, 0, 40},		// Naedocyte Breeder
 		{30/4.0, 0, 4, -50/4.0, 0, 4},	// Glyphid Brood Nexus
 		{30, 0, 10, -50, 0, 10},		// Spitball Infector
 		{30, 0, 10, -50, 0, 10}			// Cave Leech
@@ -364,32 +364,32 @@ public class EnemyInformation {
 		return normalEnemyHealth + largeEnemyHealth;
 	}
 	
-	public static double averageTimeToIgnite(double heatPerShot, double RoF) {
-		// Early exit: if Heat/Shot > 100, then all enemies get ignited instantly since the largest Ignite Temp is 100.
-		if (heatPerShot >= 100) {
-			return 0;
-		}
-		
-		return averageTimeToIgnite(heatPerShot * RoF);
-	}
-	public static double averageTimeToIgnite(double heatPerSecond) {
+	
+	
+	public static double averageTimeToIgnite(double burstOfHeat, double heatPerShot, double RoF, double heatPerSec) {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
 		}
 		
 		int numEnemyTypes = exactSpawnRates.length;
-		double[] igniteTemps = new double[numEnemyTypes];
-		double[] heatLossRates = new double[numEnemyTypes];
+		double[] ignitionTimes = new double[numEnemyTypes];
+		double igniteTemp, coolingRate;
 		
 		for (int i = 0; i < numEnemyTypes; i++) {
-			igniteTemps[i] = enemyTemperatures[i][0];
-			heatLossRates[i] = enemyTemperatures[i][2];
+			igniteTemp = enemyTemperatures[i][0];
+			
+			// Early exit: if Heat/Shot >= 100, then all enemies get ignited instantly since the largest Ignite Temp modeled in this program is 100.
+			if (burstOfHeat >= igniteTemp || heatPerShot >= igniteTemp || burstOfHeat + heatPerShot >= igniteTemp) {
+				ignitionTimes[i] = 0.0;
+				break;
+			}
+			
+			coolingRate = enemyTemperatures[i][2];
+			
+			ignitionTimes[i] = (igniteTemp - burstOfHeat) / (heatPerShot * RoF + heatPerSec - coolingRate);
 		}
 		
-		double avgIgniteTemp = MathUtils.vectorDotProduct(exactSpawnRates, igniteTemps);
-		double avgHeatLossRate = MathUtils.vectorDotProduct(exactSpawnRates, heatLossRates);
-		
-		return avgIgniteTemp / (heatPerSecond - avgHeatLossRate);
+		return MathUtils.vectorDotProduct(exactSpawnRates, ignitionTimes);
 	}
 	public static double averageBurnDuration() {
 		if (!verifySpawnRatesTotalIsOne()) {
@@ -397,21 +397,17 @@ public class EnemyInformation {
 		}
 		
 		int numEnemyTypes = exactSpawnRates.length;
-		double[] igniteTemps = new double[numEnemyTypes];
-		double[] douseTemps = new double[numEnemyTypes];
-		double[] heatLossRates = new double[numEnemyTypes];
+		double burnDurations[] = new double[numEnemyTypes];
+		double igniteTemp, douseTemp, coolingRate;
 		
 		for (int i = 0; i < numEnemyTypes; i++) {
-			igniteTemps[i] = enemyTemperatures[i][0];
-			douseTemps[i] = enemyTemperatures[i][1];
-			heatLossRates[i] = enemyTemperatures[i][2];
+			igniteTemp = enemyTemperatures[i][0];
+			douseTemp = enemyTemperatures[i][1];
+			coolingRate = enemyTemperatures[i][2];
+			burnDurations[i] = (igniteTemp - douseTemp) / coolingRate;
 		}
 		
-		double avgIgniteTemp = MathUtils.vectorDotProduct(exactSpawnRates, igniteTemps);
-		double avgDouseTemp = MathUtils.vectorDotProduct(exactSpawnRates, douseTemps);
-		double avgHeatLossRate = MathUtils.vectorDotProduct(exactSpawnRates, heatLossRates);
-		
-		return (avgIgniteTemp - avgDouseTemp) / avgHeatLossRate;
+		return MathUtils.vectorDotProduct(exactSpawnRates, burnDurations);
 	}
 	// This method is currently only used by Gunner/Minigun/Mod/5/Aggressive Venting in maxDamage() and Engineer/GrenadeLauncher/Mod/3/Incendiary Compound single-target DPS
 	public static double percentageEnemiesIgnitedBySingleBurstOfHeat(double heatPerBurst) {
@@ -421,7 +417,7 @@ public class EnemyInformation {
 		
 		double sum = 0;
 		for (int i = 0; i < exactSpawnRates.length; i++) {
-			if (enemyTemperatures[i][0] < heatPerBurst) {
+			if (enemyTemperatures[i][0] <= heatPerBurst) {
 				sum += exactSpawnRates[i];
 			}
 		}
@@ -433,58 +429,53 @@ public class EnemyInformation {
 		From what Elythnwaen and I have been able to figure out, creatures with positive temperatures lose Heat constantly. 
 		However, when creatures have negative temperatures, they all have 1-2 second "WarmingCooldown" windows before they 
 		start gaining Heat. Most of these Freeze temperatures are achieved in less than 2 seconds, so I'm choosing to model 
-		this as if the Heat Gain rate has no effect on the average Freeze time.
+		this as if the warming rate has no effect on the average Freeze time.
 		
 		Cold per shot should be a negative number to indicate that the enemy's temperature is being decreased
 	*/
-	public static double averageTimeToFreeze(double coldPerShot, double RoF) {
-		// Early exit: if Cold/Shot > 300, then all enemies get frozen instantly since the largest Freeze Temp is 300.
-		if (coldPerShot <= -300) {
-			return 0;
-		}
-		
-		return averageTimeToFreeze(coldPerShot * RoF);
-	}
-	public static double averageTimeToFreeze(double coldPerSecond) {
+	public static double averageTimeToFreeze(double burstOfCold, double coldPerShot, double RoF, double coldPerSec) {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
 		}
 		
 		int numEnemyTypes = exactSpawnRates.length;
-		double[] freezeTemps = new double[numEnemyTypes];
+		double[] freezeTimes = new double[numEnemyTypes];
+		double freezeTemp;
 		
 		for (int i = 0; i < numEnemyTypes; i++) {
-			freezeTemps[i] = enemyTemperatures[i][3];
+			freezeTemp = enemyTemperatures[i][3];
+			
+			// Early exit: if Cold/Shot >= 300, then all enemies get ignited instantly since the largest Freeze Temp modeled in this program is 300.
+			if (burstOfCold <= freezeTemp || coldPerShot <= freezeTemp || burstOfCold + coldPerShot <= freezeTemp) {
+				freezeTimes[i] = 0.0;
+				break;
+			}
+			
+			freezeTimes[i] = (freezeTemp - burstOfCold) / (coldPerShot * RoF + coldPerSec);
 		}
 		
-		double avgFreezeTemp = MathUtils.vectorDotProduct(exactSpawnRates, freezeTemps);
-		
-		// Negative Freeze temps divided by negative cold per seconds results in a positive number of seconds
-		return avgFreezeTemp / coldPerSecond;
+		return MathUtils.vectorDotProduct(exactSpawnRates, freezeTimes);
 	}
-	// Because the creatures have had a negative temperature for longer than 2 seconds (due to being Frozen already) I'm keeping heatGainRate in the refreeze method
+	// Because the creatures have had a negative temperature for longer than 2 seconds (due to being Frozen already) I'm keeping warming rate in the refreeze method
 	public static double averageTimeToRefreeze(double coldPerSecond) {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
 		}
 		
 		int numEnemyTypes = exactSpawnRates.length;
-		double[] freezeTemps = new double[numEnemyTypes];
-		double[] thawTemps = new double[numEnemyTypes];
-		double[] heatGainRates = new double[numEnemyTypes];
+		double[] refreezeTimes = new double[numEnemyTypes];
+		double freezeTemp, thawTemp, warmingRate;
 		
 		for (int i = 0; i < numEnemyTypes; i++) {
-			freezeTemps[i] = enemyTemperatures[i][3];
-			thawTemps[i] = enemyTemperatures[i][4];
-			heatGainRates[i] = enemyTemperatures[i][5];
+			freezeTemp = enemyTemperatures[i][3];
+			thawTemp = enemyTemperatures[i][4];
+			warmingRate = enemyTemperatures[i][5];
+			
+			// Negative Freeze temps divided by negative cold per seconds results in a positive number of seconds
+			refreezeTimes[i] = (freezeTemp - thawTemp) / (coldPerSecond + warmingRate);
 		}
 		
-		double avgFreezeTemp = MathUtils.vectorDotProduct(exactSpawnRates, freezeTemps);
-		double avgThawTemp = MathUtils.vectorDotProduct(exactSpawnRates, thawTemps);
-		double avgHeatGainRate = MathUtils.vectorDotProduct(exactSpawnRates, heatGainRates);
-		
-		// Negative Freeze temps divided by negative cold per seconds results in a positive number of seconds
-		return (avgFreezeTemp - avgThawTemp) / (coldPerSecond + avgHeatGainRate);
+		return MathUtils.vectorDotProduct(exactSpawnRates, refreezeTimes);
 	}
 	public static double averageFreezeDuration() {
 		if (!verifySpawnRatesTotalIsOne()) {
@@ -492,22 +483,19 @@ public class EnemyInformation {
 		}
 		
 		int numEnemyTypes = exactSpawnRates.length;
-		double[] freezeTemps = new double[numEnemyTypes];
-		double[] thawTemps = new double[numEnemyTypes];
-		double[] heatGainRates = new double[numEnemyTypes];
+		double freezeDurations[] = new double[numEnemyTypes];
+		double freezeTemp, thawTemp, warmingRate;
 		
 		for (int i = 0; i < numEnemyTypes; i++) {
-			freezeTemps[i] = enemyTemperatures[i][3];
-			thawTemps[i] = enemyTemperatures[i][4];
-			heatGainRates[i] = enemyTemperatures[i][5];
+			freezeTemp = enemyTemperatures[i][3];
+			thawTemp = enemyTemperatures[i][4];
+			warmingRate = enemyTemperatures[i][5];
+			
+			// Because every Freeze temp is negative and is strictly less than the corresponding Thaw temp, subtracting Freeze from Thaw guarantees a positive number.
+			freezeDurations[i] = (thawTemp - freezeTemp) / warmingRate;
 		}
 		
-		double avgFreezeTemp = MathUtils.vectorDotProduct(exactSpawnRates, freezeTemps);
-		double avgThawTemp = MathUtils.vectorDotProduct(exactSpawnRates, thawTemps);
-		double avgHeatGainRate = MathUtils.vectorDotProduct(exactSpawnRates, heatGainRates);
-		
-		// Because every Freeze temp is negative and is strictly less than the corresponding Thaw temp, subtracting Freeze from Thaw guarantees a positive number.
-		return (avgThawTemp - avgFreezeTemp) / avgHeatGainRate;
+		return MathUtils.vectorDotProduct(exactSpawnRates, freezeDurations);
 	}
 	// This method is currently only used by Driller/CryoCannon/OC/Snowball in Utility
 	public static double percentageEnemiesFrozenBySingleBurstOfCold(double coldPerBurst) {
@@ -517,7 +505,7 @@ public class EnemyInformation {
 		
 		double sum = 0;
 		for (int i = 0; i < exactSpawnRates.length; i++) {
-			if (enemyTemperatures[i][3] > coldPerBurst) {
+			if (enemyTemperatures[i][3] >= coldPerBurst) {
 				sum += exactSpawnRates[i];
 			}
 		}
@@ -785,11 +773,13 @@ public class EnemyInformation {
 		There will be a couple exceptions to this pattern: Praetorian and Shellback. Praetorian will have General Accuracy percent of Direct Damage hit its mouth, and 
 		(100% - General Accuracy) percent of Direct Damage hit the Heavy Armor plates around the mouth. Shellbacks will have General Accuracy percentage of Direct Damage
 		hit its plates until they're broken.
+		
+		I'm choosing to let Overkill damage be counted as damage dealt. Too complicated to keep track of while simultaneously doing Armor stuff.
 	*/
-	public static double[][] percentageDamageWastedByArmor(double directDamage, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy) {
-		return percentageDamageWastedByArmor(directDamage, areaDamage, armorBreaking, weakpointModifier, generalAccuracy, weakpointAccuracy, false);
+	public static double[][] percentageDamageWastedByArmor(double directDamage, int numPellets, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy) {
+		return percentageDamageWastedByArmor(directDamage, numPellets, areaDamage, armorBreaking, weakpointModifier, generalAccuracy, weakpointAccuracy, false);
 	}
-	public static double[][] percentageDamageWastedByArmor(double directDamage, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy, boolean embeddedDetonators) {
+	public static double[][] percentageDamageWastedByArmor(double directDamage, int numPellets, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy, boolean embeddedDetonators) {
 		double[][] creaturesArmorMatrix = {
 			// Creature Index, Number of Light Armor plates, Avg Armor Strength, Number of Heavy Armor plates, Avg Armor Plate HP
 			{1, 6, 15, 0, 0},  					// Glyphid Grunt
@@ -826,30 +816,21 @@ public class EnemyInformation {
 		};
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
-		
-		double areaDamageAppliedToHealthbar = areaDamage; 
-		double areaDamageAppliedToArmor;
-		if (embeddedDetonators) {
-			areaDamageAppliedToArmor = 0;
-		}
-		else {
-			areaDamageAppliedToArmor = areaDamage;
-		}
-		
-		int creatureIndex;
-		double baseHealth;
-		double proportionOfDamageThatHitsArmor, proportionOfDamageThatHitsWeakpoint;
-		double avgNumHitsToBreakArmorStrengthPlate, numHitsToBreakArmorHealthPlate;
-		double weakpointDamagePerShot, idealDamageDealtPerShot, reducedDamageDealtPerShot;
-		int shotCounter = 1;
-		double totalDamageSpent = 0, actualDamageDealt = 0;
-		for (int i = 0; i < creaturesArmorMatrix.length; i++) {
+		int creatureIndex, i, j;
+		double baseHealth, heavyArmorPlateHealth;
+		double damageDealtPerPellet, proportionOfDamageThatHitsArmor, proportionOfDamageThatHitsWeakpoint;
+		int avgNumHitsToBreakArmorStrengthPlate, numHitsOnArmorStrengthPlate;
+		double totalDamageSpent, actualDamageDealt;
+		for (i = 0; i < creaturesArmorMatrix.length; i++) {
 			creatureIndex = (int) creaturesArmorMatrix[i][0];
 			baseHealth = enemyHealthPools[creatureIndex];
 			
 			if (creaturesArmorMatrix[i][4] > 0) {
 				// All Heavy Armor plates with healthbars have their health scale with normal resistance.
-				creaturesArmorMatrix[i][4] *= normalResistance;
+				heavyArmorPlateHealth = creaturesArmorMatrix[i][4] * normalResistance;
+			}
+			else {
+				heavyArmorPlateHealth = 0;
 			}
 			
 			if (i == 3) {
@@ -859,54 +840,98 @@ public class EnemyInformation {
 				proportionOfDamageThatHitsArmor = (100.0 - generalAccuracy) / 100.0;
 				double proportionOfDamageThatHitsMouth = generalAccuracy / 100.0;
 				
-				numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / ((proportionOfDamageThatHitsArmor * directDamage + areaDamageAppliedToArmor) * armorBreaking));
-				
-				// Because I'm modeling it as if you're shooting at its mouth, Weakpoint bonuses are ignored.
-				double mouthDamagePerShot = directDamage * proportionOfDamageThatHitsMouth + areaDamageAppliedToHealthbar;
-				idealDamageDealtPerShot = mouthDamagePerShot + directDamage * proportionOfDamageThatHitsArmor;
-				
-				shotCounter = 1;
 				totalDamageSpent = 0;
 				actualDamageDealt = 0;
 				while (baseHealth > 0) {
-					reducedDamageDealtPerShot = mouthDamagePerShot;
-					
-					if (shotCounter > numHitsToBreakArmorHealthPlate) {
-						reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor;
+					// First, Direct Damage
+					for (j = 0; j < numPellets; j++) {
+						totalDamageSpent += directDamage;
+						damageDealtPerPellet = proportionOfDamageThatHitsMouth * directDamage;
+						if (heavyArmorPlateHealth > 0) {
+							if (directDamage * proportionOfDamageThatHitsArmor * armorBreaking > heavyArmorPlateHealth) {
+								if (armorBreaking > 1.0) {
+									damageDealtPerPellet += proportionOfDamageThatHitsArmor * directDamage - heavyArmorPlateHealth / armorBreaking;
+								}
+								heavyArmorPlateHealth = 0;
+							}
+							else {
+								// Direct Damage insufficient to break the Heavy Armor Plate
+								heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
+							}
+						}
+						else {
+							damageDealtPerPellet += proportionOfDamageThatHitsArmor * directDamage;
+						}
+						
+						actualDamageDealt += damageDealtPerPellet;
+						baseHealth -= damageDealtPerPellet;
 					}
 					
-					totalDamageSpent += idealDamageDealtPerShot;
-					actualDamageDealt += reducedDamageDealtPerShot;
-					baseHealth -= reducedDamageDealtPerShot;
-					shotCounter++;
+					// Second, Area Damage
+					totalDamageSpent += areaDamage;
+					if (embeddedDetonators) {
+						if (heavyArmorPlateHealth == 0) {
+							actualDamageDealt += areaDamage;
+							baseHealth -= areaDamage;
+						}
+					}
+					else {
+						if (heavyArmorPlateHealth > 0) {
+							heavyArmorPlateHealth = Math.max(heavyArmorPlateHealth - areaDamage * armorBreaking, 0);
+						}
+						
+						actualDamageDealt += areaDamage;
+						baseHealth -= areaDamage;
+					}
 				}
 			}
 			else if (i == 8) {
 				// Special case: Q'ronar Shellback
 				baseHealth *= largeResistance;
 				
-				numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / ((directDamage + areaDamageAppliedToArmor) * armorBreaking));
-				
-				// Because I'm modeling it as if you're shooting at it while curled up and rolling around, Weakpoint bonuses are ignored.
-				idealDamageDealtPerShot = directDamage + areaDamageAppliedToHealthbar;
-				
-				shotCounter = 1;
 				totalDamageSpent = 0;
 				actualDamageDealt = 0;
 				while (baseHealth > 0) {
-					reducedDamageDealtPerShot = areaDamageAppliedToArmor;
-					
-					if (shotCounter > numHitsToBreakArmorHealthPlate) {
-						if (embeddedDetonators) {
-							reducedDamageDealtPerShot = areaDamageAppliedToHealthbar;
+					// First, Direct Damage
+					for (j = 0; j < numPellets; j++) {
+						totalDamageSpent += directDamage;
+						damageDealtPerPellet = 0;
+						if (heavyArmorPlateHealth > 0) {
+							if (directDamage * armorBreaking > heavyArmorPlateHealth) {
+								if (armorBreaking > 1.0) {
+									damageDealtPerPellet += directDamage - heavyArmorPlateHealth / armorBreaking;
+								}
+								heavyArmorPlateHealth = 0;
+							}
+							else {
+								// Direct Damage insufficient to break the Heavy Armor Plate
+								heavyArmorPlateHealth -= directDamage * armorBreaking;
+							}
 						}
-						reducedDamageDealtPerShot += directDamage;
+						else {
+							damageDealtPerPellet += directDamage;
+						}
+						
+						actualDamageDealt += damageDealtPerPellet;
+						baseHealth -= damageDealtPerPellet;
 					}
 					
-					totalDamageSpent += idealDamageDealtPerShot;
-					actualDamageDealt += reducedDamageDealtPerShot;
-					baseHealth -= reducedDamageDealtPerShot;
-					shotCounter++;
+					// Second, Area Damage
+					totalDamageSpent += areaDamage;
+					if (embeddedDetonators) {
+						if (heavyArmorPlateHealth == 0) {
+							actualDamageDealt += areaDamage;
+							baseHealth -= areaDamage;
+						}
+					}
+					else {
+						if (heavyArmorPlateHealth > 0) {
+							heavyArmorPlateHealth = Math.max(heavyArmorPlateHealth - areaDamage * armorBreaking, 0);
+						}
+						
+						actualDamageDealt += areaDamage;
+						baseHealth -= areaDamage;
+					}
 				}
 			}
 			else {
@@ -924,67 +949,113 @@ public class EnemyInformation {
 				proportionOfDamageThatHitsWeakpoint = weakpointAccuracy / 100.0;
 				
 				if (creaturesArmorMatrix[i][2] > 0) {
-					avgNumHitsToBreakArmorStrengthPlate = Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(proportionOfDamageThatHitsArmor * directDamage + areaDamageAppliedToArmor, armorBreaking, creaturesArmorMatrix[i][2])));
+					if (embeddedDetonators || (areaDamage > 0 && numPellets > 1)) {
+						// Boomstick special case -- I'm choosing to model it as if the Blastwave doesn't break Light Armor Plates for simplicity later in the method
+						avgNumHitsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(directDamage, armorBreaking, creaturesArmorMatrix[i][2])));
+					}
+					else {
+						avgNumHitsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(directDamage + areaDamage, armorBreaking, creaturesArmorMatrix[i][2])));
+					}
 				}
 				else {
 					avgNumHitsToBreakArmorStrengthPlate = 0;
 				}
+				numHitsOnArmorStrengthPlate = 0;
 				
-				if (creaturesArmorMatrix[i][4] > 0) {
-					numHitsToBreakArmorHealthPlate = Math.ceil(creaturesArmorMatrix[i][4] / ((proportionOfDamageThatHitsArmor * directDamage + areaDamageAppliedToArmor) * armorBreaking));
-				}
-				else {
-					numHitsToBreakArmorHealthPlate = 0;
-				}
-				
-				if (weakpointModifier < 0) {
-					weakpointDamagePerShot = directDamage * proportionOfDamageThatHitsWeakpoint + areaDamageAppliedToHealthbar;
-				}
-				else {
-					weakpointDamagePerShot = directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex] + areaDamageAppliedToHealthbar;
-				}
-				
-				// Don't double-count Area Damage; already counted in Weakpoint.
-				idealDamageDealtPerShot = weakpointDamagePerShot + directDamage * proportionOfDamageThatHitsArmor;
-				
-				shotCounter = 1;
 				totalDamageSpent = 0;
 				actualDamageDealt = 0;
 				while (baseHealth > 0) {
-					reducedDamageDealtPerShot = weakpointDamagePerShot;
-					
-					// First, Light Armor plates (always Armor Strength, mixes with Heavy Armor plates on Guards)
-					if (creaturesArmorMatrix[i][1] > 0) {
-						if (shotCounter <= avgNumHitsToBreakArmorStrengthPlate) {
-							reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor * UtilityInformation.LightArmor_DamageReduction * creaturesArmorMatrix[i][1] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+					// First, Direct Damage
+					for (j = 0; j < numPellets; j++) {
+						if (weakpointModifier < 0) {
+							totalDamageSpent += directDamage;
+							damageDealtPerPellet = directDamage * proportionOfDamageThatHitsWeakpoint;
 						}
 						else {
-							reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor * creaturesArmorMatrix[i][1] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+							totalDamageSpent += directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex] + directDamage * proportionOfDamageThatHitsArmor;
+							damageDealtPerPellet = directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex];
 						}
+						
+						// 1. Light Armor plates (always Armor Strength, mixes with Heavy Armor plates on Guards)
+						if (creaturesArmorMatrix[i][1] > 0) {
+							numHitsOnArmorStrengthPlate++;
+							if (numHitsOnArmorStrengthPlate > avgNumHitsToBreakArmorStrengthPlate || (armorBreaking > 1.0 && numHitsOnArmorStrengthPlate == avgNumHitsToBreakArmorStrengthPlate)) {
+								damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * creaturesArmorMatrix[i][1] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+							}
+							else {
+								damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * UtilityInformation.LightArmor_DamageReduction * creaturesArmorMatrix[i][1] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+							}
+						}
+						
+						if (creaturesArmorMatrix[i][3] > 0) {
+							// 2. Heavy Armor Plates with health (mixes with Light Armor plates on Guards)
+							if (creaturesArmorMatrix[i][4] > 0) { 
+								if (heavyArmorPlateHealth > 0) {
+									if (directDamage * proportionOfDamageThatHitsArmor * armorBreaking > heavyArmorPlateHealth) {
+										if (armorBreaking > 1.0) {
+											damageDealtPerPellet += (directDamage * proportionOfDamageThatHitsArmor - heavyArmorPlateHealth / armorBreaking) * creaturesArmorMatrix[i][3] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+										}
+										heavyArmorPlateHealth = 0;
+									}
+									else {
+										// Direct Damage insufficient to break the Heavy Armor Plate
+										heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
+									}
+								}
+								else {
+									damageDealtPerPellet += proportionOfDamageThatHitsArmor * directDamage * creaturesArmorMatrix[i][3] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+								}
+							}
+							// 3. Heavy Armor plates with Armor Strength (mutually exclusive with Light Armor plates)
+							else if (creaturesArmorMatrix[i][1] == 0 && creaturesArmorMatrix[i][2] > 0) {
+								numHitsOnArmorStrengthPlate++;
+								if (numHitsOnArmorStrengthPlate > avgNumHitsToBreakArmorStrengthPlate || (armorBreaking > 1.0 && numHitsOnArmorStrengthPlate == avgNumHitsToBreakArmorStrengthPlate)) {
+									damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor;
+								}
+							}
+						}
+						
+						actualDamageDealt += damageDealtPerPellet;
+						baseHealth -= damageDealtPerPellet;
 					}
 					
-					if (creaturesArmorMatrix[i][3] > 0) {
-						// Second, Heavy Armor Plates with health (mixes with Light Armor plates on Guards)
-						if (creaturesArmorMatrix[i][4] > 0 && shotCounter > numHitsToBreakArmorHealthPlate) {
-							reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor * creaturesArmorMatrix[i][3] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+					// Second, Area Damage
+					totalDamageSpent += areaDamage;
+					if (embeddedDetonators) {
+						// Case 1: Guards' front leg plates have HP and block Embedded Detonators' damage until they're broken
+						if (creaturesArmorMatrix[i][4] > 0) {
+							if (heavyArmorPlateHealth == 0) {
+								actualDamageDealt += areaDamage;
+								baseHealth -= areaDamage;
+							}
 						}
-						// Third, Heavy Armor plates with Armor Strength (mutually exclusive with Light Armor plates)
-						else if (creaturesArmorMatrix[i][1] == 0 && creaturesArmorMatrix[i][2] > 0 && shotCounter > avgNumHitsToBreakArmorStrengthPlate) {
-							reducedDamageDealtPerShot += directDamage * proportionOfDamageThatHitsArmor;
+						// Case 2: Wardens and Menaces have Heavy Armor that uses Armor Strength
+						else if (creaturesArmorMatrix[i][1] == 0 && creaturesArmorMatrix[i][2] > 0) {
+							// Detonators aren't placed until after the Heavy Armor plate is broken
+							if (numHitsOnArmorStrengthPlate > avgNumHitsToBreakArmorStrengthPlate) {
+								actualDamageDealt += areaDamage;
+								baseHealth -= areaDamage;
+							}
+						}
+						// Case 3: Light Armor plates don't stop the embedded detonators from dealing damage
+						else if (creaturesArmorMatrix[i][1] > 0) {
+							actualDamageDealt += areaDamage;
+							baseHealth -= areaDamage;
 						}
 					}
-					
-					totalDamageSpent += idealDamageDealtPerShot;
-					actualDamageDealt += reducedDamageDealtPerShot;
-					baseHealth -= reducedDamageDealtPerShot;
-					shotCounter++;
+					else {
+						if (heavyArmorPlateHealth > 0) {
+							heavyArmorPlateHealth = Math.max(heavyArmorPlateHealth - areaDamage * armorBreaking, 0);
+						}
+						
+						actualDamageDealt += areaDamage;
+						baseHealth -= areaDamage;
+					}
 				}
 			}
 			
-			// System.out.println("Armored creature index #" + i + ": Took " + shotCounter + " shots to deal " + actualDamageDealt + " damage and kill this enemy, whereas theoretically the same number of shots could have done " + totalDamageSpent + " damage.");
 			toReturn[0][i] = exactSpawnRates[creatureIndex];
 			toReturn[1][i] = 1.0 - actualDamageDealt / totalDamageSpent;
-			// System.out.println("For this enemy, " + (percentageWastedPerCreature*100.0) + "% of total damage was wasted by Armor.");
 		}
 		
 		return toReturn;

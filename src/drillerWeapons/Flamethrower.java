@@ -481,8 +481,6 @@ public class Flamethrower extends Weapon {
 	private double calculateDPS(boolean burst, boolean primaryTarget) {
 		double duration, burnDPS;
 		
-		double directHeatPerSec = getParticleHeat() * getFlowRate();
-		
 		double heatRadianceDmgAndHeatPerTick = 0;
 		int numTicksHeatRadianceWillProc = 0; 
 		if (selectedTier5 == 0) {
@@ -494,15 +492,11 @@ public class Flamethrower extends Weapon {
 		}
 		
 		double stickyFlamesDPS = getSFDamagePerTick() * stickyFlamesTicksPerSec / 2.0;
-		double stickyFlamesHeatPerSec = stickyFlamesHeatPerTick * stickyFlamesTicksPerSec / 2.0;
 		
 		if (burst) {
 			duration = ((double) getFuelTankSize()) / getFlowRate();
 			
-			// Because Heat Radiance ticks once per second, the value per tick is equal to the Heat/sec
-			double totalHeatPerSec = directHeatPerSec + stickyFlamesHeatPerSec + heatRadianceDmgAndHeatPerTick ;
-			double timeToIgnite = EnemyInformation.averageTimeToIgnite(totalHeatPerSec);
-			double burnDoTUptimeCoefficient = (duration - timeToIgnite) / duration;
+			double burnDoTUptimeCoefficient = (duration - averageTimeToCauterize()) / duration;
 			burnDPS = burnDoTUptimeCoefficient * DoTInformation.Burn_DPS;
 		}
 		else {
@@ -555,23 +549,16 @@ public class Flamethrower extends Weapon {
 		
 		// Total Heat Radiance Damage
 		double heatRadianceTotalDamage = 0;
-		double heatRadianceHeatPerSec = 0;
 		if (selectedTier5 == 0) {
 			// 80 Fire + Heat/sec in a 3m radius
 			double numTicksOfHeatRadiance = numMagazines(getCarriedFuel(), getFuelTankSize()) * (int) Math.floor(((double) getFuelTankSize()) / getFlowRate());
 			// I'm choosing to model this as if the player is kiting enemies, keeping them about 1.5m away so that they don't receive melee attacks.
 			int numGlyphidsHitByHeatRadiancePerTick = calculateNumGlyphidsInRadius(3.0) - calculateNumGlyphidsInRadius(1.5);
 			heatRadianceTotalDamage = 80 * numTicksOfHeatRadiance * numGlyphidsHitByHeatRadiancePerTick;
-			
-			// I want this to be less effective with far-reaching streams to model how the further the steam flies the less likely it is that the enemies will be within the 3m.
-			heatRadianceHeatPerSec = 80.0 * 3.0 / getFlameReach();
 		}
 		
 		// Total Burn Damage
-		double directHeatPerSec = getParticleHeat() * getFlowRate();
-		double stickyFlamesHeatPerSec = stickyFlamesHeatPerTick * stickyFlamesTicksPerSec / 2.0;
-		double timeToIgnite = EnemyInformation.averageTimeToIgnite(directHeatPerSec + stickyFlamesHeatPerSec + heatRadianceHeatPerSec);
-		double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
+		double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(averageTimeToCauterize(), DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 		double fireDoTTotalDamage = fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		
 		return directTotalDamage + stickyFlamesTotalDamage + heatRadianceTotalDamage + fireDoTTotalDamage;
@@ -643,7 +630,6 @@ public class Flamethrower extends Weapon {
 	
 	@Override
 	public double averageTimeToCauterize() {
-		double directHeatPerSec = getParticleHeat() * getFlowRate();
 		double stickyFlamesHeatPerSec = stickyFlamesHeatPerTick * stickyFlamesTicksPerSec / 2.0;
 		
 		double heatRadianceDmgAndHeatPerTick = 0;
@@ -653,8 +639,7 @@ public class Flamethrower extends Weapon {
 			heatRadianceDmgAndHeatPerTick = 80.0 * 3.0 / getFlameReach();
 		}
 		
-		double totalHeatPerSec = directHeatPerSec + stickyFlamesHeatPerSec + heatRadianceDmgAndHeatPerTick ;
-		return EnemyInformation.averageTimeToIgnite(totalHeatPerSec);
+		return EnemyInformation.averageTimeToIgnite(0, getParticleHeat(), getFlowRate(), stickyFlamesHeatPerSec + heatRadianceDmgAndHeatPerTick);
 	}
 	
 	@Override
@@ -665,7 +650,7 @@ public class Flamethrower extends Weapon {
 		double directTotalDamage = numTargets * getParticleDamage() * getFuelTankSize();
 		
 		// Total Burn Damage
-		double timeToIgnite = EnemyInformation.averageTimeToIgnite(getParticleHeat(), getFlowRate());
+		double timeToIgnite = EnemyInformation.averageTimeToIgnite(0, getParticleHeat(), getFlowRate(), 0);
 		double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 		double fireDoTTotalDamage = fireDoTDamagePerEnemy * numTargets;
 		

@@ -216,21 +216,38 @@ public class EPC_ChargeShot extends EPC {
 	
 	@Override
 	public int breakpoints() {
-		double[] directDamage = {
-			0,  // Kinetic
+		// Disintegrate is functionally identical to Kinetic; both are resistance-less
+		// 65% Electric / 25 % Fire / 10% Disintegrate for the single target part.
+		double[] dDamage = {
+			0.10 * getChargedDirectDamage(),  // Kinetic
 			0,  // Explosive
-			0.5 * getChargedDirectDamage(),  // Fire
+			0.25 * getChargedDirectDamage(),  // Fire
 			0,  // Frost
-			0.5 * getChargedDirectDamage()  // Electric
+			0.65 * getChargedDirectDamage()  // Electric
 		};
 		
-		double[] areaDamage = {
-			0,  // Kinetic
-			0.5 * getChargedAreaDamage(),  // Explosive
-			0,  // Fire
+		// Flying Nightmare converts all Direct Damage to Fire element
+		if (selectedTier5 == 0) {
+			dDamage[0] = 0;
+			dDamage[2] = getChargedDirectDamage();
+			dDamage[4] = 0;
+		}
+		
+		// 65% Explosive / 25% Fire / 10% Disintegrate for the AoE part.
+		double[] aDamage = {
+			0.10 * getChargedAreaDamage(),  // Kinetic
+			0.65 * getChargedAreaDamage(),  // Explosive
+			0.25 * getChargedAreaDamage(),  // Fire
 			0,  // Frost
-			0.5 * getChargedAreaDamage(),  // Electric
+			0,  // Electric
 		};
+		
+		// Thin Containment Field converts all Area Damage to Fire Element
+		if (selectedTier5 == 1) {
+			aDamage[0] = 0;
+			aDamage[1] = 0;
+			aDamage[2] = getChargedAreaDamage();
+		}
 		
 		double persistentPlasmaDamage = 0;
 		if (selectedOverclock == 5) {
@@ -243,7 +260,7 @@ public class EPC_ChargeShot extends EPC {
 			0  // Radiation
 		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, -1.0, 0.0, 0.0, statusEffects[1], statusEffects[3], selectedTier5 == 0);
+		breakpoints = EnemyInformation.calculateBreakpoints(dDamage, aDamage, DoTDamage, -1.0, 0.0, 0.0, statusEffects[1], statusEffects[3], selectedTier5 == 0);
 		return MathUtils.sum(breakpoints);
 	}
 

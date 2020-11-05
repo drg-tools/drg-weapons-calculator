@@ -76,7 +76,7 @@ public class Boomstick extends Weapon {
 		stunDuration = 2.5;
 		
 		// Override default 10m distance
-		accEstimator.setDistance(5.0);
+		accEstimator.setDistance(4.0);
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -503,10 +503,10 @@ public class Boomstick extends Weapon {
 		// 50% of Direct Damage from the pellets gets added on as Heat Damage.
 		double heatDamagePerShot = 0.5 * getDamagePerPellet() * numPelletsThatApplyHeat;
 		if (getMagazineSize() > 1) {
-			return EnemyInformation.averageTimeToIgnite(heatDamagePerShot * getRateOfFire());
+			return EnemyInformation.averageTimeToIgnite(0, heatDamagePerShot, getRateOfFire(), 0);
 		}
 		else {
-			return EnemyInformation.averageTimeToIgnite(heatDamagePerShot / getReloadTime());
+			return EnemyInformation.averageTimeToIgnite(0, heatDamagePerShot, 1.0 / getReloadTime(), 0);
 		}
 	}
 	
@@ -697,7 +697,15 @@ public class Boomstick extends Weapon {
 	@Override
 	public int breakpoints() {
 		double direct = getDamagePerPellet() * getNumberOfPellets() * estimatedAccuracy(false) / 100.0;
-		double area = getBlastwaveDamage();
+		
+		// Because Accuracy affects these Breakpoints, I'm choosing to implement Asher's suggestion to only add Blastwave damage when AccuracyEstimator.distance <= 4
+		double area;
+		if (accEstimator.getDistance() <= 4.0) {
+			area = getBlastwaveDamage();
+		}
+		else {
+			area = 0;
+		}
 		
 		// According to Elythnwaen, White Phosphorus Shells not only adds 50% of kinetic + explosive damage to Heat, it also converts 50% to Fire.
 		double split = 0;
@@ -749,10 +757,9 @@ public class Boomstick extends Weapon {
 		}
 		
 		// Light Armor Breaking probability
-		// TODO: Should this Light Armor probability be calculated like its stun/pellet chance?
-		int numPelletsThatHitLightArmorPlate = (int) Math.round(getNumberOfPellets() * estimatedAccuracy(false) / 100.0);
-		double probabilityToBreakLightArmorPlatePerPellet = calculateProbabilityToBreakLightArmor(getDamagePerPellet() * numPelletsThatHitLightArmorPlate, getArmorBreaking());
-		utilityScores[2] = probabilityToBreakLightArmorPlatePerPellet * UtilityInformation.ArmorBreak_Utility;
+		double probabilityToBreakLightArmorPlatePerPellet = calculateProbabilityToBreakLightArmor(getDamagePerPellet(), getArmorBreaking());
+		double probabilityToBreakLightArmorPlatePerShot = MathUtils.cumulativeBinomialProbability(probabilityToBreakLightArmorPlatePerPellet, getNumberOfPellets(), 1);
+		utilityScores[2] = probabilityToBreakLightArmorPlatePerShot * UtilityInformation.ArmorBreak_Utility;
 		
 		// Mod Tier 5 "Fear the Boomstick" = 0.5 Fear to enemies within 5m
 		if (selectedTier5 == 1) {
@@ -801,7 +808,7 @@ public class Boomstick extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet() * getNumberOfPellets(), getBlastwaveDamage(), getArmorBreaking(), 0.0, estimatedAccuracy(false), estimatedAccuracy(true), true);
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet(), getNumberOfPellets(), getBlastwaveDamage(), getArmorBreaking(), 0.0, estimatedAccuracy(false), estimatedAccuracy(true));
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	

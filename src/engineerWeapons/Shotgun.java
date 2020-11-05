@@ -100,7 +100,7 @@ public class Shotgun extends Weapon {
 		tier4[1] = new Mod("Bigger Pellets", "+1 Damage per Pellet", modIcons.directDamage, 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1.5m Radius. Turret Whip projectile has a 100% chance to Stun for 1.5 seconds "
+		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1.5m Radius. Turret Whip projectile has a 100% chance to Stun for 1.5 seconds and "
 				+ "inflicts 0.5 Fear to all enemies it damages. 10 Sentry ammo per shot, 3 second cooldown per Sentry.", modIcons.special, 5, 0, false);
 		tier5[1] = new Mod("Miner Adjustments", "Changes the Shotgun from semi-automatic to fully automatic, +0.5 Rate of Fire", modIcons.rateOfFire, 5, 1);
 		
@@ -642,10 +642,9 @@ public class Shotgun extends Weapon {
 	@Override
 	public double utilityScore() {
 		// Light Armor Breaking probability
-		// TODO: Should this Light Armor probability be calculated like its stun/pellet chance?
-		int numPelletsThatHitLightArmorPlate = (int) Math.round(getNumberOfPellets() * estimatedAccuracy(false) / 100.0);
-		double probabilityToBreakLightArmorPlatePerPellet = calculateProbabilityToBreakLightArmor(getDamagePerPellet() * numPelletsThatHitLightArmorPlate, getArmorBreaking());
-		utilityScores[2] = probabilityToBreakLightArmorPlatePerPellet * UtilityInformation.ArmorBreak_Utility;
+		double probabilityToBreakLightArmorPlatePerPellet = calculateProbabilityToBreakLightArmor(getDamagePerPellet(), getArmorBreaking());
+		double probabilityToBreakLightArmorPlatePerShot = MathUtils.cumulativeBinomialProbability(probabilityToBreakLightArmorPlatePerPellet, getNumberOfPellets(), 1);
+		utilityScores[2] = probabilityToBreakLightArmorPlatePerShot * UtilityInformation.ArmorBreak_Utility;
 		
 		// Fear
 		if (selectedTier5 == 0) {
@@ -685,7 +684,7 @@ public class Shotgun extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet() * getNumberOfPellets(), 0.0, getArmorBreaking(), getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true));
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet(), getNumberOfPellets(), 0.0, getArmorBreaking(), getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true));
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	

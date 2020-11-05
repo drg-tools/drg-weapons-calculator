@@ -65,11 +65,11 @@ public class BreachCutter extends Weapon {
 		damagePerTick = 11.5;
 		delayBeforeOpening = 0.2;
 		projectileLifetime = 1.5;
-		projectileWidth = 2;
-		magazineSize = 4;
+		projectileWidth = 1.5;
+		magazineSize = 3;
 		carriedAmmo = 12;
 		rateOfFire = 1.5;
-		reloadTime = 3.0;
+		reloadTime = 3.4;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -90,17 +90,17 @@ public class BreachCutter extends Weapon {
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
 		tier1[0] = new Mod("Prolonged Power Generation", "+1.5 Projectile Lifetime", modIcons.hourglass, 1, 0);
-		tier1[1] = new Mod("High Capacity Magazine", "+2 Clip Size", modIcons.magSize, 1, 1);
+		tier1[1] = new Mod("High Capacity Magazine", "+3 Magazine Size", modIcons.magSize, 1, 1);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Expanded Ammo Bags", "+8 Max Ammo", modIcons.carriedAmmo, 2, 0);
+		tier2[0] = new Mod("Expanded Ammo Bags", "+6 Max Ammo", modIcons.carriedAmmo, 2, 0);
 		tier2[1] = new Mod("Condensed Plasma", "+3.5 Damage per Tick", modIcons.directDamage, 2, 1);
-		tier2[2] = new Mod("Loosened Node Cohesion", "+1m Plasma Beam Width", modIcons.aoeRadius, 2, 2);
+		tier2[2] = new Mod("Loosened Node Cohesion", "+1.5m Plasma Beam Width", modIcons.aoeRadius, 2, 2);
 		
 		tier3 = new Mod[2];
 		// Although getStats() shows this change, it has no effect on any numbers in this model. As such, I'm marking as "not modeled".
 		tier3[0] = new Mod("Quick Deploy", "-0.2 Plasma Expansion Delay", modIcons.duration, 3, 0, false);
-		tier3[1] = new Mod("Loosened Node Cohesion", "+1m Plasma Beam Width", modIcons.aoeRadius, 3, 1);
+		tier3[1] = new Mod("Improved Case Ejector", "-0.4 Reload Time", modIcons.reloadSpeed, 3, 1);
 		
 		tier4 = new Mod[2];
 		tier4[0] = new Mod("Armor Breaking", "+200% Armor Breaking", modIcons.armorBreaking, 4, 0);
@@ -115,17 +115,18 @@ public class BreachCutter extends Weapon {
 		tier5[2] = new Mod("Triple Split Line", "Adds a line above and below the primary projectile (multiple lines hitting doesn't increase DPS)", modIcons.aoeRadius, 5, 2, false);
 		
 		overclocks = new Overclock[7];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Light-Weight Cases", "+4 Max Ammo, -0.2 Reload Time", overclockIcons.carriedAmmo, 0);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Light-Weight Cases", "+3 Max Ammo, -0.2 Reload Time", overclockIcons.carriedAmmo, 0);
 		// Roll Control has no effect on DPS stats, so it gets marked as "not modeled"
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Roll Control", "Holding down the trigger after the line leaves the gun causes the line to start rolling. On release of the trigger, the line stops rolling.", overclockIcons.rollControl, 1, false);
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Stronger Plasma Current", "+1 Damage per Tick, +0.5 Projectile Lifetime", overclockIcons.directDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Return to Sender", "Holding down the trigger after line leaves the gun activates a remote connection, which on release of the trigger causes "
-				+ "the line to change direction and move back towards the gun. In exchange, -4 Max Ammo", overclockIcons.returnToSender, 3);
+				+ "the line to change direction and move back towards the gun. In exchange, -6 Max Ammo", overclockIcons.returnToSender, 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "High Voltage Crossover", "100% chance to electrocute enemies, which deals an average of " + MathUtils.round(4.0 * DoTInformation.Electro_TicksPerSec, GuiConstants.numDecimalPlaces) + " Electric Damage per "
-				+ "Second for 4 seconds. In exchange, -2 Magazine Size.", overclockIcons.electricity, 4);
+				+ "Second for 4 seconds. In exchange, x0.67 Magazine Size.", overclockIcons.electricity, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Spinning Death", "Instead of flying in a straight line, the projectile now rotates 2 times per second about the Yaw axis. Additionally: x0.05 Projectile Velocity, x0 Impact Damage, "
-				+ "x2.5 Projectile Lifetime, x0.2 Damage per Tick, x0.5 Max Ammo, and x0.25 Magazine Size", overclockIcons.special, 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "Adds 90% of Damage per Tick as Heat Damage which ignites enemies almost instantly in exchange for -3.5 Damage per Tick, -4 Max Ammo, and x0.25 Armor Breaking", overclockIcons.heatDamage, 6);
+				+ "x2.5 Projectile Lifetime, x0.2 Damage per Tick, +1.5m Plasma Beam Width, x0.5 Max Ammo, and x0.33 Magazine Size", overclockIcons.special, 5);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "The first time the beam hits an enemy, it deals 75 Heat damage and applies a DoT that does 7 Fire Damage and 7 Heat damage at a rate of 2 ticks/sec for 5 seconds (does 11 ticks total). "
+				+ "Additionally, it converts 90% of the Damage per Tick from Electric element to Fire element and adds the amount converted as Heat damage per tick.  In exchange: -3.5 Damage per Tick, -6 Max Ammo, and x0.25 Armor Breaking", overclockIcons.heatDamage, 6);
 	}
 	
 	@Override
@@ -366,10 +367,10 @@ public class BreachCutter extends Weapon {
 		double toReturn = projectileWidth;
 		
 		if (selectedTier2 == 2) {
-			toReturn += 1;
+			toReturn += 1.5;
 		}
-		if (selectedTier3 == 1) {
-			toReturn += 1;
+		if (selectedOverclock == 5) {
+			toReturn += 1.5;
 		}
 		
 		return toReturn;
@@ -378,14 +379,14 @@ public class BreachCutter extends Weapon {
 		int toReturn = magazineSize;
 		
 		if (selectedTier1 == 1) {
-			toReturn += 2;
+			toReturn += 3;
 		}
 		
 		if (selectedOverclock == 4) {
-			toReturn -= 2;
+			toReturn = (int) Math.round(toReturn * 2.0 / 3.0);
 		}
 		else if (selectedOverclock == 5) {
-			toReturn = (int) Math.ceil(toReturn / 4.0);
+			toReturn /= 3;
 		}
 		
 		return toReturn;
@@ -394,14 +395,14 @@ public class BreachCutter extends Weapon {
 		int toReturn = carriedAmmo;
 		
 		if (selectedTier2 == 0) {
-			toReturn += 8;
+			toReturn += 6;
 		}
 		
 		if (selectedOverclock == 0) {
-			toReturn += 4;
+			toReturn += 3;
 		}
 		else if (selectedOverclock == 3 || selectedOverclock == 6) {
-			toReturn -= 4;
+			toReturn -= 6;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn /= 2;
@@ -422,6 +423,9 @@ public class BreachCutter extends Weapon {
 	protected double getReloadTime() {
 		double toReturn = reloadTime;
 		
+		if (selectedTier3 == 1) {
+			toReturn -= 0.4;
+		}
 		if (selectedOverclock == 0) {
 			toReturn -= 0.2;
 		}
@@ -453,7 +457,7 @@ public class BreachCutter extends Weapon {
 		
 		toReturn[2] = new StatsRow("Damage Ticks per Second:", damageTickRate, modIcons.blank, false);
 		
-		toReturn[3] = new StatsRow("Projectile Width:", getProjectileWidth(), modIcons.aoeRadius, selectedTier2 == 2 || selectedTier3 == 1);
+		toReturn[3] = new StatsRow("Projectile Width:", getProjectileWidth(), modIcons.aoeRadius, selectedTier2 == 2 || selectedOverclock == 5);
 		
 		toReturn[4] = new StatsRow("Projectile Velocity (m/sec):", getProjectileVelocity(), modIcons.projectileVelocity, selectedOverclock == 5);
 		
@@ -472,7 +476,7 @@ public class BreachCutter extends Weapon {
 		
 		toReturn[10] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedOverclock == 3);
 		
-		toReturn[11] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 0);
+		toReturn[11] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier3 == 1 || selectedOverclock == 0);
 		
 		boolean armorBreakingModified = selectedTier4 == 0 || selectedOverclock == 6;
 		toReturn[12] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, armorBreakingModified, armorBreakingModified);
@@ -488,12 +492,6 @@ public class BreachCutter extends Weapon {
 	/****************************************************************************************
 	* Other Methods
 	****************************************************************************************/
-	
-	protected double calculateAverageIgnitionTime() {
-		// OC "Inferno" adds 90% of projectile's damage as Heat
-		double heatPerSec = 0.9 * damageTickRate * getDamagePerTick();
-		return EnemyInformation.averageTimeToIgnite(heatPerSec);
-	}
 	
 	protected double calculateGruntIntersectionTimePerRegularProjectile() {
 		double secondsOfIntersection = (2.0 * EnemyInformation.GlyphidGruntBodyAndLegsRadius) / getProjectileVelocity();
@@ -628,18 +626,27 @@ public class BreachCutter extends Weapon {
 		double baseDamage = impactDamage + intersectionTime * damageTickRate * dmgPerTick + explosiveGoodbyeDmg;
 		
 		double burnDamage = 0;
-		// If Frozen, then they can't Burn. However, the logic gets tricky when trying to ingore Status Effects like Frozen for max damage calculations.
+		// If Frozen, then they can't Burn. However, the logic gets tricky when trying to ignore Status Effects like Frozen for max damage calculations.
 		if ((selectedOverclock == 6 && ignoreStatusEffects) || (selectedOverclock == 6 && !ignoreStatusEffects && !statusEffects[1])) {
-			double ignitionTime = calculateAverageIgnitionTime();
+			/* 
+				OC "Inferno" adds 3 different Heat sources:
+				1. 75 Heat Damage in a single burst
+				2. A hidden DoT that does 7 Fire + 7 Heat per tick, 2 ticks/sec, 5 sec duration (11 ticks)
+				3. 90% of the Dmg/Tick as Heat while intersecting enemies
+				
+				As a result of this, for every enemy except Oppressor the Burn DoT is extended by 5 sec (because 14 heat/sec > cooling rate) and they take 14 additional DPS during those 5 sec
+			*/
+			
+			double ignitionTime = averageTimeToCauterize();
 			double burnDoTDuration;
 			if (extendDoTsBeyondIntersection) {
-				burnDoTDuration = DoTInformation.Burn_SecsDuration;
+				burnDoTDuration = DoTInformation.Burn_SecsDuration + 5.0;
+				burnDamage = DoTInformation.Burn_DPS * burnDoTDuration + 11.0 * 7.0;  // Add the 11 ticks of 7 Fire Damage
 			}
 			else {
 				burnDoTDuration = intersectionTime - ignitionTime;
+				burnDamage = burnDoTDuration * DoTInformation.Burn_DPS + intersectionTime * 14.0;
 			}
-			
-			burnDamage = DoTInformation.Burn_DPS * burnDoTDuration;
 		}
 		
 		double electrocuteDamage = 0;
@@ -720,7 +727,8 @@ public class BreachCutter extends Weapon {
 		// Frozen negates the Burn DoT
 		if (selectedOverclock == 6 && !statusEffects[1]) {
 			// Because OC "Inferno" ignites all enemies just so dang fast, I'm choosing to over-estimate the Burn DPS for bursts as if they ignite instantly.
-			burnDPS = DoTInformation.Burn_DPS;
+			// Additionally, add the hidden DoT's 14 DPS for 5 seconds
+			burnDPS = DoTInformation.Burn_DPS + 14.0;
 		}
 		
 		double electroDPS = 0;
@@ -847,8 +855,13 @@ public class BreachCutter extends Weapon {
 	@Override
 	public double averageTimeToCauterize() {
 		if (selectedOverclock == 6) {
-			// OC "Inferno" adds 90% of the Beam DPS as Heat Damage, so the time to Ignite is pretty darn fast
-			return EnemyInformation.averageTimeToIgnite(0.9 * getDamagePerTick() * damageTickRate);
+			/* 
+				OC "Inferno" adds 3 different Heat sources:
+				1. 75 Heat Damage in a single burst
+				2. A hidden DoT that does 7 Fire + 7 Heat per tick, 2 ticks/sec, 5 sec duration (11 ticks)
+				3. 90% of the Dmg/Tick as Heat while intersecting enemies
+			*/
+			return EnemyInformation.averageTimeToIgnite(75, 0.9 * getDamagePerTick(), damageTickRate, 7.0 * 2);
 		}
 		else {
 			return -1;
@@ -890,18 +903,18 @@ public class BreachCutter extends Weapon {
 				String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1000, 0, 0, 20, 0, 0, 0, tier1[0].getText(true), "{ \"ex1\": { \"name\": \"Projectile Lifetime\", \"value\": 1.5 } }", "Icon_Upgrade_Duration", "Delay"),
 				exportAllMods || false);
 		toReturn.conditionalAdd(
-				String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[1].getText(true), "{ \"clip\": { \"name\": \"Magazine Size\", \"value\": 2 } }", "Icon_Upgrade_ClipSize", "Magazine Size"),
+				String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[1].getText(true), "{ \"clip\": { \"name\": \"Magazine Size\", \"value\": 3 } }", "Icon_Upgrade_ClipSize", "Magazine Size"),
 				exportAllMods || false);
 		
 		// Tier 2
 		toReturn.conditionalAdd(
-				String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 1800, 0, 18, 12, 0, 0, 0, tier2[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 8 } }", "Icon_Upgrade_Ammo", "Total Ammo"),
+				String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 1800, 0, 18, 12, 0, 0, 0, tier2[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 6 } }", "Icon_Upgrade_Ammo", "Total Ammo"),
 				exportAllMods || false);
 		toReturn.conditionalAdd(
 				String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 1800, 0, 0, 18, 0, 12, 0, tier2[1].getText(true), "{ \"dmg\": { \"name\": \"Beam DPS\", \"value\": 175 } }", "Icon_Upgrade_DamageGeneral", "Damage"),
 				exportAllMods || false);
 		toReturn.conditionalAdd(
-				String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 1800, 12, 0, 0, 18, 0, 0, tier2[2].getText(true), "{ \"ex2\": { \"name\": \"Plasma Beam Width\", \"value\": 1 } }", "Icon_Upgrade_Area", "Area of effect"),
+				String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 1800, 12, 0, 0, 18, 0, 0, tier2[2].getText(true), "{ \"ex2\": { \"name\": \"Plasma Beam Width\", \"value\": 1.5 } }", "Icon_Upgrade_Area", "Area of effect"),
 				exportAllMods || false);
 		
 		// Tier 3
@@ -909,7 +922,7 @@ public class BreachCutter extends Weapon {
 				String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2200, 0, 0, 20, 0, 30, 0, tier3[0].getText(true), "{ \"ex3\": { \"name\": \"Plasma Expansion Delay\", \"value\": 0.2, \"subtract\": true } }", "Icon_Upgrade_Duration", "Charge Speed"),
 				exportAllMods || false);
 		toReturn.conditionalAdd(
-				String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2200, 20, 30, 0, 0, 0, 0, tier3[1].getText(true), "{ \"ex2\": { \"name\": \"Plasma Beam Width\", \"value\": 1 } }", "Icon_Upgrade_Area", "Area of effect"),
+				String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2200, 20, 30, 0, 0, 0, 0, tier3[1].getText(true), "{ \"reload\": { \"name\": \"Reload Time\", \"value\": 0.4, \"subtract\": true } }", "Icon_Upgrade_Speed", "Reload Speed"),
 				exportAllMods || false);
 		
 		// Tier 4
@@ -944,7 +957,7 @@ public class BreachCutter extends Weapon {
 		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
 		// Clean
 		toReturn.conditionalAdd(
-				String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 8700, 0, 130, 0, 100, 0, 80, overclocks[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 4 }, "
+				String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 8700, 0, 130, 0, 100, 0, 80, overclocks[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 3 }, "
 				+ "\"reload\": { \"name\": \"Reload Time\", \"value\": 0.2, \"subtract\": true } }", "Icon_Upgrade_Ammo"),
 				exportAllOCs || false);
 		toReturn.conditionalAdd(
@@ -958,22 +971,22 @@ public class BreachCutter extends Weapon {
 		// Balanced
 		toReturn.conditionalAdd(
 				String.format(rowFormat, "Balanced", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 7950, 0, 140, 80, 0, 100, 0, overclocks[3].getText(true), "{ \"ex9\": { \"name\": \"Return to Sender\", \"value\": 1, \"boolean\": true }, "
-				+ "\"ammo\": { \"name\": \"Max Ammo\", \"value\": 4, \"subtract\": true } }", "Icon_Overclock_ForthAndBack_Linecutter"),
+				+ "\"ammo\": { \"name\": \"Max Ammo\", \"value\": 6, \"subtract\": true } }", "Icon_Overclock_ForthAndBack_Linecutter"),
 				exportAllOCs || false);
 		toReturn.conditionalAdd(
 				String.format(rowFormat, "Balanced", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 7300, 0, 75, 120, 95, 0, 0, overclocks[4].getText(true), "{ \"ex11\": { \"name\": \"High Voltage Crossover\", \"value\": 1, \"boolean\": true }, "
-				+ "\"clip\": { \"name\": \"Magazine Size\", \"value\": 2, \"subtract\": true } }", "Icon_Upgrade_Electricity"),
+				+ "\"clip\": { \"name\": \"Magazine Size\", \"value\": 0.67, \"multiply\": true } }", "Icon_Upgrade_Electricity"),
 				exportAllOCs || false);
 		
 		// Unstable
 		toReturn.conditionalAdd(
 				String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 8250, 100, 120, 0, 0, 80, 0, overclocks[5].getText(true), "{ \"ex10\": { \"name\": \"Spinning Death\", \"value\": 1, \"boolean\": true }, "
-				+ "\"dmg\": { \"name\": \"Beam DPS\", \"value\": 0.2, \"multiply\": true }, \"ex1\": { \"name\": \"Projectile Lifetime\", \"value\": 2.5, \"multiply\": true }, \"ammo\": { \"name\": \"Max Ammo\", \"value\": 0.5, \"multiply\": true }, "
-				+ "\"clip\": { \"name\": \"Magazine Size\", \"value\": 0.25, \"multiply\": true } }", "Icon_Upgrade_Special"),
+				+ "\"dmg\": { \"name\": \"Beam DPS\", \"value\": 0.2, \"multiply\": true }, \"ex1\": { \"name\": \"Projectile Lifetime\", \"value\": 2.5, \"multiply\": true }, \"ex2\": { \"name\": \"Plasma Beam Width\", \"value\": 1.5 }, "
+				+ "\"ammo\": { \"name\": \"Max Ammo\", \"value\": 0.5, \"multiply\": true }, \"clip\": { \"name\": \"Magazine Size\", \"value\": 0.33, \"multiply\": true } }", "Icon_Upgrade_Special"),
 				exportAllOCs || false);
 		toReturn.conditionalAdd(
 				String.format(rowFormat, "Unstable", overclocks[6].getShortcutRepresentation(), overclocks[6].getName(), 7550, 135, 0, 0, 70, 0, 90, overclocks[6].getText(true), "{ \"ex12\": { \"name\": \"Inferno\", \"value\": 1, \"boolean\": true }, "
-				+ "\"dmg\": { \"name\": \"Beam DPS\", \"value\": 175, \"subtract\": true }, \"ammo\": { \"name\": \"Max Ammo\", \"value\": 4, \"subtract\": true }, \"ex4\": { \"name\": \"Armor Breaking\", \"value\": 0.25, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_Heat"),
+				+ "\"dmg\": { \"name\": \"Beam DPS\", \"value\": 175, \"subtract\": true }, \"ammo\": { \"name\": \"Max Ammo\", \"value\": 6, \"subtract\": true }, \"ex4\": { \"name\": \"Armor Breaking\", \"value\": 0.25, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_Heat"),
 				exportAllOCs || false);
 		
 		return toReturn;

@@ -50,14 +50,14 @@ public class Zhukov extends Weapon {
 		weaponPic = WeaponPictures.zhukovs;
 		
 		// Base stats, before mods or overclocks alter them:
-		directDamage = 11;
+		directDamage = 12;
 		carriedAmmo = 600;
 		magazineSize = 50;  // Really 25
 		rateOfFire = 30.0;  // Really 15
 		reloadTime = 1.8;
 		
 		// Override default 10m distance
-		accEstimator.setDistance(5.0);
+		accEstimator.setDistance(4.0);
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -77,7 +77,7 @@ public class Zhukov extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Expanded Ammo Bags", "+75 Max Ammo", modIcons.carriedAmmo, 1, 0);
+		tier1[0] = new Mod("Expanded Ammo Bags", "+100 Max Ammo", modIcons.carriedAmmo, 1, 0);
 		tier1[1] = new Mod("High Velocity Rounds", "+1 Direct Damage", modIcons.directDamage, 1, 1);
 		
 		tier2 = new Mod[3];
@@ -86,7 +86,7 @@ public class Zhukov extends Weapon {
 		tier2[2] = new Mod("Quickfire Ejector", "-0.6 Reload Time", modIcons.reloadSpeed, 2, 2);
 		
 		tier3 = new Mod[2];
-		tier3[0] = new Mod("Increased Caliber Rounds", "+2 Direct Damage", modIcons.directDamage, 3, 0);
+		tier3[0] = new Mod("Increased Caliber Rounds", "+1 Direct Damage", modIcons.directDamage, 3, 0);
 		tier3[1] = new Mod("Better Weight Balance", "x0.5 Base Spread", modIcons.baseSpread, 3, 1);
 		
 		tier4 = new Mod[3];
@@ -104,8 +104,8 @@ public class Zhukov extends Weapon {
 		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "Any bullets that impact terrain get converted to Cryo Minelets. It takes 0.1 seconds to form the minelets, "
 				+ "0.8 seconds to arm them, and they only last for 3 seconds after being armed. If an enemy passes within 1.5m of a minelet, it will detonate and deal 10 Cold Damage to all enemies "
 				+ "within range. In exchange, -1 Direct Damage and -10 Magazine Size.", overclockIcons.coldDamage, 2);
-		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 10 Kinetic Damage to the enemy "
-				+ "upon reloading. -3 Direct Damage, -75 Max Ammo.", overclockIcons.specialReload, 3);
+		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 38 Internal Damage to the enemy "
+				+ "upon reloading. If reloading can kill an enemy, an icon will appear next to their healthbar. In exchange: -6 Direct Damage, -20 Magazine Size, -400 Max Ammo.", overclockIcons.specialReload, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Gas Recycling", "+5 Direct Damage, but it can no longer gain bonus damage from hitting a Weakpoint. Additionally, x1.5 Base Spread "
 				+ "and -50% Movement Speed while firing.", overclockIcons.directDamage, 4);
 	}
@@ -276,14 +276,14 @@ public class Zhukov extends Weapon {
 			toReturn += 1;
 		}
 		if (selectedTier3 == 0) {
-			toReturn += 2;
+			toReturn += 1;
 		}
 		
 		if (selectedOverclock == 1 || selectedOverclock == 2) {
 			toReturn -= 1;
 		}
 		else if (selectedOverclock == 3) {
-			toReturn -= 3;
+			toReturn -= 6;
 		}
 		else if (selectedOverclock == 4) {
 			toReturn += 5;
@@ -292,9 +292,9 @@ public class Zhukov extends Weapon {
 		return toReturn;
 	}
 	private int getAreaDamage() {
-		// Equipping the Overclock "Embedded Detonators" leaves a detonator inside enemies that does 5 Area Damage per Ammo (10/Bullet) that deals damage to an enemy upon reloading the Zhukovs
+		// Equipping the Overclock "Embedded Detonators" leaves a detonator inside enemies that does 38 Internal damage to an enemy upon reloading the Zhukovs
 		if (selectedOverclock == 3) {
-			return 10;
+			return 38;
 		}
 		else { 
 			return 0;
@@ -304,14 +304,14 @@ public class Zhukov extends Weapon {
 		int toReturn = carriedAmmo;
 		
 		if (selectedTier1 == 0) {
-			toReturn += 75;
+			toReturn += 100;
 		}
 		if (selectedTier4 == 2) {
 			toReturn += 150;
 		}
 		
 		if (selectedOverclock == 3) {
-			toReturn -= 75;
+			toReturn -= 400;
 		}
 		
 		return toReturn;
@@ -328,6 +328,9 @@ public class Zhukov extends Weapon {
 		}
 		else if (selectedOverclock == 2) {
 			toReturn -= 10;
+		}
+		else if (selectedOverclock == 3) {
+			toReturn -= 20;
 		}
 		
 		return toReturn;
@@ -411,7 +414,7 @@ public class Zhukov extends Weapon {
 		// This stat only applies to OC "Embedded Detonators"
 		toReturn[1] = new StatsRow("Embedded Detonators Damage:", getAreaDamage(), modIcons.areaDamage, selectedOverclock == 3, selectedOverclock == 3);
 		
-		boolean magSizeModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2;
+		boolean magSizeModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 3;
 		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier1 == 0 || selectedTier4 == 2 || selectedOverclock == 3;
@@ -453,7 +456,7 @@ public class Zhukov extends Weapon {
 		// Minelets do 10 Cold Damage upon detonation, but they have to take 0.1 seconds to arm first.
 		// While Frozen, bullets do x3 Direct Damage.
 		double effectiveRoF = getRateOfFire() / 2.0;
-		double timeToFreeze = EnemyInformation.averageTimeToFreeze(-10, effectiveRoF);
+		double timeToFreeze = EnemyInformation.averageTimeToFreeze(0, -10, effectiveRoF, 0);
 		return Math.ceil(timeToFreeze * effectiveRoF);
 	}
 	
@@ -551,8 +554,7 @@ public class Zhukov extends Weapon {
 	@Override
 	public double calculateMaxMultiTargetDamage() {
 		double effectiveMagazineSize = getMagazineSize() / 2.0;
-		// If there's an odd number carried ammo, round up since you can fire the last "odd" ammo as a full-damage shot
-		double effectiveCarriedAmmo = Math.ceil(getCarriedAmmo() / 2.0);
+		double effectiveCarriedAmmo = getCarriedAmmo() / 2.0;
 		return (effectiveMagazineSize + effectiveCarriedAmmo) * (getDirectDamage() + getAreaDamage()) * calculateMaxNumTargets();
 	}
 
@@ -565,8 +567,7 @@ public class Zhukov extends Weapon {
 	public double calculateFiringDuration() {
 		// Because of how this weapon works, all these numbers need to be halved to be accurate.
 		int effectiveMagazineSize = getMagazineSize() / 2;
-		// If there's an odd number carried ammo, round up since you can fire the last "odd" ammo as a full-damage shot
-		int effectiveCarriedAmmo = (int) Math.ceil(((double) getCarriedAmmo()) / 2.0);
+		int effectiveCarriedAmmo = getCarriedAmmo() / 2;
 		double effectiveRoF = getRateOfFire() / 2.0;
 		
 		double timeToFireMagazine = ((double) effectiveMagazineSize) / effectiveRoF;
@@ -578,7 +579,7 @@ public class Zhukov extends Weapon {
 		// Because the Overclock "Gas Recycling" removes the ability to get any weakpoint bonus damage, that has to be modeled here.
 		double dmgPerShot;
 		if (selectedOverclock == 4) {
-			dmgPerShot = getDirectDamage() + getAreaDamage();
+			dmgPerShot = getDirectDamage();
 		}
 		else {
 			dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) + getAreaDamage();
@@ -620,6 +621,7 @@ public class Zhukov extends Weapon {
 			0  // Electric
 		};
 		
+		// Kinetic, Disintegrate, and Internal are all resistanceless, so I can overload them here.
 		double[] areaDamage = {
 			getAreaDamage(),  // Kinetic
 			0,  // Explosive
@@ -668,7 +670,7 @@ public class Zhukov extends Weapon {
 		// OC "Cryo Minelets" applies Cryo damage to missed bullets
 		if (selectedOverclock == 2) {
 			// Cryo minelets: 1 placed per 2 ammo, minelets arm in 0.9 seconds, and detonate in 4 seconds if no enemy is around.
-			// Minelets seem to do 10 Cold Damage each, and explode in a 1.5m radius.
+			// Minelets do 10 Cold Damage each, and explode in a 1.5m radius.
 			int estimatedNumTargetsSlowedOrFrozen = calculateNumGlyphidsInRadius(1.5);
 			
 			utilityScores[3] = estimatedNumTargetsSlowedOrFrozen * UtilityInformation.Cold_Utility;
@@ -686,7 +688,8 @@ public class Zhukov extends Weapon {
 	public double averageTimeToCauterize() {
 		if (selectedOverclock == 2) {
 			double effectiveRoF = getRateOfFire() / 2.0;
-			return EnemyInformation.averageTimeToFreeze(-10, effectiveRoF);
+			// I'm choosing to add 0.9 to model the 0.1 creation time and 0.8 arming time before minelets deal their Cold damage
+			return 0.9 + EnemyInformation.averageTimeToFreeze(0, -10, effectiveRoF, 0);
 		}
 		else {
 			return -1;
@@ -706,7 +709,7 @@ public class Zhukov extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), getAreaDamage(), 1.0, getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true), true);
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, getAreaDamage(), 1.0, getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true), selectedOverclock == 3);
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	
@@ -720,7 +723,7 @@ public class Zhukov extends Weapon {
 		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
 		// Tier 1
 		toReturn.conditionalAdd(
-				String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 75 } }", "Icon_Upgrade_Ammo", "Total Ammo"),
+				String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 100 } }", "Icon_Upgrade_Ammo", "Total Ammo"),
 				exportAllMods || false);
 		toReturn.conditionalAdd(
 				String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1000, 0, 0, 0, 0, 20, 0, tier1[1].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 1 } }", "Icon_Upgrade_DamageGeneral", "Damage"),
@@ -739,7 +742,7 @@ public class Zhukov extends Weapon {
 		
 		// Tier 3
 		toReturn.conditionalAdd(
-				String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2200, 0, 0, 0, 20, 0, 30, tier3[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 2 } }", "Icon_Upgrade_DamageGeneral", "Damage"),
+				String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2200, 0, 0, 0, 20, 0, 30, tier3[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 1 } }", "Icon_Upgrade_DamageGeneral", "Damage"),
 				exportAllMods || false);
 		toReturn.conditionalAdd(
 				String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2200, 0, 0, 0, 30, 0, 20, tier3[1].getText(true), "{ \"ex1\": { \"name\": \"Base Spread\", \"value\": 0.5, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_Accuracy", "Accuracy"),
@@ -793,7 +796,7 @@ public class Zhukov extends Weapon {
 				exportAllOCs || false);
 		toReturn.conditionalAdd(
 				String.format(rowFormat, "Unstable", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 7550, 65, 0, 90, 0, 0, 135, overclocks[3].getText(true), "{ \"ex8\": { \"name\": \"Embedded Detonators\", \"value\": 1, \"boolean\": true }, "
-				+ "\"dmg\": { \"name\": \"Damage\", \"value\": 3, \"subtract\": true },  \"ammo\": { \"name\": \"Max Ammo\", \"value\": 75, \"subtract\": true } }", "Icon_Overclock_Special_Magazine"),
+				+ "\"dmg\": { \"name\": \"Damage\", \"value\": 6, \"subtract\": true }, \"clip\": { \"name\": \"Combined Clip Size\", \"value\": 20, \"subtract\": true }, \"ammo\": { \"name\": \"Max Ammo\", \"value\": 400, \"subtract\": true } }", "Icon_Overclock_Special_Magazine"),
 				exportAllOCs || false);
 		toReturn.conditionalAdd(
 				String.format(rowFormat, "Unstable", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 7800, 125, 0, 0, 0, 70, 105, overclocks[4].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 5 },  "

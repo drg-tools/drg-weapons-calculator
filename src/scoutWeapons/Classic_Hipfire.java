@@ -50,7 +50,7 @@ public class Classic_Hipfire extends Classic {
 		double toReturn = carriedAmmo;
 		
 		if (selectedTier1 == 0) {
-			toReturn += 32;
+			toReturn += 40;
 		}
 		
 		if (selectedOverclock == 1) {
@@ -99,7 +99,7 @@ public class Classic_Hipfire extends Classic {
 		
 		toReturn[3] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedOverclock == 3);
 		
-		toReturn[4] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier5 == 2 || selectedOverclock == 1);
+		toReturn[4] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier5 == 2 || selectedOverclock == 1 || selectedOverclock == 2);
 		
 		toReturn[5] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedTier4 == 1);
 		
@@ -258,7 +258,7 @@ public class Classic_Hipfire extends Classic {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 0.0, getArmorBreaking(), getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true));
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, 0.0, getArmorBreaking(), getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true));
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 }
