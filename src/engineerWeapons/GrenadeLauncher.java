@@ -291,6 +291,10 @@ public class GrenadeLauncher extends Weapon {
 			toReturn += 385;
 		}
 		
+		if (selectedTier4 == 0) {
+			toReturn *= homebrewPowderCoefficient;
+		}
+		
 		return toReturn;
 	}
 	private double getAreaDamage() {
