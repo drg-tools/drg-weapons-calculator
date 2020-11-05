@@ -83,7 +83,7 @@ public abstract class EPC extends Weapon {
 		maxHeat = 1.0;
 		coolingRate = 0.4;
 		ammoPerChargedShot = 8;
-		chargeShotWindup = 1.5;  // seconds
+		chargeShotWindup = 1.0 / 0.7;  // seconds
 		heatPerRegularShot = 0.13;
 		heatPerSecondWhileCharged = 2.0;
 		
@@ -116,7 +116,7 @@ public abstract class EPC extends Weapon {
 		
 		tier3 = new Mod[3];
 		tier3[0] = new Mod("Improved Charge Efficiency", "-2 Ammo per Charged Shot", modIcons.fuel, 3, 0);
-		tier3[1] = new Mod("Crystal Capacitors", "x2.25 Charge Speed", modIcons.chargeSpeed, 3, 1);
+		tier3[1] = new Mod("Crystal Capacitors", "x2.4 Charge Speed", modIcons.chargeSpeed, 3, 1);
 		tier3[2] = new Mod("Tweaked Radiator", "+50% Cooling Rate", modIcons.coolingRate, 3, 2);
 		
 		tier4 = new Mod[2];
@@ -466,7 +466,7 @@ public abstract class EPC extends Weapon {
 		double toReturn = chargeShotWindup;
 		
 		if (selectedTier3 == 1) {
-			toReturn /= 2.25;
+			toReturn /= 2.4;
 		}
 		if (selectedTier5 == 0) {
 			toReturn /= 0.8;
