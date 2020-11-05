@@ -975,7 +975,7 @@ public class BreachCutter extends Weapon {
 				exportAllOCs || false);
 		toReturn.conditionalAdd(
 				String.format(rowFormat, "Balanced", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 7300, 0, 75, 120, 95, 0, 0, overclocks[4].getText(true), "{ \"ex11\": { \"name\": \"High Voltage Crossover\", \"value\": 1, \"boolean\": true }, "
-				+ "\"clip\": { \"name\": \"Magazine Size\", \"value\": 1, \"subtract\": true } }", "Icon_Upgrade_Electricity"),
+				+ "\"clip\": { \"name\": \"Magazine Size\", \"value\": 0.67, \"multiply\": true } }", "Icon_Upgrade_Electricity"),
 				exportAllOCs || false);
 		
 		// Unstable
