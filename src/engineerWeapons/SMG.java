@@ -110,7 +110,7 @@ public class SMG extends Weapon {
 				+ "Additionally, if 2 turrets are less than 10m apart and both are electrocuted at the same time, then an electric arc will pass between them for 10 seconds.", overclockIcons.electricity, 0, false);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Turret EM Discharge", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, it triggers an explosion that deals 60 Electric Damage and 0.5 Fear to all enemies "
 				+ "within a 5m radius. There's a 1.5 second cooldown between explosions.", overclockIcons.areaDamage, 1, false);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "EM Refire Booster", "+2 Electric Damage per bullet, +4 Rate of Fire, x0.8 Max Ammo", overclockIcons.rateOfFire, 2);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "EM Refire Booster", "+2 Electric Damage per bullet, +4 Rate of Fire, x0.8182 Max Ammo", overclockIcons.rateOfFire, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Light-Weight Rounds", "+165 Max Ammo, -1 Direct Damage, -2 Rate of Fire", overclockIcons.carriedAmmo, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "High Voltage Electrocution", "x2 Electrocute DoT Damage per Tick, -1 sec Electrocute DoT Duration", overclockIcons.electricity, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Sniper", "x0.6 Base Spread, -33% Spread per Shot, -1 Rate of Fire", overclockIcons.baseSpread, 5);
@@ -350,7 +350,7 @@ public class SMG extends Weapon {
 		return toReturn;
 	}
 	private int getCarriedAmmo() {
-		int toReturn = carriedAmmo;
+		double toReturn = carriedAmmo;
 		
 		if (selectedTier1 == 2) {
 			toReturn += 110;
@@ -361,13 +361,14 @@ public class SMG extends Weapon {
 		}
 		
 		if (selectedOverclock == 2) {
-			toReturn *= 0.8;
+			// Because carried ammo and both ammo mods are multiples of 11, this should always result in a clean multiple of 10.
+			toReturn *= 9.0 / 11.0;
 		}
 		if (selectedOverclock == 3) {
 			toReturn += 165;
 		}
 		
-		return toReturn;
+		return (int) toReturn;
 	}
 	@Override
 	public double getRateOfFire() {
