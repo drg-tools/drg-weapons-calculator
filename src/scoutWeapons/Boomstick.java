@@ -104,7 +104,7 @@ public class Boomstick extends Weapon {
 		tier2[1] = new Mod("Quickfire Ejector", "-0.7 Reload Time", modIcons.reloadSpeed, 2, 1);
 		
 		tier3 = new Mod[3];
-		tier3[0] =  new Mod("Blowthrough Rounds", "+1 Penetration", modIcons.blowthrough, 3, 0);
+		tier3[0] =  new Mod("Blowthrough Rounds", "+2 Penetrations", modIcons.blowthrough, 3, 0);
 		tier3[1] = new Mod("Expanded Ammo Bags", "+9 Max Ammo", modIcons.carriedAmmo, 3, 1);
 		tier3[2] = new Mod("High Capacity Shells", "+3 Pellets per Shot", modIcons.pelletsPerShot, 3, 2);
 		
@@ -419,7 +419,7 @@ public class Boomstick extends Weapon {
 		int toReturn = 0;
 		
 		if (selectedTier3 == 0) {
-			toReturn += 1;
+			toReturn += 2;
 		}
 		
 		if (selectedOverclock == 4) {
