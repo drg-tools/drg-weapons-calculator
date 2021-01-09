@@ -150,6 +150,25 @@ public class EnemyInformation {
 		100    // Cave Leech
 	};
 	
+	// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
+	private static double[] normalEnemyResistances = {
+		0.7,  // Haz1
+		1.0,  // Haz2
+		1.1,  // Haz3
+		1.2,  // Haz4
+		1.2   // Haz5
+	};
+	
+	// On the other hand, large and extra-large enemies have their health scale by both player count and Hazard Level for all 20 combinations.
+	// Currently, it looks like the only extra-large enemy is a Dreadnought which I've chosen not to model for now.
+	private static double[][] largeEnemyResistances = {
+		{0.45, 0.55, 0.70, 0.85},  // Haz1
+		{0.65, 0.75, 0.90, 1.00},  // Haz2
+		{0.80, 0.90, 1.00, 1.10},  // Haz3
+		{1.00, 1.00, 1.20, 1.30},  // Haz4
+		{1.20, 1.20, 1.40, 1.50}   // Haz5
+	};
+	
 	// Resistance/weakness values taken from Elythnwaen's Spreadsheet
 	// Positive number means that the creature resists that element; negative means it's weak to that element.
 	// None of the enemies I'm modeling resist Poison or Radiation damage
@@ -325,14 +344,6 @@ public class EnemyInformation {
 		
 		int i, enemyIndex;
 
-		// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
-		double[] normalEnemyResistances = {
-			0.7,  // Haz1
-			1.0,  // Haz2
-			1.1,  // Haz3
-			1.2,  // Haz4
-			1.2   // Haz5
-		};
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		int[] normalEnemyIndexes = {0, 1, 2, 3, 5, 8, 9, 14, 20};
 		double normalEnemyHealth = 0;
@@ -342,15 +353,6 @@ public class EnemyInformation {
 		}
 		normalEnemyHealth *= normalResistance;
 		
-		// On the other hand, large and extra-large enemies have their health scale by both player count and Hazard Level for all 20 combinations.
-		// Currently, it looks like the only extra-large enemy is a Dreadnought which I've chosen not to model for now.
-		double[][] largeEnemyResistances = {
-			{0.45, 0.55, 0.70, 0.85},  // Haz1
-			{0.65, 0.75, 0.90, 1.00},  // Haz2
-			{0.80, 0.90, 1.00, 1.10},  // Haz3
-			{1.00, 1.00, 1.20, 1.30},  // Haz4
-			{1.20, 1.20, 1.40, 1.50}   // Haz5
-		};
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		int[] largeEnemyIndexes = {4, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19};
 		double largeEnemyHealth = 0;
@@ -363,8 +365,6 @@ public class EnemyInformation {
 		// System.out.println("Average health of an enemy: " + (normalEnemyHealth + largeEnemyHealth));
 		return normalEnemyHealth + largeEnemyHealth;
 	}
-	
-	
 	
 	public static double averageTimeToIgnite(double burstOfHeat, double heatPerShot, double RoF, double heatPerSec) {
 		if (!verifySpawnRatesTotalIsOne()) {
@@ -584,6 +584,23 @@ public class EnemyInformation {
 		}
 	}
 	
+	public static double averageDifficultyScalingResistance() {
+		int[] normalEnemyIndexes = {0, 1, 2, 3, 5, 8, 9, 14, 20};
+		double normalResistance = normalEnemyResistances[hazardLevel - 1];
+		int[] largeEnemyIndexes = {4, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19};
+		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
+		
+		double sum = 0;
+		for (int i: normalEnemyIndexes) {
+			sum += exactSpawnRates[i] * normalResistance;
+		}
+		for (int i: largeEnemyIndexes) {
+			sum += exactSpawnRates[i] * largeResistance;
+		}
+		
+		return sum;
+	}
+	
 	/*
 		This method is used to quickly show how many shots it would take for projectile-based weapons to kill the 21 modeled creatures under various conditions. It models 
 		Elemental resistances, DoTs, Light Armor resistance, Weakpoint bonus damage, and Subata's T5.B +20% vs Mactera
@@ -605,25 +622,7 @@ public class EnemyInformation {
 											 double singleBurstOfHeat, boolean frozen, boolean IFG, boolean flyingNightmare) {
 		int[] creaturesToModel = {0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 14, 15, 16, 20};
 		
-		// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
-		double[] normalEnemyResistances = {
-			0.7,  // Haz1
-			1.0,  // Haz2
-			1.1,  // Haz3
-			1.2,  // Haz4
-			1.2   // Haz5
-		};
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
-		
-		// On the other hand, large and extra-large enemies have their health scale by both player count and Hazard Level for all 20 combinations.
-		// Currently, it looks like the only extra-large enemy is a Dreadnought which I've chosen not to model for now.
-		double[][] largeEnemyResistances = {
-			{0.45, 0.55, 0.70, 0.85},  // Haz1
-			{0.65, 0.75, 0.90, 1.00},  // Haz2
-			{0.80, 0.90, 1.00, 1.10},  // Haz3
-			{1.00, 1.00, 1.20, 1.30},  // Haz4
-			{1.20, 1.20, 1.40, 1.50}   // Haz5
-		};
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
 		double avgHP = averageHealthPool();
@@ -795,25 +794,8 @@ public class EnemyInformation {
 		
 		double[][] toReturn = new double[2][creaturesArmorMatrix.length];
 		
-		// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
-		double[] normalEnemyResistances = {
-			0.7,  // Haz1
-			1.0,  // Haz2
-			1.1,  // Haz3
-			1.2,  // Haz4
-			1.2   // Haz5
-		};
-		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		
-		// On the other hand, large and extra-large enemies have their health scale by both player count and Hazard Level for all 20 combinations.
-		// Currently, it looks like the only extra-large enemy is a Dreadnought which I've chosen not to model for now.
-		double[][] largeEnemyResistances = {
-			{0.45, 0.55, 0.70, 0.85},  // Haz1
-			{0.65, 0.75, 0.90, 1.00},  // Haz2
-			{0.80, 0.90, 1.00, 1.10},  // Haz3
-			{1.00, 1.00, 1.20, 1.30},  // Haz4
-			{1.20, 1.20, 1.40, 1.50}   // Haz5
-		};
+		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
 		int creatureIndex, i, j;
@@ -1069,25 +1051,7 @@ public class EnemyInformation {
 		toReturn[0] = new double[exactSpawnRates.length];
 		toReturn[1] = new double[exactSpawnRates.length];
 		
-		// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
-		double[] normalEnemyResistances = {
-			0.7,  // Haz1
-			1.0,  // Haz2
-			1.1,  // Haz3
-			1.2,  // Haz4
-			1.2   // Haz5
-		};
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
-		
-		// On the other hand, large and extra-large enemies have their health scale by both player count and Hazard Level for all 20 combinations.
-		// Currently, it looks like the only extra-large enemy is a Dreadnought which I've chosen not to model for now.
-		double[][] largeEnemyResistances = {
-			{0.45, 0.55, 0.70, 0.85},  // Haz1
-			{0.65, 0.75, 0.90, 1.00},  // Haz2
-			{0.80, 0.90, 1.00, 1.10},  // Haz3
-			{1.00, 1.00, 1.20, 1.30},  // Haz4
-			{1.20, 1.20, 1.40, 1.50}   // Haz5
-		};
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
 		HashSet<Integer> normalEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 1, 2, 3, 5, 8, 9, 14, 20}));

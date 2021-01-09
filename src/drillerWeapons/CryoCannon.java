@@ -108,7 +108,8 @@ public class CryoCannon extends Weapon {
 		tier4[2] = new Mod("Larger Reserve Tank", "+150 Tank Size", modIcons.carriedAmmo, 4, 2);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Fragile", "Every particle that hits a Frozen enemy has a chance to deal a large chunk of damage", modIcons.addedExplosion, 5, 0, false);
+		tier5[0] = new Mod("Fragile", "When a particle from Cryo Cannon damages a Frozen enemy and brings its health below 100 \"internal\" hp, it has a (1 - hp/100) probability to deal the remaining hp as Internal Damage. "
+				+ "This damage gets affected by the current Difficulty Scaling from Hazard level and player count, so at higher difficulties Fragile will no longer be able to score the killing blow.", modIcons.addedExplosion, 5, 0);
 		tier5[1] = new Mod("Cold Radiance", "Cool down enemies within 4m of you at a rate of 60 Cold/sec. This stacks with the direct stream and Ice Path's cold sources as well.", modIcons.coldDamage, 5, 1);
 		
 		overclocks = new Overclock[6];
@@ -495,6 +496,24 @@ public class CryoCannon extends Weapon {
 		double firingTime = pressureDropDuration / getPressureDropModifier();
 		double flowRate = getFlowRate();
 		
+		double fragileDamage = 0;
+		if (selectedTier5 == 0) {
+			if (primaryTarget && statusEffects[0]) {
+				// Burning prevents Frozen, which negates Fragile
+				fragileDamage = 0;
+			}
+			else {
+				double averageHealth = EnemyInformation.averageHealthPool(true);  // This already returns health multiplied by resistances, so this is the "effective" hp, not "internal" hp 
+				double averageResistance = EnemyInformation.averageDifficultyScalingResistance();
+				double avgNumParticlesBeforeFragileCanProc = Math.ceil((averageHealth - 100.0 * averageResistance) / dmgPerParticle);  // This will get the Effective HP below 100 * Resistance, which is the same as getting Internal HP below 100
+				double expectedNumParticlesForFragileKill = Math.ceil(recursiveFragileAmmoSpent(100.0, dmgPerParticle, averageResistance));  // This number is how many particles it will take to kill the creature once below 100 Internal HP
+				double totalAmmoForAverageFragileKill = avgNumParticlesBeforeFragileCanProc + expectedNumParticlesForFragileKill;
+				
+				double totalNumFragileKills = Math.floor(firingTime * flowRate / totalAmmoForAverageFragileKill);
+				fragileDamage = totalNumFragileKills * recursiveFragileDamage(100.0, dmgPerParticle, averageResistance) * averageResistance;
+			}
+		}
+		
 		double temperatureShock = 0;
 		// Status Effects
 		if (primaryTarget && statusEffects[0]) {
@@ -506,7 +525,7 @@ public class CryoCannon extends Weapon {
 			dmgPerParticle *= UtilityInformation.IFG_Damage_Multiplier;
 		}
 		
-		return firingTime * flowRate * dmgPerParticle + temperatureShock;
+		return firingTime * flowRate * dmgPerParticle + fragileDamage + temperatureShock;
 	}
 	
 	private double averageFreezeMultiplier() {
@@ -560,6 +579,63 @@ public class CryoCannon extends Weapon {
 		}
 		
 		return totalDamage / totalParticles;
+	}
+	
+	private double recursiveFragileDamage(double currentTrueHP, double particleDamage, double resistance) {
+		/*
+			TriggerHappyBro had the idea to model this using a recursive function, and I'm choosing to implement it. I had originally thought to do it iteratively using a while-loop,
+			but it was returning a very weird dataset that wasn't accounting for overkill properly. As a result, I switched to this recursive method because it produces more reliable
+			results even thought it's a little less computationally efficient.
+			
+			Fundamentally, this method just has to calculate three things at each step:
+				1. How much damage Fragile could do if it procs on this particle
+				2. How much damage Fragile could do on later procs if it does happen on this particle
+				3. How much damage Fragile could do on later procs if it doesn't happen on this particle
+			
+			Once those three values are calculated, it just multiplies each returned value by its expected probability to happen. Because the probability that Fragile procs is multiplied
+			against both the damage dealt by the proc and the potential damage afterward, those two are added together to save one CPU cycle.
+			
+			I did a little work on WolframAlpha, and found via the integral of x * (1 - x/100) from 0 to 100 divided by 100 that the true average of damage * probability 
+			should be 100/6, so I would expect the average first proc of Fragile to be at 78.8675 internal hp.
+			
+			I spent about 5 weeks trying to find or create a formula that would let me recreate this method's data mathematically, but ultimately failed. I know it's a f(x, y) = z function
+			and that it has an approximately 1/x partial derivative with respect to Damage per Particle and some kind of piece-wise linear partial derivative with respect to Difficulty 
+			Scaling Resistance, but I was unable to create the function needed to approximate these outputs. As a result I have to settle for this recursive function because it works.
+		*/
+		
+		currentTrueHP -= particleDamage / resistance;
+		
+		// Base case: damage from frost particle kills enemy outright
+		if (currentTrueHP <= 0) {
+			return 0;
+		}
+		
+		double probability = 1.0 - currentTrueHP / 100.0;
+		double fragileDamage = Math.min(currentTrueHP, currentTrueHP / resistance);
+		double fragileProcs = recursiveFragileDamage(currentTrueHP - fragileDamage, particleDamage, resistance);
+		double noProc = recursiveFragileDamage(currentTrueHP, particleDamage, resistance);
+		
+		return probability * (fragileDamage + fragileProcs) + (1.0 - probability) * noProc;
+	}
+	
+	private double recursiveFragileAmmoSpent(double currentTrueHP, double particleDamage, double resistance) {
+		/*
+			Same logic as the Damage method, but this one counts ammo spent.
+		*/
+		
+		currentTrueHP -= particleDamage / resistance;
+		
+		// Base case: damage from frost particle kills enemy outright
+		if (currentTrueHP <= 0) {
+			return 1.0;
+		}
+		
+		double probability = 1.0 - currentTrueHP / 100.0;
+		double fragileDamage = Math.min(currentTrueHP, currentTrueHP / resistance);
+		double fragileProcs = recursiveFragileAmmoSpent(currentTrueHP - fragileDamage, particleDamage, resistance);
+		double noProc = recursiveFragileAmmoSpent(currentTrueHP, particleDamage, resistance);
+		
+		return 1.0 + probability * fragileProcs + (1.0 - probability) * noProc;
 	}
 	
 	// Because the Cryo Cannon hits multiple targets with its stream, bypasses armor, and doesn't get weakpoint bonuses, this one method should be usable for all the DPS categories.
