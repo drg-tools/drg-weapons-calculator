@@ -811,13 +811,8 @@ public class Minigun extends Weapon {
 
 	@Override
 	public int calculateMaxNumTargets() {
-		// Because a ricochet from Bullet Hell consumes the penetration from Blowthrough Rounds, they don't stack together (unless BT Rounds gets buffed to do more than 1 penetration).
-		if (selectedTier3 == 2 || selectedOverclock == 5) {
-			return 2;
-		}
-		else {
-			return 1;
-		}
+		// Dagadegatto informed me that Ricochets do NOT consume Penetrations, so this method becomes much simpler to model.
+		return 1 + getNumberOfPenetrations() + getNumberOfRicochets();
 	}
 
 	@Override

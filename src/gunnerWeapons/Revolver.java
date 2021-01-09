@@ -708,9 +708,14 @@ public abstract class Revolver extends Weapon {
 			There are 8 combinations of ways for the Revolver to hit an additional target, based on various combinations of
 			the Overclocks "Chain Hit" and "Magic Bullets", and the Tier 3 Mods "Super Blowthrough Rounds" and "Explosive Rounds"
 		*/
-		// If Super Blowthrough Rounds is equipped, then the ricochets from either "Chain Hit" or "Magic Bullets" won't affect the additional targets
+		// If Super Blowthrough Rounds is equipped, then any potential Ricochet can simply be added
 		if (selectedTier3 == 0) {
-			return 1 + getMaxPenetrations();
+			int toReturn = 1 + getMaxPenetrations();
+			if (selectedOverclock == 1) {
+				// Only Chain Hit can bounce to another target from a current one. Magic Bullets only bounces off of terrain, so it doesn't increase the Blowthrough count.
+				toReturn += getMaxRicochets();
+			}
+			return toReturn;
 		}
 		
 		// Only Explosive
