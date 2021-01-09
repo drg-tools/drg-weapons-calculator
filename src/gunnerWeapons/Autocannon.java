@@ -581,7 +581,7 @@ public class Autocannon extends Weapon {
 		double weakpointAccuracy;
 		if (weakpoint && !statusEffects[1]) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
-			directWeakpointDamage = increaseBulletDamageForWeakpoints2(directDamage);
+			directWeakpointDamage = increaseBulletDamageForWeakpoints(directDamage, 0.0, 1.0);
 		}
 		else {
 			weakpointAccuracy = 0.0;

@@ -543,7 +543,7 @@ public class Shotgun extends Weapon {
 		double weakpointAccuracy;
 		if (weakpoint && !statusEffects[1]) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
-			directWeakpointDamagePerPellet = increaseBulletDamageForWeakpoints2(dmgPerPellet, getWeakpointBonus());
+			directWeakpointDamagePerPellet = increaseBulletDamageForWeakpoints(dmgPerPellet, getWeakpointBonus(), 1.0);
 		}
 		else {
 			weakpointAccuracy = 0.0;

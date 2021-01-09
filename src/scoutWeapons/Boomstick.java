@@ -555,7 +555,7 @@ public class Boomstick extends Weapon {
 		double weakpointAccuracy;
 		if (weakpoint && !statusEffects[1]) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
-			directWeakpointDamagePerPellet = increaseBulletDamageForWeakpoints2(dmgPerPellet);
+			directWeakpointDamagePerPellet = increaseBulletDamageForWeakpoints(dmgPerPellet, 0.0, 1.0);
 		}
 		else {
 			weakpointAccuracy = 0.0;

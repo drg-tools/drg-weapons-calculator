@@ -1129,25 +1129,19 @@ public abstract class Weapon extends Observable {
 		return (int) Math.ceil(streamLength / (2 * EnemyInformation.GlyphidGruntBodyRadius + EnemyInformation.GlyphidGruntBodyAndLegsRadius));
 	}
 	
-	protected double increaseBulletDamageForWeakpoints2(double preWeakpointBulletDamage) {
-		return increaseBulletDamageForWeakpoints2(preWeakpointBulletDamage, 0.0);
-	}
-	protected double increaseBulletDamageForWeakpoints2(double preWeakpointBulletDamage, double weakpointBonusModifier) {
-		double estimatedDamageIncreaseWithoutModifier = EnemyInformation.averageWeakpointDamageIncrease();
-		return estimatedDamageIncreaseWithoutModifier * (1.0 + weakpointBonusModifier) * preWeakpointBulletDamage;
-	}
 	protected double increaseBulletDamageForWeakpoints(double preWeakpointBulletDamage) {
-		return increaseBulletDamageForWeakpoints(preWeakpointBulletDamage, 0.0);
+		return increaseBulletDamageForWeakpoints(preWeakpointBulletDamage, 0.0, EnemyInformation.probabilityBulletWillHitWeakpoint());
 	}
 	protected double increaseBulletDamageForWeakpoints(double preWeakpointBulletDamage, double weakpointBonusModifier) {
+		return increaseBulletDamageForWeakpoints(preWeakpointBulletDamage, weakpointBonusModifier, EnemyInformation.probabilityBulletWillHitWeakpoint());
+	}
+	protected double increaseBulletDamageForWeakpoints(double preWeakpointBulletDamage, double weakpointBonusModifier, double probabilityBulletHitsWeakpoint) {
 		/*
 			Before weakpoint bonus modifier, weakpoint damage is roughly a 40% increase per bullet.
 			As a rule of thumb, the weakpointBonusModifier is roughly a (2/3 * bonus damage) additional increase per bullet. 
 			30% bonus modifier => ~20% increase to DPS
 		*/
-		double probabilityBulletHitsWeakpoint = EnemyInformation.probabilityBulletWillHitWeakpoint();
 		double estimatedDamageIncreaseWithoutModifier = EnemyInformation.averageWeakpointDamageIncrease();
-		
 		return ((1.0 - probabilityBulletHitsWeakpoint) + probabilityBulletHitsWeakpoint * estimatedDamageIncreaseWithoutModifier * (1.0 + weakpointBonusModifier)) * preWeakpointBulletDamage;
 	}
 	

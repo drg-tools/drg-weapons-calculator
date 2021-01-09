@@ -529,7 +529,7 @@ public class Zhukov extends Weapon {
 				double weakpointAccuracy = estimatedAccuracy(true) / 100.0;
 				int bulletsThatHitWeakpoint = (int) Math.round(effectiveMagazineSize * weakpointAccuracy);
 				bulletsThatHitTarget = (int) Math.round(effectiveMagazineSize * generalAccuracy) - bulletsThatHitWeakpoint;
-				damagePerMagazine = bulletsThatHitWeakpoint * increaseBulletDamageForWeakpoints2(directDamage, getWeakpointBonus()) + bulletsThatHitTarget * directDamage + (bulletsThatHitWeakpoint + bulletsThatHitTarget) * areaDamage;
+				damagePerMagazine = bulletsThatHitWeakpoint * increaseBulletDamageForWeakpoints(directDamage, getWeakpointBonus(), 1.0) + bulletsThatHitTarget * directDamage + (bulletsThatHitWeakpoint + bulletsThatHitTarget) * areaDamage;
 			}
 			else {
 				bulletsThatHitTarget = (int) Math.round(effectiveMagazineSize * generalAccuracy);

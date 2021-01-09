@@ -527,7 +527,7 @@ public class SMG extends Weapon {
 		
 		if (weakpoint && !statusEffects[1]) {
 			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
-			directWeakpointDamage = increaseBulletDamageForWeakpoints2(directDamage, getWeakpointBonus());
+			directWeakpointDamage = increaseBulletDamageForWeakpoints(directDamage, getWeakpointBonus(), 1.0);
 		}
 		else {
 			weakpointAccuracy = 0.0;
