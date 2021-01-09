@@ -826,7 +826,7 @@ public class BreachCutter extends Weapon {
 		if (selectedOverclock == 4) {
 			// OC "High Voltage Crossover" applies an Electrocute DoT that slows movement by 80% for 4 seconds
 			// This overrides the built-in 70% slow during intersection, instead of adding to it.
-			utilityScores[3] += maxNumTargets * 4.0 * UtilityInformation.Electrocute_Slow_Utility;
+			utilityScores[3] = maxNumTargets * 4.0 * UtilityInformation.Electrocute_Slow_Utility;
 		}
 		else {
 			// Breach Cutter slows enemy movement by 70% while the line intersects their hitbox.
