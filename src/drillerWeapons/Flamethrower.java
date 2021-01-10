@@ -111,7 +111,7 @@ public class Flamethrower extends Weapon {
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Heat Radiance", "Deal 80 Fire Damage per second and 80 Heat per second to all enemies within 3m of you. The Heat/sec stacks with the direct stream and Sticky Flames' heat sources as well.", modIcons.heatDamage, 5, 0);
-		tier5[1] = new Mod("Targets Explode", "If the direct stream kills an enemy, there's a 50% chance that they will explode and deal 55 Fire Damage and 55 Heat Damage to all enemies within a 3m radius.", modIcons.addedExplosion, 5, 1, false);
+		tier5[1] = new Mod("Targets Explode", "If the direct stream kills an enemy, there's a 50% chance that they will explode and deal 55 Fire Damage and 55 Heat Damage to all enemies within a 3m radius.", modIcons.addedExplosion, 5, 1);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Lighter Tanks", "+75 Max Fuel", overclockIcons.carriedAmmo, 0);
@@ -255,6 +255,9 @@ public class Flamethrower extends Weapon {
 					break;
 				}
 			}
+			
+			// Re-set AoE Efficiency
+			setAoEEfficiency();
 			
 			if (countObservers() > 0) {
 				setChanged();
@@ -474,7 +477,18 @@ public class Flamethrower extends Weapon {
 	
 	@Override
 	public boolean currentlyDealsSplashDamage() {
-		return false;
+		return selectedTier5 == 1;
+	}
+	
+	@Override
+	protected void setAoEEfficiency() {
+		// T5.B "Targets Explode" does 55 Fire Damage and Heat in a 3m radius, max damage radius 0.5m, and falls off to 25% minimum damage at 3m.
+		if (selectedTier5 == 1) {
+			aoeEfficiency = calculateAverageAreaDamage(3.0, 0.5, 0.25);
+		}
+		else {
+			aoeEfficiency = new double[3];
+		}
 	}
 	
 	// Because the Flamethrower hits multiple targets with its stream, bypasses armor, and doesn't get weakpoint bonuses, this one method should be usable for all the DPS categories.
@@ -530,7 +544,14 @@ public class Flamethrower extends Weapon {
 	// Multi-target calculations
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		return calculateDPS(false, false);
+		double sustainedDPS = calculateDPS(false, false);
+		
+		double targetsExplodeDPS = 0;
+		if (selectedTier5 == 1) {
+			targetsExplodeDPS = 55.0 * aoeEfficiency[1] / averageTimeToKill();
+		}
+		
+		return sustainedDPS + targetsExplodeDPS;
 	}
 
 	@Override
@@ -557,11 +578,22 @@ public class Flamethrower extends Weapon {
 			heatRadianceTotalDamage = 80 * numTicksOfHeatRadiance * numGlyphidsHitByHeatRadiancePerTick;
 		}
 		
+		// Total Targets Explode Damage
+		double targetsExplodeDamage = 0;
+		if (selectedTier5 == 1) {
+			// 50% chance to do 55 Fire Damage + Heat in a 3m radius.
+			double averageDamagePerTargetExplosion = 55.0 * aoeEfficiency[1] * aoeEfficiency[2];
+			// I'm arbitrarily multiplying the number of targets hit by flame stream by 0.5 (a second time, beyond Targets Explode's 50% chance to proc) to represent 
+			// that the stream doesn't get 100% of the kills; the Burn DoT and Sticky Flames get a lot of killing blows too.
+			double expectedNumberOfTargetExplosions = 0.5 * (0.5 * numTargets) * (numMagazines(getCarriedFuel(), getFuelTankSize()) * timeToFireMagazine() / avgTTK);
+			targetsExplodeDamage = averageDamagePerTargetExplosion * expectedNumberOfTargetExplosions;
+		}
+		
 		// Total Burn Damage
 		double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(averageTimeToCauterize(), DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 		double fireDoTTotalDamage = fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		
-		return directTotalDamage + stickyFlamesTotalDamage + heatRadianceTotalDamage + fireDoTTotalDamage;
+		return directTotalDamage + stickyFlamesTotalDamage + heatRadianceTotalDamage + targetsExplodeDamage + fireDoTTotalDamage;
 	}
 
 	@Override
