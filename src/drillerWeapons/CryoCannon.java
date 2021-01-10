@@ -740,6 +740,15 @@ public class CryoCannon extends Weapon {
 		double numTargets = calculateMaxNumTargets();
 		utilityScores[3] = numTargets * UtilityInformation.Cold_Utility;
 		
+		// Stun
+		// OC "Ice Spear" stuns all enemies in a 1.4m radius for 3 seconds
+		if (selectedOverclock == 3) {
+			utilityScores[5] = calculateNumGlyphidsInRadius(1.4) * 3.0 * calculateNumGlyphidsInRadius(1.4);
+		}
+		else {
+			utilityScores[5] = 0;
+		}
+		
 		// Freeze
 		double freezeDuration = EnemyInformation.averageFreezeDuration();
 		double freezeUptime = freezeDuration / (averageTimeToFreeze(false) + freezeDuration);
