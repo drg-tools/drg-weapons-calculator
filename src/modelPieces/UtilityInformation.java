@@ -70,7 +70,7 @@ public class UtilityInformation {
 			Scout - Zhukov (Overclock, Cryo Minelets)
 			Scout - Cryo Grenade
 	*/
-	public static double Cold_Utility = 0.25;  // It appears that the slow from Cold damage increases as their Cold Meter fills up, from 0% slow at no Cold to 15-40% slowed right before frozen.
+	public static double Cold_Utility = 0.4;  // It appears that the slow from Cold damage increases as their Cold Meter fills up, from 0% slow at no Cold to 75-85% slowed right before frozen. The average is 40%
 	public static double Frozen_Utility = 2.5;  // Not only are Frozen enemies "stunned" but they also take x3 Direct Damage (without getting Weakpoint Bonuses)
 	public static double Frozen_Damage_Multiplier = 3;  // Only applies to Direct Damage; not Area Damage or DoTs
 	
