@@ -855,7 +855,7 @@ public class Minigun extends Weapon {
 		double baseSpread = 5.0 * getBaseSpread();
 		double spreadPerShot = 0.2;
 		double spreadRecoverySpeed = 1.0;
-		double spreadVariance = 3.5;
+		double maxBloom = 3.5;
 		
 		// I'm choosing to model Minigun as if it has no recoil. Although it does, it's so negligible that it would have no effect.
 		double recoilPitch = 0.0;  // 10
@@ -864,7 +864,7 @@ public class Minigun extends Weapon {
 		double springStiffness = 150.0;
 		
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, effectiveRoF, effectiveMagSize, 1, 
-				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, 
 				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	

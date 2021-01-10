@@ -102,7 +102,7 @@ public abstract class Revolver extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 33% chance to ricochet into a nearby enemy.", overclockIcons.ricochet, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Bullets", "x4 Damage to Burning targets, -25 Direct Damage", overclockIcons.heatDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Six Shooter", "+2 Magazine Size, +8 Max Ammo, +4 Rate of Fire, x1.5 Base Spread, +0.5 Reload Time", overclockIcons.magSize, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -13 Max Ammo, +0.5 Reload Time, x0.5 Base Spread, +71% Spread per Shot, x1.5 Spread Variance, x1.5 Recoil, +3.5 Mass", overclockIcons.directDamage, 4);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -13 Max Ammo, +0.5 Reload Time, x0.5 Base Spread, +71% Spread per Shot, x1.5 Max Bloom, x1.5 Recoil, +3.5 Mass", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Magic Bullets", "All bullets that impact terrain automatically ricochet to nearby enemies (effectively raising accuracy to 100%). +8 Max Ammo, -20 Direct Damage", overclockIcons.ricochet, 5);
 	}
 	
@@ -421,7 +421,7 @@ public abstract class Revolver extends Weapon {
 		
 		return toReturn;
 	}
-	protected double getSpreadVariance() {
+	protected double getMaxBloom() {
 		double toReturn = 1.0;
 		
 		if (selectedOverclock == 4) {
@@ -493,7 +493,7 @@ public abstract class Revolver extends Weapon {
 		boolean spreadPerShotModified = selectedTier2 == 1 || selectedOverclock == 4;
 		toReturn[14] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), modIcons.baseSpread, spreadPerShotModified, spreadPerShotModified);
 		
-		toReturn[15] = new StatsRow("Spread Variance:", convertDoubleToPercentage(getSpreadVariance()), modIcons.baseSpread, selectedOverclock == 4, selectedOverclock == 4);
+		toReturn[15] = new StatsRow("Max Bloom:", convertDoubleToPercentage(getMaxBloom()), modIcons.baseSpread, selectedOverclock == 4, selectedOverclock == 4);
 		
 		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 4;
 		toReturn[15] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), modIcons.recoil, recoilModified, recoilModified);
@@ -775,7 +775,7 @@ public abstract class Revolver extends Weapon {
 		double baseSpread = 1.5 * getBaseSpread();
 		double spreadPerShot = getSpreadPerShotValue();
 		double spreadRecoverySpeed = 6.0;
-		double spreadVariance = 8.0 * getSpreadVariance();
+		double maxBloom = 8.0 * getMaxBloom();
 		
 		double recoilPitch = 130.0 * getRecoil();
 		double recoilYaw = 10.0 * getRecoil();
@@ -783,7 +783,7 @@ public abstract class Revolver extends Weapon {
 		double springStiffness = 65.0;
 		
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
-				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, 
 				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	

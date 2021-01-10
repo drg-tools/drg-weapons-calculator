@@ -605,7 +605,7 @@ public class Shotgun extends Weapon {
 		double verticalBaseSpread = 6.0 * getBaseSpread();
 		double spreadPerShot = 0.0;
 		double spreadRecoverySpeed = 0.0;
-		double spreadVariance = 0.0;
+		double maxBloom = 0.0;
 		
 		double recoilPitch = 55.0 * getRecoil();
 		double recoilYaw = 40.0 * getRecoil();
@@ -613,7 +613,7 @@ public class Shotgun extends Weapon {
 		double springStiffness = 75.0;
 		
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
-				horizontalBaseSpread, verticalBaseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				horizontalBaseSpread, verticalBaseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, 
 				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	

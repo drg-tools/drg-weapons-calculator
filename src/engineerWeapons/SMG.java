@@ -609,7 +609,7 @@ public class SMG extends Weapon {
 		double baseSpread = 3.0 * getBaseSpread();
 		double spreadPerShot = 1.5;
 		double spreadRecoverySpeed = 10.0;
-		double spreadVariance = 4.0;
+		double maxBloom = 4.0;
 		
 		// Technically the SMG can have its RecoilPitch range anywhere from 35 to 45, but for simplicity's sake I'm choosing to use the average of 40.
 		double recoilPitch = 40.0 * getRecoil();
@@ -618,7 +618,7 @@ public class SMG extends Weapon {
 		double springStiffness = 40.0;
 		
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
-				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, 
 				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	

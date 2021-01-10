@@ -110,7 +110,7 @@ public class Classic_Hipfire extends Classic {
 		boolean spsModified = selectedTier2 == 1 || selectedOverclock == 3;
 		toReturn[8] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), modIcons.baseSpread, spsModified, spsModified);
 		
-		toReturn[9] = new StatsRow("Spread Variance:", convertDoubleToPercentage(getSpreadVariance()), modIcons.baseSpread, spsModified, spsModified);
+		toReturn[9] = new StatsRow("Max Bloom:", convertDoubleToPercentage(getMaxBloom()), modIcons.baseSpread, spsModified, spsModified);
 		
 		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 3;
 		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), modIcons.recoil, recoilModified, recoilModified);
@@ -201,7 +201,7 @@ public class Classic_Hipfire extends Classic {
 		double baseSpread = 1.0;
 		double spreadPerShot = 3.0 * getSpreadPerShot();
 		double spreadRecoverySpeed = 8.5;
-		double spreadVariance = 5.0 * getSpreadVariance();
+		double maxBloom = 5.0 * getMaxBloom();
 		
 		double recoilPitch = 50.0 * getRecoil();
 		double recoilYaw = 5.0 * getRecoil();
@@ -209,7 +209,7 @@ public class Classic_Hipfire extends Classic {
 		double springStiffness = 70.0;
 		
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
-				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, 
 				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	

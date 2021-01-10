@@ -31,7 +31,7 @@ public class AccuracyEstimator {
 	
 	private double rateOfFire;
 	private int magSize, burstSize;
-	private double baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance;
+	private double baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom;
 	private double recoilPitch, recoilYaw, mass, springStiffness;
 	private double naturalFrequency, initialVelocity, recoilGoal, recoilPerShotEndTime;
 	
@@ -120,7 +120,7 @@ public class AccuracyEstimator {
 			}
 			
 			if (t > bulletFiredTimestamp + spreadPerShotAddTime) {
-				currentSpread = Math.min(currentSpread + spreadPerShot, spreadVariance);
+				currentSpread = Math.min(currentSpread + spreadPerShot, maxBloom);
 			}
 			
 			if (i < bulletFiredTimestamps.length - 1) {
@@ -222,7 +222,7 @@ public class AccuracyEstimator {
 	
 	public double calculateCircularAccuracy(
 			boolean weakpointTarget, double RoF, int mSize, int bSize, 
-			double horizontalBaseSpread, double verticalBaseSpread, double SpS, double SRS, double SV, 
+			double horizontalBaseSpread, double verticalBaseSpread, double SpS, double SRS, double MB, 
 			double rPitch, double rYaw, double m, double sStiffness
 		) {
 		/*
@@ -240,7 +240,7 @@ public class AccuracyEstimator {
 		baseSpread = Math.sqrt(horizontalBaseSpread * verticalBaseSpread);
 		spreadPerShot = SpS;
 		spreadRecoverySpeed = SRS;
-		spreadVariance = SV;
+		maxBloom = MB;
 		
 		/*
 			Step 3: Calculate what the recoil will be at any given time, t, and then store both the raw recoil and player-reduced recoil for use later
@@ -419,8 +419,8 @@ public class AccuracyEstimator {
 		variables.add(new JLabel(MathUtils.round(spreadRecoverySpeed, GuiConstants.numDecimalPlaces) + ""));
 		variables.add(new JLabel("Mass:"));
 		variables.add(new JLabel(MathUtils.round(mass, GuiConstants.numDecimalPlaces) + ""));
-		variables.add(new JLabel("Spread Variance:"));
-		variables.add(new JLabel(MathUtils.round(spreadVariance, GuiConstants.numDecimalPlaces) + ""));
+		variables.add(new JLabel("Max Bloom:"));
+		variables.add(new JLabel(MathUtils.round(maxBloom, GuiConstants.numDecimalPlaces) + ""));
 		variables.add(new JLabel("Spring Stiffness:"));
 		variables.add(new JLabel(MathUtils.round(springStiffness, GuiConstants.numDecimalPlaces) + ""));
 		granularDataPanel.add(variables);

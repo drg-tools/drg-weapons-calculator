@@ -855,7 +855,7 @@ public abstract class Weapon extends Observable {
 		13. Accuracy Modifiers
 			a. Base Spread
 			b. Spread Per Shot
-			c. Max Spread (Base Spread + Spread Variance)
+			c. Max Spread (Base Spread + Max Bloom)
 			d. Spread Recovery Speed
 			e. Recoil Per Shot
 		14. Effects on the Dwarf
