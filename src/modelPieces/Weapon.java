@@ -236,6 +236,10 @@ public abstract class Weapon extends Observable {
 				}
 			}
 			
+			// Un-set these values for the new build
+			metric_generalAccuracy = -100;
+			metric_weakpointAccuracy = -100;
+			
 			if (currentlyDealsSplashDamage()) {
 				setAoEEfficiency();
 			}
@@ -312,6 +316,10 @@ public abstract class Weapon extends Observable {
 				}
 			}
 			
+			// Un-set these values for the new build
+			metric_generalAccuracy = -100;
+			metric_weakpointAccuracy = -100;
+			
 			if (currentlyDealsSplashDamage()) {
 				setAoEEfficiency();
 			}
@@ -349,6 +357,10 @@ public abstract class Weapon extends Observable {
 				}
 			}
 			
+			// Un-set these values for the new build
+			metric_generalAccuracy = -100;
+			metric_weakpointAccuracy = -100;
+			
 			if (currentlyDealsSplashDamage()) {
 				setAoEEfficiency();
 			}
@@ -373,6 +385,10 @@ public abstract class Weapon extends Observable {
 			}
 			
 			overclocks[indexToIgnore].toggleIgnored();
+			
+			// Un-set these values for the new build
+			metric_generalAccuracy = -100;
+			metric_weakpointAccuracy = -100;
 			
 			if (currentlyDealsSplashDamage()) {
 				setAoEEfficiency();
@@ -711,6 +727,10 @@ public abstract class Weapon extends Observable {
 	public void setAccuracyDistance(double newDistance) {
 		// Input sanitization
 		if (newDistance > 0 && newDistance < 20) {
+			// Un-set these values for the new estimates
+			metric_generalAccuracy = -100;
+			metric_weakpointAccuracy = -100;
+			
 			accEstimator.setDistance(newDistance);
 			// Because this method will only be called from the GUI, it doesn't need the updateGUI flag
 			if (countObservers() > 0) {
@@ -727,6 +747,10 @@ public abstract class Weapon extends Observable {
 		return accEstimator.isModelingRecoil();
 	}
 	public void setModelRecoilInAccuracy(boolean newValue) {
+		// Un-set these values for the new estimates
+		metric_generalAccuracy = -100;
+		metric_weakpointAccuracy = -100;
+					
 		accEstimator.setModelRecoil(newValue);
 		// Because this method will only be called from the GUI, it doesn't need the updateGUI flag
 		if (countObservers() > 0) {
