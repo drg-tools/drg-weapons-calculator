@@ -125,8 +125,8 @@ public class BreachCutter extends Weapon {
 				+ "Second for 4 seconds. In exchange, x0.67 Magazine Size.", overclockIcons.electricity, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Spinning Death", "Instead of flying in a straight line, the projectile now rotates 2 times per second about the Yaw axis. Additionally: x0.05 Projectile Velocity, x0 Impact Damage, "
 				+ "x2.5 Projectile Lifetime, x0.2 Damage per Tick, +1.5m Plasma Beam Width, x0.5 Max Ammo, and x0.33 Magazine Size", overclockIcons.special, 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "The first time the beam hits an enemy, it deals 75 Heat damage and applies a DoT that does 7 Fire Damage and 7 Heat damage at a rate of 2 ticks/sec for 5 seconds (does 11 ticks total). "
-				+ "Additionally, it converts 90% of the Damage per Tick from Electric element to Fire element and adds the amount converted as Heat damage per tick.  In exchange: -3.5 Damage per Tick, -6 Max Ammo, and x0.25 Armor Breaking", overclockIcons.heatDamage, 6);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "The first time the beam hits an enemy, it inflicts 75 Heat and applies a DoT that does 7 Fire Damage and 7 Heat at a rate of 2 ticks/sec for 5 seconds (does 11 ticks total). "
+				+ "Additionally, it converts 90% of the Damage per Tick from Electric element to Fire element and adds the amount converted as Heat per tick. In exchange: -3.5 Damage per Tick, -6 Max Ammo, and x0.25 Armor Breaking", overclockIcons.heatDamage, 6);
 	}
 	
 	@Override
