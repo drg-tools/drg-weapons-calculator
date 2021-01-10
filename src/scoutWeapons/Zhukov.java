@@ -466,7 +466,7 @@ public class Zhukov extends Weapon {
 		double generalAccuracy, duration;
 		
 		if (accuracy) {
-			generalAccuracy = estimatedAccuracy(false) / 100.0;
+			generalAccuracy = getGeneralAccuracy() / 100.0;
 		}
 		else {
 			generalAccuracy = 1.0;
@@ -526,7 +526,7 @@ public class Zhukov extends Weapon {
 		}
 		else {
 			if (weakpoint && selectedOverclock != 4 && !statusEffects[1]) {
-				double weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+				double weakpointAccuracy = getWeakpointAccuracy() / 100.0;
 				int bulletsThatHitWeakpoint = (int) Math.round(effectiveMagazineSize * weakpointAccuracy);
 				bulletsThatHitTarget = (int) Math.round(effectiveMagazineSize * generalAccuracy) - bulletsThatHitWeakpoint;
 				damagePerMagazine = bulletsThatHitWeakpoint * increaseBulletDamageForWeakpoints(directDamage, getWeakpointBonus(), 1.0) + bulletsThatHitTarget * directDamage + (bulletsThatHitWeakpoint + bulletsThatHitTarget) * areaDamage;
@@ -709,7 +709,7 @@ public class Zhukov extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, getAreaDamage(), 1.0, getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true), selectedOverclock == 3);
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, getAreaDamage(), 1.0, getWeakpointBonus(), getGeneralAccuracy(), getWeakpointAccuracy(), selectedOverclock == 3);
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	

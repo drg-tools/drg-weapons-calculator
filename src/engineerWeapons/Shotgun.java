@@ -487,7 +487,13 @@ public class Shotgun extends Weapon {
 	
 	private double calculateCumulativeStunChancePerShot() {
 		// Because Stunner changes it from weakpoints to anywhere on the body, I'm making the Accuracy change to reflect that.
-		double stunAccuracy = estimatedAccuracy(selectedOverclock != 0) / 100.0;
+		double stunAccuracy;
+		if (selectedOverclock == 0) {
+			stunAccuracy = getGeneralAccuracy() / 100.0;
+		}
+		else {
+			stunAccuracy = getWeakpointAccuracy() / 100.0;
+		}
 		int numPelletsThatHaveStunChance = (int) Math.round(getNumberOfPellets() * stunAccuracy);
 		if (numPelletsThatHaveStunChance > 0) {
 			// Only 1 pellet needs to succeed in order to stun the creature
@@ -505,7 +511,7 @@ public class Shotgun extends Weapon {
 		double generalAccuracy, duration, directWeakpointDamagePerPellet;
 		
 		if (accuracy) {
-			generalAccuracy = estimatedAccuracy(false) / 100.0;
+			generalAccuracy = getGeneralAccuracy() / 100.0;
 		}
 		else {
 			generalAccuracy = 1.0;
@@ -542,7 +548,7 @@ public class Shotgun extends Weapon {
 		
 		double weakpointAccuracy;
 		if (weakpoint && !statusEffects[1]) {
-			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+			weakpointAccuracy = getWeakpointAccuracy() / 100.0;
 			directWeakpointDamagePerPellet = increaseBulletDamageForWeakpoints(dmgPerPellet, getWeakpointBonus(), 1.0);
 		}
 		else {
@@ -614,7 +620,7 @@ public class Shotgun extends Weapon {
 	@Override
 	public int breakpoints() {
 		double[] directDamage = {
-			getDamagePerPellet() * getNumberOfPellets() * estimatedAccuracy(false) / 100.0,  // Kinetic
+			getDamagePerPellet() * getNumberOfPellets() * getGeneralAccuracy() / 100.0,  // Kinetic
 			0,  // Explosive
 			0,  // Fire
 			0,  // Frost
@@ -684,7 +690,7 @@ public class Shotgun extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet(), getNumberOfPellets(), 0.0, getArmorBreaking(), getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true));
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet(), getNumberOfPellets(), 0.0, getArmorBreaking(), getWeakpointBonus(), getGeneralAccuracy(), getWeakpointAccuracy());
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	

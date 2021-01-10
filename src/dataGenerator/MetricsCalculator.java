@@ -133,7 +133,7 @@ public class MetricsCalculator {
 									weaponToTest.calculateSingleTargetDPS(false, true, true, false), weaponToTest.calculateSingleTargetDPS(false, true, false, true), 
 									weaponToTest.calculateSingleTargetDPS(false, false, true, true), weaponToTest.calculateSingleTargetDPS(false, true, true, true), 
 									weaponToTest.calculateAdditionalTargetDPS(), weaponToTest.calculateMaxNumTargets(), weaponToTest.calculateMaxMultiTargetDamage(), 
-									weaponToTest.ammoEfficiency(), weaponToTest.damageWastedByArmor(), weaponToTest.estimatedAccuracy(false), weaponToTest.estimatedAccuracy(true),
+									weaponToTest.ammoEfficiency(), weaponToTest.damageWastedByArmor(), weaponToTest.getGeneralAccuracy(), weaponToTest.getWeakpointAccuracy(),
 									weaponToTest.calculateFiringDuration(), weaponToTest.averageTimeToKill(), weaponToTest.averageOverkill(), weaponToTest.breakpoints(), 
 									weaponToTest.utilityScore(), weaponToTest.averageTimeToCauterize(), weaponToTest.damagePerMagazine(), weaponToTest.timeToFireMagazine()
 								));
@@ -206,7 +206,7 @@ public class MetricsCalculator {
 									weaponToTest.calculateSingleTargetDPS(false, false, true, true), weaponToTest.calculateSingleTargetDPS(false, true, true, true), 
 									// 15 Other metrics and patch ID
 									weaponToTest.calculateAdditionalTargetDPS(), weaponToTest.calculateMaxNumTargets(), weaponToTest.calculateMaxMultiTargetDamage(), weaponToTest.ammoEfficiency(), weaponToTest.damageWastedByArmor(),
-									weaponToTest.estimatedAccuracy(false), weaponToTest.estimatedAccuracy(true), weaponToTest.calculateFiringDuration(), weaponToTest.averageTimeToKill(), 
+									weaponToTest.getGeneralAccuracy(), weaponToTest.getWeakpointAccuracy(), weaponToTest.calculateFiringDuration(), weaponToTest.averageTimeToKill(), 
 									weaponToTest.averageOverkill(), weaponToTest.breakpoints(), weaponToTest.utilityScore(), weaponToTest.averageTimeToCauterize(), 
 									weaponToTest.damagePerMagazine(), weaponToTest.timeToFireMagazine(), DatabaseConstants.patchNumberID
 								));
@@ -324,11 +324,11 @@ public class MetricsCalculator {
 										break;
 									}
 									case 7: {
-										currentValue = weaponToTest.estimatedAccuracy(false);
+										currentValue = weaponToTest.getGeneralAccuracy();
 										break;
 									}
 									case 8: {
-										currentValue = weaponToTest.estimatedAccuracy(true);
+										currentValue = weaponToTest.getWeakpointAccuracy();
 										break;
 									}
 									case 9: {

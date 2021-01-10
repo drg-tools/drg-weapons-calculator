@@ -478,7 +478,7 @@ public class Boomstick extends Weapon {
 	
 	// Copied over from Engineer/Shotgun
 	private double calculateCumulativeStunChancePerShot() {
-		double stunAccuracy = estimatedAccuracy(false) / 100.0;
+		double stunAccuracy = getGeneralAccuracy() / 100.0;
 		int numPelletsThatHaveStunChance = (int) Math.round(getNumberOfPellets() * stunAccuracy);
 		if (numPelletsThatHaveStunChance > 0) {
 			// Only 1 pellet needs to succeed in order to stun the creature
@@ -494,7 +494,7 @@ public class Boomstick extends Weapon {
 		// This method gets used by the Tier 5 Mod "White Phosphorous Shells"
 		int numPelletsThatApplyHeat;
 		if (accuracy) {
-			numPelletsThatApplyHeat = (int) Math.round(estimatedAccuracy(false) * getNumberOfPellets());
+			numPelletsThatApplyHeat = (int) Math.round(getGeneralAccuracy() * getNumberOfPellets() / 100.0);
 		}
 		else {
 			numPelletsThatApplyHeat = getNumberOfPellets();
@@ -516,7 +516,7 @@ public class Boomstick extends Weapon {
 		double generalAccuracy, duration, directWeakpointDamagePerPellet;
 		
 		if (accuracy) {
-			generalAccuracy = estimatedAccuracy(false) / 100.0;
+			generalAccuracy = getGeneralAccuracy() / 100.0;
 		}
 		else {
 			generalAccuracy = 1.0;
@@ -554,7 +554,7 @@ public class Boomstick extends Weapon {
 		
 		double weakpointAccuracy;
 		if (weakpoint && !statusEffects[1]) {
-			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+			weakpointAccuracy = getWeakpointAccuracy() / 100.0;
 			directWeakpointDamagePerPellet = increaseBulletDamageForWeakpoints(dmgPerPellet, 0.0, 1.0);
 		}
 		else {
@@ -696,7 +696,7 @@ public class Boomstick extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		double direct = getDamagePerPellet() * getNumberOfPellets() * estimatedAccuracy(false) / 100.0;
+		double direct = getDamagePerPellet() * getNumberOfPellets() * getGeneralAccuracy() / 100.0;
 		
 		// Because Accuracy affects these Breakpoints, I'm choosing to implement Asher's suggestion to only add Blastwave damage when AccuracyEstimator.distance <= 4
 		double area;
@@ -808,7 +808,7 @@ public class Boomstick extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet(), getNumberOfPellets(), getBlastwaveDamage(), getArmorBreaking(), 0.0, estimatedAccuracy(false), estimatedAccuracy(true));
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet(), getNumberOfPellets(), getBlastwaveDamage(), getArmorBreaking(), 0.0, getGeneralAccuracy(), getWeakpointAccuracy());
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	

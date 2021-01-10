@@ -520,7 +520,7 @@ public abstract class Revolver extends Weapon {
 		double generalAccuracy, duration, directWeakpointDamage;
 		
 		if (accuracy) {
-			generalAccuracy = estimatedAccuracy(false) / 100.0;
+			generalAccuracy = getGeneralAccuracy() / 100.0;
 		}
 		else {
 			generalAccuracy = 1.0;
@@ -558,7 +558,7 @@ public abstract class Revolver extends Weapon {
 		
 		double weakpointAccuracy;
 		if (weakpoint && !statusEffects[1]) {
-			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+			weakpointAccuracy = getWeakpointAccuracy() / 100.0;
 			directWeakpointDamage = increaseBulletDamageForWeakpoints(directDamage, getWeakpointBonus(), 1.0);
 		}
 		else {
@@ -629,7 +629,7 @@ public abstract class Revolver extends Weapon {
 			// If "Chain Hit" is equipped, 33% of bullets that hit a weakpoint will ricochet to nearby enemies.
 			// Effectively 25% of ideal sustained DPS?
 			// Making the assumption that the ricochet won't hit another weakpoint, and will just do normal damage.
-			double ricochetProbability = 0.33 * estimatedAccuracy(true) / 100.0;
+			double ricochetProbability = 0.33 * getWeakpointAccuracy() / 100.0;
 			double numBulletsRicochetPerMagazine = Math.round(ricochetProbability * getMagazineSize());
 			
 			sustainedAdditionalDPS = numBulletsRicochetPerMagazine * (directDamage + areaDamage) / timeToFireMagazineAndReload;
@@ -645,7 +645,7 @@ public abstract class Revolver extends Weapon {
 		else if (selectedOverclock == 5 && selectedTier3 != 0 && selectedTier3 != 1) {
 			// "Magic Bullets" mean that any bullet that MISSES the primary target will try to automatically ricochet to a nearby enemy.
 			// This can be modeled by returning (1 - Accuracy) * Ideal Sustained DPS
-			sustainedAdditionalDPS = (1.0 - estimatedAccuracy(false)/100.0) * calculateSingleTargetDPS(false, false, false, false);
+			sustainedAdditionalDPS = (1.0 - getGeneralAccuracy() / 100.0) * calculateSingleTargetDPS(false, false, false, false);
 			
 			if (selectedTier5 == 1) {
 				sustainedAdditionalDPS += DoTInformation.Neuro_DPS;
@@ -877,7 +877,7 @@ public abstract class Revolver extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, getAreaDamage(), 1.0, getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true));
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, getAreaDamage(), 1.0, getWeakpointBonus(), getGeneralAccuracy(), getWeakpointAccuracy());
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	

@@ -73,6 +73,10 @@ public abstract class Weapon extends Observable {
 	protected boolean enableGeneralAccuracyDPS = false;
 	protected boolean enableArmorWastingDPS = false;
 	
+	// The only legitimate values for these two variables are -1 and [0, 100], so setting them to -100 lets me know later if these values have been set or not.
+	private double metric_generalAccuracy = -100;
+	private double metric_weakpointAccuracy = -100;
+	
 	protected double[] baselineBurstDPS;
 	protected double[] baselineSustainedDPS;
 	protected double[] baselineCalculatedStats;
@@ -570,7 +574,7 @@ public abstract class Weapon extends Observable {
 		
 		baselineCalculatedStats = new double[] {
 			calculateAdditionalTargetDPS(), calculateMaxNumTargets(), calculateMaxMultiTargetDamage(), ammoEfficiency(), damageWastedByArmor(), 
-			estimatedAccuracy(false), estimatedAccuracy(true), calculateFiringDuration(), averageTimeToKill(), averageOverkill(), breakpoints(), 
+			getGeneralAccuracy(), getWeakpointAccuracy(), calculateFiringDuration(), averageTimeToKill(), averageOverkill(), breakpoints(), 
 			utilityScore(), averageTimeToCauterize()
 		};
 		selectedTier1 = oldT1;
@@ -747,6 +751,26 @@ public abstract class Weapon extends Observable {
 	}
 	public JPanel getVisualizerPanel() {
 		return accEstimator.getVisualizer();
+	}
+	
+	// Rather than build out an entire cache for two variables per Weapon, I'll just fake it with these two methods.
+	public double getGeneralAccuracy() {
+		if (metric_generalAccuracy == -100) {
+			metric_generalAccuracy = estimatedAccuracy(false);
+			return metric_generalAccuracy;
+		}
+		else {
+			return metric_generalAccuracy;
+		}
+	}
+	public double getWeakpointAccuracy() {
+		if (metric_weakpointAccuracy == -100) {
+			metric_weakpointAccuracy = estimatedAccuracy(true);
+			return metric_weakpointAccuracy;
+		}
+		else {
+			return metric_weakpointAccuracy;
+		}
 	}
 	
 	/****************************************************************************************

@@ -520,7 +520,7 @@ public class BurstPistol extends Weapon {
 		double generalAccuracy, duration, directWeakpointDamage;
 		
 		if (accuracy) {
-			generalAccuracy = estimatedAccuracy(false) / 100.0;
+			generalAccuracy = getGeneralAccuracy() / 100.0;
 		}
 		else {
 			generalAccuracy = 1.0;
@@ -552,7 +552,7 @@ public class BurstPistol extends Weapon {
 		
 		double weakpointAccuracy;
 		if (weakpoint && !statusEffects[1]) {
-			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+			weakpointAccuracy = getWeakpointAccuracy() / 100.0;
 			directWeakpointDamage = increaseBulletDamageForWeakpoints(dmg, getWeakpointBonus(), 1.0);
 		}
 		else {
@@ -605,7 +605,7 @@ public class BurstPistol extends Weapon {
 		}
 		
 		if (selectedOverclock == 4) {
-			double accuracy = estimatedAccuracy(false) / 100.0;
+			double accuracy = getGeneralAccuracy() / 100.0;
 			int numBulletsThatMiss = (int) Math.ceil((1 - accuracy) * (getCarriedAmmo() + getMagazineSize()));
 			// OC "Electro Minelets" only does 2 dmg/tick for 2 secs
 			totalDamage += numBulletsThatMiss * DoTInformation.Electro_TicksPerSec * 2 * 2;
@@ -702,7 +702,7 @@ public class BurstPistol extends Weapon {
 		// OC "Electro Minelets" = 100% Electrocute Chance, but only on bullets that miss... maybe (1.0 - Accuracy)?
 		if (selectedOverclock == 4) {
 			// Electro Minelets arm in 0.9 seconds, detonate on any enemies that come within ~1.5m, and then explode after 4 seconds. 100% chance to apply Electrocute for 2 sec.
-			double probabilityBulletsMiss = 1.0 - estimatedAccuracy(false) / 100.0;
+			double probabilityBulletsMiss = 1.0 - getGeneralAccuracy() / 100.0;
 			int numGlyphidsInMineletRadius = calculateNumGlyphidsInRadius(1.5);
 			utilityScores[3] = probabilityBulletsMiss * numGlyphidsInMineletRadius * 2 * UtilityInformation.Electrocute_Slow_Utility;
 		}
@@ -712,7 +712,7 @@ public class BurstPistol extends Weapon {
 		
 		// Mod Tier 5 "Burst Stun" = 100% chance for 4 sec stun
 		if (selectedTier5 == 0) {
-			utilityScores[5] = estimatedAccuracy(false) / 100.0 * getBurstStunDuration() * UtilityInformation.Stun_Utility;
+			utilityScores[5] = getGeneralAccuracy() / 100.0 * getBurstStunDuration() * UtilityInformation.Stun_Utility;
 		}
 		else {
 			utilityScores[5] = 0;
@@ -742,7 +742,7 @@ public class BurstPistol extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, 0.0, getArmorBreaking(), getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true));
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, 0.0, getArmorBreaking(), getWeakpointBonus(), getGeneralAccuracy(), getWeakpointAccuracy());
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	

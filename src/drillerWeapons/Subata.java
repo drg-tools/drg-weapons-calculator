@@ -493,7 +493,7 @@ public class Subata extends Weapon {
 		double generalAccuracy, duration, directWeakpointDamage;
 		
 		if (accuracy) {
-			generalAccuracy = estimatedAccuracy(false) / 100.0;
+			generalAccuracy = getGeneralAccuracy() / 100.0;
 		}
 		else {
 			generalAccuracy = 1.0;
@@ -533,7 +533,7 @@ public class Subata extends Weapon {
 		
 		double weakpointAccuracy;
 		if (weakpoint && !statusEffects[1]) {
-			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
+			weakpointAccuracy = getWeakpointAccuracy() / 100.0;
 			directWeakpointDamage = increaseBulletDamageForWeakpoints(directDamage, getWeakpointBonus(), 1.0);
 		}
 		else {
@@ -554,7 +554,7 @@ public class Subata extends Weapon {
 		// If "Chain Hit" is equipped, 50% of bullets that hit a weakpoint will ricochet to nearby enemies.
 		if (selectedOverclock == 0) {
 			// Making the assumption that the ricochet won't hit another weakpoint, and will just do normal damage.
-			double ricochetProbability = 0.5 * estimatedAccuracy(true) / 100.0;
+			double ricochetProbability = 0.5 * getWeakpointAccuracy() / 100.0;
 			double numBulletsRicochetPerMagazine = Math.round(ricochetProbability * getMagazineSize());
 			
 			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
@@ -570,7 +570,7 @@ public class Subata extends Weapon {
 	public double calculateMaxMultiTargetDamage() {
 		if (selectedOverclock == 0) {
 			// Chain Hit
-			double ricochetProbability = 0.5 * estimatedAccuracy(true) / 100.0;
+			double ricochetProbability = 0.5 * getWeakpointAccuracy() / 100.0;
 			double totalNumRicochets = Math.round(ricochetProbability * (getMagazineSize() + getCarriedAmmo()));
 			
 			return (getMagazineSize() + getCarriedAmmo() + totalNumRicochets) * getDirectDamage();
@@ -703,7 +703,7 @@ public class Subata extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, getAreaDamage(), armorBreaking, getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true), selectedOverclock == 4);
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, getAreaDamage(), armorBreaking, getWeakpointBonus(), getGeneralAccuracy(), getWeakpointAccuracy(), selectedOverclock == 4);
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	
