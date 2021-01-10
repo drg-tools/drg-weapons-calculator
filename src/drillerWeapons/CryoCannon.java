@@ -669,7 +669,25 @@ public class CryoCannon extends Weapon {
 	@Override
 	public double calculateMaxMultiTargetDamage() {
 		// Because Cryo Cannon doesn't gain bonus damage vs Frozen targets, the total damage is pretty simple to calculate.
-		return calculateMaxNumTargets() * getParticleDamage() * getTankSize();
+		int numTargets = calculateMaxNumTargets();
+		double dmgPerParticle = getParticleDamage();
+		double tankSize = getTankSize();
+		double baseDamage = numTargets * dmgPerParticle * tankSize;
+		
+		double fragileDamage = 0;
+		if (selectedTier5 == 0) {
+			// Adapted from totalDamagePerBurst() above
+			double averageHealth = EnemyInformation.averageHealthPool(true);  // This already returns health multiplied by resistances, so this is the "effective" hp, not "internal" hp 
+			double averageResistance = EnemyInformation.averageDifficultyScalingResistance();
+			double avgNumParticlesBeforeFragileCanProc = Math.ceil((averageHealth - 100.0 * averageResistance) / dmgPerParticle);  // This will get the Effective HP below 100 * Resistance, which is the same as getting Internal HP below 100
+			double expectedNumParticlesForFragileKill = Math.ceil(recursiveFragileAmmoSpent(100.0, dmgPerParticle, averageResistance));  // This number is how many particles it will take to kill the creature once below 100 Internal HP
+			double totalAmmoForAverageFragileKill = avgNumParticlesBeforeFragileCanProc + expectedNumParticlesForFragileKill;
+			
+			double totalNumFragileKills = numTargets * Math.floor(tankSize / totalAmmoForAverageFragileKill);
+			fragileDamage = totalNumFragileKills * recursiveFragileDamage(100.0, dmgPerParticle, averageResistance) * averageResistance;
+		}
+		
+		return baseDamage + fragileDamage;
 	}
 
 	@Override
