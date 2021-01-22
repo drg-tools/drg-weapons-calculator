@@ -516,7 +516,9 @@ public abstract class EPC extends Weapon {
 		double k = getCoolingRateModifier();
 		double h = getHeatPerRegularShot();
 		
-		double exactAnswer = (maxHeat * rateOfFire) / (rateOfFire * h - k * coolingRate);
+		double timeBetweenPressAndReleaseOfFireButton = 0.012;  // 12 milliseconds
+		double timeCoolingRateIsActiveBetweenShots = (1.0 / rateOfFire - timeBetweenPressAndReleaseOfFireButton);
+		double exactAnswer = (maxHeat - coolingRate * k * timeCoolingRateIsActiveBetweenShots) / (h - coolingRate * k * timeCoolingRateIsActiveBetweenShots);
 		
 		return (int) Math.ceil(exactAnswer);
 	}
