@@ -759,6 +759,22 @@ public abstract class Weapon extends Observable {
 		}
 	}
 	
+	public boolean isDwarfMoving() {
+		return accEstimator.getDwarfIsMoving();
+	}
+	public void setDwarfMoving(boolean newValue) {
+		// Un-set these values for the new estimates
+		metric_generalAccuracy = -100;
+		metric_weakpointAccuracy = -100;
+					
+		accEstimator.setDwarfIsMoving(newValue);
+		// Because this method will only be called from the GUI, it doesn't need the updateGUI flag
+		if (countObservers() > 0) {
+			setChanged();
+			notifyObservers();
+		}
+	}
+	
 	public boolean accuracyCanBeVisualized() {
 		return accEstimator.visualizerIsReady();
 	}

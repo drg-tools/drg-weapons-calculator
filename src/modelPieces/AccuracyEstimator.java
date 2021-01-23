@@ -22,6 +22,7 @@ public class AccuracyEstimator {
 	
 	private double targetDistanceMeters;
 	private boolean modelRecoil;
+	private boolean dwarfIsMoving;
 	private boolean visualizeGeneralAccuracy;
 	private boolean canBeVisualized;
 	
@@ -31,7 +32,7 @@ public class AccuracyEstimator {
 	
 	private double rateOfFire;
 	private int magSize, burstSize;
-	private double baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom;
+	private double baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, spreadPenaltyWhileMoving;
 	private double recoilPitch, recoilYaw, mass, springStiffness;
 	private double naturalFrequency, initialVelocity, recoilGoal, recoilPerShotEndTime;
 	
@@ -43,6 +44,7 @@ public class AccuracyEstimator {
 		// Start at 10m distance for all weapons in AccuracyEstimator, but let it be changed by individual weapons as necessary.
 		targetDistanceMeters = 10.0;
 		visualizeGeneralAccuracy = true;
+		dwarfIsMoving = false;
 		modelRecoil = true;
 		
 		spreadTransformingCurve = null;
@@ -66,6 +68,13 @@ public class AccuracyEstimator {
 	}
 	public boolean isModelingRecoil() {
 		return modelRecoil;
+	}
+	
+	public void setDwarfIsMoving(boolean newValue) {
+		dwarfIsMoving = newValue;
+	}
+	public boolean getDwarfIsMoving() {
+		return dwarfIsMoving;
 	}
 	
 	public void makeVisualizerShowGeneralAccuracy(boolean value) {
@@ -109,7 +118,14 @@ public class AccuracyEstimator {
 		
 		// For practicality purposes, I have to model it as if the exact moment the bullet gets fired its Total Spread stays the same, and then gets added a very short time afterwards.
 		double spreadPerShotAddTime = 0.01;
-		double currentSpread = 0.0;
+		double minimumSpread;
+		if (dwarfIsMoving) {
+			minimumSpread = spreadPenaltyWhileMoving;
+		}
+		else {
+			minimumSpread = 0.0;
+		}
+		double currentSpread = minimumSpread;
 		double bulletFiredTimestamp, nextTimestamp;
 		for (int i = 0; i < bulletFiredTimestamps.length; i++) {
 			bulletFiredTimestamp = bulletFiredTimestamps[i];
@@ -126,15 +142,15 @@ public class AccuracyEstimator {
 			if (i < bulletFiredTimestamps.length - 1) {
 				nextTimestamp = bulletFiredTimestamps[i+1];
 				if (t >= nextTimestamp) {
-					currentSpread = Math.max(currentSpread - (nextTimestamp - bulletFiredTimestamp) * spreadRecoverySpeed, 0);
+					currentSpread = Math.max(currentSpread - (nextTimestamp - bulletFiredTimestamp) * spreadRecoverySpeed, minimumSpread);
 				}
 				else {
-					currentSpread = Math.max(currentSpread - (t - bulletFiredTimestamp) * spreadRecoverySpeed, 0);
+					currentSpread = Math.max(currentSpread - (t - bulletFiredTimestamp) * spreadRecoverySpeed, minimumSpread);
 				}
 			}
 			else {
 				// The last bullet is allowed to trail off to Base Spread
-				currentSpread = Math.max(currentSpread - (t - bulletFiredTimestamp) * spreadRecoverySpeed, 0);
+				currentSpread = Math.max(currentSpread - (t - bulletFiredTimestamp) * spreadRecoverySpeed, minimumSpread);
 			}
 		}
 		
@@ -222,7 +238,7 @@ public class AccuracyEstimator {
 	
 	public double calculateCircularAccuracy(
 			boolean weakpointTarget, double RoF, int mSize, int bSize, 
-			double horizontalBaseSpread, double verticalBaseSpread, double SpS, double SRS, double MB, 
+			double horizontalBaseSpread, double verticalBaseSpread, double SpS, double SRS, double MB, double movePenalty,
 			double rPitch, double rYaw, double m, double sStiffness
 		) {
 		/*
@@ -241,6 +257,7 @@ public class AccuracyEstimator {
 		spreadPerShot = SpS;
 		spreadRecoverySpeed = SRS;
 		maxBloom = MB;
+		spreadPenaltyWhileMoving = movePenalty;
 		
 		/*
 			Step 3: Calculate what the recoil will be at any given time, t, and then store both the raw recoil and player-reduced recoil for use later

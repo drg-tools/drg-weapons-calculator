@@ -649,6 +649,7 @@ public class BurstPistol extends Weapon {
 		double spreadPerShot = 1.2 * getSpreadPerShot();
 		double spreadRecoverySpeed = 5.0;
 		double maxBloom = 4.0;
+		double minSpreadWhileMoving = 1.0;
 		
 		double recoilPitch = 30.0 * getRecoil();
 		double recoilYaw = 10.0 * getRecoil();
@@ -656,7 +657,7 @@ public class BurstPistol extends Weapon {
 		double springStiffness = 70.0;
 		
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), getBurstSize(), 
-				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, 
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, minSpreadWhileMoving,
 				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	

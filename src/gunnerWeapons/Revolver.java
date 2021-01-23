@@ -92,7 +92,7 @@ public abstract class Revolver extends Weapon {
 		tier4[1] = new Mod("High Velocity Rounds", "+15 Direct Damage", modIcons.directDamage, 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Dead-Eye", "No aim penalty while moving", modIcons.baseSpread, 5, 0, false);
+		tier5[0] = new Mod("Dead-Eye", "No aim penalty while moving", modIcons.baseSpread, 5, 0);
 		// It looks like whenever this procs for the main target, all splash targets get it too, instead of RNG/enemy.
 		tier5[1] = new Mod("Glyphid Neurotoxin Coating", "50% chance to inflict Neurotoxin DoT on all enemies hit by the Revolver. "
 				+ "Neurotoxin does an average of " + MathUtils.round(DoTInformation.Neuro_DPS, GuiConstants.numDecimalPlaces) + " Poison Damage per Second", modIcons.neurotoxin, 5, 1);
@@ -429,6 +429,15 @@ public abstract class Revolver extends Weapon {
 		}
 		
 		return toReturn;
+	}
+	protected double getMovingSpreadPenalty() {
+		// T5.A "Dead-Eye" removes this penalty
+		if (selectedTier5 == 0) {
+			return 0.0;
+		}
+		else {
+			return 1.5;
+		}
 	}
 	protected double getRecoil() {
 		double toReturn = 1.0;
@@ -776,6 +785,7 @@ public abstract class Revolver extends Weapon {
 		double spreadPerShot = getSpreadPerShotValue();
 		double spreadRecoverySpeed = 6.0;
 		double maxBloom = 8.0 * getMaxBloom();
+		double minSpreadWhileMoving = getMovingSpreadPenalty();
 		
 		double recoilPitch = 130.0 * getRecoil();
 		double recoilYaw = 10.0 * getRecoil();
@@ -783,7 +793,7 @@ public abstract class Revolver extends Weapon {
 		double springStiffness = 65.0;
 		
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
-				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, 
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, minSpreadWhileMoving,
 				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	

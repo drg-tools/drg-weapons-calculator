@@ -202,6 +202,7 @@ public class Classic_Hipfire extends Classic {
 		double spreadPerShot = 3.0 * getSpreadPerShot();
 		double spreadRecoverySpeed = 8.5;
 		double maxBloom = 5.0 * getMaxBloom();
+		double minSpreadWhileMoving = 1.0;
 		
 		double recoilPitch = 50.0 * getRecoil();
 		double recoilYaw = 5.0 * getRecoil();
@@ -209,7 +210,7 @@ public class Classic_Hipfire extends Classic {
 		double springStiffness = 70.0;
 		
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
-				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, 
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, minSpreadWhileMoving,
 				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	

@@ -516,6 +516,7 @@ public abstract class EPC extends Weapon {
 		double k = getCoolingRateModifier();
 		double h = getHeatPerRegularShot();
 		
+		// In-game my mouse has about a 60ms press/release timing, and by hand I can get around 6 RoF.
 		double timeBetweenPressAndReleaseOfFireButton = 0.012;  // 12 milliseconds
 		double timeCoolingRateIsActiveBetweenShots = (1.0 / rateOfFire - timeBetweenPressAndReleaseOfFireButton);
 		double exactAnswer = (maxHeat - coolingRate * k * timeCoolingRateIsActiveBetweenShots) / (h - coolingRate * k * timeCoolingRateIsActiveBetweenShots);

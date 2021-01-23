@@ -618,6 +618,7 @@ public class Subata extends Weapon {
 		double spreadPerShot = 1.5 * getSpreadPerShot();
 		double spreadRecoverySpeed = 7.5;
 		double maxBloom = 3.0;
+		double minSpreadWhileMoving = 0.5;
 		
 		double recoilPitch = 30.0 * getRecoil();
 		double recoilYaw = 10.0 * getRecoil();
@@ -625,7 +626,7 @@ public class Subata extends Weapon {
 		double springStiffness = 60.0;
 		
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
-				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, 
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, minSpreadWhileMoving,
 				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	

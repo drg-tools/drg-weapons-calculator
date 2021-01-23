@@ -619,6 +619,7 @@ public class AssaultRifle extends Weapon {
 		double spreadPerShot = 1.4;
 		double spreadRecoverySpeed = getSpreadRecoverySpeedValue();
 		double maxBloom = 4.2;
+		double minSpreadWhileMoving = 1.0;
 		
 		double recoilPitch = 35.0 * getRecoil();
 		double recoilYaw = 5.0 * getRecoil();
@@ -626,7 +627,7 @@ public class AssaultRifle extends Weapon {
 		double springStiffness = 50.0;
 		
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
-				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, 
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, minSpreadWhileMoving,
 				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
