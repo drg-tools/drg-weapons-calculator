@@ -6,8 +6,8 @@ import java.util.List;
 
 import dataGenerator.DatabaseConstants;
 import guiPieces.WeaponPictures;
-import guiPieces.ButtonIcons.modIcons;
-import guiPieces.ButtonIcons.overclockIcons;
+import guiPieces.customButtons.ButtonIcons.modIcons;
+import guiPieces.customButtons.ButtonIcons.overclockIcons;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;

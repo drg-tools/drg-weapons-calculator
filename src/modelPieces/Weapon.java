@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 
 import guiPieces.AoEVisualizer;
 import guiPieces.GuiConstants;
-import guiPieces.ButtonIcons.modIcons;
+import guiPieces.customButtons.ButtonIcons.modIcons;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 import utilities.Point2D;

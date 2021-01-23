@@ -1,4 +1,4 @@
-package guiPieces;
+package guiPieces.customButtons;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -16,6 +16,9 @@ import javax.swing.JToolTip;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputListener;
 
+import guiPieces.CustomCursors;
+import guiPieces.GuiConstants;
+import guiPieces.HoverText;
 import modelPieces.Overclock;
 import modelPieces.Weapon;
 import net.coobird.thumbnailator.Thumbnails;

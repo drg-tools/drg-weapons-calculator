@@ -2,7 +2,7 @@ package spreadCurves;
 
 import java.util.ArrayList;
 
-import guiPieces.LineGraph;
+import guiPieces.accuracyEstimator.LineGraph;
 import utilities.Point2D;
 
 public abstract class SpreadCurve {

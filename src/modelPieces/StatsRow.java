@@ -1,7 +1,7 @@
 package modelPieces;
 
 import guiPieces.GuiConstants;
-import guiPieces.ButtonIcons.modIcons;
+import guiPieces.customButtons.ButtonIcons.modIcons;
 import utilities.MathUtils;
 
 public class StatsRow {

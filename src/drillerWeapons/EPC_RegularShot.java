@@ -1,6 +1,6 @@
 package drillerWeapons;
 
-import guiPieces.ButtonIcons.modIcons;
+import guiPieces.customButtons.ButtonIcons.modIcons;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.StatsRow;

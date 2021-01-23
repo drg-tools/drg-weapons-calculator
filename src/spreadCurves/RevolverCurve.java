@@ -1,6 +1,6 @@
 package spreadCurves;
 
-import guiPieces.LineGraph;
+import guiPieces.accuracyEstimator.LineGraph;
 
 public class RevolverCurve extends SpreadCurve {
 	@Override

@@ -8,9 +8,9 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import guiPieces.AccuracyAnimation;
 import guiPieces.GuiConstants;
-import guiPieces.LineGraph;
+import guiPieces.accuracyEstimator.AccuracyAnimation;
+import guiPieces.accuracyEstimator.LineGraph;
 import spreadCurves.SpreadCurve;
 import utilities.MathUtils;
 import utilities.Point2D;

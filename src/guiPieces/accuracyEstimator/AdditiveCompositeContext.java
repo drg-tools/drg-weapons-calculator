@@ -1,4 +1,4 @@
-package guiPieces;
+package guiPieces.accuracyEstimator;
 
 import java.awt.Color;
 import java.awt.CompositeContext;

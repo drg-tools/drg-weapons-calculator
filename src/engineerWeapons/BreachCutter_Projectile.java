@@ -1,6 +1,6 @@
 package engineerWeapons;
 
-import guiPieces.ButtonIcons.modIcons;
+import guiPieces.customButtons.ButtonIcons.modIcons;
 import modelPieces.StatsRow;
 
 public class BreachCutter_Projectile extends BreachCutter {

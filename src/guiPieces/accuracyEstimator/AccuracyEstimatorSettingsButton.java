@@ -1,4 +1,4 @@
-package guiPieces;
+package guiPieces.accuracyEstimator;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,6 +21,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import guiPieces.GuiConstants;
+import guiPieces.HoverText;
 import modelPieces.Weapon;
 
 public class AccuracyEstimatorSettingsButton extends JButton implements ActionListener, ChangeListener {

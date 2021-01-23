@@ -1,6 +1,6 @@
 package modelPieces;
 
-import guiPieces.ButtonIcons.modIcons;
+import guiPieces.customButtons.ButtonIcons.modIcons;
 
 public class Mod {
 

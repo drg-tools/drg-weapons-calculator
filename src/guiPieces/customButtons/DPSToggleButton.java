@@ -1,4 +1,4 @@
-package guiPieces;
+package guiPieces.customButtons;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
 
+import guiPieces.GuiConstants;
 import modelPieces.Weapon;
 
 public class DPSToggleButton extends JButton implements ActionListener {
