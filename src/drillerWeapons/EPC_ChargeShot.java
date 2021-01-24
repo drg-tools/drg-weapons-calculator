@@ -254,8 +254,8 @@ public class EPC_ChargeShot extends EPC {
 			persistentPlasmaDamage = calculateAverageDoTDamagePerEnemy(0, 7.6, DoTInformation.Plasma_DPS);
 		}
 		double[] DoTDamage = {
-			0,  // Fire
-			persistentPlasmaDamage,  // Electric
+			persistentPlasmaDamage,  // Fire
+			0,  // Electric
 			0,  // Poison
 			0  // Radiation
 		};
