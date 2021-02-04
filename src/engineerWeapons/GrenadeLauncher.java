@@ -279,17 +279,21 @@ public class GrenadeLauncher extends Weapon {
 	
 	private double getDirectDamage() {
 		double toReturn = 0;
+		
+		// Additive bonuses first
 		if (selectedTier5 == 1) {
 			toReturn += 60;
 		}
 		
-		// There's currently a bug in U32 where Incendiary Compound is only affecting Spiky Grenade's damage. I'm going to model it like it's currently bugged, but this will have to be changed if the bug gets fixed.
-		if (selectedTier3 == 0) {
-			toReturn /= 2.0;
-		}
-		
 		if (selectedOverclock == 5) {
 			toReturn += 385;
+		}
+		
+		// Multiplicative bonuses last
+		if (selectedTier3 == 0 && selectedOverclock != 5) {
+			// Because Hyper Propellant adds its Disintegrate Damage LAST, it effectively negates Incentiary Compound's -50% damage penalty.
+			// GSG Devs even confirmed this is intended behavior in the Jira report I made aobut this issue back when U32 dropped.
+			toReturn /= 2.0;
 		}
 		
 		if (selectedTier4 == 0) {
@@ -325,11 +329,22 @@ public class GrenadeLauncher extends Weapon {
 			toReturn *= 4;
 		}
 		
-		if (selectedTier3 == 0) {
+		if (selectedTier3 == 0 && selectedOverclock != 5) {
+			// Again, Hyper Propellant effectively negates Incendiary Compound's -50% penalty.
 			toReturn /= 2.0;
 		}
 		
 		return toReturn;
+	}
+	private double getHeatPerGrenade() {
+		// Special case: because Hyper Propellant cancels out Incendiary Compound's damage penalty, I need divide the damage/grenade by 2 for HP in particular (other builds the damage/grenade = heat/grenade)
+		// Because of the wonky interaction between Hyper Propellant and Incendiary Compound, I'm writing this method instead of copy/pasting the same exception multiple times.
+		if (selectedOverclock == 5) {
+			return (getDirectDamage() + getAreaDamage()) / 2.0;
+		}
+		else {
+			return getDirectDamage() + getAreaDamage();
+		}
 	}
 	private double getAoERadius() {
 		double toReturn = aoeRadius;
@@ -505,10 +520,7 @@ public class GrenadeLauncher extends Weapon {
 		// Incendiary Compound
 		if (selectedTier3 == 0 && !statusEffects[1]) {
 			if (burst) {
-				// Heat per Shot shouldn't be affected by IFG or Frozen
-				double heatPerGrenade = getDirectDamage() + getAreaDamage();
-				double percentageOfEnemiesIgnitedByOneGrenade = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(heatPerGrenade);
-				
+				double percentageOfEnemiesIgnitedByOneGrenade = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(getHeatPerGrenade());
 				burnDPS = percentageOfEnemiesIgnitedByOneGrenade * DoTInformation.Burn_DPS;
 			}
 			else {
@@ -628,7 +640,7 @@ public class GrenadeLauncher extends Weapon {
 		// Incendiary Compound is a burst of Heat, and gets modeled differently than Radiation
 		double heatPerGrenade = 0;
 		if (selectedTier3 == 0) {
-			heatPerGrenade = getAreaDamage();
+			heatPerGrenade = getHeatPerGrenade();
 		}
 		
 		double radDamage = 0;
@@ -690,9 +702,7 @@ public class GrenadeLauncher extends Weapon {
 	@Override
 	public double averageTimeToCauterize() {
 		if (selectedTier3 == 0) {
-			// These methods already divide by 2 when this mod is selected; no need to do it again.
-			double heatPerGrenade = getDirectDamage() + getAreaDamage();
-			return EnemyInformation.averageTimeToIgnite(0, heatPerGrenade, 1.0 / reloadTime, 0);
+			return EnemyInformation.averageTimeToIgnite(0, getHeatPerGrenade(), 1.0 / reloadTime, 0);
 		}
 		else {
 			return -1;
