@@ -17,7 +17,6 @@ import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
-// TODO: disable the interaction between T5.A Volatile Bullets and OC Explosive Reload; that's a remnant of pre-U32 version of the OC.
 public class Subata extends Weapon {
 	
 	/****************************************************************************************
@@ -523,13 +522,13 @@ public class Subata extends Weapon {
 		// IFG Grenade
 		if (statusEffects[3]) {
 			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
-			areaDamage *= UtilityInformation.IFG_Damage_Multiplier;
+			// U32's version of Explosive Reload no longer benefits from IFG
 		}
 		
 		// T5.A Volatile Bullets adds 50% of the total damage per bullet as Fire damage (not Heat Damage) if the bullet hits a Burning target
 		if (selectedTier5 == 0 && statusEffects[0]) {
 			directDamage *= 1.5;
-			areaDamage *= 1.5;
+			// U32's version of Explosive Reload no longer benefits from Volatile Bullets
 		}
 		
 		double weakpointAccuracy;
