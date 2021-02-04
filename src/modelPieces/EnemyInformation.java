@@ -381,7 +381,7 @@ public class EnemyInformation {
 			// Early exit: if Heat/Shot >= 100, then all enemies get ignited instantly since the largest Ignite Temp modeled in this program is 100.
 			if (burstOfHeat >= igniteTemp || heatPerShot >= igniteTemp || burstOfHeat + heatPerShot >= igniteTemp) {
 				ignitionTimes[i] = 0.0;
-				break;
+				continue;
 			}
 			
 			coolingRate = enemyTemperatures[i][2];
@@ -448,7 +448,7 @@ public class EnemyInformation {
 			// Early exit: if Cold/Shot >= 300, then all enemies get ignited instantly since the largest Freeze Temp modeled in this program is 300.
 			if (burstOfCold <= freezeTemp || coldPerShot <= freezeTemp || burstOfCold + coldPerShot <= freezeTemp) {
 				freezeTimes[i] = 0.0;
-				break;
+				continue;
 			}
 			
 			freezeTimes[i] = (freezeTemp - burstOfCold) / (coldPerShot * RoF + coldPerSec);

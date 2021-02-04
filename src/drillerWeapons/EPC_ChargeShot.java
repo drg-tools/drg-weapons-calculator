@@ -7,6 +7,7 @@ import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
 import utilities.MathUtils;
 
+// TODO: disable the Frozen status effect for Flying Nightmare (Breakpoints at minimum)
 public class EPC_ChargeShot extends EPC {
 	
 	/****************************************************************************************

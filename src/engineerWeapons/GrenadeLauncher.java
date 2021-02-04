@@ -19,6 +19,7 @@ import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
+// TODO: fix HP + Incendiary interaction
 public class GrenadeLauncher extends Weapon {
 	
 	/****************************************************************************************

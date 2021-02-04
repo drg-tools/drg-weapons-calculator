@@ -29,6 +29,7 @@ import utilities.MathUtils;
 		Fear Factor Radius: 500
 */
 
+// TODO: Change Double Barrel to a 2-round burst with 0.05 sec between shots. (indirectly doubles the blastwave damage too, instead of only pellets)
 public class Boomstick extends Weapon {
 	
 	/****************************************************************************************

@@ -17,6 +17,7 @@ import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
+// TODO: disable the interaction between T5.A Volatile Bullets and OC Explosive Reload; that's a remnant of pre-U32 version of the OC.
 public class Subata extends Weapon {
 	
 	/****************************************************************************************

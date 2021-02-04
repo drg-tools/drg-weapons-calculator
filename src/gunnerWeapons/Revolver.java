@@ -20,6 +20,7 @@ import spreadCurves.RevolverCurve;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
+// TODO: make Volatile Bullets multiply Area Damage by x4, and add the 300% as Fire-element in Breakpoints
 public abstract class Revolver extends Weapon {
 	
 	/****************************************************************************************
