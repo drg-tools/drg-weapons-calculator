@@ -29,7 +29,6 @@ import utilities.MathUtils;
 		Fear Factor Radius: 500
 */
 
-// TODO: Change Double Barrel to a 2-round burst with 0.05 sec between shots. (indirectly doubles the blastwave damage too, instead of only pellets)
 public class Boomstick extends Weapon {
 	
 	/****************************************************************************************
@@ -122,8 +121,7 @@ public class Boomstick extends Weapon {
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Shells", "+6 Max Ammo, -0.2 Reload Time", overclockIcons.carriedAmmo, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Double Barrel", "Fire both barrels with a single tigger pull. As a result, both Magazine Size and Max Ammo are effectively halved, while the "
-				+ "number of Pellets per Shot gets doubled. Additionally, +1 Damage per Pellet.", overclockIcons.rateOfFire, 1);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Double Barrel", "Fire both barrels with a single tigger pull as a 2-round burst. Additionally, +1 Damage per Pellet.", overclockIcons.rateOfFire, 1);
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Special Powder", "Jump off of the ground and fire the shotgun to \"blast jump\" around the caves for increased mobility.", overclockIcons.shotgunJump, 2);
 		overclocks[3] = new Overclock(Overclock.classification.clean, "Stuffed Shells", "+1 Damage per Pellet, +1 Pellet per Shot", overclockIcons.pelletsPerShot, 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "-35% Base Spread, -2 Pellets per Shot", overclockIcons.baseSpread, 4);
@@ -316,10 +314,7 @@ public class Boomstick extends Weapon {
 			toReturn += 3;
 		}
 		
-		if (selectedOverclock == 1) {
-			toReturn *= 2;
-		}
-		else if (selectedOverclock == 3) {
+		if (selectedOverclock == 3) {
 			toReturn += 1;
 		}
 		else if (selectedOverclock == 4) {
@@ -330,7 +325,7 @@ public class Boomstick extends Weapon {
 	}
 	private int getBlastwaveDamage() {
 		// Hits enemies within 4m in front of Scout
-		// Area damage, instead of direct damage. Bulks + Dreads resist it.
+		// Explosive-element Area-type damage, instead of direct damage. Bulks + Dreads resist it.
 		int toReturn = frontalConeDamage;
 		
 		if (selectedTier4 == 2) {
@@ -339,14 +334,17 @@ public class Boomstick extends Weapon {
 		
 		return toReturn;
 	}
-	private int getMagazineSize() {
-		int toReturn = magazineSize;
-		
+	private int getBurstSize() {
+		// OC "Double Barrel" makes the Boomstick fire both barrels as a 2-shot burst at 20 RoF.
 		if (selectedOverclock == 1) {
-			toReturn -= 1;
+			return 2;
 		}
-		
-		return toReturn;
+		else {
+			return 0;
+		}
+	}
+	private int getMagazineSize() {
+		return magazineSize;
 	}
 	private int getCarriedAmmo() {
 		int toReturn = carriedAmmo;
@@ -360,10 +358,6 @@ public class Boomstick extends Weapon {
 		
 		if (selectedOverclock == 0) {
 			toReturn += 6;
-		}
-		else if (selectedOverclock == 1) {
-			// For the math of Double Barrel to work out correctly, the Carried Ammo should be halved since it fires 2 ammo per shot.
-			toReturn /= 2;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn -= 10;
@@ -432,7 +426,7 @@ public class Boomstick extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[13];
+		StatsRow[] toReturn = new StatsRow[14];
 		
 		boolean damageModified = selectedTier1 == 1 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Damage per Pellet:", getDamagePerPellet(), modIcons.directDamage, damageModified);
@@ -442,27 +436,30 @@ public class Boomstick extends Weapon {
 		
 		toReturn[2] = new StatsRow("Blastwave Damage:", getBlastwaveDamage(), modIcons.areaDamage, selectedTier4 == 2);
 		
-		toReturn[3] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, selectedOverclock == 1);
+		// Only display this row when OC "Double Barrel" is equipped
+		toReturn[3] = new StatsRow("Burst Size:", getBurstSize(), modIcons.rateOfFire, selectedOverclock == 1, selectedOverclock == 1);
 		
-		boolean carriedAmmoModified = selectedTier1 == 0 || selectedTier3 == 1 || selectedOverclock == 0 || selectedOverclock == 1 || selectedOverclock == 5;
-		toReturn[4] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
+		toReturn[4] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, false);
 		
-		toReturn[5] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier2 == 0);
+		boolean carriedAmmoModified = selectedTier1 == 0 || selectedTier3 == 1 || selectedOverclock == 0 || selectedOverclock == 5;
+		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
+		
+		toReturn[6] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier2 == 0);
 		
 		boolean reloadTimeModified = selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock == 5;
-		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, reloadTimeModified);
+		toReturn[7] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, reloadTimeModified);
 		
-		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier4 == 1, selectedTier4 == 1);
+		toReturn[8] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier4 == 1, selectedTier4 == 1);
 		
-		toReturn[8] = new StatsRow("Fear Factor:", 0.5, modIcons.fear, selectedTier5 == 1, selectedTier5 == 1);
+		toReturn[9] = new StatsRow("Fear Factor:", 0.5, modIcons.fear, selectedTier5 == 1, selectedTier5 == 1);
 		
-		toReturn[9] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(stunChance), modIcons.homebrewPowder, false);
+		toReturn[10] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(stunChance), modIcons.homebrewPowder, false);
 		
-		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, selectedTier3 == 0);
+		toReturn[11] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, selectedTier3 == 0);
 		
-		toReturn[11] = new StatsRow("Max Penetrations:", getMaxPenetrations(), modIcons.blowthrough, selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[12] = new StatsRow("Max Penetrations:", getMaxPenetrations(), modIcons.blowthrough, selectedTier4 == 0, selectedTier4 == 0);
 		
-		toReturn[12] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, selectedOverclock == 4, selectedOverclock == 4);
+		toReturn[13] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, selectedOverclock == 4, selectedOverclock == 4);
 		
 		return toReturn;
 	}
@@ -502,12 +499,13 @@ public class Boomstick extends Weapon {
 		}
 		
 		// 50% of Direct Damage from the pellets gets added on as Heat Damage.
-		double heatDamagePerShot = 0.5 * getDamagePerPellet() * numPelletsThatApplyHeat;
-		if (getMagazineSize() > 1) {
-			return EnemyInformation.averageTimeToIgnite(0, heatDamagePerShot, getRateOfFire(), 0);
+		double heatDamagePerShot = 0.5 * (getDamagePerPellet() * numPelletsThatApplyHeat + getBlastwaveDamage());
+		if (selectedOverclock == 1) {
+			// Double Barrel fires both barrels in a 2-shot burst at 20 RoF.
+			return EnemyInformation.averageTimeToIgnite(0, 2.0 * heatDamagePerShot, 1.0 / getReloadTime(), 0);
 		}
 		else {
-			return EnemyInformation.averageTimeToIgnite(0, heatDamagePerShot, 1.0 / getReloadTime(), 0);
+			return EnemyInformation.averageTimeToIgnite(0, heatDamagePerShot, getRateOfFire(), 0);
 		}
 	}
 	
@@ -523,8 +521,11 @@ public class Boomstick extends Weapon {
 			generalAccuracy = 1.0;
 		}
 		
-		int magSize = getMagazineSize();
-		if (magSize > 1) {
+		if (selectedOverclock == 1) {
+			// Because OC "Double Barrel" fires both barrels in a 2-shot burst at 20 RoF, it only takes 0.05 seconds to expend both shots and before it needs to reload.
+			duration = 0.05 + getReloadTime();
+		}
+		else {
 			if (burst) {
 				duration = ((double) getMagazineSize()) / getRateOfFire();
 			}
@@ -532,11 +533,9 @@ public class Boomstick extends Weapon {
 				duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
 			}
 		}
-		else {
-			duration = getReloadTime();
-		}
 		
 		double dmgPerPellet = getDamagePerPellet();
+		double blastwaveDamage = getBlastwaveDamage();
 		
 		// Damage wasted by Armor
 		if (armorWasting && !statusEffects[1]) {
@@ -551,6 +550,7 @@ public class Boomstick extends Weapon {
 		// IFG Grenade
 		if (statusEffects[3]) {
 			dmgPerPellet *= UtilityInformation.IFG_Damage_Multiplier;
+			blastwaveDamage *= UtilityInformation.IFG_Damage_Multiplier;
 		}
 		
 		double weakpointAccuracy;
@@ -581,12 +581,12 @@ public class Boomstick extends Weapon {
 		double pelletsThatHitWeakpointPerShot = numPelletsPerShot * weakpointAccuracy;
 		double pelletsThatHitTargetPerShot = numPelletsPerShot * generalAccuracy - pelletsThatHitWeakpointPerShot;
 		
-		return (pelletsThatHitWeakpointPerShot * directWeakpointDamagePerPellet + pelletsThatHitTargetPerShot * dmgPerPellet + getBlastwaveDamage()) * magSize / duration + burnDPS;
+		return (pelletsThatHitWeakpointPerShot * directWeakpointDamagePerPellet + pelletsThatHitTargetPerShot * dmgPerPellet + blastwaveDamage) * getMagazineSize() / duration + burnDPS;
 	}
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		int magSize = getMagazineSize();
+		double magSize = getMagazineSize();
 		double secondaryDamagePerShot;
 		if (selectedTier4 == 0) {
 			secondaryDamagePerShot = getDamagePerPellet() * getNumberOfPellets() + getBlastwaveDamage();
@@ -596,12 +596,12 @@ public class Boomstick extends Weapon {
 		}
 		
 		double additionalDPS = 0;
-		if (magSize > 1) {
-			double timeToFireMagazineAndReload = (((double) magSize) / getRateOfFire()) + getReloadTime();
-			additionalDPS = secondaryDamagePerShot * magSize / timeToFireMagazineAndReload;
+		if (selectedOverclock == 1) {
+			additionalDPS = secondaryDamagePerShot * magSize / (0.05 + getReloadTime());
 		}
 		else {
-			additionalDPS = secondaryDamagePerShot / getReloadTime();
+			double timeToFireMagazineAndReload = (magSize / getRateOfFire()) + getReloadTime();
+			additionalDPS = secondaryDamagePerShot * magSize / timeToFireMagazineAndReload;
 		}
 		
 		// Penetrations can ignite, too
@@ -627,17 +627,18 @@ public class Boomstick extends Weapon {
 			
 			double estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
 			double fireDoTDamagePerEnemy;
-			if (getMagazineSize() > 1) {
+			if (selectedOverclock == 1) {
+				// Double barrel fires twice in a row, so it's double the heat of half the damage. Works out to just damage = heat.
+				double percentageOfEnemiesIgnitedPerShot = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(directDamagePerShot + getBlastwaveDamage());
+				fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
+				
+				fireDoTTotalDamage += numShots * (percentageOfEnemiesIgnitedPerShot * numTargets) * fireDoTDamagePerEnemy;
+			}
+			else {
 				double timeBeforeIgnite = calculateTimeToIgnite(false);
 				fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 				
 				fireDoTTotalDamage = fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
-			}
-			else {
-				double percentageOfEnemiesIgnitedPerShot = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(0.5 * directDamagePerShot);
-				fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
-				
-				fireDoTTotalDamage += numShots * (percentageOfEnemiesIgnitedPerShot * numTargets) * fireDoTDamagePerEnemy;
 			}
 		}
 		
@@ -652,21 +653,26 @@ public class Boomstick extends Weapon {
 	@Override
 	public double calculateFiringDuration() {
 		int magSize = getMagazineSize();
+		int carriedAmmo = getCarriedAmmo();
 		
-		if (magSize > 1) {
-			int carriedAmmo = getCarriedAmmo();
-			double timeToFireMagazine = ((double) magSize) / getRateOfFire();
-			return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
+		double timeToFireMagazine = 0;
+		if (selectedOverclock == 1) {
+			timeToFireMagazine = 0.05;
 		}
 		else {
-			// Since each shot gets fired instantly and there's only one shot in the magazine, the rate of fire isn't applicable. Simply add up all the reload times.
-			return getCarriedAmmo() * getReloadTime();
+			timeToFireMagazine = ((double) magSize) / getRateOfFire();
 		}
+		
+		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
 		double dmgPerShot = increaseBulletDamageForWeakpoints(getDamagePerPellet()) * getNumberOfPellets() + getBlastwaveDamage();
+		if (selectedOverclock == 1) {
+			// Because the player cannot shoot only one shot with Double Barrel, I'm choosing to double the damage per shot to penalize this method accordingly.
+			dmgPerShot *= 2.0;
+		}
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 	
@@ -798,12 +804,11 @@ public class Boomstick extends Weapon {
 	
 	@Override
 	public double timeToFireMagazine() {
-		int magSize = getMagazineSize();
-		if (magSize > 1) {
-			return magSize / getRateOfFire();
+		if (selectedOverclock == 1) {
+			return 0.05;
 		}
 		else {
-			return 0;
+			return getMagazineSize() / getRateOfFire();
 		}
 	}
 	
