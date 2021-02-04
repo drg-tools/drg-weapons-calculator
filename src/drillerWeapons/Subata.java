@@ -49,6 +49,7 @@ public class Subata extends Weapon {
 	public Subata(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "Subata 120";
 		weaponPic = WeaponPictures.subata;
+		customizableRoF = true;
 		
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 12;
@@ -336,7 +337,8 @@ public class Subata extends Weapon {
 		
 		return toReturn;
 	}
-	private double getRateOfFire() {
+	@Override
+	protected double getRateOfFire() {
 		double toReturn = rateOfFire;
 		
 		if (selectedOverclock == 3) {
@@ -448,7 +450,7 @@ public class Subata extends Weapon {
 		boolean carriedAmmoModified = selectedTier2 == 0 || selectedTier3 == 2 || selectedOverclock == 4;
 		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
-		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedOverclock == 3 || selectedOverclock == 5);
+		toReturn[4] = new StatsRow("Rate of Fire:", getCustomRoF(), modIcons.rateOfFire, selectedOverclock == 3 || selectedOverclock == 5);
 		
 		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier1 == 2 || selectedOverclock == 2);
 		
@@ -500,10 +502,10 @@ public class Subata extends Weapon {
 		}
 		
 		if (burst) {
-			duration = ((double) getMagazineSize()) / getRateOfFire();
+			duration = ((double) getMagazineSize()) / getCustomRoF();
 		}
 		else {
-			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+			duration = (((double) getMagazineSize()) / getCustomRoF()) + getReloadTime();
 		}
 		
 		double directDamage = getDirectDamage();
@@ -557,7 +559,7 @@ public class Subata extends Weapon {
 			double ricochetProbability = 0.5 * getWeakpointAccuracy() / 100.0;
 			double numBulletsRicochetPerMagazine = Math.round(ricochetProbability * getMagazineSize());
 			
-			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getCustomRoF()) + getReloadTime();
 			
 			return numBulletsRicochetPerMagazine * getDirectDamage() / timeToFireMagazineAndReload;
 		}
@@ -596,7 +598,7 @@ public class Subata extends Weapon {
 	public double calculateFiringDuration() {
 		int magSize = getMagazineSize();
 		int carriedAmmo = getCarriedAmmo();
-		double timeToFireMagazine = ((double) magSize) / getRateOfFire();
+		double timeToFireMagazine = ((double) magSize) / getCustomRoF();
 		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
 	
@@ -625,7 +627,7 @@ public class Subata extends Weapon {
 		double mass = 1.0;
 		double springStiffness = 60.0;
 		
-		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
+		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getCustomRoF(), getMagazineSize(), 1, 
 				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, minSpreadWhileMoving,
 				recoilPitch, recoilYaw, mass, springStiffness);
 	}
@@ -699,7 +701,7 @@ public class Subata extends Weapon {
 	
 	@Override
 	public double timeToFireMagazine() {
-		return getMagazineSize() / getRateOfFire();
+		return getMagazineSize() / getCustomRoF();
 	}
 	
 	@Override

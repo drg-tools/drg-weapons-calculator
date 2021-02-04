@@ -368,7 +368,8 @@ public class SMG extends Weapon {
 		
 		return toReturn;
 	}
-	private double getRateOfFire() {
+	@Override
+	protected double getRateOfFire() {
 		double toReturn = rateOfFire;
 		
 		if (selectedTier2 == 2) {

@@ -21,6 +21,8 @@ public abstract class Weapon extends Observable {
 	
 	protected String fullName;
 	protected BufferedImage weaponPic;
+	protected boolean customizableRoF = false;
+	protected double customRoF = 0;
 	// Since several of the weapons have a Homebrew Powder mod or OC, I'm adding this coefficient in the parent class so that they can all be updated simultaneously.
 	// Taking the (integral of x dx from 0.8 -> 1.4) / (1.4 - 0.8) results in the intuitive 1.1
 	protected double homebrewPowderCoefficient = 1.1;
@@ -552,6 +554,28 @@ public abstract class Weapon extends Observable {
 			
 			return toReturn;
 		}
+	}
+	
+	public boolean isRofCustomizable() {
+		return customizableRoF;
+	}
+	public void setCustomRoF(double newRoF) {
+		// This will be a logic error for any class that has customizableRoF=true but doesn't initialize the customRoF=getRateOfFire()
+		if (customizableRoF && newRoF > 0 && newRoF <= getRateOfFire()) {
+			customRoF = newRoF;
+		}
+	}
+	public double getCustomRoF() {
+		if (customizableRoF && customRoF > 0) {
+			return customRoF;
+		}
+		else {
+			return getRateOfFire();
+		}
+	}
+	protected double getRateOfFire() {
+		// This method only exists to be overridden in child classes, but it's necessary to make the user-set RoF trick work. :(
+		return -1;
 	}
 	
 	protected abstract void initializeModsAndOverclocks();

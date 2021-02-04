@@ -34,8 +34,8 @@ public abstract class EPC extends Weapon {
 	private int batterySize;
 	// This needs to be protected instead of private so that EPC_RegularShot.getStats() can access its static value.
 	protected double rateOfFire;
-	private double maxHeat;
-	private double coolingRate;
+	protected double maxHeat;
+	protected double coolingRate;
 	private int ammoPerChargedShot;
 	private double chargeShotWindup;
 	private double heatPerRegularShot;
@@ -403,12 +403,6 @@ public abstract class EPC extends Weapon {
 		
 		return toReturn;
 	}
-	protected double getRateOfFire() {
-		double timeToFireChargedShot = getChargedShotWindup();
-		double timeToCoolDownAfterChargedShot = getCooldownDuration();
-		
-		return 1 / (timeToFireChargedShot + timeToCoolDownAfterChargedShot);
-	}
 	protected double getCoolingRateModifier() {
 		double modifier = 1.0;
 		
@@ -512,17 +506,6 @@ public abstract class EPC extends Weapon {
 		return toReturn;
 	}
 	
-	protected int getNumRegularShotsBeforeOverheat() {
-		double k = getCoolingRateModifier();
-		double h = getHeatPerRegularShot();
-		
-		// In-game my mouse has about a 60ms press/release timing, and by hand I can get around 6 RoF.
-		double timeBetweenPressAndReleaseOfFireButton = 0.012;  // 12 milliseconds
-		double timeCoolingRateIsActiveBetweenShots = (1.0 / rateOfFire - timeBetweenPressAndReleaseOfFireButton);
-		double exactAnswer = (maxHeat - coolingRate * k * timeCoolingRateIsActiveBetweenShots) / (h - coolingRate * k * timeCoolingRateIsActiveBetweenShots);
-		
-		return (int) Math.ceil(exactAnswer);
-	}
 	protected double getSecondsBeforeOverheatWhileCharged() {
 		return maxHeat / getHeatPerSecondWhileCharged();
 	}

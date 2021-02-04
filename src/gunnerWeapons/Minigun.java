@@ -380,7 +380,8 @@ public class Minigun extends Weapon {
 		}
 		return toReturn;
 	}
-	private int getRateOfFire() {
+	@Override
+	protected double getRateOfFire() {
 		int toReturn = rateOfFire;
 		if (selectedTier1 == 1) {
 			toReturn += 4;

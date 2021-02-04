@@ -295,7 +295,6 @@ public abstract class Classic extends Weapon {
 	}
 	protected abstract int getCarriedAmmo();
 	protected abstract int getMagazineSize();
-	protected abstract double getRateOfFire();
 	protected double getReloadTime() {
 		double toReturn = reloadTime;
 		

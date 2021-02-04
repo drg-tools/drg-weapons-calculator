@@ -20,7 +20,7 @@ import spreadCurves.RevolverCurve;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
-public abstract class Revolver extends Weapon {
+public class Revolver extends Weapon {
 	
 	/****************************************************************************************
 	* Class Variables
@@ -39,8 +39,21 @@ public abstract class Revolver extends Weapon {
 	* Constructors
 	****************************************************************************************/
 	
+	// Shortcut constructor to get baseline data
+	public Revolver() {
+		this(-1, -1, -1, -1, -1, -1);
+	}
+	
+	// Shortcut constructor to quickly get statistics about a specific build
+	public Revolver(String combination) {
+		this(-1, -1, -1, -1, -1, -1);
+		buildFromCombination(combination);
+	}
+	
 	public Revolver(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
+		fullName = "\"Bulldog\" Heavy Revolver";
 		weaponPic = WeaponPictures.revolver;
+		customizableRoF = true;
 		
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 50.0;
@@ -247,8 +260,16 @@ public abstract class Revolver extends Weapon {
 		}
 	}
 	
+	@Override
+	public Revolver clone() {
+		return new Revolver(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
+	}
+	
 	public String getDwarfClass() {
 		return "Gunner";
+	}
+	public String getSimpleName() {
+		return "Revolver";
 	}
 	public int getDwarfClassID() {
 		return DatabaseConstants.gunnerCharacterID;
@@ -339,14 +360,15 @@ public abstract class Revolver extends Weapon {
 		}
 		return toReturn;
 	}
-	protected double getMaxRateOfFire() {
+	protected double getRateOfFire() {
 		double toReturn = rateOfFire;
+		
 		if (selectedOverclock == 3) {
 			toReturn += 4.0;
 		}
+		
 		return toReturn;
 	}
-	protected abstract double getRateOfFire();
 	private double getReloadTime() {
 		double toReturn = reloadTime;
 		if (selectedTier1 == 0) {
@@ -479,7 +501,7 @@ public abstract class Revolver extends Weapon {
 		boolean carriedAmmoModified = selectedTier2 == 2 || selectedTier4 == 0 || (selectedOverclock > 2 && selectedOverclock < 6);
 		toReturn[4] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
-		toReturn[5] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedOverclock == 3);
+		toReturn[5] = new StatsRow("Rate of Fire:", getCustomRoF(), modIcons.rateOfFire, selectedOverclock == 3);
 		
 		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier1 == 0 || selectedOverclock == 3 || selectedOverclock == 4);
 		
@@ -523,6 +545,37 @@ public abstract class Revolver extends Weapon {
 		return selectedTier3 == 1;
 	}
 	
+	/*
+		I'm writing this method specifically because I know that the Revolver is never fired at max RoF -- it's used by the community as a sniper side-arm.
+		
+		I'm a bit worried that this is counter-intuitive in comparison to how the rest of the weapons are modeled, but I think this is a better approximation for how this weapon gets used in-game.
+	*/
+	private double calculateAccurateRoF() {
+		// Variables copied from estimatedAccuracy() to reverse-calculate the slow RoF needed for high accuracy
+		double spreadPerShot = getSpreadPerShotValue();
+		double spreadRecoverySpeed = 6.0;
+		
+		double recoilPitch = 130 * getRecoil();
+		double recoilYaw = 10 * getRecoil();
+		double mass = getMass();
+		double springStiffness = 65;
+		
+		double v = Math.hypot(recoilPitch, recoilYaw);
+		double w = Math.sqrt(springStiffness / mass);
+		
+		// These numbers are chosen arbitrarily.
+		double desiredIncreaseInSpread = 2.5;
+		double desiredIncreaseInRecoil = 3.0;
+		
+		double timeToRecoverSpread = (spreadPerShot - desiredIncreaseInSpread) / spreadRecoverySpeed;
+		// This technically goes beyond the [-0.1, -0.001] range for this method, but I can't really be bothered to expand it beyond 20 segments...
+		double timeToRecoverRecoil = -1.0 * MathUtils.lambertInverseWNumericalApproximation(-w * desiredIncreaseInRecoil / v) / w;
+		
+		double longerTime = Math.max(timeToRecoverSpread, timeToRecoverRecoil);
+		
+		return Math.min(1.0 / longerTime, getRateOfFire());
+	}
+	
 	// Single-target calculations
 	@Override
 	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
@@ -536,10 +589,10 @@ public abstract class Revolver extends Weapon {
 		}
 		
 		if (burst) {
-			duration = ((double) getMagazineSize()) / getRateOfFire();
+			duration = ((double) getMagazineSize()) / getCustomRoF();
 		}
 		else {
-			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+			duration = (((double) getMagazineSize()) / getCustomRoF()) + getReloadTime();
 		}
 		
 		double directDamage = getDirectDamage();
@@ -614,7 +667,7 @@ public abstract class Revolver extends Weapon {
 		double sustainedAdditionalDPS;
 		double directDamage = getDirectDamage();
 		double areaDamage = getAreaDamage();
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getCustomRoF()) + getReloadTime();
 		
 		// If Super Blowthrough Rounds is equipped, then the ricochets from either "Chain Hit" or "Magic Bullets" won't affect the additional DPS
 		if (selectedTier3 == 0) {
@@ -701,7 +754,7 @@ public abstract class Revolver extends Weapon {
 		
 		double neurotoxinDoTTotalDamage = 0;
 		if (selectedTier5 == 1) {
-			double timeBeforeNeuroProc = MathUtils.meanRolls(0.5) / getRateOfFire();
+			double timeBeforeNeuroProc = MathUtils.meanRolls(0.5) / getCustomRoF();
 			double neurotoxinDoTTotalDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeNeuroProc, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
 			
 			double estimatedNumEnemiesKilled = numberOfTargets * (calculateFiringDuration() / averageTimeToKill());
@@ -764,7 +817,7 @@ public abstract class Revolver extends Weapon {
 	public double calculateFiringDuration() {
 		int magSize = getMagazineSize();
 		int carriedAmmo = getCarriedAmmo();
-		double timeToFireMagazine = ((double) magSize) / getRateOfFire();
+		double timeToFireMagazine = ((double) magSize) / getCustomRoF();
 		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
 	
@@ -793,7 +846,7 @@ public abstract class Revolver extends Weapon {
 		double mass = getMass();
 		double springStiffness = 65.0;
 		
-		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
+		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getCustomRoF(), getMagazineSize(), 1, 
 				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, minSpreadWhileMoving,
 				recoilPitch, recoilYaw, mass, springStiffness);
 	}
@@ -826,7 +879,7 @@ public abstract class Revolver extends Weapon {
 		
 		double ntDoTDmg = 0;
 		if (selectedTier5 == 1) {
-			double timeToNeurotoxin = MathUtils.meanRolls(0.5) / getRateOfFire();
+			double timeToNeurotoxin = MathUtils.meanRolls(0.5) / getCustomRoF();
 			ntDoTDmg = calculateAverageDoTDamagePerEnemy(timeToNeurotoxin, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
 		}
 		
@@ -885,7 +938,7 @@ public abstract class Revolver extends Weapon {
 	
 	@Override
 	public double timeToFireMagazine() {
-		return getMagazineSize() / getRateOfFire();
+		return getMagazineSize() / getCustomRoF();
 	}
 	
 	@Override

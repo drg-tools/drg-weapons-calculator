@@ -50,6 +50,7 @@ public class Shotgun extends Weapon {
 	public Shotgun(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "\"Warthog\" Auto 210";
 		weaponPic = WeaponPictures.shotgun;
+		customizableRoF = true;
 		
 		// Base stats, before mods or overclocks alter them:
 		damagePerPellet = 7;
@@ -329,7 +330,8 @@ public class Shotgun extends Weapon {
 		
 		return toReturn;
 	}
-	private double getRateOfFire() {
+	@Override
+	protected double getRateOfFire() {
 		double toReturn = rateOfFire;
 		
 		if (selectedTier1 == 0) {
@@ -447,7 +449,7 @@ public class Shotgun extends Weapon {
 		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
 		boolean RoFModified = selectedTier1 == 0 || selectedTier5 == 1 || selectedOverclock == 2 || selectedOverclock == 3;
-		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, RoFModified);
+		toReturn[4] = new StatsRow("Rate of Fire:", getCustomRoF(), modIcons.rateOfFire, RoFModified);
 		
 		boolean reloadModified = selectedTier3 == 1 || selectedOverclock == 1 || selectedOverclock == 3;
 		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, reloadModified);
@@ -518,10 +520,10 @@ public class Shotgun extends Weapon {
 		}
 		
 		if (burst) {
-			duration = ((double) getMagazineSize()) / getRateOfFire();
+			duration = ((double) getMagazineSize()) / getCustomRoF();
 		}
 		else {
-			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+			duration = (((double) getMagazineSize()) / getCustomRoF()) + getReloadTime();
 		}
 		
 		double dmgPerPellet = getDamagePerPellet();
@@ -543,7 +545,7 @@ public class Shotgun extends Weapon {
 		
 		if (selectedOverclock == 0) {
 			// Stunner OC damage multiplier
-			dmgPerPellet *= averageBonusPerMagazineForShortEffects(1.3, 3.0, false, calculateCumulativeStunChancePerShot(), getMagazineSize(), getRateOfFire());
+			dmgPerPellet *= averageBonusPerMagazineForShortEffects(1.3, 3.0, false, calculateCumulativeStunChancePerShot(), getMagazineSize(), getCustomRoF());
 		}
 		
 		double weakpointAccuracy;
@@ -583,7 +585,7 @@ public class Shotgun extends Weapon {
 	public double calculateFiringDuration() {
 		int magSize = getMagazineSize();
 		int carriedAmmo = getCarriedAmmo();
-		double timeToFireMagazine = ((double) magSize) / getRateOfFire();
+		double timeToFireMagazine = ((double) magSize) / getCustomRoF();
 		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
 	
@@ -613,7 +615,7 @@ public class Shotgun extends Weapon {
 		double mass = 4.0;
 		double springStiffness = 75.0;
 		
-		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
+		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getCustomRoF(), getMagazineSize(), 1, 
 				horizontalBaseSpread, verticalBaseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, minSpreadWhileMoving, 
 				recoilPitch, recoilYaw, mass, springStiffness);
 	}
@@ -686,7 +688,7 @@ public class Shotgun extends Weapon {
 	
 	@Override
 	public double timeToFireMagazine() {
-		return getMagazineSize() / getRateOfFire();
+		return getMagazineSize() / getCustomRoF();
 	}
 	
 	@Override
