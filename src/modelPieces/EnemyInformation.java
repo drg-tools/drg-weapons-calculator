@@ -648,8 +648,10 @@ public class EnemyInformation {
 			// Bypasses all Armor types
 			lightArmorReduction = 1.0;
 			
-			// Multiplies Direct Damage by x3
-			directDamageByType = MathUtils.vectorScalarMultiply(3.0, directDamageByType);
+			// Multiplies Direct Damage by x3 (except for Flying Nightmare)
+			if (!flyingNightmare) {
+				directDamageByType = MathUtils.vectorScalarMultiply(3.0, directDamageByType);
+			}
 			
 			// Removes any damage from Burning DoT. For now, Temperature Shock will remain unmodeled in Breakpoints but it's something that would be done in here somewhere.
 			DoTDamageByType[0] = 0;

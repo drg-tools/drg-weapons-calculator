@@ -7,7 +7,6 @@ import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
 import utilities.MathUtils;
 
-// TODO: disable the Frozen status effect for Flying Nightmare (Breakpoints at minimum)
 public class EPC_ChargeShot extends EPC {
 	
 	/****************************************************************************************
@@ -119,12 +118,26 @@ public class EPC_ChargeShot extends EPC {
 			Additionally, the burst dps == sustained dps == sustained weakpoint dps == sustained weakpoint + accuracy dps because the charged shots' direct damage don't deal weakpoint damage, 
 			the accuracy is ignored because it's manually aimed, and the magSize is effectively 1 due to the overheat mechanic.
 		*/
-		if (selectedTier5 == 0) {
-			// Special case: Flying Nightmare does the Charged Direct Damage to any enemies it passes through, but it no longer explodes for its Area Damage upon impact. As a result, it also cannot proc Persistent Plasma
-			return getChargedDirectDamage() * getRateOfFire();
+		double directDamage = getChargedDirectDamage();
+		double areaDamage = getChargedAreaDamage();
+		
+		// Frozen
+		if (statusEffects[1] && selectedTier5 != 0) {
+			// Flying Nightmare doesn't benefit from Frozen
+			directDamage *= UtilityInformation.Frozen_Damage_Multiplier;
+		}
+		// IFG Grenade
+		if (statusEffects[3]) {
+			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
+			areaDamage *= UtilityInformation.IFG_Damage_Multiplier;
 		}
 		
-		double baseDPS = (getChargedDirectDamage() + getChargedAreaDamage()) * getRateOfFire();
+		if (selectedTier5 == 0) {
+			// Special case: Flying Nightmare does the Charged Direct Damage to any enemies it passes through, but it no longer explodes for its Area Damage upon impact. As a result, it also cannot proc Persistent Plasma until it hits terrain.
+			return directDamage * getRateOfFire();
+		}
+		
+		double baseDPS = (directDamage + areaDamage) * getRateOfFire();
 		
 		if (selectedOverclock == 5) {
 			return baseDPS + DoTInformation.Plasma_DPS;
@@ -243,15 +256,31 @@ public class EPC_ChargeShot extends EPC {
 			0,  // Electric
 		};
 		
-		// Thin Containment Field converts all Area Damage to Fire Element
-		if (selectedTier5 == 1) {
+		// Flying Nightmare converts all Direct Damage to Fire element and removes Area Damage.
+		if (selectedTier5 == 0) {
+			dDamage[0] = 0;
+			dDamage[2] = getChargedDirectDamage();
+			dDamage[4] = 0;
+			
+			aDamage[0] = 0;
+			aDamage[1] = 0;
+			aDamage[2] = 0;
+		}
+		
+		// Thin Containment Field converts all Area Damage to Fire Element and removes Direct Damage.
+		else if (selectedTier5 == 1) {
+			dDamage[0] = 0;
+			dDamage[2] = 0;
+			dDamage[4] = 0;
+			
 			aDamage[0] = 0;
 			aDamage[1] = 0;
 			aDamage[2] = getChargedAreaDamage();
 		}
 		
 		double persistentPlasmaDamage = 0;
-		if (selectedOverclock == 5) {
+		// Flying Nightmare only gets Persistent Plasma when it impacts terrain.
+		if (selectedOverclock == 5 && selectedTier5 != 0) {
 			persistentPlasmaDamage = calculateAverageDoTDamagePerEnemy(0, 7.6, DoTInformation.Plasma_DPS);
 		}
 		double[] DoTDamage = {
