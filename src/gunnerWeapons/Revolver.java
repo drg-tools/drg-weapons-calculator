@@ -20,7 +20,6 @@ import spreadCurves.RevolverCurve;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
-// TODO: make Volatile Bullets multiply Area Damage by x4, and add the 300% as Fire-element in Breakpoints
 public abstract class Revolver extends Weapon {
 	
 	/****************************************************************************************
@@ -101,7 +100,7 @@ public abstract class Revolver extends Weapon {
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, overclockIcons.homebrewPowder, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 33% chance to ricochet into a nearby enemy.", overclockIcons.ricochet, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Bullets", "x4 Damage to Burning targets, -25 Direct Damage", overclockIcons.heatDamage, 2);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Bullets", "x4 Direct and Area Damage to Burning targets, -25 Direct Damage", overclockIcons.heatDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Six Shooter", "+2 Magazine Size, +8 Max Ammo, +4 Rate of Fire, x1.5 Base Spread, +0.5 Reload Time", overclockIcons.magSize, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -13 Max Ammo, +0.5 Reload Time, x0.5 Base Spread, +71% Spread per Shot, x1.5 Max Bloom, x1.5 Recoil, +3.5 Mass", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Magic Bullets", "All bullets that impact terrain automatically ricochet to nearby enemies (effectively raising accuracy to 100%). +8 Max Ammo, -20 Direct Damage", overclockIcons.ricochet, 5);
@@ -552,9 +551,10 @@ public abstract class Revolver extends Weapon {
 			directDamage *= armorWaste;
 		}
 		
-		// OC Volatile Bullets deals x4 Direct Damage to Burning targets
+		// OC Volatile Bullets deals x4 Direct and Area Damage to Burning targets
 		if (selectedOverclock == 2 && statusEffects[0]) {
 			directDamage *= 4.0;
+			areaDamage *= 4.0;
 		}
 		// Frozen
 		if (statusEffects[1]) {
@@ -802,8 +802,10 @@ public abstract class Revolver extends Weapon {
 	public int breakpoints() {
 		
 		double directFireDamage = 0;
+		double areaFireDamage = 0;
 		if (selectedOverclock == 2 && statusEffects[0]) {
 			directFireDamage = 3.0 * getDirectDamage();
+			areaFireDamage = 3.0 * getAreaDamage();
 		}
 		
 		double[] directDamage = {
@@ -817,7 +819,7 @@ public abstract class Revolver extends Weapon {
 		double[] areaDamage = {
 			0,  // Kinetic
 			getAreaDamage(),  // Explosive
-			0,  // Fire
+			areaFireDamage,  // Fire
 			0,  // Frost
 			0  // Electric
 		};
@@ -868,7 +870,7 @@ public abstract class Revolver extends Weapon {
 		double damagePerShot;
 		if (selectedTier3 == 0) {
 			// Blowthrough Rounds
-			damagePerShot = getDirectDamage() * (1 + getMaxPenetrations());
+			damagePerShot = getDirectDamage() * (1 + getMaxPenetrations() + getMaxRicochets());
 		}
 		else if (selectedTier3 == 1) {
 			// Explosive Rounds
