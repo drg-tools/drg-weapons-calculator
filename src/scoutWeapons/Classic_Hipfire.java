@@ -76,7 +76,7 @@ public class Classic_Hipfire extends Classic {
 		return toReturn;
 	}
 	@Override
-	protected double getRateOfFire() {
+	public double getRateOfFire() {
 		double toReturn = rateOfFire;
 		
 		if (selectedOverclock == 3) {

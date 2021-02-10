@@ -569,6 +569,16 @@ public abstract class Weapon extends Observable {
 		// This will be a logic error for any class that has customizableRoF=true but doesn't initialize the customRoF=getRateOfFire()
 		if (customizableRoF && newRoF > 0 && newRoF <= getRateOfFire()) {
 			customRoF = newRoF;
+			
+			// This method is only called from the GUI, so I have to refresh said GUI for users to see the change.
+			// Un-set these values for the new build
+			metric_generalAccuracy = -100;
+			metric_weakpointAccuracy = -100;
+						
+			if (countObservers() > 0) {
+				setChanged();
+				notifyObservers();
+			}
 		}
 	}
 	public double getCustomRoF() {
@@ -579,8 +589,12 @@ public abstract class Weapon extends Observable {
 			return getRateOfFire();
 		}
 	}
-	protected double getRateOfFire() {
+	public double getRateOfFire() {
 		// This method only exists to be overridden in child classes, but it's necessary to make the user-set RoF trick work. :(
+		return -1;
+	}
+	public double getRecommendedRateOfFire() {
+		// Another useless getter unless the Weapon works with the user-set RoF trick.
 		return -1;
 	}
 	

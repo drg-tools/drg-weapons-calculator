@@ -360,7 +360,7 @@ public class Revolver extends Weapon {
 		}
 		return toReturn;
 	}
-	protected double getRateOfFire() {
+	public double getRateOfFire() {
 		double toReturn = rateOfFire;
 		
 		if (selectedOverclock == 3) {
@@ -550,7 +550,8 @@ public class Revolver extends Weapon {
 		
 		I'm a bit worried that this is counter-intuitive in comparison to how the rest of the weapons are modeled, but I think this is a better approximation for how this weapon gets used in-game.
 	*/
-	private double calculateAccurateRoF() {
+	@Override
+	public double getRecommendedRateOfFire() {
 		// Variables copied from estimatedAccuracy() to reverse-calculate the slow RoF needed for high accuracy
 		double spreadPerShot = getSpreadPerShotValue();
 		double spreadRecoverySpeed = 6.0;

@@ -359,7 +359,7 @@ public class BurstPistol extends Weapon {
 		return toReturn;
 	}
 	@Override
-	protected double getRateOfFire() {
+	public double getRateOfFire() {
 		double toReturn = rateOfFire;
 		
 		if (selectedTier2 == 2) {

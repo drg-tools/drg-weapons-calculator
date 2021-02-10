@@ -47,7 +47,7 @@ public class EPC_ChargeShot extends EPC {
 	****************************************************************************************/
 	
 	@Override
-	protected double getRateOfFire() {
+	public double getRateOfFire() {
 		double timeToFireChargedShot = getChargedShotWindup();
 		double timeToCoolDownAfterChargedShot = getCooldownDuration();
 		

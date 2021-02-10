@@ -88,7 +88,7 @@ public class Classic_FocusShot extends Classic {
 		return toReturn / 2;
 	}
 	@Override
-	protected double getRateOfFire() {
+	public double getRateOfFire() {
 		double delayBetweenShots = 1 / rateOfFire;
 		if (selectedOverclock == 3) {
 			// Hipster's +3 RoF translates to a shorter delay between focused shots.

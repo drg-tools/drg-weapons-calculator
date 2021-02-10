@@ -17,6 +17,7 @@ import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
+// TODO: Recoil Dampener is returning a negative recommended RoF? 
 public class Shotgun extends Weapon {
 	
 	/****************************************************************************************
@@ -331,7 +332,7 @@ public class Shotgun extends Weapon {
 		return toReturn;
 	}
 	@Override
-	protected double getRateOfFire() {
+	public double getRateOfFire() {
 		double toReturn = rateOfFire;
 		
 		if (selectedTier1 == 0) {
@@ -488,7 +489,8 @@ public class Shotgun extends Weapon {
 	}
 	
 	// Adapted from Gunner/Revolver
-	private double calculateAccurateRoF() {
+	@Override
+	public double getRecommendedRateOfFire() {
 		double recoilPitch = 55 * getRecoil();
 		double recoilYaw = 40 * getRecoil();
 		double mass = 4.0;

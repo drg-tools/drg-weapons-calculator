@@ -125,7 +125,6 @@ public class WeaponTab extends JPanel {
 	
 	private JPanel constructCustomRofPanel() {
 		JPanel toReturn = new JPanel();
-		toReturn.setBackground(GuiConstants.drgBackgroundBrown);
 		toReturn.setBorder(GuiConstants.blackLine);
 		toReturn.setLayout(new BorderLayout());
 		

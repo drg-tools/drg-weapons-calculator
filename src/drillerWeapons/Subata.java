@@ -338,7 +338,7 @@ public class Subata extends Weapon {
 		return toReturn;
 	}
 	@Override
-	protected double getRateOfFire() {
+	public double getRateOfFire() {
 		double toReturn = rateOfFire;
 		
 		if (selectedOverclock == 3) {
@@ -432,6 +432,11 @@ public class Subata extends Weapon {
 		else {
 			return 0;
 		}
+	}
+	
+	@Override
+	public double getRecommendedRateOfFire() {
+		return 6;
 	}
 	
 	@Override

@@ -410,7 +410,7 @@ public class BreachCutter extends Weapon {
 		
 		return toReturn;
 	}
-	protected double getRateOfFire() {
+	public double getRateOfFire() {
 		// OC "Return to Sender" changes max RoF from 1.5 to 1/(2/3 * Lifetime)
 		if (selectedOverclock == 3) {
 			// This assumes that people let go of the trigger at the two-thirds distance

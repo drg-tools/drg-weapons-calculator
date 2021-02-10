@@ -7,6 +7,7 @@ import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
 import utilities.MathUtils;
 
+// TODO: with low enough custom RoF the magazine Size can become negative or go as high as the entire Battery. sanitize the outputs of that method.
 public class EPC_RegularShot extends EPC {
 	
 	/****************************************************************************************
@@ -48,8 +49,13 @@ public class EPC_RegularShot extends EPC {
 	****************************************************************************************/
 	
 	@Override
-	protected double getRateOfFire() {
+	public double getRateOfFire() {
 		return rateOfFire;
+	}
+	
+	@Override
+	public double getRecommendedRateOfFire() {
+		return 6;
 	}
 	
 	private int getNumRegularShotsBeforeOverheat() {

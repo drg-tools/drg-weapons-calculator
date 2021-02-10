@@ -336,7 +336,7 @@ public class AssaultRifle extends Weapon {
 		return toReturn;
 	}
 	@Override
-	protected double getRateOfFire() {
+	public double getRateOfFire() {
 		double toReturn = rateOfFire;
 		
 		if (selectedTier1 == 1) {

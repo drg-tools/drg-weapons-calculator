@@ -94,7 +94,7 @@ public class AccuracyEstimatorSettingsButton extends JButton implements ActionLi
 		int currentDistance = (int) toUpdate.getAccuracyDistance();
 		JSlider accuracyDistanceSlider = new JSlider(JSlider.HORIZONTAL, 1, 19, currentDistance);
 		accuracyDistanceSlider.setMajorTickSpacing(3);
-		accuracyDistanceSlider.setMajorTickSpacing(1);
+		accuracyDistanceSlider.setMinorTickSpacing(1);
 		accuracyDistanceSlider.setPaintTicks(true);
 		accuracyDistanceSlider.setPaintLabels(true);
 
