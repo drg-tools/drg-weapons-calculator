@@ -20,6 +20,7 @@ import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
+// TODO: fix the logic bug in AvgRoF that bypasses T3.A's RoF for Min=Max early exit
 public class Autocannon extends Weapon {
 	
 	/****************************************************************************************

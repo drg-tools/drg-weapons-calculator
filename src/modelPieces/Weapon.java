@@ -22,6 +22,8 @@ public abstract class Weapon extends Observable {
 	protected String fullName;
 	protected BufferedImage weaponPic;
 	protected boolean customizableRoF = false;
+	// This value gets set back to 0 after every mod/OC selection so that changing the build resets CustomRoF to max RoF, and once the user has settled on a build they can tweak the RoF via the GUI.
+	// It may feel frustrating for the user, but it neatly sidesteps an issue where the CustomRoF could be greater than the new Max RoF and artificially inflates the DPS stats.
 	protected double customRoF = 0;
 	// Since several of the weapons have a Homebrew Powder mod or OC, I'm adding this coefficient in the parent class so that they can all be updated simultaneously.
 	// Taking the (integral of x dx from 0.8 -> 1.4) / (1.4 - 0.8) results in the intuitive 1.1
@@ -241,6 +243,7 @@ public abstract class Weapon extends Observable {
 			// Un-set these values for the new build
 			metric_generalAccuracy = -100;
 			metric_weakpointAccuracy = -100;
+			customRoF = 0;
 			
 			if (currentlyDealsSplashDamage()) {
 				setAoEEfficiency();
@@ -321,6 +324,7 @@ public abstract class Weapon extends Observable {
 			// Un-set these values for the new build
 			metric_generalAccuracy = -100;
 			metric_weakpointAccuracy = -100;
+			customRoF = 0;
 			
 			if (currentlyDealsSplashDamage()) {
 				setAoEEfficiency();
@@ -362,6 +366,7 @@ public abstract class Weapon extends Observable {
 			// Un-set these values for the new build
 			metric_generalAccuracy = -100;
 			metric_weakpointAccuracy = -100;
+			customRoF = 0;
 			
 			if (currentlyDealsSplashDamage()) {
 				setAoEEfficiency();
@@ -391,6 +396,7 @@ public abstract class Weapon extends Observable {
 			// Un-set these values for the new build
 			metric_generalAccuracy = -100;
 			metric_weakpointAccuracy = -100;
+			customRoF = 0;
 			
 			if (currentlyDealsSplashDamage()) {
 				setAoEEfficiency();

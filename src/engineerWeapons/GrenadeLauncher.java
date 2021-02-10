@@ -19,6 +19,7 @@ import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
+// TODO: update T5.A Proximity Trigger with Dagadegatto's info.
 public class GrenadeLauncher extends Weapon {
 	
 	/****************************************************************************************

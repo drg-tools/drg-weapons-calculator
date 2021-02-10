@@ -19,6 +19,7 @@ import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
+// TODO: change T3.B from 50% slow to 55% (Elyth informed me that it's 0.9 * 0.5 = 0.45, instead of 1 - (0.1 + 0.4) = 0.5)
 public class Flamethrower extends Weapon {
 	
 	/****************************************************************************************

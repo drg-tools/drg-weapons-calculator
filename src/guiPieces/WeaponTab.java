@@ -17,6 +17,7 @@ import guiPieces.accuracyEstimator.AccuracyEstimatorSettingsButton;
 import guiPieces.accuracyEstimator.AccuracyVisualizerButton;
 import guiPieces.customButtons.AoEVisualizerButton;
 import guiPieces.customButtons.ButtonIcons;
+import guiPieces.customButtons.CustomRofButton;
 import guiPieces.customButtons.DPSToggleButton;
 import guiPieces.customButtons.GranularMetricButton;
 import guiPieces.customButtons.ModButton;
@@ -80,9 +81,19 @@ public class WeaponTab extends JPanel {
 		
 		gbc.gridx = 1;
 		gbc.gridy = 22;
-		gbc.gridwidth = 6;
+		gbc.gridwidth = 1;
 		gbc.gridheight = 2;
-		gbc.weightx = 6.0/7.0;
+		gbc.weightx = 1.0/7.0;
+		gbc.weighty = 2.0/31.0;
+		JPanel customRoF = constructCustomRofPanel();
+		gbl.setConstraints(customRoF, gbc);
+		this.add(customRoF);
+		
+		gbc.gridx = 2;
+		gbc.gridy = 22;
+		gbc.gridwidth = 5;
+		gbc.gridheight = 2;
+		gbc.weightx = 5.0/7.0;
 		gbc.weighty = 2.0/31.0;
 		JPanel statusEffectButtons = constructStatusEffectsPanel();
 		gbl.setConstraints(statusEffectButtons, gbc);
@@ -108,6 +119,22 @@ public class WeaponTab extends JPanel {
 		toReturn.setBorder(GuiConstants.blackLine);
 		
 		toReturn.add(new WeaponImagePanel(myWeapon.getPicture()));
+		
+		return toReturn;
+	}
+	
+	private JPanel constructCustomRofPanel() {
+		JPanel toReturn = new JPanel();
+		toReturn.setBackground(GuiConstants.drgBackgroundBrown);
+		toReturn.setBorder(GuiConstants.blackLine);
+		toReturn.setLayout(new BorderLayout());
+		
+		CustomRofButton setter = new CustomRofButton(this, myWeapon);
+		if (!myWeapon.isRofCustomizable()) {
+			setter.setEnabled(false);
+			setter.setBorder(GuiConstants.greyLine);
+		}
+		toReturn.add(setter, BorderLayout.CENTER);
 		
 		return toReturn;
 	}

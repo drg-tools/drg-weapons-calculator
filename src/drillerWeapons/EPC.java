@@ -21,6 +21,7 @@ import utilities.MathUtils;
 		Charge Speed 0.7
 */
 
+// TODO: update TCF with x0.25 Heat per Charged Shot stat.
 public abstract class EPC extends Weapon {
 	
 	/****************************************************************************************

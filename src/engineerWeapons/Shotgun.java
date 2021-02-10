@@ -487,6 +487,25 @@ public class Shotgun extends Weapon {
 		return false;
 	}
 	
+	// Adapted from Gunner/Revolver
+	private double calculateAccurateRoF() {
+		double recoilPitch = 55 * getRecoil();
+		double recoilYaw = 40 * getRecoil();
+		double mass = 4.0;
+		double springStiffness = 75;
+		
+		double v = Math.hypot(recoilPitch, recoilYaw);
+		double w = Math.sqrt(springStiffness / mass);
+		
+		// This numbers is chosen arbitrarily.
+		double desiredIncreaseInRecoil = 3.0;
+		
+		// This technically goes beyond the [-0.1, -0.001] range for this method, but I can't really be bothered to expand it beyond 20 segments...
+		double timeToRecoverRecoil = -1.0 * MathUtils.lambertInverseWNumericalApproximation(-w * desiredIncreaseInRecoil / v) / w;
+		
+		return Math.min(1.0 / timeToRecoverRecoil, getRateOfFire());
+	}
+	
 	private double calculateCumulativeStunChancePerShot() {
 		// Because Stunner changes it from weakpoints to anywhere on the body, I'm making the Accuracy change to reflect that.
 		double stunAccuracy;
