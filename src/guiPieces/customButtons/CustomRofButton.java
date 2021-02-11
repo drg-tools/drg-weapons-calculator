@@ -61,7 +61,7 @@ public class CustomRofButton extends JButton implements ActionListener, ChangeLi
 		int currentTick = 1 + (int) Math.round(currentRoF * 1000.0);
 		// Because JSlider only supports integers, I have to use 1000 integers to approximate doubles to 3 decimal places.
 		int numberOfTicks = 1 + (int) Math.round(maxRoF * 1000.0);
-		customRoFSlider = new JSlider(JSlider.HORIZONTAL, 1, currentTick, numberOfTicks);
+		customRoFSlider = new JSlider(JSlider.HORIZONTAL, 1, numberOfTicks, currentTick);
 		customRoFSlider.setMajorTickSpacing(1000);  // Every 1.0
 		customRoFSlider.setMinorTickSpacing(250);  // Every 0.25
 		customRoFSlider.setPaintTicks(true);
@@ -73,7 +73,7 @@ public class CustomRofButton extends JButton implements ActionListener, ChangeLi
 		}
 		
 		// If the above for-loop doesn't automatically create the recommended RoF as a label, this snippet will be a catch-all
-		int keyForRecommendation = 1 + (int) Math.round(recommendedRoF * 1000.0 );
+		int keyForRecommendation = 1 + (int) Math.round(recommendedRoF * 1000.0);
 		if (labelTable.get(keyForRecommendation) == null) {
 			labelTable.put(keyForRecommendation, new JLabel(MathUtils.round(recommendedRoF, 2) + ""));
 		}

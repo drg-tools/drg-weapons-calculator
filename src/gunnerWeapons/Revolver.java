@@ -561,16 +561,12 @@ public class Revolver extends Weapon {
 		double mass = getMass();
 		double springStiffness = 65;
 		
-		double v = Math.hypot(recoilPitch, recoilYaw);
-		double w = Math.sqrt(springStiffness / mass);
-		
 		// These numbers are chosen arbitrarily.
 		double desiredIncreaseInSpread = 2.5;
 		double desiredIncreaseInRecoil = 3.0;
 		
 		double timeToRecoverSpread = (spreadPerShot - desiredIncreaseInSpread) / spreadRecoverySpeed;
-		// This technically goes beyond the [-0.1, -0.001] range for this method, but I can't really be bothered to expand it beyond 20 segments...
-		double timeToRecoverRecoil = -1.0 * MathUtils.lambertInverseWNumericalApproximation(-w * desiredIncreaseInRecoil / v) / w;
+		double timeToRecoverRecoil = calculateTimeToRecoverRecoil(recoilPitch, recoilYaw, mass, springStiffness, desiredIncreaseInRecoil);
 		
 		double longerTime = Math.max(timeToRecoverSpread, timeToRecoverRecoil);
 		

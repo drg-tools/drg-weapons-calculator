@@ -947,6 +947,46 @@ public abstract class Weapon extends Observable {
 	public abstract StatsRow[] getStats();
 	public abstract Weapon clone();
 	
+	/*
+		This method is written out of frustration with having to do such an expanded numerical approximation of the Inverse Lambert function. Engineer's Shotgun Recoil
+		doesn't play nicely with that method, so I'm going to create a binary-search styled method that samples the output of the Recoil equation and then narrows in on
+		the desired value t, at which point it will return. To be clear: this is extremely inefficient to do computationally when the exact answer is technically calculable.
+		However, after adding 20 segments and it STILL not being enough, my patience for Inverse Lambert has run out and I'm making this monstrosity instead.
+		
+		Because it works.
+	*/
+	protected double calculateTimeToRecoverRecoil(double recoilPitch, double recoilYaw, double mass, double springStiffness, double goalRecoilValue) {
+		double desiredPrecision = 0.001;
+		
+		double v = Math.hypot(recoilPitch, recoilYaw);
+		double w = Math.sqrt(springStiffness / mass);
+		
+		// Because Recoil changes from a positive slope to a negative slope at 1/w, I can start my binary search there.
+		double minT = 1 / w;
+		double maxT = -1.0 * MathUtils.lambertInverseWNumericalApproximation(-w * 0.1 / v) / w;
+		double currentT = minT;
+		double currentRecoilValue =  Math.exp(-w * minT) * v * minT;
+		
+		while (currentRecoilValue + desiredPrecision < goalRecoilValue || currentRecoilValue - desiredPrecision > goalRecoilValue) {
+			if (currentRecoilValue + desiredPrecision > goalRecoilValue) {
+				minT = currentT;
+				currentT = (currentT + maxT) / 2.0;
+			}
+			else if (currentRecoilValue - desiredPrecision < goalRecoilValue) {
+				maxT = currentT;
+				currentT = (minT + currentT) / 2.0;
+			}
+			else {
+				// If by some bizarre coincidence currentT == goalRecoilValue, return immediately.
+				return currentT;
+			}
+			
+			currentRecoilValue =  Math.exp(-w * currentT) * v * currentT;
+		}
+		
+		return currentT;
+	}
+	
 	protected double calculateProbabilityToBreakLightArmor(double baseDamage) {
 		return calculateProbabilityToBreakLightArmor(baseDamage, 1.0);
 	}

@@ -496,14 +496,9 @@ public class Shotgun extends Weapon {
 		double mass = 4.0;
 		double springStiffness = 75;
 		
-		double v = Math.hypot(recoilPitch, recoilYaw);
-		double w = Math.sqrt(springStiffness / mass);
-		
-		// This numbers is chosen arbitrarily.
-		double desiredIncreaseInRecoil = 3.0;
-		
-		// This technically goes beyond the [-0.1, -0.001] range for this method, but I can't really be bothered to expand it beyond 20 segments...
-		double timeToRecoverRecoil = -1.0 * MathUtils.lambertInverseWNumericalApproximation(-w * desiredIncreaseInRecoil / v) / w;
+		// This number is chosen arbitrarily. Scaled proportionally from Revolver's 8.41:3 ratio to match Shotgun's 5.77 base Recoil.
+		double desiredIncreaseInRecoil = 2.058;
+		double timeToRecoverRecoil = calculateTimeToRecoverRecoil(recoilPitch, recoilYaw, mass, springStiffness, desiredIncreaseInRecoil);
 		
 		return Math.min(1.0 / timeToRecoverRecoil, getRateOfFire());
 	}
