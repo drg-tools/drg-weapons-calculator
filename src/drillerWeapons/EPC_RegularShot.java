@@ -7,7 +7,6 @@ import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
 import utilities.MathUtils;
 
-// TODO: with low enough custom RoF the magazine Size can become negative or go as high as the entire Battery. sanitize the outputs of that method.
 public class EPC_RegularShot extends EPC {
 	
 	/****************************************************************************************
@@ -61,13 +60,21 @@ public class EPC_RegularShot extends EPC {
 	private int getNumRegularShotsBeforeOverheat() {
 		double k = getCoolingRateModifier();
 		double h = getHeatPerRegularShot();
+		int batterySize = getBatterySize();
 		
 		// In-game my mouse has about a 60ms press/release timing, and by hand I can get around 6 RoF.
 		double timeBetweenPressAndReleaseOfFireButton = 0.06;  // 60 milliseconds
 		double timeCoolingRateIsActiveBetweenShots = (1.0 / getCustomRoF() - timeBetweenPressAndReleaseOfFireButton);
+		
+		// Early exit condition: if the time between firing Regular Shots is longer than the time it takes to cool down the heat from a Regular Shot, technically the mag size becomes the battery size.
+		if (timeCoolingRateIsActiveBetweenShots >= h / (coolingRate * k)) {
+			return batterySize;
+		}
+		
 		double exactAnswer = (maxHeat - coolingRate * k * timeCoolingRateIsActiveBetweenShots) / (h - coolingRate * k * timeCoolingRateIsActiveBetweenShots);
 		
-		return (int) Math.ceil(exactAnswer);
+		// Don't let this return a mag size larger than the battery size.
+		return Math.min((int) Math.ceil(exactAnswer), batterySize);
 	}
 	
 	@Override
