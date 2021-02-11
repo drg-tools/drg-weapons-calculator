@@ -46,7 +46,9 @@ public class EnemyInformation {
 		0.02,  // Naedocyte Breeder
 		0.02,  // Glyphid Brood Nexus
 		0.01,  // Spitball Infector
-		0.01   // Cave Leech
+		0.01,  // Cave Leech
+		0.00,  // Mactera Tri-Jaw
+		0.00   // Mactera Brundle
 	};
 	
 	// These are the actual statistics extracted from 153k kills from 6 players' Miner's Manual entries. Biome-specific enemies, "hatchling" enemy types, and Dreadnoughts not included.
@@ -72,7 +74,9 @@ public class EnemyInformation {
 		0.0006926293779, // Naedocyte Breeder
 		0.001731573445,  // Glyphid Brood Nexus
 		0.003149503398,  // Spitball Infector
-		0.003946680606   // Cave Leech
+		0.003946680606,  // Cave Leech
+		0.00,  // Mactera Tri-Jaw
+		0.00   // Mactera Brundle
 	};
 	
 	// These numbers are estimates of what percentage of bullets shot at each enemy type will hit the enemy's weakpoints
@@ -97,7 +101,9 @@ public class EnemyInformation {
 		0.1,  // Naedocyte Breeder
 		0.9,  // Glyphid Brood Nexus
 		0.4,  // Spitball Infector
-		0.0   // Cave Leech (no weakpoint)
+		0.0,  // Cave Leech (no weakpoint)
+		0.8,  // Mactera Tri-Jaw
+		0.6   // Mactera Brundle
 	};
 
 	// These numbers are taken straight from the Wiki
@@ -122,7 +128,9 @@ public class EnemyInformation {
 		3.0,  // Naedocyte Breeder
 		2.0,  // Glyphid Brood Nexus
 		2.0,  // Spitball Infector
-		0.0   // Cave Leech (no weakpoint)
+		0.0,  // Cave Leech (no weakpoint)
+		3.0,  // Mactera Tri-Jaw
+		3.0   // Mactera Brundle
 	};
 	
 	// These base values are just taken from the Wiki's default values; Hazard level and player count not factored in. (effectively Haz2, 4 players)
@@ -147,7 +155,9 @@ public class EnemyInformation {
 		1500,  // Naedocyte Breeder
 		1800,  // Glyphid Brood Nexus
 		800,   // Spitball Infector
-		100    // Cave Leech
+		100,   // Cave Leech
+		350,   // Mactera Tri-Jaw
+		600    // Mactera Brundle
 	};
 	
 	// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
@@ -189,7 +199,7 @@ public class EnemyInformation {
 		{0, 0, 0, 0},  				// Glyphid Webspitter
 		{0, 0, 0, -0.1},  			// Glyphid Acidspitter
 		{0, 0, 0, 0},  				// Glyphid Menace
-		{0, 0, 0, 0},  			// Glyphid Warden
+		{0, 0, 0, 0},  				// Glyphid Warden
 		{0.66, 0.66, 0.5, 0.25},  	// Glyphid Oppressor
 		{qronarShellbackRolling*0.8, qronarShellbackRolling*0.3 + qronarShellbackUnolled*-0.5, qronarShellbackRolling*0.3 + qronarShellbackUnolled*-0.7, qronarShellbackRolling*1.0},  // Q'ronar Shellback
 		{-1, -1, 0, -0.5},  		// Mactera Spawn
@@ -198,7 +208,9 @@ public class EnemyInformation {
 		{0, 0, 0, 0},  				// Naedocyte Breeder
 		{0, 0, 0, 0},  				// Glyphid Brood Nexus
 		{0, -1, 0, 0},  			// Spitball Infector
-		{0, 0, 0, 0}   				// Cave Leech
+		{0, 0, 0, 0},   			// Cave Leech
+		{-1, -1, 0, -0.5},  		// Mactera Tri-Jaw
+		{-1, -1, 0, -0.5}   		// Mactera Brundle
 	};
 	
 	// This info comes from Elythnwaen's Temperatures spreadsheet, and many of those values were seeded from MikeGSG giving us the values for the 5 "base" creature types.
@@ -224,7 +236,9 @@ public class EnemyInformation {
 		{60, 30, 10, -150, 0, 40},		// Naedocyte Breeder
 		{30/4.0, 0, 4, -50/4.0, 0, 4},	// Glyphid Brood Nexus
 		{30, 0, 10, -50, 0, 10},		// Spitball Infector
-		{30, 0, 10, -50, 0, 10}			// Cave Leech
+		{30, 0, 10, -50, 0, 10},		// Cave Leech
+		{35, 5, 10, -100, 0, 40}, 		// Mactera Tri-Jaw
+		{35, 5, 10, -200, 0, 40}  		// Mactera Brundle
 	};
 	
 	// This information comes straight from MikeGSG -- Thanks, Mike!
@@ -238,14 +252,14 @@ public class EnemyInformation {
 	
 	// This information extracted via UUU
 	private static double[] enemyCourageValues = {
-		0.0, // Glyphid Swarmer
+		0.0,  // Glyphid Swarmer
 		0.5,  // Glyphid Grunt
 		0.5,  // Glyphid Grunt Guard
 		0.5,  // Glyphid Grunt Slasher
 		0.5,  // Glyphid Praetorian
 		0.0,  // Glyphid Exploder
 		1.0,  // Glyphid Bulk Detonator
-		1.0, // Glyphid Crassus Detonator
+		1.0,  // Glyphid Crassus Detonator
 		0.3,  // Glyphid Webspitter
 		0.3,  // Glyphid Acidspitter
 		0.7,  // Glyphid Menace
@@ -258,10 +272,12 @@ public class EnemyInformation {
 		0.0,  // Naedocyte Breeder
 		0.0,  // Glyphid Brood Nexus
 		0.0,  // Spitball Infector
-		0.0   // Cave Leech
+		0.0,  // Cave Leech
+		0.0,  // Mactera Tri-Jaw
+		0.0   // Mactera Brundle
 	};
 	
-	// Used to determine average regular Fear duration. Enemies that can't move on the ground, fly, or can't be feared will have this value set to zero to maintain correct values.
+	// Used to determine average regular Fear duration. Enemies that fly, can't move on the ground, or can't be feared will have this value set to zero to maintain correct values.
 	// Additionally, all creatures that get Feared have a x1.5 speedboost, except for Oppressor (x2) and Bulk/Crassus/Dread (x1) which can only be feared by Field Medic/SYiH/Bosco Revive
 	// Values listed as m/sec groundspeed
 	private static double[] enemyFearMovespeed = {
@@ -285,7 +301,9 @@ public class EnemyInformation {
 		0.0,  // Naedocyte Breeder
 		0.0,  // Glyphid Brood Nexus
 		0.0,  // Spitball Infector
-		0.0   // Cave Leech
+		0.0,  // Cave Leech
+		0.0,  // Mactera Tri-Jaw
+		0.0   // Mactera Brundle
 	};
 	
 	private static double[] movespeedDifficultyScaling = {
@@ -345,7 +363,7 @@ public class EnemyInformation {
 		int i, enemyIndex;
 
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
-		int[] normalEnemyIndexes = {0, 1, 2, 3, 5, 8, 9, 14, 20};
+		int[] normalEnemyIndexes = {0, 1, 2, 3, 5, 8, 9, 14, 20, 21, 22};
 		double normalEnemyHealth = 0;
 		for (i = 0; i < normalEnemyIndexes.length; i++) {
 			enemyIndex = normalEnemyIndexes[i];
@@ -585,7 +603,7 @@ public class EnemyInformation {
 	}
 	
 	public static double averageDifficultyScalingResistance() {
-		int[] normalEnemyIndexes = {0, 1, 2, 3, 5, 8, 9, 14, 20};
+		int[] normalEnemyIndexes = {0, 1, 2, 3, 5, 8, 9, 14, 20, 21, 22};
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		int[] largeEnemyIndexes = {4, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19};
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
@@ -620,7 +638,8 @@ public class EnemyInformation {
 	*/
 	public static int[] calculateBreakpoints(double[] directDamageByType, double[] areaDamageByType, double[] DoTDamageByType, double weakpointModifier, double macteraModifier, 
 											 double singleBurstOfHeat, boolean frozen, boolean IFG, boolean flyingNightmare) {
-		int[] creaturesToModel = {0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 14, 15, 16, 20};
+		// I haven't yet modeled Armor Breaking in this method, so I can't do Mactera Brundle yet.
+		int[] creaturesToModel = {0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 14, 15, 16, 20, 21};
 		
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
@@ -629,13 +648,13 @@ public class EnemyInformation {
 		double burnDPS = DoTInformation.Burn_DPS;
 		ArrayList<Integer> toReturn = new ArrayList<Integer>();
 		
-		HashSet<Integer> normalEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 1, 2, 3, 5, 8, 9, 14, 20}));
+		HashSet<Integer> normalEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 1, 2, 3, 5, 8, 9, 14, 20, 21, 22}));
 		HashSet<Integer> largeEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {4, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19}));
 		// Grunts, Guards, Slashers, Webspitters, and Acidspitters intentionally neglected from this list since they are entirely covered by Light Armor except for their Weakpoints
-		HashSet<Integer> indexesWithNormalHealth = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 4, 5, 6, 7, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20}));
+		HashSet<Integer> indexesWithNormalHealth = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 4, 5, 6, 7, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22}));
 		HashSet<Integer> indexesWithLightArmor = new HashSet<Integer>(Arrays.asList(new Integer[] {1, 2, 3, 8, 9}));
 		HashSet<Integer> indexesWithoutWeakpoints = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 20}));
-		HashSet<Integer> indexesOfMacteras = new HashSet<Integer>(Arrays.asList(new Integer[] {14, 15, 16}));
+		HashSet<Integer> indexesOfMacteras = new HashSet<Integer>(Arrays.asList(new Integer[] {14, 15, 16, 21, 22}));
 		// Glyphid Swarmers and Exploders have so little HP, it's not practical to model DoTs on them for Breakpoints
 		HashSet<Integer> indexesOfEnemiesShouldNotHaveDoTs = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 5}));
 		
@@ -764,6 +783,7 @@ public class EnemyInformation {
 			Glyphid Menace
 			Glyphid Warden
 			Q'ronar Shellback
+			Mactera Brundle
 			
 		For most enemies in the list, I'm going to model it as if every shot fired has Weakpoint Accuracy percent of the Direct Damage hit the Weakpoint, 
 		(General Accuracy - Weakpoint Accuracy) percent hit up to 6 armor plates simultaneously and have its damage reduced accordingly, and 
@@ -771,9 +791,9 @@ public class EnemyInformation {
 		Direct Damage is the only way I can think of to produce consistent, repeatable results from this type of mechanic. If I didn't use this method, it would be a 
 		lot of RNG rolls to model and that would produce different results even for the same build different times.
 		
-		There will be a couple exceptions to this pattern: Praetorian and Shellback. Praetorian will have General Accuracy percent of Direct Damage hit its mouth, and 
+		There will be a couple exceptions to this pattern: Praetorian, Shellback, and Brundle. Praetorian will have General Accuracy percent of Direct Damage hit its mouth, and 
 		(100% - General Accuracy) percent of Direct Damage hit the Heavy Armor plates around the mouth. Shellbacks will have General Accuracy percentage of Direct Damage
-		hit its plates until they're broken.
+		hit its plates until they're broken. Brundles take no damage until their Heavy Armor is broken, and then they take 3x Weakpoint damage.
 		
 		I'm choosing to let Overkill damage be counted as damage dealt. Too complicated to keep track of while simultaneously doing Armor stuff.
 	*/
@@ -792,6 +812,7 @@ public class EnemyInformation {
 			{10, 0, (1*1 + 2*10)/3.0, 3, 0},  	// Glyphid Menace
 			{11, 0, 15, 3, 0},  				// Glyphid Warden
 			{13, 0, 0, 6, (6*70 + 14*30)/20},  	// Q'ronar Shellback
+			{22, 0, 0, 2, 80}					// Mactera Brundle
 		};
 		
 		double[][] toReturn = new double[2][creaturesArmorMatrix.length];
@@ -912,6 +933,64 @@ public class EnemyInformation {
 						}
 						else {
 							damageDealtPerPellet += directDamage;
+						}
+						
+						actualDamageDealt += damageDealtPerPellet;
+						baseHealth -= damageDealtPerPellet;
+					}
+					
+					// Second, Area Damage
+					totalDamageSpent += areaDamage;
+					if (embeddedDetonators) {
+						if (heavyArmorPlateHealth == 0) {
+							actualDamageDealt += areaDamage;
+							baseHealth -= areaDamage;
+						}
+					}
+					else {
+						if (heavyArmorPlateHealth > 0) {
+							heavyArmorPlateHealth = Math.max(heavyArmorPlateHealth - areaDamage * armorBreaking, 0);
+						}
+						
+						actualDamageDealt += areaDamage;
+						baseHealth -= areaDamage;
+					}
+				}
+			}
+			else if (i == 9) {
+				// Special case: Mactera Brundle
+				baseHealth *= normalResistance;
+				
+				totalDamageSpent = 0;
+				actualDamageDealt = 0;
+				while (baseHealth > 0) {
+					// First, Direct Damage
+					for (j = 0; j < numPellets; j++) {
+						totalDamageSpent += directDamage * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex];
+						damageDealtPerPellet = 0;
+						if (heavyArmorPlateHealth > 0) {
+							if (armorBreaking > 1.0) {
+								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
+									damageDealtPerPellet += directDamage * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex];
+									heavyArmorPlateHealth = 0;
+								}
+								else {
+									// Direct Damage insufficient to break the Heavy Armor Plate
+									heavyArmorPlateHealth -= directDamage * armorBreaking;
+								}
+							}
+							else {
+								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
+									heavyArmorPlateHealth = 0;
+								}
+								else {
+									// Direct Damage insufficient to break the Heavy Armor Plate
+									heavyArmorPlateHealth -= directDamage * armorBreaking;
+								}
+							}
+						}
+						else {
+							damageDealtPerPellet += directDamage * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex];
 						}
 						
 						actualDamageDealt += damageDealtPerPellet;
@@ -1083,7 +1162,7 @@ public class EnemyInformation {
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
-		HashSet<Integer> normalEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 1, 2, 3, 5, 8, 9, 14, 20}));
+		HashSet<Integer> normalEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 1, 2, 3, 5, 8, 9, 14, 20, 21, 22}));
 		HashSet<Integer> largeEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {4, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19}));
 		
 		double creatureHP;

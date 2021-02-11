@@ -1372,7 +1372,9 @@ public abstract class Weapon extends Observable {
 		toReturn[21] = new StatsRow("Mactera Grabber (Weakpoint):", breakpoints[21], null, false);
 		toReturn[22] = new StatsRow("Mactera Goo Bomber:", breakpoints[22], null, false);
 		toReturn[23] = new StatsRow("Mactera Goo Bomber (Weakpoint):    ", breakpoints[23], null, false);  // Added spaces at the end to create some whitespace in the JPanel
-		toReturn[24] = new StatsRow("Cave Leech:", breakpoints[24], null, false);
+		toReturn[24] = new StatsRow("Mactera Tri-Jaw:", breakpoints[25], null, false);
+		toReturn[25] = new StatsRow("Mactera Tri-Jaw (Weakpoint):", breakpoints[26], null, false);
+		toReturn[26] = new StatsRow("Cave Leech:", breakpoints[24], null, false);
 		
 		return toReturn;
 	}
@@ -1420,6 +1422,7 @@ public abstract class Weapon extends Observable {
 		toReturn[6] = new StatsRow("Glyphid Menace:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][6], GuiConstants.numDecimalPlaces) + "%", null, false);
 		toReturn[7] = new StatsRow("Glyphid Warden:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][7], GuiConstants.numDecimalPlaces) + "%", null, false);
 		toReturn[8] = new StatsRow("Q'ronar Shellback:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][8], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[9] = new StatsRow("Mactera Brundle:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][9], GuiConstants.numDecimalPlaces) + "%", null, false);
 		
 		return toReturn;
 	}
@@ -1444,10 +1447,12 @@ public abstract class Weapon extends Observable {
 		toReturn[14] = new StatsRow("Mactera Spawn:", MathUtils.round(overkillPercentages[1][14], GuiConstants.numDecimalPlaces) + "%", null, false);
 		toReturn[15] = new StatsRow("Mactera Grabber:", MathUtils.round(overkillPercentages[1][15], GuiConstants.numDecimalPlaces) + "%", null, false);
 		toReturn[16] = new StatsRow("Mactera Goo Bomber:", MathUtils.round(overkillPercentages[1][16], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[17] = new StatsRow("Naedocyte Breeder:", MathUtils.round(overkillPercentages[1][17], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[18] = new StatsRow("Glyphid Brood Nexus:", MathUtils.round(overkillPercentages[1][18], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[19] = new StatsRow("Spitball Infector:", MathUtils.round(overkillPercentages[1][19], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[20] = new StatsRow("Cave Leech:", MathUtils.round(overkillPercentages[1][20], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[17] = new StatsRow("Mactera Tri-Jaw:", MathUtils.round(overkillPercentages[1][21], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[18] = new StatsRow("Mactera Brundle:", MathUtils.round(overkillPercentages[1][22], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[19] = new StatsRow("Naedocyte Breeder:", MathUtils.round(overkillPercentages[1][17], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[20] = new StatsRow("Glyphid Brood Nexus:", MathUtils.round(overkillPercentages[1][18], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[21] = new StatsRow("Spitball Infector:", MathUtils.round(overkillPercentages[1][19], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[22] = new StatsRow("Cave Leech:", MathUtils.round(overkillPercentages[1][20], GuiConstants.numDecimalPlaces) + "%", null, false);
 		
 		return toReturn;
 	}
