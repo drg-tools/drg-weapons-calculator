@@ -19,7 +19,6 @@ import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
-// TODO: change T3.B from 50% slow to 55% (Elyth informed me that it's 0.9 * 0.5 = 0.45, instead of 1 - (0.1 + 0.4) = 0.5)
 public class Flamethrower extends Weapon {
 	
 	/****************************************************************************************
@@ -102,7 +101,7 @@ public class Flamethrower extends Weapon {
 		
 		tier3 = new Mod[3];
 		tier3[0] = new Mod("Oversized Valves", "+1.8 Flow Rate", modIcons.rateOfFire, 3, 0);
-		tier3[1] = new Mod("Sticky Flame Slowdown", "Increases Sticky Flames' slow from 10% to 50%", modIcons.slowdown, 3, 1);
+		tier3[1] = new Mod("Sticky Flame Slowdown", "Increases Sticky Flames' slow from 10% to 55%", modIcons.slowdown, 3, 1);
 		tier3[2] = new Mod("More Fuel", "+75 Max Fuel", modIcons.carriedAmmo, 3, 2);
 		
 		tier4 = new Mod[3];
@@ -410,10 +409,11 @@ public class Flamethrower extends Weapon {
 		return toReturn;
 	}
 	private double getSFSlow() {
+		// From Elythnwaen: T3.B is actually a x0.5 multiplier applied to the baseline x0.9, so 0.9 * 0.5 = 0.45, which is a 55% slow, not 50%.
 		double toReturn = stickyFlamesSlow;
 		
 		if (selectedTier3 == 1) {
-			toReturn += 0.4;
+			toReturn += 0.45;
 		}
 		
 		return toReturn;
