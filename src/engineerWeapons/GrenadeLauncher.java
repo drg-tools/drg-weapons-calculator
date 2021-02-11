@@ -19,7 +19,6 @@ import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
-// TODO: update T5.A Proximity Trigger with Dagadegatto's info.
 public class GrenadeLauncher extends Weapon {
 	
 	/****************************************************************************************
@@ -97,8 +96,8 @@ public class GrenadeLauncher extends Weapon {
 		tier4[2] = new Mod("Concussive Blast", "Stuns creatures within the blast radius for 3 seconds", modIcons.stun, 4, 2);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Proximity Trigger", "Launched grenades will only detonate when they are in close proximity to an enemy or after the projectile comes to a complete stop. "
-				+ "Note: the trigger takes a moment to arm, indicated by a green light, and until then the grenade functions as usual.", modIcons.special, 5, 0, false);
+		tier5[0] = new Mod("Proximity Trigger", "After being fired, grenades that pass within 2m of an enemy will detonate after a 0.1 sec delay. If it never passes that close to an enemy, it will automatically detonate when it stops moving. "
+				+ "Note: the trigger takes a moment to arm (indicated by a green light) and until then the grenade functions as usual.", modIcons.special, 5, 0, false);
 		tier5[1] = new Mod("Spiky Grenade", "+60 Direct Damage to any target directly impacted by a grenade.", modIcons.directDamage, 5, 1);
 		
 		overclocks = new Overclock[6];
