@@ -17,7 +17,6 @@ import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
-// TODO: Recoil Dampener is returning a negative recommended RoF? 
 public class Shotgun extends Weapon {
 	
 	/****************************************************************************************

@@ -832,15 +832,24 @@ public class EnemyInformation {
 						totalDamageSpent += directDamage;
 						damageDealtPerPellet = proportionOfDamageThatHitsMouth * directDamage;
 						if (heavyArmorPlateHealth > 0) {
-							if (directDamage * proportionOfDamageThatHitsArmor * armorBreaking > heavyArmorPlateHealth) {
-								if (armorBreaking > 1.0) {
-									damageDealtPerPellet += proportionOfDamageThatHitsArmor * directDamage - heavyArmorPlateHealth / armorBreaking;
+							if (armorBreaking > 1.0) {
+								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
+									damageDealtPerPellet += proportionOfDamageThatHitsArmor * directDamage;
+									heavyArmorPlateHealth = 0;
 								}
-								heavyArmorPlateHealth = 0;
+								else {
+									// Direct Damage insufficient to break the Heavy Armor Plate
+									heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
+								}
 							}
 							else {
-								// Direct Damage insufficient to break the Heavy Armor Plate
-								heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
+								if (directDamage * proportionOfDamageThatHitsArmor * armorBreaking > heavyArmorPlateHealth) {
+									heavyArmorPlateHealth = 0;
+								}
+								else {
+									// Direct Damage insufficient to break the Heavy Armor Plate
+									heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
+								}
 							}
 						}
 						else {
@@ -881,15 +890,24 @@ public class EnemyInformation {
 						totalDamageSpent += directDamage;
 						damageDealtPerPellet = 0;
 						if (heavyArmorPlateHealth > 0) {
-							if (directDamage * armorBreaking > heavyArmorPlateHealth) {
-								if (armorBreaking > 1.0) {
-									damageDealtPerPellet += directDamage - heavyArmorPlateHealth / armorBreaking;
+							if (armorBreaking > 1.0) {
+								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
+									damageDealtPerPellet += directDamage;
+									heavyArmorPlateHealth = 0;
 								}
-								heavyArmorPlateHealth = 0;
+								else {
+									// Direct Damage insufficient to break the Heavy Armor Plate
+									heavyArmorPlateHealth -= directDamage * armorBreaking;
+								}
 							}
 							else {
-								// Direct Damage insufficient to break the Heavy Armor Plate
-								heavyArmorPlateHealth -= directDamage * armorBreaking;
+								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
+									heavyArmorPlateHealth = 0;
+								}
+								else {
+									// Direct Damage insufficient to break the Heavy Armor Plate
+									heavyArmorPlateHealth -= directDamage * armorBreaking;
+								}
 							}
 						}
 						else {
@@ -975,15 +993,24 @@ public class EnemyInformation {
 							// 2. Heavy Armor Plates with health (mixes with Light Armor plates on Guards)
 							if (creaturesArmorMatrix[i][4] > 0) { 
 								if (heavyArmorPlateHealth > 0) {
-									if (directDamage * proportionOfDamageThatHitsArmor * armorBreaking > heavyArmorPlateHealth) {
-										if (armorBreaking > 1.0) {
-											damageDealtPerPellet += (directDamage * proportionOfDamageThatHitsArmor - heavyArmorPlateHealth / armorBreaking) * creaturesArmorMatrix[i][3] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+									if (armorBreaking > 1.0) {
+										if (directDamage * armorBreaking > heavyArmorPlateHealth) {
+											damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * creaturesArmorMatrix[i][3] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+											heavyArmorPlateHealth = 0;
 										}
-										heavyArmorPlateHealth = 0;
+										else {
+											// Direct Damage insufficient to break the Heavy Armor Plate
+											heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
+										}
 									}
 									else {
-										// Direct Damage insufficient to break the Heavy Armor Plate
-										heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
+										if (directDamage * proportionOfDamageThatHitsArmor * armorBreaking > heavyArmorPlateHealth) {
+											heavyArmorPlateHealth = 0;
+										}
+										else {
+											// Direct Damage insufficient to break the Heavy Armor Plate
+											heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
+										}
 									}
 								}
 								else {
