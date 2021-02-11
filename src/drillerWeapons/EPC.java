@@ -127,7 +127,7 @@ public abstract class EPC extends Weapon {
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Flying Nightmare", "Charged Shots now deal their Direct Damage to enemies hit by the AoE while in-flight but it no longer explodes upon impact. Additionally, x0.55 AoE radius, x0.8 Charge Speed.", modIcons.aoeRadius, 5, 0);
 		tier5[1] = new Mod("Thin Containment Field", "Shoot the Charged Shot with a Regular Shot before it impacts anything to make it detonate for 240 Damage and carve terrain within a 3m radius. "
-				+ "Additionally, x0.8 Heat per Regular Shot, and x0.8 Heat per Charged Shot which means it no longer overheats on charged shots.", modIcons.special, 5, 1);
+				+ "Additionally, x0.8 Heat per Regular Shot, and x0.25 Heat per Charged Shot which means it no longer overheats on charged shots.", modIcons.special, 5, 1);
 		tier5[2] = new Mod("Plasma Burn", "Regular Shots have 50% of their Direct Damage added on as Heat which can ignite enemies, dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second.", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[6];
@@ -476,9 +476,9 @@ public abstract class EPC extends Weapon {
 	protected double getHeatPerChargedShot() {
 		// Unless they have Mod Tier 5 "Thin Containment Field" equipped, charged shots guarantee an overheat.
 		if (selectedTier5 == 1) {
-			// If TFC is equipped, then the Charged Shot only fills up 80% of the meter, and one Regular Shot to detonate the TFC field
+			// If TFC is equipped, then the Charged Shot only costs 25% max heat, and one Regular Shot to detonate the TFC field
 			// Don't let this return more than the max heat, though!
-			return Math.min(maxHeat * 0.8 + getHeatPerRegularShot(), maxHeat);
+			return Math.min(maxHeat * 0.25 + getHeatPerRegularShot(), maxHeat);
 		}
 		else {
 			return maxHeat;
@@ -511,13 +511,7 @@ public abstract class EPC extends Weapon {
 		return maxHeat / getHeatPerSecondWhileCharged();
 	}
 	protected double getCooldownDuration() {
-		// If they have Thin Containment Field equipped, then each Charged Shot only fills the meter to 80% plus the one Regular Shot
-		if (selectedTier5 == 1) {
-			return getHeatPerChargedShot() / (coolingRate * getCoolingRateModifier());
-		}
-		else {
-			return maxHeat / (coolingRate * getCoolingRateModifier());
-		}
+		return getHeatPerChargedShot() / (coolingRate * getCoolingRateModifier());
 	}
 	
 	/****************************************************************************************

@@ -19,6 +19,7 @@ import spreadCurves.ClassicCurve;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
+// TODO: test Armor Breaking with 50 dmg vs Praetorian Heavy Armor on Haz4. See if it does 2 damage or 50. Update ArmorWasting() accordingly. Update: it does 50. I asked MikeGSG if that's intentional.
 public abstract class Classic extends Weapon {
 	
 	/****************************************************************************************
