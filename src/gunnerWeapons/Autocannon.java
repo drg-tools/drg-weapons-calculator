@@ -20,7 +20,6 @@ import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 
-// TODO: fix the logic bug in AvgRoF that bypasses T3.A's RoF for Min=Max early exit
 public class Autocannon extends Weapon {
 	
 	/****************************************************************************************
@@ -435,8 +434,8 @@ public class Autocannon extends Weapon {
 		return (int) Math.round(exactNumBullets);
 	}
 	private double getAverageRateOfFire() {
-		// Special case: When T2.C and OC Big Bertha get combined, the Min RoF == Max RoF
-		if (selectedTier2 == 2 && selectedOverclock == 4) {
+		// Special case: When T2.C and OC Big Bertha get combined, the Min RoF == Max RoF. When T3.A is equipped, this is no longer the case.
+		if (selectedTier2 == 2 && selectedTier3 != 0 && selectedOverclock == 4) {
 			return getMaxRateOfFire();
 		}
 		
