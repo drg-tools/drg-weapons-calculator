@@ -495,8 +495,8 @@ public class Shotgun extends Weapon {
 		double mass = 4.0;
 		double springStiffness = 75;
 		
-		// This number is chosen arbitrarily. Scaled proportionally from Revolver's 8.41:3 ratio to match Shotgun's 5.77 base Recoil.
-		double desiredIncreaseInRecoil = 2.058;
+		// This number is chosen arbitrarily. It has to be strictly less than the base Recoil's max value times the greatest reduction possible (20%) so that the binary-search doesn't get stuck in an endless loop.
+		double desiredIncreaseInRecoil = 1.15;
 		double timeToRecoverRecoil = calculateTimeToRecoverRecoil(recoilPitch, recoilYaw, mass, springStiffness, desiredIncreaseInRecoil);
 		
 		return Math.min(1.0 / timeToRecoverRecoil, getRateOfFire());

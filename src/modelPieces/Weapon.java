@@ -961,6 +961,11 @@ public abstract class Weapon extends Observable {
 		double v = Math.hypot(recoilPitch, recoilYaw);
 		double w = Math.sqrt(springStiffness / mass);
 		
+		// Early exit condition: if the goalRecoilValue >= maxRecoil the while loop will never close, causing the program to freeze.
+		if (goalRecoilValue >= v / (Math.E * w)) {
+			return -1;
+		}
+		
 		// Because Recoil changes from a positive slope to a negative slope at 1/w, I can start my binary search there.
 		double minT = 1 / w;
 		double maxT = -1.0 * MathUtils.lambertInverseWNumericalApproximation(-w * 0.1 / v) / w;
