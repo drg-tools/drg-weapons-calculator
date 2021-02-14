@@ -549,7 +549,8 @@ public class Flamethrower extends Weapon {
 		
 		double targetsExplodeDPS = 0;
 		if (selectedTier5 == 1) {
-			targetsExplodeDPS = 55.0 * aoeEfficiency[1] / averageTimeToKill();
+			// This only has a 50% chance to proc every kill.
+			targetsExplodeDPS = 0.5 * 55.0 * aoeEfficiency[1] / averageTimeToKill();
 		}
 		
 		return sustainedDPS + targetsExplodeDPS;
