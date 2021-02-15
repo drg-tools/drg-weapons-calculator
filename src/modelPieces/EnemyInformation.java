@@ -222,7 +222,7 @@ public class EnemyInformation {
 	// This info comes from Elythnwaen's Temperatures spreadsheet, and many of those values were seeded from MikeGSG giving us the values for the 5 "base" creature types.
 	private static double[][] enemyTemperatures = {
 		// Ignite Temp, Douse Temp, Heat Loss Rate, Freeze Temp, Thaw Temp, Heat Gain Rate
-		{5, 0, 1, -20, 0, 4},			// Glyphid Swarmer
+		{5, 0, 1, -20, 0, 2},			// Glyphid Swarmer
 		{30, 10, 6, -30, 0, 6},			// Glyphid Grunt
 		{60, 40, 6, -80, -40, 6},		// Glyphid Grunt Guard
 		{30, 10, 6, -30, 0, 6},			// Glyphid Grunt Slasher
@@ -325,8 +325,6 @@ public class EnemyInformation {
 		for (int i = 0; i < exactSpawnRates.length; i++) {
 			sum += exactSpawnRates[i];
 		}
-		
-		System.out.println("Sum of exact spawn rates probabilities: " + sum);
 		
 		// Double addition is wonky; round it.
 		sum = MathUtils.round(sum, 4);
