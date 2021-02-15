@@ -27,11 +27,11 @@ public class EnemyInformation {
 	// All of these numbers must sum up to exactly 1.0 for it to be a probability vector.
 	private static double[] guessedSpawnRates = {
 		0.165, // Glyphid Swarmer
-		0.24,  // Glyphid Grunt
-		0.08,  // Glyphid Grunt Guard
-		0.08,  // Glyphid Grunt Slasher
+		0.25,  // Glyphid Grunt
+		0.07,  // Glyphid Grunt Guard
+		0.07,  // Glyphid Grunt Slasher
 		0.04,  // Glyphid Praetorian
-		0.08,  // Glyphid Exploder
+		0.04,  // Glyphid Exploder
 		0.01,  // Glyphid Bulk Detonator
 		0.005, // Glyphid Crassus Detonator
 		0.04,  // Glyphid Webspitter
@@ -47,36 +47,42 @@ public class EnemyInformation {
 		0.02,  // Glyphid Brood Nexus
 		0.01,  // Spitball Infector
 		0.01,  // Cave Leech
-		0.00,  // Mactera Tri-Jaw
-		0.00   // Mactera Brundle
+		0.04,  // Mactera Tri-Jaw
+		0.01   // Mactera Brundle
 	};
 	
-	// These are the actual statistics extracted from 153k kills from 6 players' Miner's Manual entries. Biome-specific enemies, "hatchling" enemy types, and Dreadnoughts not included.
-	// All of these numbers must sum up to exactly 1.0 for it to be a probability vector.
+	/* 
+		When U33 introduced the Tri-Jaw and Brundle common enemies, I had to redo these probabilities. To that end I chose to write down what the current kill counter was for every enemy type,
+		and then play vanilla Haz4/5 until I achieved at least 15,000 Grunt kills. In the end it took me about 50 hours of playtime to achieve that, and I ended up with a total of 33,606 kills 
+		of all kinds for these probability amounts. It's not as broad as U31's 153,000 kills from 6 players, but I didn't want to ask people to go 50 hours of playtime only on vanilla Haz4/5.
+		
+		Biome-specific enemies, "hatchling" enemy types, and Dreadnoughts not included.
+		All of these numbers must sum up to exactly 1.0 for it to be a probability vector.
+	*/
 	private static double[] exactSpawnRates = {
-		0.311598275, 	 // Glyphid Swarmer
-		0.4190277052,  	 // Glyphid Grunt
-		0.0457723471,  	 // Glyphid Grunt Guard
-		0.04558285416,   // Glyphid Grunt Slasher
-		0.01902770518,   // Glyphid Praetorian
-		0.0629312598,  	 // Glyphid Exploder
-		0.001078149503,  // Glyphid Bulk Detonator
-		0.0000457396759, // Glyphid Crassus Detonator
-		0.02062859383,   // Glyphid Webspitter
-		0.01256534239,   // Glyphid Acidspitter
-		0.002430737062,  // Glyphid Menace
-		0.003110297961,  // Glyphid Warden
-		0.002763983272,  // Glyphid Oppressor
-		0.002084422373,  // Q'ronar Shellback
-		0.03056717198,   // Mactera Spawn
-		0.003005750131,  // Mactera Grabber
-		0.00825927862,   // Mactera Bomber
-		0.0006926293779, // Naedocyte Breeder
-		0.001731573445,  // Glyphid Brood Nexus
-		0.003149503398,  // Spitball Infector
-		0.003946680606,  // Cave Leech
-		0.00,  // Mactera Tri-Jaw
-		0.00   // Mactera Brundle
+		0.2503719574, 	 // Glyphid Swarmer
+		0.4661369993,  	 // Glyphid Grunt
+		0.05400821282,   // Glyphid Grunt Guard
+		0.05838243171,   // Glyphid Grunt Slasher
+		0.02074034399,   // Glyphid Praetorian
+		0.03895137773,   // Glyphid Exploder
+		0.001220020234,  // Glyphid Bulk Detonator
+		0.00002975659108,// Glyphid Crassus Detonator
+		0.02963756472,   // Glyphid Webspitter
+		0.01276557758,   // Glyphid Acidspitter
+		0.001577099328,  // Glyphid Menace
+		0.002082961376,  // Glyphid Warden
+		0.00330298161,   // Glyphid Oppressor
+		0.001755638874,  // Q'ronar Shellback
+		0.02550139856,   // Mactera Spawn
+		0.001934178421,  // Mactera Grabber
+		0.005088377076,  // Mactera Bomber
+		0.000684401595,  // Naedocyte Breeder
+		0.001666369101,  // Glyphid Brood Nexus
+		0.003660060703,  // Spitball Infector
+		0.004552758436,  // Cave Leech
+		0.01282509076,   // Mactera Tri-Jaw
+		0.003124442064   // Mactera Brundle
 	};
 	
 	// These numbers are estimates of what percentage of bullets shot at each enemy type will hit the enemy's weakpoints
@@ -319,6 +325,9 @@ public class EnemyInformation {
 		for (int i = 0; i < exactSpawnRates.length; i++) {
 			sum += exactSpawnRates[i];
 		}
+		
+		System.out.println("Sum of exact spawn rates probabilities: " + sum);
+		
 		// Double addition is wonky; round it.
 		sum = MathUtils.round(sum, 4);
 		return sum == 1.0;
