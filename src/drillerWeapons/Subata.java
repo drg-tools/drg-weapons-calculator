@@ -273,6 +273,17 @@ public class Subata extends Weapon {
 	* Setters and Getters
 	****************************************************************************************/
 	
+	@Override
+	public boolean isRofCustomizable() {
+		// I'm choosing to disable RoF customization when the user equips OC "Automatic Fire", for obvious reasons.
+		if (selectedOverclock == 3) {
+			return false;
+		}
+		else {
+			return customizableRoF;
+		}
+	}
+	
 	private double getDirectDamage() {
 		double toReturn = directDamage;
 		

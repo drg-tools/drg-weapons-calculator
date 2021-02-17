@@ -290,8 +290,8 @@ public class GrenadeLauncher extends Weapon {
 		
 		// Multiplicative bonuses last
 		if (selectedTier3 == 0 && selectedOverclock != 5) {
-			// Because Hyper Propellant adds its Disintegrate Damage LAST, it effectively negates Incentiary Compound's -50% damage penalty.
-			// GSG Devs even confirmed this is intended behavior in the Jira report I made aobut this issue back when U32 dropped.
+			// Because Hyper Propellant adds its Disintegrate Damage LAST, it effectively negates Incendiary Compound's -50% damage penalty.
+			// GSG Devs even confirmed this is intended behavior in the Jira report I made about this issue back when U32 dropped.
 			toReturn /= 2.0;
 		}
 		
