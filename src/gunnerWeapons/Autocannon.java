@@ -670,17 +670,12 @@ public class Autocannon extends Weapon {
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		double horizontalBaseSpread = 22.0 * getBaseSpread();
 		double verticalBaseSpread = 8.0 * getBaseSpread();
-		
-		/*
-			If I ever want to model recoil for rectangular crosshairs, these are the variables used:
-			
 		double recoilPitch = 30.0;
 		double recoilYaw = 40.0;
 		double mass = 1.0;
 		double springStiffness = 200.0;
-		*/
 		
-		return accEstimator.calculateRectangularAccuracy(weakpointAccuracy, horizontalBaseSpread, verticalBaseSpread);
+		return accEstimator.calculateRectangularAccuracy(weakpointAccuracy, horizontalBaseSpread, verticalBaseSpread, recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override

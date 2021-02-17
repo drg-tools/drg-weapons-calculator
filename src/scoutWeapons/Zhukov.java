@@ -599,17 +599,12 @@ public class Zhukov extends Weapon {
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		double horizontalBaseSpread = 36.0 * getBaseSpread();
 		double verticalBaseSpread = 5.0 * getBaseSpread();
-		
-		/*
-			If I ever want to model recoil for rectangular crosshairs, these are the variables used:
-			
 		double recoilPitch = 20.0;
 		double recoilYaw = 20.0;
 		double mass = 1.0;
 		double springStiffness = 100.0;
-		*/
 		
-		return accEstimator.calculateRectangularAccuracy(weakpointAccuracy, horizontalBaseSpread, verticalBaseSpread);
+		return accEstimator.calculateRectangularAccuracy(weakpointAccuracy, horizontalBaseSpread, verticalBaseSpread, recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override

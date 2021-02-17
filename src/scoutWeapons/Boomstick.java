@@ -689,17 +689,12 @@ public class Boomstick extends Weapon {
 		// complicated model for 2 shots, I'm just going to use the accuracy for a single shot.
 		double horizontalBaseSpread = 35.0 * getBaseSpread();
 		double verticalBaseSpread = 10.0 * getBaseSpread();
-		
-		/*
-			If I ever want to model recoil for rectangular crosshairs, these are the variables used:
-			
 		double recoilPitch = 120.0;
 		double recoilYaw = 10.0;
 		double mass = 2.0;
 		double springStiffness = 100.0;
-		*/
 		
-		return accEstimator.calculateRectangularAccuracy(weakpointAccuracy, horizontalBaseSpread, verticalBaseSpread);
+		return accEstimator.calculateRectangularAccuracy(weakpointAccuracy, horizontalBaseSpread, verticalBaseSpread, recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override
