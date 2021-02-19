@@ -384,6 +384,7 @@ public class Subata extends Weapon {
 		return toReturn;
 	}
 	private int getMaxRicochets() {
+		// According to GreyHound, this ricochet searches for enemies within 10m
 		if (selectedOverclock == 0) {
 			return 1;
 		}

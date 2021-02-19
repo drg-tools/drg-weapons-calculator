@@ -389,6 +389,7 @@ public class Revolver extends Weapon {
 		}
 	}
 	private int getMaxRicochets() {
+		// According to GreyHound, these ricochets search for enemies within 5m
 		if (selectedOverclock == 1 || selectedOverclock == 5) {
 			return 1;
 		}

@@ -446,6 +446,7 @@ public class Minigun extends Weapon {
 		}
 	}
 	private int getNumberOfRicochets() {
+		// According to GreyHound, this ricochet searches for enemies within 5m
 		if (selectedOverclock == 5) {
 			return 1;
 		}

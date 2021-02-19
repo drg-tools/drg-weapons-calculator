@@ -69,7 +69,7 @@ public class Autocannon extends Weapon {
 		reloadTime = 5.0;  // seconds
 		
 		// Override default 10m distance
-		accEstimator.setDistance(7.0);
+		accEstimator.setDistance(6.0);
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
