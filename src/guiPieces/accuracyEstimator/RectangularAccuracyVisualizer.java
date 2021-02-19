@@ -72,7 +72,7 @@ public class RectangularAccuracyVisualizer  extends JPanel {
 	    int crosshairDrawHeight = (int) Math.round(2.0 * crosshairHeight * pixelToMeterRatio);
 
         /*
-    		Step 4: draw the circle and rectangle
+    		Step 4: draw the target circle and crosshair rectangle
         */
 	    Color target = new Color(200, 0, 0);
         Color crosshair = new Color(0, 0, 150);

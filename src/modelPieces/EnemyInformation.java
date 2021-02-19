@@ -968,17 +968,25 @@ public class EnemyInformation {
 				// Special case: Mactera Brundle
 				baseHealth *= normalResistance;
 				
+				double theoreticalDamagePerPellet;
+				if (weakpointModifier < 0.0) {
+					theoreticalDamagePerPellet = directDamage;
+				}
+				else {
+					theoreticalDamagePerPellet = directDamage * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex];
+				}
+				
 				totalDamageSpent = 0;
 				actualDamageDealt = 0;
 				while (baseHealth > 0) {
 					// First, Direct Damage
 					for (j = 0; j < numPellets; j++) {
-						totalDamageSpent += directDamage * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex];
+						totalDamageSpent += theoreticalDamagePerPellet;
 						damageDealtPerPellet = 0;
 						if (heavyArmorPlateHealth > 0) {
 							if (armorBreaking > 1.0) {
 								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
-									damageDealtPerPellet += directDamage * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex];
+									damageDealtPerPellet += theoreticalDamagePerPellet;
 									heavyArmorPlateHealth = 0;
 								}
 								else {
@@ -997,7 +1005,7 @@ public class EnemyInformation {
 							}
 						}
 						else {
-							damageDealtPerPellet += directDamage * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex];
+							damageDealtPerPellet += theoreticalDamagePerPellet;
 						}
 						
 						actualDamageDealt += damageDealtPerPellet;
