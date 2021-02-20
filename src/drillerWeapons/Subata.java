@@ -541,7 +541,7 @@ public class Subata extends Weapon {
 		// IFG Grenade
 		if (statusEffects[3]) {
 			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
-			// U32's version of Explosive Reload no longer benefits from IFG
+			areaDamage *= UtilityInformation.IFG_Damage_Multiplier;
 		}
 		
 		// T5.A Volatile Bullets adds 50% of the total damage per bullet as Fire damage (not Heat Damage) if the bullet hits a Burning target
