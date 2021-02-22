@@ -627,10 +627,10 @@ public class EnemyInformation {
 	}
 	
 	/*
-		This method is used to quickly show how many shots it would take for projectile-based weapons to kill the 21 modeled creatures under various conditions. It models 
-		Elemental resistances, DoTs, Light Armor resistance, Weakpoint bonus damage, and Subata's T5.B +20% vs Mactera
+		This method is used to quickly show how many shots it would take for projectile-based weapons to kill the 23 modeled creatures under various conditions. It models 
+		Elemental resistances, DoTs, Light Armor resistance, Weakpoint bonus damage, Subata's T5.B +20% vs Mactera, IFGs, and Frozen.
 		
-		The first three arguments are arrays of how much damage is being done of the three types (direct, area, and DoT) split between the elements in this order:
+		The first two arguments are arrays of how much damage is being done of the three types (direct, area, and DoT) split between the elements in this order:
 			1. Kinetic
 			2. Explosive
 			3. Fire
@@ -639,20 +639,25 @@ public class EnemyInformation {
 			6. Poison
 			7. Radiation
 			
+		Next are 3 arrays that denote the DPS, average duration, and probability to proc of each of these DoTs:
+			1. Electrocute
+			2. Neurotoxin
+			3. Persistent Plasma
+			4. Radiation
+			
 		It should be noted that Direct Damage is never Poison or Radiation and DoTs are never Kinetic, Explosive, or Frost.
 		
-		This method does NOT model Frozen x3 Direct Damage, IFG +30% damage, or Heavy Armor plates.
+		This method does NOT model Heavy Armor plates except for Mactera Brundle because those Heavy Armor plates cover its weakpoint.
 	*/
-	public static int[] calculateBreakpoints(double[] directDamageByType, double[] areaDamageByType, double[] DoTDamageByType, double weakpointModifier, double macteraModifier, 
-											 double singleBurstOfHeat, boolean frozen, boolean IFG, boolean flyingNightmare) {
+	public static int[] calculateBreakpoints(double[] directDamageByType, double[] areaDamageByType, double[] DoT_DPS, double[] DoT_durations, double[] DoT_probabilities, 
+											 double weakpointModifier, double armorBreaking, double RoF, double heatPerShot, 
+											 double macteraModifier, boolean frozen, boolean IFG, boolean flyingNightmare, boolean embeddedDetonators) {
 		// I haven't yet modeled Armor Breaking in this method, so I can't do Mactera Brundle yet.
 		int[] creaturesToModel = {0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 14, 15, 16, 20, 21};
 		
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
-		double avgHP = averageHealthPool();
-		double burnDPS = DoTInformation.Burn_DPS;
 		ArrayList<Integer> toReturn = new ArrayList<Integer>();
 		
 		HashSet<Integer> normalEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 1, 2, 3, 5, 8, 9, 14, 20, 21, 22}));
@@ -660,10 +665,9 @@ public class EnemyInformation {
 		// Grunts, Guards, Slashers, Webspitters, and Acidspitters intentionally neglected from this list since they are entirely covered by Light Armor except for their Weakpoints
 		HashSet<Integer> indexesWithNormalHealth = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 4, 5, 6, 7, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22}));
 		HashSet<Integer> indexesWithLightArmor = new HashSet<Integer>(Arrays.asList(new Integer[] {1, 2, 3, 8, 9}));
+		HashSet<Integer> indexesWithHeavyArmorCoveringWeakpoint = new HashSet<Integer>(Arrays.asList(new Integer[] {22}));
 		HashSet<Integer> indexesWithoutWeakpoints = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 20}));
 		HashSet<Integer> indexesOfMacteras = new HashSet<Integer>(Arrays.asList(new Integer[] {14, 15, 16, 21, 22}));
-		// Glyphid Swarmers and Exploders have so little HP, it's not practical to model DoTs on them for Breakpoints
-		HashSet<Integer> indexesOfEnemiesShouldNotHaveDoTs = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 5}));
 		
 		// Frozen
 		double lightArmorReduction = UtilityInformation.LightArmor_DamageReduction;
@@ -676,27 +680,31 @@ public class EnemyInformation {
 			
 			// Multiplies Direct Damage by x3 (except for Flying Nightmare)
 			if (!flyingNightmare) {
-				directDamageByType = MathUtils.vectorScalarMultiply(3.0, directDamageByType);
+				directDamageByType = MathUtils.vectorScalarMultiply(UtilityInformation.Frozen_Damage_Multiplier, directDamageByType);
 			}
-			
-			// Removes any damage from Burning DoT. For now, Temperature Shock will remain unmodeled in Breakpoints but it's something that would be done in here somewhere.
-			DoTDamageByType[0] = 0;
 		}
 		
-		// Flying Nightmare is weird... it does the Direct Damage listed but it passes through enemies like the Breach Cutter and ignores armor.
+		// Flying Nightmare is weird... it does the Direct Damage listed but it passes through enemies, ignores armor, and doesn't benefit from Weakpoints like the Breach Cutter.
 		if (flyingNightmare) {
+			weakpointModifier = -1.0;
 			lightArmorReduction = 1.0;
 		}
 		
 		// IFG
 		if (IFG) {
 			// Increases Direct and Area Damage taken by x1.3
-			directDamageByType = MathUtils.vectorScalarMultiply(1.3, directDamageByType);
-			areaDamageByType = MathUtils.vectorScalarMultiply(1.3, areaDamageByType);
+			directDamageByType = MathUtils.vectorScalarMultiply(UtilityInformation.IFG_Damage_Multiplier, directDamageByType);
+			areaDamageByType = MathUtils.vectorScalarMultiply(UtilityInformation.IFG_Damage_Multiplier, areaDamageByType);
 		}
 		
-		double creatureHP, creatureWeakpointModifier, totalDirectDamage, totalAreaDamage, totalDoTDamage;
+		double creatureHP, creatureWeakpointModifier, aliasHP;
+		double rawDirectDamage, modifiedDirectDamage, rawAreaDamage, modifiedAreaDamage;
+		double numShotsToProcBurn, numShotsToProcElectrocute, numShotsToProcNeurotoxin, numShotsToProcPersistentPlasma, numShotsToProcRadiation;
+		double burnDPS, burnDuration, electrocuteDPS, plasmaDPS;
 		double[] creatureResistances;
+		int breakpointCounter;
+		double fourSecondsDoTDamage;
+		double lightArmorStrength, heavyArmorHP, numShotsToBreakArmor;
 		for (int creatureIndex: creaturesToModel) {
 			if (normalEnemyScalingIndexes.contains(creatureIndex)) {
 				creatureHP = enemyHealthPools[creatureIndex] * normalResistance;
@@ -723,43 +731,287 @@ public class EnemyInformation {
 				creatureWeakpointModifier *= (1.0 + weakpointModifier);
 			}
 			
-			totalDirectDamage = directDamageByType[0] + directDamageByType[1] * creatureResistances[0] + directDamageByType[2] * creatureResistances[1] + directDamageByType[3] * creatureResistances[2] + directDamageByType[4] * creatureResistances[3];
-			totalAreaDamage = areaDamageByType[0] + areaDamageByType[1] * creatureResistances[0] + areaDamageByType[2] * creatureResistances[1] + areaDamageByType[3] * creatureResistances[2] + areaDamageByType[4] * creatureResistances[3];
-			// Technically Radioactive variant enemies have Radiation Resistance, but since I've chosen not to model biome-specific enemies I'm also choosing not to model Radiation Resistance.
-			// Additionally, I'm scaling the DoT damage up and down proportional to the creature's health to the average HP used to calculate DoT damage. It's not accurate, but it is intuitive.
-			totalDoTDamage = (DoTDamageByType[0] * creatureResistances[1] + DoTDamageByType[1] * creatureResistances[3] + DoTDamageByType[2] + DoTDamageByType[3]) * (creatureHP / avgHP);
+			rawDirectDamage = MathUtils.sum(directDamageByType);
+			modifiedDirectDamage = directDamageByType[0] + directDamageByType[1] * creatureResistances[0] + directDamageByType[2] * creatureResistances[1] + directDamageByType[3] * creatureResistances[2] + directDamageByType[4] * creatureResistances[3];
 			
-			// Enemies can have Temperatures above their Ignite temperatures, and that makes them Burn longer than the "avg Burn duration" I have modeled. This is important for Grunts and 
-			// Mactera Spawns on Engie/GL/Mod/3/A Incendiary Compound and Scout/Boomstick/Mod/5/C WPS
-			if (!frozen && singleBurstOfHeat >= enemyTemperatures[creatureIndex][0]) {
-				// If I choose to implement Temperature Shock in breakpoints, I'll have to add it here too.
-				totalDoTDamage += creatureResistances[1] * burnDPS * (singleBurstOfHeat - enemyTemperatures[creatureIndex][1]) / enemyTemperatures[creatureIndex][2];
-			}
+			rawAreaDamage = MathUtils.sum(areaDamageByType);
+			modifiedAreaDamage = areaDamageByType[0] + areaDamageByType[1] * creatureResistances[0] + areaDamageByType[2] * creatureResistances[1] + areaDamageByType[3] * creatureResistances[2] + areaDamageByType[4] * creatureResistances[3];
 			
 			// Driller/Subata/Mod/5/B "Mactera Neurotoxin Coating" makes the Subata's damage do x1.2 more to Mactera-type enemies
 			if (indexesOfMacteras.contains(creatureIndex)) {
-				totalDirectDamage *= (1.0 + macteraModifier);
-				totalAreaDamage *= (1.0 + macteraModifier);
+				modifiedDirectDamage *= (1.0 + macteraModifier);
+				modifiedAreaDamage *= (1.0 + macteraModifier);
 			}
 			
-			if (!indexesOfEnemiesShouldNotHaveDoTs.contains(creatureIndex)) {
-				// For Webspitters vs Grenade Launcher/Incendiary Compound, this subtracted more HP than they had. As such this now sets their HP down to a minimum of 1 hp so that everything one-shots as intended.
-				creatureHP = Math.max(creatureHP - totalDoTDamage, 1);
+			// Neurotoxin does Poison damage -- which no enemy resists -- and Radiation is not resisted by any creatures modeled by the program (but it is technically resisted by enemies in REZ biome)
+			burnDPS = DoTInformation.Burn_DPS * creatureResistances[1];
+			electrocuteDPS = DoT_DPS[0] * creatureResistances[3];
+			plasmaDPS = DoT_DPS[2] * creatureResistances[1];
+			
+			numShotsToProcBurn = 0;
+			burnDuration = 0;
+			numShotsToProcElectrocute = 0;
+			numShotsToProcNeurotoxin = 0;
+			numShotsToProcPersistentPlasma = 0;
+			numShotsToProcRadiation = 0;
+			if (!frozen && heatPerShot > 0.0) {
+				if (heatPerShot > enemyTemperatures[creatureIndex][0]) {
+					numShotsToProcBurn = 1;
+					burnDuration = (heatPerShot - enemyTemperatures[creatureIndex][1]) / enemyTemperatures[creatureIndex][2];
+				}
+				else {
+					// This is technically an approximation and not precisely how it works in-game, but it's close enough for what I need.
+					numShotsToProcBurn = Math.floor((enemyTemperatures[creatureIndex][0] * RoF) / (heatPerShot * RoF - enemyTemperatures[creatureIndex][2]));
+					burnDuration = (enemyTemperatures[creatureIndex][0] - enemyTemperatures[creatureIndex][1]) / enemyTemperatures[creatureIndex][2];
+				}
+			}
+			if (DoT_probabilities[0] > 0.0) {
+				numShotsToProcElectrocute = Math.round(MathUtils.meanRolls(DoT_probabilities[0]));
+			}
+			if (DoT_probabilities[1] > 0.0) {
+				numShotsToProcNeurotoxin = Math.round(MathUtils.meanRolls(DoT_probabilities[1]));
+			}
+			if (DoT_probabilities[2] > 0.0) {
+				numShotsToProcPersistentPlasma = Math.round(MathUtils.meanRolls(DoT_probabilities[2]));
+			}
+			if (DoT_probabilities[3] > 0.0) {
+				numShotsToProcRadiation = Math.round(MathUtils.meanRolls(DoT_probabilities[3]));
 			}
 			
 			// Normal Damage
 			if (indexesWithNormalHealth.contains(creatureIndex)) {
-				toReturn.add((int) Math.ceil(creatureHP / (totalDirectDamage + totalAreaDamage)));
+				breakpointCounter = 0;
+				aliasHP = creatureHP;
+				
+				while (aliasHP > 0) {
+					breakpointCounter++;
+					
+					// First, subtract Direct Damage
+					aliasHP -= modifiedDirectDamage;
+					
+					// Second, subtract Area Damage
+					aliasHP -= modifiedAreaDamage;
+					
+					// Third, determine if 4 seconds of DoTs can do enough damage to kill the creature
+					fourSecondsDoTDamage = 0;
+					if (breakpointCounter >= numShotsToProcBurn) {
+						fourSecondsDoTDamage += Math.min(burnDuration, 4.0) * burnDPS;
+					}
+					if (breakpointCounter >= numShotsToProcElectrocute) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[0], 4.0) * electrocuteDPS;
+					}
+					if (breakpointCounter >= numShotsToProcNeurotoxin) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[1], 4.0) * DoT_DPS[1];
+					}
+					if (breakpointCounter >= numShotsToProcPersistentPlasma) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[2], 4.0) * plasmaDPS;
+					}
+					if (breakpointCounter >= numShotsToProcRadiation) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[3], 4.0) * DoT_DPS[3];
+					}
+					
+					if (fourSecondsDoTDamage >= aliasHP) {
+						break;
+					}
+					
+					// If not, subtract the damage dealt by DoTs until the next shot at max RoF
+					if (breakpointCounter >= numShotsToProcBurn) {
+						aliasHP -= burnDPS / RoF;
+					}
+					if (breakpointCounter >= numShotsToProcElectrocute) {
+						aliasHP -= electrocuteDPS / RoF;
+					}
+					if (breakpointCounter >= numShotsToProcNeurotoxin) {
+						aliasHP -=  DoT_DPS[1] / RoF;
+					}
+					if (breakpointCounter >= numShotsToProcPersistentPlasma) {
+						aliasHP -= plasmaDPS / RoF;
+					}
+					if (breakpointCounter >= numShotsToProcRadiation) {
+						aliasHP -= DoT_DPS[3] / RoF;
+					}
+				}
+				
+				toReturn.add(breakpointCounter);
 			}
 			
 			// Light Armor
 			if (indexesWithLightArmor.contains(creatureIndex)) {
-				toReturn.add((int) Math.ceil(creatureHP / (totalDirectDamage * lightArmorReduction + totalAreaDamage)));
+				breakpointCounter = 0;
+				aliasHP = creatureHP;
+				
+				if (creatureIndex == 1 || creatureIndex == 2 || creatureIndex == 3) {
+					lightArmorStrength = 15;
+				}
+				else if (creatureIndex == 8 || creatureIndex == 9) {
+					lightArmorStrength = 10;
+				}
+				else {
+					// This is an error case.
+					lightArmorStrength = 1;
+				}
+				
+				if (embeddedDetonators) {
+					numShotsToBreakArmor = lightArmorBreakProbabilityLookup(rawDirectDamage, armorBreaking, lightArmorStrength);
+				}
+				else {
+					numShotsToBreakArmor = lightArmorBreakProbabilityLookup(rawDirectDamage + rawAreaDamage, armorBreaking, lightArmorStrength);
+				}
+				
+				while (aliasHP > 0) {
+					breakpointCounter++;
+					
+					// First, subtract Direct Damage
+					if (armorBreaking > 1.0 && breakpointCounter >= numShotsToBreakArmor) {
+						aliasHP -= modifiedDirectDamage;
+					}
+					else if (armorBreaking <= 1.0 && breakpointCounter > numShotsToBreakArmor) {
+						aliasHP -= modifiedDirectDamage;
+					}
+					else {
+						aliasHP -= modifiedDirectDamage * lightArmorReduction;
+					}
+					
+					// Second, subtract Area Damage
+					aliasHP -= modifiedAreaDamage;
+					
+					// Third, determine if 4 seconds of DoTs can do enough damage to kill the creature
+					fourSecondsDoTDamage = 0;
+					if (breakpointCounter >= numShotsToProcBurn) {
+						fourSecondsDoTDamage += Math.min(burnDuration, 4.0) * burnDPS;
+					}
+					if (breakpointCounter >= numShotsToProcElectrocute) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[0], 4.0) * electrocuteDPS;
+					}
+					if (breakpointCounter >= numShotsToProcNeurotoxin) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[1], 4.0) * DoT_DPS[1];
+					}
+					if (breakpointCounter >= numShotsToProcPersistentPlasma) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[2], 4.0) * plasmaDPS;
+					}
+					if (breakpointCounter >= numShotsToProcRadiation) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[3], 4.0) * DoT_DPS[3];
+					}
+					
+					if (fourSecondsDoTDamage >= aliasHP) {
+						break;
+					}
+					
+					// If not, subtract the damage dealt by DoTs until the next shot at max RoF
+					if (breakpointCounter >= numShotsToProcBurn) {
+						aliasHP -= burnDPS / RoF;
+					}
+					if (breakpointCounter >= numShotsToProcElectrocute) {
+						aliasHP -= electrocuteDPS / RoF;
+					}
+					if (breakpointCounter >= numShotsToProcNeurotoxin) {
+						aliasHP -=  DoT_DPS[1] / RoF;
+					}
+					if (breakpointCounter >= numShotsToProcPersistentPlasma) {
+						aliasHP -= plasmaDPS / RoF;
+					}
+					if (breakpointCounter >= numShotsToProcRadiation) {
+						aliasHP -= DoT_DPS[3] / RoF;
+					}
+				}
+				
+				toReturn.add(breakpointCounter);
 			}
 			
 			// Weakpoint
 			if (!indexesWithoutWeakpoints.contains(creatureIndex)) {
-				toReturn.add((int) Math.ceil(creatureHP / (totalDirectDamage * creatureWeakpointModifier + totalAreaDamage)));
+				breakpointCounter = 0;
+				aliasHP = creatureHP;
+				
+				if (indexesWithHeavyArmorCoveringWeakpoint.contains(creatureIndex)) {
+					if (creatureIndex == 22) {
+						heavyArmorHP = 80;
+					}
+					else {
+						// Error case
+						heavyArmorHP = 1000;
+					}
+					
+					heavyArmorHP *= normalResistance;
+					
+					if (embeddedDetonators) {
+						numShotsToBreakArmor = heavyArmorHP / (rawDirectDamage * armorBreaking);
+					}
+					else {
+						numShotsToBreakArmor = heavyArmorHP / ((rawDirectDamage + rawAreaDamage) * armorBreaking);
+					}
+				}
+				else {
+					heavyArmorHP = 0;
+					numShotsToBreakArmor = 0;
+				}
+				
+				while (aliasHP > 0) {
+					breakpointCounter++;
+					
+					if (!frozen && heavyArmorHP > 0) {
+						// First, subtract Direct Damage (and Explosive Reload/Embedded Detonators)
+						if ((armorBreaking > 1.0 && breakpointCounter >= numShotsToBreakArmor) || (armorBreaking <= 1.0 && breakpointCounter > numShotsToBreakArmor)) {
+							aliasHP -= modifiedDirectDamage * creatureWeakpointModifier;
+							if (embeddedDetonators) {
+								aliasHP -= modifiedAreaDamage;
+							}
+						}
+						else {
+							continue;
+						}
+						
+						// Second, subtract Area Damage
+						if (!embeddedDetonators) {
+							aliasHP -= modifiedAreaDamage;
+						}
+					}
+					else {
+						aliasHP -= modifiedDirectDamage * creatureWeakpointModifier;
+						aliasHP -= modifiedAreaDamage;
+					}
+					
+					// Third, determine if 4 seconds of DoTs can do enough damage to kill the creature
+					fourSecondsDoTDamage = 0;
+					if (breakpointCounter >= numShotsToProcBurn) {
+						fourSecondsDoTDamage += Math.min(burnDuration, 4.0) * burnDPS;
+					}
+					if (breakpointCounter >= numShotsToProcElectrocute) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[0], 4.0) * electrocuteDPS;
+					}
+					if (breakpointCounter >= numShotsToProcNeurotoxin) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[1], 4.0) * DoT_DPS[1];
+					}
+					if (breakpointCounter >= numShotsToProcPersistentPlasma) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[2], 4.0) * plasmaDPS;
+					}
+					if (breakpointCounter >= numShotsToProcRadiation) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[3], 4.0) * DoT_DPS[3];
+					}
+					
+					if (fourSecondsDoTDamage >= aliasHP) {
+						break;
+					}
+					
+					// If not, subtract the damage dealt by DoTs until the next shot at max RoF
+					if (breakpointCounter >= numShotsToProcBurn) {
+						aliasHP -= burnDPS / RoF;
+					}
+					if (breakpointCounter >= numShotsToProcElectrocute) {
+						aliasHP -= electrocuteDPS / RoF;
+					}
+					if (breakpointCounter >= numShotsToProcNeurotoxin) {
+						aliasHP -=  DoT_DPS[1] / RoF;
+					}
+					if (breakpointCounter >= numShotsToProcPersistentPlasma) {
+						aliasHP -= plasmaDPS / RoF;
+					}
+					if (breakpointCounter >= numShotsToProcRadiation) {
+						aliasHP -= DoT_DPS[3] / RoF;
+					}
+				}
+				
+				toReturn.add(breakpointCounter);
 			}
 		}
 				
