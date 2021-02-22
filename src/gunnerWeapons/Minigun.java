@@ -881,7 +881,7 @@ public class Minigun extends Weapon {
 		
 		double effectiveRoF = getRateOfFire() / 2.0;
 		double heatPerShot = 0;
-		// Hot Bullets add 50% of Direct Damage/pellet as Heat/pellet. Althought it doesn't activate for almost 4 seconds, for simplicity's sake I'm just going to model it as if it's active the whole time.
+		// Hot Bullets add 50% of Direct Damage/pellet as Heat/pellet. Although it doesn't activate for almost 4 seconds, for simplicity's sake I'm just going to model it as if it's active the whole time.
 		if (selectedTier5 == 2) {
 			heatPerShot += 0.5 * directDamage[0];
 		}
@@ -897,9 +897,10 @@ public class Minigun extends Weapon {
 		double[] dot_duration = new double[4];
 		double[] dot_probability = new double[4];
 		
+		// Setting embeddedDetonators to true when Burning Hell is equipped so that it doesn't affect Armor Breaking stats
 		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
 															0.0, getArmorBreaking(), effectiveRoF, heatPerShot, 0.0, 
-															statusEffects[1], statusEffects[3], false, false);
+															statusEffects[1], statusEffects[3], false, selectedOverclock == 2);
 		return MathUtils.sum(breakpoints);
 	}
 

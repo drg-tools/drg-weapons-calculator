@@ -794,19 +794,19 @@ public class EnemyInformation {
 					
 					// Third, determine if 4 seconds of DoTs can do enough damage to kill the creature
 					fourSecondsDoTDamage = 0;
-					if (breakpointCounter >= numShotsToProcBurn) {
+					if (numShotsToProcBurn > 0 && breakpointCounter >= numShotsToProcBurn) {
 						fourSecondsDoTDamage += Math.min(burnDuration, 4.0) * burnDPS;
 					}
-					if (breakpointCounter >= numShotsToProcElectrocute) {
+					if (numShotsToProcElectrocute > 0 && breakpointCounter >= numShotsToProcElectrocute) {
 						fourSecondsDoTDamage += Math.min(DoT_durations[0], 4.0) * electrocuteDPS;
 					}
-					if (breakpointCounter >= numShotsToProcNeurotoxin) {
+					if (numShotsToProcNeurotoxin > 0 && breakpointCounter >= numShotsToProcNeurotoxin) {
 						fourSecondsDoTDamage += Math.min(DoT_durations[1], 4.0) * DoT_DPS[1];
 					}
-					if (breakpointCounter >= numShotsToProcPersistentPlasma) {
+					if (numShotsToProcPersistentPlasma > 0 && breakpointCounter >= numShotsToProcPersistentPlasma) {
 						fourSecondsDoTDamage += Math.min(DoT_durations[2], 4.0) * plasmaDPS;
 					}
-					if (breakpointCounter >= numShotsToProcRadiation) {
+					if (numShotsToProcRadiation > 0 && breakpointCounter >= numShotsToProcRadiation) {
 						fourSecondsDoTDamage += Math.min(DoT_durations[3], 4.0) * DoT_DPS[3];
 					}
 					
@@ -815,21 +815,24 @@ public class EnemyInformation {
 					}
 					
 					// If not, subtract the damage dealt by DoTs until the next shot at max RoF
-					if (breakpointCounter >= numShotsToProcBurn) {
+					if (numShotsToProcBurn > 0 && breakpointCounter >= numShotsToProcBurn) {
 						aliasHP -= burnDPS / RoF;
 					}
-					if (breakpointCounter >= numShotsToProcElectrocute) {
+					if (numShotsToProcElectrocute > 0 && breakpointCounter >= numShotsToProcElectrocute) {
 						aliasHP -= electrocuteDPS / RoF;
 					}
-					if (breakpointCounter >= numShotsToProcNeurotoxin) {
+					if (numShotsToProcNeurotoxin > 0 && breakpointCounter >= numShotsToProcNeurotoxin) {
 						aliasHP -=  DoT_DPS[1] / RoF;
 					}
-					if (breakpointCounter >= numShotsToProcPersistentPlasma) {
+					if (numShotsToProcPersistentPlasma > 0 && breakpointCounter >= numShotsToProcPersistentPlasma) {
 						aliasHP -= plasmaDPS / RoF;
 					}
-					if (breakpointCounter >= numShotsToProcRadiation) {
+					if (numShotsToProcRadiation > 0 && breakpointCounter >= numShotsToProcRadiation) {
 						aliasHP -= DoT_DPS[3] / RoF;
 					}
+					
+					// This is just a catch-all statement for the rounding errors inherent to double division.
+					aliasHP = MathUtils.round(aliasHP, 4);
 				}
 				
 				toReturn.add(breakpointCounter);
@@ -852,10 +855,10 @@ public class EnemyInformation {
 				}
 				
 				if (embeddedDetonators) {
-					numShotsToBreakArmor = lightArmorBreakProbabilityLookup(rawDirectDamage, armorBreaking, lightArmorStrength);
+					numShotsToBreakArmor = Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(rawDirectDamage, armorBreaking, lightArmorStrength)));
 				}
 				else {
-					numShotsToBreakArmor = lightArmorBreakProbabilityLookup(rawDirectDamage + rawAreaDamage, armorBreaking, lightArmorStrength);
+					numShotsToBreakArmor = Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(rawDirectDamage + rawAreaDamage, armorBreaking, lightArmorStrength)));
 				}
 				
 				while (aliasHP > 0) {
@@ -877,19 +880,19 @@ public class EnemyInformation {
 					
 					// Third, determine if 4 seconds of DoTs can do enough damage to kill the creature
 					fourSecondsDoTDamage = 0;
-					if (breakpointCounter >= numShotsToProcBurn) {
+					if (numShotsToProcBurn > 0 && breakpointCounter >= numShotsToProcBurn) {
 						fourSecondsDoTDamage += Math.min(burnDuration, 4.0) * burnDPS;
 					}
-					if (breakpointCounter >= numShotsToProcElectrocute) {
+					if (numShotsToProcElectrocute > 0 && breakpointCounter >= numShotsToProcElectrocute) {
 						fourSecondsDoTDamage += Math.min(DoT_durations[0], 4.0) * electrocuteDPS;
 					}
-					if (breakpointCounter >= numShotsToProcNeurotoxin) {
+					if (numShotsToProcNeurotoxin > 0 && breakpointCounter >= numShotsToProcNeurotoxin) {
 						fourSecondsDoTDamage += Math.min(DoT_durations[1], 4.0) * DoT_DPS[1];
 					}
-					if (breakpointCounter >= numShotsToProcPersistentPlasma) {
+					if (numShotsToProcPersistentPlasma > 0 && breakpointCounter >= numShotsToProcPersistentPlasma) {
 						fourSecondsDoTDamage += Math.min(DoT_durations[2], 4.0) * plasmaDPS;
 					}
-					if (breakpointCounter >= numShotsToProcRadiation) {
+					if (numShotsToProcRadiation > 0 && breakpointCounter >= numShotsToProcRadiation) {
 						fourSecondsDoTDamage += Math.min(DoT_durations[3], 4.0) * DoT_DPS[3];
 					}
 					
@@ -898,21 +901,24 @@ public class EnemyInformation {
 					}
 					
 					// If not, subtract the damage dealt by DoTs until the next shot at max RoF
-					if (breakpointCounter >= numShotsToProcBurn) {
+					if (numShotsToProcBurn > 0 && breakpointCounter >= numShotsToProcBurn) {
 						aliasHP -= burnDPS / RoF;
 					}
-					if (breakpointCounter >= numShotsToProcElectrocute) {
+					if (numShotsToProcElectrocute > 0 && breakpointCounter >= numShotsToProcElectrocute) {
 						aliasHP -= electrocuteDPS / RoF;
 					}
-					if (breakpointCounter >= numShotsToProcNeurotoxin) {
+					if (numShotsToProcNeurotoxin > 0 && breakpointCounter >= numShotsToProcNeurotoxin) {
 						aliasHP -=  DoT_DPS[1] / RoF;
 					}
-					if (breakpointCounter >= numShotsToProcPersistentPlasma) {
+					if (numShotsToProcPersistentPlasma > 0 && breakpointCounter >= numShotsToProcPersistentPlasma) {
 						aliasHP -= plasmaDPS / RoF;
 					}
-					if (breakpointCounter >= numShotsToProcRadiation) {
+					if (numShotsToProcRadiation > 0 && breakpointCounter >= numShotsToProcRadiation) {
 						aliasHP -= DoT_DPS[3] / RoF;
 					}
+					
+					// This is just a catch-all statement for the rounding errors inherent to double division.
+					aliasHP = MathUtils.round(aliasHP, 4);
 				}
 				
 				toReturn.add(breakpointCounter);
@@ -973,19 +979,19 @@ public class EnemyInformation {
 					
 					// Third, determine if 4 seconds of DoTs can do enough damage to kill the creature
 					fourSecondsDoTDamage = 0;
-					if (breakpointCounter >= numShotsToProcBurn) {
+					if (numShotsToProcBurn > 0 && breakpointCounter >= numShotsToProcBurn) {
 						fourSecondsDoTDamage += Math.min(burnDuration, 4.0) * burnDPS;
 					}
-					if (breakpointCounter >= numShotsToProcElectrocute) {
+					if (numShotsToProcElectrocute > 0 && breakpointCounter >= numShotsToProcElectrocute) {
 						fourSecondsDoTDamage += Math.min(DoT_durations[0], 4.0) * electrocuteDPS;
 					}
-					if (breakpointCounter >= numShotsToProcNeurotoxin) {
+					if (numShotsToProcNeurotoxin > 0 && breakpointCounter >= numShotsToProcNeurotoxin) {
 						fourSecondsDoTDamage += Math.min(DoT_durations[1], 4.0) * DoT_DPS[1];
 					}
-					if (breakpointCounter >= numShotsToProcPersistentPlasma) {
+					if (numShotsToProcPersistentPlasma > 0 && breakpointCounter >= numShotsToProcPersistentPlasma) {
 						fourSecondsDoTDamage += Math.min(DoT_durations[2], 4.0) * plasmaDPS;
 					}
-					if (breakpointCounter >= numShotsToProcRadiation) {
+					if (numShotsToProcRadiation > 0 && breakpointCounter >= numShotsToProcRadiation) {
 						fourSecondsDoTDamage += Math.min(DoT_durations[3], 4.0) * DoT_DPS[3];
 					}
 					
@@ -994,21 +1000,24 @@ public class EnemyInformation {
 					}
 					
 					// If not, subtract the damage dealt by DoTs until the next shot at max RoF
-					if (breakpointCounter >= numShotsToProcBurn) {
+					if (numShotsToProcBurn > 0 && breakpointCounter >= numShotsToProcBurn) {
 						aliasHP -= burnDPS / RoF;
 					}
-					if (breakpointCounter >= numShotsToProcElectrocute) {
+					if (numShotsToProcElectrocute > 0 && breakpointCounter >= numShotsToProcElectrocute) {
 						aliasHP -= electrocuteDPS / RoF;
 					}
-					if (breakpointCounter >= numShotsToProcNeurotoxin) {
+					if (numShotsToProcNeurotoxin > 0 && breakpointCounter >= numShotsToProcNeurotoxin) {
 						aliasHP -=  DoT_DPS[1] / RoF;
 					}
-					if (breakpointCounter >= numShotsToProcPersistentPlasma) {
+					if (numShotsToProcPersistentPlasma > 0 && breakpointCounter >= numShotsToProcPersistentPlasma) {
 						aliasHP -= plasmaDPS / RoF;
 					}
-					if (breakpointCounter >= numShotsToProcRadiation) {
+					if (numShotsToProcRadiation > 0 && breakpointCounter >= numShotsToProcRadiation) {
 						aliasHP -= DoT_DPS[3] / RoF;
 					}
+					
+					// This is just a catch-all statement for the rounding errors inherent to double division.
+					aliasHP = MathUtils.round(aliasHP, 4);
 				}
 				
 				toReturn.add(breakpointCounter);
