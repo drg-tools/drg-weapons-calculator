@@ -8,13 +8,6 @@ import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
 import utilities.MathUtils;
 
-/*
-	The way MikeGSG explained it to me, the M1000 waits 0.2 seconds before beginning a Focused Shot to prevent it from "jittering".
-	Once it starts charging, by default it only takes 0.8 seconds to fully charge, for what feels like a 1 second period to the user.
-	The 0.8 duration is what gets affected by Charge Speed, not the 0.2 sec delay. Additionally, the crosshair animation doesn't begin
-	until a minimum charge has been gained, so by the time the crosshair starts moving the Focus Shot has already been charging for a short time.
-*/
-
 public class Classic_FocusShot extends Classic {
 	
 	/****************************************************************************************
@@ -56,36 +49,14 @@ public class Classic_FocusShot extends Classic {
 	
 	@Override
 	protected int getCarriedAmmo() {
-		double toReturn = carriedAmmo;
-		
-		if (selectedTier1 == 0) {
-			toReturn += 40;
-		}
-		
-		if (selectedOverclock == 1) {
-			toReturn += 16;
-		}
-		else if (selectedOverclock == 3) {
-			toReturn += 72;
-		}
-		else if (selectedOverclock == 5) {
-			toReturn *= 0.635;
-		}
-		
 		// Divide by 2 to account for firing two ammo per focused shot
 		// Use ceiling function because you can do a fully-charged Focus Shot with only 1 ammo if there's no ammo left in the clip
-		return (int) Math.ceil(toReturn / 2.0);
+		return (int) Math.ceil(super.getCarriedAmmo() / 2.0);
 	}
 	@Override
 	protected int getMagazineSize() {
-		int toReturn = magazineSize;
-		
-		if (selectedTier3 == 1) {
-			toReturn += 6;
-		}
-		
 		// Divide by 2 to account for firing two ammo per focused shot
-		return toReturn / 2;
+		return super.getMagazineSize() / 2;
 	}
 	@Override
 	public double getRateOfFire() {

@@ -46,36 +46,6 @@ public class Classic_Hipfire extends Classic {
 	****************************************************************************************/
 	
 	@Override
-	protected int getCarriedAmmo() {
-		double toReturn = carriedAmmo;
-		
-		if (selectedTier1 == 0) {
-			toReturn += 40;
-		}
-		
-		if (selectedOverclock == 1) {
-			toReturn += 16;
-		}
-		else if (selectedOverclock == 3) {
-			toReturn += 72;
-		}
-		else if (selectedOverclock == 5) {
-			toReturn *= 0.635;
-		}
-		
-		return (int) Math.round(toReturn);
-	}
-	@Override
-	protected int getMagazineSize() {
-		int toReturn = magazineSize;
-		
-		if (selectedTier3 == 1) {
-			toReturn += 6;
-		}
-		
-		return toReturn;
-	}
-	@Override
 	public double getRateOfFire() {
 		double toReturn = rateOfFire;
 		

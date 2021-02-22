@@ -293,9 +293,34 @@ public abstract class Classic extends Weapon {
 		
 		return toReturn;
 	}
-	// TODO: GreyHound reported a bug where these methods are adding +72 for Hipster, instead of multiplying by x1.75
-	protected abstract int getCarriedAmmo();
-	protected abstract int getMagazineSize();
+	protected int getCarriedAmmo() {
+		double toReturn = carriedAmmo;
+		
+		if (selectedTier1 == 0) {
+			toReturn += 40;
+		}
+		
+		if (selectedOverclock == 1) {
+			toReturn += 16;
+		}
+		else if (selectedOverclock == 3) {
+			toReturn *= 1.75;
+		}
+		else if (selectedOverclock == 5) {
+			toReturn *= 0.635;
+		}
+		
+		return (int) Math.round(toReturn);
+	}
+	protected int getMagazineSize() {
+		int toReturn = magazineSize;
+		
+		if (selectedTier3 == 1) {
+			toReturn += 6;
+		}
+		
+		return toReturn;
+	}
 	protected double getReloadTime() {
 		double toReturn = reloadTime;
 		
