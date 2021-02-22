@@ -637,7 +637,11 @@ public class AssaultRifle extends Weapon {
 		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
 		double[] directDamage = new double[5];
 		directDamage[0] = getDirectDamage();  // Kinetic
-		// TODO: implement Bullets of Mercy in breakpoints here?
+		
+		// OC "Bullets of Mercy" is a x1.33 Damage multiplier vs enemies afflicted by Status Effects.
+		if (selectedOverclock == 4 && (statusEffects[0] || statusEffects[1] || statusEffects[2] || statusEffects[3])) {
+			directDamage[0] *= 1.33;
+		}
 		
 		double[] areaDamage = new double[5];
 		
