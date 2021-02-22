@@ -650,10 +650,10 @@ public class EnemyInformation {
 		This method does NOT model Heavy Armor plates except for Mactera Brundle because those Heavy Armor plates cover its weakpoint.
 	*/
 	public static int[] calculateBreakpoints(double[] directDamageByType, double[] areaDamageByType, double[] DoT_DPS, double[] DoT_durations, double[] DoT_probabilities, 
-											 double weakpointModifier, double armorBreaking, double RoF, double heatPerShot, 
-											 double macteraModifier, boolean frozen, boolean IFG, boolean flyingNightmare, boolean embeddedDetonators) {
+											 double weakpointModifier, double armorBreaking, double RoF, double heatPerShot, double macteraModifier, 
+											 boolean frozen, boolean IFG, boolean flyingNightmare, boolean embeddedDetonators) {
 		// I haven't yet modeled Armor Breaking in this method, so I can't do Mactera Brundle yet.
-		int[] creaturesToModel = {0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 14, 15, 16, 20, 21};
+		int[] creaturesToModel = {0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 14, 15, 16, 20, 21, 22};
 		
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];

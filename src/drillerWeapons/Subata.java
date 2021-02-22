@@ -651,41 +651,29 @@ public class Subata extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		double directFireDamage = 0;
+		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+		double[] directDamage = new double[5];
+		directDamage[0] = getDirectDamage();  // Kinetic
 		if (selectedTier5 == 0 && statusEffects[0]) {
-			directFireDamage = 0.5 * getDirectDamage();
+			directDamage[2] = 0.5 * getDirectDamage();  // Fire
 		}
 		
-		double[] directDamage = {
-			getDirectDamage(),  // Kinetic
-			0,  // Explosive
-			directFireDamage,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
-		
-		double[] areaDamage = {
-			// Internal, Disintegrate, and Kinetic all share the same "no resistances" property in U32.
-			getAreaDamage(),  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
-		
-		double[] DoTDamage = {
-			0,  // Fire
-			0,  // Electric
-			0,  // Poison
-			0  // Radiation
-		};
+		double[] areaDamage = new double[5];
+		areaDamage[0] = getAreaDamage();  // Kinetic
 		
 		double macteraBonus = 0;
 		if (selectedTier5 == 1) {
 			macteraBonus = 0.2;
 		}
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), macteraBonus, 0.0, statusEffects[1], statusEffects[3], false);
+		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+		double[] dot_dps = new double[4];
+		double[] dot_duration = new double[4];
+		double[] dot_probability = new double[4];
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
+															getWeakpointBonus(), armorBreaking, getRateOfFire(), 0.0, macteraBonus, 
+															statusEffects[1], statusEffects[3], false, selectedOverclock == 4);
 		return MathUtils.sum(breakpoints);
 	}
 

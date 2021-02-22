@@ -626,32 +626,25 @@ public class SMG extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		double[] directDamage = {
-			getDirectDamage(),  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			getElectricDamage()  // Electric
-		};
+		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+		double[] directDamage = new double[5];
+		directDamage[0] = getDirectDamage();  // Kinetic
+		directDamage[4] = getElectricDamage();  // Electric
 		
-		double[] areaDamage = {
-			0,  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
+		double[] areaDamage = new double[5];
 		
-		double timeToElectrocute = MathUtils.meanRolls(getElectrocutionDoTChance()) / getRateOfFire();
+		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+		double[] dot_dps = new double[4];
+		double[] dot_duration = new double[4];
+		double[] dot_probability = new double[4];
 		
-		double[] DoTDamage = {
-			0,  // Fire
-			calculateAverageDoTDamagePerEnemy(timeToElectrocute, DoTInformation.Electro_SecsDuration, DoTInformation.Electro_DPS),  // Electric
-			0,  // Poison
-			0  // Radiation
-		};
+		dot_dps[0] = DoTInformation.Electro_DPS;
+		dot_duration[0] = DoTInformation.Electro_SecsDuration;
+		dot_probability[0] = getElectrocutionDoTChance();
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0, statusEffects[1], statusEffects[3], false);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
+															getWeakpointBonus(), 1.0, getRateOfFire(), 0.0, 0.0, 
+															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
 

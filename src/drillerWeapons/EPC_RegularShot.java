@@ -218,34 +218,26 @@ public class EPC_RegularShot extends EPC {
 	
 	@Override
 	public int breakpoints() {
-		double[] directDamage = {
-			0.5 * getDirectDamage(),  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0.5 * getDirectDamage()  // Electric
-		};
+		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+		double[] directDamage = new double[5];
+		directDamage[0] = 0.5 * getDirectDamage();  // Kinetic
+		directDamage[4] = 0.5 * getDirectDamage();  // Electric
 		
-		double[] areaDamage = {
-			0,  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
+		double[] areaDamage = new double[5];
 		
-		double burnDmg = 0;
+		double heatPerShot = 0;
 		if (selectedTier5 == 2) {
-			burnDmg = calculateAverageDoTDamagePerEnemy(averageTimeToCauterize(), DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
+			heatPerShot = 0.5 * getDirectDamage();
 		}
-		double[] DoTDamage = {
-			burnDmg,  // Fire
-			0,  // Electric
-			0,  // Poison
-			0  // Radiation
-		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, 0.0, statusEffects[1], statusEffects[3], false);
+		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+		double[] dot_dps = new double[4];
+		double[] dot_duration = new double[4];
+		double[] dot_probability = new double[4];
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
+															0.0, 1.0, getRateOfFire(), heatPerShot, 0.0, 
+															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
 

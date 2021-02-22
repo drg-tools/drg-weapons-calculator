@@ -710,42 +710,36 @@ public class Boomstick extends Weapon {
 			area = 0;
 		}
 		
+		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+		double[] directDamage = new double[5];
+		double[] areaDamage = new double[5];
+		
 		// According to Elythnwaen, White Phosphorus Shells not only adds 50% of kinetic + explosive damage to Heat, it also converts 50% to Fire.
-		double split = 0;
 		if (selectedTier5 == 2) {
-			split = 0.5;
+			directDamage[0] = 0.5 * direct;  // Kinetic
+			directDamage[2] = 0.5 * direct;  // Fire
+			
+			areaDamage[1] = 0.5 * area;  // Explosive
+			areaDamage[2] = 0.5 * area;  // Fire
+		}
+		else {
+			directDamage[0] = direct;  // Kinetic
+			areaDamage[1] = area;  // Explosive
 		}
 		
-		double[] directDamage = {
-			(1.0 - split) * direct,  // Kinetic
-			0,  // Explosive
-			split * direct,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
-		
-		double[] areaDamage = {
-			0,  // Kinetic
-			(1.0 - split) * area,  // Explosive
-			split * area,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
-		
-		// Because White Phosphorus Shells is a burst of Heat, it's not modeled like other DoTs are
-		double burstOfHeatPerShot = 0;
+		double heatPerShot = 0;
 		if (selectedTier5 == 2) {
-			burstOfHeatPerShot = 0.5 * (direct + area);
+			heatPerShot = 0.5 * (direct + area);
 		}
 		
-		double[] DoTDamage = {
-			0,  // Fire
-			0,  // Electric
-			0,  // Poison
-			0  // Radiation
-		};
+		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+		double[] dot_dps = new double[4];
+		double[] dot_duration = new double[4];
+		double[] dot_probability = new double[4];
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, burstOfHeatPerShot, statusEffects[1], statusEffects[3], false);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
+															0.0, getArmorBreaking(), getRateOfFire(), heatPerShot, 0.0, 
+															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
 	@Override

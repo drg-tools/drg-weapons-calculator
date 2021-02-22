@@ -851,44 +851,32 @@ public class Revolver extends Weapon {
 	
 	@Override
 	public int breakpoints() {
+		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+		double[] directDamage = new double[5];
+		directDamage[0] = getDirectDamage();  // Kinetic
 		
-		double directFireDamage = 0;
-		double areaFireDamage = 0;
+		double[] areaDamage = new double[5];
+		areaDamage[1] = getAreaDamage();  // Explosive
+		
 		if (selectedOverclock == 2 && statusEffects[0]) {
-			directFireDamage = 3.0 * getDirectDamage();
-			areaFireDamage = 3.0 * getAreaDamage();
+			directDamage[2] = 3.0 * getDirectDamage();  // Fire
+			areaDamage[2] = 3.0 * getAreaDamage();  // Fire
 		}
 		
-		double[] directDamage = {
-			getDirectDamage(), // Kinetic
-			0,  // Explosive
-			directFireDamage,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
+		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+		double[] dot_dps = new double[4];
+		double[] dot_duration = new double[4];
+		double[] dot_probability = new double[4];
 		
-		double[] areaDamage = {
-			0,  // Kinetic
-			getAreaDamage(),  // Explosive
-			areaFireDamage,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
-		
-		double ntDoTDmg = 0;
 		if (selectedTier5 == 1) {
-			double timeToNeurotoxin = MathUtils.meanRolls(0.5) / getCustomRoF();
-			ntDoTDmg = calculateAverageDoTDamagePerEnemy(timeToNeurotoxin, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
+			dot_dps[1] = DoTInformation.Neuro_DPS;
+			dot_duration[1] = DoTInformation.Neuro_SecsDuration;
+			dot_probability[1] = 0.5;
 		}
 		
-		double[] DoTDamage = {
-			0,  // Fire
-			0,  // Electric
-			ntDoTDmg,  // Poison
-			0  // Radiation
-		};
-		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0, statusEffects[1], statusEffects[3], false);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
+															getWeakpointBonus(), 1.0, getRateOfFire(), 0.0, 0.0, 
+															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
 

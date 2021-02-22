@@ -680,36 +680,27 @@ public class Autocannon extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		double[] directDamage = {
-			getDirectDamage(),  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
+		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+		double[] directDamage = new double[5];
+		directDamage[0] = getDirectDamage();  // Kinetic
 		
-		double[] areaDamage = {
-			0,  // Kinetic
-			getAreaDamage(),  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
+		double[] areaDamage = new double[5];
+		areaDamage[1] = getAreaDamage();  // Explosive
 		
-		double ntDoTDmg = 0;
+		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+		double[] dot_dps = new double[4];
+		double[] dot_duration = new double[4];
+		double[] dot_probability = new double[4];
+		
 		if (selectedOverclock == 5) {
-			double timeToNeurotoxin = MathUtils.meanRolls(0.3) / getAverageRateOfFire();
-			ntDoTDmg = calculateAverageDoTDamagePerEnemy(timeToNeurotoxin, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
+			dot_dps[1] = DoTInformation.Neuro_DPS;
+			dot_duration[1] = DoTInformation.Neuro_SecsDuration;
+			dot_probability[1] = 0.3;
 		}
 		
-		double[] DoTDamage = {
-			0,  // Fire
-			0,  // Electric
-			ntDoTDmg,  // Poison
-			0  // Radiation
-		};
-		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, 0.0, statusEffects[1], statusEffects[3], false);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
+															0.0, getArmorBreaking(), getAverageRateOfFire(), 0.0, 0.0, 
+															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
 

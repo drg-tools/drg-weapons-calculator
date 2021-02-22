@@ -607,34 +607,18 @@ public class GrenadeLauncher extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		double dDamage = getDirectDamage();
-		double aDamage = getAreaDamage();
-		double explosiveMultiplier, disintegrateMultiplier;
+		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+		// Disintegrate, Internal, and Kinetic damage are all resistance-less so I can overload the Kinetic portion in Breakpoints()
+		double[] directDamage = new double[5];
+		double[] areaDamage = new double[5];
 		if (selectedOverclock == 5) {
-			disintegrateMultiplier = 1.0;
-			explosiveMultiplier = 0.0;
+			directDamage[0] = getDirectDamage();  // Kinetic
+			areaDamage[0] = getAreaDamage();  // Kinetic
 		}
 		else {
-			explosiveMultiplier = 1.0;
-			disintegrateMultiplier = 0.0;
+			directDamage[1] = getDirectDamage();  // Explosive
+			areaDamage[1] = getAreaDamage();  // Explosive
 		}
-		
-		// Disintegrate, Internal, and Kinetic damage are all resistance-less so I can overload the Kinetic portion in Breakpoints()
-		double[] directDamage = {
-			disintegrateMultiplier * dDamage,  // Kinetic
-			explosiveMultiplier * dDamage,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
-		
-		double[] areaDamage = {
-			disintegrateMultiplier * aDamage,  // Kinetic
-			explosiveMultiplier * aDamage,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
 		
 		// Incendiary Compound is a burst of Heat, and gets modeled differently than Radiation
 		double heatPerGrenade = 0;
@@ -642,19 +626,21 @@ public class GrenadeLauncher extends Weapon {
 			heatPerGrenade = getHeatPerGrenade();
 		}
 		
-		double radDamage = 0;
+		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+		double[] dot_dps = new double[4];
+		double[] dot_duration = new double[4];
+		double[] dot_probability = new double[4];
+		
 		if (selectedOverclock == 4) {
-			radDamage = calculateAverageDoTDamagePerEnemy(0, 4, DoTInformation.Rad_FB_DPS);
+			dot_dps[3] = DoTInformation.Rad_FB_DPS;
+			// Yes it lasts 15 seconds, but I'm choosing to model it as if enemies walk out of the field in about 4 seconds.
+			dot_duration[3] = 4.0;
+			dot_probability[3] = 1.0;
 		}
 		
-		double[] DoTDamage = {
-			0,  // Fire
-			0,  // Electric
-			0,  // Poison
-			radDamage  // Radiation
-		};
-		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, heatPerGrenade, statusEffects[1], statusEffects[3], false);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
+															0.0, getArmorBreaking(), 1.0/reloadTime, heatPerGrenade, 0.0, 
+															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
 

@@ -609,36 +609,26 @@ public class Zhukov extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		double[] directDamage = {
-			getDirectDamage(),  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
-		
-		// Kinetic, Disintegrate, and Internal are all resistanceless, so I can overload them here.
-		double[] areaDamage = {
-			getAreaDamage(),  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
-		
-		double[] DoTDamage = {
-			0,  // Fire
-			0,  // Electric
-			0,  // Poison
-			0  // Radiation
-		};
+		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+		double[] directDamage = new double[5];
+		directDamage[0] = getDirectDamage();  // Kinetic
 		
 		// T5.A Conductive Bullets multiplies by an additional x1.3 when hitting enemies electrocuted or affected by IFG
 		if (selectedTier5 == 0 && (statusEffects[2] || statusEffects[3])) {
-			directDamage = MathUtils.vectorScalarMultiply(1.3, directDamage);
+			directDamage[0] *= 1.3;
 		}
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0, statusEffects[1], statusEffects[3], false);
+		double[] areaDamage = new double[5];
+		areaDamage[0] = getAreaDamage();  // Kinetic
+		
+		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+		double[] dot_dps = new double[4];
+		double[] dot_duration = new double[4];
+		double[] dot_probability = new double[4];
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
+															getWeakpointBonus(), 1.0, getRateOfFire()/2.0, 0.0, 0.0, 
+															statusEffects[1], statusEffects[3], false, selectedOverclock == 3);
 		return MathUtils.sum(breakpoints);
 	}
 

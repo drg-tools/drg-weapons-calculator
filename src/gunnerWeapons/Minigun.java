@@ -873,43 +873,33 @@ public class Minigun extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		double[] directDamage = {
-			getDamagePerPellet(false),  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
+		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+		double[] directDamage = new double[5];
+		directDamage[0] = getDamagePerPellet(false);  // Kinetic
 		
-		double[] areaDamage = {
-			0,  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
+		double[] areaDamage = new double[5];
 		
-		double burnDmg = 0;
-		// Because Hot Bullets takes almost 4 seconds to start working, I'm choosing to not model when Burning Hell and Hot Bullets are combined.
-		// I'm also choosing to model Burning Hell's 20 Area Damage per second as another Fire DoT
+		double effectiveRoF = getRateOfFire() / 2.0;
+		double heatPerShot = 0;
+		// Hot Bullets add 50% of Direct Damage/pellet as Heat/pellet. Althought it doesn't activate for almost 4 seconds, for simplicity's sake I'm just going to model it as if it's active the whole time.
+		if (selectedTier5 == 2) {
+			heatPerShot += 0.5 * directDamage[0];
+		}
+		
+		// Burning Hell does 5 Fire-element Area-type Damage and 20 Heat at 4 ticks/sec, so I have to downscale its damage to match the RoF of the bullets
 		if (selectedOverclock == 2) {
-			burnDmg = calculateAverageDoTDamagePerEnemy(calculateIgnitionTime(false), DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
-			burnDmg += calculateAverageDoTDamagePerEnemy(0, DoTInformation.Burn_SecsDuration, 20);
-		}
-		else if (selectedTier5 == 2) {
-			// To model the fact that this won't start igniting enemies until 4 seconds of firing, I'm choosing to only use 1/4 of the Burn DoT damage
-			// This is not in any way an accurate representation, since every enemy except Bulks, Breeders, and Nexuses would die before they started Burning.
-			burnDmg = 0.25 * calculateAverageDoTDamagePerEnemy(calculateIgnitionTime(false) - 4, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
+			areaDamage[2] = 5.0 * 4.0 / effectiveRoF;  // Fire
+			heatPerShot += 20.0 * 4.0 / effectiveRoF;
 		}
 		
-		double[] DoTDamage = {
-			burnDmg,  // Fire
-			0,  // Electric
-			0,  // Poison
-			0  // Radiation
-		};
+		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+		double[] dot_dps = new double[4];
+		double[] dot_duration = new double[4];
+		double[] dot_probability = new double[4];
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, 0.0, statusEffects[1], statusEffects[3], false);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
+															0.0, getArmorBreaking(), effectiveRoF, heatPerShot, 0.0, 
+															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
 
