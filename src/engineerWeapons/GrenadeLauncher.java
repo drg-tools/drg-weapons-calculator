@@ -97,7 +97,7 @@ public class GrenadeLauncher extends Weapon {
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Proximity Trigger", "After being fired, grenades that pass within 2m of an enemy will detonate after a 0.1 sec delay. If it never passes that close to an enemy, it will automatically detonate when it stops moving. "
-				+ "Note: the trigger takes a moment to arm (indicated by a green light) and until then the grenade functions as usual.", modIcons.special, 5, 0, false);
+				+ "Note: the trigger takes 0.2 seconds to arm (indicated by a green light) and until then the grenade functions as usual.", modIcons.special, 5, 0, false);
 		tier5[1] = new Mod("Spiky Grenade", "+60 Direct Damage to any target directly impacted by a grenade.", modIcons.directDamage, 5, 1);
 		
 		overclocks = new Overclock[6];
@@ -421,6 +421,7 @@ public class GrenadeLauncher extends Weapon {
 		}
 	}
 	private double getProjectileVelocity() {
+		// Elythnwaen tells me that the default velocity is 30 m/sec
 		double toReturn = 1.0;
 		
 		if (selectedTier2 == 2) {
