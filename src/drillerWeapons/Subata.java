@@ -448,7 +448,7 @@ public class Subata extends Weapon {
 	
 	@Override
 	public double getRecommendedRateOfFire() {
-		return 6;
+		return Math.min(getRateOfFire(), 6);
 	}
 	
 	@Override
