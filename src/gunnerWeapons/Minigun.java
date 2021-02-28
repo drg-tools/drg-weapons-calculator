@@ -626,16 +626,7 @@ public class Minigun extends Weapon {
 		}
 		// Both Hot Bullets AND Burning Hell
 		else if (selectedTier4 == 2 && selectedOverclock == 2) {
-			// Because Burning Hell reduces the Firing Period from 9.5 sec to 6.33 sec, this means that Hot Bullets gets activated sooner too
-			double heatGain = getHeatPerSecond();
-			double firingPeriod = maxHeat / heatGain;
-			timeBeforeHotBullets /= heatGain;
-			double timeAfterHotBullets = firingPeriod - timeBeforeHotBullets;
-			
-			double heatPerPellet = ((double) getDamagePerPellet(true)) * generalAccuracy / 2.0;
-			double RoF = getRateOfFire() / 2.0;
-			double avgHeatPerSec = (timeBeforeHotBullets * burningHellHeatPerSec + timeAfterHotBullets * (heatPerPellet * RoF + burningHellHeatPerSec)) / firingPeriod;
-			return EnemyInformation.averageTimeToIgnite(0, 0, 0, avgHeatPerSec);
+			return EnemyInformation.averageTimeToIgnite(0, heatPerPellet, RoF, burningHellHeatPerSec);
 		}
 		// Neither are equipped.
 		else {

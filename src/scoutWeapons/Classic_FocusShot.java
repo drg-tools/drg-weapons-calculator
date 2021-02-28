@@ -58,16 +58,12 @@ public class Classic_FocusShot extends Classic {
 		// Divide by 2 to account for firing two ammo per focused shot
 		return super.getMagazineSize() / 2;
 	}
+	private double getDelayBetweenFocusShots() {
+		return 1.0 / super.getRateOfFire();
+	}
 	@Override
 	public double getRateOfFire() {
-		double maxRoF = 1 rateOfFire;
-		if (selectedOverclock == 3) {
-			maxRoF += 2;
-		}
-		else if (selectedOverclock == 5) {
-			maxRoF -= 2.5;
-		}
-		return 1.0 / ((1.0 / maxRoF) + getFocusDuration());
+		return 1.0 / (getDelayBetweenFocusShots() + getFocusDuration());
 	}
 	
 	@Override

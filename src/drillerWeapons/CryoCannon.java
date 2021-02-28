@@ -705,7 +705,6 @@ public class CryoCannon extends Weapon {
 		
 		double icePathDamage = 0;
 		if (selectedOverclock == 5) {
-			double numTargets = calculateMaxNumTargets();
 			double avgTTK = averageTimeToKill();
 			double estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / avgTTK);
 			

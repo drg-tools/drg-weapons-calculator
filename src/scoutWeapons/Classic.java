@@ -318,6 +318,19 @@ public abstract class Classic extends Weapon {
 		
 		return toReturn;
 	}
+	@Override
+	public double getRateOfFire() {
+		double toReturn = rateOfFire;
+		
+		if (selectedOverclock == 3) {
+			toReturn += 2;
+		}
+		else if (selectedOverclock == 5) {
+			toReturn -= 2.5;
+		}
+		
+		return toReturn;
+	}
 	protected double getReloadTime() {
 		double toReturn = reloadTime;
 		
