@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 
 import guiPieces.AoEVisualizer;
 import guiPieces.GuiConstants;
-import guiPieces.ButtonIcons.modIcons;
+import guiPieces.customButtons.ButtonIcons.modIcons;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 import utilities.Point2D;
@@ -21,6 +21,10 @@ public abstract class Weapon extends Observable {
 	
 	protected String fullName;
 	protected BufferedImage weaponPic;
+	protected boolean customizableRoF = false;
+	// This value gets set back to 0 after every mod/OC selection so that changing the build resets CustomRoF to max RoF, and once the user has settled on a build they can tweak the RoF via the GUI.
+	// It may feel frustrating for the user, but it neatly sidesteps an issue where the CustomRoF could be greater than the new Max RoF and artificially inflates the DPS stats.
+	protected double customRoF = 0;
 	// Since several of the weapons have a Homebrew Powder mod or OC, I'm adding this coefficient in the parent class so that they can all be updated simultaneously.
 	// Taking the (integral of x dx from 0.8 -> 1.4) / (1.4 - 0.8) results in the intuitive 1.1
 	protected double homebrewPowderCoefficient = 1.1;
@@ -72,6 +76,10 @@ public abstract class Weapon extends Observable {
 	protected boolean enableWeakpointsDPS = false;
 	protected boolean enableGeneralAccuracyDPS = false;
 	protected boolean enableArmorWastingDPS = false;
+	
+	// The only legitimate values for these two variables are -1 and [0, 100], so setting them to -100 lets me know later if these values have been set or not.
+	private double metric_generalAccuracy = -100;
+	private double metric_weakpointAccuracy = -100;
 	
 	protected double[] baselineBurstDPS;
 	protected double[] baselineSustainedDPS;
@@ -232,6 +240,11 @@ public abstract class Weapon extends Observable {
 				}
 			}
 			
+			// Un-set these values for the new build
+			metric_generalAccuracy = -100;
+			metric_weakpointAccuracy = -100;
+			customRoF = 0;
+			
 			if (currentlyDealsSplashDamage()) {
 				setAoEEfficiency();
 			}
@@ -308,6 +321,11 @@ public abstract class Weapon extends Observable {
 				}
 			}
 			
+			// Un-set these values for the new build
+			metric_generalAccuracy = -100;
+			metric_weakpointAccuracy = -100;
+			customRoF = 0;
+			
 			if (currentlyDealsSplashDamage()) {
 				setAoEEfficiency();
 			}
@@ -345,6 +363,11 @@ public abstract class Weapon extends Observable {
 				}
 			}
 			
+			// Un-set these values for the new build
+			metric_generalAccuracy = -100;
+			metric_weakpointAccuracy = -100;
+			customRoF = 0;
+			
 			if (currentlyDealsSplashDamage()) {
 				setAoEEfficiency();
 			}
@@ -369,6 +392,11 @@ public abstract class Weapon extends Observable {
 			}
 			
 			overclocks[indexToIgnore].toggleIgnored();
+			
+			// Un-set these values for the new build
+			metric_generalAccuracy = -100;
+			metric_weakpointAccuracy = -100;
+			customRoF = 0;
 			
 			if (currentlyDealsSplashDamage()) {
 				setAoEEfficiency();
@@ -534,6 +562,42 @@ public abstract class Weapon extends Observable {
 		}
 	}
 	
+	public boolean isRofCustomizable() {
+		return customizableRoF;
+	}
+	public void setCustomRoF(double newRoF) {
+		// This will be a logic error for any class that has customizableRoF=true but doesn't initialize the customRoF=getRateOfFire()
+		if (customizableRoF && newRoF > 0 && newRoF <= getRateOfFire()) {
+			customRoF = newRoF;
+			
+			// This method is only called from the GUI, so I have to refresh said GUI for users to see the change.
+			// Un-set these values for the new build
+			metric_generalAccuracy = -100;
+			metric_weakpointAccuracy = -100;
+						
+			if (countObservers() > 0) {
+				setChanged();
+				notifyObservers();
+			}
+		}
+	}
+	public double getCustomRoF() {
+		if (customizableRoF && customRoF > 0) {
+			return customRoF;
+		}
+		else {
+			return getRateOfFire();
+		}
+	}
+	public double getRateOfFire() {
+		// This method only exists to be overridden in child classes, but it's necessary to make the user-set RoF trick work. :(
+		return -1;
+	}
+	public double getRecommendedRateOfFire() {
+		// Another useless getter unless the Weapon works with the user-set RoF trick.
+		return -1;
+	}
+	
 	protected abstract void initializeModsAndOverclocks();
 	
 	protected void setBaselineStats() {
@@ -570,7 +634,7 @@ public abstract class Weapon extends Observable {
 		
 		baselineCalculatedStats = new double[] {
 			calculateAdditionalTargetDPS(), calculateMaxNumTargets(), calculateMaxMultiTargetDamage(), ammoEfficiency(), damageWastedByArmor(), 
-			estimatedAccuracy(false), estimatedAccuracy(true), calculateFiringDuration(), averageTimeToKill(), averageOverkill(), breakpoints(), 
+			getGeneralAccuracy(), getWeakpointAccuracy(), calculateFiringDuration(), averageTimeToKill(), averageOverkill(), breakpoints(), 
 			utilityScore(), averageTimeToCauterize()
 		};
 		selectedTier1 = oldT1;
@@ -707,6 +771,10 @@ public abstract class Weapon extends Observable {
 	public void setAccuracyDistance(double newDistance) {
 		// Input sanitization
 		if (newDistance > 0 && newDistance < 20) {
+			// Un-set these values for the new estimates
+			metric_generalAccuracy = -100;
+			metric_weakpointAccuracy = -100;
+			
 			accEstimator.setDistance(newDistance);
 			// Because this method will only be called from the GUI, it doesn't need the updateGUI flag
 			if (countObservers() > 0) {
@@ -723,7 +791,27 @@ public abstract class Weapon extends Observable {
 		return accEstimator.isModelingRecoil();
 	}
 	public void setModelRecoilInAccuracy(boolean newValue) {
+		// Un-set these values for the new estimates
+		metric_generalAccuracy = -100;
+		metric_weakpointAccuracy = -100;
+					
 		accEstimator.setModelRecoil(newValue);
+		// Because this method will only be called from the GUI, it doesn't need the updateGUI flag
+		if (countObservers() > 0) {
+			setChanged();
+			notifyObservers();
+		}
+	}
+	
+	public boolean isDwarfMoving() {
+		return accEstimator.getDwarfIsMoving();
+	}
+	public void setDwarfMoving(boolean newValue) {
+		// Un-set these values for the new estimates
+		metric_generalAccuracy = -100;
+		metric_weakpointAccuracy = -100;
+					
+		accEstimator.setDwarfIsMoving(newValue);
 		// Because this method will only be called from the GUI, it doesn't need the updateGUI flag
 		if (countObservers() > 0) {
 			setChanged();
@@ -747,6 +835,26 @@ public abstract class Weapon extends Observable {
 	}
 	public JPanel getVisualizerPanel() {
 		return accEstimator.getVisualizer();
+	}
+	
+	// Rather than build out an entire cache for two variables per Weapon, I'll just fake it with these two methods.
+	public double getGeneralAccuracy() {
+		if (metric_generalAccuracy == -100) {
+			metric_generalAccuracy = estimatedAccuracy(false);
+			return metric_generalAccuracy;
+		}
+		else {
+			return metric_generalAccuracy;
+		}
+	}
+	public double getWeakpointAccuracy() {
+		if (metric_weakpointAccuracy == -100) {
+			metric_weakpointAccuracy = estimatedAccuracy(true);
+			return metric_weakpointAccuracy;
+		}
+		else {
+			return metric_weakpointAccuracy;
+		}
 	}
 	
 	/****************************************************************************************
@@ -831,13 +939,58 @@ public abstract class Weapon extends Observable {
 		13. Accuracy Modifiers
 			a. Base Spread
 			b. Spread Per Shot
-			c. Max Spread (Base Spread + Spread Variance)
+			c. Max Bloom
 			d. Spread Recovery Speed
 			e. Recoil Per Shot
 		14. Effects on the Dwarf
 	*/
 	public abstract StatsRow[] getStats();
 	public abstract Weapon clone();
+	
+	/*
+		This method is written out of frustration with having to do such an expanded numerical approximation of the Inverse Lambert function. Engineer's Shotgun Recoil
+		doesn't play nicely with that method, so I'm going to create a binary-search styled method that samples the output of the Recoil equation and then narrows in on
+		the desired value t, at which point it will return. To be clear: this is extremely inefficient to do computationally when the exact answer is technically calculable.
+		However, after adding 20 segments and it STILL not being enough, my patience for Inverse Lambert has run out and I'm making this monstrosity instead.
+		
+		Because it works.
+	*/
+	protected double calculateTimeToRecoverRecoil(double recoilPitch, double recoilYaw, double mass, double springStiffness, double goalRecoilValue) {
+		double desiredPrecision = 0.001;
+		
+		double v = Math.hypot(recoilPitch, recoilYaw);
+		double w = Math.sqrt(springStiffness / mass);
+		
+		// Early exit condition: if the goalRecoilValue >= maxRecoil the while loop will never close, causing the program to freeze.
+		if (goalRecoilValue >= v / (Math.E * w)) {
+			return -1;
+		}
+		
+		// Because Recoil changes from a positive slope to a negative slope at 1/w, I can start my binary search there.
+		double minT = 1 / w;
+		double maxT = -1.0 * MathUtils.lambertInverseWNumericalApproximation(-w * 0.1 / v) / w;
+		double currentT = minT;
+		double currentRecoilValue =  Math.exp(-w * minT) * v * minT;
+		
+		while (currentRecoilValue + desiredPrecision < goalRecoilValue || currentRecoilValue - desiredPrecision > goalRecoilValue) {
+			if (currentRecoilValue + desiredPrecision > goalRecoilValue) {
+				minT = currentT;
+				currentT = (currentT + maxT) / 2.0;
+			}
+			else if (currentRecoilValue - desiredPrecision < goalRecoilValue) {
+				maxT = currentT;
+				currentT = (minT + currentT) / 2.0;
+			}
+			else {
+				// If by some bizarre coincidence currentT == goalRecoilValue, return immediately.
+				return currentT;
+			}
+			
+			currentRecoilValue =  Math.exp(-w * currentT) * v * currentT;
+		}
+		
+		return currentT;
+	}
 	
 	protected double calculateProbabilityToBreakLightArmor(double baseDamage) {
 		return calculateProbabilityToBreakLightArmor(baseDamage, 1.0);
@@ -1129,25 +1282,19 @@ public abstract class Weapon extends Observable {
 		return (int) Math.ceil(streamLength / (2 * EnemyInformation.GlyphidGruntBodyRadius + EnemyInformation.GlyphidGruntBodyAndLegsRadius));
 	}
 	
-	protected double increaseBulletDamageForWeakpoints2(double preWeakpointBulletDamage) {
-		return increaseBulletDamageForWeakpoints2(preWeakpointBulletDamage, 0.0);
-	}
-	protected double increaseBulletDamageForWeakpoints2(double preWeakpointBulletDamage, double weakpointBonusModifier) {
-		double estimatedDamageIncreaseWithoutModifier = EnemyInformation.averageWeakpointDamageIncrease();
-		return estimatedDamageIncreaseWithoutModifier * (1.0 + weakpointBonusModifier) * preWeakpointBulletDamage;
-	}
 	protected double increaseBulletDamageForWeakpoints(double preWeakpointBulletDamage) {
-		return increaseBulletDamageForWeakpoints(preWeakpointBulletDamage, 0.0);
+		return increaseBulletDamageForWeakpoints(preWeakpointBulletDamage, 0.0, EnemyInformation.probabilityBulletWillHitWeakpoint());
 	}
 	protected double increaseBulletDamageForWeakpoints(double preWeakpointBulletDamage, double weakpointBonusModifier) {
+		return increaseBulletDamageForWeakpoints(preWeakpointBulletDamage, weakpointBonusModifier, EnemyInformation.probabilityBulletWillHitWeakpoint());
+	}
+	protected double increaseBulletDamageForWeakpoints(double preWeakpointBulletDamage, double weakpointBonusModifier, double probabilityBulletHitsWeakpoint) {
 		/*
 			Before weakpoint bonus modifier, weakpoint damage is roughly a 40% increase per bullet.
 			As a rule of thumb, the weakpointBonusModifier is roughly a (2/3 * bonus damage) additional increase per bullet. 
 			30% bonus modifier => ~20% increase to DPS
 		*/
-		double probabilityBulletHitsWeakpoint = EnemyInformation.probabilityBulletWillHitWeakpoint();
 		double estimatedDamageIncreaseWithoutModifier = EnemyInformation.averageWeakpointDamageIncrease();
-		
 		return ((1.0 - probabilityBulletHitsWeakpoint) + probabilityBulletHitsWeakpoint * estimatedDamageIncreaseWithoutModifier * (1.0 + weakpointBonusModifier)) * preWeakpointBulletDamage;
 	}
 	
@@ -1225,7 +1372,11 @@ public abstract class Weapon extends Observable {
 		toReturn[21] = new StatsRow("Mactera Grabber (Weakpoint):", breakpoints[21], null, false);
 		toReturn[22] = new StatsRow("Mactera Goo Bomber:", breakpoints[22], null, false);
 		toReturn[23] = new StatsRow("Mactera Goo Bomber (Weakpoint):    ", breakpoints[23], null, false);  // Added spaces at the end to create some whitespace in the JPanel
-		toReturn[24] = new StatsRow("Cave Leech:", breakpoints[24], null, false);
+		toReturn[24] = new StatsRow("Mactera Tri-Jaw:", breakpoints[25], null, false);
+		toReturn[25] = new StatsRow("Mactera Tri-Jaw (Weakpoint):", breakpoints[26], null, false);
+		toReturn[26] = new StatsRow("Mactera Brundle:", breakpoints[27], null, false);
+		toReturn[27] = new StatsRow("Mactera Brundle (Weakpoint):", breakpoints[28], null, false);
+		toReturn[28] = new StatsRow("Cave Leech:", breakpoints[24], null, false);
 		
 		return toReturn;
 	}
@@ -1273,6 +1424,7 @@ public abstract class Weapon extends Observable {
 		toReturn[6] = new StatsRow("Glyphid Menace:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][6], GuiConstants.numDecimalPlaces) + "%", null, false);
 		toReturn[7] = new StatsRow("Glyphid Warden:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][7], GuiConstants.numDecimalPlaces) + "%", null, false);
 		toReturn[8] = new StatsRow("Q'ronar Shellback:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][8], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[9] = new StatsRow("Mactera Brundle:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][9], GuiConstants.numDecimalPlaces) + "%", null, false);
 		
 		return toReturn;
 	}
@@ -1297,10 +1449,12 @@ public abstract class Weapon extends Observable {
 		toReturn[14] = new StatsRow("Mactera Spawn:", MathUtils.round(overkillPercentages[1][14], GuiConstants.numDecimalPlaces) + "%", null, false);
 		toReturn[15] = new StatsRow("Mactera Grabber:", MathUtils.round(overkillPercentages[1][15], GuiConstants.numDecimalPlaces) + "%", null, false);
 		toReturn[16] = new StatsRow("Mactera Goo Bomber:", MathUtils.round(overkillPercentages[1][16], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[17] = new StatsRow("Naedocyte Breeder:", MathUtils.round(overkillPercentages[1][17], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[18] = new StatsRow("Glyphid Brood Nexus:", MathUtils.round(overkillPercentages[1][18], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[19] = new StatsRow("Spitball Infector:", MathUtils.round(overkillPercentages[1][19], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[20] = new StatsRow("Cave Leech:", MathUtils.round(overkillPercentages[1][20], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[17] = new StatsRow("Mactera Tri-Jaw:", MathUtils.round(overkillPercentages[1][21], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[18] = new StatsRow("Mactera Brundle:", MathUtils.round(overkillPercentages[1][22], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[19] = new StatsRow("Naedocyte Breeder:", MathUtils.round(overkillPercentages[1][17], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[20] = new StatsRow("Glyphid Brood Nexus:", MathUtils.round(overkillPercentages[1][18], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[21] = new StatsRow("Spitball Infector:", MathUtils.round(overkillPercentages[1][19], GuiConstants.numDecimalPlaces) + "%", null, false);
+		toReturn[22] = new StatsRow("Cave Leech:", MathUtils.round(overkillPercentages[1][20], GuiConstants.numDecimalPlaces) + "%", null, false);
 		
 		return toReturn;
 	}

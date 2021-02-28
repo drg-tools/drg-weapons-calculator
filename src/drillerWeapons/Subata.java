@@ -6,8 +6,8 @@ import java.util.List;
 
 import dataGenerator.DatabaseConstants;
 import guiPieces.WeaponPictures;
-import guiPieces.ButtonIcons.modIcons;
-import guiPieces.ButtonIcons.overclockIcons;
+import guiPieces.customButtons.ButtonIcons.modIcons;
+import guiPieces.customButtons.ButtonIcons.overclockIcons;
 import modelPieces.UtilityInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
@@ -49,6 +49,7 @@ public class Subata extends Weapon {
 	public Subata(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "Subata 120";
 		weaponPic = WeaponPictures.subata;
+		customizableRoF = true;
 		
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 12;
@@ -272,6 +273,17 @@ public class Subata extends Weapon {
 	* Setters and Getters
 	****************************************************************************************/
 	
+	@Override
+	public boolean isRofCustomizable() {
+		// I'm choosing to disable RoF customization when the user equips OC "Automatic Fire", for obvious reasons.
+		if (selectedOverclock == 3) {
+			return false;
+		}
+		else {
+			return customizableRoF;
+		}
+	}
+	
 	private double getDirectDamage() {
 		double toReturn = directDamage;
 		
@@ -336,7 +348,8 @@ public class Subata extends Weapon {
 		
 		return toReturn;
 	}
-	private double getRateOfFire() {
+	@Override
+	public double getRateOfFire() {
 		double toReturn = rateOfFire;
 		
 		if (selectedOverclock == 3) {
@@ -371,6 +384,7 @@ public class Subata extends Weapon {
 		return toReturn;
 	}
 	private int getMaxRicochets() {
+		// According to GreyHound, this ricochet searches for enemies within 10m
 		if (selectedOverclock == 0) {
 			return 1;
 		}
@@ -433,6 +447,11 @@ public class Subata extends Weapon {
 	}
 	
 	@Override
+	public double getRecommendedRateOfFire() {
+		return Math.min(getRateOfFire(), 6);
+	}
+	
+	@Override
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[15];
 		
@@ -448,7 +467,7 @@ public class Subata extends Weapon {
 		boolean carriedAmmoModified = selectedTier2 == 0 || selectedTier3 == 2 || selectedOverclock == 4;
 		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
-		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedOverclock == 3 || selectedOverclock == 5);
+		toReturn[4] = new StatsRow("Rate of Fire:", getCustomRoF(), modIcons.rateOfFire, selectedOverclock == 3 || selectedOverclock == 5);
 		
 		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier1 == 2 || selectedOverclock == 2);
 		
@@ -493,17 +512,17 @@ public class Subata extends Weapon {
 		double generalAccuracy, duration, directWeakpointDamage;
 		
 		if (accuracy) {
-			generalAccuracy = estimatedAccuracy(false) / 100.0;
+			generalAccuracy = getGeneralAccuracy() / 100.0;
 		}
 		else {
 			generalAccuracy = 1.0;
 		}
 		
 		if (burst) {
-			duration = ((double) getMagazineSize()) / getRateOfFire();
+			duration = ((double) getMagazineSize()) / getCustomRoF();
 		}
 		else {
-			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+			duration = (((double) getMagazineSize()) / getCustomRoF()) + getReloadTime();
 		}
 		
 		double directDamage = getDirectDamage();
@@ -528,13 +547,13 @@ public class Subata extends Weapon {
 		// T5.A Volatile Bullets adds 50% of the total damage per bullet as Fire damage (not Heat Damage) if the bullet hits a Burning target
 		if (selectedTier5 == 0 && statusEffects[0]) {
 			directDamage *= 1.5;
-			areaDamage *= 1.5;
+			// U32's version of Explosive Reload no longer benefits from Volatile Bullets
 		}
 		
 		double weakpointAccuracy;
 		if (weakpoint && !statusEffects[1]) {
-			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
-			directWeakpointDamage = increaseBulletDamageForWeakpoints2(directDamage, getWeakpointBonus());
+			weakpointAccuracy = getWeakpointAccuracy() / 100.0;
+			directWeakpointDamage = increaseBulletDamageForWeakpoints(directDamage, getWeakpointBonus(), 1.0);
 		}
 		else {
 			weakpointAccuracy = 0.0;
@@ -554,10 +573,10 @@ public class Subata extends Weapon {
 		// If "Chain Hit" is equipped, 50% of bullets that hit a weakpoint will ricochet to nearby enemies.
 		if (selectedOverclock == 0) {
 			// Making the assumption that the ricochet won't hit another weakpoint, and will just do normal damage.
-			double ricochetProbability = 0.5 * estimatedAccuracy(true) / 100.0;
+			double ricochetProbability = 0.5 * getWeakpointAccuracy() / 100.0;
 			double numBulletsRicochetPerMagazine = Math.round(ricochetProbability * getMagazineSize());
 			
-			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getCustomRoF()) + getReloadTime();
 			
 			return numBulletsRicochetPerMagazine * getDirectDamage() / timeToFireMagazineAndReload;
 		}
@@ -570,7 +589,7 @@ public class Subata extends Weapon {
 	public double calculateMaxMultiTargetDamage() {
 		if (selectedOverclock == 0) {
 			// Chain Hit
-			double ricochetProbability = 0.5 * estimatedAccuracy(true) / 100.0;
+			double ricochetProbability = 0.5 * getWeakpointAccuracy() / 100.0;
 			double totalNumRicochets = Math.round(ricochetProbability * (getMagazineSize() + getCarriedAmmo()));
 			
 			return (getMagazineSize() + getCarriedAmmo() + totalNumRicochets) * getDirectDamage();
@@ -596,7 +615,7 @@ public class Subata extends Weapon {
 	public double calculateFiringDuration() {
 		int magSize = getMagazineSize();
 		int carriedAmmo = getCarriedAmmo();
-		double timeToFireMagazine = ((double) magSize) / getRateOfFire();
+		double timeToFireMagazine = ((double) magSize) / getCustomRoF();
 		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
 	
@@ -617,55 +636,44 @@ public class Subata extends Weapon {
 		double baseSpread = 1.5 * getBaseSpread();
 		double spreadPerShot = 1.5 * getSpreadPerShot();
 		double spreadRecoverySpeed = 7.5;
-		double spreadVariance = 3.0;
+		double maxBloom = 3.0;
+		double minSpreadWhileMoving = 0.5;
 		
 		double recoilPitch = 30.0 * getRecoil();
 		double recoilYaw = 10.0 * getRecoil();
 		double mass = 1.0;
 		double springStiffness = 60.0;
 		
-		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
-				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getCustomRoF(), getMagazineSize(), 1, 
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, minSpreadWhileMoving,
 				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override
 	public int breakpoints() {
-		double directFireDamage = 0;
+		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+		double[] directDamage = new double[5];
+		directDamage[0] = getDirectDamage();  // Kinetic
 		if (selectedTier5 == 0 && statusEffects[0]) {
-			directFireDamage = 0.5 * getDirectDamage();
+			directDamage[2] = 0.5 * getDirectDamage();  // Fire
 		}
 		
-		double[] directDamage = {
-			getDirectDamage(),  // Kinetic
-			0,  // Explosive
-			directFireDamage,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
-		
-		double[] areaDamage = {
-			// Internal, Disintegrate, and Kinetic all share the same "no resistances" property in U32.
-			getAreaDamage(),  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
-		
-		double[] DoTDamage = {
-			0,  // Fire
-			0,  // Electric
-			0,  // Poison
-			0  // Radiation
-		};
+		double[] areaDamage = new double[5];
+		areaDamage[0] = getAreaDamage();  // Kinetic
 		
 		double macteraBonus = 0;
 		if (selectedTier5 == 1) {
 			macteraBonus = 0.2;
 		}
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), macteraBonus, 0.0, statusEffects[1], statusEffects[3], false);
+		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+		double[] dot_dps = new double[4];
+		double[] dot_duration = new double[4];
+		double[] dot_probability = new double[4];
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
+															getWeakpointBonus(), armorBreaking, getRateOfFire(), 0.0, macteraBonus, 
+															statusEffects[1], statusEffects[3], false, selectedOverclock == 4);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -698,12 +706,12 @@ public class Subata extends Weapon {
 	
 	@Override
 	public double timeToFireMagazine() {
-		return getMagazineSize() / getRateOfFire();
+		return getMagazineSize() / getCustomRoF();
 	}
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, getAreaDamage(), armorBreaking, getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true), selectedOverclock == 4);
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, getAreaDamage(), armorBreaking, getWeakpointBonus(), getGeneralAccuracy(), getWeakpointAccuracy(), selectedOverclock == 4);
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	

@@ -7,8 +7,8 @@ import java.util.List;
 import dataGenerator.DatabaseConstants;
 import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
-import guiPieces.ButtonIcons.modIcons;
-import guiPieces.ButtonIcons.overclockIcons;
+import guiPieces.customButtons.ButtonIcons.modIcons;
+import guiPieces.customButtons.ButtonIcons.overclockIcons;
 import modelPieces.DoTInformation;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
@@ -69,7 +69,7 @@ public class Autocannon extends Weapon {
 		reloadTime = 5.0;  // seconds
 		
 		// Override default 10m distance
-		accEstimator.setDistance(7.0);
+		accEstimator.setDistance(6.0);
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -434,8 +434,8 @@ public class Autocannon extends Weapon {
 		return (int) Math.round(exactNumBullets);
 	}
 	private double getAverageRateOfFire() {
-		// Special case: When T2.C and OC Big Bertha get combined, the Min RoF == Max RoF
-		if (selectedTier2 == 2 && selectedOverclock == 4) {
+		// Special case: When T2.C and OC Big Bertha get combined, the Min RoF == Max RoF. When T3.A is equipped, this is no longer the case.
+		if (selectedTier2 == 2 && selectedTier3 != 0 && selectedOverclock == 4) {
 			return getMaxRateOfFire();
 		}
 		
@@ -536,7 +536,7 @@ public class Autocannon extends Weapon {
 	
 	@Override
 	protected void setAoEEfficiency() {
-		aoeEfficiency =  calculateAverageAreaDamage(getAoERadius(), 0.75, 0.5);
+		aoeEfficiency = calculateAverageAreaDamage(getAoERadius(), 0.75, 0.5);
 	}
 	
 	// Single-target calculations
@@ -545,7 +545,7 @@ public class Autocannon extends Weapon {
 		double generalAccuracy, duration, directWeakpointDamage;
 		
 		if (accuracy) {
-			generalAccuracy = estimatedAccuracy(false) / 100.0;
+			generalAccuracy = getGeneralAccuracy() / 100.0;
 		}
 		else {
 			generalAccuracy = 1.0;
@@ -580,8 +580,8 @@ public class Autocannon extends Weapon {
 		
 		double weakpointAccuracy;
 		if (weakpoint && !statusEffects[1]) {
-			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
-			directWeakpointDamage = increaseBulletDamageForWeakpoints2(directDamage);
+			weakpointAccuracy = getWeakpointAccuracy() / 100.0;
+			directWeakpointDamage = increaseBulletDamageForWeakpoints(directDamage, 0.0, 1.0);
 		}
 		else {
 			weakpointAccuracy = 0.0;
@@ -670,51 +670,37 @@ public class Autocannon extends Weapon {
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
 		double horizontalBaseSpread = 22.0 * getBaseSpread();
 		double verticalBaseSpread = 8.0 * getBaseSpread();
-		
-		/*
-			If I ever want to model recoil for rectangular crosshairs, these are the variables used:
-			
 		double recoilPitch = 30.0;
 		double recoilYaw = 40.0;
 		double mass = 1.0;
 		double springStiffness = 200.0;
-		*/
 		
-		return accEstimator.calculateRectangularAccuracy(weakpointAccuracy, horizontalBaseSpread, verticalBaseSpread);
+		return accEstimator.calculateRectangularAccuracy(weakpointAccuracy, horizontalBaseSpread, verticalBaseSpread, recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override
 	public int breakpoints() {
-		double[] directDamage = {
-			getDirectDamage(),  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
+		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+		double[] directDamage = new double[5];
+		directDamage[0] = getDirectDamage();  // Kinetic
 		
-		double[] areaDamage = {
-			0,  // Kinetic
-			getAreaDamage(),  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
+		double[] areaDamage = new double[5];
+		areaDamage[1] = getAreaDamage();  // Explosive
 		
-		double ntDoTDmg = 0;
+		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+		double[] dot_dps = new double[4];
+		double[] dot_duration = new double[4];
+		double[] dot_probability = new double[4];
+		
 		if (selectedOverclock == 5) {
-			double timeToNeurotoxin = MathUtils.meanRolls(0.3) / getAverageRateOfFire();
-			ntDoTDmg = calculateAverageDoTDamagePerEnemy(timeToNeurotoxin, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
+			dot_dps[1] = DoTInformation.Neuro_DPS;
+			dot_duration[1] = DoTInformation.Neuro_SecsDuration;
+			dot_probability[1] = 0.3;
 		}
 		
-		double[] DoTDamage = {
-			0,  // Fire
-			0,  // Electric
-			ntDoTDmg,  // Poison
-			0  // Radiation
-		};
-		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, 0.0, statusEffects[1], statusEffects[3], false);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
+															0.0, getArmorBreaking(), getAverageRateOfFire(), 0.0, 0.0, 
+															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -805,7 +791,7 @@ public class Autocannon extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, getAreaDamage(), getArmorBreaking(), 0.0, estimatedAccuracy(false), estimatedAccuracy(true));
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, getAreaDamage(), getArmorBreaking(), 0.0, getGeneralAccuracy(), getWeakpointAccuracy());
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	

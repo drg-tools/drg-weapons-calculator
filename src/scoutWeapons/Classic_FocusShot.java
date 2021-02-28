@@ -1,19 +1,12 @@
 package scoutWeapons;
 
-import guiPieces.ButtonIcons.modIcons;
+import guiPieces.customButtons.ButtonIcons.modIcons;
 import modelPieces.DoTInformation;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
 import utilities.MathUtils;
-
-/*
-	The way MikeGSG explained it to me, the M1000 waits 0.2 seconds before beginning a Focused Shot to prevent it from "jittering".
-	Once it starts charging, by default it only takes 0.8 seconds to fully charge, for what feels like a 1 second period to the user.
-	The 0.8 duration is what gets affected by Charge Speed, not the 0.2 sec delay. Additionally, the crosshair animation doesn't begin
-	until a minimum charge has been gained, so by the time the crosshair starts moving the Focus Shot has already been charging for a short time.
-*/
 
 public class Classic_FocusShot extends Classic {
 	
@@ -56,39 +49,17 @@ public class Classic_FocusShot extends Classic {
 	
 	@Override
 	protected int getCarriedAmmo() {
-		double toReturn = carriedAmmo;
-		
-		if (selectedTier1 == 0) {
-			toReturn += 40;
-		}
-		
-		if (selectedOverclock == 1) {
-			toReturn += 16;
-		}
-		else if (selectedOverclock == 3) {
-			toReturn += 72;
-		}
-		else if (selectedOverclock == 5) {
-			toReturn *= 0.635;
-		}
-		
 		// Divide by 2 to account for firing two ammo per focused shot
 		// Use ceiling function because you can do a fully-charged Focus Shot with only 1 ammo if there's no ammo left in the clip
-		return (int) Math.ceil(toReturn / 2.0);
+		return (int) Math.ceil(super.getCarriedAmmo() / 2.0);
 	}
 	@Override
 	protected int getMagazineSize() {
-		int toReturn = magazineSize;
-		
-		if (selectedTier3 == 1) {
-			toReturn += 6;
-		}
-		
 		// Divide by 2 to account for firing two ammo per focused shot
-		return toReturn / 2;
+		return super.getMagazineSize() / 2;
 	}
 	@Override
-	protected double getRateOfFire() {
+	public double getRateOfFire() {
 		double delayBetweenShots = 1 / rateOfFire;
 		if (selectedOverclock == 3) {
 			// Hipster's +3 RoF translates to a shorter delay between focused shots.
@@ -224,35 +195,26 @@ public class Classic_FocusShot extends Classic {
 	
 	@Override
 	public int breakpoints() {
-		double[] directDamage = {
-			getDirectDamage() * getFocusedShotMultiplier(),  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
+		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+		double[] directDamage = new double[5];
+		directDamage[0] = getDirectDamage() * getFocusedShotMultiplier();  // Kinetic
 		
-		double[] areaDamage = {
-			0,  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
+		double[] areaDamage = new double[5];
 		
-		double electroDmg = 0;
+		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+		double[] dot_dps = new double[4];
+		double[] dot_duration = new double[4];
+		double[] dot_probability = new double[4];
+		
 		if (selectedOverclock == 4) {
-			// OC "Electrocuting Focus Shots" has an increased duration of 4 seconds
-			electroDmg = calculateAverageDoTDamagePerEnemy(0, 4, DoTInformation.Electro_DPS);
+			dot_dps[0] = DoTInformation.Electro_DPS;
+			dot_duration[0] = 4.0;
+			dot_probability[0] = 1.0;
 		}
-		double[] DoTDamage = {
-			0,  // Fire
-			electroDmg,  // Electric
-			0,  // Poison
-			0  // Radiation
-		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0, statusEffects[1], statusEffects[3], false);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
+															getWeakpointBonus(), getArmorBreaking(), getRateOfFire(), 0.0, 0.0, 
+															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
 

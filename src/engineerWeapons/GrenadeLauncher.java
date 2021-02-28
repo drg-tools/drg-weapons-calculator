@@ -7,8 +7,8 @@ import java.util.List;
 import dataGenerator.DatabaseConstants;
 import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
-import guiPieces.ButtonIcons.modIcons;
-import guiPieces.ButtonIcons.overclockIcons;
+import guiPieces.customButtons.ButtonIcons.modIcons;
+import guiPieces.customButtons.ButtonIcons.overclockIcons;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
@@ -87,7 +87,7 @@ public class GrenadeLauncher extends Weapon {
 		tier2[2] = new Mod("High Velocity Grenades", "+180% Projectile Velocity", modIcons.projectileVelocity, 2, 2, false);
 		
 		tier3 = new Mod[2];
-		tier3[0] = new Mod("Incendiary Compound", "Lose 50% of Direct, Area, and Armor Damage, and convert it to Heat Damage that will ignite enemies, dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 3, 0);
+		tier3[0] = new Mod("Incendiary Compound", "Lose 50% of Direct, Area, and Armor Damage, and convert it to Heat that will ignite enemies, dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 3, 0);
 		tier3[1] = new Mod("Pressure Wave", "+500% Armor Breaking", modIcons.armorBreaking, 3, 1);
 		
 		tier4 = new Mod[3];
@@ -96,8 +96,8 @@ public class GrenadeLauncher extends Weapon {
 		tier4[2] = new Mod("Concussive Blast", "Stuns creatures within the blast radius for 3 seconds", modIcons.stun, 4, 2);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Proximity Trigger", "Launched grenades will only detonate when they are in close proximity to an enemy or after the projectile comes to a complete stop. "
-				+ "Note: the trigger takes a moment to arm, indicated by a green light, and until then the grenade functions as usual.", modIcons.special, 5, 0, false);
+		tier5[0] = new Mod("Proximity Trigger", "After being fired, grenades that pass within 2m of an enemy will detonate after a 0.1 sec delay. If it never passes that close to an enemy, it will automatically detonate when it stops moving. "
+				+ "Note: the trigger takes 0.2 seconds to arm (indicated by a green light) and until then the grenade functions as usual.", modIcons.special, 5, 0, false);
 		tier5[1] = new Mod("Spiky Grenade", "+60 Direct Damage to any target directly impacted by a grenade.", modIcons.directDamage, 5, 1);
 		
 		overclocks = new Overclock[6];
@@ -278,17 +278,21 @@ public class GrenadeLauncher extends Weapon {
 	
 	private double getDirectDamage() {
 		double toReturn = 0;
+		
+		// Additive bonuses first
 		if (selectedTier5 == 1) {
 			toReturn += 60;
 		}
 		
-		// There's currently a bug in U32 where Incendiary Compound is only affecting Spiky Grenade's damage. I'm going to model it like it's currently bugged, but this will have to be changed if the bug gets fixed.
-		if (selectedTier3 == 0) {
-			toReturn /= 2.0;
-		}
-		
 		if (selectedOverclock == 5) {
 			toReturn += 385;
+		}
+		
+		// Multiplicative bonuses last
+		if (selectedTier3 == 0 && selectedOverclock != 5) {
+			// Because Hyper Propellant adds its Disintegrate Damage LAST, it effectively negates Incendiary Compound's -50% damage penalty.
+			// GSG Devs even confirmed this is intended behavior in the Jira report I made about this issue back when U32 dropped.
+			toReturn /= 2.0;
 		}
 		
 		if (selectedTier4 == 0) {
@@ -324,11 +328,22 @@ public class GrenadeLauncher extends Weapon {
 			toReturn *= 4;
 		}
 		
-		if (selectedTier3 == 0) {
+		if (selectedTier3 == 0 && selectedOverclock != 5) {
+			// Again, Hyper Propellant effectively negates Incendiary Compound's -50% penalty.
 			toReturn /= 2.0;
 		}
 		
 		return toReturn;
+	}
+	private double getHeatPerGrenade() {
+		// Special case: because Hyper Propellant cancels out Incendiary Compound's damage penalty, I need divide the damage/grenade by 2 for HP in particular (other builds the damage/grenade = heat/grenade)
+		// Because of the wonky interaction between Hyper Propellant and Incendiary Compound, I'm writing this method instead of copy/pasting the same exception multiple times.
+		if (selectedOverclock == 5) {
+			return (getDirectDamage() + getAreaDamage()) / 2.0;
+		}
+		else {
+			return getDirectDamage() + getAreaDamage();
+		}
 	}
 	private double getAoERadius() {
 		double toReturn = aoeRadius;
@@ -406,6 +421,7 @@ public class GrenadeLauncher extends Weapon {
 		}
 	}
 	private double getProjectileVelocity() {
+		// Elythnwaen tells me that the default velocity is 30 m/sec
 		double toReturn = 1.0;
 		
 		if (selectedTier2 == 2) {
@@ -504,10 +520,7 @@ public class GrenadeLauncher extends Weapon {
 		// Incendiary Compound
 		if (selectedTier3 == 0 && !statusEffects[1]) {
 			if (burst) {
-				// Heat per Shot shouldn't be affected by IFG or Frozen
-				double heatPerGrenade = getDirectDamage() + getAreaDamage();
-				double percentageOfEnemiesIgnitedByOneGrenade = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(heatPerGrenade);
-				
+				double percentageOfEnemiesIgnitedByOneGrenade = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(getHeatPerGrenade());
 				burnDPS = percentageOfEnemiesIgnitedByOneGrenade * DoTInformation.Burn_DPS;
 			}
 			else {
@@ -595,54 +608,40 @@ public class GrenadeLauncher extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		double dDamage = getDirectDamage();
-		double aDamage = getAreaDamage();
-		double explosiveMultiplier, disintegrateMultiplier;
+		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+		// Disintegrate, Internal, and Kinetic damage are all resistance-less so I can overload the Kinetic portion in Breakpoints()
+		double[] directDamage = new double[5];
+		double[] areaDamage = new double[5];
 		if (selectedOverclock == 5) {
-			disintegrateMultiplier = 1.0;
-			explosiveMultiplier = 0.0;
+			directDamage[0] = getDirectDamage();  // Kinetic
+			areaDamage[0] = getAreaDamage();  // Kinetic
 		}
 		else {
-			explosiveMultiplier = 1.0;
-			disintegrateMultiplier = 0.0;
+			directDamage[1] = getDirectDamage();  // Explosive
+			areaDamage[1] = getAreaDamage();  // Explosive
 		}
-		
-		// Disintegrate, Internal, and Kinetic damage are all resistance-less so I can overload the Kinetic portion in Breakpoints()
-		double[] directDamage = {
-			disintegrateMultiplier * dDamage,  // Kinetic
-			explosiveMultiplier * dDamage,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
-		
-		double[] areaDamage = {
-			disintegrateMultiplier * aDamage,  // Kinetic
-			explosiveMultiplier * aDamage,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
 		
 		// Incendiary Compound is a burst of Heat, and gets modeled differently than Radiation
 		double heatPerGrenade = 0;
 		if (selectedTier3 == 0) {
-			heatPerGrenade = getAreaDamage();
+			heatPerGrenade = getHeatPerGrenade();
 		}
 		
-		double radDamage = 0;
+		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+		double[] dot_dps = new double[4];
+		double[] dot_duration = new double[4];
+		double[] dot_probability = new double[4];
+		
 		if (selectedOverclock == 4) {
-			radDamage = calculateAverageDoTDamagePerEnemy(0, 4, DoTInformation.Rad_FB_DPS);
+			dot_dps[3] = DoTInformation.Rad_FB_DPS;
+			// Yes it lasts 15 seconds, but I'm choosing to model it as if enemies walk out of the field in about 4 seconds.
+			dot_duration[3] = 4.0;
+			dot_probability[3] = 1.0;
 		}
 		
-		double[] DoTDamage = {
-			0,  // Fire
-			0,  // Electric
-			0,  // Poison
-			radDamage  // Radiation
-		};
-		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, heatPerGrenade, statusEffects[1], statusEffects[3], false);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
+															0.0, getArmorBreaking(), 1.0/reloadTime, heatPerGrenade, 0.0, 
+															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -689,9 +688,7 @@ public class GrenadeLauncher extends Weapon {
 	@Override
 	public double averageTimeToCauterize() {
 		if (selectedTier3 == 0) {
-			// These methods already divide by 2 when this mod is selected; no need to do it again.
-			double heatPerGrenade = getDirectDamage() + getAreaDamage();
-			return EnemyInformation.averageTimeToIgnite(0, heatPerGrenade, 1.0 / reloadTime, 0);
+			return EnemyInformation.averageTimeToIgnite(0, getHeatPerGrenade(), 1.0 / reloadTime, 0);
 		}
 		else {
 			return -1;

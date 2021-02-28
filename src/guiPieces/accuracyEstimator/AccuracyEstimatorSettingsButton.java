@@ -1,4 +1,4 @@
-package guiPieces;
+package guiPieces.accuracyEstimator;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,6 +21,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import guiPieces.GuiConstants;
+import guiPieces.HoverText;
 import modelPieces.Weapon;
 
 public class AccuracyEstimatorSettingsButton extends JButton implements ActionListener, ChangeListener {
@@ -30,8 +32,8 @@ public class AccuracyEstimatorSettingsButton extends JButton implements ActionLi
 	private Weapon toUpdate;
 	
 	private JCheckBox modelRecoilSetting;
-	private JRadioButton visualizeGeneralAccuracy;
-	private JRadioButton visualizeWeakpointAccuracy;
+	private JRadioButton setDwarfStationary, setDwarfMoving;
+	private JRadioButton visualizeGeneralAccuracy, visualizeWeakpointAccuracy;
 
 	public AccuracyEstimatorSettingsButton(JComponent parent, String textToDisplay, Weapon weaponWithAccuracy) {
 		parentComponent = parent;
@@ -51,6 +53,17 @@ public class AccuracyEstimatorSettingsButton extends JButton implements ActionLi
 	private JPanel getAccuracySettingsPanel() {
 		JPanel toReturn = new JPanel();
 		toReturn.setLayout(new BoxLayout(toReturn, BoxLayout.Y_AXIS));
+		
+		ButtonGroup stationaryOrMoving = new ButtonGroup();
+		boolean currentlyMoving = toUpdate.isDwarfMoving();
+		setDwarfStationary = new JRadioButton("Dwarf is Standing Still", !currentlyMoving);
+		setDwarfStationary.addActionListener(this);
+		stationaryOrMoving.add(setDwarfStationary);
+		toReturn.add(setDwarfStationary);
+		setDwarfMoving = new JRadioButton("Dwarf is Moving", currentlyMoving);
+		setDwarfMoving.addActionListener(this);
+		stationaryOrMoving.add(setDwarfMoving);
+		toReturn.add(setDwarfMoving);
 		
 		modelRecoilSetting = new JCheckBox("Model Recoil in Accuracy Estimations", toUpdate.isRecoilModeledInAccuracy());
 		modelRecoilSetting.addActionListener(this);
@@ -81,7 +94,7 @@ public class AccuracyEstimatorSettingsButton extends JButton implements ActionLi
 		int currentDistance = (int) toUpdate.getAccuracyDistance();
 		JSlider accuracyDistanceSlider = new JSlider(JSlider.HORIZONTAL, 1, 19, currentDistance);
 		accuracyDistanceSlider.setMajorTickSpacing(3);
-		accuracyDistanceSlider.setMajorTickSpacing(1);
+		accuracyDistanceSlider.setMinorTickSpacing(1);
 		accuracyDistanceSlider.setPaintTicks(true);
 		accuracyDistanceSlider.setPaintLabels(true);
 
@@ -116,6 +129,16 @@ public class AccuracyEstimatorSettingsButton extends JButton implements ActionLi
 		}
 		else if (e == modelRecoilSetting) {
 			toUpdate.setModelRecoilInAccuracy(modelRecoilSetting.isSelected());
+		}
+		else if (e == setDwarfStationary) {
+			if (setDwarfStationary.isSelected()) {
+				toUpdate.setDwarfMoving(false);
+			}
+		}
+		else if (e == setDwarfMoving) {
+			if (setDwarfMoving.isSelected()) {
+				toUpdate.setDwarfMoving(true);
+			}
 		}
 		else if (e == visualizeGeneralAccuracy) {
 			if (visualizeGeneralAccuracy.isSelected()) {

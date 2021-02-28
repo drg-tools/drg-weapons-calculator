@@ -1,6 +1,6 @@
 package scoutWeapons;
 
-import guiPieces.ButtonIcons.modIcons;
+import guiPieces.customButtons.ButtonIcons.modIcons;
 import modelPieces.EnemyInformation;
 import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
@@ -46,37 +46,7 @@ public class Classic_Hipfire extends Classic {
 	****************************************************************************************/
 	
 	@Override
-	protected int getCarriedAmmo() {
-		double toReturn = carriedAmmo;
-		
-		if (selectedTier1 == 0) {
-			toReturn += 40;
-		}
-		
-		if (selectedOverclock == 1) {
-			toReturn += 16;
-		}
-		else if (selectedOverclock == 3) {
-			toReturn += 72;
-		}
-		else if (selectedOverclock == 5) {
-			toReturn *= 0.635;
-		}
-		
-		return (int) Math.round(toReturn);
-	}
-	@Override
-	protected int getMagazineSize() {
-		int toReturn = magazineSize;
-		
-		if (selectedTier3 == 1) {
-			toReturn += 6;
-		}
-		
-		return toReturn;
-	}
-	@Override
-	protected double getRateOfFire() {
+	public double getRateOfFire() {
 		double toReturn = rateOfFire;
 		
 		if (selectedOverclock == 3) {
@@ -110,7 +80,7 @@ public class Classic_Hipfire extends Classic {
 		boolean spsModified = selectedTier2 == 1 || selectedOverclock == 3;
 		toReturn[8] = new StatsRow("Spread per Shot:", convertDoubleToPercentage(getSpreadPerShot()), modIcons.baseSpread, spsModified, spsModified);
 		
-		toReturn[9] = new StatsRow("Spread Variance:", convertDoubleToPercentage(getSpreadVariance()), modIcons.baseSpread, spsModified, spsModified);
+		toReturn[9] = new StatsRow("Max Bloom:", convertDoubleToPercentage(getMaxBloom()), modIcons.baseSpread, spsModified, spsModified);
 		
 		boolean recoilModified = selectedTier2 == 1 || selectedOverclock == 3;
 		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), modIcons.recoil, recoilModified, recoilModified);
@@ -128,7 +98,7 @@ public class Classic_Hipfire extends Classic {
 		double generalAccuracy, duration, directWeakpointDamage;
 		
 		if (accuracy) {
-			generalAccuracy = estimatedAccuracy(false) / 100.0;
+			generalAccuracy = getGeneralAccuracy() / 100.0;
 		}
 		else {
 			generalAccuracy = 1.0;
@@ -160,8 +130,8 @@ public class Classic_Hipfire extends Classic {
 		
 		double weakpointAccuracy;
 		if (weakpoint && !statusEffects[1]) {
-			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
-			directWeakpointDamage = increaseBulletDamageForWeakpoints2(directDamage, getWeakpointBonus());
+			weakpointAccuracy = getWeakpointAccuracy() / 100.0;
+			directWeakpointDamage = increaseBulletDamageForWeakpoints(directDamage, getWeakpointBonus(), 1.0);
 		}
 		else {
 			weakpointAccuracy = 0.0;
@@ -201,7 +171,8 @@ public class Classic_Hipfire extends Classic {
 		double baseSpread = 1.0;
 		double spreadPerShot = 3.0 * getSpreadPerShot();
 		double spreadRecoverySpeed = 8.5;
-		double spreadVariance = 5.0 * getSpreadVariance();
+		double maxBloom = 5.0 * getMaxBloom();
+		double minSpreadWhileMoving = 1.0;
 		
 		double recoilPitch = 50.0 * getRecoil();
 		double recoilYaw = 5.0 * getRecoil();
@@ -209,35 +180,26 @@ public class Classic_Hipfire extends Classic {
 		double springStiffness = 70.0;
 		
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
-				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, minSpreadWhileMoving,
 				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override
 	public int breakpoints() {
-		double[] directDamage = {
-			getDirectDamage(),  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
+		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+		double[] directDamage = new double[5];
+		directDamage[0] = getDirectDamage();  // Kinetic
 		
-		double[] areaDamage = {
-			0,  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
-		double[] DoTDamage = {
-			0,  // Fire
-			0,  // Electric
-			0,  // Poison
-			0  // Radiation
-		};
+		double[] areaDamage = new double[5];
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0, statusEffects[1], statusEffects[3], false);
+		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+		double[] dot_dps = new double[4];
+		double[] dot_duration = new double[4];
+		double[] dot_probability = new double[4];
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
+															getWeakpointBonus(), getArmorBreaking(), getRateOfFire(), 0.0, 0.0, 
+															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -258,7 +220,7 @@ public class Classic_Hipfire extends Classic {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, 0.0, getArmorBreaking(), getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true));
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, 0.0, getArmorBreaking(), getWeakpointBonus(), getGeneralAccuracy(), getWeakpointAccuracy());
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 }

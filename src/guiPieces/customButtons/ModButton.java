@@ -1,4 +1,4 @@
-package guiPieces;
+package guiPieces.customButtons;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -7,49 +7,47 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JToolTip;
+import javax.swing.SwingUtilities;
+import javax.swing.event.MouseInputListener;
 
-import guiPieces.ButtonIcons.statusEffectIcons;
+import guiPieces.CustomCursors;
+import guiPieces.GuiConstants;
+import guiPieces.HoverText;
+import modelPieces.Mod;
 import modelPieces.Weapon;
 import net.coobird.thumbnailator.Thumbnails;
 
-public class StatusEffectButton extends JButton implements ActionListener, MouseMotionListener {
+public class ModButton extends JButton implements MouseInputListener {
 	private static final long serialVersionUID = 1L;
 	
 	private Weapon myWeapon;
+	private Mod myMod;
 	private BufferedImage icon;
-	private int myIndex;
-	private boolean enabled;
 	
 	private Polygon border;
 	
-	public StatusEffectButton(Weapon inputWeapon, int effectIndex, String effectName, String effectText, statusEffectIcons iconSelector, boolean effectEnabled) {
+	public ModButton(Weapon inputWeapon, Mod thisMod) {
 		myWeapon = inputWeapon;
-		myIndex = effectIndex;
-		icon = ButtonIcons.getStatusEffectIcon(iconSelector);
-		enabled = effectEnabled;
+		myMod = thisMod;
+		icon = ButtonIcons.getModIcon(myMod.getIcon(), myMod.isSelected());
 		
 		border = createBackgroundHexagon();
 		
-		this.setText(effectName);
+		this.setText(myMod.getName());
 		this.setFont(GuiConstants.customFont);
-		this.setToolTipText(HoverText.breakLongToolTipString(effectText, 50));
+		this.setToolTipText(HoverText.breakLongToolTipString(myMod.getText(), 50));
 		this.setOpaque(false);
 		this.setContentAreaFilled(false);
 		this.setBorderPainted(false);
 		
-		// Have each ModButton listen to itself for when it gets clicked to simplify the GuiController
-		this.addActionListener(this);
-		
-		// Have this button listen to itself for Mouse Movement too to add the question mark to the cursor when within the border
+		// Have this button listen to itself for all MouseEvents (click, drag, move, release, etc) so that it can perform actions without having to throw the events up to GuiController.
+		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
 	}
 	
@@ -68,35 +66,7 @@ public class StatusEffectButton extends JButton implements ActionListener, Mouse
 		return toReturn;
 	}
 	
-	private Polygon createIconHexagon(int desiredHeightOfHexagonPixels, int horizontalOffset, int verticalOffset) {
-		double tanThirty = Math.tan(Math.PI/6.0);
-		double lengthOfEdges = Math.sqrt((Math.pow(desiredHeightOfHexagonPixels, 2.0) / 4.0) * (1.0 + Math.pow(tanThirty, 2.0)));
-		double edgeOffset = desiredHeightOfHexagonPixels * tanThirty / 2.0;
-		double calculatedWidth = lengthOfEdges + 2 * edgeOffset;
-		
-		int roundedEdgeLength = (int) Math.round(lengthOfEdges);
-		int roundedWidth = (int) Math.round(calculatedWidth);
-		int roundedOffset = (int) Math.round(edgeOffset);
-		int halfHeight = (int) Math.round((double)desiredHeightOfHexagonPixels / 2.0);
-		
-		Polygon toReturn = new Polygon();
-		toReturn.addPoint(horizontalOffset + roundedOffset, verticalOffset);
-		toReturn.addPoint(horizontalOffset + roundedOffset + roundedEdgeLength, verticalOffset);
-		toReturn.addPoint(horizontalOffset + roundedWidth, verticalOffset + halfHeight);
-		toReturn.addPoint(horizontalOffset + roundedOffset + roundedEdgeLength, verticalOffset + desiredHeightOfHexagonPixels);
-		toReturn.addPoint(horizontalOffset + roundedOffset, verticalOffset + desiredHeightOfHexagonPixels);
-		toReturn.addPoint(horizontalOffset, verticalOffset + halfHeight);
-		
-		return toReturn;
-	}
-	
 	public void paintComponent(Graphics g) {
-		/*
-			TODO: I'm not satisfied with how the icon hexagon turned out -- it draws fine but the Electricity icon doesn't look good with it 
-			and I had to use a lot of "static offset" numbers instead of figuring out the actual relationship. I want to refactor it so that the 
-			hexagon width gets set, and then the hexagon's height gets calculated, and finally the icon's height/width gets scaled accordingly.
-			It's ok for now, but it should be done sooner rather than later.
-		 */
 		border = createBackgroundHexagon();
 		
 		Graphics2D g2 = (Graphics2D) g.create();
@@ -106,11 +76,17 @@ public class StatusEffectButton extends JButton implements ActionListener, Mouse
 		g2.setFont(GuiConstants.customFont);
 		g2.setStroke(new BasicStroke(GuiConstants.edgeWidth));
 		
-		g2.setPaint(GuiConstants.drgHighlightedYellow);
+		// If this mod hasn't yet been implemented in the Weapon, draw its border red.
+		if (myMod.isImplemented()) {
+			g2.setPaint(GuiConstants.drgHighlightedYellow);
+		}
+		else {
+			g2.setPaint(GuiConstants.drgOverclockUnstableRed);
+		}
 		g2.drawPolygon(border);
 		
 		// If this Mod isn't enabled, fill the background with black.
-		if (enabled) {
+		if (myMod.isSelected()) {
 			g2.setPaint(GuiConstants.drgHighlightedYellow);
 		}
 		else {
@@ -120,38 +96,40 @@ public class StatusEffectButton extends JButton implements ActionListener, Mouse
 		
 		// The icon and text have to be added at the same time since their position needs to be centered horizontally together
 		// Set this number to dynamically scale the icons to be the same size in all the buttons
-		double iconWidth = 24;
+		double iconWidth = 32;
 		double iconHeight = (double) icon.getHeight() * iconWidth / (double) icon.getWidth();
 		int iconVerticalOffset = (int) Math.round((this.getHeight() - iconHeight) / 2.0);
 		
+		// Write with black text if enabled, or yellow text if not enabled
+		if (myMod.isSelected()) {
+			g2.setPaint(Color.black);
+		}
+		else {
+			g2.setPaint(GuiConstants.drgHighlightedYellow);
+		}
 		String myText = this.getText();
 		int textWidth = g2.getFontMetrics().stringWidth(myText);
 		int textVerticalOffset = (int) Math.round((this.getHeight() + GuiConstants.fontHeight) / 2.0);
 		
 		int textHorizontalOffset = (this.getWidth() - textWidth + (int) iconWidth) / 2;
-		int iconHorizontalOffset = textHorizontalOffset - GuiConstants.paddingPixels - (int) iconWidth - 4;
-		
-		// Draw a black regular hexagon around the colored status effect icons so that when the button gets pressed, the yellow background doesn't have bad contrast.
-		Polygon p = createIconHexagon((int) iconHeight + 6, iconHorizontalOffset - 6, iconVerticalOffset - 3);
-		g2.setPaint(Color.black);
-		g2.fillPolygon(p);
+		int iconHorizontalOffset = textHorizontalOffset - GuiConstants.paddingPixels - (int) iconWidth;
 		
 		BufferedImage resizedIcon = icon;
 		try {
 			resizedIcon = Thumbnails.of(resizedIcon).size((int) (iconWidth), (int) (iconHeight)).asBufferedImage();
 		}
 		catch (IOException e) {}
-				
-		g2.drawImage(resizedIcon, iconHorizontalOffset, iconVerticalOffset, (int) (iconWidth), (int) (iconHeight), null);
 		
-		// Write with black text if enabled, or yellow text if not enabled
-		if (enabled) {
-			g2.setPaint(Color.black);
-		}
-		else {
-			g2.setPaint(GuiConstants.drgHighlightedYellow);
-		}
+		g2.drawImage(resizedIcon, iconHorizontalOffset, iconVerticalOffset, (int) (iconWidth), (int) (iconHeight), null);
 		g2.drawString(myText, textHorizontalOffset, textVerticalOffset);
+		
+		// Paint this with a translucent red when it's not eligible for Best Combinations (Subset)
+		if (myMod.isIgnored()) {
+			Color translucentRed = new Color(156.0f/255.0f, 20.0f/255.0f, 20.0f/255.0f, 0.5f);
+			g2.setPaint(translucentRed);
+			g2.fill(border);
+		}
+		
 		g2.dispose();
 	}
 	
@@ -161,12 +139,49 @@ public class StatusEffectButton extends JButton implements ActionListener, Mouse
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		// Because this button is only listening to itself, I'm skipping the standard "figure out what button got clicked" stuff.
-		// When this changes, the underlying Weapon will trigger a refresh of the overall GUI due to the Observable/Observer dynamic
-		myWeapon.setStatusEffect(myIndex, !enabled);
+	public void mouseClicked(MouseEvent e) {
+		Point cursorHotspotLocation = e.getPoint();
+		
+		if (cursorHotspotLocation != null && border.contains(cursorHotspotLocation)) {
+			if (SwingUtilities.isLeftMouseButton(e)) {
+				myWeapon.setSelectedModAtTier(myMod.getTier(), myMod.getIndex(), true);
+			}
+			else if (SwingUtilities.isRightMouseButton(e)) {
+				myWeapon.setIgnoredModAtTier(myMod.getTier(), myMod.getIndex());
+			}
+		}
 	}
-	
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// Do nothing if mouse is held down
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// Whenever a user drag-clicks across a button, it should just register like a normal click
+		Point cursorHotspotLocation = e.getPoint();
+		
+		if (cursorHotspotLocation != null && border.contains(cursorHotspotLocation)) {
+			if (SwingUtilities.isLeftMouseButton(e)) {
+				myWeapon.setSelectedModAtTier(myMod.getTier(), myMod.getIndex(), true);
+			}
+			else if (SwingUtilities.isRightMouseButton(e)) {
+				myWeapon.setIgnoredModAtTier(myMod.getTier(), myMod.getIndex());
+			}
+		}
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// Do nothing if mouse enters boundaries
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// Do nothing if mouse leaves button boundaries
+	}
+
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		// Do nothing if it's dragged

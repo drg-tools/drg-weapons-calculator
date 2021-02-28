@@ -13,6 +13,16 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import guiPieces.accuracyEstimator.AccuracyEstimatorSettingsButton;
+import guiPieces.accuracyEstimator.AccuracyVisualizerButton;
+import guiPieces.customButtons.AoEVisualizerButton;
+import guiPieces.customButtons.ButtonIcons;
+import guiPieces.customButtons.CustomRofButton;
+import guiPieces.customButtons.DPSToggleButton;
+import guiPieces.customButtons.GranularMetricButton;
+import guiPieces.customButtons.ModButton;
+import guiPieces.customButtons.OverclockButton;
+import guiPieces.customButtons.StatusEffectButton;
 import modelPieces.DoTInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
@@ -71,9 +81,19 @@ public class WeaponTab extends JPanel {
 		
 		gbc.gridx = 1;
 		gbc.gridy = 22;
-		gbc.gridwidth = 6;
+		gbc.gridwidth = 1;
 		gbc.gridheight = 2;
-		gbc.weightx = 6.0/7.0;
+		gbc.weightx = 1.0/7.0;
+		gbc.weighty = 2.0/31.0;
+		JPanel customRoF = constructCustomRofPanel();
+		gbl.setConstraints(customRoF, gbc);
+		this.add(customRoF);
+		
+		gbc.gridx = 2;
+		gbc.gridy = 22;
+		gbc.gridwidth = 5;
+		gbc.gridheight = 2;
+		gbc.weightx = 5.0/7.0;
 		gbc.weighty = 2.0/31.0;
 		JPanel statusEffectButtons = constructStatusEffectsPanel();
 		gbl.setConstraints(statusEffectButtons, gbc);
@@ -99,6 +119,21 @@ public class WeaponTab extends JPanel {
 		toReturn.setBorder(GuiConstants.blackLine);
 		
 		toReturn.add(new WeaponImagePanel(myWeapon.getPicture()));
+		
+		return toReturn;
+	}
+	
+	private JPanel constructCustomRofPanel() {
+		JPanel toReturn = new JPanel();
+		toReturn.setBorder(GuiConstants.blackLine);
+		toReturn.setLayout(new BorderLayout());
+		
+		CustomRofButton setter = new CustomRofButton(this, myWeapon);
+		if (!myWeapon.isRofCustomizable()) {
+			setter.setEnabled(false);
+			setter.setBorder(GuiConstants.greyLine);
+		}
+		toReturn.add(setter, BorderLayout.CENTER);
 		
 		return toReturn;
 	}
@@ -432,7 +467,7 @@ public class WeaponTab extends JPanel {
 		/******************************************
 			Row 3
 		******************************************/
-		double generalAccuracy = myWeapon.estimatedAccuracy(false);
+		double generalAccuracy = myWeapon.getGeneralAccuracy();
 		for (i = 2*headers.length/4; i < 3*headers.length/4; i++) {
 			// Special case: add the current AccEstimator distance on the Gen/WP Acc labels
 			if (generalAccuracy >= 0.0 && (i == 2*headers.length/4 + 1 || i == 2*headers.length/4 + 2)) {
@@ -479,7 +514,7 @@ public class WeaponTab extends JPanel {
 			toReturn.add(accSlideButton);
 		}
 		
-		double weakpointAccuracy = myWeapon.estimatedAccuracy(true);
+		double weakpointAccuracy = myWeapon.getWeakpointAccuracy();
 		if (weakpointAccuracy < 0) {
 			value = new JLabel(leftPadSpaces + "Manually Aimed");
 			value.setFont(GuiConstants.customFontBold);

@@ -1,6 +1,6 @@
 package modelPieces;
 
-import guiPieces.ButtonIcons.overclockIcons;
+import guiPieces.customButtons.ButtonIcons.overclockIcons;
 
 public class Overclock {
 

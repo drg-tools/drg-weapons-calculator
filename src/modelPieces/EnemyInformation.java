@@ -27,11 +27,11 @@ public class EnemyInformation {
 	// All of these numbers must sum up to exactly 1.0 for it to be a probability vector.
 	private static double[] guessedSpawnRates = {
 		0.165, // Glyphid Swarmer
-		0.24,  // Glyphid Grunt
-		0.08,  // Glyphid Grunt Guard
-		0.08,  // Glyphid Grunt Slasher
+		0.25,  // Glyphid Grunt
+		0.07,  // Glyphid Grunt Guard
+		0.07,  // Glyphid Grunt Slasher
 		0.04,  // Glyphid Praetorian
-		0.08,  // Glyphid Exploder
+		0.04,  // Glyphid Exploder
 		0.01,  // Glyphid Bulk Detonator
 		0.005, // Glyphid Crassus Detonator
 		0.04,  // Glyphid Webspitter
@@ -46,33 +46,43 @@ public class EnemyInformation {
 		0.02,  // Naedocyte Breeder
 		0.02,  // Glyphid Brood Nexus
 		0.01,  // Spitball Infector
-		0.01   // Cave Leech
+		0.01,  // Cave Leech
+		0.04,  // Mactera Tri-Jaw
+		0.01   // Mactera Brundle
 	};
 	
-	// These are the actual statistics extracted from 153k kills from 6 players' Miner's Manual entries. Biome-specific enemies, "hatchling" enemy types, and Dreadnoughts not included.
-	// All of these numbers must sum up to exactly 1.0 for it to be a probability vector.
+	/* 
+		When U33 introduced the Tri-Jaw and Brundle common enemies, I had to redo these probabilities. To that end I chose to write down what the current kill counter was for every enemy type,
+		and then play vanilla Haz4/5 until I achieved at least 15,000 Grunt kills. In the end it took me about 50 hours of playtime to achieve that, and I ended up with a total of 33,606 kills 
+		of all kinds for these probability amounts. It's not as broad as U31's 153,000 kills from 6 players, but I didn't want to ask people to go 50 hours of playtime only on vanilla Haz4/5.
+		
+		Biome-specific enemies, "hatchling" enemy types, and Dreadnoughts not included.
+		All of these numbers must sum up to exactly 1.0 for it to be a probability vector.
+	*/
 	private static double[] exactSpawnRates = {
-		0.311598275, 	 // Glyphid Swarmer
-		0.4190277052,  	 // Glyphid Grunt
-		0.0457723471,  	 // Glyphid Grunt Guard
-		0.04558285416,   // Glyphid Grunt Slasher
-		0.01902770518,   // Glyphid Praetorian
-		0.0629312598,  	 // Glyphid Exploder
-		0.001078149503,  // Glyphid Bulk Detonator
-		0.0000457396759, // Glyphid Crassus Detonator
-		0.02062859383,   // Glyphid Webspitter
-		0.01256534239,   // Glyphid Acidspitter
-		0.002430737062,  // Glyphid Menace
-		0.003110297961,  // Glyphid Warden
-		0.002763983272,  // Glyphid Oppressor
-		0.002084422373,  // Q'ronar Shellback
-		0.03056717198,   // Mactera Spawn
-		0.003005750131,  // Mactera Grabber
-		0.00825927862,   // Mactera Bomber
-		0.0006926293779, // Naedocyte Breeder
-		0.001731573445,  // Glyphid Brood Nexus
-		0.003149503398,  // Spitball Infector
-		0.003946680606   // Cave Leech
+		0.2503719574, 	 // Glyphid Swarmer
+		0.4661369993,  	 // Glyphid Grunt
+		0.05400821282,   // Glyphid Grunt Guard
+		0.05838243171,   // Glyphid Grunt Slasher
+		0.02074034399,   // Glyphid Praetorian
+		0.03895137773,   // Glyphid Exploder
+		0.001220020234,  // Glyphid Bulk Detonator
+		0.00002975659108,// Glyphid Crassus Detonator
+		0.02963756472,   // Glyphid Webspitter
+		0.01276557758,   // Glyphid Acidspitter
+		0.001577099328,  // Glyphid Menace
+		0.002082961376,  // Glyphid Warden
+		0.00330298161,   // Glyphid Oppressor
+		0.001755638874,  // Q'ronar Shellback
+		0.02550139856,   // Mactera Spawn
+		0.001934178421,  // Mactera Grabber
+		0.005088377076,  // Mactera Bomber
+		0.000684401595,  // Naedocyte Breeder
+		0.001666369101,  // Glyphid Brood Nexus
+		0.003660060703,  // Spitball Infector
+		0.004552758436,  // Cave Leech
+		0.01282509076,   // Mactera Tri-Jaw
+		0.003124442064   // Mactera Brundle
 	};
 	
 	// These numbers are estimates of what percentage of bullets shot at each enemy type will hit the enemy's weakpoints
@@ -97,7 +107,9 @@ public class EnemyInformation {
 		0.1,  // Naedocyte Breeder
 		0.9,  // Glyphid Brood Nexus
 		0.4,  // Spitball Infector
-		0.0   // Cave Leech (no weakpoint)
+		0.0,  // Cave Leech (no weakpoint)
+		0.8,  // Mactera Tri-Jaw
+		0.6   // Mactera Brundle
 	};
 
 	// These numbers are taken straight from the Wiki
@@ -122,7 +134,9 @@ public class EnemyInformation {
 		3.0,  // Naedocyte Breeder
 		2.0,  // Glyphid Brood Nexus
 		2.0,  // Spitball Infector
-		0.0   // Cave Leech (no weakpoint)
+		0.0,  // Cave Leech (no weakpoint)
+		3.0,  // Mactera Tri-Jaw
+		3.0   // Mactera Brundle
 	};
 	
 	// These base values are just taken from the Wiki's default values; Hazard level and player count not factored in. (effectively Haz2, 4 players)
@@ -147,7 +161,28 @@ public class EnemyInformation {
 		1500,  // Naedocyte Breeder
 		1800,  // Glyphid Brood Nexus
 		800,   // Spitball Infector
-		100    // Cave Leech
+		100,   // Cave Leech
+		350,   // Mactera Tri-Jaw
+		600    // Mactera Brundle
+	};
+	
+	// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
+	private static double[] normalEnemyResistances = {
+		0.7,  // Haz1
+		1.0,  // Haz2
+		1.1,  // Haz3
+		1.2,  // Haz4
+		1.2   // Haz5
+	};
+	
+	// On the other hand, large and extra-large enemies have their health scale by both player count and Hazard Level for all 20 combinations.
+	// Currently, it looks like the only extra-large enemy is a Dreadnought which I've chosen not to model for now.
+	private static double[][] largeEnemyResistances = {
+		{0.45, 0.55, 0.70, 0.85},  // Haz1
+		{0.65, 0.75, 0.90, 1.00},  // Haz2
+		{0.80, 0.90, 1.00, 1.10},  // Haz3
+		{1.00, 1.00, 1.20, 1.30},  // Haz4
+		{1.20, 1.20, 1.40, 1.50}   // Haz5
 	};
 	
 	// Resistance/weakness values taken from Elythnwaen's Spreadsheet
@@ -170,7 +205,7 @@ public class EnemyInformation {
 		{0, 0, 0, 0},  				// Glyphid Webspitter
 		{0, 0, 0, -0.1},  			// Glyphid Acidspitter
 		{0, 0, 0, 0},  				// Glyphid Menace
-		{0, 0, 0, 0},  			// Glyphid Warden
+		{0, 0, 0, 0},  				// Glyphid Warden
 		{0.66, 0.66, 0.5, 0.25},  	// Glyphid Oppressor
 		{qronarShellbackRolling*0.8, qronarShellbackRolling*0.3 + qronarShellbackUnolled*-0.5, qronarShellbackRolling*0.3 + qronarShellbackUnolled*-0.7, qronarShellbackRolling*1.0},  // Q'ronar Shellback
 		{-1, -1, 0, -0.5},  		// Mactera Spawn
@@ -179,13 +214,15 @@ public class EnemyInformation {
 		{0, 0, 0, 0},  				// Naedocyte Breeder
 		{0, 0, 0, 0},  				// Glyphid Brood Nexus
 		{0, -1, 0, 0},  			// Spitball Infector
-		{0, 0, 0, 0}   				// Cave Leech
+		{0, 0, 0, 0},   			// Cave Leech
+		{-1, -1, 0, -0.5},  		// Mactera Tri-Jaw
+		{-1, -1, 0, -0.5}   		// Mactera Brundle
 	};
 	
 	// This info comes from Elythnwaen's Temperatures spreadsheet, and many of those values were seeded from MikeGSG giving us the values for the 5 "base" creature types.
 	private static double[][] enemyTemperatures = {
 		// Ignite Temp, Douse Temp, Heat Loss Rate, Freeze Temp, Thaw Temp, Heat Gain Rate
-		{5, 0, 1, -20, 0, 4},			// Glyphid Swarmer
+		{5, 0, 1, -20, 0, 2},			// Glyphid Swarmer
 		{30, 10, 6, -30, 0, 6},			// Glyphid Grunt
 		{60, 40, 6, -80, -40, 6},		// Glyphid Grunt Guard
 		{30, 10, 6, -30, 0, 6},			// Glyphid Grunt Slasher
@@ -205,7 +242,9 @@ public class EnemyInformation {
 		{60, 30, 10, -150, 0, 40},		// Naedocyte Breeder
 		{30/4.0, 0, 4, -50/4.0, 0, 4},	// Glyphid Brood Nexus
 		{30, 0, 10, -50, 0, 10},		// Spitball Infector
-		{30, 0, 10, -50, 0, 10}			// Cave Leech
+		{30, 0, 10, -50, 0, 10},		// Cave Leech
+		{35, 5, 10, -100, 0, 40}, 		// Mactera Tri-Jaw
+		{35, 5, 10, -200, 0, 40}  		// Mactera Brundle
 	};
 	
 	// This information comes straight from MikeGSG -- Thanks, Mike!
@@ -219,14 +258,14 @@ public class EnemyInformation {
 	
 	// This information extracted via UUU
 	private static double[] enemyCourageValues = {
-		0.0, // Glyphid Swarmer
+		0.0,  // Glyphid Swarmer
 		0.5,  // Glyphid Grunt
 		0.5,  // Glyphid Grunt Guard
 		0.5,  // Glyphid Grunt Slasher
 		0.5,  // Glyphid Praetorian
 		0.0,  // Glyphid Exploder
 		1.0,  // Glyphid Bulk Detonator
-		1.0, // Glyphid Crassus Detonator
+		1.0,  // Glyphid Crassus Detonator
 		0.3,  // Glyphid Webspitter
 		0.3,  // Glyphid Acidspitter
 		0.7,  // Glyphid Menace
@@ -239,10 +278,12 @@ public class EnemyInformation {
 		0.0,  // Naedocyte Breeder
 		0.0,  // Glyphid Brood Nexus
 		0.0,  // Spitball Infector
-		0.0   // Cave Leech
+		0.0,  // Cave Leech
+		0.0,  // Mactera Tri-Jaw
+		0.0   // Mactera Brundle
 	};
 	
-	// Used to determine average regular Fear duration. Enemies that can't move on the ground, fly, or can't be feared will have this value set to zero to maintain correct values.
+	// Used to determine average regular Fear duration. Enemies that fly, can't move on the ground, or can't be feared will have this value set to zero to maintain correct values.
 	// Additionally, all creatures that get Feared have a x1.5 speedboost, except for Oppressor (x2) and Bulk/Crassus/Dread (x1) which can only be feared by Field Medic/SYiH/Bosco Revive
 	// Values listed as m/sec groundspeed
 	private static double[] enemyFearMovespeed = {
@@ -266,7 +307,9 @@ public class EnemyInformation {
 		0.0,  // Naedocyte Breeder
 		0.0,  // Glyphid Brood Nexus
 		0.0,  // Spitball Infector
-		0.0   // Cave Leech
+		0.0,  // Cave Leech
+		0.0,  // Mactera Tri-Jaw
+		0.0   // Mactera Brundle
 	};
 	
 	private static double[] movespeedDifficultyScaling = {
@@ -282,6 +325,7 @@ public class EnemyInformation {
 		for (int i = 0; i < exactSpawnRates.length; i++) {
 			sum += exactSpawnRates[i];
 		}
+		
 		// Double addition is wonky; round it.
 		sum = MathUtils.round(sum, 4);
 		return sum == 1.0;
@@ -325,16 +369,8 @@ public class EnemyInformation {
 		
 		int i, enemyIndex;
 
-		// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
-		double[] normalEnemyResistances = {
-			0.7,  // Haz1
-			1.0,  // Haz2
-			1.1,  // Haz3
-			1.2,  // Haz4
-			1.2   // Haz5
-		};
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
-		int[] normalEnemyIndexes = {0, 1, 2, 3, 5, 8, 9, 14, 20};
+		int[] normalEnemyIndexes = {0, 1, 2, 3, 5, 8, 9, 14, 20, 21, 22};
 		double normalEnemyHealth = 0;
 		for (i = 0; i < normalEnemyIndexes.length; i++) {
 			enemyIndex = normalEnemyIndexes[i];
@@ -342,15 +378,6 @@ public class EnemyInformation {
 		}
 		normalEnemyHealth *= normalResistance;
 		
-		// On the other hand, large and extra-large enemies have their health scale by both player count and Hazard Level for all 20 combinations.
-		// Currently, it looks like the only extra-large enemy is a Dreadnought which I've chosen not to model for now.
-		double[][] largeEnemyResistances = {
-			{0.45, 0.55, 0.70, 0.85},  // Haz1
-			{0.65, 0.75, 0.90, 1.00},  // Haz2
-			{0.80, 0.90, 1.00, 1.10},  // Haz3
-			{1.00, 1.00, 1.20, 1.30},  // Haz4
-			{1.20, 1.20, 1.40, 1.50}   // Haz5
-		};
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		int[] largeEnemyIndexes = {4, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19};
 		double largeEnemyHealth = 0;
@@ -363,8 +390,6 @@ public class EnemyInformation {
 		// System.out.println("Average health of an enemy: " + (normalEnemyHealth + largeEnemyHealth));
 		return normalEnemyHealth + largeEnemyHealth;
 	}
-	
-	
 	
 	public static double averageTimeToIgnite(double burstOfHeat, double heatPerShot, double RoF, double heatPerSec) {
 		if (!verifySpawnRatesTotalIsOne()) {
@@ -381,7 +406,7 @@ public class EnemyInformation {
 			// Early exit: if Heat/Shot >= 100, then all enemies get ignited instantly since the largest Ignite Temp modeled in this program is 100.
 			if (burstOfHeat >= igniteTemp || heatPerShot >= igniteTemp || burstOfHeat + heatPerShot >= igniteTemp) {
 				ignitionTimes[i] = 0.0;
-				break;
+				continue;
 			}
 			
 			coolingRate = enemyTemperatures[i][2];
@@ -448,7 +473,7 @@ public class EnemyInformation {
 			// Early exit: if Cold/Shot >= 300, then all enemies get ignited instantly since the largest Freeze Temp modeled in this program is 300.
 			if (burstOfCold <= freezeTemp || coldPerShot <= freezeTemp || burstOfCold + coldPerShot <= freezeTemp) {
 				freezeTimes[i] = 0.0;
-				break;
+				continue;
 			}
 			
 			freezeTimes[i] = (freezeTemp - burstOfCold) / (coldPerShot * RoF + coldPerSec);
@@ -584,11 +609,28 @@ public class EnemyInformation {
 		}
 	}
 	
-	/*
-		This method is used to quickly show how many shots it would take for projectile-based weapons to kill the 21 modeled creatures under various conditions. It models 
-		Elemental resistances, DoTs, Light Armor resistance, Weakpoint bonus damage, and Subata's T5.B +20% vs Mactera
+	public static double averageDifficultyScalingResistance() {
+		int[] normalEnemyIndexes = {0, 1, 2, 3, 5, 8, 9, 14, 20, 21, 22};
+		double normalResistance = normalEnemyResistances[hazardLevel - 1];
+		int[] largeEnemyIndexes = {4, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19};
+		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
-		The first three arguments are arrays of how much damage is being done of the three types (direct, area, and DoT) split between the elements in this order:
+		double sum = 0;
+		for (int i: normalEnemyIndexes) {
+			sum += exactSpawnRates[i] * normalResistance;
+		}
+		for (int i: largeEnemyIndexes) {
+			sum += exactSpawnRates[i] * largeResistance;
+		}
+		
+		return sum;
+	}
+	
+	/*
+		This method is used to quickly show how many shots it would take for projectile-based weapons to kill the 23 modeled creatures under various conditions. It models 
+		Elemental resistances, DoTs, Light Armor resistance, Weakpoint bonus damage, Subata's T5.B +20% vs Mactera, IFGs, and Frozen.
+		
+		The first two arguments are arrays of how much damage is being done of the three types (direct, area, and DoT) split between the elements in this order:
 			1. Kinetic
 			2. Explosive
 			3. Fire
@@ -597,48 +639,36 @@ public class EnemyInformation {
 			6. Poison
 			7. Radiation
 			
+		Next are 3 arrays that denote the DPS, average duration, and probability to proc of each of these DoTs:
+			1. Electrocute
+			2. Neurotoxin
+			3. Persistent Plasma
+			4. Radiation
+			
 		It should be noted that Direct Damage is never Poison or Radiation and DoTs are never Kinetic, Explosive, or Frost.
 		
-		This method does NOT model Frozen x3 Direct Damage, IFG +30% damage, or Heavy Armor plates.
+		This method does NOT model Heavy Armor plates except for Mactera Brundle because those Heavy Armor plates cover its weakpoint.
+		
+		If the weapon can do at least one DoT, this will look ahead to see if up to 4 seconds of DoT damage can kill a creature. If it can, then it will finish on that Breakpoint early instead of wasting superfluous ammo.
 	*/
-	public static int[] calculateBreakpoints(double[] directDamageByType, double[] areaDamageByType, double[] DoTDamageByType, double weakpointModifier, double macteraModifier, 
-											 double singleBurstOfHeat, boolean frozen, boolean IFG, boolean flyingNightmare) {
-		int[] creaturesToModel = {0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 14, 15, 16, 20};
+	public static int[] calculateBreakpoints(double[] directDamageByType, double[] areaDamageByType, double[] DoT_DPS, double[] DoT_durations, double[] DoT_probabilities, 
+											 double weakpointModifier, double armorBreaking, double RoF, double heatPerShot, double macteraModifier, 
+											 boolean frozen, boolean IFG, boolean flyingNightmare, boolean embeddedDetonators) {
+		int[] creaturesToModel = {0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 14, 15, 16, 20, 21, 22};
 		
-		// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
-		double[] normalEnemyResistances = {
-			0.7,  // Haz1
-			1.0,  // Haz2
-			1.1,  // Haz3
-			1.2,  // Haz4
-			1.2   // Haz5
-		};
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
-		
-		// On the other hand, large and extra-large enemies have their health scale by both player count and Hazard Level for all 20 combinations.
-		// Currently, it looks like the only extra-large enemy is a Dreadnought which I've chosen not to model for now.
-		double[][] largeEnemyResistances = {
-			{0.45, 0.55, 0.70, 0.85},  // Haz1
-			{0.65, 0.75, 0.90, 1.00},  // Haz2
-			{0.80, 0.90, 1.00, 1.10},  // Haz3
-			{1.00, 1.00, 1.20, 1.30},  // Haz4
-			{1.20, 1.20, 1.40, 1.50}   // Haz5
-		};
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
-		double avgHP = averageHealthPool();
-		double burnDPS = DoTInformation.Burn_DPS;
 		ArrayList<Integer> toReturn = new ArrayList<Integer>();
 		
-		HashSet<Integer> normalEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 1, 2, 3, 5, 8, 9, 14, 20}));
+		HashSet<Integer> normalEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 1, 2, 3, 5, 8, 9, 14, 20, 21, 22}));
 		HashSet<Integer> largeEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {4, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19}));
-		// Grunts, Guards, Slashers, Webspitters, and Acidspitters intentionally neglected from this list since they are entirely covered by Light Armor except for their Weakpoints
-		HashSet<Integer> indexesWithNormalHealth = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 4, 5, 6, 7, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20}));
+		// Grunts, Guards, Slashers, Web Spitters, and Acid Spitters intentionally neglected from this list since they are entirely covered by Light Armor except for their Weakpoints
+		HashSet<Integer> indexesWithNormalHealth = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 4, 5, 6, 7, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22}));
 		HashSet<Integer> indexesWithLightArmor = new HashSet<Integer>(Arrays.asList(new Integer[] {1, 2, 3, 8, 9}));
+		HashSet<Integer> indexesWithHeavyArmorCoveringWeakpoint = new HashSet<Integer>(Arrays.asList(new Integer[] {22}));
 		HashSet<Integer> indexesWithoutWeakpoints = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 20}));
-		HashSet<Integer> indexesOfMacteras = new HashSet<Integer>(Arrays.asList(new Integer[] {14, 15, 16}));
-		// Glyphid Swarmers and Exploders have so little HP, it's not practical to model DoTs on them for Breakpoints
-		HashSet<Integer> indexesOfEnemiesShouldNotHaveDoTs = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 5}));
+		HashSet<Integer> indexesOfMacteras = new HashSet<Integer>(Arrays.asList(new Integer[] {14, 15, 16, 21, 22}));
 		
 		// Frozen
 		double lightArmorReduction = UtilityInformation.LightArmor_DamageReduction;
@@ -649,27 +679,33 @@ public class EnemyInformation {
 			// Bypasses all Armor types
 			lightArmorReduction = 1.0;
 			
-			// Multiplies Direct Damage by x3
-			directDamageByType = MathUtils.vectorScalarMultiply(3.0, directDamageByType);
-			
-			// Removes any damage from Burning DoT. For now, Temperature Shock will remain unmodeled in Breakpoints but it's something that would be done in here somewhere.
-			DoTDamageByType[0] = 0;
+			// Multiplies Direct Damage by x3 (except for Flying Nightmare)
+			if (!flyingNightmare) {
+				directDamageByType = MathUtils.vectorScalarMultiply(UtilityInformation.Frozen_Damage_Multiplier, directDamageByType);
+			}
 		}
 		
-		// Flying Nightmare is weird... it does the Direct Damage listed but it passes through enemies like the Breach Cutter and ignores armor.
+		// Flying Nightmare is weird... it does the Direct Damage listed but it passes through enemies, ignores armor, and doesn't benefit from Weakpoints like the Breach Cutter.
 		if (flyingNightmare) {
+			weakpointModifier = -1.0;
 			lightArmorReduction = 1.0;
 		}
 		
 		// IFG
 		if (IFG) {
 			// Increases Direct and Area Damage taken by x1.3
-			directDamageByType = MathUtils.vectorScalarMultiply(1.3, directDamageByType);
-			areaDamageByType = MathUtils.vectorScalarMultiply(1.3, areaDamageByType);
+			directDamageByType = MathUtils.vectorScalarMultiply(UtilityInformation.IFG_Damage_Multiplier, directDamageByType);
+			areaDamageByType = MathUtils.vectorScalarMultiply(UtilityInformation.IFG_Damage_Multiplier, areaDamageByType);
 		}
 		
-		double creatureHP, creatureWeakpointModifier, totalDirectDamage, totalAreaDamage, totalDoTDamage;
+		double creatureHP, creatureWeakpointModifier, aliasHP;
+		double rawDirectDamage, modifiedDirectDamage, rawAreaDamage, modifiedAreaDamage;
+		double numShotsToProcBurn, numShotsToProcElectrocute, numShotsToProcNeurotoxin, numShotsToProcPersistentPlasma, numShotsToProcRadiation;
+		double burnDPS, burnDuration, electrocuteDPS, plasmaDPS;
 		double[] creatureResistances;
+		int breakpointCounter;
+		double fourSecondsDoTDamage;
+		double lightArmorStrength, heavyArmorHP, numShotsToBreakArmor;
 		for (int creatureIndex: creaturesToModel) {
 			if (normalEnemyScalingIndexes.contains(creatureIndex)) {
 				creatureHP = enemyHealthPools[creatureIndex] * normalResistance;
@@ -696,43 +732,296 @@ public class EnemyInformation {
 				creatureWeakpointModifier *= (1.0 + weakpointModifier);
 			}
 			
-			totalDirectDamage = directDamageByType[0] + directDamageByType[1] * creatureResistances[0] + directDamageByType[2] * creatureResistances[1] + directDamageByType[3] * creatureResistances[2] + directDamageByType[4] * creatureResistances[3];
-			totalAreaDamage = areaDamageByType[0] + areaDamageByType[1] * creatureResistances[0] + areaDamageByType[2] * creatureResistances[1] + areaDamageByType[3] * creatureResistances[2] + areaDamageByType[4] * creatureResistances[3];
-			// Technically Radioactive variant enemies have Radiation Resistance, but since I've chosen not to model biome-specific enemies I'm also choosing not to model Radiation Resistance.
-			// Additionally, I'm scaling the DoT damage up and down proportional to the creature's health to the average HP used to calculate DoT damage. It's not accurate, but it is intuitive.
-			totalDoTDamage = (DoTDamageByType[0] * creatureResistances[1] + DoTDamageByType[1] * creatureResistances[3] + DoTDamageByType[2] + DoTDamageByType[3]) * (creatureHP / avgHP);
+			rawDirectDamage = MathUtils.sum(directDamageByType);
+			modifiedDirectDamage = directDamageByType[0] + directDamageByType[1] * creatureResistances[0] + directDamageByType[2] * creatureResistances[1] + directDamageByType[3] * creatureResistances[2] + directDamageByType[4] * creatureResistances[3];
 			
-			// Enemies can have Temperatures above their Ignite temperatures, and that makes them Burn longer than the "avg Burn duration" I have modeled. This is important for Grunts and 
-			// Mactera Spawns on Engie/GL/Mod/3/A Incendiary Compound and Scout/Boomstick/Mod/5/C WPS
-			if (!frozen && singleBurstOfHeat >= enemyTemperatures[creatureIndex][0]) {
-				// If I choose to implement Temperature Shock in breakpoints, I'll have to add it here too.
-				totalDoTDamage += creatureResistances[1] * burnDPS * (singleBurstOfHeat - enemyTemperatures[creatureIndex][1]) / enemyTemperatures[creatureIndex][2];
-			}
+			rawAreaDamage = MathUtils.sum(areaDamageByType);
+			modifiedAreaDamage = areaDamageByType[0] + areaDamageByType[1] * creatureResistances[0] + areaDamageByType[2] * creatureResistances[1] + areaDamageByType[3] * creatureResistances[2] + areaDamageByType[4] * creatureResistances[3];
 			
 			// Driller/Subata/Mod/5/B "Mactera Neurotoxin Coating" makes the Subata's damage do x1.2 more to Mactera-type enemies
 			if (indexesOfMacteras.contains(creatureIndex)) {
-				totalDirectDamage *= (1.0 + macteraModifier);
-				totalAreaDamage *= (1.0 + macteraModifier);
+				modifiedDirectDamage *= (1.0 + macteraModifier);
+				modifiedAreaDamage *= (1.0 + macteraModifier);
 			}
 			
-			if (!indexesOfEnemiesShouldNotHaveDoTs.contains(creatureIndex)) {
-				// For Webspitters vs Grenade Launcher/Incendiary Compound, this subtracted more HP than they had. As such this now sets their HP down to a minimum of 1 hp so that everything one-shots as intended.
-				creatureHP = Math.max(creatureHP - totalDoTDamage, 1);
+			// Neurotoxin does Poison damage -- which no enemy resists -- and Radiation is not resisted by any creatures modeled by the program (but it is technically resisted by enemies in REZ biome)
+			burnDPS = DoTInformation.Burn_DPS * creatureResistances[1];
+			electrocuteDPS = DoT_DPS[0] * creatureResistances[3];
+			plasmaDPS = DoT_DPS[2] * creatureResistances[1];
+			
+			numShotsToProcBurn = 0;
+			burnDuration = 0;
+			numShotsToProcElectrocute = 0;
+			numShotsToProcNeurotoxin = 0;
+			numShotsToProcPersistentPlasma = 0;
+			numShotsToProcRadiation = 0;
+			if (!frozen && heatPerShot > 0.0) {
+				if (heatPerShot > enemyTemperatures[creatureIndex][0]) {
+					numShotsToProcBurn = 1;
+					burnDuration = (heatPerShot - enemyTemperatures[creatureIndex][1]) / enemyTemperatures[creatureIndex][2];
+				}
+				else {
+					// This is technically an approximation and not precisely how it works in-game, but it's close enough for what I need.
+					numShotsToProcBurn = Math.floor((enemyTemperatures[creatureIndex][0] * RoF) / (heatPerShot * RoF - enemyTemperatures[creatureIndex][2]));
+					burnDuration = (enemyTemperatures[creatureIndex][0] - enemyTemperatures[creatureIndex][1]) / enemyTemperatures[creatureIndex][2];
+				}
+			}
+			if (DoT_probabilities[0] > 0.0) {
+				numShotsToProcElectrocute = Math.round(MathUtils.meanRolls(DoT_probabilities[0]));
+			}
+			if (DoT_probabilities[1] > 0.0) {
+				numShotsToProcNeurotoxin = Math.round(MathUtils.meanRolls(DoT_probabilities[1]));
+			}
+			if (DoT_probabilities[2] > 0.0) {
+				numShotsToProcPersistentPlasma = Math.round(MathUtils.meanRolls(DoT_probabilities[2]));
+			}
+			if (DoT_probabilities[3] > 0.0) {
+				numShotsToProcRadiation = Math.round(MathUtils.meanRolls(DoT_probabilities[3]));
 			}
 			
 			// Normal Damage
 			if (indexesWithNormalHealth.contains(creatureIndex)) {
-				toReturn.add((int) Math.ceil(creatureHP / (totalDirectDamage + totalAreaDamage)));
+				breakpointCounter = 0;
+				aliasHP = creatureHP;
+				
+				while (aliasHP > 0) {
+					breakpointCounter++;
+					
+					// First, subtract Direct Damage
+					aliasHP -= modifiedDirectDamage;
+					
+					// Second, subtract Area Damage
+					aliasHP -= modifiedAreaDamage;
+					
+					// Third, determine if 4 seconds of DoTs can do enough damage to kill the creature
+					fourSecondsDoTDamage = 0;
+					if (numShotsToProcBurn > 0 && breakpointCounter >= numShotsToProcBurn) {
+						fourSecondsDoTDamage += Math.min(burnDuration, 4.0) * burnDPS;
+					}
+					if (numShotsToProcElectrocute > 0 && breakpointCounter >= numShotsToProcElectrocute) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[0], 4.0) * electrocuteDPS;
+					}
+					if (numShotsToProcNeurotoxin > 0 && breakpointCounter >= numShotsToProcNeurotoxin) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[1], 4.0) * DoT_DPS[1];
+					}
+					if (numShotsToProcPersistentPlasma > 0 && breakpointCounter >= numShotsToProcPersistentPlasma) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[2], 4.0) * plasmaDPS;
+					}
+					if (numShotsToProcRadiation > 0 && breakpointCounter >= numShotsToProcRadiation) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[3], 4.0) * DoT_DPS[3];
+					}
+					
+					if (fourSecondsDoTDamage >= aliasHP) {
+						break;
+					}
+					
+					// If not, subtract the damage dealt by DoTs until the next shot at max RoF
+					if (numShotsToProcBurn > 0 && breakpointCounter >= numShotsToProcBurn) {
+						aliasHP -= burnDPS / RoF;
+					}
+					if (numShotsToProcElectrocute > 0 && breakpointCounter >= numShotsToProcElectrocute) {
+						aliasHP -= electrocuteDPS / RoF;
+					}
+					if (numShotsToProcNeurotoxin > 0 && breakpointCounter >= numShotsToProcNeurotoxin) {
+						aliasHP -=  DoT_DPS[1] / RoF;
+					}
+					if (numShotsToProcPersistentPlasma > 0 && breakpointCounter >= numShotsToProcPersistentPlasma) {
+						aliasHP -= plasmaDPS / RoF;
+					}
+					if (numShotsToProcRadiation > 0 && breakpointCounter >= numShotsToProcRadiation) {
+						aliasHP -= DoT_DPS[3] / RoF;
+					}
+					
+					// This is just a catch-all statement for the rounding errors inherent to double division.
+					aliasHP = MathUtils.round(aliasHP, 4);
+				}
+				
+				toReturn.add(breakpointCounter);
 			}
 			
 			// Light Armor
 			if (indexesWithLightArmor.contains(creatureIndex)) {
-				toReturn.add((int) Math.ceil(creatureHP / (totalDirectDamage * lightArmorReduction + totalAreaDamage)));
+				breakpointCounter = 0;
+				aliasHP = creatureHP;
+				
+				if (creatureIndex == 1 || creatureIndex == 2 || creatureIndex == 3) {
+					lightArmorStrength = 15;
+				}
+				else if (creatureIndex == 8 || creatureIndex == 9) {
+					lightArmorStrength = 10;
+				}
+				else {
+					// This is an error case.
+					lightArmorStrength = 1;
+				}
+				
+				if (embeddedDetonators) {
+					numShotsToBreakArmor = Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(rawDirectDamage, armorBreaking, lightArmorStrength)));
+				}
+				else {
+					numShotsToBreakArmor = Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(rawDirectDamage + rawAreaDamage, armorBreaking, lightArmorStrength)));
+				}
+				
+				while (aliasHP > 0) {
+					breakpointCounter++;
+					
+					// First, subtract Direct Damage
+					if (armorBreaking > 1.0 && breakpointCounter >= numShotsToBreakArmor) {
+						aliasHP -= modifiedDirectDamage;
+					}
+					else if (armorBreaking <= 1.0 && breakpointCounter > numShotsToBreakArmor) {
+						aliasHP -= modifiedDirectDamage;
+					}
+					else {
+						aliasHP -= modifiedDirectDamage * lightArmorReduction;
+					}
+					
+					// Second, subtract Area Damage
+					aliasHP -= modifiedAreaDamage;
+					
+					// Third, determine if 4 seconds of DoTs can do enough damage to kill the creature
+					fourSecondsDoTDamage = 0;
+					if (numShotsToProcBurn > 0 && breakpointCounter >= numShotsToProcBurn) {
+						fourSecondsDoTDamage += Math.min(burnDuration, 4.0) * burnDPS;
+					}
+					if (numShotsToProcElectrocute > 0 && breakpointCounter >= numShotsToProcElectrocute) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[0], 4.0) * electrocuteDPS;
+					}
+					if (numShotsToProcNeurotoxin > 0 && breakpointCounter >= numShotsToProcNeurotoxin) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[1], 4.0) * DoT_DPS[1];
+					}
+					if (numShotsToProcPersistentPlasma > 0 && breakpointCounter >= numShotsToProcPersistentPlasma) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[2], 4.0) * plasmaDPS;
+					}
+					if (numShotsToProcRadiation > 0 && breakpointCounter >= numShotsToProcRadiation) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[3], 4.0) * DoT_DPS[3];
+					}
+					
+					if (fourSecondsDoTDamage >= aliasHP) {
+						break;
+					}
+					
+					// If not, subtract the damage dealt by DoTs until the next shot at max RoF
+					if (numShotsToProcBurn > 0 && breakpointCounter >= numShotsToProcBurn) {
+						aliasHP -= burnDPS / RoF;
+					}
+					if (numShotsToProcElectrocute > 0 && breakpointCounter >= numShotsToProcElectrocute) {
+						aliasHP -= electrocuteDPS / RoF;
+					}
+					if (numShotsToProcNeurotoxin > 0 && breakpointCounter >= numShotsToProcNeurotoxin) {
+						aliasHP -=  DoT_DPS[1] / RoF;
+					}
+					if (numShotsToProcPersistentPlasma > 0 && breakpointCounter >= numShotsToProcPersistentPlasma) {
+						aliasHP -= plasmaDPS / RoF;
+					}
+					if (numShotsToProcRadiation > 0 && breakpointCounter >= numShotsToProcRadiation) {
+						aliasHP -= DoT_DPS[3] / RoF;
+					}
+					
+					// This is just a catch-all statement for the rounding errors inherent to double division.
+					aliasHP = MathUtils.round(aliasHP, 4);
+				}
+				
+				toReturn.add(breakpointCounter);
 			}
 			
 			// Weakpoint
 			if (!indexesWithoutWeakpoints.contains(creatureIndex)) {
-				toReturn.add((int) Math.ceil(creatureHP / (totalDirectDamage * creatureWeakpointModifier + totalAreaDamage)));
+				breakpointCounter = 0;
+				aliasHP = creatureHP;
+				
+				if (indexesWithHeavyArmorCoveringWeakpoint.contains(creatureIndex)) {
+					if (creatureIndex == 22) {
+						heavyArmorHP = 80;
+					}
+					else {
+						// Error case
+						heavyArmorHP = 1000;
+					}
+					
+					heavyArmorHP *= normalResistance;
+					
+					if (embeddedDetonators) {
+						numShotsToBreakArmor = heavyArmorHP / (rawDirectDamage * armorBreaking);
+					}
+					else {
+						numShotsToBreakArmor = heavyArmorHP / ((rawDirectDamage + rawAreaDamage) * armorBreaking);
+					}
+				}
+				else {
+					heavyArmorHP = 0;
+					numShotsToBreakArmor = 0;
+				}
+				
+				while (aliasHP > 0) {
+					breakpointCounter++;
+					
+					if (!frozen && heavyArmorHP > 0) {
+						// First, subtract Direct Damage (and Explosive Reload/Embedded Detonators)
+						if ((armorBreaking > 1.0 && breakpointCounter >= numShotsToBreakArmor) || (armorBreaking <= 1.0 && breakpointCounter > numShotsToBreakArmor)) {
+							aliasHP -= modifiedDirectDamage * creatureWeakpointModifier;
+							if (embeddedDetonators) {
+								aliasHP -= modifiedAreaDamage;
+							}
+						}
+						else {
+							continue;
+						}
+						
+						// Second, subtract Area Damage
+						if (!embeddedDetonators) {
+							aliasHP -= modifiedAreaDamage;
+						}
+					}
+					else {
+						aliasHP -= modifiedDirectDamage * creatureWeakpointModifier;
+						aliasHP -= modifiedAreaDamage;
+					}
+					
+					// Third, determine if 4 seconds of DoTs can do enough damage to kill the creature
+					fourSecondsDoTDamage = 0;
+					if (numShotsToProcBurn > 0 && breakpointCounter >= numShotsToProcBurn) {
+						fourSecondsDoTDamage += Math.min(burnDuration, 4.0) * burnDPS;
+					}
+					if (numShotsToProcElectrocute > 0 && breakpointCounter >= numShotsToProcElectrocute) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[0], 4.0) * electrocuteDPS;
+					}
+					if (numShotsToProcNeurotoxin > 0 && breakpointCounter >= numShotsToProcNeurotoxin) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[1], 4.0) * DoT_DPS[1];
+					}
+					if (numShotsToProcPersistentPlasma > 0 && breakpointCounter >= numShotsToProcPersistentPlasma) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[2], 4.0) * plasmaDPS;
+					}
+					if (numShotsToProcRadiation > 0 && breakpointCounter >= numShotsToProcRadiation) {
+						fourSecondsDoTDamage += Math.min(DoT_durations[3], 4.0) * DoT_DPS[3];
+					}
+					
+					if (fourSecondsDoTDamage >= aliasHP) {
+						break;
+					}
+					
+					// If not, subtract the damage dealt by DoTs until the next shot at max RoF
+					if (numShotsToProcBurn > 0 && breakpointCounter >= numShotsToProcBurn) {
+						aliasHP -= burnDPS / RoF;
+					}
+					if (numShotsToProcElectrocute > 0 && breakpointCounter >= numShotsToProcElectrocute) {
+						aliasHP -= electrocuteDPS / RoF;
+					}
+					if (numShotsToProcNeurotoxin > 0 && breakpointCounter >= numShotsToProcNeurotoxin) {
+						aliasHP -=  DoT_DPS[1] / RoF;
+					}
+					if (numShotsToProcPersistentPlasma > 0 && breakpointCounter >= numShotsToProcPersistentPlasma) {
+						aliasHP -= plasmaDPS / RoF;
+					}
+					if (numShotsToProcRadiation > 0 && breakpointCounter >= numShotsToProcRadiation) {
+						aliasHP -= DoT_DPS[3] / RoF;
+					}
+					
+					// This is just a catch-all statement for the rounding errors inherent to double division.
+					aliasHP = MathUtils.round(aliasHP, 4);
+				}
+				
+				toReturn.add(breakpointCounter);
 			}
 		}
 				
@@ -763,6 +1052,7 @@ public class EnemyInformation {
 			Glyphid Menace
 			Glyphid Warden
 			Q'ronar Shellback
+			Mactera Brundle
 			
 		For most enemies in the list, I'm going to model it as if every shot fired has Weakpoint Accuracy percent of the Direct Damage hit the Weakpoint, 
 		(General Accuracy - Weakpoint Accuracy) percent hit up to 6 armor plates simultaneously and have its damage reduced accordingly, and 
@@ -770,9 +1060,9 @@ public class EnemyInformation {
 		Direct Damage is the only way I can think of to produce consistent, repeatable results from this type of mechanic. If I didn't use this method, it would be a 
 		lot of RNG rolls to model and that would produce different results even for the same build different times.
 		
-		There will be a couple exceptions to this pattern: Praetorian and Shellback. Praetorian will have General Accuracy percent of Direct Damage hit its mouth, and 
+		There will be a couple exceptions to this pattern: Praetorian, Shellback, and Brundle. Praetorian will have General Accuracy percent of Direct Damage hit its mouth, and 
 		(100% - General Accuracy) percent of Direct Damage hit the Heavy Armor plates around the mouth. Shellbacks will have General Accuracy percentage of Direct Damage
-		hit its plates until they're broken.
+		hit its plates until they're broken. Brundles take no damage until their Heavy Armor is broken, and then they take 3x Weakpoint damage.
 		
 		I'm choosing to let Overkill damage be counted as damage dealt. Too complicated to keep track of while simultaneously doing Armor stuff.
 	*/
@@ -791,29 +1081,13 @@ public class EnemyInformation {
 			{10, 0, (1*1 + 2*10)/3.0, 3, 0},  	// Glyphid Menace
 			{11, 0, 15, 3, 0},  				// Glyphid Warden
 			{13, 0, 0, 6, (6*70 + 14*30)/20},  	// Q'ronar Shellback
+			{22, 0, 0, 2, 80}					// Mactera Brundle
 		};
 		
 		double[][] toReturn = new double[2][creaturesArmorMatrix.length];
 		
-		// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
-		double[] normalEnemyResistances = {
-			0.7,  // Haz1
-			1.0,  // Haz2
-			1.1,  // Haz3
-			1.2,  // Haz4
-			1.2   // Haz5
-		};
-		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		
-		// On the other hand, large and extra-large enemies have their health scale by both player count and Hazard Level for all 20 combinations.
-		// Currently, it looks like the only extra-large enemy is a Dreadnought which I've chosen not to model for now.
-		double[][] largeEnemyResistances = {
-			{0.45, 0.55, 0.70, 0.85},  // Haz1
-			{0.65, 0.75, 0.90, 1.00},  // Haz2
-			{0.80, 0.90, 1.00, 1.10},  // Haz3
-			{1.00, 1.00, 1.20, 1.30},  // Haz4
-			{1.20, 1.20, 1.40, 1.50}   // Haz5
-		};
+		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
 		int creatureIndex, i, j;
@@ -848,15 +1122,24 @@ public class EnemyInformation {
 						totalDamageSpent += directDamage;
 						damageDealtPerPellet = proportionOfDamageThatHitsMouth * directDamage;
 						if (heavyArmorPlateHealth > 0) {
-							if (directDamage * proportionOfDamageThatHitsArmor * armorBreaking > heavyArmorPlateHealth) {
-								if (armorBreaking > 1.0) {
-									damageDealtPerPellet += proportionOfDamageThatHitsArmor * directDamage - heavyArmorPlateHealth / armorBreaking;
+							if (armorBreaking > 1.0) {
+								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
+									damageDealtPerPellet += proportionOfDamageThatHitsArmor * directDamage;
+									heavyArmorPlateHealth = 0;
 								}
-								heavyArmorPlateHealth = 0;
+								else {
+									// Direct Damage insufficient to break the Heavy Armor Plate
+									heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
+								}
 							}
 							else {
-								// Direct Damage insufficient to break the Heavy Armor Plate
-								heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
+								if (directDamage * proportionOfDamageThatHitsArmor * armorBreaking > heavyArmorPlateHealth) {
+									heavyArmorPlateHealth = 0;
+								}
+								else {
+									// Direct Damage insufficient to break the Heavy Armor Plate
+									heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
+								}
 							}
 						}
 						else {
@@ -897,19 +1180,94 @@ public class EnemyInformation {
 						totalDamageSpent += directDamage;
 						damageDealtPerPellet = 0;
 						if (heavyArmorPlateHealth > 0) {
-							if (directDamage * armorBreaking > heavyArmorPlateHealth) {
-								if (armorBreaking > 1.0) {
-									damageDealtPerPellet += directDamage - heavyArmorPlateHealth / armorBreaking;
+							if (armorBreaking > 1.0) {
+								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
+									damageDealtPerPellet += directDamage;
+									heavyArmorPlateHealth = 0;
 								}
-								heavyArmorPlateHealth = 0;
+								else {
+									// Direct Damage insufficient to break the Heavy Armor Plate
+									heavyArmorPlateHealth -= directDamage * armorBreaking;
+								}
 							}
 							else {
-								// Direct Damage insufficient to break the Heavy Armor Plate
-								heavyArmorPlateHealth -= directDamage * armorBreaking;
+								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
+									heavyArmorPlateHealth = 0;
+								}
+								else {
+									// Direct Damage insufficient to break the Heavy Armor Plate
+									heavyArmorPlateHealth -= directDamage * armorBreaking;
+								}
 							}
 						}
 						else {
 							damageDealtPerPellet += directDamage;
+						}
+						
+						actualDamageDealt += damageDealtPerPellet;
+						baseHealth -= damageDealtPerPellet;
+					}
+					
+					// Second, Area Damage
+					totalDamageSpent += areaDamage;
+					if (embeddedDetonators) {
+						if (heavyArmorPlateHealth == 0) {
+							actualDamageDealt += areaDamage;
+							baseHealth -= areaDamage;
+						}
+					}
+					else {
+						if (heavyArmorPlateHealth > 0) {
+							heavyArmorPlateHealth = Math.max(heavyArmorPlateHealth - areaDamage * armorBreaking, 0);
+						}
+						
+						actualDamageDealt += areaDamage;
+						baseHealth -= areaDamage;
+					}
+				}
+			}
+			else if (i == 9) {
+				// Special case: Mactera Brundle
+				baseHealth *= normalResistance;
+				
+				double theoreticalDamagePerPellet;
+				if (weakpointModifier < 0.0) {
+					theoreticalDamagePerPellet = directDamage;
+				}
+				else {
+					theoreticalDamagePerPellet = directDamage * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex];
+				}
+				
+				totalDamageSpent = 0;
+				actualDamageDealt = 0;
+				while (baseHealth > 0) {
+					// First, Direct Damage
+					for (j = 0; j < numPellets; j++) {
+						totalDamageSpent += theoreticalDamagePerPellet;
+						damageDealtPerPellet = 0;
+						if (heavyArmorPlateHealth > 0) {
+							if (armorBreaking > 1.0) {
+								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
+									damageDealtPerPellet += theoreticalDamagePerPellet;
+									heavyArmorPlateHealth = 0;
+								}
+								else {
+									// Direct Damage insufficient to break the Heavy Armor Plate
+									heavyArmorPlateHealth -= directDamage * armorBreaking;
+								}
+							}
+							else {
+								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
+									heavyArmorPlateHealth = 0;
+								}
+								else {
+									// Direct Damage insufficient to break the Heavy Armor Plate
+									heavyArmorPlateHealth -= directDamage * armorBreaking;
+								}
+							}
+						}
+						else {
+							damageDealtPerPellet += theoreticalDamagePerPellet;
 						}
 						
 						actualDamageDealt += damageDealtPerPellet;
@@ -991,15 +1349,24 @@ public class EnemyInformation {
 							// 2. Heavy Armor Plates with health (mixes with Light Armor plates on Guards)
 							if (creaturesArmorMatrix[i][4] > 0) { 
 								if (heavyArmorPlateHealth > 0) {
-									if (directDamage * proportionOfDamageThatHitsArmor * armorBreaking > heavyArmorPlateHealth) {
-										if (armorBreaking > 1.0) {
-											damageDealtPerPellet += (directDamage * proportionOfDamageThatHitsArmor - heavyArmorPlateHealth / armorBreaking) * creaturesArmorMatrix[i][3] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+									if (armorBreaking > 1.0) {
+										if (directDamage * armorBreaking > heavyArmorPlateHealth) {
+											damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * creaturesArmorMatrix[i][3] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+											heavyArmorPlateHealth = 0;
 										}
-										heavyArmorPlateHealth = 0;
+										else {
+											// Direct Damage insufficient to break the Heavy Armor Plate
+											heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
+										}
 									}
 									else {
-										// Direct Damage insufficient to break the Heavy Armor Plate
-										heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
+										if (directDamage * proportionOfDamageThatHitsArmor * armorBreaking > heavyArmorPlateHealth) {
+											heavyArmorPlateHealth = 0;
+										}
+										else {
+											// Direct Damage insufficient to break the Heavy Armor Plate
+											heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
+										}
 									}
 								}
 								else {
@@ -1069,28 +1436,10 @@ public class EnemyInformation {
 		toReturn[0] = new double[exactSpawnRates.length];
 		toReturn[1] = new double[exactSpawnRates.length];
 		
-		// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
-		double[] normalEnemyResistances = {
-			0.7,  // Haz1
-			1.0,  // Haz2
-			1.1,  // Haz3
-			1.2,  // Haz4
-			1.2   // Haz5
-		};
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
-		
-		// On the other hand, large and extra-large enemies have their health scale by both player count and Hazard Level for all 20 combinations.
-		// Currently, it looks like the only extra-large enemy is a Dreadnought which I've chosen not to model for now.
-		double[][] largeEnemyResistances = {
-			{0.45, 0.55, 0.70, 0.85},  // Haz1
-			{0.65, 0.75, 0.90, 1.00},  // Haz2
-			{0.80, 0.90, 1.00, 1.10},  // Haz3
-			{1.00, 1.00, 1.20, 1.30},  // Haz4
-			{1.20, 1.20, 1.40, 1.50}   // Haz5
-		};
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
-		HashSet<Integer> normalEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 1, 2, 3, 5, 8, 9, 14, 20}));
+		HashSet<Integer> normalEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 1, 2, 3, 5, 8, 9, 14, 20, 21, 22}));
 		HashSet<Integer> largeEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {4, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19}));
 		
 		double creatureHP;

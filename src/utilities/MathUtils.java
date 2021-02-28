@@ -74,6 +74,22 @@ public class MathUtils {
 		return sum;
 	}
 	
+	public static double probabilityInNormalDistribution(double minValue, double maxValue, double inputValue) {
+		// Input Sanitization
+		if (minValue >= maxValue) {
+			return -1;
+		}
+		if (inputValue < minValue || inputValue > maxValue) {
+			return -1;
+		}
+		
+		// Step 1: convert inputValue to fit the range of [-2, 4] proportionally to minValue and maxValue acting as -2 and 4 respectively
+		double x = 6.0 * (inputValue - minValue) / (maxValue - minValue) - 2.0;
+		
+		// Step 2: input X into the equation e^(-1/2(x-1)^2)/sqrt(2Pi)
+		return Math.exp(-0.5 * Math.pow(x - 1.0, 2)) / Math.sqrt(2.0 * Math.PI);
+	}
+	
 	private static double erf(double x) {
 		// erf can't be expressed precisely, so I'm using a quick-and-dirty numerical approximation.
 		// Sourced from https://en.wikipedia.org/wiki/Error_function#Numerical_approximations

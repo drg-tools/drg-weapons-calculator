@@ -1,4 +1,4 @@
-package guiPieces;
+package guiPieces.accuracyEstimator;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -14,6 +14,8 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import guiPieces.GuiConstants;
+import utilities.MathUtils;
 import utilities.Point2D;
 
 // Adapted from this StackOverflow answer: https://stackoverflow.com/a/18413639
@@ -120,18 +122,35 @@ public class LineGraph extends JPanel implements Runnable {
         
         // Make gridlines on X-axis every 0.5 seconds
         int numXGridlines = (int) Math.floor(maxX / 0.5);
-        double excessTime = maxX - numXGridlines * 0.5;
-        double proportionThatFitsGridlines = (maxX - excessTime) / maxX;
-        for (i = 1; i < numXGridlines + 1; i++) {
-            x0 = i * ((int) (getWidth()*proportionThatFitsGridlines) - padding * 2 - labelPadding) / numXGridlines + padding + labelPadding;
-            x1 = x0;
-            y0 = getHeight() - padding - labelPadding;
+        if (numXGridlines > 0) {
+	        double excessTime = maxX - numXGridlines * 0.5;
+	        double proportionThatFitsGridlines = (maxX - excessTime) / maxX;
+	        for (i = 1; i < numXGridlines + 1; i++) {
+	            x0 = i * ((int) (getWidth()*proportionThatFitsGridlines) - padding * 2 - labelPadding) / numXGridlines + padding + labelPadding;
+	            x1 = x0;
+	            y0 = getHeight() - padding - labelPadding;
+	            y1 = y0 - pointWidth;
+	            
+	            g2.setColor(gridColor);
+	            g2.drawLine(x0, getHeight() - padding - labelPadding - 1 - pointWidth, x1, padding);
+	            g2.setColor(Color.BLACK);
+	            String xLabel = i*0.5 + "";
+	            int labelWidth = metrics.stringWidth(xLabel);
+	            g2.drawString(xLabel, x0 - labelWidth / 2, y0 + metrics.getHeight() + 3);
+	            g2.drawLine(x0, y0, x1, y1);
+	        }
+        }
+        else {
+        	// Special case: if there's less than 0.5 seconds of data to display, just add one tick at the far right with when this ends (Zhukovs' Recoil per Shot caused this)
+        	x0 = ((int) getWidth() - padding * 2 - labelPadding) + padding + labelPadding;
+        	x1 = x0;
+        	y0 = getHeight() - padding - labelPadding;
             y1 = y0 - pointWidth;
             
             g2.setColor(gridColor);
             g2.drawLine(x0, getHeight() - padding - labelPadding - 1 - pointWidth, x1, padding);
             g2.setColor(Color.BLACK);
-            String xLabel = i*0.5 + "";
+            String xLabel = MathUtils.round(maxX, GuiConstants.numDecimalPlaces) + "";
             int labelWidth = metrics.stringWidth(xLabel);
             g2.drawString(xLabel, x0 - labelWidth / 2, y0 + metrics.getHeight() + 3);
             g2.drawLine(x0, y0, x1, y1);

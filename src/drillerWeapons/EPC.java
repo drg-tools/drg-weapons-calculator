@@ -7,8 +7,8 @@ import java.util.List;
 import dataGenerator.DatabaseConstants;
 import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
-import guiPieces.ButtonIcons.modIcons;
-import guiPieces.ButtonIcons.overclockIcons;
+import guiPieces.customButtons.ButtonIcons.modIcons;
+import guiPieces.customButtons.ButtonIcons.overclockIcons;
 import modelPieces.DoTInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
@@ -34,8 +34,8 @@ public abstract class EPC extends Weapon {
 	private int batterySize;
 	// This needs to be protected instead of private so that EPC_RegularShot.getStats() can access its static value.
 	protected double rateOfFire;
-	private double maxHeat;
-	private double coolingRate;
+	protected double maxHeat;
+	protected double coolingRate;
 	private int ammoPerChargedShot;
 	private double chargeShotWindup;
 	private double heatPerRegularShot;
@@ -126,8 +126,8 @@ public abstract class EPC extends Weapon {
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Flying Nightmare", "Charged Shots now deal their Direct Damage to enemies hit by the AoE while in-flight but it no longer explodes upon impact. Additionally, x0.55 AoE radius, x0.8 Charge Speed.", modIcons.aoeRadius, 5, 0);
 		tier5[1] = new Mod("Thin Containment Field", "Shoot the Charged Shot with a Regular Shot before it impacts anything to make it detonate for 240 Damage and carve terrain within a 3m radius. "
-				+ "Additionally, x0.8 Heat per Regular Shot, and x0.8 Heat per Charged Shot which means it no longer overheats on charged shots.", modIcons.special, 5, 1);
-		tier5[2] = new Mod("Plasma Burn", "Regular Shots have 50% of their Direct Damage added on as Heat Damage per shot", modIcons.heatDamage, 5, 2);
+				+ "Additionally, x0.8 Heat per Regular Shot, and x0.25 Heat per Charged Shot which means it no longer overheats on charged shots.", modIcons.special, 5, 1);
+		tier5[2] = new Mod("Plasma Burn", "Regular Shots have 50% of their Direct Damage added on as Heat which can ignite enemies, dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second.", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Energy Rerouting", "+16 Battery Size, x1.5 Charge Speed.", overclockIcons.chargeSpeed, 0);
@@ -136,7 +136,7 @@ public abstract class EPC extends Weapon {
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Heavy Hitter", "x1.6 Regular Shot Direct Damage, x1.5 Heat per Regular Shot, -32 Battery Size", overclockIcons.directDamage, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Overcharger", "x1.5 Charged Shot Direct Damage, x1.5 Charged Shot Area Damage, x1.2 Charged Shot AoE Radius, x1.5 Ammo per Charged Shot, -25% Cooling Rate", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Persistent Plasma", "Upon impact, Charged Shots leave behind a 3m radius field of Persistent Plasma that deals " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + 
-				" Electric Damage per Second for 7.6 seconds. -20 Charged Shot Direct Damage, -20 Charged Shot Area Damage", overclockIcons.hourglass, 5);
+				" Fire Damage per Second for 7.6 seconds. -20 Charged Shot Direct Damage, -20 Charged Shot Area Damage", overclockIcons.hourglass, 5);
 	}
 	
 	@Override
@@ -403,12 +403,6 @@ public abstract class EPC extends Weapon {
 		
 		return toReturn;
 	}
-	protected double getRateOfFire() {
-		double timeToFireChargedShot = getChargedShotWindup();
-		double timeToCoolDownAfterChargedShot = getCooldownDuration();
-		
-		return 1 / (timeToFireChargedShot + timeToCoolDownAfterChargedShot);
-	}
 	protected double getCoolingRateModifier() {
 		double modifier = 1.0;
 		
@@ -481,9 +475,9 @@ public abstract class EPC extends Weapon {
 	protected double getHeatPerChargedShot() {
 		// Unless they have Mod Tier 5 "Thin Containment Field" equipped, charged shots guarantee an overheat.
 		if (selectedTier5 == 1) {
-			// If TFC is equipped, then the Charged Shot only fills up 80% of the meter, and one Regular Shot to detonate the TFC field
+			// If TFC is equipped, then the Charged Shot only costs 25% max heat, and one Regular Shot to detonate the TFC field
 			// Don't let this return more than the max heat, though!
-			return Math.min(maxHeat * 0.8 + getHeatPerRegularShot(), maxHeat);
+			return Math.min(maxHeat * 0.25 + getHeatPerRegularShot(), maxHeat);
 		}
 		else {
 			return maxHeat;
@@ -512,25 +506,11 @@ public abstract class EPC extends Weapon {
 		return toReturn;
 	}
 	
-	protected int getNumRegularShotsBeforeOverheat() {
-		double k = getCoolingRateModifier();
-		double h = getHeatPerRegularShot();
-		
-		double exactAnswer = (maxHeat * rateOfFire) / (rateOfFire * h - k * coolingRate);
-		
-		return (int) Math.ceil(exactAnswer);
-	}
 	protected double getSecondsBeforeOverheatWhileCharged() {
 		return maxHeat / getHeatPerSecondWhileCharged();
 	}
 	protected double getCooldownDuration() {
-		// If they have Thin Containment Field equipped, then each Charged Shot only fills the meter to 80% plus the one Regular Shot
-		if (selectedTier5 == 1) {
-			return getHeatPerChargedShot() / (coolingRate * getCoolingRateModifier());
-		}
-		else {
-			return maxHeat / (coolingRate * getCoolingRateModifier());
-		}
+		return getHeatPerChargedShot() / (coolingRate * getCoolingRateModifier());
 	}
 	
 	/****************************************************************************************

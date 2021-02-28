@@ -1,4 +1,4 @@
-package guiPieces;
+package guiPieces.customButtons;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -15,7 +15,9 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import guiPieces.ButtonIcons.modIcons;
+import guiPieces.GuiConstants;
+import guiPieces.StatsRowIconPanel;
+import guiPieces.customButtons.ButtonIcons.modIcons;
 import modelPieces.StatsRow;
 
 public class GranularMetricButton extends JButton implements ActionListener {

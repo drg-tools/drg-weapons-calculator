@@ -6,8 +6,8 @@ import java.util.List;
 
 import dataGenerator.DatabaseConstants;
 import guiPieces.WeaponPictures;
-import guiPieces.ButtonIcons.modIcons;
-import guiPieces.ButtonIcons.overclockIcons;
+import guiPieces.customButtons.ButtonIcons.modIcons;
+import guiPieces.customButtons.ButtonIcons.overclockIcons;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
@@ -50,6 +50,7 @@ public class Shotgun extends Weapon {
 	public Shotgun(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "\"Warthog\" Auto 210";
 		weaponPic = WeaponPictures.shotgun;
+		customizableRoF = true;
 		
 		// Base stats, before mods or overclocks alter them:
 		damagePerPellet = 7;
@@ -329,7 +330,8 @@ public class Shotgun extends Weapon {
 		
 		return toReturn;
 	}
-	private double getRateOfFire() {
+	@Override
+	public double getRateOfFire() {
 		double toReturn = rateOfFire;
 		
 		if (selectedTier1 == 0) {
@@ -447,7 +449,7 @@ public class Shotgun extends Weapon {
 		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
 		boolean RoFModified = selectedTier1 == 0 || selectedTier5 == 1 || selectedOverclock == 2 || selectedOverclock == 3;
-		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, RoFModified);
+		toReturn[4] = new StatsRow("Rate of Fire:", getCustomRoF(), modIcons.rateOfFire, RoFModified);
 		
 		boolean reloadModified = selectedTier3 == 1 || selectedOverclock == 1 || selectedOverclock == 3;
 		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, reloadModified);
@@ -485,9 +487,30 @@ public class Shotgun extends Weapon {
 		return false;
 	}
 	
+	// Adapted from Gunner/Revolver
+	@Override
+	public double getRecommendedRateOfFire() {
+		double recoilPitch = 55 * getRecoil();
+		double recoilYaw = 40 * getRecoil();
+		double mass = 4.0;
+		double springStiffness = 75;
+		
+		// This number is chosen arbitrarily. It has to be strictly less than the base Recoil's max value times the greatest reduction possible (20%) so that the binary-search doesn't get stuck in an endless loop.
+		double desiredIncreaseInRecoil = 1.15;
+		double timeToRecoverRecoil = calculateTimeToRecoverRecoil(recoilPitch, recoilYaw, mass, springStiffness, desiredIncreaseInRecoil);
+		
+		return Math.min(1.0 / timeToRecoverRecoil, getRateOfFire());
+	}
+	
 	private double calculateCumulativeStunChancePerShot() {
 		// Because Stunner changes it from weakpoints to anywhere on the body, I'm making the Accuracy change to reflect that.
-		double stunAccuracy = estimatedAccuracy(selectedOverclock != 0) / 100.0;
+		double stunAccuracy;
+		if (selectedOverclock == 0) {
+			stunAccuracy = getGeneralAccuracy() / 100.0;
+		}
+		else {
+			stunAccuracy = getWeakpointAccuracy() / 100.0;
+		}
 		int numPelletsThatHaveStunChance = (int) Math.round(getNumberOfPellets() * stunAccuracy);
 		if (numPelletsThatHaveStunChance > 0) {
 			// Only 1 pellet needs to succeed in order to stun the creature
@@ -505,17 +528,17 @@ public class Shotgun extends Weapon {
 		double generalAccuracy, duration, directWeakpointDamagePerPellet;
 		
 		if (accuracy) {
-			generalAccuracy = estimatedAccuracy(false) / 100.0;
+			generalAccuracy = getGeneralAccuracy() / 100.0;
 		}
 		else {
 			generalAccuracy = 1.0;
 		}
 		
 		if (burst) {
-			duration = ((double) getMagazineSize()) / getRateOfFire();
+			duration = ((double) getMagazineSize()) / getCustomRoF();
 		}
 		else {
-			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+			duration = (((double) getMagazineSize()) / getCustomRoF()) + getReloadTime();
 		}
 		
 		double dmgPerPellet = getDamagePerPellet();
@@ -537,13 +560,13 @@ public class Shotgun extends Weapon {
 		
 		if (selectedOverclock == 0) {
 			// Stunner OC damage multiplier
-			dmgPerPellet *= averageBonusPerMagazineForShortEffects(1.3, 3.0, false, calculateCumulativeStunChancePerShot(), getMagazineSize(), getRateOfFire());
+			dmgPerPellet *= averageBonusPerMagazineForShortEffects(1.3, 3.0, false, calculateCumulativeStunChancePerShot(), getMagazineSize(), getCustomRoF());
 		}
 		
 		double weakpointAccuracy;
 		if (weakpoint && !statusEffects[1]) {
-			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
-			directWeakpointDamagePerPellet = increaseBulletDamageForWeakpoints2(dmgPerPellet, getWeakpointBonus());
+			weakpointAccuracy = getWeakpointAccuracy() / 100.0;
+			directWeakpointDamagePerPellet = increaseBulletDamageForWeakpoints(dmgPerPellet, getWeakpointBonus(), 1.0);
 		}
 		else {
 			weakpointAccuracy = 0.0;
@@ -577,7 +600,7 @@ public class Shotgun extends Weapon {
 	public double calculateFiringDuration() {
 		int magSize = getMagazineSize();
 		int carriedAmmo = getCarriedAmmo();
-		double timeToFireMagazine = ((double) magSize) / getRateOfFire();
+		double timeToFireMagazine = ((double) magSize) / getCustomRoF();
 		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
 	
@@ -598,44 +621,36 @@ public class Shotgun extends Weapon {
 		double horizontalBaseSpread = 12.0 * getBaseSpread();
 		double verticalBaseSpread = 6.0 * getBaseSpread();
 		double spreadPerShot = 0.0;
-		double spreadRecoverySpeed = 0.0;
-		double spreadVariance = 0.0;
+		double spreadRecoverySpeed = 12.0;
+		double maxBloom = 8.0;
+		double minSpreadWhileMoving = 2.0;
 		
 		double recoilPitch = 55.0 * getRecoil();
 		double recoilYaw = 40.0 * getRecoil();
 		double mass = 4.0;
 		double springStiffness = 75.0;
 		
-		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
-				horizontalBaseSpread, verticalBaseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getCustomRoF(), getMagazineSize(), 1, 
+				horizontalBaseSpread, verticalBaseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, minSpreadWhileMoving, 
 				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override
 	public int breakpoints() {
-		double[] directDamage = {
-			getDamagePerPellet() * getNumberOfPellets() * estimatedAccuracy(false) / 100.0,  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
+		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+		double[] directDamage = new double[5];
+		directDamage[0] = getDamagePerPellet() * getNumberOfPellets() * getGeneralAccuracy() / 100.0;  // Kinetic
 		
-		double[] areaDamage = {
-			0,  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
+		double[] areaDamage = new double[5];
 		
-		double[] DoTDamage = {
-			0,  // Fire
-			0,  // Electric
-			0,  // Poison
-			0  // Radiation
-		};
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0, statusEffects[1], statusEffects[3], false);
+		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+		double[] dot_dps = new double[4];
+		double[] dot_duration = new double[4];
+		double[] dot_probability = new double[4];
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
+															getWeakpointBonus(), getArmorBreaking(), getRateOfFire(), 0.0, 0.0, 
+															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -679,12 +694,12 @@ public class Shotgun extends Weapon {
 	
 	@Override
 	public double timeToFireMagazine() {
-		return getMagazineSize() / getRateOfFire();
+		return getMagazineSize() / getCustomRoF();
 	}
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet(), getNumberOfPellets(), 0.0, getArmorBreaking(), getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true));
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet(), getNumberOfPellets(), 0.0, getArmorBreaking(), getWeakpointBonus(), getGeneralAccuracy(), getWeakpointAccuracy());
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	

@@ -1,6 +1,6 @@
 package drillerWeapons;
 
-import guiPieces.ButtonIcons.modIcons;
+import guiPieces.customButtons.ButtonIcons.modIcons;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.StatsRow;
@@ -31,6 +31,7 @@ public class EPC_RegularShot extends EPC {
 	public EPC_RegularShot(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		super(mod1, mod2, mod3, mod4, mod5, overclock);
 		fullName = "EPC (Regular Shots)";
+		customizableRoF = true;
 	}
 	
 	@Override
@@ -45,6 +46,36 @@ public class EPC_RegularShot extends EPC {
 	/****************************************************************************************
 	* Setters and Getters
 	****************************************************************************************/
+	
+	@Override
+	public double getRateOfFire() {
+		return rateOfFire;
+	}
+	
+	@Override
+	public double getRecommendedRateOfFire() {
+		return 6;
+	}
+	
+	private int getNumRegularShotsBeforeOverheat() {
+		double k = getCoolingRateModifier();
+		double h = getHeatPerRegularShot();
+		int batterySize = getBatterySize();
+		
+		// In-game my mouse has about a 60ms press/release timing, and by hand I can get around 6 RoF.
+		double timeBetweenPressAndReleaseOfFireButton = 0.06;  // 60 milliseconds
+		double timeCoolingRateIsActiveBetweenShots = (1.0 / getCustomRoF() - timeBetweenPressAndReleaseOfFireButton);
+		
+		// Early exit condition: if the time between firing Regular Shots is longer than the time it takes to cool down the heat from a Regular Shot, technically the mag size becomes the battery size.
+		if (timeCoolingRateIsActiveBetweenShots >= h / (coolingRate * k)) {
+			return batterySize;
+		}
+		
+		double exactAnswer = (maxHeat - coolingRate * k * timeCoolingRateIsActiveBetweenShots) / (h - coolingRate * k * timeCoolingRateIsActiveBetweenShots);
+		
+		// Don't let this return a mag size larger than the battery size.
+		return Math.min((int) Math.ceil(exactAnswer), batterySize);
+	}
 	
 	@Override
 	public StatsRow[] getStats() {
@@ -64,7 +95,7 @@ public class EPC_RegularShot extends EPC {
 		boolean batterySizeModified = selectedTier1 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 3;
 		toReturn[4] = new StatsRow("Battery Size:", getBatterySize(), modIcons.carriedAmmo,  batterySizeModified);
 		
-		toReturn[5] = new StatsRow("Rate of Fire:", rateOfFire, modIcons.rateOfFire, false);
+		toReturn[5] = new StatsRow("Rate of Fire:", getCustomRoF(), modIcons.rateOfFire, false);
 		
 		toReturn[6] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), modIcons.coolingRate, coolingRateModified);
 		
@@ -114,10 +145,10 @@ public class EPC_RegularShot extends EPC {
 		
 		double duration;
 		if (burst) {
-			duration = burstSize / rateOfFire;
+			duration = burstSize / getCustomRoF();
 		}
 		else {
-			duration = burstSize / rateOfFire + getCooldownDuration();
+			duration = burstSize / getCustomRoF() + getCooldownDuration();
 		}
 		
 		double burnDPS = 0;
@@ -167,7 +198,7 @@ public class EPC_RegularShot extends EPC {
 	@Override
 	public double calculateFiringDuration() {
 		int burstSize = getNumRegularShotsBeforeOverheat();
-		double timeToFireBurst = burstSize / rateOfFire;
+		double timeToFireBurst = burstSize / getCustomRoF();
 		// Choosing not to use Weapon.numMagazines since the "burst" size isn't adding to total ammo count like normal bullets in a mag do.
 		double numBursts = (double) getBatterySize() / (double) burstSize;
 		return numBursts * timeToFireBurst + numReloads(getBatterySize(), burstSize) * getCooldownDuration();
@@ -187,34 +218,26 @@ public class EPC_RegularShot extends EPC {
 	
 	@Override
 	public int breakpoints() {
-		double[] directDamage = {
-			0.5 * getDirectDamage(),  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0.5 * getDirectDamage()  // Electric
-		};
+		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+		double[] directDamage = new double[5];
+		directDamage[0] = 0.5 * getDirectDamage();  // Kinetic
+		directDamage[4] = 0.5 * getDirectDamage();  // Electric
 		
-		double[] areaDamage = {
-			0,  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
+		double[] areaDamage = new double[5];
 		
-		double burnDmg = 0;
+		double heatPerShot = 0;
 		if (selectedTier5 == 2) {
-			burnDmg = calculateAverageDoTDamagePerEnemy(averageTimeToCauterize(), DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
+			heatPerShot = 0.5 * getDirectDamage();
 		}
-		double[] DoTDamage = {
-			burnDmg,  // Fire
-			0,  // Electric
-			0,  // Poison
-			0  // Radiation
-		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, 0.0, statusEffects[1], statusEffects[3], false);
+		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+		double[] dot_dps = new double[4];
+		double[] dot_duration = new double[4];
+		double[] dot_probability = new double[4];
+		
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
+															0.0, 1.0, getRateOfFire(), heatPerShot, 0.0, 
+															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -230,7 +253,7 @@ public class EPC_RegularShot extends EPC {
 		if (selectedTier5 == 2) {
 			// 50% of Direct Damage from the Regular Shots gets added on as Heat Damage.
 			double heatDamagePerShot = 0.5 * getDirectDamage();
-			return EnemyInformation.averageTimeToIgnite(0, heatDamagePerShot, rateOfFire, 0);
+			return EnemyInformation.averageTimeToIgnite(0, heatDamagePerShot, getCustomRoF(), 0);
 		}
 		else {
 			return -1;
@@ -249,7 +272,7 @@ public class EPC_RegularShot extends EPC {
 	
 	@Override
 	public double timeToFireMagazine() {
-		return getNumRegularShotsBeforeOverheat() / rateOfFire;
+		return getNumRegularShotsBeforeOverheat() / getCustomRoF();
 	}
 	
 	@Override

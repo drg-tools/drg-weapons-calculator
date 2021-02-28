@@ -21,6 +21,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.ToolTipManager;
 
 import dataGenerator.DatabaseConstants;
+import guiPieces.customButtons.CustomJMenuCheckbox;
 import modelPieces.Weapon;
 import utilities.ResourceLoader;
 

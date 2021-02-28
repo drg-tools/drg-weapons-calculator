@@ -7,8 +7,8 @@ import java.util.List;
 import dataGenerator.DatabaseConstants;
 import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
-import guiPieces.ButtonIcons.modIcons;
-import guiPieces.ButtonIcons.overclockIcons;
+import guiPieces.customButtons.ButtonIcons.modIcons;
+import guiPieces.customButtons.ButtonIcons.overclockIcons;
 import modelPieces.DoTInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
@@ -358,7 +358,8 @@ public class BurstPistol extends Weapon {
 		
 		return toReturn;
 	}
-	private double getRateOfFire() {
+	@Override
+	public double getRateOfFire() {
 		double toReturn = rateOfFire;
 		
 		if (selectedTier2 == 2) {
@@ -520,7 +521,7 @@ public class BurstPistol extends Weapon {
 		double generalAccuracy, duration, directWeakpointDamage;
 		
 		if (accuracy) {
-			generalAccuracy = estimatedAccuracy(false) / 100.0;
+			generalAccuracy = getGeneralAccuracy() / 100.0;
 		}
 		else {
 			generalAccuracy = 1.0;
@@ -552,8 +553,8 @@ public class BurstPistol extends Weapon {
 		
 		double weakpointAccuracy;
 		if (weakpoint && !statusEffects[1]) {
-			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
-			directWeakpointDamage = increaseBulletDamageForWeakpoints2(dmg, getWeakpointBonus());
+			weakpointAccuracy = getWeakpointAccuracy() / 100.0;
+			directWeakpointDamage = increaseBulletDamageForWeakpoints(dmg, getWeakpointBonus(), 1.0);
 		}
 		else {
 			weakpointAccuracy = 0.0;
@@ -605,7 +606,7 @@ public class BurstPistol extends Weapon {
 		}
 		
 		if (selectedOverclock == 4) {
-			double accuracy = estimatedAccuracy(false) / 100.0;
+			double accuracy = getGeneralAccuracy() / 100.0;
 			int numBulletsThatMiss = (int) Math.ceil((1 - accuracy) * (getCarriedAmmo() + getMagazineSize()));
 			// OC "Electro Minelets" only does 2 dmg/tick for 2 secs
 			totalDamage += numBulletsThatMiss * DoTInformation.Electro_TicksPerSec * 2 * 2;
@@ -648,7 +649,8 @@ public class BurstPistol extends Weapon {
 		double baseSpread = 2.25 * getBaseSpread();
 		double spreadPerShot = 1.2 * getSpreadPerShot();
 		double spreadRecoverySpeed = 5.0;
-		double spreadVariance = 4.0;
+		double maxBloom = 4.0;
+		double minSpreadWhileMoving = 1.0;
 		
 		double recoilPitch = 30.0 * getRecoil();
 		double recoilYaw = 10.0 * getRecoil();
@@ -656,41 +658,33 @@ public class BurstPistol extends Weapon {
 		double springStiffness = 70.0;
 		
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), getBurstSize(), 
-				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, minSpreadWhileMoving,
 				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override
 	public int breakpoints() {
-		double[] directDamage = {
-			getDirectDamage(),  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
+		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+		double[] directDamage = new double[5];
+		directDamage[0] = getDirectDamage();  // Kinetic
 		
-		double[] areaDamage = {
-			0,  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
+		double[] areaDamage = new double[5];
 		
-		double electroDmg = 0;
+		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+		double[] dot_dps = new double[4];
+		double[] dot_duration = new double[4];
+		double[] dot_probability = new double[4];
+		
 		if (selectedOverclock == 4) {
 			// OC "Electro Minelets" only does 2 dmg/tick for 2 secs
-			electroDmg = calculateAverageDoTDamagePerEnemy(0, 2, DoTInformation.Electro_TicksPerSec * 2);
+			dot_dps[0] = DoTInformation.Electro_TicksPerSec * 2;
+			dot_duration[0] = 2;
+			dot_probability[0] = 1.0;
 		}
-		double[] DoTDamage = {
-			0,  // Fire
-			electroDmg,  // Electric
-			0,  // Poison
-			0  // Radiation
-		};
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, getWeakpointBonus(), 0.0, 0.0, statusEffects[1], statusEffects[3], false);
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
+															getWeakpointBonus(), getArmorBreaking(), getRateOfFire(), 0.0, 0.0, 
+															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -702,7 +696,7 @@ public class BurstPistol extends Weapon {
 		// OC "Electro Minelets" = 100% Electrocute Chance, but only on bullets that miss... maybe (1.0 - Accuracy)?
 		if (selectedOverclock == 4) {
 			// Electro Minelets arm in 0.9 seconds, detonate on any enemies that come within ~1.5m, and then explode after 4 seconds. 100% chance to apply Electrocute for 2 sec.
-			double probabilityBulletsMiss = 1.0 - estimatedAccuracy(false) / 100.0;
+			double probabilityBulletsMiss = 1.0 - getGeneralAccuracy() / 100.0;
 			int numGlyphidsInMineletRadius = calculateNumGlyphidsInRadius(1.5);
 			utilityScores[3] = probabilityBulletsMiss * numGlyphidsInMineletRadius * 2 * UtilityInformation.Electrocute_Slow_Utility;
 		}
@@ -712,7 +706,7 @@ public class BurstPistol extends Weapon {
 		
 		// Mod Tier 5 "Burst Stun" = 100% chance for 4 sec stun
 		if (selectedTier5 == 0) {
-			utilityScores[5] = estimatedAccuracy(false) / 100.0 * getBurstStunDuration() * UtilityInformation.Stun_Utility;
+			utilityScores[5] = getGeneralAccuracy() / 100.0 * getBurstStunDuration() * UtilityInformation.Stun_Utility;
 		}
 		else {
 			utilityScores[5] = 0;
@@ -742,7 +736,7 @@ public class BurstPistol extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, 0.0, getArmorBreaking(), getWeakpointBonus(), estimatedAccuracy(false), estimatedAccuracy(true));
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, 0.0, getArmorBreaking(), getWeakpointBonus(), getGeneralAccuracy(), getWeakpointAccuracy());
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	

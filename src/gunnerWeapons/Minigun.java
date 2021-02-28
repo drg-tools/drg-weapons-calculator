@@ -5,9 +5,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import dataGenerator.DatabaseConstants;
+import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
-import guiPieces.ButtonIcons.modIcons;
-import guiPieces.ButtonIcons.overclockIcons;
+import guiPieces.customButtons.ButtonIcons.modIcons;
+import guiPieces.customButtons.ButtonIcons.overclockIcons;
 import modelPieces.DoTInformation;
 import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
@@ -118,7 +119,8 @@ public class Minigun extends Weapon {
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Aggressive Venting", "After overheating, deal 60 Heat Damage and 10 Fear to all enemies within a 10m radius", modIcons.addedExplosion, 5, 0);
 		tier5[1] = new Mod("Cold As The Grave", "Every kill subtracts 0.8 Heat from the Heat Meter (maxes at 9.5 Heat) and thus increases the firing duration before overheating", modIcons.coolingRate, 5, 1);
-		tier5[2] = new Mod("Hot Bullets", "After the Heat Meter turns red, 50% of the Damage per Pellet gets added as Heat Damage", modIcons.heatDamage, 5, 2);
+		tier5[2] = new Mod("Hot Bullets", "After the Heat Meter turns red, 50% of the Damage per Pellet gets added as Heat which can ignite enemies, dealing " + 
+		MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second.", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "A Little More Oomph!", "+1 Damage per Pellet, -0.2 spinup time", overclockIcons.directDamage, 0);
@@ -378,7 +380,8 @@ public class Minigun extends Weapon {
 		}
 		return toReturn;
 	}
-	private int getRateOfFire() {
+	@Override
+	public double getRateOfFire() {
 		int toReturn = rateOfFire;
 		if (selectedTier1 == 1) {
 			toReturn += 4;
@@ -443,6 +446,7 @@ public class Minigun extends Weapon {
 		}
 	}
 	private int getNumberOfRicochets() {
+		// According to GreyHound, this ricochet searches for enemies within 5m
 		if (selectedOverclock == 5) {
 			return 1;
 		}
@@ -577,7 +581,7 @@ public class Minigun extends Weapon {
 		
 		double generalAccuracy;
 		if (accuracy) {
-			generalAccuracy = estimatedAccuracy(false);
+			generalAccuracy = getGeneralAccuracy() / 100.0;
 		}
 		else {
 			generalAccuracy = 1.0;
@@ -641,7 +645,7 @@ public class Minigun extends Weapon {
 		double generalAccuracy, shortDuration, longDuration, directWeakpointDamage;
 		
 		if (accuracy) {
-			generalAccuracy = estimatedAccuracy(false) / 100.0;
+			generalAccuracy = getGeneralAccuracy() / 100.0;
 		}
 		else {
 			generalAccuracy = 1.0;
@@ -699,8 +703,8 @@ public class Minigun extends Weapon {
 		
 		double weakpointAccuracy;
 		if (weakpoint && !statusEffects[1]) {
-			weakpointAccuracy = estimatedAccuracy(true) / 100.0;
-			directWeakpointDamage = increaseBulletDamageForWeakpoints2(directDamage);
+			weakpointAccuracy = getWeakpointAccuracy() / 100.0;
+			directWeakpointDamage = increaseBulletDamageForWeakpoints(directDamage, 0.0, 1.0);
 		}
 		else {
 			weakpointAccuracy = 0.0;
@@ -811,13 +815,8 @@ public class Minigun extends Weapon {
 
 	@Override
 	public int calculateMaxNumTargets() {
-		// Because a ricochet from Bullet Hell consumes the penetration from Blowthrough Rounds, they don't stack together (unless BT Rounds gets buffed to do more than 1 penetration).
-		if (selectedTier3 == 2 || selectedOverclock == 5) {
-			return 2;
-		}
-		else {
-			return 1;
-		}
+		// Dagadegatto informed me that Ricochets do NOT consume Penetrations, so this method becomes much simpler to model.
+		return 1 + getNumberOfPenetrations() + getNumberOfRicochets();
 	}
 
 	@Override
@@ -858,7 +857,8 @@ public class Minigun extends Weapon {
 		double baseSpread = 5.0 * getBaseSpread();
 		double spreadPerShot = 0.2;
 		double spreadRecoverySpeed = 1.0;
-		double spreadVariance = 3.5;
+		double maxBloom = 3.5;
+		double minSpreadWhileMoving = 0.0;
 		
 		// I'm choosing to model Minigun as if it has no recoil. Although it does, it's so negligible that it would have no effect.
 		double recoilPitch = 0.0;  // 10
@@ -867,49 +867,40 @@ public class Minigun extends Weapon {
 		double springStiffness = 150.0;
 		
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, effectiveRoF, effectiveMagSize, 1, 
-				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, spreadVariance, 
+				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, minSpreadWhileMoving,
 				recoilPitch, recoilYaw, mass, springStiffness);
 	}
 	
 	@Override
 	public int breakpoints() {
-		double[] directDamage = {
-			getDamagePerPellet(false),  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
+		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+		double[] directDamage = new double[5];
+		directDamage[0] = getDamagePerPellet(false);  // Kinetic
 		
-		double[] areaDamage = {
-			0,  // Kinetic
-			0,  // Explosive
-			0,  // Fire
-			0,  // Frost
-			0  // Electric
-		};
+		double[] areaDamage = new double[5];
 		
-		double burnDmg = 0;
-		// Because Hot Bullets takes almost 4 seconds to start working, I'm choosing to not model when Burning Hell and Hot Bullets are combined.
-		// I'm also choosing to model Burning Hell's 20 Area Damage per second as another Fire DoT
+		double effectiveRoF = getRateOfFire() / 2.0;
+		double heatPerShot = 0;
+		// Hot Bullets add 50% of Direct Damage/pellet as Heat/pellet. Although it doesn't activate for almost 4 seconds, for simplicity's sake I'm just going to model it as if it's active the whole time.
+		if (selectedTier5 == 2) {
+			heatPerShot += 0.5 * directDamage[0];
+		}
+		
+		// Burning Hell does 5 Fire-element Area-type Damage and 20 Heat at 4 ticks/sec, so I have to downscale its damage to match the RoF of the bullets
 		if (selectedOverclock == 2) {
-			burnDmg = calculateAverageDoTDamagePerEnemy(calculateIgnitionTime(false), DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
-			burnDmg += calculateAverageDoTDamagePerEnemy(0, DoTInformation.Burn_SecsDuration, 20);
-		}
-		else if (selectedTier5 == 2) {
-			// To model the fact that this won't start igniting enemies until 4 seconds of firing, I'm choosing to only use 1/4 of the Burn DoT damage
-			// This is not in any way an accurate representation, since every enemy except Bulks, Breeders, and Nexuses would die before they started Burning.
-			burnDmg = 0.25 * calculateAverageDoTDamagePerEnemy(calculateIgnitionTime(false) - 4, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
+			areaDamage[2] = 5.0 * 4.0 / effectiveRoF;  // Fire
+			heatPerShot += 20.0 * 4.0 / effectiveRoF;
 		}
 		
-		double[] DoTDamage = {
-			burnDmg,  // Fire
-			0,  // Electric
-			0,  // Poison
-			0  // Radiation
-		};
+		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+		double[] dot_dps = new double[4];
+		double[] dot_duration = new double[4];
+		double[] dot_probability = new double[4];
 		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, DoTDamage, 0.0, 0.0, 0.0, statusEffects[1], statusEffects[3], false);
+		// Setting embeddedDetonators to true when Burning Hell is equipped so that it doesn't affect Armor Breaking stats
+		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
+															0.0, getArmorBreaking(), effectiveRoF, heatPerShot, 0.0, 
+															statusEffects[1], statusEffects[3], false, selectedOverclock == 2);
 		return MathUtils.sum(breakpoints);
 	}
 
@@ -966,7 +957,7 @@ public class Minigun extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet(false), 1, 0.0, getArmorBreaking(), 0.0, estimatedAccuracy(false), estimatedAccuracy(true));
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDamagePerPellet(false), 1, 0.0, getArmorBreaking(), 0.0, getGeneralAccuracy(), getWeakpointAccuracy());
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	

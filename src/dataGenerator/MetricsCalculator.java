@@ -88,13 +88,14 @@ public class MetricsCalculator {
 				"Ideal Burst DPS", "Burst DPS (+WP)", "Burst DPS (+Acc)", "Burst DPS (+AW)", "Burst DPS (+WP, +Acc)", "Burst DPS (+WP, +AW)", "Burst DPS (+Acc, +AW)", "Burst DPS (+WP, +Acc, +AW)", 
 				"Ideal Sustained DPS", "Sustained DPS (+WP)", "Sustained DPS (+Acc)", "Sustained DPS (+AW)", "Sustained DPS (+WP, +Acc)", "Sustained DPS (+WP, +AW)", "Sustained DPS (+Acc, +AW)", "Sustained DPS (+WP, +Acc, +AW)", 
 				"Ideal Additional Target DPS", "Max Num Targets", "Max Multi-Target Dmg", "Ammo Efficiency", "Avg Damage Wasted by Armor",
-				"General Accuracy", "Weakpoint Accuracy", "Firing Duration", "Avg TTK", "Avg Overkill", "Breakpoints", "Utility", "Avg Time to Ignite/Freeze"};
+				"General Accuracy", "Weakpoint Accuracy", "Firing Duration", "Avg TTK", "Avg Overkill", "Breakpoints", "Utility", "Avg Time to Ignite/Freeze", 
+				"Damage per Magazine/Explosion", "Time to Fire Magazine"};
 		String headerLine = String.join(", ", headers) + ",\n";
 		// Set append=False so that it clears existing lines
 		writeFile(headerLine, filename, false);
 		
 		// One String for the combination, and then 16 DPS and 13 other metrics
-		String format = "%s, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f,\n";
+		String format = "%s, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %f, %f,\n";
 		
 		int[] tier1 = weaponToTest.getModsAtTier(1, false);
 		int[] tier2 = weaponToTest.getModsAtTier(2, false);
@@ -132,9 +133,9 @@ public class MetricsCalculator {
 									weaponToTest.calculateSingleTargetDPS(false, true, true, false), weaponToTest.calculateSingleTargetDPS(false, true, false, true), 
 									weaponToTest.calculateSingleTargetDPS(false, false, true, true), weaponToTest.calculateSingleTargetDPS(false, true, true, true), 
 									weaponToTest.calculateAdditionalTargetDPS(), weaponToTest.calculateMaxNumTargets(), weaponToTest.calculateMaxMultiTargetDamage(), 
-									weaponToTest.ammoEfficiency(), weaponToTest.damageWastedByArmor(), weaponToTest.estimatedAccuracy(false), weaponToTest.estimatedAccuracy(true),
+									weaponToTest.ammoEfficiency(), weaponToTest.damageWastedByArmor(), weaponToTest.getGeneralAccuracy(), weaponToTest.getWeakpointAccuracy(),
 									weaponToTest.calculateFiringDuration(), weaponToTest.averageTimeToKill(), weaponToTest.averageOverkill(), weaponToTest.breakpoints(), 
-									weaponToTest.utilityScore(), weaponToTest.averageTimeToCauterize()
+									weaponToTest.utilityScore(), weaponToTest.averageTimeToCauterize(), weaponToTest.damagePerMagazine(), weaponToTest.timeToFireMagazine()
 								));
 								
 							}
@@ -205,7 +206,7 @@ public class MetricsCalculator {
 									weaponToTest.calculateSingleTargetDPS(false, false, true, true), weaponToTest.calculateSingleTargetDPS(false, true, true, true), 
 									// 15 Other metrics and patch ID
 									weaponToTest.calculateAdditionalTargetDPS(), weaponToTest.calculateMaxNumTargets(), weaponToTest.calculateMaxMultiTargetDamage(), weaponToTest.ammoEfficiency(), weaponToTest.damageWastedByArmor(),
-									weaponToTest.estimatedAccuracy(false), weaponToTest.estimatedAccuracy(true), weaponToTest.calculateFiringDuration(), weaponToTest.averageTimeToKill(), 
+									weaponToTest.getGeneralAccuracy(), weaponToTest.getWeakpointAccuracy(), weaponToTest.calculateFiringDuration(), weaponToTest.averageTimeToKill(), 
 									weaponToTest.averageOverkill(), weaponToTest.breakpoints(), weaponToTest.utilityScore(), weaponToTest.averageTimeToCauterize(), 
 									weaponToTest.damagePerMagazine(), weaponToTest.timeToFireMagazine(), DatabaseConstants.patchNumberID
 								));
@@ -323,11 +324,11 @@ public class MetricsCalculator {
 										break;
 									}
 									case 7: {
-										currentValue = weaponToTest.estimatedAccuracy(false);
+										currentValue = weaponToTest.getGeneralAccuracy();
 										break;
 									}
 									case 8: {
-										currentValue = weaponToTest.estimatedAccuracy(true);
+										currentValue = weaponToTest.getWeakpointAccuracy();
 										break;
 									}
 									case 9: {
