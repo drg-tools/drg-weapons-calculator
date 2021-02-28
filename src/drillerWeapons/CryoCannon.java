@@ -483,7 +483,6 @@ public class CryoCannon extends Weapon {
 	}
 	
 	private double averageTimeToFreeze(boolean refreeze) {
-		double streamColdPerSec = getParticleCold() * getFlowRate();
 		double icePathColdPerSec = getIPColdPerTick() * icePathTicksPerSec / 2.0;
 		
 		double coldRadianceColdPerSec = 0;
