@@ -113,9 +113,9 @@ public class Revolver extends Weapon {
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "High Grain Powder", "+9 Direct Damage, +30% Weakpoint Bonus", overclockIcons.weakpointBonus, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 75% chance to ricochet into a nearby enemy.", overclockIcons.ricochet, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Bullets", "x4 Damage to Burning targets, -26 Direct Damage", overclockIcons.heatDamage, 2);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Bullets", "x4 Direct and Area Damage to Burning targets, -26 Direct Damage", overclockIcons.heatDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Six Shooter", "+2 Magazine Size, +4 Max Ammo, +2 Rate of Fire, x1.5 Base Spread, +0.5 Reload Time", overclockIcons.magSize, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -12 Max Ammo, +0.5 Reload Time, x0.5 Base Spread, +71% Spread per Shot, x1.5 Spread Variance, x1.5 Recoil, +3.5 Mass", overclockIcons.directDamage, 4);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -12 Max Ammo, +0.5 Reload Time, x0.5 Base Spread, +71% Spread per Shot, x1.5 Max Bloom, x1.5 Recoil, +3.5 Mass", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Magic Bullets", "All bullets that impact terrain automatically ricochet to nearby enemies (effectively raising accuracy to 100%). +4 Max Ammo, -20 Direct Damage", overclockIcons.ricochet, 5);
 	}
 	
