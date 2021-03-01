@@ -109,8 +109,8 @@ public class BreachCutter extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Explosive Goodbye", "When the line either expires or the trigger gets pulled again, the current line explodes for 60 Explosive Damage in a 3m radius AoE, and leaves behind a field of Persistent Plasma "
-				+ " that does an average of " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per second for 4.6 seconds in a 3m radius sphere.", modIcons.addedExplosion, 5, 0);
-		tier5[1] = new Mod("Plasma Trail", "Leaves behind a Persistent Plasma field that does an average of " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per second for 4.6 seconds "
+				+ " that does an average of " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per second for 4.6 seconds in a 3m radius sphere.", modIcons.addedExplosion, 5, 0);
+		tier5[1] = new Mod("Plasma Trail", "Leaves behind a Persistent Plasma field that does an average of " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per second for 4.6 seconds "
 				+ "along the entire length of the line's path", modIcons.areaDamage, 5, 1);
 		// Since the additional lines neither increase targets hit nor DPS per target, I'm marking it as "not modeled"
 		tier5[2] = new Mod("Triple Split Line", "Adds a line above and below the primary projectile (multiple lines hitting doesn't increase DPS)", modIcons.aoeRadius, 5, 2, false);
@@ -127,7 +127,7 @@ public class BreachCutter extends Weapon {
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Lance", "Changes orientation of line to fire like a spear as it moves. In addition, +0.5m Projectile Width and +15 Impact Damage", overclockIcons.projectileVelocity, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Spinning Death", "Instead of flying in a straight line, the projectile now rotates 2 times per second about the Yaw axis. Additionally: x0.09 Projectile Velocity, x0 Impact Damage, "
 				+ "x2.5 Projectile Lifetime, +1m Plasma Beam Width, x0.25 Damage per Tick, x0.75 Max Ammo, and x0.5 Magazine Size", overclockIcons.special, 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "Deals 75 Heat Damage and applies a DoT that does 7 Fire and 7 Heat Damage per tick at 2 ticks/sec for 5 seconds. Additionally, converts 100% of Damage per Tick as to Fire and Heat Damage per tick. "
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "Inflicts 75 Heat and applies a DoT that does 7 Fire and 7 Heat Damage per tick at 2 ticks/sec for 5 seconds. Additionally, converts 100% of Damage per Tick from Electric element to Fire and Heat. "
 				+ "In exchange: -1.9 Damage per Tick and x0.25 Armor Breaking", overclockIcons.heatDamage, 6);
 	}
 	
@@ -854,7 +854,7 @@ public class BreachCutter extends Weapon {
 		}
 		
 		// Stun
-		// T4.B has a 100% chance to stun for 2 seconds
+		// T1.A has a 100% chance to stun for 2 seconds
 		if (selectedTier1 == 0) {
 			utilityScores[5] = maxNumTargets * 2.0 * UtilityInformation.Stun_Utility;
 		}
@@ -872,9 +872,9 @@ public class BreachCutter extends Weapon {
 				OC "Inferno" adds 3 different Heat sources:
 				1. 75 Heat Damage in a single burst
 				2. A hidden DoT that does 7 Fire + 7 Heat per tick, 2 ticks/sec, 5 sec duration (11 ticks)
-				3. 90% of the Dmg/Tick as Heat while intersecting enemies
+				3. 100% of the Dmg/Tick as Heat while intersecting enemies
 			*/
-			return EnemyInformation.averageTimeToIgnite(75, 1.1 * getDamagePerTick(), damageTickRate, 7.0 * 2);
+			return EnemyInformation.averageTimeToIgnite(75, getDamagePerTick(), damageTickRate, 7.0 * 2);
 		}
 		else {
 			return -1;
