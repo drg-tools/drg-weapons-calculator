@@ -106,10 +106,10 @@ public class SMG extends Weapon {
 		tier5[1] = new Mod("Electric Arc", "Every time the SMG either applies or refreshes an Electrocute DoT, there's a 25% chance that all enemies within a 2.75m radius of the primary target will be electrocuted as well.", modIcons.electricity, 5, 1);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Turret Arc", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, that turret deals constant Electric Damage in a small radius around it. "
-				+ "Additionally, if 2 turrets are less than 10m apart and both are electrocuted at the same time, then an electric arc will pass between them for 10 seconds.", overclockIcons.electricity, 0, false);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Turret EM Discharge", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, it triggers an explosion that deals 60 Electric Damage and 0.5 Fear to all enemies "
-				+ "within a 5m radius. There's a 1.5 second cooldown between explosions.", overclockIcons.areaDamage, 1, false);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Turret Arc", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, that turret deals constant Electric Damage in a small radius around it. Additionally, "
+				+ "if 2 turrets are less than 10m apart and both are electrocuted at the same time, then an electric arc will pass between them for 10 seconds that slows enemies by 70% and does 20 Electric Damage per Second.", overclockIcons.electricity, 0, false);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Turret EM Discharge", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, it triggers an explosion that deals 60 Electric Damage and 0.5 Fear to all "
+				+ "enemies within a 5m radius, as well as Electrocuting them. There's a 1.5 second cooldown between explosions.", overclockIcons.areaDamage, 1, false);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "EM Refire Booster", "+2 Electric Damage per bullet, +4 Rate of Fire, x0.8182 Max Ammo", overclockIcons.rateOfFire, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Light-Weight Rounds", "+165 Max Ammo, -1 Direct Damage, -2 Rate of Fire", overclockIcons.carriedAmmo, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "High Voltage Electrocution", "x2 Electrocute DoT Damage per Tick, -1 sec Electrocute DoT Duration", overclockIcons.electricity, 4);
@@ -644,8 +644,8 @@ public class SMG extends Weapon {
 		double[] dot_duration = new double[4];
 		double[] dot_probability = new double[4];
 		
-		dot_dps[0] = DoTInformation.Electro_DPS;
-		dot_duration[0] = DoTInformation.Electro_SecsDuration;
+		dot_dps[0] = DoTInformation.Electro_TicksPerSec * getElectrocutionDoTDamagePerTick();
+		dot_duration[0] = getElectrocutionDoTDuration();
 		dot_probability[0] = getElectrocutionDoTChance();
 		
 		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
@@ -664,7 +664,7 @@ public class SMG extends Weapon {
 		if (selectedTier5 == 1) {
 			utilityScores[3] += getElectrocutionDoTChance() * 0.25 * (calculateMaxNumTargets() - 1) * getElectrocutionDoTDuration() * UtilityInformation.Electrocute_Slow_Utility;
 		}
-		if (selectedOverclock == 4) {
+		if (selectedOverclock == 0) {
 			// Turret Arc can emit a beam up to 10m long that applies a 70% slow, doing 4 Electric Damage per tick, 5 ticks/sec for up to 10 seconds.
 			// Using Grunts' 2m length and 2.9 m/sec movespeed as a baseline, I expect it will take 2 / (0.3 * 2.9) = 2.3 seconds to pass through
 			int numEnemiesSlowedByTurretArc = calculateNumGlyphidsInStream(10.0);
@@ -672,7 +672,7 @@ public class SMG extends Weapon {
 		}
 		
 		// Fear
-		if (selectedOverclock == 5) {
+		if (selectedOverclock == 1) {
 			// OC "Turret EM Discharge" inflicts 0.5 Fear in a 5m radius around the sentry. Also, since the enemies will be electrocuted the Fear duration gets increased.
 			// 5m radius returns 41 Grunts, which is more than I think would realistically be hit by these explosions. As such, I'm artificially halving the Fear radius to 2.5m
 			utilityScores[4] = calculateFearProcProbability(0.5) * calculateNumGlyphidsInRadius(5.0/2.0) * EnemyInformation.averageFearDuration(0.8, getElectrocutionDoTDuration()) * UtilityInformation.Fear_Utility;
@@ -702,7 +702,7 @@ public class SMG extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, 0.0, 1.0, getWeakpointBonus(), getGeneralAccuracy(), getWeakpointAccuracy());
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage() + getElectricDamage(), 1, 0.0, 1.0, getWeakpointBonus(), getGeneralAccuracy(), getWeakpointAccuracy());
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 	
