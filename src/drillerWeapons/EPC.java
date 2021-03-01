@@ -355,16 +355,16 @@ public abstract class EPC extends Weapon {
 			return 0;
 		}
 		
+		// Special case: Thin Containment Field
+		if (selectedTier5 == 1) {
+			return 210;
+		}
+		
 		if (selectedTier1 == 2) {
 			toReturn += 15;
 		}
 		if (selectedTier2 == 2) {
 			toReturn += 20;
-		}
-		
-		// Special case: Thin Containment Field
-		if (selectedTier5 == 1) {
-			return 210;
 		}
 		
 		if (selectedOverclock == 4) {
@@ -379,6 +379,11 @@ public abstract class EPC extends Weapon {
 	protected double getChargedAoERadius() {
 		double toReturn = chargedAoERadius;
 		
+		// Special case: Thin Containment Field
+		if (selectedTier5 == 1) {
+			return 2.5;
+		}
+		
 		if (selectedTier2 == 0) {
 			toReturn += 0.8;
 		}
@@ -391,11 +396,6 @@ public abstract class EPC extends Weapon {
 		}
 		if (selectedOverclock == 4) {
 			toReturn *= 1.2;
-		}
-		
-		// Special case: Thin Containment Field
-		if (selectedTier5 == 1) {
-			return 2.5;
 		}
 		
 		return toReturn;
