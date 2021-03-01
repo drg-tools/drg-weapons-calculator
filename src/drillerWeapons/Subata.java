@@ -278,8 +278,8 @@ public class Subata extends Weapon {
 	
 	@Override
 	public boolean isRofCustomizable() {
-		// I'm choosing to disable RoF customization when the user equips OC "Automatic Fire", for obvious reasons.
-		if (selectedOverclock == 3) {
+		// I'm choosing to disable RoF customization when the user equips OC "Burst Fire" or "Automatic Fire", for obvious reasons.
+		if (selectedOverclock == 1 || selectedOverclock == 3) {
 			return false;
 		}
 		else {
@@ -295,11 +295,6 @@ public class Subata extends Weapon {
 		}
 		if (selectedTier4 == 1) {
 			toReturn += 3;
-		}
-		
-
-		if (selectedOverclock == 4) {
-			toReturn -= 3;
 		}
 		
 		// OC "Elemental Bullets" adds 30% of the total damage per bullet as Disintegrate damage if the bullet hits a Chilled or Heated target
@@ -660,8 +655,8 @@ public class Subata extends Weapon {
 		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
 		double[] directDamage = new double[5];
 		directDamage[0] = getDirectDamage();  // Kinetic
-		if (selectedTier5 == 0 && statusEffects[0]) {
-			directDamage[2] = 0.5 * getDirectDamage();  // Fire
+		if (selectedOverclock == 0 && (statusEffects[0] || statusEffects[1])) {
+			directDamage[0] *= 1.3;
 		}
 		
 		double[] areaDamage = new double[5];
@@ -678,7 +673,7 @@ public class Subata extends Weapon {
 		double[] dot_probability = new double[4];
 		
 		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
-															getWeakpointBonus(), armorBreaking, getRateOfFire(), 0.0, macteraBonus, 
+															getWeakpointBonus(), armorBreaking, getCustomRoF(), 0.0, macteraBonus, 
 															statusEffects[1], statusEffects[3], false, selectedOverclock == 4);
 		return MathUtils.sum(breakpoints);
 	}
@@ -714,7 +709,7 @@ public class Subata extends Weapon {
 	public double timeToFireMagazine() {
 		if (selectedOverclock == 1) {
 			double timeToFireBurst = (3 - 1) * 0.05;
-			double delayBetweenBursts = 1.0 / getRateOfFire();
+			double delayBetweenBursts = 1.0 / getCustomRoF();
 			int numBurstsPerMagazine = getMagazineSize() / 3;
 			
 			return numBurstsPerMagazine * timeToFireBurst + (numBurstsPerMagazine - 1) * delayBetweenBursts;
