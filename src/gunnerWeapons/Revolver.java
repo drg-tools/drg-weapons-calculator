@@ -318,10 +318,6 @@ public class Revolver extends Weapon {
 			toReturn = 30.0;
 		}
 		
-		if (selectedOverclock == 0) {
-			toReturn *= homebrewPowderCoefficient;
-		}
-		
 		return toReturn;
 		
 	}
@@ -758,7 +754,7 @@ public class Revolver extends Weapon {
 		}
 		else if (selectedOverclock == 1 && selectedTier3 != 1) {
 			// Only Chain Hit
-			double ricochetProbability = 0.75 * EnemyInformation.probabilityBulletWillHitWeakpoint();
+			double ricochetProbability = 0.75 * getWeakpointAccuracy() / 100.0;
 			double totalNumRicochets = Math.round(ricochetProbability * (getMagazineSize() + getCarriedAmmo()));
 			ricochetTotalDamage = totalNumRicochets * getDirectDamage();
 		}
@@ -888,7 +884,7 @@ public class Revolver extends Weapon {
 		}
 		
 		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
-															getWeakpointBonus(), 1.0, getRateOfFire(), 0.0, 0.0, 
+															getWeakpointBonus(), getArmorBreaking(), getRateOfFire(), 0.0, 0.0, 
 															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
