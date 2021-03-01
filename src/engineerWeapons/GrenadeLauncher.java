@@ -561,8 +561,6 @@ public class GrenadeLauncher extends Weapon {
 			// damage dealt by Incendiary Compound to reflect how it would be used as "trash clear" instead of "large enemy killer".
 			// I'm also choosing to model this as if the player lets the enemies burn for the full duration, instead of continuing to fire grenades until they die.
 			double burnDoTDamagePerEnemy = DoTInformation.Burn_SecsDuration * DoTInformation.Burn_DPS;
-			
-			// I'm choosing to model this as if the player lets the enemies burn for the full duration, instead of continuing to fire grenades until they die.
 			burnDoTTotalDamage = numShots * aoeEfficiency[2] * burnDoTDamagePerEnemy;
 		}
 		

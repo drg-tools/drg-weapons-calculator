@@ -8,6 +8,7 @@ import java.util.List;
 
 import utilities.MathUtils;
 
+// TODO: remove Crassus Detonator from the enemy pool because it spawns more like a BET-C or Korlok than the common "swarm" enemies that this program uses for its models.
 public class EnemyInformation {
 	
 	private static int hazardLevel = 4;
