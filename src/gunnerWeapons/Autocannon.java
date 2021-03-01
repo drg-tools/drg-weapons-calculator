@@ -363,7 +363,7 @@ public class Autocannon extends Weapon {
 			toReturn *= 2.0;
 		}
 		
-		if (selectedOverclock == 3 || selectedOverclock == 4) {
+		if (selectedOverclock == 4) {
 			toReturn *= 0.5;
 		}
 		return toReturn;
