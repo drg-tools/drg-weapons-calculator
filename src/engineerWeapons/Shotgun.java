@@ -646,7 +646,7 @@ public class Shotgun extends Weapon {
 		double[] dot_probability = new double[4];
 		
 		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
-															getWeakpointBonus(), getArmorBreaking(), getRateOfFire(), 0.0, 0.0, 
+															getWeakpointBonus(), getArmorBreaking(), getCustomRoF(), 0.0, 0.0, 
 															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
