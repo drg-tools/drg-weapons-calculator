@@ -112,7 +112,7 @@ public class Minigun extends Weapon {
 		tier4 = new Mod[3];
 		tier4[0] = new Mod("Variable Chamber Pressure", "+15% Damage per Pellet after reaching Base Spread", modIcons.directDamage, 4, 0);
 		tier4[1] = new Mod("Barrel Drum", "+360 Max Ammo", modIcons.carriedAmmo, 4, 1);
-		tier4[2] = new Mod("Hot Bullets", "50% of the Damage per Pellet gets added as Heat Damage", modIcons.heatDamage, 4, 2);
+		tier4[2] = new Mod("Hot Bullets", "50% of the Damage per Pellet gets added as Heat, which can ignite enemies dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 4, 2);
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Aggressive Venting", "After overheating, deal 60 Heat Damage and 10 Fear to all enemies within a 10m radius. Reduce the Overheat duration by 0.25 seconds for each enemy hit by the explosion, up to a maximum of 5 seconds (20 enemies hit).", modIcons.addedExplosion, 5, 0);
@@ -604,10 +604,10 @@ public class Minigun extends Weapon {
 			generalAccuracy = 1.0;
 		}
 		
-		// Special case: the overclock Bullet Hell gives every bullet a 50% chance to ricochet into nearby enemies after impacting terrain or an enemy
+		// Special case: the overclock Bullet Hell gives every bullet a 67% chance to ricochet into nearby enemies after impacting terrain or an enemy
 		if (selectedOverclock == 5 && accuracy) {
 			// Never let it be above 1.0 probability to hit a target.
-			generalAccuracy = Math.min(generalAccuracy + 0.5, 1.0);
+			generalAccuracy = Math.min(generalAccuracy + 0.67, 1.0);
 		}
 		
 		// I'm choosing to reduce the heatPerPellet by the Accuracy of the gun to imitate when pellets miss the target
@@ -646,10 +646,10 @@ public class Minigun extends Weapon {
 			generalAccuracy = 1.0;
 		}
 		
-		// Special case: the overclock Bullet Hell gives every bullet a 50% chance to ricochet into nearby enemies after impacting terrain or an enemy
+		// Special case: the overclock Bullet Hell gives every bullet a 67% chance to ricochet into nearby enemies after impacting terrain or an enemy
 		if (selectedOverclock == 5 && accuracy) {
 			// Never let it be above 1.0 probability to hit a target.
-			generalAccuracy = Math.min(generalAccuracy + 0.5, 1.0);
+			generalAccuracy = Math.min(generalAccuracy + 0.67, 1.0);
 		}
 		
 		double burstSize = calculateMaxNumPelletsFiredWithoutOverheating();
