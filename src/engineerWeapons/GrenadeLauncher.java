@@ -98,10 +98,11 @@ public class GrenadeLauncher extends Weapon {
 		tier4[1] = new Mod("Concussive Blast", "Stuns creatures within the blast radius for 2 seconds", modIcons.stun, 4, 1);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Proximity Trigger", "Launched grenades will only detonate when they are in close proximity to an enemy or after the projectile comes to a complete stop. "
-				+ "Note: the trigger takes a moment to arm, indicated by a green light, and until then the grenade functions as usual.", modIcons.special, 5, 0, false);
+		tier5[0] = new Mod("Proximity Trigger", "After being fired, grenades that pass within 2m of an enemy will detonate after a 0.1 sec delay. "
+				+ "If it never passes that close to an enemy, it will automatically detonate when it stops moving. Note: the trigger takes 0.2 seconds "
+				+ "to arm (indicated by a green light) and until then the grenade functions as usual. ", modIcons.special, 5, 0, false);
 		tier5[1] = new Mod("Spiky Grenade", "+60 Direct Damage to any target directly impacted by a grenade.", modIcons.directDamage, 5, 1);
-		tier5[2] = new Mod("Incendiary Compound", "Lose 50% of Direct and Area Damage, and convert it to Heat Damage that will ignite enemies, dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 5, 2);
+		tier5[2] = new Mod("Incendiary Compound", "Lose 50% of Direct, Area, and Armor Damage, and convert it to Heat that will ignite enemies, dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Clean Sweep", "Raises Damage Falloff at outer radius from 15% to 76%", overclockIcons.aoeRadius, 0);
@@ -299,10 +300,6 @@ public class GrenadeLauncher extends Weapon {
 			toReturn /= 2.0;
 		}
 		
-		if (selectedTier4 == 0) {
-			toReturn *= homebrewPowderCoefficient;
-		}
-		
 		return toReturn;
 	}
 	private double getAreaDamage() {
@@ -386,13 +383,11 @@ public class GrenadeLauncher extends Weapon {
 			toReturn *= 0.3;
 		}
 		else if (selectedOverclock == 4) {
+			// If I want to add an ammo penalty to Hyper Propellant, this is where to make the change.
 			toReturn -= 0;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn -= 1;
-		}
-		else if (selectedOverclock == 5) {
-			toReturn -= 2;
 		}
 		
 		return (int) Math.round(toReturn);
@@ -465,8 +460,8 @@ public class GrenadeLauncher extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[12];
 		
-		boolean directDamageModified = selectedTier5 == 1 || selectedTier5 == 2 || selectedOverclock == 4;
-		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified, selectedTier5 == 1 || selectedOverclock == 4);
+		boolean directDamageModified = selectedTier5 == 1 || selectedOverclock == 4;
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified, directDamageModified);
 		
 		boolean areaDamageModified = selectedTier1 == 2 || selectedTier2 == 1 || selectedTier5 == 2 || selectedOverclock == 2 || selectedOverclock == 3;
 		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), modIcons.areaDamage, areaDamageModified);
@@ -586,8 +581,6 @@ public class GrenadeLauncher extends Weapon {
 			// damage dealt by Incendiary Compound to reflect how it would be used as "trash clear" instead of "large enemy killer".
 			// I'm also choosing to model this as if the player lets the enemies burn for the full duration, instead of continuing to fire grenades until they die.
 			double burnDoTDamagePerEnemy = DoTInformation.Burn_SecsDuration * DoTInformation.Burn_DPS;
-			
-			// I'm choosing to model this as if the player lets the enemies burn for the full duration, instead of continuing to fire grenades until they die.
 			burnDoTTotalDamage = numShots * aoeEfficiency[2] * burnDoTDamagePerEnemy;
 		}
 		
@@ -665,7 +658,7 @@ public class GrenadeLauncher extends Weapon {
 		}
 		
 		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
-															0.0, getArmorBreaking(), 1.0/reloadTime, heatPerGrenade, 0.0, 
+															0.0, getArmorBreaking(), 1.0/getReloadTime(), heatPerGrenade, 0.0, 
 															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
@@ -713,7 +706,7 @@ public class GrenadeLauncher extends Weapon {
 	@Override
 	public double averageTimeToCauterize() {
 		if (selectedTier5 == 2) {
-			return EnemyInformation.averageTimeToIgnite(0, getHeatPerGrenade(), 1.0 / reloadTime, 0);
+			return EnemyInformation.averageTimeToIgnite(0, getHeatPerGrenade(), 1.0 / getReloadTime(), 0);
 		}
 		else {
 			return -1;
