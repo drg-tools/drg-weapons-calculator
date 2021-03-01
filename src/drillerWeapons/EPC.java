@@ -497,6 +497,7 @@ public abstract class EPC extends Weapon {
 		return toReturn;
 	}
 	protected double getRegularShotVelocity() {
+		// From what Omega Sentinel said in the Discord, Regular Shots move at 35 m/sec by default, and Charged Shots move at 13 m/sec.
 		double toReturn = 1.0;
 		
 		if (selectedTier2 == 1) {
