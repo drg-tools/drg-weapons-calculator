@@ -80,11 +80,11 @@ public class GrenadeLauncher extends Weapon {
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
 		tier1[0] = new Mod("Fragmentary Shell", "+0.9m AoE Radius", modIcons.aoeRadius, 1, 0);
-		tier1[1] = new Mod("Expanded Ammo Bags", "+3 Max Ammo", modIcons.carriedAmmo, 1, 1);
+		tier1[1] = new Mod("Extra Ammo", "+3 Max Ammo", modIcons.carriedAmmo, 1, 1);
 		tier1[2] = new Mod("HE Compound", "+30 Area Damage", modIcons.areaDamage, 1, 2);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Extra Ammo", "+4 Max Ammo", modIcons.carriedAmmo, 2, 0);
+		tier2[0] = new Mod("Expanded Ammo Bags", "+4 Max Ammo", modIcons.carriedAmmo, 2, 0);
 		tier2[1] = new Mod("Larger Payload", "+40 Area Damage", modIcons.areaDamage, 2, 1);
 		tier2[2] = new Mod("Nails + Tape", "+1.1m AoE Radius", modIcons.aoeRadius, 2, 2);
 		

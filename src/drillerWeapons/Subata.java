@@ -97,7 +97,7 @@ public class Subata extends Weapon {
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Chain Hit", "Any shot that hits a weakspot has a 50% chance to ricochet into a nearby enemy.", modIcons.ricochet, 5, 0);
-		tier5[1] = new Mod("Mactera Neurotoxin Coating", "+50% Damage dealt to Mactera-type enemies", modIcons.special, 5, 1);
+		tier5[1] = new Mod("Mactera Toxin-Coating", "+50% Damage dealt to Mactera-type enemies", modIcons.special, 5, 1);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Elemental Rounds", "+30% Direct Damage dealt to enemies that are either Chilled or Heated (have a non-zero Temperature)", overclockIcons.directDamage, 0);

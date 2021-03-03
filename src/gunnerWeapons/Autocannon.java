@@ -102,7 +102,7 @@ public class Autocannon extends Weapon {
 		tier3[1] = new Mod("Increased Caliber Rounds", "+7 Direct Damage", modIcons.directDamage, 3, 1);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Penetrating Rounds", "+400% Armor Breaking", modIcons.armorBreaking, 4, 0);
+		tier4[0] = new Mod("Hardened Rounds", "+400% Armor Breaking", modIcons.armorBreaking, 4, 0);
 		tier4[1] = new Mod("Tighter Barrel Alignment", "x0.7 Base Spread", modIcons.baseSpread, 4, 1);
 		tier4[2] = new Mod("Suppressive Fire", "Deal 0.5 Fear to enemies within a 1m radius of bullet impact", modIcons.fear, 4, 2);
 		

@@ -107,7 +107,7 @@ public class Revolver extends Weapon {
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Dead-Eye", "No aim penalty while moving", modIcons.baseSpread, 5, 0);
 		// It looks like whenever this procs for the main target, all splash targets get it too, instead of RNG/enemy.
-		tier5[1] = new Mod("Glyphid Neurotoxin Coating", "50% chance to inflict Neurotoxin DoT on all enemies hit by the Revolver. "
+		tier5[1] = new Mod("Neurotoxin Coating", "50% chance to inflict Neurotoxin DoT on all enemies hit by the Revolver. "
 				+ "Neurotoxin does an average of " + MathUtils.round(DoTInformation.Neuro_DPS, GuiConstants.numDecimalPlaces) + " Poison Damage per Second", modIcons.neurotoxin, 5, 1);
 		
 		overclocks = new Overclock[6];

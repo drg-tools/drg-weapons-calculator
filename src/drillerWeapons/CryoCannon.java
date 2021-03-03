@@ -94,16 +94,16 @@ public class CryoCannon extends Weapon {
 		tier1[2] = new Mod("Increased Flow Volume", "+1.6 Flow Rate", modIcons.rateOfFire, 1, 2);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Improved 2nd Stage Pump", "-0.4 sec Chargeup Time", modIcons.chargeSpeed, 2, 0);
+		tier2[0] = new Mod("Faster Turbine Spinup", "-0.4 sec Chargeup Time", modIcons.chargeSpeed, 2, 0);
 		tier2[1] = new Mod("Stronger Cooling Unit", "+1 Cold per Particle", modIcons.coldDamage, 2, 1);
 		tier2[2] = new Mod("Bypassed Integrity Check", "-1 sec Repressurization Delay", modIcons.coolingRate, 2, 2);
 		
 		tier3 = new Mod[2];
-		tier3[0] = new Mod("Improved Mixture", "+1 Cold per Particle", modIcons.coldDamage, 3, 0);
+		tier3[0] = new Mod("Supercooling Mixture", "+1 Cold per Particle", modIcons.coldDamage, 3, 0);
 		tier3[1] = new Mod("Colder Ice Path", "+4 Ice Path Cold/Tick", modIcons.coldDamage, 3, 1);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("High Water Content", "+3 Damage per Particle", modIcons.directDamage, 4, 0);
+		tier4[0] = new Mod("Hard Mixture", "+3 Damage per Particle", modIcons.directDamage, 4, 0);
 		tier4[1] = new Mod("Overclocked Ejection Turbine", "+5m Cold Stream Reach", modIcons.distance, 4, 1);
 		tier4[2] = new Mod("Larger Reserve Tank", "+150 Tank Size", modIcons.carriedAmmo, 4, 2);
 		
