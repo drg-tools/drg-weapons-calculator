@@ -90,7 +90,7 @@ public class CryoCannon extends Weapon {
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
 		tier1[0] = new Mod("Larger Pressure Chamber", "x0.33 Pressure Drop Rate", modIcons.magSize, 1, 0);
-		tier1[1] = new Mod("Improved 2nd Stage Pump", "-0.4 sec Chargeup Time", modIcons.chargeSpeed, 1, 1);
+		tier1[1] = new Mod("Faster Turbine Spinup", "-0.4 sec Chargeup Time", modIcons.chargeSpeed, 1, 1);
 		tier1[2] = new Mod("Stronger Cooling Unit", "+1 Cold per Particle", modIcons.coldDamage, 1, 2);
 		
 		tier2 = new Mod[3];
@@ -103,8 +103,8 @@ public class CryoCannon extends Weapon {
 		tier3[1] = new Mod("Increased Flow Volume", "+1.6 Flow Rate", modIcons.rateOfFire, 3, 1);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("High Water Content", "+3 Damage per Particle", modIcons.directDamage, 4, 0);
-		tier4[1] = new Mod("Improved Mixture", "+1 Cold per Particle", modIcons.coldDamage, 4, 1);
+		tier4[0] = new Mod("Hard Mixture", "+3 Damage per Particle", modIcons.directDamage, 4, 0);
+		tier4[1] = new Mod("Supercooling Mixture", "+1 Cold per Particle", modIcons.coldDamage, 4, 1);
 		tier4[2] = new Mod("Larger Reserve Tank", "+150 Tank Size", modIcons.carriedAmmo, 4, 2);
 		
 		tier5 = new Mod[2];

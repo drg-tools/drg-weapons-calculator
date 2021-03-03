@@ -104,7 +104,7 @@ public class Autocannon extends Weapon {
 		tier3[2] = new Mod("High Velocity Rounds", "+4 Direct Damage", modIcons.directDamage, 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Penetrating Rounds", "+400% Armor Breaking", modIcons.armorBreaking, 4, 0);
+		tier4[0] = new Mod("Hardened Rounds", "+400% Armor Breaking", modIcons.armorBreaking, 4, 0);
 		tier4[1] = new Mod("Shrapnel Rounds", "+0.6m AoE Radius", modIcons.aoeRadius, 4, 1);
 		
 		tier5 = new Mod[3];
