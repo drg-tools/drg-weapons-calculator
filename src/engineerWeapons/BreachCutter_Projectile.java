@@ -131,7 +131,7 @@ public class BreachCutter_Projectile extends BreachCutter {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		return calculateMaxNumTargets() * calculateAverageDamagePerGrunt(true, true, false, true);
+		return calculateMaxNumTargets() * calculateAverageDamagePerGrunt(true, false, false, true);
 	}
 
 	@Override

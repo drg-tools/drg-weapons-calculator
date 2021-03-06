@@ -58,7 +58,7 @@ public class SMG extends Weapon {
 		electricDamage = 0; 
 		// Added onto the direct damage of each bullet; does not affect DoT damage. Affected by weakpoint bonuses and elemental weaknesses/resistances
 		magazineSize = 30;
-		carriedAmmo = 440;
+		carriedAmmo = 500;
 		rateOfFire = 11.0;
 		reloadTime = 2.0;
 		
@@ -85,7 +85,7 @@ public class SMG extends Weapon {
 		tier1 = new Mod[3];
 		tier1[0] = new Mod("Increased Caliber Rounds", "+2 Direct Damage", modIcons.directDamage, 1, 0);
 		tier1[1] = new Mod("Upgraded Capacitors", "+30% Chance to Electrocute an enemy", modIcons.electricity, 1, 1);
-		tier1[2] = new Mod("Expanded Ammo Bags", "+110 Max Ammo", modIcons.carriedAmmo, 1, 2);
+		tier1[2] = new Mod("Expanded Ammo Bags", "+100 Max Ammo", modIcons.carriedAmmo, 1, 2);
 		
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("High Capacity Magazine", "+15 Magazine Size", modIcons.magSize, 2, 0);
@@ -94,7 +94,7 @@ public class SMG extends Weapon {
 		
 		tier3 = new Mod[3];
 		tier3[0] = new Mod("High Velocity Rounds", "+2 Direct Damage", modIcons.directDamage, 3, 0);
-		tier3[1] = new Mod("Expanded Ammo Bags", "+110 Max Ammo", modIcons.carriedAmmo, 3, 1);
+		tier3[1] = new Mod("Expanded Ammo Bags", "+100 Max Ammo", modIcons.carriedAmmo, 3, 1);
 		tier3[2] = new Mod("Hollow-Point Bullets", "+40% Weakpoint Bonus", modIcons.weakpointBonus, 3, 2);
 		
 		tier4 = new Mod[2];
@@ -110,8 +110,8 @@ public class SMG extends Weapon {
 				+ "if 2 turrets are less than 10m apart and both are electrocuted at the same time, then an electric arc will pass between them for 10 seconds that slows enemies by 70% and does 20 Electric Damage per Second.", overclockIcons.electricity, 0, false);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Turret EM Discharge", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, it triggers an explosion that deals 60 Electric Damage and 0.5 Fear to all "
 				+ "enemies within a 5m radius, as well as Electrocuting them. There's a 1.5 second cooldown between explosions.", overclockIcons.areaDamage, 1, false);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "EM Refire Booster", "+2 Electric Damage per bullet, +4 Rate of Fire, x0.8182 Max Ammo", overclockIcons.rateOfFire, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Light-Weight Rounds", "+165 Max Ammo, -1 Direct Damage, -2 Rate of Fire", overclockIcons.carriedAmmo, 3);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "EM Refire Booster", "+2 Electric Damage per bullet, +4 Rate of Fire, x0.85 Max Ammo", overclockIcons.rateOfFire, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Light-Weight Rounds", "+180 Max Ammo, -1 Direct Damage, -2 Rate of Fire", overclockIcons.carriedAmmo, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "High Voltage Electrocution", "x2 Electrocute DoT Damage per Tick, -1 sec Electrocute DoT Duration", overclockIcons.electricity, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Sniper", "x0.6 Base Spread, -33% Spread per Shot, -1 Rate of Fire", overclockIcons.baseSpread, 5);
 	}
@@ -353,19 +353,18 @@ public class SMG extends Weapon {
 		double toReturn = carriedAmmo;
 		
 		if (selectedTier1 == 2) {
-			toReturn += 110;
+			toReturn += 100;
 		}
 		
 		if (selectedTier3 == 1) {
-			toReturn += 110;
+			toReturn += 100;
 		}
 		
 		if (selectedOverclock == 2) {
-			// Because carried ammo and both ammo mods are multiples of 11, this should always result in a clean multiple of 10.
-			toReturn *= 9.0 / 11.0;
+			toReturn *= 0.85;
 		}
 		if (selectedOverclock == 3) {
-			toReturn += 165;
+			toReturn += 180;
 		}
 		
 		return (int) toReturn;

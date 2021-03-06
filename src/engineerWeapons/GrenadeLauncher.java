@@ -286,15 +286,15 @@ public class GrenadeLauncher extends Weapon {
 		
 		// Additive bonuses first
 		if (selectedTier5 == 1) {
-			toReturn += 60;
+			toReturn += 45;
 		}
 		
-		if (selectedOverclock == 5) {
+		if (selectedOverclock == 4) {
 			toReturn += 325;
 		}
 		
 		// Multiplicative bonuses last
-		if (selectedTier5 == 2 && selectedOverclock != 5) {
+		if (selectedTier5 == 2 && selectedOverclock != 4) {
 			// Because Hyper Propellant adds its Disintegrate Damage LAST, it effectively negates Incendiary Compound's -50% damage penalty.
 			// GSG Devs even confirmed this is intended behavior in the Jira report I made about this issue back when U32 dropped.
 			toReturn /= 2.0;
@@ -319,7 +319,7 @@ public class GrenadeLauncher extends Weapon {
 			toReturn *= 3.25;
 		}
 		
-		if (selectedTier5 == 2 && selectedOverclock != 5) {
+		if (selectedTier5 == 2 && selectedOverclock != 4) {
 			// Again, Hyper Propellant effectively negates Incendiary Compound's -50% penalty.
 			toReturn /= 2.0;
 		}
@@ -329,7 +329,7 @@ public class GrenadeLauncher extends Weapon {
 	private double getHeatPerGrenade() {
 		// Special case: because Hyper Propellant cancels out Incendiary Compound's damage penalty, I need divide the damage/grenade by 2 for HP in particular (other builds the damage/grenade = heat/grenade)
 		// Because of the wonky interaction between Hyper Propellant and Incendiary Compound, I'm writing this method instead of copy/pasting the same exception multiple times.
-		if (selectedOverclock == 5) {
+		if (selectedOverclock == 4) {
 			return (getDirectDamage() + getAreaDamage()) / 2.0;
 		}
 		else {
@@ -476,7 +476,7 @@ public class GrenadeLauncher extends Weapon {
 		
 		toReturn[5] = new StatsRow("Magazine Size:", magazineSize, modIcons.magSize, false);
 		
-		boolean carriedAmmoModified = selectedTier1 == 1 || selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 4 || selectedOverclock == 5;
+		boolean carriedAmmoModified = selectedTier1 == 1 || selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[6] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		toReturn[7] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 2);
 		
@@ -630,7 +630,7 @@ public class GrenadeLauncher extends Weapon {
 		// Disintegrate, Internal, and Kinetic damage are all resistance-less so I can overload the Kinetic portion in Breakpoints()
 		double[] directDamage = new double[5];
 		double[] areaDamage = new double[5];
-		if (selectedOverclock == 5) {
+		if (selectedOverclock == 4 || selectedOverclock == 5) {
 			directDamage[0] = getDirectDamage();  // Kinetic
 			areaDamage[0] = getAreaDamage();  // Kinetic
 		}
@@ -641,7 +641,7 @@ public class GrenadeLauncher extends Weapon {
 		
 		// Incendiary Compound is a burst of Heat, and gets modeled differently than Radiation
 		double heatPerGrenade = 0;
-		if (selectedTier3 == 0) {
+		if (selectedTier5 == 2) {
 			heatPerGrenade = getHeatPerGrenade();
 		}
 		
@@ -650,7 +650,7 @@ public class GrenadeLauncher extends Weapon {
 		double[] dot_duration = new double[4];
 		double[] dot_probability = new double[4];
 		
-		if (selectedOverclock == 4) {
+		if (selectedOverclock == 3) {
 			dot_dps[3] = DoTInformation.Rad_FB_DPS;
 			// Yes it lasts 15 seconds, but I'm choosing to model it as if enemies walk out of the field in about 4 seconds.
 			dot_duration[3] = 4.0;
@@ -717,13 +717,13 @@ public class GrenadeLauncher extends Weapon {
 	public double damagePerMagazine() {
 		// Instead of damage per mag, this will be damage per grenade
 		double burnDoTDamagePerEnemy = 0;
-		if (selectedTier3 == 0) {
+		if (selectedTier5 == 2) {
 			// Again, this is an intentional overestimation.
 			burnDoTDamagePerEnemy = DoTInformation.Burn_SecsDuration * DoTInformation.Burn_DPS;
 		}
 		
 		double radiationDoTDamagePerEnemy = 0;
-		if (selectedOverclock == 4) {
+		if (selectedOverclock == 3) {
 			// I'm guessing that it takes about 4 seconds for enemies to move out of the 8m radius field
 			radiationDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, 4, DoTInformation.Rad_FB_DPS);
 		}

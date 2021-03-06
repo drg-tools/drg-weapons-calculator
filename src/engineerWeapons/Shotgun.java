@@ -55,7 +55,7 @@ public class Shotgun extends Weapon {
 		// Base stats, before mods or overclocks alter them:
 		damagePerPellet = 12;
 		numberOfPellets = 6;
-		carriedAmmo = 78;
+		carriedAmmo = 84;
 		magazineSize = 6;
 		rateOfFire = 1.6;
 		reloadTime = 2.0;
@@ -88,12 +88,12 @@ public class Shotgun extends Weapon {
 		tier1[2] = new Mod("Quickfire Ejector", "-0.5 Reload Time", modIcons.reloadSpeed, 1, 2);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Expanded Ammo Bags", "+15 Max Ammo", modIcons.carriedAmmo, 2, 0);
+		tier2[0] = new Mod("Expanded Ammo Bags", "+18 Max Ammo", modIcons.carriedAmmo, 2, 0);
 		tier2[1] = new Mod("Loaded Shells", "+1 Pellet per Shot", modIcons.pelletsPerShot, 2, 1);
 		tier2[2] = new Mod("Choke", "x0.5 Base Spread", modIcons.baseSpread, 2, 2);
 		
 		tier3 = new Mod[2];
-		tier3[0] = new Mod("Expanded Ammo Bags", "+15 Max Ammo", modIcons.carriedAmmo, 3, 0);
+		tier3[0] = new Mod("Expanded Ammo Bags", "+18 Max Ammo", modIcons.carriedAmmo, 3, 0);
 		tier3[1] = new Mod("Bigger Pellets", "+2 Damage per Pellet", modIcons.directDamage, 3, 1);
 		
 		tier4 = new Mod[2];
@@ -111,7 +111,7 @@ public class Shotgun extends Weapon {
 				+ "inflicts 0.5 Fear to all enemies it damages. 10 Sentry ammo per shot, 3 second cooldown per Sentry.", overclockIcons.special, 1, false);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Magnetic Pellet Alignment", "x0.5 Base Spread, +30% Weakpoint Bonus, x0.75 Rate of Fire", overclockIcons.baseSpread, 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Cycle Overload", "+1 Damage per Pellet, +0.8 Rate of Fire, +0.7 Reload Time, x1.5 Base Spread", overclockIcons.rateOfFire, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Mini Shells", "+72 Max Ammo, +6 Magazine Size, x0.5 Recoil, -3 Damage per Pellet, and no longer able to stun enemies", overclockIcons.miniShells, 4);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Mini Shells", "+60 Max Ammo, +6 Magazine Size, x0.5 Recoil, -3 Damage per Pellet, and no longer able to stun enemies", overclockIcons.miniShells, 4);
 	}
 	
 	@Override
@@ -302,14 +302,14 @@ public class Shotgun extends Weapon {
 		int toReturn = carriedAmmo;
 		
 		if (selectedTier2 == 0) {
-			toReturn += 15;
+			toReturn += 18;
 		}
 		if (selectedTier3 == 0) {
-			toReturn += 15;
+			toReturn += 18;
 		}
 		
 		if (selectedOverclock == 4) {
-			toReturn += 72;
+			toReturn += 60;
 		}
 		
 		return toReturn;

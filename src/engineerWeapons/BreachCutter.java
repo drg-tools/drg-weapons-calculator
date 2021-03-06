@@ -103,12 +103,12 @@ public class BreachCutter extends Weapon {
 		
 		tier4 = new Mod[3];
 		tier4[0] = new Mod("Armor Breaking", "+200% Armor Breaking", modIcons.armorBreaking, 4, 0);
-		tier4[1] = new Mod("Improved Case Ejector", "-0.4 Reload Time", modIcons.reloadSpeed, 4, 1);
+		tier4[1] = new Mod("Improved Case Ejector", "-1.2 Reload Time", modIcons.reloadSpeed, 4, 1);
 		// Although getStats() shows this change, it has no effect on any numbers in this model. As such, I'm marking as "not modeled".
 		tier4[2] = new Mod("Quick Deploy", "-0.2 Plasma Expansion Delay", modIcons.duration, 4, 2, false);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Explosive Goodbye", "When the line either expires or the trigger gets pulled again, the current line explodes for 60 Explosive Damage in a 3m radius AoE, and leaves behind a field of Persistent Plasma "
+		tier5[0] = new Mod("Explosive Goodbye", "The first medium-sized or larger enemy killed by a line will explodes for 50 Explosive Damage in a 3m radius AoE, and leaves behind a field of Persistent Plasma "
 				+ " that does an average of " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per second for 4.6 seconds in a 3m radius sphere.", modIcons.addedExplosion, 5, 0);
 		tier5[1] = new Mod("Plasma Trail", "Leaves behind a Persistent Plasma field that does an average of " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per second for 4.6 seconds "
 				+ "along the entire length of the line's path", modIcons.areaDamage, 5, 1);
@@ -428,7 +428,7 @@ public class BreachCutter extends Weapon {
 		double toReturn = reloadTime;
 		
 		if (selectedTier4 == 1) {
-			toReturn -= 0.4;
+			toReturn -= 1.2;
 		}
 		
 		return toReturn;
@@ -511,7 +511,6 @@ public class BreachCutter extends Weapon {
 		double lengthOfLance = getProjectileWidth();
 		double lengthOfGrunt = 2.0 * EnemyInformation.GlyphidGruntBodyAndLegsRadius;
 		return (lengthOfLance + lengthOfGrunt) / getProjectileVelocity();
-		
 	}
 	
 	// This method isn't perfect but it's a good start. It should eventually model how the enemies move instead of stand still and work out a couple of math/logic overlaps that I'm choosing to neglect for right now.
@@ -611,8 +610,8 @@ public class BreachCutter extends Weapon {
 		double impactDamage = getImpactDamage();
 		double dmgPerTick = getDamagePerTick();
 		double explosiveGoodbyeDmg = 0;
-		if (selectedTier5 == 0 && primaryTarget) {
-			explosiveGoodbyeDmg = 60.0;
+		if (selectedTier5 == 0 && !primaryTarget) {
+			explosiveGoodbyeDmg = 50.0;
 		}
 		
 		if (!ignoreStatusEffects) {
@@ -682,7 +681,7 @@ public class BreachCutter extends Weapon {
 		if (selectedTier5 == 0 || selectedTier5 == 1) {
 			double plasmaDoTDuration;
 			if (extendDoTsBeyondIntersection) {
-				if (selectedTier5 == 0) {
+				if (selectedTier5 == 0 && !primaryTarget) {
 					// I'm estimating that Grunts will walk out of the Explosive Goodbye sphere in about 1.5 seconds
 					plasmaDoTDuration = 1.5;
 				}
@@ -768,7 +767,7 @@ public class BreachCutter extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		return calculateMaxNumTargets() * calculateAverageDamagePerGrunt(true, true, false, true) * (getMagazineSize() + getCarriedAmmo());
+		return calculateMaxNumTargets() * calculateAverageDamagePerGrunt(true, false, false, true) * (getMagazineSize() + getCarriedAmmo());
 	}
 
 	@Override
