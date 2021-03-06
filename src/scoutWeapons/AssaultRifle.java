@@ -654,9 +654,9 @@ public class AssaultRifle extends Weapon {
 		double[] directDamage = new double[5];
 		directDamage[0] = getDirectDamage();  // Kinetic
 		
-		// OC "Bullets of Mercy" is a x1.33 Damage multiplier vs enemies afflicted by Status Effects.
+		// OC "Bullets of Mercy" is a x125 Damage multiplier vs enemies afflicted by Status Effects.
 		if (selectedOverclock == 4 && (statusEffects[0] || statusEffects[1] || statusEffects[2] || statusEffects[3])) {
-			directDamage[0] *= 1.33;
+			directDamage[0] *= 1.25;
 		}
 		
 		double[] areaDamage = new double[5];
@@ -704,7 +704,7 @@ public class AssaultRifle extends Weapon {
 		}
 		
 		// Innate Weakpoint stun = 10% chance for 1.5 sec stun (improved to 40% by Mod Tier 5 "Stun")
-		utilityScores[5] = EnemyInformation.probabilityBulletWillHitWeakpoint() * getWeakpointStunChance() * stunDuration * UtilityInformation.Stun_Utility;
+		utilityScores[5] = (getWeakpointAccuracy() / 100.0) * getWeakpointStunChance() * stunDuration * UtilityInformation.Stun_Utility;
 		
 		return MathUtils.sum(utilityScores);
 	}
