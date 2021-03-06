@@ -298,7 +298,7 @@ public class Boomstick extends Weapon {
 			toReturn += 4;
 		}
 		
-		if (selectedOverclock == 2) {
+		if (selectedOverclock == 1 || selectedOverclock == 2) {
 			toReturn += 1;
 		}
 		else if (selectedOverclock == 5) {
@@ -333,10 +333,7 @@ public class Boomstick extends Weapon {
 			toReturn += 10;
 		}
 		
-		if (selectedOverclock == 1) {
-			toReturn *= 2;
-		}
-		else if (selectedOverclock == 3) {
+		if (selectedOverclock == 3) {
 			toReturn *= 0.45;
 		}
 		
@@ -368,7 +365,7 @@ public class Boomstick extends Weapon {
 			toReturn += 4;
 		}
 		else if (selectedOverclock == 4) {
-			toReturn += 4;
+			toReturn += 0;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn -= 7;
@@ -449,10 +446,10 @@ public class Boomstick extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[14];
 		
-		boolean damageModified = selectedTier1 == 1 || selectedOverclock == 2 || selectedOverclock == 5;
+		boolean damageModified = selectedTier1 == 1 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Damage per Pellet:", getDamagePerPellet(), modIcons.directDamage, damageModified);
 		
-		boolean pelletsModified = selectedTier3 == 2 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 4;
+		boolean pelletsModified = selectedTier3 == 2 || selectedOverclock == 2 || selectedOverclock == 4;
 		toReturn[1] = new StatsRow("Number of Pellets/Shot:", getNumberOfPellets(), modIcons.pelletsPerShot, pelletsModified);
 		
 		toReturn[2] = new StatsRow("Blastwave Damage:", getBlastwaveDamage(), modIcons.areaDamage, selectedTier4 == 2 || selectedOverclock == 3);
@@ -462,13 +459,13 @@ public class Boomstick extends Weapon {
 
 		toReturn[4] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, false);
 		
-		boolean carriedAmmoModified = selectedTier1 == 0 || selectedTier3 == 1 || selectedOverclock == 0 || selectedOverclock == 1 || selectedOverclock == 5;
+		boolean carriedAmmoModified = selectedTier1 == 0 || selectedTier3 == 1 || selectedOverclock == 0 || selectedOverclock == 5;
 		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 
-		toReturn[5] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier2 == 0 || selectedOverclock == 0);
+		toReturn[6] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier2 == 0 || selectedOverclock == 0);
 		
 		boolean reloadTimeModified = selectedTier2 == 1 || selectedOverclock == 1 || selectedOverclock == 5;
-		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, reloadTimeModified);
+		toReturn[7] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, reloadTimeModified);
 		
 		toReturn[8] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier4 == 1, selectedTier4 == 1);
 		
@@ -476,10 +473,10 @@ public class Boomstick extends Weapon {
 		
 		toReturn[10] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(stunChance), modIcons.homebrewPowder, false);
 		
-		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, selectedTier4 == 0);
+		toReturn[11] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, selectedTier4 == 0);
 		
 		boolean penetrationsModified = selectedTier3 == 0 || selectedOverclock == 4;
-		toReturn[11] = new StatsRow("Max Penetrations:", getMaxPenetrations(), modIcons.blowthrough, penetrationsModified, penetrationsModified);
+		toReturn[12] = new StatsRow("Max Penetrations:", getMaxPenetrations(), modIcons.blowthrough, penetrationsModified, penetrationsModified);
 		
 		toReturn[13] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, selectedOverclock == 4, selectedOverclock == 4);
 		
