@@ -99,7 +99,7 @@ public class EPC_RegularShot extends EPC {
 		
 		toReturn[6] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), modIcons.coolingRate, coolingRateModified);
 		
-		toReturn[7] = new StatsRow("Cooldown After Overheating:", getCooldownDuration(), modIcons.hourglass, coolingRateModified);
+		toReturn[7] = new StatsRow("Cooldown After Overheating:", getOverheatCooldownDuration(), modIcons.hourglass, coolingRateModified);
 		
 		toReturn[8] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getRegularShotWeakpointBonus()), modIcons.weakpointBonus, selectedOverclock == 1, selectedOverclock == 1);
 		
@@ -150,7 +150,7 @@ public class EPC_RegularShot extends EPC {
 			duration = burstSize / getCustomRoF();
 		}
 		else {
-			duration = burstSize / getCustomRoF() + getCooldownDuration();
+			duration = burstSize / getCustomRoF() + getOverheatCooldownDuration();
 		}
 		
 		double burnDPS = 0;
@@ -203,7 +203,7 @@ public class EPC_RegularShot extends EPC {
 		double timeToFireBurst = burstSize / getCustomRoF();
 		// Choosing not to use Weapon.numMagazines since the "burst" size isn't adding to total ammo count like normal bullets in a mag do.
 		double numBursts = (double) getBatterySize() / (double) burstSize;
-		return numBursts * timeToFireBurst + numReloads(getBatterySize(), burstSize) * getCooldownDuration();
+		return numBursts * timeToFireBurst + numReloads(getBatterySize(), burstSize) * getOverheatCooldownDuration();
 	}
 	
 	@Override

@@ -92,7 +92,7 @@ public class Subata extends Weapon {
 		tier3[2] = new Mod("Expanded Ammo Bags", "+40 Max Ammo", modIcons.carriedAmmo, 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Hollow-Point Bullets", "+60% Weakpoint Bonus", modIcons.weakpointBonus, 4, 0);
+		tier4[0] = new Mod("Hollow-Point Bullets", "+45% Weakpoint Bonus", modIcons.weakpointBonus, 4, 0);
 		tier4[1] = new Mod("High Velocity Rounds", "+3 Direct Damage", modIcons.directDamage, 4, 1);
 		
 		tier5 = new Mod[2];
@@ -101,7 +101,7 @@ public class Subata extends Weapon {
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Elemental Rounds", "+30% Direct Damage dealt to enemies that are either Chilled or Heated (have a non-zero Temperature)", overclockIcons.directDamage, 0);
-		overclocks[1] = new Overclock(Overclock.classification.balanced, "Burst Fire", "Changes the Subata from semi-automatic to burst fire. In exchange, -4.8 Rate of Fire", overclockIcons.rateOfFire, 1);
+		overclocks[1] = new Overclock(Overclock.classification.balanced, "Burst Fire", "Changes the Subata from semi-automatic to 3-round burst fire. In exchange, -4.8 Rate of Fire", overclockIcons.rateOfFire, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Oversized Magazine", "+10 Magazine Size, +0.5 Reload Time", overclockIcons.magSize, 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Automatic Fire", "Changes the Subata from semi-automatic to fully automatic, +2 Rate of Fire, +100% Base Spread, x2.5 Recoil", overclockIcons.rateOfFire, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Explosive Reload", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 42 Internal Damage to the enemy upon reloading. "
@@ -382,7 +382,7 @@ public class Subata extends Weapon {
 		double toReturn = weakpointBonus;
 		
 		if (selectedTier4 == 0) {
-			toReturn += 0.6;
+			toReturn += 0.45;
 		}
 		
 		return toReturn;

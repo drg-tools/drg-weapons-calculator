@@ -57,7 +57,7 @@ public class CryoCannon extends Weapon {
 		weaponPic = WeaponPictures.cryoCannon;
 		
 		// Base stats, before mods or overclocks alter them:
-		particleDamage = 6;
+		particleDamage = 9;
 		particleCold = -8;
 		tankSize = 475;
 		chargeupTime = 0.5;
@@ -96,7 +96,7 @@ public class CryoCannon extends Weapon {
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("Faster Turbine Spinup", "-0.4 sec Chargeup Time", modIcons.chargeSpeed, 2, 0);
 		tier2[1] = new Mod("Stronger Cooling Unit", "+1 Cold per Particle", modIcons.coldDamage, 2, 1);
-		tier2[2] = new Mod("Bypassed Integrity Check", "-1 sec Repressurization Delay", modIcons.coolingRate, 2, 2);
+		tier2[2] = new Mod("Bypassed Integrity Check", "x0 Repressurization Delay", modIcons.coolingRate, 2, 2);
 		
 		tier3 = new Mod[2];
 		tier3[0] = new Mod("Supercooling Mixture", "+1 Cold per Particle", modIcons.coldDamage, 3, 0);
@@ -105,7 +105,7 @@ public class CryoCannon extends Weapon {
 		tier4 = new Mod[3];
 		tier4[0] = new Mod("Hard Mixture", "+3 Damage per Particle", modIcons.directDamage, 4, 0);
 		tier4[1] = new Mod("Overclocked Ejection Turbine", "+5m Cold Stream Reach", modIcons.distance, 4, 1);
-		tier4[2] = new Mod("Larger Reserve Tank", "+150 Tank Size", modIcons.carriedAmmo, 4, 2);
+		tier4[2] = new Mod("Larger Reserve Tank", "+125 Tank Size", modIcons.carriedAmmo, 4, 2);
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Fragile", "When a particle from Cryo Cannon damages a Frozen enemy and brings its health below 100 \"true\" hp, it has a (1 - hp/100) probability to deal the remaining hp as Kinetic Damage. "
@@ -119,7 +119,7 @@ public class CryoCannon extends Weapon {
 				+ "In exchange, +1 sec Repressurization Delay", overclockIcons.projectileVelocity, 2, false);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Snowball", "Press the Reload button to consume 35 ammo and fire a Snowball that does 200 Cold in a 4m radius, which will freeze most enemies instantly. "
 				+ "In exchange, +1 sec Repressurization Delay", overclockIcons.aoeRadius, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Ice Storm", "x2 Damage per Particle, -2 Cold per Particle, -50 Tank Size, x1.5 Pressure Drop Rate", overclockIcons.directDamage, 4);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Ice Storm", "x1.67 Damage per Particle, -2 Cold per Particle, x1.5 Pressure Drop Rate", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Ice Shard Path", "+16 Ice Path Damage/Tick, x0 Ice Path Cold/Tick", overclockIcons.directDamage, 5);
 	}
 	
@@ -294,7 +294,7 @@ public class CryoCannon extends Weapon {
 		}
 		
 		if (selectedOverclock == 4) {
-			toReturn *= 2;
+			toReturn *= 5.0 / 3.0;
 		}
 		
 		return toReturn;
@@ -323,14 +323,14 @@ public class CryoCannon extends Weapon {
 		int toReturn = tankSize;
 		
 		if (selectedTier4 == 2) {
-			toReturn += 150;
+			toReturn += 125;
 		}
 		
 		if (selectedOverclock == 0) {
 			toReturn += 50;
 		}
 		else if (selectedOverclock == 4) {
-			toReturn -= 50;
+			toReturn -= 0;
 		}
 		
 		return toReturn;
@@ -373,7 +373,7 @@ public class CryoCannon extends Weapon {
 		double toReturn = repressurizationDelay;
 		
 		if (selectedTier2 == 2) {
-			toReturn -= 1;
+			return 0;
 		}
 		
 		if (selectedOverclock == 2 || selectedOverclock == 3) {
@@ -441,7 +441,7 @@ public class CryoCannon extends Weapon {
 		
 		toReturn[3] = new StatsRow("Cold Stream Reach:", getColdStreamReach(), modIcons.distance, selectedTier4 == 1);
 		
-		boolean tankSizeModified = selectedTier4 == 2 || selectedOverclock == 0 || selectedOverclock == 4;
+		boolean tankSizeModified = selectedTier4 == 2 || selectedOverclock == 0;
 		toReturn[4] = new StatsRow("Tank Size:", getTankSize(), modIcons.carriedAmmo, tankSizeModified);
 		
 		toReturn[5] = new StatsRow("Chargeup Time:", getChargeupTime(), modIcons.chargeSpeed, selectedTier2 == 0);

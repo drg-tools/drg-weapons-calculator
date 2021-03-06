@@ -107,12 +107,12 @@ public abstract class EPC extends Weapon {
 		tier1 = new Mod[3];
 		tier1[0] = new Mod("Increased Particle Density", "+4 Regular Shot Direct Damage", modIcons.directDamage, 1, 0);
 		tier1[1] = new Mod("Larger Battery", "+24 Battery Size", modIcons.carriedAmmo, 1, 1);
-		tier1[2] = new Mod("Higher Charged Plasma Energy", "+15 Charged Shot Direct Damage, +15 Charged Shot Area Damage", modIcons.areaDamage, 1, 2);
+		tier1[2] = new Mod("Higher Charged Plasma Energy", "+20 Charged Shot Direct Damage, +12 Charged Shot Area Damage", modIcons.areaDamage, 1, 2);
 		
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("Expanded Plasma Splash", "+0.8m Charged Shot AoE Radius", modIcons.aoeRadius, 2, 0);
 		tier2[1] = new Mod("High Density Battery", "+32 Battery Size", modIcons.carriedAmmo, 2, 1);
-		tier2[2] = new Mod("Reactive Shockwave", "+20 Charged Shot Direct Damage, +20 Charged Shot Area Damage", modIcons.areaDamage, 2, 2);
+		tier2[2] = new Mod("Reactive Shockwave", "+30 Charged Shot Direct Damage, +15 Charged Shot Area Damage", modIcons.areaDamage, 2, 2);
 		
 		tier3 = new Mod[3];
 		tier3[0] = new Mod("Improved Charge Efficiency", "-2 Ammo per Charged Shot", modIcons.fuel, 3, 0);
@@ -124,19 +124,20 @@ public abstract class EPC extends Weapon {
 		tier4[1] = new Mod("Overcharged Plasma Accelerator", "+25% Regular Shot Velocity", modIcons.projectileVelocity, 4, 1, false);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Flying Nightmare", "Charged Shots now deal their Direct Damage to enemies hit by the AoE while in-flight but it no longer explodes upon impact. Additionally, x1.15 Charged Shot Direct Damage, x0.6 AoE radius, x0.8 Charge Speed.", modIcons.aoeRadius, 5, 0);
-		tier5[1] = new Mod("Thin Containment Field", "Shoot the Charged Shot with a Regular Shot before it impacts anything to make it detonate for 210 Damage and carve terrain within a 2.5m radius. "
-				+ "Additionally, x0.8 Heat per Regular Shot, and x0.25 Heat per Charged Shot which means it no longer overheats on charged shots.", modIcons.special, 5, 1);
-		tier5[2] = new Mod("Plasma Burn", "Regular Shots have 50% of their Direct Damage added on as Heat which can ignite enemies, dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 5, 2);
+		tier5[0] = new Mod("Flying Nightmare", "Charged Shots now deal their Direct Damage to enemies hit by the AoE while in-flight but it no longer explodes upon impact. Additionally, x0.75 AoE radius, x0.8 Charge Speed.", modIcons.aoeRadius, 5, 0);
+		tier5[1] = new Mod("Thin Containment Field", "Shoot the Charged Shot with a Regular Shot before it impacts anything to make it detonate for 180 Damage and carve terrain within a 2.25m radius. "
+				+ "Additionally, x0.75 Heat per Charged Shot which means it no longer overheats on charged shots.", modIcons.special, 5, 1);
+		tier5[2] = new Mod("Plasma Burn", "Regular Shots have 50% of their Direct Damage added on as Heat which can ignite enemies, dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " "
+				+ "Fire Damage per Second. Additionally, x0.8 Heat per Regular Shot.", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Energy Rerouting", "+16 Battery Size, x1.5 Charge Speed.", overclockIcons.chargeSpeed, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Magnetic Cooling Unit", "+25% Cooling Rate, +20% Regular Shot Weakpoint Bonus", overclockIcons.coolingRate, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Heat Pipe", "-2 Ammo per Charged Shot, x1.3 Charge Speed, -0.5m AoE Radius", overclockIcons.fuel, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Heavy Hitter", "x1.5 Regular Shot Direct Damage, x1.5 Heat per Regular Shot, +200% Recoil, -40 Battery Size", overclockIcons.directDamage, 3);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Heat Pipe", "-2 Ammo per Charged Shot, x1.3 Charge Speed, -0.4m AoE Radius", overclockIcons.fuel, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Heavy Hitter", "x1.5 Regular Shot Direct Damage, x1.5 Heat per Regular Shot, -40 Battery Size", overclockIcons.directDamage, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Overcharger", "x1.5 Charged Shot Direct Damage, x1.5 Charged Shot Area Damage, x1.2 Charged Shot AoE Radius, x1.5 Ammo per Charged Shot, -25% Cooling Rate", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Persistent Plasma", "Upon impact, Charged Shots leave behind a 3m radius field of Persistent Plasma that deals " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + 
-				" Fire Damage per Second for 7.6 seconds. -15 Charged Shot Direct Damage, -15 Charged Shot Area Damage", overclockIcons.hourglass, 5);
+				" Fire Damage per Second for 7.6 seconds. In exchange, -32 Battery Size", overclockIcons.hourglass, 5);
 	}
 	
 	@Override
@@ -327,22 +328,14 @@ public abstract class EPC extends Weapon {
 		}
 		
 		if (selectedTier1 == 2) {
-			toReturn += 15;
+			toReturn += 20;
 		}
 		if (selectedTier2 == 2) {
-			toReturn += 20;
+			toReturn += 30;
 		}
 		
 		if (selectedOverclock == 4) {
 			toReturn *= 1.5;
-		}
-		else if (selectedOverclock == 5) {
-			toReturn -= 15;
-		}
-		
-		// Multiplicative Damage boosts last
-		if (selectedTier5 == 0) {
-			toReturn *= 1.15;
 		}
 		
 		return toReturn;
@@ -357,21 +350,18 @@ public abstract class EPC extends Weapon {
 		
 		// Special case: Thin Containment Field
 		if (selectedTier5 == 1) {
-			return 210;
+			return 180;
 		}
 		
 		if (selectedTier1 == 2) {
-			toReturn += 15;
+			toReturn += 12;
 		}
 		if (selectedTier2 == 2) {
-			toReturn += 20;
+			toReturn += 15;
 		}
 		
 		if (selectedOverclock == 4) {
 			toReturn *= 1.5;
-		}
-		else if (selectedOverclock == 5) {
-			toReturn -= 15;
 		}
 		
 		return toReturn;
@@ -381,18 +371,18 @@ public abstract class EPC extends Weapon {
 		
 		// Special case: Thin Containment Field
 		if (selectedTier5 == 1) {
-			return 2.5;
+			return 2.25;
 		}
 		
 		if (selectedTier2 == 0) {
 			toReturn += 0.8;
 		}
 		if (selectedOverclock == 2) {
-			toReturn -= 0.5;
+			toReturn -= 0.4;
 		}
 		
 		if (selectedTier5 == 0) {
-			toReturn *= 0.6;
+			toReturn *= 0.75;
 		}
 		if (selectedOverclock == 4) {
 			toReturn *= 1.2;
@@ -415,6 +405,9 @@ public abstract class EPC extends Weapon {
 		}
 		else if (selectedOverclock == 3) {
 			toReturn -= 40;
+		}
+		else if (selectedOverclock == 5) {
+			toReturn -= 32;
 		}
 		
 		return toReturn;
@@ -478,7 +471,7 @@ public abstract class EPC extends Weapon {
 	protected double getHeatPerRegularShot() {
 		double toReturn = heatPerRegularShot;
 		
-		if (selectedTier5 == 1) {
+		if (selectedTier5 == 2) {
 			toReturn *= 0.8;
 		}
 		
@@ -491,9 +484,9 @@ public abstract class EPC extends Weapon {
 	protected double getHeatPerChargedShot() {
 		// Unless they have Mod Tier 5 "Thin Containment Field" equipped, charged shots guarantee an overheat.
 		if (selectedTier5 == 1) {
-			// If TFC is equipped, then the Charged Shot only costs 25% max heat, and one Regular Shot to detonate the TFC field
+			// If TFC is equipped, then the Charged Shot only costs 75% max heat, and one Regular Shot to detonate the TFC field
 			// Don't let this return more than the max heat, though!
-			return Math.min(maxHeat * 0.25 + getHeatPerRegularShot(), maxHeat);
+			return Math.min(maxHeat * 0.75 + getHeatPerRegularShot(), maxHeat);
 		}
 		else {
 			return maxHeat;
@@ -521,7 +514,10 @@ public abstract class EPC extends Weapon {
 	protected double getSecondsBeforeOverheatWhileCharged() {
 		return maxHeat / getHeatPerSecondWhileCharged();
 	}
-	protected double getCooldownDuration() {
+	protected double getOverheatCooldownDuration() {
+		return maxHeat / (coolingRate * getCoolingRateModifier());
+	}
+	protected double getChargeShotCooldownDuration() {
 		return getHeatPerChargedShot() / (coolingRate * getCoolingRateModifier());
 	}
 	

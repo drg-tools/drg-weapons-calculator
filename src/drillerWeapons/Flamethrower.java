@@ -97,7 +97,7 @@ public class Flamethrower extends Weapon {
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("High Capacity Tanks", "+25 Tank Size", modIcons.magSize, 2, 0);
 		tier2[1] = new Mod("Oversized Valves", "+0.9 Flow Rate", modIcons.rateOfFire, 2, 1);
-		tier2[2] = new Mod("Sticky Flame Slowdown", "+20% Sticky Flames Slow", modIcons.slowdown, 2, 2);
+		tier2[2] = new Mod("Sticky Flame Slowdown", "Adds a x0.7 Movespeed Slow to Sticky Flames", modIcons.slowdown, 2, 2);
 		
 		tier3 = new Mod[3];
 		tier3[0] = new Mod("Unfiltered Fuel", "+5 Damage per Particle", modIcons.directDamage, 3, 0);
@@ -105,11 +105,11 @@ public class Flamethrower extends Weapon {
 		tier3[2] = new Mod("Sticky Flame Duration", "+3 sec Sticky Flames duration", modIcons.hourglass, 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("It Burns!", "Every ammo consumed deals 0.13 Fear Factor to all enemies hit by that particle", modIcons.fear, 4, 0);
+		tier4[0] = new Mod("It Burns!", "Every ammo consumed deals 0.25 Fear Factor to all enemies hit by that particle", modIcons.fear, 4, 0);
 		tier4[1] = new Mod("Triple Filtered Fuel", "+20 Heat per Particle", modIcons.heatDamage, 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Heat Radiance", "Deal 60 Fire Damage per second and 60 Heat per second to all enemies within 3m of you. The Heat/sec stacks with the direct stream and Sticky Flames' heat sources as well.", modIcons.heatDamage, 5, 0);
+		tier5[0] = new Mod("Heat Radiance", "Deal 45 Fire Damage per second and 60 Heat per second to all enemies within 3m of you. The Heat/sec stacks with the direct stream and Sticky Flames' heat sources as well.", modIcons.heatDamage, 5, 0);
 		tier5[1] = new Mod("Targets Explode", "If the direct stream kills an enemy, there's a 50% chance that they will explode and deal 55 Fire Damage and 55 Heat to all enemies within a 3m radius.", modIcons.addedExplosion, 5, 1);
 		
 		overclocks = new Overclock[6];
@@ -117,8 +117,8 @@ public class Flamethrower extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Sticky Additive", "+2 Damage per Particle, +3 sec Sticky Flame duration", overclockIcons.hourglass, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Fuel Stream Diffuser", "+5m Flame Reach, +1.5 Flow Rate, -75 Ammo", overclockIcons.distance, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Face Melter", "+5 Damage per Particle, -25 Tank Size, x0.3 Heat per Particle", overclockIcons.directDamage, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Sticky Flame Damage", "+5 Sticky Flame Damage/Tick, +4 sec Sticky Flame Duration, -20% Sticky Flame Slow, -25 Tank Size", overclockIcons.directDamage, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Sticky Flame Crowd Control", "+30% Sticky Flame Slow, +4 sec Sticky Flame Duration, -5 Sticky Flame Damage/Tick, -1.2 Flow Rate", overclockIcons.slowdown, 5);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Sticky Flame Damage", "+5 Sticky Flame Damage/Tick, +4 sec Sticky Flame Duration, adds a x1.3 Movespeed Slow to Sticky Flames, -25 Tank Size", overclockIcons.directDamage, 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Sticky Flame Crowd Control", "Adds a x0.4 Movespeed Slow to Sticky Flames, +4 sec Sticky Flame Duration, -5 Sticky Flame Damage/Tick, -1.2 Flow Rate", overclockIcons.slowdown, 5);
 	}
 	
 	@Override
@@ -414,21 +414,20 @@ public class Flamethrower extends Weapon {
 		return toReturn;
 	}
 	private double getSFSlow() {
-		// From Elythnwaen: T3.B is actually a x0.5 multiplier applied to the baseline x0.9, so 0.9 * 0.5 = 0.45, which is a 55% slow, not 50%.
-		double toReturn = stickyFlamesSlow;
+		double toReturn = 1.0 - stickyFlamesSlow;
 		
 		if (selectedTier2 == 2) {
-			toReturn += 0.2;
+			toReturn *= 0.7;
 		}
 		
 		if (selectedOverclock == 4) {
-			toReturn -= 0.2;
+			toReturn *= 1.3;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn += 0.3;
+			toReturn *= 0.4;
 		}
 		
-		return toReturn;
+		return 1.0 - toReturn;
 	}
 	
 	@Override
@@ -454,7 +453,7 @@ public class Flamethrower extends Weapon {
 		
 		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, false);
 		
-		toReturn[7] = new StatsRow("Fear Factor per Particle:", 0.13, modIcons.fear, selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[7] = new StatsRow("Fear Factor per Particle:", 0.25, modIcons.fear, selectedTier4 == 0, selectedTier4 == 0);
 		
 		// Burn DPS
 		toReturn[8] = new StatsRow("Burn DoT DPS:", DoTInformation.Burn_DPS, modIcons.heatDamage, false);
@@ -502,9 +501,9 @@ public class Flamethrower extends Weapon {
 		double heatRadianceDmgAndHeatPerTick = 0;
 		int numTicksHeatRadianceWillProc = 0; 
 		if (selectedTier5 == 0) {
-			// 60 Heat/sec in a 3m radius
+			// 45 Heat/sec in a 3m radius
 			// I want this to be less effective with far-reaching streams to model how the further the steam flies the less likely it is that the enemies will be within the 3m.
-			heatRadianceDmgAndHeatPerTick = 60.0 * 3.0 / getFlameReach();
+			heatRadianceDmgAndHeatPerTick = 45.0 * 3.0 / getFlameReach();
 			// Because Heat Radiance only procs after every full second of firing, I'm choosing to take the floor() of how many seconds a single magazine can be fired.
 			numTicksHeatRadianceWillProc = (int) Math.floor(((double) getFuelTankSize()) / getFlowRate()); 
 		}
@@ -576,11 +575,11 @@ public class Flamethrower extends Weapon {
 		// Total Heat Radiance Damage
 		double heatRadianceTotalDamage = 0;
 		if (selectedTier5 == 0) {
-			// 60 Fire + Heat/sec in a 3m radius
+			// 45 Fire + Heat/sec in a 3m radius
 			double numTicksOfHeatRadiance = numMagazines(getCarriedFuel(), getFuelTankSize()) * (int) Math.floor(((double) getFuelTankSize()) / getFlowRate());
 			// I'm choosing to model this as if the player is kiting enemies, keeping them about 1.5m away so that they don't receive melee attacks.
 			int numGlyphidsHitByHeatRadiancePerTick = calculateNumGlyphidsInRadius(3.0) - calculateNumGlyphidsInRadius(1.5);
-			heatRadianceTotalDamage = 60 * numTicksOfHeatRadiance * numGlyphidsHitByHeatRadiancePerTick;
+			heatRadianceTotalDamage = 45 * numTicksOfHeatRadiance * numGlyphidsHitByHeatRadiancePerTick;
 		}
 		
 		// Total Targets Explode Damage
@@ -651,7 +650,7 @@ public class Flamethrower extends Weapon {
 		
 		// Fear
 		if (selectedTier4 == 0) {
-			double probabilityToFear = calculateFearProcProbability(0.13);
+			double probabilityToFear = calculateFearProcProbability(0.25);
 			double fearDuration = EnemyInformation.averageFearDuration(getSFSlow(), getSFDuration());
 			utilityScores[4] = probabilityToFear * numTargets * fearDuration * UtilityInformation.Fear_Utility;
 		}
@@ -670,7 +669,7 @@ public class Flamethrower extends Weapon {
 		if (selectedTier5 == 0) {
 			// 60 Heat/sec in a 3m radius
 			// I want this to be less effective with far-reaching streams to model how the further the steam flies the less likely it is that the enemies will be within the 3m.
-			heatRadianceDmgAndHeatPerTick = 60.0 * 3.0 / getFlameReach();
+			heatRadianceDmgAndHeatPerTick = 45.0 * 3.0 / getFlameReach();
 		}
 		
 		return EnemyInformation.averageTimeToIgnite(0, getParticleHeat(), getFlowRate(), stickyFlamesHeatPerSec + heatRadianceDmgAndHeatPerTick);

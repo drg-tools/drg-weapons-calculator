@@ -49,7 +49,7 @@ public class EPC_ChargeShot extends EPC {
 	@Override
 	public double getRateOfFire() {
 		double timeToFireChargedShot = getChargedShotWindup();
-		double timeToCoolDownAfterChargedShot = getCooldownDuration();
+		double timeToCoolDownAfterChargedShot = getChargeShotCooldownDuration();
 		
 		return 1 / (timeToFireChargedShot + timeToCoolDownAfterChargedShot);
 	}
@@ -89,7 +89,7 @@ public class EPC_ChargeShot extends EPC {
 		
 		toReturn[9] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), modIcons.coolingRate, coolingRateModified);
 		
-		toReturn[10] = new StatsRow("Cooldown After Overheating:", getCooldownDuration(), modIcons.hourglass, coolingRateModified || selectedTier5 == 1);
+		toReturn[10] = new StatsRow("Cooldown After a Charged Shot:", getChargeShotCooldownDuration(), modIcons.hourglass, coolingRateModified || selectedTier5 == 1);
 		
 		return toReturn;
 	}
@@ -219,7 +219,7 @@ public class EPC_ChargeShot extends EPC {
 
 	@Override
 	public double calculateFiringDuration() {
-		double firingInterval = getChargedShotWindup() + getCooldownDuration();
+		double firingInterval = getChargedShotWindup() + getChargeShotCooldownDuration();
 		int numChargedShots = (int) Math.ceil(getBatterySize() / getAmmoPerChargedShot());
 		return numChargedShots * firingInterval;
 	}
