@@ -688,7 +688,7 @@ public class AssaultRifle extends Weapon {
 		}
 		
 		// Innate Weakpoint stun = 10% chance for 1.5 sec stun (improved to 40% by Mod Tier 5 "Stun")
-		utilityScores[5] = EnemyInformation.probabilityBulletWillHitWeakpoint() * getWeakpointStunChance() * stunDuration * UtilityInformation.Stun_Utility;
+		utilityScores[5] = (getWeakpointAccuracy() / 100.0) * getWeakpointStunChance() * stunDuration * UtilityInformation.Stun_Utility;
 		
 		return MathUtils.sum(utilityScores);
 	}
