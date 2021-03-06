@@ -613,7 +613,7 @@ public class Zhukov extends Weapon {
 		directDamage[0] = getDirectDamage();  // Kinetic
 		
 		// T5.A Conductive Bullets multiplies by an additional x1.3 when hitting enemies electrocuted or affected by IFG
-		if (selectedTier5 == 0 && (statusEffects[2] || statusEffects[3])) {
+		if (selectedTier3 == 0 && (statusEffects[2] || statusEffects[3])) {
 			directDamage[0] *= 1.3;
 		}
 		
