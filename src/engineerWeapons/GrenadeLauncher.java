@@ -102,7 +102,7 @@ public class GrenadeLauncher extends Weapon {
 				+ "If it never passes that close to an enemy, it will automatically detonate when it stops moving. Note: the trigger takes 0.2 seconds "
 				+ "to arm (indicated by a green light) and until then the grenade functions as usual. ", modIcons.special, 5, 0, false);
 		tier5[1] = new Mod("Spiky Grenade", "+60 Direct Damage to any target directly impacted by a grenade.", modIcons.directDamage, 5, 1);
-		tier5[2] = new Mod("Incendiary Compound", "Lose 50% of Direct, Area, and Armor Damage, and convert it to Heat that will ignite enemies, dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 5, 2);
+		tier5[2] = new Mod("Incendiary Compound", "Lose 30% of Direct, Area, and Armor Damage, and convert it to Heat that will ignite enemies, dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Clean Sweep", "Raises Damage Falloff at outer radius from 15% to 76%", overclockIcons.aoeRadius, 0);
@@ -297,7 +297,7 @@ public class GrenadeLauncher extends Weapon {
 		if (selectedTier5 == 2 && selectedOverclock != 4) {
 			// Because Hyper Propellant adds its Disintegrate Damage LAST, it effectively negates Incendiary Compound's -50% damage penalty.
 			// GSG Devs even confirmed this is intended behavior in the Jira report I made about this issue back when U32 dropped.
-			toReturn /= 2.0;
+			toReturn *= 0.7;
 		}
 		
 		return toReturn;
@@ -321,20 +321,36 @@ public class GrenadeLauncher extends Weapon {
 		
 		if (selectedTier5 == 2 && selectedOverclock != 4) {
 			// Again, Hyper Propellant effectively negates Incendiary Compound's -50% penalty.
-			toReturn /= 2.0;
+			toReturn *= 0.7;
 		}
 		
 		return toReturn;
 	}
 	private double getHeatPerGrenade() {
-		// Special case: because Hyper Propellant cancels out Incendiary Compound's damage penalty, I need divide the damage/grenade by 2 for HP in particular (other builds the damage/grenade = heat/grenade)
-		// Because of the wonky interaction between Hyper Propellant and Incendiary Compound, I'm writing this method instead of copy/pasting the same exception multiple times.
+		double directDamage = 0;
+		if (selectedTier5 == 1) {
+			directDamage += 45;
+		}
 		if (selectedOverclock == 4) {
-			return (getDirectDamage() + getAreaDamage()) / 2.0;
+			directDamage += 325;
 		}
-		else {
-			return getDirectDamage() + getAreaDamage();
+		
+		double areaDamage = 0;
+		if (selectedTier1 == 2) {
+			areaDamage += 30;
 		}
+		if (selectedTier2 == 1) {
+			areaDamage += 40;
+		}
+		if (selectedOverclock == 2) {
+			areaDamage -= 25;
+		}
+		if (selectedOverclock == 3) {
+			areaDamage *= 3.25;
+		}
+		
+		return 0.3 * (directDamage + areaDamage);
+		
 	}
 	private double getAoERadius() {
 		double toReturn = aoeRadius;
@@ -408,7 +424,7 @@ public class GrenadeLauncher extends Weapon {
 			toReturn += 5.0;
 		}
 		if (selectedTier5 == 2){
-			toReturn -= 0.5;
+			toReturn -= 0.3;
 		}
 		
 		return toReturn;
