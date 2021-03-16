@@ -85,7 +85,7 @@ public class AssaultRifle extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
-		tier1[0] = new Mod("Gyro Stabilisation", "x0 Base Spread", modIcons.baseSpread, 1, 0);
+		tier1[0] = new Mod("Gyro Stabilisation", "x0 Base Spread, and no aim penalty while moving.", modIcons.baseSpread, 1, 0);
 		tier1[1] = new Mod("Supercharged Feed Mechanism", "+2 Rate of Fire", modIcons.rateOfFire, 1, 1);
 		tier1[2] = new Mod("High Capacity Magazine", "+15 Magazine Size", modIcons.magSize, 1, 2);
 		
@@ -447,6 +447,15 @@ public class AssaultRifle extends Weapon {
 		
 		return toReturn;
 	}
+	private double getMovingSpreadPenalty() {
+		// T1.A "Gyro Stabilisation" removes this penalty
+		if (selectedTier1 == 0) {
+			return 0.0;
+		}
+		else {
+			return 1.0;
+		}
+	}
 	private double getRecoil() {
 		double toReturn = 1.0;
 		
@@ -636,7 +645,7 @@ public class AssaultRifle extends Weapon {
 		double spreadPerShot = 1.4;
 		double spreadRecoverySpeed = getSpreadRecoverySpeedValue();
 		double maxBloom = 4.2;
-		double minSpreadWhileMoving = 1.0;
+		double minSpreadWhileMoving = getMovingSpreadPenalty();
 		
 		double recoilPitch = 35.0 * getRecoil();
 		double recoilYaw = 5.0 * getRecoil();
