@@ -29,6 +29,7 @@ public class GrenadeLauncher extends Weapon {
 	private double aoeRadius;
 	private int carriedAmmo;
 	private int magazineSize;
+	private double rateOfFire;
 	private double reloadTime;
 	private double fearFactor;
 	
@@ -56,6 +57,7 @@ public class GrenadeLauncher extends Weapon {
 		aoeRadius = 3;
 		carriedAmmo = 8;
 		magazineSize = 1;
+		rateOfFire = 2.0;
 		reloadTime = 2.0;
 		fearFactor = 1.0;
 		
@@ -514,7 +516,7 @@ public class GrenadeLauncher extends Weapon {
 		}
 		
 		double damagePerProjectile = directDamage + areaDamage;
-		double baseDPS = damagePerProjectile / reloadTime;
+		double baseDPS = damagePerProjectile / ((1.0/rateOfFire) + reloadTime);
 		
 		double burnDPS = 0.0;
 		// Incendiary Compound
@@ -541,7 +543,7 @@ public class GrenadeLauncher extends Weapon {
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		double totalDPS = getAreaDamage() * aoeEfficiency[1] / reloadTime;
+		double totalDPS = getAreaDamage() * aoeEfficiency[1] / ((1.0/rateOfFire) + reloadTime);
 		if (selectedTier3 == 0 && !statusEffects[1]) {
 			totalDPS += DoTInformation.Burn_DPS;
 		}
@@ -583,7 +585,7 @@ public class GrenadeLauncher extends Weapon {
 	@Override
 	public double calculateFiringDuration() {
 		// This is equivalent to counting how many times it has to reload, which is one less than the carried ammo + 1 in the chamber
-		return getCarriedAmmo() * reloadTime;
+		return getCarriedAmmo() * ((1.0/rateOfFire) + reloadTime);
 	}
 	
 	@Override
@@ -638,7 +640,7 @@ public class GrenadeLauncher extends Weapon {
 		}
 		
 		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
-															0.0, getArmorBreaking(), 1.0/reloadTime, heatPerGrenade, 0.0, 
+															0.0, getArmorBreaking(), 1.0/((1.0/rateOfFire) + reloadTime), heatPerGrenade, 0.0, 
 															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
@@ -686,7 +688,7 @@ public class GrenadeLauncher extends Weapon {
 	@Override
 	public double averageTimeToCauterize() {
 		if (selectedTier3 == 0) {
-			return EnemyInformation.averageTimeToIgnite(0, getHeatPerGrenade(), 1.0 / reloadTime, 0);
+			return EnemyInformation.averageTimeToIgnite(0, getHeatPerGrenade(), 1.0 / ((1.0/rateOfFire) + reloadTime), 0);
 		}
 		else {
 			return -1;
@@ -713,8 +715,7 @@ public class GrenadeLauncher extends Weapon {
 	
 	@Override
 	public double timeToFireMagazine() {
-		// Grenade Launcher fires its projectile instantly, and then reloads.
-		return 0;
+		return 1.0 / rateOfFire;
 	}
 	
 	@Override
