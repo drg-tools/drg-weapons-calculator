@@ -104,8 +104,8 @@ public class Subata extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.balanced, "Burst Fire", "Changes the Subata from semi-automatic to 3-round burst fire. In exchange, -4.8 Rate of Fire", overclockIcons.rateOfFire, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Oversized Magazine", "+10 Magazine Size, +0.5 Reload Time", overclockIcons.magSize, 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Automatic Fire", "Changes the Subata from semi-automatic to fully automatic, +2 Rate of Fire, +100% Base Spread, x2.5 Recoil", overclockIcons.rateOfFire, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Explosive Reload", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 42 Internal Damage to the enemy upon reloading. "
-				+ "If reloading can kill an enemy, an icon will appear next to their healthbar. In exchange: x0.5 Magazine Size and x0.5 Max Ammo ", overclockIcons.specialReload, 4);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Explosive Reload", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 28 Internal Damage to the enemy upon reloading. "
+				+ "If reloading can kill an enemy, an icon will appear next to their healthbar. In exchange: -6 Direct Damage, x0.5 Magazine Size, -100 Max Ammo", overclockIcons.specialReload, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Tranquilizer Rounds", "Every bullet has a 50% chance to stun an enemy for 6 seconds. -4 Magazine Size, -2 Rate of Fire.", overclockIcons.stun, 5);
 	}
 	
@@ -301,13 +301,16 @@ public class Subata extends Weapon {
 		if (selectedOverclock == 0 && (statusEffects[0] || statusEffects[1])) {
 			toReturn *= 1.3;
 		}
+		else if (selectedOverclock == 4) {
+			toReturn -= 6;
+		}
 		
 		return toReturn;
 	}
 	private int getAreaDamage() {
 		// Equipping the Overclock "Explosive Reload" leaves a detonator inside enemies that does 42 Area Damage per Bullet that deals damage to an enemy upon reloading the Subata
 		if (selectedOverclock == 4) {
-			return 42;
+			return 28;
 		}
 		else { 
 			return 0;
@@ -324,7 +327,7 @@ public class Subata extends Weapon {
 		}
 		
 		if (selectedOverclock == 4) {
-			toReturn /= 2;
+			toReturn -= 100;
 		}
 		
 		return toReturn;

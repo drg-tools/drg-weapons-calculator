@@ -103,8 +103,8 @@ public class Zhukov extends Weapon {
 		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "Any bullets that impact terrain get converted to Cryo Minelets. It takes 0.1 seconds to form the minelets, "
 				+ "0.8 seconds to arm them, and they only last for 3 seconds after being armed. If an enemy passes within 1.5m of a minelet, it will detonate and deal 10 Cold to all enemies "
 				+ "within range. In exchange, -2 Direct Damage and -12 Magazine Size.", overclockIcons.coldDamage, 2);
-		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 38 Internal Damage to the enemy "
-				+ "upon reloading. If reloading can kill an enemy, an icon will appear next to their healthbar. In exchange: -6 Direct Damage, -20 Magazine Size, -400 Max Ammo.", overclockIcons.specialReload, 3);
+		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 24 Internal Damage to the enemy "
+				+ "upon reloading. If reloading can kill an enemy, an icon will appear next to their healthbar. In exchange: -6 Direct Damage, -30 Magazine Size, -400 Max Ammo.", overclockIcons.specialReload, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Gas Recycling", "+4 Direct Damage, but it can no longer gain bonus damage from hitting a Weakpoint. Additionally, x1.5 Base Spread "
 				+ "and -50% Movement Speed while firing.", overclockIcons.directDamage, 4);
 	}
@@ -294,7 +294,7 @@ public class Zhukov extends Weapon {
 	private int getAreaDamage() {
 		// Equipping the Overclock "Embedded Detonators" leaves a detonator inside enemies that does 38 Internal damage to an enemy upon reloading the Zhukovs
 		if (selectedOverclock == 3) {
-			return 38;
+			return 24;
 		}
 		else { 
 			return 0;
@@ -330,7 +330,7 @@ public class Zhukov extends Weapon {
 			toReturn -= 12;
 		}
 		else if (selectedOverclock == 3) {
-			toReturn -= 20;
+			toReturn -= 30;
 		}
 		
 		return toReturn;
