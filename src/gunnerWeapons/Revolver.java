@@ -93,7 +93,7 @@ public class Revolver extends Weapon {
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("Increased Caliber Rounds", "+13 Direct Damage", modIcons.directDamage, 2, 0);
 		tier2[1] = new Mod("Floating Barrel", "-80% Spread per Shot, x0.75 Recoil", modIcons.recoil, 2, 1);
-		tier2[2] = new Mod("Expanded Ammo Bags", "+11 Max Ammo", modIcons.carriedAmmo, 2, 2);
+		tier2[2] = new Mod("Expanded Ammo Bags", "+10 Max Ammo", modIcons.carriedAmmo, 2, 2);
 		
 		tier3 = new Mod[3];
 		tier3[0] = new Mod("Super Blowthrough Rounds", "+3 Penetrations, +10% Armor Breaking", modIcons.blowthrough, 3, 0);
@@ -101,7 +101,7 @@ public class Revolver extends Weapon {
 		tier3[2] = new Mod("Hollow-Point Bullets", "+45% Weakpoint Bonus", modIcons.weakpointBonus, 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Expanded Ammo Bags", "+11 Max Ammo", modIcons.carriedAmmo, 4, 0);
+		tier4[0] = new Mod("Expanded Ammo Bags", "+10 Max Ammo", modIcons.carriedAmmo, 4, 0);
 		tier4[1] = new Mod("High Velocity Rounds", "+13 Direct Damage", modIcons.directDamage, 4, 1);
 		
 		tier5 = new Mod[2];
@@ -332,10 +332,10 @@ public class Revolver extends Weapon {
 	private int getCarriedAmmo() {
 		int toReturn = carriedAmmo;
 		if (selectedTier2 == 2) {
-			toReturn += 11;
+			toReturn += 10;
 		}
 		if (selectedTier4 == 0) {
-			toReturn += 11;
+			toReturn += 10;
 		}
 		
 		if (selectedOverclock == 3 || selectedOverclock == 5) {

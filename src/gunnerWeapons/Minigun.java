@@ -98,7 +98,7 @@ public class Minigun extends Weapon {
 		tier1 = new Mod[3];
 		tier1[0] = new Mod("Magnetic Refrigeration", "+1.5 Cooling Rate", modIcons.coolingRate, 1, 0);
 		tier1[1] = new Mod("Improved Motor", "+4 Rate of Fire", modIcons.rateOfFire, 1, 1);
-		tier1[2] = new Mod("Improved Platform Stability", "x0.25 Base Spread", modIcons.baseSpread, 1, 2);
+		tier1[2] = new Mod("Improved Platform Stability", "x0.7 Base Spread", modIcons.baseSpread, 1, 2);
 		
 		tier2 = new Mod[2];
 		tier2[0] = new Mod("Oversized Drum", "+400 Max Ammo", modIcons.carriedAmmo, 2, 0);
@@ -127,7 +127,7 @@ public class Minigun extends Weapon {
 				+ "weapon's heat meter, which translates to 2/3 the firing period", overclockIcons.heatDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Compact Feed Mechanism", "+700 Ammo, -4 Rate of Fire", overclockIcons.carriedAmmo, 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Feel the Burn", "+3 seconds Firing Period, but damages the player for 5 Fire Damage per tick at 4 ticks per second during those three seconds (costs up to 60 health to fire longer)", overclockIcons.heatDamage, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Bullet Hell", "67% chance for bullets that impact an enemy or terrain to ricochet into another enemy. -2 Damage per Pellet, x4.8 Base Spread", overclockIcons.ricochet, 5);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Bullet Hell", "67% chance for bullets that impact an enemy or terrain to ricochet into another enemy. -2 Damage per Pellet, x1.7 Base Spread", overclockIcons.ricochet, 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Storm", "+3 Damage per Pellet, x0 Movespeed while using, -0.5 Cooling Rate", overclockIcons.directDamage, 6);
 	}
 	
@@ -422,10 +422,10 @@ public class Minigun extends Weapon {
 	private double getBaseSpread() {
 		double toReturn = 1.0;
 		if (selectedTier1 == 2) {
-			toReturn *= 0.25;
+			toReturn *= 0.7;
 		}
-		else if (selectedOverclock == 5) {
-			toReturn *= 4.8;
+		if (selectedOverclock == 5) {
+			toReturn *= 1.7;
 		}
 		return toReturn;
 	}
