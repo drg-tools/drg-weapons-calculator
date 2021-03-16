@@ -109,7 +109,7 @@ public class Autocannon extends Weapon {
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Feedback Loop", "x1.2 Direct and Area Damage when at Max Rate of Fire", modIcons.directDamage, 5, 0);
 		tier5[1] = new Mod("Lighter Barrel Assembly", "+1 Min Rate of Fire, x2 RoF Scaling Rate", modIcons.rateOfFire, 5, 1);
-		tier5[2] = new Mod("Damage Resistance At Full RoF", "33% Damage Resistance when at Max Rate of Fire", modIcons.damageResistance, 5, 2);
+		tier5[2] = new Mod("Inertia Accumulators", "Instead of losing Max RoF as soon as you stop firing, RoF now decays at the same rate that it ramps up.", modIcons.rateOfFire, 5, 2, false);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Drums", "+110 Max Ammo, -0.5 Reload Time", overclockIcons.carriedAmmo, 0);
@@ -493,7 +493,7 @@ public class Autocannon extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[16];
+		StatsRow[] toReturn = new StatsRow[15];
 
 		boolean directDamageModified = selectedTier3 == 1 || selectedTier5 == 0 || selectedOverclock == 3 || selectedOverclock == 4;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
@@ -531,8 +531,6 @@ public class Autocannon extends Weapon {
 		toReturn[13] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, baseSpreadModified, baseSpreadModified);
 		
 		toReturn[14] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), modIcons.movespeed, selectedOverclock == 2);
-		
-		toReturn[15] = new StatsRow("Damage Resistance at Full RoF:", "33%", modIcons.damageResistance, selectedTier5 == 2, selectedTier5 == 2);
 		
 		return toReturn;
 	}
@@ -720,33 +718,6 @@ public class Autocannon extends Weapon {
 	public double utilityScore() {
 		// OC "Combat Mobility" increases Gunner's movespeed
 		utilityScores[0] = (getMovespeedWhileFiring() - MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
-		
-		// Mod Tier 5 "Damage Resist" gives 33% damage reduction at max RoF
-		if (selectedTier5 == 2) {
-			double EHPmultiplier = (1 / (1 - 0.33));
-			
-			int numBulletsRampup = getNumBulletsRampup();
-			int magSize = getMagazineSize();
-			double minRoF = getMinRateOfFire();
-			double maxRoF = getMaxRateOfFire();
-			
-			double fullRoFUptime;
-			// Special case: when Min RoF == Max RoF the timeRampingUp is zero due to numBulletsRampup == 0.
-			if (minRoF == maxRoF) {
-				fullRoFUptime = 1;
-			}
-			else {
-				double timeRampingUp = numBulletsRampup / Math.log(maxRoF / getMinRateOfFire()) / getIncreaseScalingRate(); 
-				double timeAtMaxRoF = (magSize - numBulletsRampup) / maxRoF;
-				
-				fullRoFUptime = timeAtMaxRoF / (timeRampingUp + timeAtMaxRoF);
-			}
-			
-			utilityScores[1] = fullRoFUptime * EHPmultiplier * UtilityInformation.DamageResist_Utility;
-		}
-		else {
-			utilityScores[1] = 0;
-		}
 		
 		// Light Armor Breaking probability
 		double AB = getArmorBreaking();
