@@ -86,8 +86,8 @@ public class AssaultRifle extends Weapon {
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
 		tier1[0] = new Mod("Gyro Stabilisation", "x0 Base Spread", modIcons.baseSpread, 1, 0);
-		tier1[1] = new Mod("Supercharged Feed Mechanism", "+1 Rate of Fire", modIcons.rateOfFire, 1, 1);
-		tier1[2] = new Mod("High Capacity Magazine", "+10 Magazine Size", modIcons.magSize, 1, 2);
+		tier1[1] = new Mod("Supercharged Feed Mechanism", "+2 Rate of Fire", modIcons.rateOfFire, 1, 1);
+		tier1[2] = new Mod("High Capacity Magazine", "+15 Magazine Size", modIcons.magSize, 1, 2);
 		
 		tier2 = new Mod[2];
 		tier2[0] = new Mod("Increased Caliber Rounds", "+2 Direct Damage", modIcons.directDamage, 2, 0);
@@ -98,9 +98,9 @@ public class AssaultRifle extends Weapon {
 		tier3[1] = new Mod("Hardened Rounds", "+500% Armor Breaking", modIcons.armorBreaking, 3, 1);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("Hollow-Point Bullets", "+15% Weakpoint Bonus", modIcons.weakpointBonus, 4, 0);
-		tier4[1] = new Mod("Improved Propellant", "+2 Direct Damage", modIcons.directDamage, 4, 1);
-		tier4[2] = new Mod("Improved Gas System", "+1 Rate of Fire", modIcons.rateOfFire, 4, 2);
+		tier4[0] = new Mod("Hollow-Point Bullets", "+25% Weakpoint Bonus", modIcons.weakpointBonus, 4, 0);
+		tier4[1] = new Mod("Improved Propellant", "+3 Direct Damage", modIcons.directDamage, 4, 1);
+		tier4[2] = new Mod("Improved Gas System", "+2 Rate of Fire", modIcons.rateOfFire, 4, 2);
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Battle Frenzy", "After killing an enemy, gain +50% Movement Speed for 2.5 seconds", modIcons.movespeed, 5, 0);
@@ -167,6 +167,10 @@ public class AssaultRifle extends Weapon {
 					setSelectedModAtTier(1, 1, false);
 					break;
 				}
+				case 'C': {
+					setSelectedModAtTier(1, 2, false);
+					break;
+				}
 			}
 			
 			switch (symbols[1]) {
@@ -187,10 +191,6 @@ public class AssaultRifle extends Weapon {
 				}
 				case 'B': {
 					setSelectedModAtTier(3, 1, false);
-					break;
-				}
-				case 'C': {
-					setSelectedModAtTier(3, 2, false);
 					break;
 				}
 			}
@@ -292,7 +292,7 @@ public class AssaultRifle extends Weapon {
 			toReturn += 2;
 		}
 		if (selectedTier4 == 1) {
-			toReturn += 2;
+			toReturn += 3;
 		}
 		
 		if (selectedOverclock == 2) {
@@ -324,7 +324,7 @@ public class AssaultRifle extends Weapon {
 		int toReturn = magazineSize;
 		
 		if (selectedTier1 == 2) {
-			toReturn += 10;
+			toReturn += 15;
 		}
 		
 		if (selectedOverclock == 0) {
@@ -344,10 +344,10 @@ public class AssaultRifle extends Weapon {
 		double toReturn = rateOfFire;
 		
 		if (selectedTier1 == 1) {
-			toReturn += 1.0;
+			toReturn += 2.0;
 		}
 		if (selectedTier4 == 2) {
-			toReturn += 1.0;
+			toReturn += 2.0;
 		}
 		
 		if (selectedOverclock == 1) {
@@ -387,7 +387,7 @@ public class AssaultRifle extends Weapon {
 		double toReturn = weakpointBonus;
 		
 		if (selectedTier4 == 0) {
-			toReturn += 0.15;
+			toReturn += 0.25;
 		}
 		
 		if (selectedOverclock == 5) {

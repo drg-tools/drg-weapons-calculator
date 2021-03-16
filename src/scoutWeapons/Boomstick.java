@@ -114,17 +114,17 @@ public class Boomstick extends Weapon {
 		tier4[2] = new Mod("Improved Blast Wave", "+10 Blastwave Damage to any enemies in the area extending 4m infront of you.", modIcons.special, 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Auto Reload", "Reloads automatically when unequipped for more than 4 seconds", modIcons.reloadSpeed, 5, 0, false);
+		tier5[0] = new Mod("Auto Reload", "Reloads automatically when unequipped for more than 3 seconds", modIcons.reloadSpeed, 5, 0, false);
 		tier5[1] = new Mod("Fear The Boomstick", "Deal 0.5 Fear to all enemies within 5m of you every time you pull the trigger", modIcons.fear, 5, 1);
 		tier5[2] = new Mod("White Phosphorous Shells", "Convert 50% of Pellet and Blastwave damage to Fire element and add 50% of the Damage per Pellet and Blastwave damage as Heat which can ignite enemies, dealing " + 
 		MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Shells", "+4 Max Ammo, +0.5 Rate of Fire", overclockIcons.carriedAmmo, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Double Barrel", "Fire both barrels with a single tigger pull as a 2-round burst. Additionally, +1 Damage per Pellet and -0.1 Reload.", overclockIcons.rateOfFire, 1);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Shells", "+6 Max Ammo, +0.6 Rate of Fire", overclockIcons.carriedAmmo, 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Double Barrel", "Fire both barrels with a single tigger pull as a 2-round burst. Additionally, +1 Damage per Pellet and -0.3 Reload.", overclockIcons.rateOfFire, 1);
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Stuffed Shells", "+1 Damage per Pellet, +1 Pellet per Shot", overclockIcons.pelletsPerShot, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Special Powder", "Jump off of the ground and fire the shotgun to \"blast jump\" around the caves for increased mobility. In exchange, x0.45 Blastwave Damage.", overclockIcons.shotgunJump, 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "-45% Base Spread, +1 Penetration, -2 Pellets per Shot", overclockIcons.baseSpread, 4);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "-35% Base Spread, +1 Penetration, -1 Pellet per Shot", overclockIcons.baseSpread, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Jumbo Shells", "+7 Damage per Pellet, -7 Max Ammo, +0.8 Reload Time", overclockIcons.directDamage, 5);
 	}
 	
@@ -319,7 +319,7 @@ public class Boomstick extends Weapon {
 			toReturn += 1;
 		}
 		else if (selectedOverclock == 4) {
-			toReturn -= 2;
+			toReturn -= 1;
 		}
 		
 		return toReturn;
@@ -362,10 +362,7 @@ public class Boomstick extends Weapon {
 		}
 		
 		if (selectedOverclock == 0) {
-			toReturn += 4;
-		}
-		else if (selectedOverclock == 4) {
-			toReturn += 0;
+			toReturn += 6;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn -= 7;
@@ -382,7 +379,7 @@ public class Boomstick extends Weapon {
 		}
 		
 		if (selectedOverclock == 0) {
-			toReturn += 0.5;
+			toReturn += 0.6;
 		}
 		
 		return toReturn;
@@ -395,7 +392,7 @@ public class Boomstick extends Weapon {
 		}
 		
 		if (selectedOverclock == 1) {
-			toReturn -= 0.1;
+			toReturn -= 0.3;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn += 0.8;
@@ -435,7 +432,7 @@ public class Boomstick extends Weapon {
 	}
 	private double getBaseSpread() {
 		if (selectedOverclock == 4) {
-			return 0.55;
+			return 0.65;
 		}
 		else {
 			return 1.0;
