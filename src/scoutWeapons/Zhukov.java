@@ -46,7 +46,7 @@ public class Zhukov extends Weapon {
 	}
 	
 	public Zhukov(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
-		fullName = "Zhukov Nuk17";
+		fullName = "Zhukov NUK17";
 		weaponPic = WeaponPictures.zhukovs;
 		
 		// Base stats, before mods or overclocks alter them:
