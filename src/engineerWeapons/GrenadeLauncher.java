@@ -98,8 +98,8 @@ public class GrenadeLauncher extends Weapon {
 		tier4[2] = new Mod("Concussive Blast", "Stuns creatures within the blast radius for 3 seconds", modIcons.stun, 4, 2);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Proximity Trigger", "After being fired, grenades that pass within 2m of an enemy will detonate after a 0.1 sec delay. If it never passes that close to an enemy, it will automatically detonate when it stops moving. "
-				+ "Note: the trigger takes 0.2 seconds to arm (indicated by a green light) and until then the grenade functions as usual.", modIcons.special, 5, 0, false);
+		tier5[0] = new Mod("Proximity Trigger", "After 0.2 seconds of arming time, any grenade that passes within 2m of an enemy will detonate after a 0.1 second delay. After being armed, grenades will emit a green light. "
+				+ "Grenades no longer explode upon impacting terrain, but instead automatically self-detonate 3.3 seconds after being fired.", modIcons.special, 5, 0, false);
 		tier5[1] = new Mod("Spiky Grenade", "+60 Direct Damage to any target directly impacted by a grenade.", modIcons.directDamage, 5, 1);
 		
 		overclocks = new Overclock[6];
