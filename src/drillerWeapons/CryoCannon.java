@@ -110,7 +110,7 @@ public class CryoCannon extends Weapon {
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Fragile", "When a particle from Cryo Cannon damages a Frozen enemy and brings its health below 100 \"true\" hp, it has a (1 - hp/100) probability to deal the remaining hp as Kinetic Damage. "
 				+ "This damage gets affected by the current Difficulty Scaling from Hazard level and player count, so at higher difficulties Fragile will no longer be able to score the killing blow.", modIcons.addedExplosion, 5, 0);
-		tier5[1] = new Mod("Cold Radiance", "Cool down enemies within 4m of you at a rate of 60 Cold/sec. This stacks with the direct stream and Ice Path's cold sources as well.", modIcons.coldDamage, 5, 1);
+		tier5[1] = new Mod("Cold Radiance", "Deal 30 Frost Damage per second and 30 Cold per second to all enemies within 4m of you. The Cold/sec stacks with the direct stream and Ice Path's cold sources as well.", modIcons.coldDamage, 5, 1);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Improved Thermal Efficiency", "+50 Tank Size, x0.75 Pressure Drop Rate", overclockIcons.magSize, 0);
@@ -487,9 +487,9 @@ public class CryoCannon extends Weapon {
 		
 		double coldRadianceColdPerSec = 0;
 		if (selectedTier5 == 1) {
-			// 60 Cold/sec in a 4m radius
+			// 30 Cold/sec in a 4m radius
 			// I want this to be less effective with far-reaching streams to model how the further the steam flies the less likely it is that the enemies will be within the 4m.
-			coldRadianceColdPerSec = -60.0 * 4.0 / getColdStreamReach();
+			coldRadianceColdPerSec = -30.0 * 4.0 / getColdStreamReach();
 		}
 		
 		if (refreeze) {
@@ -524,6 +524,13 @@ public class CryoCannon extends Weapon {
 			}
 		}
 		
+		double coldRadianceDamage = 0;
+		if (selectedTier5 == 1) {
+			int numTicksOfColdRadiance = (int) Math.floor(firingTime);
+			double coldRadianceDmgPerTick = 30.0 * 4.0 / getColdStreamReach();
+			coldRadianceDamage = coldRadianceDmgPerTick * numTicksOfColdRadiance;
+		}
+		
 		double temperatureShock = 0;
 		// Status Effects
 		if (primaryTarget && statusEffects[0]) {
@@ -535,7 +542,7 @@ public class CryoCannon extends Weapon {
 			dmgPerParticle *= UtilityInformation.IFG_Damage_Multiplier;
 		}
 		
-		return firingTime * flowRate * dmgPerParticle + fragileDamage + temperatureShock;
+		return firingTime * flowRate * dmgPerParticle + fragileDamage + coldRadianceDamage + temperatureShock;
 	}
 	
 	private double averageFreezeMultiplier() {
@@ -702,6 +709,17 @@ public class CryoCannon extends Weapon {
 			fragileDamage = totalNumFragileKills * recursiveFragileDamage(100.0, dmgPerParticle, averageResistance) * averageResistance;
 		}
 		
+		// Total Cold Radiance Damage
+		double coldRadianceTotalDamage = 0;
+		if (selectedTier5 == 1) {
+			// 30 Frost dmg in a 4m radius
+			int magSize = (int) Math.floor(getFlowRate() * pressureDropDuration / getPressureDropModifier());
+			double numTicksOfColdRadiance = numMagazines(getTankSize(), magSize) * (int) Math.floor(pressureDropDuration / getPressureDropModifier());
+			// I'm choosing to model this as if the player is kiting enemies, keeping them about 1.5m away so that they don't receive melee attacks.
+			int numGlyphidsHitByColdRadiancePerTick = calculateNumGlyphidsInRadius(4.0) - calculateNumGlyphidsInRadius(1.5);
+			coldRadianceTotalDamage = 30 * numTicksOfColdRadiance * numGlyphidsHitByColdRadiancePerTick;
+		}
+		
 		double icePathDamage = 0;
 		if (selectedOverclock == 5) {
 			double avgTTK = averageTimeToKill();
@@ -713,7 +731,7 @@ public class CryoCannon extends Weapon {
 			icePathDamage = icePathDamagePerEnemy * estimatedNumEnemiesKilled;
 		}
 		
-		return baseDamage + fragileDamage + icePathDamage;
+		return baseDamage + fragileDamage + coldRadianceTotalDamage + icePathDamage;
 	}
 
 	@Override
