@@ -108,7 +108,7 @@ public class GrenadeLauncher extends Weapon {
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Clean Sweep", "Raises Damage Falloff at outer radius from 15% to 76%", overclockIcons.aoeRadius, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Pack Rat", "+3 Max Ammo", overclockIcons.carriedAmmo, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "RJ250 Compound", "Jump and shoot the ground beneath you to Grenade Jump. Can also be used on allies who are jumping. -30% Fall Damage reduction, -0.5 Reload Speed, -25 Area Damage.", overclockIcons.grenadeJump, 2);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "RJ250 Compound", "Jump and shoot the ground beneath you to Grenade Jump. Can also be used on allies who are jumping. +3 Max Ammo, +0.3 Rate of Fire, -0.5 Reload Speed, -25 Area Damage.", overclockIcons.grenadeJump, 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Fat Boy", "x3.25 Area Damage, +1m AoE Radius, x0.3 Max Ammo, x0.7 Projectile Velocity. Also leaves behind an 8m radius field that does "
 				+ "an average of " + MathUtils.round(DoTInformation.Rad_FB_DPS, GuiConstants.numDecimalPlaces) + " Radiation Damage per Second for 15 seconds.", overclockIcons.areaDamage, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Hyper Propellant", "+325 Direct Damage, changes element from Explosive to Disintegrate, +350% Projectile Velocity, x0.3 AoE Radius", overclockIcons.projectileVelocity, 4);
@@ -396,6 +396,9 @@ public class GrenadeLauncher extends Weapon {
 		if (selectedOverclock == 1) {
 			toReturn += 3;
 		}
+		else if (selectedOverclock == 2) {
+			toReturn += 3;
+		}
 		else if (selectedOverclock == 3) {
 			toReturn *= 0.3;
 		}
@@ -408,6 +411,15 @@ public class GrenadeLauncher extends Weapon {
 		}
 		
 		return (int) Math.round(toReturn);
+	}
+	@Override
+	public double getRateOfFire() {
+		if (selectedOverclock == 2) {
+			return 2.3;
+		}
+		else {
+			return rateOfFire;
+		}
 	}
 	private double getReloadTime() {
 		double toReturn = reloadTime;
@@ -475,7 +487,7 @@ public class GrenadeLauncher extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[12];
+		StatsRow[] toReturn = new StatsRow[13];
 		
 		boolean directDamageModified = selectedTier5 == 1 || selectedOverclock == 4;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified, directDamageModified);
@@ -493,17 +505,20 @@ public class GrenadeLauncher extends Weapon {
 		
 		toReturn[5] = new StatsRow("Magazine Size:", magazineSize, modIcons.magSize, false);
 		
-		boolean carriedAmmoModified = selectedTier1 == 1 || selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
+		boolean carriedAmmoModified = selectedTier1 == 1 || selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[6] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
-		toReturn[7] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 2);
 		
-		toReturn[8] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier3 == 1 || selectedTier5 == 2, selectedTier3 == 1 || selectedTier5 == 2);
+		toReturn[7] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedOverclock == 2);
 		
-		toReturn[9] = new StatsRow("Fear Factor:", getFearFactor(), modIcons.fear, selectedTier4 == 0);
+		toReturn[8] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 2);
+		
+		toReturn[9] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier3 == 1 || selectedTier5 == 2, selectedTier3 == 1 || selectedTier5 == 2);
+		
+		toReturn[10] = new StatsRow("Fear Factor:", getFearFactor(), modIcons.fear, selectedTier4 == 0);
 		
 		boolean stunEquipped = selectedTier4 == 1;
-		toReturn[10] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), modIcons.homebrewPowder, stunEquipped, stunEquipped);
-		toReturn[11] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, stunEquipped, stunEquipped);
+		toReturn[11] = new StatsRow("Stun Chance:", convertDoubleToPercentage(getStunChance()), modIcons.homebrewPowder, stunEquipped, stunEquipped);
+		toReturn[12] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, stunEquipped, stunEquipped);
 		
 		return toReturn;
 	}
@@ -551,7 +566,7 @@ public class GrenadeLauncher extends Weapon {
 		}
 		
 		double damagePerProjectile = directDamage + areaDamage;
-		double baseDPS = damagePerProjectile / ((1.0/rateOfFire) + getReloadTime());
+		double baseDPS = damagePerProjectile / ((1.0/getRateOfFire()) + getReloadTime());
 		
 		double burnDPS = 0.0;
 		// Incendiary Compound
@@ -578,7 +593,7 @@ public class GrenadeLauncher extends Weapon {
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		double totalDPS = getAreaDamage() * aoeEfficiency[1] / ((1.0/rateOfFire) + getReloadTime());
+		double totalDPS = getAreaDamage() * aoeEfficiency[1] / ((1.0/getRateOfFire()) + getReloadTime());
 		if (selectedTier5 == 2 && !statusEffects[1]) {
 			totalDPS += DoTInformation.Burn_DPS;
 		}
@@ -620,7 +635,7 @@ public class GrenadeLauncher extends Weapon {
 	@Override
 	public double calculateFiringDuration() {
 		// This is equivalent to counting how many times it has to reload, which is one less than the carried ammo + 1 in the chamber
-		return getCarriedAmmo() * ((1.0/rateOfFire) + getReloadTime());
+		return getCarriedAmmo() * ((1.0/getRateOfFire()) + getReloadTime());
 	}
 	
 	@Override
@@ -675,7 +690,7 @@ public class GrenadeLauncher extends Weapon {
 		}
 		
 		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
-															0.0, getArmorBreaking(), 1.0/((1.0/rateOfFire) + getReloadTime()), heatPerGrenade, 0.0, 
+															0.0, getArmorBreaking(), 1.0/((1.0/getRateOfFire()) + getReloadTime()), heatPerGrenade, 0.0, 
 															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
@@ -723,7 +738,7 @@ public class GrenadeLauncher extends Weapon {
 	@Override
 	public double averageTimeToCauterize() {
 		if (selectedTier5 == 2) {
-			return EnemyInformation.averageTimeToIgnite(0, getHeatPerGrenade(), 1.0 / ((1.0/rateOfFire) + getReloadTime()), 0);
+			return EnemyInformation.averageTimeToIgnite(0, getHeatPerGrenade(), 1.0 / ((1.0/getRateOfFire()) + getReloadTime()), 0);
 		}
 		else {
 			return -1;
@@ -750,7 +765,7 @@ public class GrenadeLauncher extends Weapon {
 	
 	@Override
 	public double timeToFireMagazine() {
-		return 1.0 / rateOfFire;
+		return 1.0 / getRateOfFire();
 	}
 	
 	@Override
