@@ -654,7 +654,7 @@ public class EnemyInformation {
 	public static int[] calculateBreakpoints(double[] directDamageByType, double[] areaDamageByType, double[] DoT_DPS, double[] DoT_durations, double[] DoT_probabilities, 
 											 double weakpointModifier, double armorBreaking, double RoF, double heatPerShot, double macteraModifier, 
 											 boolean frozen, boolean IFG, boolean flyingNightmare, boolean embeddedDetonators) {
-		int[] creaturesToModel = {0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 14, 15, 16, 20, 21, 22};
+		int[] creaturesToModel = {0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 14, 15, 16, 20, 21, 22};
 		
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
