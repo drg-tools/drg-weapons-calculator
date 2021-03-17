@@ -102,7 +102,7 @@ public class GrenadeLauncher extends Weapon {
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Proximity Trigger", "After 0.2 seconds of arming time, any grenade that passes within 2m of an enemy will detonate after a 0.1 second delay. After being armed, grenades will emit a green light. "
 				+ "Grenades no longer explode upon impacting terrain, but instead automatically self-detonate 3.3 seconds after being fired.", modIcons.special, 5, 0, false);
-		tier5[1] = new Mod("Spiky Grenade", "+60 Direct Damage to any target directly impacted by a grenade.", modIcons.directDamage, 5, 1);
+		tier5[1] = new Mod("Spiky Grenade", "+45 Direct Damage to any target directly impacted by a grenade.", modIcons.directDamage, 5, 1);
 		tier5[2] = new Mod("Incendiary Compound", "Lose 30% of Direct, Area, and Armor Damage, and convert it to Heat that will ignite enemies, dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[6];
