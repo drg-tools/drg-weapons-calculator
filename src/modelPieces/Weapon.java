@@ -1363,20 +1363,22 @@ public abstract class Weapon extends Observable {
 		toReturn[12] = new StatsRow("Glypid Web Spitter (Weakpoint):", breakpoints[12], null, false);
 		toReturn[13] = new StatsRow("Glypid Acid Spitter (Light Armor):", breakpoints[13], null, false);
 		toReturn[14] = new StatsRow("Glypid Acid Spitter (Weakpoint):", breakpoints[14], null, false);
-		toReturn[15] = new StatsRow("Glypid Warden:", breakpoints[15], null, false);
-		toReturn[16] = new StatsRow("Glypid Warden (Orb):", breakpoints[16], null, false);
-		toReturn[17] = new StatsRow("Glypid Oppressor (Weakpoint):", breakpoints[17], null, false);
-		toReturn[18] = new StatsRow("Mactera Spawn:", breakpoints[18], null, false);
-		toReturn[19] = new StatsRow("Mactera Spawn (Weakpoint):", breakpoints[19], null, false);
-		toReturn[20] = new StatsRow("Mactera Grabber:", breakpoints[20], null, false);
-		toReturn[21] = new StatsRow("Mactera Grabber (Weakpoint):", breakpoints[21], null, false);
-		toReturn[22] = new StatsRow("Mactera Goo Bomber:", breakpoints[22], null, false);
-		toReturn[23] = new StatsRow("Mactera Goo Bomber (Weakpoint):    ", breakpoints[23], null, false);  // Added spaces at the end to create some whitespace in the JPanel
-		toReturn[24] = new StatsRow("Mactera Tri-Jaw:", breakpoints[25], null, false);
-		toReturn[25] = new StatsRow("Mactera Tri-Jaw (Weakpoint):", breakpoints[26], null, false);
-		toReturn[26] = new StatsRow("Mactera Brundle:", breakpoints[27], null, false);
-		toReturn[27] = new StatsRow("Mactera Brundle (Weakpoint):", breakpoints[28], null, false);
-		toReturn[28] = new StatsRow("Cave Leech:", breakpoints[24], null, false);
+		toReturn[15] = new StatsRow("Glypid Menace:", breakpoints[15], null, false);
+		toReturn[16] = new StatsRow("Glypid Menace (Weakpoint):", breakpoints[16], null, false);
+		toReturn[17] = new StatsRow("Glypid Warden:", breakpoints[17], null, false);
+		toReturn[18] = new StatsRow("Glypid Warden (Orb):", breakpoints[18], null, false);
+		toReturn[19] = new StatsRow("Glypid Oppressor (Weakpoint):", breakpoints[19], null, false);
+		toReturn[20] = new StatsRow("Mactera Spawn:", breakpoints[20], null, false);
+		toReturn[21] = new StatsRow("Mactera Spawn (Weakpoint):", breakpoints[21], null, false);
+		toReturn[22] = new StatsRow("Mactera Grabber:", breakpoints[22], null, false);
+		toReturn[23] = new StatsRow("Mactera Grabber (Weakpoint):", breakpoints[23], null, false);
+		toReturn[24] = new StatsRow("Mactera Goo Bomber:", breakpoints[24], null, false);
+		toReturn[25] = new StatsRow("Mactera Goo Bomber (Weakpoint):    ", breakpoints[25], null, false);  // Added spaces at the end to create some whitespace in the JPanel
+		toReturn[26] = new StatsRow("Mactera Tri-Jaw:", breakpoints[27], null, false);
+		toReturn[27] = new StatsRow("Mactera Tri-Jaw (Weakpoint):", breakpoints[28], null, false);
+		toReturn[28] = new StatsRow("Mactera Brundle:", breakpoints[29], null, false);
+		toReturn[29] = new StatsRow("Mactera Brundle (Weakpoint):", breakpoints[30], null, false);
+		toReturn[30] = new StatsRow("Cave Leech:", breakpoints[26], null, false);
 		
 		return toReturn;
 	}
