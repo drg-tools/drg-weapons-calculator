@@ -110,7 +110,7 @@ public class Flamethrower extends Weapon {
 		tier4[2] = new Mod("More Fuel", "+75 Max Fuel", modIcons.carriedAmmo, 4, 2);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Heat Radiance", "After every full second of firing, deal 80 Fire-element Area Damage and 80 Heat in a 3m radius around you. The Heat/sec stacks with the direct stream and Sticky Flames' heat sources as well.", modIcons.heatDamage, 5, 0);
+		tier5[0] = new Mod("Heat Radiance", "After every full second of firing, deal 80 Fire element Area Damage and 80 Heat in a 3m radius around you. The Heat/sec stacks with the direct stream and Sticky Flames' heat sources as well.", modIcons.heatDamage, 5, 0);
 		tier5[1] = new Mod("Targets Explode", "If the direct stream kills an enemy, there's a 50% chance that they will explode and deal 55 Fire Damage and 55 Heat to all enemies within a 3m radius.", modIcons.addedExplosion, 5, 1);
 		
 		overclocks = new Overclock[6];
