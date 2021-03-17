@@ -107,8 +107,9 @@ public class Shotgun extends Weapon {
 		overclocks = new Overclock[5];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Stunner", "Pellets can now stun an enemy on any body part instead of just weakpoints, and any shots that hit a "
 				+ "target that's already stunned deal x1.4 damage.", overclockIcons.stun, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1.5m Radius. Turret Whip projectile has a 100% chance to Stun for 1.5 seconds "
-				+ "inflicts 0.5 Fear to all enemies it damages. 3 second cooldown per Sentry.", overclockIcons.special, 1, false);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Turret Whip", "Shoot a Turret with the Shotgun to fire a projectile in the direction currently being aimed at by the turret, with a 3 second "
+				+ "cooldown between projectiles. Each projectile travels at 50 m/sec, does 120 Explosive element Area Damage in a 1.5m radius, has a 100% chance to stun for 1.5 seconds, inflicts 1.0 Fear, "
+				+ "does 50% Friendly Fire damage, and has 200% Armor Breaking.", overclockIcons.special, 1, false);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Magnetic Pellet Alignment", "x0.5 Base Spread, +30% Weakpoint Bonus, x0.75 Rate of Fire", overclockIcons.baseSpread, 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Cycle Overload", "+1 Damage per Pellet, +0.8 Rate of Fire, +0.7 Reload Time, x1.5 Base Spread", overclockIcons.rateOfFire, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Mini Shells", "+60 Max Ammo, +6 Magazine Size, x0.5 Recoil, -3 Damage per Pellet, and no longer able to stun enemies", overclockIcons.miniShells, 4);
@@ -659,19 +660,19 @@ public class Shotgun extends Weapon {
 		utilityScores[2] = probabilityToBreakLightArmorPlatePerShot * UtilityInformation.ArmorBreak_Utility;
 		
 		// Fear
-		if (selectedTier5 == 0) {
-			// Turret Whip projectile does 0.5 Fear Factor in its 1.5m radius
-			utilityScores[4] = calculateFearProcProbability(0.5) * calculateNumGlyphidsInRadius(1.5) * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
+		if (selectedOverclock == 1) {
+			// Turret Whip projectile does 1.0 Fear Factor in its 1.5m radius
+			utilityScores[4] = calculateFearProcProbability(1.0) * calculateNumGlyphidsInRadius(1.5) * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;
 		}
 		
 		// Stun
-		// Weakpoint = 15% stun chance per pellet, 3 sec duration (upgraded with Mod Tier 3 "Stun Duration", or OC "Stunner")
+		// Weakpoint = 15% stun chance per pellet, 3 sec duration (upgraded with OC "Stunner")
 		utilityScores[5] = calculateCumulativeStunChancePerShot() * getStunDuration() * UtilityInformation.Stun_Utility;
 		
-		if (selectedTier5 == 0) {
+		if (selectedOverclock == 1) {
 			// Turret Whip projectile has 100% chance to stun for 1.5sec in its 1.5m radius
 			utilityScores[5] += calculateNumGlyphidsInRadius(1.5) * 1.5 * UtilityInformation.Stun_Utility;
 		}

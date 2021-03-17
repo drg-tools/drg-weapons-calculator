@@ -127,7 +127,7 @@ public abstract class EPC extends Weapon {
 		tier5[0] = new Mod("Flying Nightmare", "Charged Shots now deal their Direct Damage to enemies hit by the AoE while in-flight but it no longer explodes upon impact. Additionally, x0.75 AoE radius, x0.8 Charge Speed.", modIcons.aoeRadius, 5, 0);
 		tier5[1] = new Mod("Thin Containment Field", "Shoot the Charged Shot with a Regular Shot before it impacts anything to make it detonate for 180 Damage and carve terrain within a 2.25m radius. "
 				+ "Additionally, x0.75 Heat per Charged Shot which means it no longer overheats on charged shots.", modIcons.special, 5, 1);
-		tier5[2] = new Mod("Plasma Burn", "Regular Shots have 50% of their Direct Damage added on as Heat which can ignite enemies, dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " "
+		tier5[2] = new Mod("Plasma Burn", "Regular Shots also do [5 plus 25% of their Direct Damage] Heat per shot which can ignite enemies, dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " "
 				+ "Fire Damage per Second. Additionally, x0.8 Heat per Regular Shot.", modIcons.heatDamage, 5, 2);
 		
 		overclocks = new Overclock[6];

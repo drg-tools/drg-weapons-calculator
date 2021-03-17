@@ -232,11 +232,11 @@ public class Classic_FocusShot extends Classic {
 			utilityScores[3] = 0;
 		}
 		
-		// According to MikeGSG, Mod Tier 5 "Precision Terror" does 1 Fear in a 3.5m radius
+		// According to MikeGSG & GreyHound, Mod Tier 5 "Precision Terror" does 2 Fear in a 3.5m radius
 		if (selectedTier5 == 1) {
 			double probabilityToHitWeakpoint = EnemyInformation.probabilityBulletWillHitWeakpoint();
 			int numGlyphidsFeared = calculateNumGlyphidsInRadius(3.5);
-			double probabilityToFear = calculateFearProcProbability(1.0);
+			double probabilityToFear = calculateFearProcProbability(2.0);
 			// Although it is technically possible to electrocute a Feared enemy with Electrocuting Focus Shots and Blowthrough Rounds, it's so unlikely to happen that I'm choosing not to model that overlap.
 			utilityScores[4] = probabilityToHitWeakpoint * probabilityToFear * numGlyphidsFeared * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
 		}

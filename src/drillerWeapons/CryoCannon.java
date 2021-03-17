@@ -110,7 +110,7 @@ public class CryoCannon extends Weapon {
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Fragile", "When a particle from Cryo Cannon damages a Frozen enemy and brings its health below 100 \"true\" hp, it has a (1 - hp/100) probability to deal the remaining hp as Kinetic Damage. "
 				+ "This damage gets affected by the current Difficulty Scaling from Hazard level and player count, so at higher difficulties Fragile will no longer be able to score the killing blow.", modIcons.addedExplosion, 5, 0);
-		tier5[1] = new Mod("Cold Radiance", "Deal 30 Frost Damage per second and 30 Cold per second to all enemies within 4m of you. The Cold/sec stacks with the direct stream and Ice Path's cold sources as well.", modIcons.coldDamage, 5, 1);
+		tier5[1] = new Mod("Cold Radiance", "After every full second of firing, deal 30 Frost element Area Damage and 30 Cold in a 4m radius around you. This Cold/sec stacks with the direct stream and Ice Path's cold sources as well.", modIcons.coldDamage, 5, 1);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Improved Thermal Efficiency", "+50 Tank Size, x0.75 Pressure Drop Rate", overclockIcons.magSize, 0);
