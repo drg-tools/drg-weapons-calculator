@@ -96,7 +96,7 @@ public class GrenadeLauncher extends Weapon {
 		tier3[1] = new Mod("Pressure Wave", "+500% Armor Breaking", modIcons.armorBreaking, 3, 1);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Louder Boom", "+150% Fear Factor", modIcons.fear, 4, 0);
+		tier4[0] = new Mod("Louder Boom", "+1.5 Fear Factor", modIcons.fear, 4, 0);
 		tier4[1] = new Mod("Concussive Blast", "Stuns creatures within the blast radius for 2 seconds", modIcons.stun, 4, 1);
 		
 		tier5 = new Mod[3];
