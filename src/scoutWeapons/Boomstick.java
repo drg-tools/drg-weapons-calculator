@@ -110,7 +110,7 @@ public class Boomstick extends Weapon {
 		
 		tier4 = new Mod[3];
 		tier4[0] =new Mod("Stun Duration", "+2.5 seconds Stun duration", modIcons.stun, 4, 0);
-		tier4[1] = new Mod("Tungsten Coated Buckshot", "+300% Armor Breaking", modIcons.armorBreaking, 4, 1);
+		tier4[1] = new Mod("Tungsten Coated Buckshot", "+400% Armor Breaking", modIcons.armorBreaking, 4, 1);
 		tier4[2] = new Mod("Improved Blast Wave", "+10 Blastwave Damage to any enemies in the area extending 4m infront of you.", modIcons.special, 4, 2);
 		
 		tier5 = new Mod[3];
@@ -424,7 +424,7 @@ public class Boomstick extends Weapon {
 	}
 	private double getArmorBreaking() {
 		if (selectedTier4 == 1) {
-			return 4.0;
+			return 5.0;
 		}
 		else {
 			return 1.0;
