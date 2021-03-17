@@ -251,8 +251,8 @@ public class EPC_RegularShot extends EPC {
 	@Override
 	public double averageTimeToCauterize() {
 		if (selectedTier5 == 2) {
-			// 50% of Direct Damage from the Regular Shots gets added on as Heat Damage.
-			double heatDamagePerShot = 0.5 * getDirectDamage();
+			// 5 + 25% of Direct Damage from the Regular Shots gets added on as Heat Damage.
+			double heatDamagePerShot = 5.0 + 0.25 * getDirectDamage();
 			return EnemyInformation.averageTimeToIgnite(0, heatDamagePerShot, getCustomRoF(), 0);
 		}
 		else {

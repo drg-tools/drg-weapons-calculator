@@ -100,9 +100,11 @@ public class Shotgun extends Weapon {
 		tier4[0] = new Mod("Tungsten Coated Buckshot", "+400% Armor Breaking", modIcons.armorBreaking, 4, 0);
 		tier4[1] = new Mod("Bigger Pellets", "+1 Damage per Pellet", modIcons.directDamage, 4, 1);
 		
+		// GreyHound tells me that Turret Whip travels at 50 m/sec
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Turret Whip", "Shoot your turrets to make them shoot a projectile that does 120 Area Damage in a 1.5m Radius. Turret Whip projectile has a 100% chance to Stun for 1.5 seconds and "
-				+ "inflicts 0.5 Fear to all enemies it damages. 10 Sentry ammo per shot, 3 second cooldown per Sentry.", modIcons.special, 5, 0, false);
+		tier5[0] = new Mod("Turret Whip", "Shoot a Turret with the Shotgun to consume 10 turret ammo and fire a projectile in the direction currently being aimed at by the turret, "
+				+ "with a 3 second cooldown between projectiles. Each projectile travels at 50 m/sec, does 120 Explosive element Area Damage in a 1.5m radius, has a 100% chance to stun "
+				+ "for 1.5 seconds, inflicts 1.0 Fear, does 50% Friendly Fire damage, and has 200% Armor Breaking.", modIcons.special, 5, 0, false);
 		tier5[1] = new Mod("Miner Adjustments", "Changes the Shotgun from semi-automatic to fully automatic, +0.5 Rate of Fire", modIcons.rateOfFire, 5, 1);
 		
 		overclocks = new Overclock[5];
@@ -663,8 +665,8 @@ public class Shotgun extends Weapon {
 		
 		// Fear
 		if (selectedTier5 == 0) {
-			// Turret Whip projectile does 0.5 Fear Factor in its 1.5m radius
-			utilityScores[4] = calculateFearProcProbability(0.5) * calculateNumGlyphidsInRadius(1.5) * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
+			// Turret Whip projectile does 1.0 Fear Factor in its 1.5m radius
+			utilityScores[4] = calculateFearProcProbability(1.0) * calculateNumGlyphidsInRadius(1.5) * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;

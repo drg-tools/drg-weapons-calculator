@@ -6,7 +6,7 @@ public class DatabaseConstants {
 	public static String modsTableName = "mods";
 	public static String OCsTableName = "overclocks";
 	
-	public static String patchNumber = "33.9";
+	public static String patchNumber = "33.10";
 	public static int patchNumberID = 5;
 	
 	public static int drillerCharacterID = 3;
