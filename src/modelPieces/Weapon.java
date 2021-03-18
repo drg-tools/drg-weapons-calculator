@@ -2,6 +2,8 @@ package modelPieces;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Observable;
 
 import javax.swing.JPanel;
@@ -19,7 +21,7 @@ public abstract class Weapon extends Observable {
 	* Class Variables
 	****************************************************************************************/
 	
-	protected String fullName;
+	protected String fullName = "";
 	protected BufferedImage weaponPic;
 	protected boolean customizableRoF = false;
 	// This value gets set back to 0 after every mod/OC selection so that changing the build resets CustomRoF to max RoF, and once the user has settled on a build they can tweak the RoF via the GUI.
@@ -29,6 +31,8 @@ public abstract class Weapon extends Observable {
 	// Taking the (integral of x dx from 0.8 -> 1.4) / (1.4 - 0.8) results in the intuitive 1.1
 	protected double homebrewPowderCoefficient = 1.1;
 	
+	protected boolean modsAndOCsInitialized = false;
+	protected String invalidCombinationMessage = "";
 	// If any of these shorts is set to -1, that means there should be no mods equipped at that tier.
 	protected Mod[] tier1;
 	protected int selectedTier1;
@@ -87,6 +91,249 @@ public abstract class Weapon extends Observable {
 	private AoEVisualizer illustration = null;
 	
 	protected AccuracyEstimator accEstimator = new AccuracyEstimator();
+	
+	/****************************************************************************************
+	* Build from combination
+	****************************************************************************************/
+	public boolean isCombinationValid(String combination) {
+		// Potentially convert the '\n' characters to "<br/>" to use GUI's HTML formatting?
+		
+		// Early exit conditions
+		if (modsAndOCsInitialized == false) {
+			// This flag should be set to true at the end of every initializeModsAndOverclocks() method
+			return false;
+		}
+		if (tier1.length < 1 || tier2.length < 1 || tier3.length < 1 || tier4.length < 1 || tier5.length < 1 || overclocks.length < 1) {
+			// If any of the arrays hasn't been initialized, this method would throw errors when it tries to see if an index is outside the number of elements
+			return false;
+		}
+		if (fullName.equals("")) {
+			// The fullname should be set inside the constructor of each weapon, but I'm adding this check just to be on the safe side.
+			return false;
+		}
+		
+		boolean combinationIsValid = true;
+		invalidCombinationMessage = "";
+		
+		/**********************************************************************
+		* First check: does the new combination contain exactly 6 characters?
+		***********************************************************************/
+		if (combination.length() != 6) {
+			invalidCombinationMessage = combination + " does not have 6 characters, which makes it invalid.";
+			// If it fails the first check, return immediately so that it doesn't get second and third checks' error text appended unnecessarily.
+			return false;
+		}
+		
+		/**********************************************************************
+		* Second check: are the first five characters capital ABC or hyphen, 
+		* and the 6th character a number 1-7 or a hyphen?
+		***********************************************************************/
+		char[] symbols = combination.toCharArray();
+		List<Character> validModSymbols = Arrays.asList(new Character[] {'A', 'B', 'C', '-'});
+		for (int i = 0; i < 5; i ++) {
+			if (!validModSymbols.contains(symbols[i])) {
+				invalidCombinationMessage += "Character #" + (i+1) + ", " + symbols[i] + ", is not a capital letter between A-C or a hyphen.\n";
+				combinationIsValid = false;
+			}
+		}
+		
+		List<Character> validOverclockSymbols = Arrays.asList(new Character[] {'1', '2', '3', '4', '5', '6', '7', '-'});
+		if (!validOverclockSymbols.contains(symbols[5])) {
+			invalidCombinationMessage += "The sixth character, " + symbols[5] + ", is not a number between 1-7 or a hyphen.\n";
+			combinationIsValid = false;
+		}
+		
+		if (!combinationIsValid) {
+			// Choosing to return early if it fails second check, so that the error text from third check won't be appended unnecessarily
+			return false;
+		}
+		
+		/**********************************************************************
+		* Third check: do any of the letters indicate a Mod outside of this 
+		* weapon's corresponding Mod Tier, or does the number indicate an 
+		* Overclock outside of this weapon's Overclock group?
+		***********************************************************************/
+		// Because all weapons' Mod Tiers have at least 2 mods, I only need to check cases for 'C'
+		if (symbols[0] == 'C' && tier1.length < 3) {
+			invalidCombinationMessage += fullName + " Mod Tier 1 only has two mods, so 'C' is an invalid choice.\n";
+			combinationIsValid = false;
+		}
+		if (symbols[1] == 'C' && tier2.length < 3) {
+			invalidCombinationMessage += fullName + " Mod Tier 2 only has two mods, so 'C' is an invalid choice.\n";
+			combinationIsValid = false;
+		}
+		if (symbols[2] == 'C' && tier3.length < 3) {
+			invalidCombinationMessage += fullName + " Mod Tier 3 only has two mods, so 'C' is an invalid choice.\n";
+			combinationIsValid = false;
+		}
+		if (symbols[3] == 'C' && tier4.length < 3) {
+			invalidCombinationMessage += fullName + " Mod Tier 4 only has two mods, so 'C' is an invalid choice.\n";
+			combinationIsValid = false;
+		}
+		if (symbols[4] == 'C' && tier5.length < 3) {
+			invalidCombinationMessage += fullName + " Mod Tier 5 only has two mods, so 'C' is an invalid choice.\n";
+			combinationIsValid = false;
+		}
+		
+		// Overclocks can be anywhere from 5-7, so I need to check all instances of '6' and '7'
+		if (overclocks.length == 5 && (symbols[5] == '6' && symbols[5] == '7')) {
+			invalidCombinationMessage += fullName + " only has five Overclocks, so '" + symbols[5] + "' is an invalid choice.\n";
+			combinationIsValid = false;
+		}
+		else if (overclocks.length == 6 && symbols[5] == '7') {
+			invalidCombinationMessage += fullName + " only has six Overclocks, so '7' is an invalid choice.\n";
+			combinationIsValid = false;
+		}
+		
+		// If this method has successfully evaluated to this point, then combinationIsValid will still be set to True.
+		return combinationIsValid;
+	}
+	
+	// This method can be used by the GUI to tell the user why the String they entered is being rejected.
+	public String getInvalidCombinationErrorMessage() {
+		return invalidCombinationMessage;
+	}
+	
+	/*
+		This method used to be a void return, but in order to use it with user-comparing-builds features 
+		it has to have a boolean return value to indicate whether or not their manual entry will work or not.
+	*/
+	public boolean buildFromCombination(String combination) {
+		boolean combinationIsValid = isCombinationValid(combination);
+		
+		if (!combinationIsValid) {
+			// Return False to indicate that the build requested by the input combination is not possible.
+			return false;
+		}
+		else {
+			// This section of the code relies entirely on isCombinationValid() doing proper input santization and validation.
+			char[] symbols = combination.toCharArray();
+			
+			// Start by setting all mods/OC to -1 so that no matter what the old build was, the new build will go through with no problem.
+			setSelectedModAtTier(1, -1, false);
+			setSelectedModAtTier(2, -1, false);
+			setSelectedModAtTier(3, -1, false);
+			setSelectedModAtTier(4, -1, false);
+			setSelectedModAtTier(5, -1, false);
+			setSelectedOverclock(-1, false);
+			
+			// Because they're already set to -1 above, these switch statements don't need to account for the hyphen case.
+			switch (symbols[0]) {
+				case 'A': {
+					setSelectedModAtTier(1, 0, false);
+					break;
+				}
+				case 'B': {
+					setSelectedModAtTier(1, 1, false);
+					break;
+				}
+				case 'C': {
+					setSelectedModAtTier(1, 2, false);
+					break;
+				}
+			}
+			
+			switch (symbols[1]) {
+				case 'A': {
+					setSelectedModAtTier(2, 0, false);
+					break;
+				}
+				case 'B': {
+					setSelectedModAtTier(2, 1, false);
+					break;
+				}
+				case 'C': {
+					setSelectedModAtTier(2, 2, false);
+					break;
+				}
+			}
+			
+			switch (symbols[2]) {
+				case 'A': {
+					setSelectedModAtTier(3, 0, false);
+					break;
+				}
+				case 'B': {
+					setSelectedModAtTier(3, 1, false);
+					break;
+				}
+				case 'C': {
+					setSelectedModAtTier(3, 2, false);
+					break;
+				}
+			}
+			
+			switch (symbols[3]) {
+				case 'A': {
+					setSelectedModAtTier(4, 0, false);
+					break;
+				}
+				case 'B': {
+					setSelectedModAtTier(4, 1, false);
+					break;
+				}
+				case 'C': {
+					setSelectedModAtTier(4, 2, false);
+					break;
+				}
+			}
+			
+			switch (symbols[4]) {
+				case 'A': {
+					setSelectedModAtTier(5, 0, false);
+					break;
+				}
+				case 'B': {
+					setSelectedModAtTier(5, 1, false);
+					break;
+				}
+				case 'C': {
+					setSelectedModAtTier(5, 2, false);
+					break;
+				}
+			}
+			
+			switch (symbols[5]) {
+				case '1': {
+					setSelectedOverclock(0, false);
+					break;
+				}
+				case '2': {
+					setSelectedOverclock(1, false);
+					break;
+				}
+				case '3': {
+					setSelectedOverclock(2, false);
+					break;
+				}
+				case '4': {
+					setSelectedOverclock(3, false);
+					break;
+				}
+				case '5': {
+					setSelectedOverclock(4, false);
+					break;
+				}
+				case '6': {
+					setSelectedOverclock(5, false);
+					break;
+				}
+				case '7': {
+					setSelectedOverclock(6, false);
+					break;
+				}
+			}
+			
+			// I'm choosing to have this method always update the GUI (for now)
+			if (countObservers() > 0) {
+				setChanged();
+				notifyObservers();
+			}
+			
+			// Return True to let other objects know that they have successfully edited this Weapon's build
+			return true;
+		}
+	}
 	
 	/****************************************************************************************
 	* Setters and Getters
@@ -433,9 +680,6 @@ public abstract class Weapon extends Observable {
 			}
 		}
 	}
-	
-	// I'm choosing to have this method always update the GUI (for now)
-	public abstract void buildFromCombination(String combination); 
 	
 	public Mod[] getModsAtTier(int tierNumber) {
 		if (tierNumber > 0 && tierNumber < 6) {

@@ -1,8 +1,6 @@
 package gunnerWeapons;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import dataGenerator.DatabaseConstants;
 import guiPieces.GuiConstants;
@@ -132,151 +130,9 @@ public class Minigun extends Weapon {
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Exhaust Vectoring", "+2 Damage per Pellet, x2.5 Base Spread", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Bullet Hell", "50% chance for bullets that impact an enemy or terrain to ricochet into another enemy. -3 Damage per Pellet, x6 Base Spread", overclockIcons.ricochet, 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Storm", "+4 Damage per Pellet, x0 Movespeed while using, and the Minigun cannot stun enemies anymore.", overclockIcons.directDamage, 6);
-	}
-	
-	@Override
-	public void buildFromCombination(String combination) {
-		boolean codeIsValid = true;
-		char[] symbols = combination.toCharArray();
-		if (combination.length() != 6) {
-			System.out.println(combination + " does not have 6 characters, which makes it invalid");
-			codeIsValid = false;
-		}
-		else {
-			List<Character> validModSymbols = Arrays.asList(new Character[] {'A', 'B', 'C', '-'});
-			for (int i = 0; i < 5; i ++) {
-				if (!validModSymbols.contains(symbols[i])) {
-					System.out.println("Symbol #" + (i+1) + ", " + symbols[i] + ", is not a capital letter between A-C or a hyphen");
-					codeIsValid = false;
-				}
-			}
-			if (symbols[1] == 'C') {
-				System.out.println("Minigun's second tier of mods only has two choices, so 'C' is an invalid choice.");
-				codeIsValid = false;
-			}
-			List<Character> validOverclockSymbols = Arrays.asList(new Character[] {'1', '2', '3', '4', '5', '6', '7', '-'});
-			if (!validOverclockSymbols.contains(symbols[5])) {
-				System.out.println("The sixth symbol, " + symbols[5] + ", is not a number between 1-7 or a hyphen");
-				codeIsValid = false;
-			}
-		}
 		
-		if (codeIsValid) {
-			// Start by setting all mods/OC to -1 so that no matter what the old build was, the new build will go through with no problem.
-			setSelectedModAtTier(1, -1, false);
-			setSelectedModAtTier(2, -1, false);
-			setSelectedModAtTier(3, -1, false);
-			setSelectedModAtTier(4, -1, false);
-			setSelectedModAtTier(5, -1, false);
-			setSelectedOverclock(-1, false);
-			
-			switch (symbols[0]) {
-				case 'A': {
-					setSelectedModAtTier(1, 0, false);
-					break;
-				}
-				case 'B': {
-					setSelectedModAtTier(1, 1, false);
-					break;
-				}
-				case 'C': {
-					setSelectedModAtTier(1, 2, false);
-					break;
-				}
-			}
-			
-			switch (symbols[1]) {
-				case 'A': {
-					setSelectedModAtTier(2, 0, false);
-					break;
-				}
-				case 'B': {
-					setSelectedModAtTier(2, 1, false);
-					break;
-				}
-			}
-			
-			switch (symbols[2]) {
-				case 'A': {
-					setSelectedModAtTier(3, 0, false);
-					break;
-				}
-				case 'B': {
-					setSelectedModAtTier(3, 1, false);
-					break;
-				}
-				case 'C': {
-					setSelectedModAtTier(3, 2, false);
-					break;
-				}
-			}
-			
-			switch (symbols[3]) {
-				case 'A': {
-					setSelectedModAtTier(4, 0, false);
-					break;
-				}
-				case 'B': {
-					setSelectedModAtTier(4, 1, false);
-					break;
-				}
-				case 'C': {
-					setSelectedModAtTier(4, 2, false);
-					break;
-				}
-			}
-			
-			switch (symbols[4]) {
-				case 'A': {
-					setSelectedModAtTier(5, 0, false);
-					break;
-				}
-				case 'B': {
-					setSelectedModAtTier(5, 1, false);
-					break;
-				}
-				case 'C': {
-					setSelectedModAtTier(5, 2, false);
-					break;
-				}
-			}
-			
-			switch (symbols[5]) {
-				case '1': {
-					setSelectedOverclock(0, false);
-					break;
-				}
-				case '2': {
-					setSelectedOverclock(1, false);
-					break;
-				}
-				case '3': {
-					setSelectedOverclock(2, false);
-					break;
-				}
-				case '4': {
-					setSelectedOverclock(3, false);
-					break;
-				}
-				case '5': {
-					setSelectedOverclock(4, false);
-					break;
-				}
-				case '6': {
-					setSelectedOverclock(5, false);
-					break;
-				}
-				case '7': {
-					setSelectedOverclock(6, false);
-					break;
-				}
-			}
-			
-			if (countObservers() > 0) {
-				setChanged();
-				notifyObservers();
-			}
-		}
+		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
+		modsAndOCsInitialized = true;
 	}
 	
 	@Override
