@@ -1,13 +1,18 @@
-package guiPieces.buildComparators;
+package buildComparators;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -21,6 +26,9 @@ public class CompareMetrics extends Comparator {
 	private JLabel[] metricNames;
 	private JLabel[][] outputMatrix;
 	
+	private JButton showBreakpointsComparison;
+	private JPanel compareBreakpoints;
+	
 	public CompareMetrics(Weapon toUse) {
 		super(toUse);
 	}
@@ -28,36 +36,49 @@ public class CompareMetrics extends Comparator {
 	@Override
 	public JPanel getComparisonPanel() {
 		JPanel toReturn = new JPanel();
-		toReturn.setLayout(new GridLayout(17, 5));
-		toReturn.setBackground(GuiConstants.drgBackgroundBrown);
+		toReturn.setLayout(new BorderLayout());
 		
-		// Top row: 3 checkboxes on right side
-		// Empty JLabel to push checkboxes flush with right side
-		toReturn.add(new JLabel());
-		toReturn.add(new JLabel());
+		JPanel inputButtons = new JPanel();
+		JPanel checkboxes = new JPanel();
+		checkboxes.setLayout(new BoxLayout(checkboxes, BoxLayout.Y_AXIS));
+		enableWeakpoints = new JCheckBox("Enable Weakpoints in DPS");
+		checkboxes.add(enableWeakpoints);
+		enableAccuracy = new JCheckBox("Enable Accuracy in DPS");
+		checkboxes.add(enableAccuracy);
+		enableArmorWasting = new JCheckBox("Enable Armor Wasting in DPS");
+		checkboxes.add(enableArmorWasting);
+		inputButtons.add(checkboxes);
 		
-		enableWeakpoints = new JCheckBox("Enable Weakpoints");
-		toReturn.add(enableWeakpoints);
-		enableAccuracy = new JCheckBox("Enable Accuracy");
-		toReturn.add(enableAccuracy);
-		enableArmorWasting = new JCheckBox("Enable Armor Wasting");
-		toReturn.add(enableArmorWasting);
-		
-		// Second row: "Compare" button and four text fields that user can type builds into
-		compareBuilds = new JButton("Compare");
+		JPanel compareButtons = new JPanel();
+		compareButtons.setLayout(new BoxLayout(compareButtons, BoxLayout.Y_AXIS));
+		compareBuilds = new JButton("Compare all metrics");
 		compareBuilds.addActionListener(this);
-		toReturn.add(compareBuilds);
+		compareButtons.add(compareBuilds);
+		showBreakpointsComparison = new JButton("Compare just Breakpoints");
+		showBreakpointsComparison.addActionListener(this);
+		showBreakpointsComparison.setEnabled(false);
+		compareButtons.add(showBreakpointsComparison);
+		inputButtons.add(compareButtons);
+		
+		toReturn.add(inputButtons, BorderLayout.NORTH);
+		
+		JPanel grid = new JPanel();
+		grid.setLayout(new GridLayout(16, 5));
+		grid.setBackground(GuiConstants.drgBackgroundBrown);
+		
+		// First row: empty space and four text fields that user can type builds into
+		grid.add(new JLabel());
 		
 		buildInput1 = new JTextField(build1);
-		toReturn.add(buildInput1);
+		grid.add(buildInput1);
 		buildInput2 = new JTextField(build2);
-		toReturn.add(buildInput2);
+		grid.add(buildInput2);
 		buildInput3 = new JTextField(build3);
-		toReturn.add(buildInput3);
+		grid.add(buildInput3);
 		buildInput4 = new JTextField(build4);
-		toReturn.add(buildInput4);
+		grid.add(buildInput4);
 		
-		// Rows 3-17: metrics
+		// Rows 2-16: metrics
 		metricNames = new JLabel[] {
 			new JLabel("Burst DPS:"),
 			new JLabel("Sustained DPS:"),
@@ -79,7 +100,7 @@ public class CompareMetrics extends Comparator {
 		for (int row = 0; row < 15; row++) {
 			metricNames[row].setFont(GuiConstants.customFont);
 			metricNames[row].setForeground(GuiConstants.drgRegularOrange);
-			toReturn.add(metricNames[row]);
+			grid.add(metricNames[row]);
 			
 			outputMatrix[row] = new JLabel[4];
 			for (int col = 0; col < 4; col++) {
@@ -88,9 +109,11 @@ public class CompareMetrics extends Comparator {
 				outputMatrix[row][col].setBorder(GuiConstants.orangeLine);
 				// JLabels are transparent background, so the brown from underlying JPanel should show through
 				// Font color will be set later when metrics get plugged in and compared
-				toReturn.add(outputMatrix[row][col]);
+				grid.add(outputMatrix[row][col]);
 			}
 		}
+		
+		toReturn.add(grid, BorderLayout.CENTER);
 		
 		return toReturn;
 	}
@@ -119,7 +142,28 @@ public class CompareMetrics extends Comparator {
 			
 			if (build1ErrorMsg.length() > 0 || build2ErrorMsg.length() > 0 || build3ErrorMsg.length() > 0 || build4ErrorMsg.length() > 0) {
 				// Send a pop-up with the error message(s) and then return early for failure state.
-				// TODO: make popup
+				String errorMessage = "<html><body><p style=\"color:red\">";
+				
+				if (build1ErrorMsg.length() > 0) {
+					errorMessage += "Column 1 errors:<br/>";
+					errorMessage += build1ErrorMsg + "<br/>";
+				}
+				if (build2ErrorMsg.length() > 0) {
+					errorMessage += "Column 2 errors:<br/>";
+					errorMessage += build2ErrorMsg + "<br/>";
+				}
+				if (build3ErrorMsg.length() > 0) {
+					errorMessage += "Column 3 errors:<br/>";
+					errorMessage += build3ErrorMsg + "<br/>";
+				}
+				if (build4ErrorMsg.length() > 0) {
+					errorMessage += "Column 4 errors:<br/>";
+					errorMessage += build4ErrorMsg + "<br/>";
+				}
+				
+				errorMessage += "</p></body></html>";
+				
+				JOptionPane.showMessageDialog(null, errorMessage, "One or more of the builds is invalid", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 		
@@ -195,7 +239,43 @@ public class CompareMetrics extends Comparator {
 			}
 			
 			/*
-				Fourth, go row by row and assess if the 2-4 numbers are all equal, or if one is greater than all the others. All equal => yellow font; one greater => one green, the rest red
+				Fourth, build the Breakpoints comparison matrix and enable the button for user to compare them
+			*/
+			compareBreakpoints = new JPanel();
+			compareBreakpoints.setBackground(GuiConstants.drgBackgroundBrown);
+			compareBreakpoints.setBorder(GuiConstants.blackLine);
+			compareBreakpoints.setLayout(new GridLayout(32, (numBuildsToCompare + 1)));
+			
+			// Make the first row show the build Strings at the top of each column
+			compareBreakpoints.add(new JLabel());
+			JLabel breakpointBuildStrings;
+			for (j = 0; j < numBuildsToCompare; j++) {
+				breakpointBuildStrings = new JLabel(justifyLeft.get(j));
+				breakpointBuildStrings.setFont(GuiConstants.customFontBold);
+				breakpointBuildStrings.setForeground(GuiConstants.drgRegularOrange);
+				compareBreakpoints.add(breakpointBuildStrings);
+			}
+			
+			JLabel breakpointName, breakpointValue;
+			for (i = 0; i < 31; i++) {
+				breakpointName = new JLabel(breakpointsToCompare[0][i].getName());
+				breakpointName.setFont(GuiConstants.customFont);
+				breakpointName.setForeground(Color.white);
+				compareBreakpoints.add(breakpointName);
+				
+				for (j = 0; j < numBuildsToCompare; j++) {
+					breakpointValue = new JLabel(breakpointsToCompare[j][i].getValue());
+					breakpointValue.setFont(GuiConstants.customFont);
+					breakpointValue.setForeground(GuiConstants.drgRegularOrange);
+					compareBreakpoints.add(breakpointValue);
+				}
+			}
+			
+			// Now that content can be shown, enable this button.
+			showBreakpointsComparison.setEnabled(true);
+			
+			/*
+				Fifth, go row by row and assess if the 2-4 numbers are all equal, or if one is greater than all the others. All equal => yellow font; one greater => one green, the rest red
 			*/
 			HashSet<Double> distinctMetricValuesForThisRow;
 			double bestValue;
@@ -240,7 +320,7 @@ public class CompareMetrics extends Comparator {
 				}
 				
 				/*
-					Fifth, fill out the outputMatrix and setForeground() accordingly
+					Sixth, fill out the outputMatrix and setForeground() accordingly
 				*/
 				for (j = 0; j < numBuildsToCompare; j++) {
 					outputMatrix[i][j].setText(metricsToCompare[j][i] + "");
@@ -259,6 +339,12 @@ public class CompareMetrics extends Comparator {
 					outputMatrix[i][j].setText("");
 				}
 			}
+		}
+		else if (e == showBreakpointsComparison) {
+			// Adapted from https://stackoverflow.com/a/13760416 and https://www.tutorialspoint.com/how-to-display-a-jframe-to-the-center-of-a-screen-in-java
+			JOptionPane a = new JOptionPane(compareBreakpoints, JOptionPane.INFORMATION_MESSAGE);
+			JDialog d = a.createDialog(null, "Compare the breakpoints of multiple builds:");
+			d.setVisible(true);
 		}
 	}
 }

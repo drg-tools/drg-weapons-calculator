@@ -1,4 +1,4 @@
-package guiPieces.buildComparators;
+package buildComparators;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

@@ -19,6 +19,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import buildComparators.CompareMetrics;
 import dataGenerator.DatabaseConstants;
 import dataGenerator.MetricsCalculator;
 import drillerWeapons.CryoCannon;
@@ -33,7 +34,6 @@ import engineerWeapons.SMG;
 import engineerWeapons.Shotgun;
 import guiPieces.HoverText;
 import guiPieces.View;
-import guiPieces.buildComparators.CompareMetrics;
 import gunnerWeapons.Autocannon;
 import gunnerWeapons.BurstPistol;
 import gunnerWeapons.Minigun;

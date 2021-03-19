@@ -42,7 +42,8 @@ public class GranularMetricButton extends JButton implements ActionListener {
 		this.addActionListener(this);
 	}
 	
-	private JPanel getGranularStatsPanel() {JPanel toReturn = new JPanel();
+	private JPanel getGranularStatsPanel() {
+		JPanel toReturn = new JPanel();
 		toReturn.setBackground(GuiConstants.drgBackgroundBrown);
 		toReturn.setBorder(GuiConstants.blackLine);
 		toReturn.setLayout(new BoxLayout(toReturn, BoxLayout.Y_AXIS));
