@@ -33,6 +33,7 @@ import engineerWeapons.SMG;
 import engineerWeapons.Shotgun;
 import guiPieces.HoverText;
 import guiPieces.View;
+import guiPieces.buildComparators.CompareMetrics;
 import gunnerWeapons.Autocannon;
 import gunnerWeapons.BurstPistol;
 import gunnerWeapons.Minigun;
@@ -61,6 +62,7 @@ public class GuiController implements ActionListener {
 	private Weapon[] scoutWeapons;
 	private View gui;
 	private MetricsCalculator calculator;
+	private CompareMetrics buildsComparator;
 	private JFileChooser folderChooser;
 	
 	public static void main(String[] args) {
@@ -517,6 +519,20 @@ public class GuiController implements ActionListener {
 			gui.activateThinkingCursor();
 			createModsOCsMysqlFiles(false);
 			gui.deactivateThinkingCursor();
+		}
+		
+		else if (e == gui.getCompareBuildMetrics()) {
+			// TODO: open up pop-out panel to let user enter two to four build Strings (or press a button to make the leftmost one the currently-selected build in GUI), then evaluate all of their metrics and compare in a table
+			buildsComparator = new CompareMetrics(currentlySelectedWeapon);
+			
+			// Adapted from https://stackoverflow.com/a/13760416 and https://www.tutorialspoint.com/how-to-display-a-jframe-to-the-center-of-a-screen-in-java
+			JOptionPane a = new JOptionPane(buildsComparator.getMetricComparisonPanel(), JOptionPane.INFORMATION_MESSAGE);
+			JDialog d = a.createDialog(null, "Compare multiple builds directly:");
+			d.setLocationRelativeTo(gui);
+			d.setVisible(true);
+		}
+		else if (e == gui.getCompareAccuracyGraphs()) {
+			// TODO: open a pop-out panel to let user enter two to four build Strings (or bress a button to make the leftmost one the currently-selected build in GUI), then select which of the metrics that use General and Weakpoint Accuracy they want to compare. Then, draw a plot visually.
 		}
 		
 		else if (e == gui.getMiscScreenshot()) {

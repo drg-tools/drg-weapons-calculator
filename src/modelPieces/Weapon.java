@@ -51,9 +51,9 @@ public abstract class Weapon extends Observable {
 	// AoE Radius, AoE Efficiency Coefficient, Total num Grunts hit in AoE radius
 	protected double[] aoeEfficiency;
 	
-	// There are 24 breakpoints: 7 normal damage, 12 weakpoints, and 5 Light Armor. They're in the same order as the enemy indexes in EnemyInformation.
-	protected int[] breakpoints = {0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,
-								   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	// There are 31 breakpoints: 11 normal damage, 15 weakpoints, and 5 Light Armor.
+	protected int[] breakpoints = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+								   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,};
 	
 	// Mobility, Damage Resist, Armor Break, Slow, Fear, Stun, Freeze
 	// Set them all to zero to start, then override values in child objects as necessary.
@@ -62,16 +62,16 @@ public abstract class Weapon extends Observable {
 	
 	protected double[][] damageWastedByArmorPerCreature = {
 		// Spawn Probabilities
-		{0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 		// Damage Wasted
-		{0, 0, 0, 0, 0, 0, 0, 0, 0}
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 	};
 	
 	protected double[][] overkillPercentages = {
 		// Spawn Probabilities
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 		// Overkill Percentages
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}	
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}	
 	};
 	
 	// Burning, Frozen, Electrocuted, IFG Grenade
@@ -200,6 +200,9 @@ public abstract class Weapon extends Observable {
 		but I'm adding it here to make absolutely sure. It doesn't take too long to run twice.
 	*/
 	public boolean buildFromCombination(String combination) {
+		return buildFromCombination(combination, true);
+	}
+	public boolean buildFromCombination(String combination, boolean updateGUI) {
 		boolean combinationIsValid = isCombinationValid(combination);
 		
 		if (!combinationIsValid) {
@@ -325,8 +328,7 @@ public abstract class Weapon extends Observable {
 				}
 			}
 			
-			// I'm choosing to have this method always update the GUI (for now)
-			if (countObservers() > 0) {
+			if (updateGUI && countObservers() > 0) {
 				setChanged();
 				notifyObservers();
 			}

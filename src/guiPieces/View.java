@@ -39,6 +39,8 @@ public class View extends JFrame implements Observer {
 	private JRadioButton dsHaz1, dsHaz2, dsHaz3, dsHaz4, dsHaz5, dsPC1, dsPC2, dsPC3, dsPC4;
 	private JMenu exportMenu;
 	private JMenuItem exportCurrent, exportAll, exportMetricsToMySQL, exportModsOCsToMySQL, exportChangedModsOCsToMySQL;
+	private JMenu compareMenu;
+	private JMenuItem buildMetricsComparison, buildAccuracyGraphsComparison;
 	private JMenu miscMenu;	
 	private JMenuItem miscWeaponTabScreenshot, miscExportCombination, miscLoadCombination, miscSuggestion;
 	
@@ -279,6 +281,14 @@ public class View extends JFrame implements Observer {
 		exportMenu.add(exportChangedModsOCsToMySQL);
 		menuBar.add(exportMenu);
 		
+		// Compare two or more builds to each other menu
+		compareMenu = new JMenu("Compare Builds");
+		buildMetricsComparison = new JMenuItem("Compare up to four builds metric-to-metric");
+		compareMenu.add(buildMetricsComparison);
+		buildAccuracyGraphsComparison = new JMenuItem("Compare up to four builds based on Accuracy");
+		compareMenu.add(buildAccuracyGraphsComparison);
+		menuBar.add(compareMenu);
+		
 		// Miscellaneous Actions menu
 		miscMenu = new JMenu("Misc. Actions");
 		miscWeaponTabScreenshot = new JMenuItem("Save screenshot of current build");
@@ -368,6 +378,13 @@ public class View extends JFrame implements Observer {
 		return exportChangedModsOCsToMySQL;
 	}
 	
+	public JMenuItem getCompareBuildMetrics() {
+		return buildMetricsComparison;
+	}
+	public JMenuItem getCompareAccuracyGraphs() {
+		return buildAccuracyGraphsComparison;
+	}
+	
 	public JMenuItem getMiscScreenshot() {
 		return miscWeaponTabScreenshot;
 	}
@@ -426,6 +443,9 @@ public class View extends JFrame implements Observer {
 		exportMetricsToMySQL.addActionListener(parent);
 		exportModsOCsToMySQL.addActionListener(parent);
 		exportChangedModsOCsToMySQL.addActionListener(parent);
+		
+		buildMetricsComparison.addActionListener(parent);
+		buildAccuracyGraphsComparison.addActionListener(parent);
 		
 		miscWeaponTabScreenshot.addActionListener(parent);
 		miscExportCombination.addActionListener(parent);
