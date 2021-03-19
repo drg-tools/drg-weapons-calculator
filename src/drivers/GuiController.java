@@ -548,10 +548,39 @@ public class GuiController implements ActionListener {
 			String instructions = "Enter the combination you want to load for this weapon. It should consist of 5 capital letters, A-C, and 1 number, 1-7. Each capital letter "
 					+ "corresponds to a mod tier and the number corresponds to the desired overclock. If you do not want to use a mod tier or overclock, substitute the "
 					+ "corresponding character with a hyphen.";
-			instructions = HoverText.breakLongToolTipString(instructions, 90);
-			String newCombination = JOptionPane.showInputDialog(gui, instructions);
-			if (newCombination != null) {
-				currentlySelectedWeapon.buildFromCombination(newCombination);
+			instructions = HoverText.breakLongToolTipString(instructions, 90, false);
+			
+			String displayedMessage = "";
+			String newCombination;
+			boolean isValidCombination = false;
+			String errorMessage = "";
+			boolean showErrorMessage = false;
+			while(true) {
+				if (showErrorMessage) {
+					displayedMessage = "<html><body>" + instructions + "<span style=\"color: red\">" + errorMessage + "</span></body></html>";
+				}
+				else {
+					displayedMessage = "<html><body>" + instructions + "</body></html>";
+				}
+				
+				newCombination = JOptionPane.showInputDialog(gui, displayedMessage);
+				
+				if (newCombination != null) {
+					isValidCombination = currentlySelectedWeapon.isCombinationValid(newCombination);
+					
+					if (isValidCombination) {
+						currentlySelectedWeapon.buildFromCombination(newCombination);
+						break;
+					}
+					else {
+						errorMessage = currentlySelectedWeapon.getInvalidCombinationErrorMessage();
+						showErrorMessage = true;
+					}
+				}
+				else {
+					// If the user doesn't enter a combination, break the while loop instantly.
+					break;
+				}
 			}
 		}
 		else if (e == gui.getMiscSuggestion()) {

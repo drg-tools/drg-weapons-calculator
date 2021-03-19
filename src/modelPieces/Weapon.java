@@ -96,8 +96,6 @@ public abstract class Weapon extends Observable {
 	* Build from combination
 	****************************************************************************************/
 	public boolean isCombinationValid(String combination) {
-		// Potentially convert the '\n' characters to "<br/>" to use GUI's HTML formatting?
-		
 		// Early exit conditions
 		if (modsAndOCsInitialized == false) {
 			// This flag should be set to true at the end of every initializeModsAndOverclocks() method
@@ -113,13 +111,13 @@ public abstract class Weapon extends Observable {
 		}
 		
 		boolean combinationIsValid = true;
-		invalidCombinationMessage = "";
+		invalidCombinationMessage = "<br/>";
 		
 		/**********************************************************************
 		* First check: does the new combination contain exactly 6 characters?
 		***********************************************************************/
 		if (combination.length() != 6) {
-			invalidCombinationMessage = combination + " does not have 6 characters, which makes it invalid.";
+			invalidCombinationMessage += "\"" + combination + "\" does not have 6 characters, which makes it invalid.";
 			// If it fails the first check, return immediately so that it doesn't get second and third checks' error text appended unnecessarily.
 			return false;
 		}
@@ -132,14 +130,14 @@ public abstract class Weapon extends Observable {
 		List<Character> validModSymbols = Arrays.asList(new Character[] {'A', 'B', 'C', '-'});
 		for (int i = 0; i < 5; i ++) {
 			if (!validModSymbols.contains(symbols[i])) {
-				invalidCombinationMessage += "Character #" + (i+1) + ", " + symbols[i] + ", is not a capital letter between A-C or a hyphen.\n";
+				invalidCombinationMessage += "Character #" + (i+1) + ", '" + symbols[i] + "', is not a capital letter between A-C or a hyphen.<br/>";
 				combinationIsValid = false;
 			}
 		}
 		
 		List<Character> validOverclockSymbols = Arrays.asList(new Character[] {'1', '2', '3', '4', '5', '6', '7', '-'});
 		if (!validOverclockSymbols.contains(symbols[5])) {
-			invalidCombinationMessage += "The sixth character, " + symbols[5] + ", is not a number between 1-7 or a hyphen.\n";
+			invalidCombinationMessage += "Character #6, '" + symbols[5] + "', is not a number between 1-7 or a hyphen.<br/>";
 			combinationIsValid = false;
 		}
 		
@@ -155,33 +153,33 @@ public abstract class Weapon extends Observable {
 		***********************************************************************/
 		// Because all weapons' Mod Tiers have at least 2 mods, I only need to check cases for 'C'
 		if (symbols[0] == 'C' && tier1.length < 3) {
-			invalidCombinationMessage += fullName + " Mod Tier 1 only has two mods, so 'C' is an invalid choice.\n";
+			invalidCombinationMessage += fullName + " Mod Tier 1 only has two mods, so 'C' is an invalid choice.<br/>";
 			combinationIsValid = false;
 		}
 		if (symbols[1] == 'C' && tier2.length < 3) {
-			invalidCombinationMessage += fullName + " Mod Tier 2 only has two mods, so 'C' is an invalid choice.\n";
+			invalidCombinationMessage += fullName + " Mod Tier 2 only has two mods, so 'C' is an invalid choice.<br/>";
 			combinationIsValid = false;
 		}
 		if (symbols[2] == 'C' && tier3.length < 3) {
-			invalidCombinationMessage += fullName + " Mod Tier 3 only has two mods, so 'C' is an invalid choice.\n";
+			invalidCombinationMessage += fullName + " Mod Tier 3 only has two mods, so 'C' is an invalid choice.<br/>";
 			combinationIsValid = false;
 		}
 		if (symbols[3] == 'C' && tier4.length < 3) {
-			invalidCombinationMessage += fullName + " Mod Tier 4 only has two mods, so 'C' is an invalid choice.\n";
+			invalidCombinationMessage += fullName + " Mod Tier 4 only has two mods, so 'C' is an invalid choice.<br/>";
 			combinationIsValid = false;
 		}
 		if (symbols[4] == 'C' && tier5.length < 3) {
-			invalidCombinationMessage += fullName + " Mod Tier 5 only has two mods, so 'C' is an invalid choice.\n";
+			invalidCombinationMessage += fullName + " Mod Tier 5 only has two mods, so 'C' is an invalid choice.<br/>";
 			combinationIsValid = false;
 		}
 		
 		// Overclocks can be anywhere from 5-7, so I need to check all instances of '6' and '7'
-		if (overclocks.length == 5 && (symbols[5] == '6' && symbols[5] == '7')) {
-			invalidCombinationMessage += fullName + " only has five Overclocks, so '" + symbols[5] + "' is an invalid choice.\n";
+		if (overclocks.length == 5 && (symbols[5] == '6' || symbols[5] == '7')) {
+			invalidCombinationMessage += fullName + " only has five Overclocks, so '" + symbols[5] + "' is an invalid choice.<br/>";
 			combinationIsValid = false;
 		}
 		else if (overclocks.length == 6 && symbols[5] == '7') {
-			invalidCombinationMessage += fullName + " only has six Overclocks, so '7' is an invalid choice.\n";
+			invalidCombinationMessage += fullName + " only has six Overclocks, so '7' is an invalid choice.<br/>";
 			combinationIsValid = false;
 		}
 		
@@ -197,6 +195,9 @@ public abstract class Weapon extends Observable {
 	/*
 		This method used to be a void return, but in order to use it with user-comparing-builds features 
 		it has to have a boolean return value to indicate whether or not their manual entry will work or not.
+		
+		In theory, this should ALWAYS be preceded by the code doing the isCombinationValid() check first, 
+		but I'm adding it here to make absolutely sure. It doesn't take too long to run twice.
 	*/
 	public boolean buildFromCombination(String combination) {
 		boolean combinationIsValid = isCombinationValid(combination);
