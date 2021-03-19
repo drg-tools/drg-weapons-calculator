@@ -99,6 +99,7 @@ public class GuiController implements ActionListener {
 			weaponSelected = new Minigun();
 		}
 		calculator = new MetricsCalculator(weaponSelected);
+		buildsComparator = new CompareMetrics(weaponSelected);
 		folderChooser = new JFileChooser();
 		folderChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 	}
@@ -357,9 +358,12 @@ public class GuiController implements ActionListener {
 			currentlySelectedWeapon = new Minigun();
 		}
 		calculator.changeWeapon(currentlySelectedWeapon);
+		// This method is coded to do nothing if it's trying to change the weapon to the one that's already selected
+		buildsComparator.changeWeapon(currentlySelectedWeapon);
 		
 		// There are currently 15 options for Best Combinations menus
-		for (int i = 0; i < 15; i++) {
+		int i;
+		for (i = 0; i < 15; i++) {
 			if (e == gui.getOverallBestCombination(i)) {
 				
 				gui.activateThinkingCursor();
@@ -483,7 +487,6 @@ public class GuiController implements ActionListener {
 		else if (e == gui.getExportAll()) {
 			chooseFolder();
 			gui.activateThinkingCursor();
-			int i;
 			for (i = 0; i < drillerWeapons.length; i++) {
 				calculator.changeWeapon(drillerWeapons[i]);
 				calculator.exportMetricsToCSV();
@@ -523,7 +526,6 @@ public class GuiController implements ActionListener {
 		
 		else if (e == gui.getCompareBuildMetrics()) {
 			// TODO: open up pop-out panel to let user enter two to four build Strings (or press a button to make the leftmost one the currently-selected build in GUI), then evaluate all of their metrics and compare in a table
-			buildsComparator = new CompareMetrics(currentlySelectedWeapon);
 			
 			// Adapted from https://stackoverflow.com/a/13760416 and https://www.tutorialspoint.com/how-to-display-a-jframe-to-the-center-of-a-screen-in-java
 			JOptionPane a = new JOptionPane(buildsComparator.getMetricComparisonPanel(), JOptionPane.INFORMATION_MESSAGE);
@@ -533,6 +535,18 @@ public class GuiController implements ActionListener {
 		}
 		else if (e == gui.getCompareAccuracyGraphs()) {
 			// TODO: open a pop-out panel to let user enter two to four build Strings (or bress a button to make the leftmost one the currently-selected build in GUI), then select which of the metrics that use General and Weakpoint Accuracy they want to compare. Then, draw a plot visually.
+		}
+		else if (e == gui.getCompareLoadCombinationIntoColumn(0)) {
+			buildsComparator.setNewBuildAtIndex(0, currentlySelectedWeapon.getCombination());
+		}
+		else if (e == gui.getCompareLoadCombinationIntoColumn(1)) {
+			buildsComparator.setNewBuildAtIndex(1, currentlySelectedWeapon.getCombination());
+		}
+		else if (e == gui.getCompareLoadCombinationIntoColumn(2)) {
+			buildsComparator.setNewBuildAtIndex(2, currentlySelectedWeapon.getCombination());
+		}
+		else if (e == gui.getCompareLoadCombinationIntoColumn(3)) {
+			buildsComparator.setNewBuildAtIndex(3, currentlySelectedWeapon.getCombination());
 		}
 		
 		else if (e == gui.getMiscScreenshot()) {
