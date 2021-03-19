@@ -525,10 +525,8 @@ public class GuiController implements ActionListener {
 		}
 		
 		else if (e == gui.getCompareBuildMetrics()) {
-			// TODO: open up pop-out panel to let user enter two to four build Strings (or press a button to make the leftmost one the currently-selected build in GUI), then evaluate all of their metrics and compare in a table
-			
 			// Adapted from https://stackoverflow.com/a/13760416 and https://www.tutorialspoint.com/how-to-display-a-jframe-to-the-center-of-a-screen-in-java
-			JOptionPane a = new JOptionPane(buildsComparator.getMetricComparisonPanel(), JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane a = new JOptionPane(buildsComparator.getComparisonPanel(), JOptionPane.INFORMATION_MESSAGE);
 			JDialog d = a.createDialog(null, "Compare multiple builds directly:");
 			d.setLocationRelativeTo(gui);
 			d.setVisible(true);

@@ -2,7 +2,6 @@ package guiPieces.buildComparators;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -16,63 +15,18 @@ import guiPieces.GuiConstants;
 import modelPieces.StatsRow;
 import modelPieces.Weapon;
 
-public class CompareMetrics implements ActionListener {
-	private Weapon baseModel;
-	private String build1, build2, build3, build4;
-	private JTextField buildInput1, buildInput2, buildInput3, buildInput4;
-
+public class CompareMetrics extends Comparator {
 	private JButton compareBuilds;
 	private JCheckBox enableWeakpoints, enableAccuracy, enableArmorWasting;
 	private JLabel[] metricNames;
 	private JLabel[][] outputMatrix;
 	
 	public CompareMetrics(Weapon toUse) {
-		baseModel = toUse.clone();
-		
-		build1 = "";
-		build2 = "";
-		build3 = "";
-		build4 = "";
+		super(toUse);
 	}
 	
-	public void changeWeapon(Weapon toUse) {
-		// Check if the new weapon is different than the old one. If they're the same model, do nothing.
-		if (baseModel.getFullName().equals(toUse.getFullName())) {
-			return;
-		}
-		
-		baseModel = toUse.clone();
-
-		// Because a different weapon will have different build string validation, I'm choosing to clear out all old values.
-		build1 = "";
-		build2 = "";
-		build3 = "";
-		build4 = "";
-	}
-	
-	public void setNewBuildAtIndex(int index, String newCombination) {
-		// Because this method will only be transferring valid combinations from the GUI into this object, I'm choosing to skip input validation
-		switch(index) {
-			case 0:{
-				build1 = newCombination;
-				break;
-			}
-			case 1:{
-				build2 = newCombination;	
-				break;
-			}
-			case 2:{
-				build3 = newCombination;
-				break;
-			}
-			case 3:{
-				build4 = newCombination;
-				break;
-			}
-		}
-	}
-	
-	public JPanel getMetricComparisonPanel() {
+	@Override
+	public JPanel getComparisonPanel() {
 		JPanel toReturn = new JPanel();
 		toReturn.setLayout(new GridLayout(17, 5));
 		toReturn.setBackground(GuiConstants.drgBackgroundBrown);
