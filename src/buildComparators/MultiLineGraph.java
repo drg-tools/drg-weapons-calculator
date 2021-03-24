@@ -20,7 +20,7 @@ public class MultiLineGraph extends JPanel {
 	private int padding = 25;
 	private int labelPadding = 25;
 	private Color gridColor = new Color(200, 200, 200, 200);
-	private static final Stroke GRAPH_STROKE = new BasicStroke(1.8f);
+	private static final Stroke GRAPH_STROKE = new BasicStroke(1.8f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
 	private int pointWidth = 2;
 	
 	private double[][] dataToPlot;
@@ -113,14 +113,41 @@ public class MultiLineGraph extends JPanel {
 		g2.drawLine(padding + labelPadding, getHeight() - padding - labelPadding, getWidth() - padding, getHeight() - padding - labelPadding);
 		
 		// Draw the actual lines
+		double averageYvalue1, averageYvalue2;
 		for (i = 0; i < numLinesToPlot; i++) {
 			g2.setColor(lineColors[i]);
 			g2.setStroke(GRAPH_STROKE);
 			for (j = 0; j < numDataPointsPerLine - 1; j++) {
 				x0 = j * (getWidth() - padding * 2 - labelPadding) / (numDataPointsPerLine - 1) + padding + labelPadding;
 				x1 = (j + 1) * (getWidth() - padding * 2 - labelPadding) / (numDataPointsPerLine - 1) + padding + labelPadding;
-				y0 = (int) Math.round((1.0 - (dataToPlot[i][j] - minY) / (maxY - minY)) * (getHeight() - 2*padding - labelPadding)) + padding;
-				y1 = (int) Math.round((1.0 - (dataToPlot[i][j+1] - minY) / (maxY - minY)) * (getHeight() - 2*padding - labelPadding)) + padding;
+				// I'm choosing to use the average of the surrounding data points in order to smooth out some of the jagged lines
+				if (j == 0) {
+					// End point: no averaging.
+					averageYvalue1 = dataToPlot[i][0];
+					averageYvalue2 = (dataToPlot[i][0] + dataToPlot[i][1] + dataToPlot[i][2]) / 3.0;
+				}
+				else if (j == 1) {
+					// 2nd from edge, average of immediate neighbors
+					averageYvalue1 = (dataToPlot[i][0] + dataToPlot[i][1] + dataToPlot[i][2]) / 3.0;
+					averageYvalue2 = (dataToPlot[i][0] + dataToPlot[i][1] + dataToPlot[i][2] + dataToPlot[i][3] + dataToPlot[i][4]) / 5.0;
+				}
+				else if (j == numDataPointsPerLine - 3) {
+					// 3rd from edge, val2 can only use its immediate neighbors
+					averageYvalue1 = (dataToPlot[i][j-2] + dataToPlot[i][j-1] + dataToPlot[i][j] + dataToPlot[i][j+1] + dataToPlot[i][j+2]) / 5.0;
+					averageYvalue2 = (dataToPlot[i][numDataPointsPerLine - 3] + dataToPlot[i][numDataPointsPerLine - 2] + dataToPlot[i][numDataPointsPerLine - 1]) / 3.0;
+				}
+				else if (j == numDataPointsPerLine - 2) {
+					// 2nd from edge, average of immediate neighbors
+					averageYvalue1 = (dataToPlot[i][numDataPointsPerLine - 3] + dataToPlot[i][numDataPointsPerLine - 2] + dataToPlot[i][numDataPointsPerLine - 1]) / 3.0;
+					averageYvalue2 = dataToPlot[i][numDataPointsPerLine - 1];
+				}
+				else {
+					// Entirely inside, use average of neighbors 2 to left and 2 to right
+					averageYvalue1 = (dataToPlot[i][j-2] + dataToPlot[i][j-1] + dataToPlot[i][j] + dataToPlot[i][j+1] + dataToPlot[i][j+2]) / 5.0;
+					averageYvalue2 = (dataToPlot[i][j-1] + dataToPlot[i][j] + dataToPlot[i][j+1] + dataToPlot[i][j+2] + dataToPlot[i][j+3]) / 5.0;
+				}
+				y0 = (int) Math.round((1.0 - (averageYvalue1 - minY) / (maxY - minY)) * (getHeight() - 2*padding - labelPadding)) + padding;
+				y1 = (int) Math.round((1.0 - (averageYvalue2 - minY) / (maxY - minY)) * (getHeight() - 2*padding - labelPadding)) + padding;
 				
 				g2.drawLine(x0, y0, x1, y1);
 			}

@@ -460,6 +460,7 @@ public class Autocannon extends Weapon {
 		}
 		
 		// I'm choosing to model this as if the splash damage from every bullet were to hit the primary target, even if the bullets themselves don't.
+		// TODO: maybe multiply Area Damage by its AoE Efficiency coefficient?
 		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * directDamage + magSize * areaDamage) / duration + neuroDPS;
 	}
 
