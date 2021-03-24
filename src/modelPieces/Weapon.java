@@ -328,6 +328,11 @@ public abstract class Weapon extends Observable {
 				}
 			}
 			
+			// Re-set AoE Efficiency
+			if (currentlyDealsSplashDamage()) {
+				setAoEEfficiency();
+			}
+			
 			if (updateGUI && countObservers() > 0) {
 				setChanged();
 				notifyObservers();
