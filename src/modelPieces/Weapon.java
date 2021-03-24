@@ -1016,6 +1016,9 @@ public abstract class Weapon extends Observable {
 	
 	// These methods are mostly pass-through to the internal AccuracyEstimator object
 	public void setAccuracyDistance(double newDistance) {
+		setAccuracyDistance(newDistance, true);
+	}
+	public void setAccuracyDistance(double newDistance, boolean updateGUI) {
 		// Input sanitization
 		if (newDistance > 0 && newDistance < 20) {
 			// Un-set these values for the new estimates
@@ -1023,8 +1026,7 @@ public abstract class Weapon extends Observable {
 			metric_weakpointAccuracy = -100;
 			
 			accEstimator.setDistance(newDistance);
-			// Because this method will only be called from the GUI, it doesn't need the updateGUI flag
-			if (countObservers() > 0) {
+			if (updateGUI && countObservers() > 0) {
 				setChanged();
 				notifyObservers();
 			}

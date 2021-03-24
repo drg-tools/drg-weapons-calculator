@@ -292,7 +292,7 @@ public class View extends JFrame implements Observer {
 		compareMenu.addSeparator();
 		loadCombinationToColumns = new JMenuItem[4];
 		for (i = 0; i < 4; i++) {
-			loadCombinationToColumns[i] = new JMenuItem("Load current build into column " + (i+1));
+			loadCombinationToColumns[i] = new JMenuItem("Load current build as combination #" + (i+1));
 			compareMenu.add(loadCombinationToColumns[i]);
 		}
 		menuBar.add(compareMenu);

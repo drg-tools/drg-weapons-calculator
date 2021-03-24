@@ -19,6 +19,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import buildComparators.CompareAccuracyGraphs;
 import buildComparators.CompareMetrics;
 import dataGenerator.DatabaseConstants;
 import dataGenerator.MetricsCalculator;
@@ -62,7 +63,8 @@ public class GuiController implements ActionListener {
 	private Weapon[] scoutWeapons;
 	private View gui;
 	private MetricsCalculator calculator;
-	private CompareMetrics buildsComparator;
+	private CompareMetrics metricsComparator;
+	private CompareAccuracyGraphs accuracyComparator;
 	private JFileChooser folderChooser;
 	
 	public static void main(String[] args) {
@@ -99,7 +101,8 @@ public class GuiController implements ActionListener {
 			weaponSelected = new Minigun();
 		}
 		calculator = new MetricsCalculator(weaponSelected);
-		buildsComparator = new CompareMetrics(weaponSelected);
+		metricsComparator = new CompareMetrics(weaponSelected);
+		accuracyComparator = new CompareAccuracyGraphs(weaponSelected);
 		folderChooser = new JFileChooser();
 		folderChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 	}
@@ -333,6 +336,7 @@ public class GuiController implements ActionListener {
 		Object e = arg0.getSource();
 		
 		Weapon currentlySelectedWeapon;
+		String currentlyEquippedCombination;
 		int classIndex = gui.getCurrentClassIndex();
 		
 		// Have these commands disabled when Information is at the front.
@@ -357,9 +361,12 @@ public class GuiController implements ActionListener {
 			System.out.println("Error: no weapons in GuiController's arrays");
 			currentlySelectedWeapon = new Minigun();
 		}
+		
+		currentlyEquippedCombination = currentlySelectedWeapon.getCombination();
 		calculator.changeWeapon(currentlySelectedWeapon);
 		// This method is coded to do nothing if it's trying to change the weapon to the one that's already selected
-		buildsComparator.changeWeapon(currentlySelectedWeapon);
+		metricsComparator.changeWeapon(currentlySelectedWeapon);
+		accuracyComparator.changeWeapon(currentlySelectedWeapon);
 		
 		// There are currently 15 options for Best Combinations menus
 		int i;
@@ -526,32 +533,45 @@ public class GuiController implements ActionListener {
 		
 		else if (e == gui.getCompareBuildMetrics()) {
 			// Adapted from https://stackoverflow.com/a/13760416 and https://www.tutorialspoint.com/how-to-display-a-jframe-to-the-center-of-a-screen-in-java
-			JOptionPane a = new JOptionPane(buildsComparator.getComparisonPanel(), JOptionPane.INFORMATION_MESSAGE);
-			JDialog d = a.createDialog(null, "Compare multiple builds directly:");
+			JOptionPane a = new JOptionPane(metricsComparator.getComparisonPanel(), JOptionPane.INFORMATION_MESSAGE);
+			JDialog d = a.createDialog(null, "Compare multiple builds directly, metric-to-metric");
 			d.setLocationRelativeTo(gui);
 			d.setVisible(true);
 		}
 		else if (e == gui.getCompareAccuracyGraphs()) {
-			// TODO: open a pop-out panel to let user enter two to four build Strings (or bress a button to make the leftmost one the currently-selected build in GUI), then select which of the metrics that use General and Weakpoint Accuracy they want to compare. Then, draw a plot visually.
+			if (currentlySelectedWeapon.getGeneralAccuracy() < 0.0) {
+				JOptionPane.showMessageDialog(gui, "This weapon doesn't use the Accuracy metrics in a meaningful way. As such, trying to compare builds in this manner is useless.", "Pointless Comparison", JOptionPane.INFORMATION_MESSAGE);
+			}
+			else {
+				// Adapted from https://stackoverflow.com/a/13760416 and https://www.tutorialspoint.com/how-to-display-a-jframe-to-the-center-of-a-screen-in-java
+				JOptionPane a = new JOptionPane(accuracyComparator.getComparisonPanel(), JOptionPane.INFORMATION_MESSAGE);
+				JDialog d = a.createDialog(null, "Visually compare metrics affected by Accuracy and distance");
+				d.setLocationRelativeTo(gui);
+				d.setVisible(true);
+			}
 		}
 		else if (e == gui.getCompareLoadCombinationIntoColumn(0)) {
-			buildsComparator.setNewBuildAtIndex(0, currentlySelectedWeapon.getCombination());
+			metricsComparator.setNewBuildAtIndex(0, currentlyEquippedCombination);
+			accuracyComparator.setNewBuildAtIndex(0, currentlyEquippedCombination);
 		}
 		else if (e == gui.getCompareLoadCombinationIntoColumn(1)) {
-			buildsComparator.setNewBuildAtIndex(1, currentlySelectedWeapon.getCombination());
+			metricsComparator.setNewBuildAtIndex(1, currentlyEquippedCombination);
+			accuracyComparator.setNewBuildAtIndex(1, currentlyEquippedCombination);
 		}
 		else if (e == gui.getCompareLoadCombinationIntoColumn(2)) {
-			buildsComparator.setNewBuildAtIndex(2, currentlySelectedWeapon.getCombination());
+			metricsComparator.setNewBuildAtIndex(2, currentlyEquippedCombination);
+			accuracyComparator.setNewBuildAtIndex(2, currentlyEquippedCombination);
 		}
 		else if (e == gui.getCompareLoadCombinationIntoColumn(3)) {
-			buildsComparator.setNewBuildAtIndex(3, currentlySelectedWeapon.getCombination());
+			metricsComparator.setNewBuildAtIndex(3, currentlyEquippedCombination);
+			accuracyComparator.setNewBuildAtIndex(3, currentlyEquippedCombination);
 		}
 		
 		else if (e == gui.getMiscScreenshot()) {
 			chooseFolder();
 			String weaponClass = currentlySelectedWeapon.getDwarfClass();
 			String weaponName = currentlySelectedWeapon.getSimpleName();
-			File pngOut = new File(calculator.getOutputFolder(), weaponClass + "_" + weaponName + "_" + currentlySelectedWeapon.getCombination() + ".png");
+			File pngOut = new File(calculator.getOutputFolder(), weaponClass + "_" + weaponName + "_" + currentlyEquippedCombination + ".png");
 			
 			// Sourced from https://stackoverflow.com/a/44019372
 			BufferedImage screenshot = gui.getScreenshot();
@@ -562,8 +582,7 @@ public class GuiController implements ActionListener {
 			}
 		}
 		else if (e == gui.getMiscExport()) {
-			String combination = currentlySelectedWeapon.getCombination();
-			JTextField output = new JTextField(combination);
+			JTextField output = new JTextField(currentlyEquippedCombination);
 			output.setFont(new Font("Monospaced", Font.PLAIN, 18));
 			
 			// Adapted from https://stackoverflow.com/a/13760416 and https://www.tutorialspoint.com/how-to-display-a-jframe-to-the-center-of-a-screen-in-java

@@ -39,6 +39,7 @@ public class GuiConstants {
 	public static Font customFont = RobotoCondensed(false, 15f);
 	public static Font customFontBold = RobotoCondensed(true, 15f);
 	public static Font customFontHeader = RobotoCondensed(false, 18f);
+	public static Font customFontTitle = RobotoCondensed(true, 30f);
 	public static int fontHeight = 11;  // Estimated
 	
 	// Custom colors that the GUI uses

@@ -2,6 +2,7 @@ package buildComparators;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -21,9 +22,7 @@ import modelPieces.StatsRow;
 import modelPieces.Weapon;
 
 public class CompareMetrics extends Comparator {
-	private JButton compareBuilds;
 	private JCheckBox enableWeakpoints, enableAccuracy, enableArmorWasting;
-	private JLabel[] metricNames;
 	private JLabel[][] outputMatrix;
 	
 	private JButton showBreakpointsComparison;
@@ -70,31 +69,35 @@ public class CompareMetrics extends Comparator {
 		grid.add(new JLabel());
 		
 		buildInput1 = new JTextField(build1);
+		buildInput1.setFont(new Font("Monospaced", Font.PLAIN, 18));
 		grid.add(buildInput1);
 		buildInput2 = new JTextField(build2);
+		buildInput2.setFont(new Font("Monospaced", Font.PLAIN, 18));
 		grid.add(buildInput2);
 		buildInput3 = new JTextField(build3);
+		buildInput3.setFont(new Font("Monospaced", Font.PLAIN, 18));
 		grid.add(buildInput3);
 		buildInput4 = new JTextField(build4);
+		buildInput4.setFont(new Font("Monospaced", Font.PLAIN, 18));
 		grid.add(buildInput4);
 		
 		// Rows 2-16: metrics
-		metricNames = new JLabel[] {
-			new JLabel("Burst DPS:"),
-			new JLabel("Sustained DPS:"),
-			new JLabel("Additional Target DPS:"),
-			new JLabel("Max Num Targets:"),
-			new JLabel("Max Multi-Target Damage:"),
-			new JLabel("Ammo Efficiency:"),
-			new JLabel("% Damage Wasted by Armor:"),
-			new JLabel("General Accuracy %:"),
-			new JLabel("Weakpoint Accuracy %:"),
-			new JLabel("Firing Duration:"),
-			new JLabel("Avg TTK:"),
-			new JLabel("Avg Overkill %:"),
-			new JLabel("Breakpoints:"),
-			new JLabel("Utility:"),
-			new JLabel("Avg Time to Ignite/Freeze:")
+		JLabel[] metricNames = new JLabel[] {
+			new JLabel("  Burst DPS:"),
+			new JLabel("  Sustained DPS:"),
+			new JLabel("  Additional Target DPS:"),
+			new JLabel("  Max Num Targets:"),
+			new JLabel("  Max Multi-Target Damage:"),
+			new JLabel("  Ammo Efficiency:"),
+			new JLabel("  % Damage Wasted by Armor:    "),
+			new JLabel("  General Accuracy %:"),
+			new JLabel("  Weakpoint Accuracy %:"),
+			new JLabel("  Firing Duration:"),
+			new JLabel("  Avg TTK:"),
+			new JLabel("  Avg Overkill %:"),
+			new JLabel("  Breakpoints:"),
+			new JLabel("  Utility:"),
+			new JLabel("  Avg Time to Ignite/Freeze:")
 		};
 		outputMatrix = new JLabel[15][4];
 		for (int row = 0; row < 15; row++) {
@@ -126,44 +129,7 @@ public class CompareMetrics extends Comparator {
 			/*
 				First, sanitize the 4 text inputs and return early if any non-empty fields fail validation.
 			*/
-			String build1ErrorMsg="", build2ErrorMsg="", build3ErrorMsg="", build4ErrorMsg="";
-			if (!buildInput1.getText().equals("") && !baseModel.isCombinationValid(buildInput1.getText())) {
-				build1ErrorMsg = baseModel.getInvalidCombinationErrorMessage();
-			}
-			if (!buildInput2.getText().equals("") && !baseModel.isCombinationValid(buildInput2.getText())) {
-				build2ErrorMsg = baseModel.getInvalidCombinationErrorMessage();
-			}
-			if (!buildInput3.getText().equals("") && !baseModel.isCombinationValid(buildInput3.getText())) {
-				build3ErrorMsg = baseModel.getInvalidCombinationErrorMessage();
-			}
-			if (!buildInput4.getText().equals("") && !baseModel.isCombinationValid(buildInput4.getText())) {
-				build4ErrorMsg = baseModel.getInvalidCombinationErrorMessage();
-			}
-			
-			if (build1ErrorMsg.length() > 0 || build2ErrorMsg.length() > 0 || build3ErrorMsg.length() > 0 || build4ErrorMsg.length() > 0) {
-				// Send a pop-up with the error message(s) and then return early for failure state.
-				String errorMessage = "<html><body><p style=\"color:red\">";
-				
-				if (build1ErrorMsg.length() > 0) {
-					errorMessage += "Column 1 errors:<br/>";
-					errorMessage += build1ErrorMsg + "<br/>";
-				}
-				if (build2ErrorMsg.length() > 0) {
-					errorMessage += "Column 2 errors:<br/>";
-					errorMessage += build2ErrorMsg + "<br/>";
-				}
-				if (build3ErrorMsg.length() > 0) {
-					errorMessage += "Column 3 errors:<br/>";
-					errorMessage += build3ErrorMsg + "<br/>";
-				}
-				if (build4ErrorMsg.length() > 0) {
-					errorMessage += "Column 4 errors:<br/>";
-					errorMessage += build4ErrorMsg + "<br/>";
-				}
-				
-				errorMessage += "</p></body></html>";
-				
-				JOptionPane.showMessageDialog(null, errorMessage, "One or more of the builds is invalid", JOptionPane.ERROR_MESSAGE);
+			if (!areAllBuildsValid()) {
 				return;
 			}
 		
@@ -323,7 +289,7 @@ public class CompareMetrics extends Comparator {
 					Sixth, fill out the outputMatrix and setForeground() accordingly
 				*/
 				for (j = 0; j < numBuildsToCompare; j++) {
-					outputMatrix[i][j].setText(metricsToCompare[j][i] + "");
+					outputMatrix[i][j].setText("  " + metricsToCompare[j][i]);
 					if (bestIndex > -1 && j == bestIndex) {
 						outputMatrix[i][j].setForeground(GuiConstants.drgOverclockCleanGreen);
 					}
@@ -343,7 +309,7 @@ public class CompareMetrics extends Comparator {
 		else if (e == showBreakpointsComparison) {
 			// Adapted from https://stackoverflow.com/a/13760416 and https://www.tutorialspoint.com/how-to-display-a-jframe-to-the-center-of-a-screen-in-java
 			JOptionPane a = new JOptionPane(compareBreakpoints, JOptionPane.INFORMATION_MESSAGE);
-			JDialog d = a.createDialog(null, "Compare the breakpoints of multiple builds:");
+			JDialog d = a.createDialog(null, "Compare the breakpoints of multiple builds");
 			d.setVisible(true);
 		}
 	}
