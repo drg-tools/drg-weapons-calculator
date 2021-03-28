@@ -22,8 +22,8 @@ import javax.swing.ToolTipManager;
 
 import dataGenerator.DatabaseConstants;
 import guiPieces.customButtons.CustomJMenuCheckbox;
-import modelPieces.Weapon;
 import utilities.ResourceLoader;
+import weapons.Weapon;
 
 public class View extends JFrame implements Observer {
 	

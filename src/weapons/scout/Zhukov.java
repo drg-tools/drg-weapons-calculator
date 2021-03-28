@@ -1,4 +1,4 @@
-package scoutWeapons;
+package weapons.scout;
 
 import java.util.ArrayList;
 
@@ -12,9 +12,9 @@ import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
-import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
+import weapons.Weapon;
 
 public class Zhukov extends Weapon {
 	

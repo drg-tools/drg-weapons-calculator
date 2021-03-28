@@ -1,4 +1,4 @@
-package engineerWeapons;
+package weapons.engineer;
 
 import java.util.ArrayList;
 
@@ -13,9 +13,9 @@ import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
-import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
+import weapons.Weapon;
 
 // Breach Cutter doesn't gain damage from Frozen, and only its Damage per Tick gets boosted by Weakpoint damage. Impact Damage is unaffected when hitting weakpoint.
 public class BreachCutter extends Weapon {

@@ -1,4 +1,4 @@
-package scoutWeapons;
+package weapons.scout;
 
 import java.util.ArrayList;
 
@@ -12,10 +12,10 @@ import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
-import modelPieces.Weapon;
 import spreadCurves.ClassicCurve;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
+import weapons.Weapon;
 
 public abstract class Classic extends Weapon {
 	

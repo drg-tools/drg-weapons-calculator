@@ -8,7 +8,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import modelPieces.Weapon;
+import weapons.Weapon;
 
 public abstract class Comparator implements ActionListener {
 	protected Weapon baseModel;

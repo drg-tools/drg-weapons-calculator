@@ -1,4 +1,4 @@
-package drillerWeapons;
+package weapons.driller;
 
 import java.util.ArrayList;
 
@@ -11,9 +11,9 @@ import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
-import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
+import weapons.Weapon;
 
 public class CryoCannon extends Weapon {
 	

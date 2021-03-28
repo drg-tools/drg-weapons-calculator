@@ -1,4 +1,4 @@
-package modelPieces;
+package weapons;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -11,6 +11,11 @@ import javax.swing.JPanel;
 import guiPieces.AoEVisualizer;
 import guiPieces.GuiConstants;
 import guiPieces.customButtons.ButtonIcons.modIcons;
+import modelPieces.AccuracyEstimator;
+import modelPieces.EnemyInformation;
+import modelPieces.Mod;
+import modelPieces.Overclock;
+import modelPieces.StatsRow;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 import utilities.Point2D;

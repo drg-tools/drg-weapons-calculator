@@ -1,4 +1,4 @@
-package drillerWeapons;
+package weapons.driller;
 
 import java.util.ArrayList;
 
@@ -10,9 +10,9 @@ import guiPieces.customButtons.ButtonIcons.overclockIcons;
 import modelPieces.DoTInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
-import modelPieces.Weapon;
 import utilities.ConditionalArrayList;
 import utilities.MathUtils;
+import weapons.Weapon;
 
 /*
 	Extracted via UUU:

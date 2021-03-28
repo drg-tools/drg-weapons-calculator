@@ -21,8 +21,8 @@ import guiPieces.CustomCursors;
 import guiPieces.GuiConstants;
 import guiPieces.HoverText;
 import guiPieces.customButtons.ButtonIcons.statusEffectIcons;
-import modelPieces.Weapon;
 import net.coobird.thumbnailator.Thumbnails;
+import weapons.Weapon;
 
 public class StatusEffectButton extends JButton implements ActionListener, MouseMotionListener {
 	private static final long serialVersionUID = 1L;

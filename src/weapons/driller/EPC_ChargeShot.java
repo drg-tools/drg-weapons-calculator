@@ -1,4 +1,4 @@
-package drillerWeapons;
+package weapons.driller;
 
 import guiPieces.customButtons.ButtonIcons.modIcons;
 import modelPieces.DoTInformation;

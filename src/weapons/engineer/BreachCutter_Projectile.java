@@ -1,4 +1,4 @@
-package engineerWeapons;
+package weapons.engineer;
 
 import guiPieces.customButtons.ButtonIcons.modIcons;
 import modelPieces.StatsRow;

@@ -25,7 +25,7 @@ import javax.swing.JTextField;
 
 import guiPieces.GuiConstants;
 import modelPieces.Overclock;
-import modelPieces.Weapon;
+import weapons.Weapon;
 
 public class CompareAccuracyGraphs extends Comparator {
 	

@@ -1,4 +1,4 @@
-package scoutWeapons;
+package weapons.scout;
 
 import guiPieces.customButtons.ButtonIcons.modIcons;
 import modelPieces.DoTInformation;

@@ -19,7 +19,7 @@ import javax.swing.JTextField;
 
 import guiPieces.GuiConstants;
 import modelPieces.StatsRow;
-import modelPieces.Weapon;
+import weapons.Weapon;
 
 public class CompareMetrics extends Comparator {
 	private JCheckBox enableWeakpoints, enableAccuracy, enableArmorWasting;

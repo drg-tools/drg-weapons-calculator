@@ -27,8 +27,8 @@ import modelPieces.DoTInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
-import modelPieces.Weapon;
 import utilities.MathUtils;
+import weapons.Weapon;
 
 public class WeaponTab extends JPanel {
 	private static final long serialVersionUID = 1L;
