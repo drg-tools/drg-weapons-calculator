@@ -1413,29 +1413,24 @@ public class EnemyInformation {
 		This method intentionally ignores elemental resistances/weaknesses and weakpoint damage bonuses because I don't want to repeat the Breakpoints insanity.
 	*/
 	public static double[][] overkillPerCreature(double totalDamagePerShot){
-		double[][] toReturn = new double[2][exactSpawnRates.length];
-		toReturn[0] = new double[exactSpawnRates.length];
-		toReturn[1] = new double[exactSpawnRates.length];
+		int numEnemies = enemiesModeled.length;
+		double[][] toReturn = new double[2][numEnemies];
+		toReturn[0] = new double[numEnemies];
+		toReturn[1] = new double[numEnemies];
 		
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
-		HashSet<Integer> normalEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 1, 2, 3, 5, 8, 9, 14, 20, 21, 22}));
-		HashSet<Integer> largeEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {4, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19}));
-		
 		double creatureHP;
-		for (int i = 0; i < exactSpawnRates.length; i++) {
-			if (normalEnemyScalingIndexes.contains(i)) {
-				creatureHP = enemyHealthPools[i] * normalResistance;
-			}
-			else if (largeEnemyScalingIndexes.contains(i)) {
-				creatureHP = enemyHealthPools[i] * largeResistance;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			if (enemiesModeled[i].usesNormalScaling()) {
+				creatureHP = enemiesModeled[i].getBaseHealth() * normalResistance;
 			}
 			else {
-				creatureHP = enemyHealthPools[i];
+				creatureHP = enemiesModeled[i].getBaseHealth() * largeResistance;
 			}
 			
-			toReturn[0][i] = 1.0 / ((double) exactSpawnRates.length);
+			toReturn[0][i] = 1.0 / ((double) numEnemies);
 			toReturn[1][i] = ((Math.ceil(creatureHP / totalDamagePerShot) * totalDamagePerShot) / creatureHP - 1.0) * 100.0;
 		}
 		
