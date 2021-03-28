@@ -19,6 +19,7 @@ public class QronarShellback extends Enemy {
 		
 		// If this number is greater than 0, that means that it takes less damage from that particular element.
 		// Conversely, if it's less than 0 it takes extra damage from that particular element
+		// Weighted Q'Ronar Shellback rolling state at 2/3 and non-rolling state at 1/3
 		double qronarShellbackRolling = 0.66;
 		double qronarShellbackUnrolled = 0.34;
 		explosiveResistance = qronarShellbackRolling * 0.8;

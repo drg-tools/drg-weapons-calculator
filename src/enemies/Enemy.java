@@ -6,7 +6,17 @@ public class Enemy {
 	* Class Variables
 	****************************************************************************************/
 	
+	// These are the values that I guessed for the proportion of each enemy spawn type. It worked REALLY well for avg TTK-based mods like Cold as the Grave and Battle Cool, but it's not representative of the actual game.
+	// All of these numbers must sum up to exactly 1.0 for it to be a probability vector.
 	protected double guessedSpawnProbability;
+	/* 
+		When U33 introduced the Tri-Jaw and Brundle common enemies, I had to redo these probabilities. To that end I chose to write down what the current kill counter was for every enemy type,
+		and then play vanilla Haz4/5 until I achieved at least 15,000 Grunt kills. In the end it took me about 50 hours of playtime to achieve that, and I ended up with a total of 33,606 kills 
+		of all kinds for these probability amounts. It's not as broad as U31's 153,000 kills from 6 players, but I didn't want to ask people to go 50 hours of playtime only on vanilla Haz4/5.
+		
+		Biome-specific enemies, "hatchling" enemy types, and Dreadnoughts not included.
+		All of these numbers must sum up to exactly 1.0 for it to be a probability vector.
+	*/
 	protected double exactSpawnProbability;
 	
 	// Only the largest/tankiest enemies have this set to false.
@@ -14,26 +24,36 @@ public class Enemy {
 	
 	protected String enemyName;
 	protected boolean macteraType = false;  // Used for Subata T5.B
+	// These base values are just taken from the Wiki's default values; Hazard level and player count not factored in. (effectively Haz2, 4 players)
 	protected double baseHealth;
 	protected boolean normalScaling;
 	
 	protected boolean hasWeakpoint = false;
+	// These numbers are taken straight from the Wiki
 	protected double weakpointMultiplier;
+	// These numbers are estimates of what percentage of bullets shot at each enemy type will hit the enemy's weakpoints
 	protected double estimatedProbabilityBulletHitsWeakpoint;
 	// TODO: this could be a good place to model breakable Weakpoints later?
 	
+	// Resistance/weakness values taken from Elythnwaen's Spreadsheet
 	// If this number is greater than 0, that means that it takes less damage from that particular element.
 	// Conversely, if it's less than 0 it takes extra damage from that particular element
+	// None of the enemies I'm modeling resist Poison or Radiation damage
 	protected double explosiveResistance = 0.0, fireResistance = 0.0, frostResistance = 0.0, electricResistance = 0.0;
 	
+	// This info comes from Elythnwaen's Temperatures spreadsheet, and many of those values were seeded from MikeGSG giving us the values for the 5 "base" creature types.
 	protected double temperatureUpdateTime = 1.0, temperatureChangeScale = 1.0;
 	protected double igniteTemperature, douseTemperature, coolingRate;
 	protected double freezeTemperature, unfreezeTemperature, warmingRate;
 	// These three variables are currently unused by my modeling
 	// protected double onFireHeatRange, warmingCooldown, maxColdSlowdown;
 	
+	// This information extracted via UUU
 	protected double courage = 0.0;  // aka "Fear Resistance"
-	protected double maxMovespeedWhenFeared = 0.0;  // Enemies that fly, can't move on the ground, or can't be feared will have this value set to zero to maintain correct values.
+	// Used to determine average regular Fear duration. Enemies that fly, can't move on the ground, or can't be feared will have this value set to zero to maintain correct values.
+	// Additionally, all creatures that get Feared have a x1.5 speedboost, except for Oppressor (x2) and Bulk/Crassus/Dread (x1) which can only be feared by Field Medic/SYiH/Bosco Revive
+	// Values listed as m/sec groundspeed
+	protected double maxMovespeedWhenFeared = 0.0;
 	
 	protected boolean hasLightArmor = false, hasHeavyArmorRNG = false, hasHeavyArmorHealth = false, heavyArmorCoversWeakpoint = false, hasUnbreakableArmor = false;
 	protected double armorStrength = 0.0, armorBaseHealth = 0.0;

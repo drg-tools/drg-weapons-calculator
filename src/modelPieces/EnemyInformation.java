@@ -1,8 +1,6 @@
 package modelPieces;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -12,7 +10,6 @@ import enemies.mactera.*;
 import enemies.other.*;
 import utilities.MathUtils;
 
-// TODO: remove Crassus Detonator from the enemy pool because it spawns more like a BET-C or Korlok than the common "swarm" enemies that this program uses for its models.
 public class EnemyInformation {
 	
 	private static int hazardLevel = 4;
@@ -27,149 +24,6 @@ public class EnemyInformation {
 			playerCount = newPlayerCount;
 		}
 	}
-	
-	// These are the values that I guessed for the proportion of each enemy spawn type. It worked REALLY well for avg TTK-based mods like Cold as the Grave and Battle Cool, but it's not representative of the actual game.
-	// All of these numbers must sum up to exactly 1.0 for it to be a probability vector.
-	private static double[] guessedSpawnRates = {
-		0.165, // Glyphid Swarmer
-		0.25,  // Glyphid Grunt
-		0.07,  // Glyphid Grunt Guard
-		0.07,  // Glyphid Grunt Slasher
-		0.04,  // Glyphid Praetorian
-		0.04,  // Glyphid Exploder
-		0.01,  // Glyphid Bulk Detonator
-		0.005, // Glyphid Crassus Detonator
-		0.04,  // Glyphid Webspitter
-		0.02,  // Glyphid Acidspitter
-		0.02,  // Glyphid Menace
-		0.02,  // Glyphid Warden
-		0.01,  // Glyphid Oppressor
-		0.01,  // Q'ronar Shellback
-		0.08,  // Mactera Spawn
-		0.01,  // Mactera Grabber
-		0.03,  // Mactera Bomber
-		0.02,  // Naedocyte Breeder
-		0.02,  // Glyphid Brood Nexus
-		0.01,  // Spitball Infector
-		0.01,  // Cave Leech
-		0.04,  // Mactera Tri-Jaw
-		0.01   // Mactera Brundle
-	};
-	
-	/* 
-		When U33 introduced the Tri-Jaw and Brundle common enemies, I had to redo these probabilities. To that end I chose to write down what the current kill counter was for every enemy type,
-		and then play vanilla Haz4/5 until I achieved at least 15,000 Grunt kills. In the end it took me about 50 hours of playtime to achieve that, and I ended up with a total of 33,606 kills 
-		of all kinds for these probability amounts. It's not as broad as U31's 153,000 kills from 6 players, but I didn't want to ask people to go 50 hours of playtime only on vanilla Haz4/5.
-		
-		Biome-specific enemies, "hatchling" enemy types, and Dreadnoughts not included.
-		All of these numbers must sum up to exactly 1.0 for it to be a probability vector.
-	*/
-	private static double[] exactSpawnRates = {
-		0.2503719574, 	 // Glyphid Swarmer
-		0.4661369993,  	 // Glyphid Grunt
-		0.05400821282,   // Glyphid Grunt Guard
-		0.05838243171,   // Glyphid Grunt Slasher
-		0.02074034399,   // Glyphid Praetorian
-		0.03895137773,   // Glyphid Exploder
-		0.001220020234,  // Glyphid Bulk Detonator
-		0.00002975659108,// Glyphid Crassus Detonator
-		0.02963756472,   // Glyphid Webspitter
-		0.01276557758,   // Glyphid Acidspitter
-		0.001577099328,  // Glyphid Menace
-		0.002082961376,  // Glyphid Warden
-		0.00330298161,   // Glyphid Oppressor
-		0.001755638874,  // Q'ronar Shellback
-		0.02550139856,   // Mactera Spawn
-		0.001934178421,  // Mactera Grabber
-		0.005088377076,  // Mactera Bomber
-		0.000684401595,  // Naedocyte Breeder
-		0.001666369101,  // Glyphid Brood Nexus
-		0.003660060703,  // Spitball Infector
-		0.004552758436,  // Cave Leech
-		0.01282509076,   // Mactera Tri-Jaw
-		0.003124442064   // Mactera Brundle
-	};
-	
-	// These numbers are estimates of what percentage of bullets shot at each enemy type will hit the enemy's weakpoints
-	private static double[] probabilityBulletHitsWeakpointPerEnemyType = {
-		0.0,  // Glyphid Swarmer (no weakpoint)
-		0.9,  // Glyphid Grunt
-		0.5,  // Glyphid Grunt Guard
-		0.9,  // Glyphid Grunt Slasher
-		0.4,  // Glyphid Praetorian
-		0.1,  // Glyphid Exploder
-		0.2,  // Glyphid Bulk Detonator
-		0.2,  // Glyphid Crassus Detonator
-		0.1,  // Glyphid Webspitter
-		0.4,  // Glyphid Acidspitter
-		0.7,  // Glyphid Menace
-		0.5,  // Glyphid Warden
-		1.0,  // Glyphid Oppressor
-		0.1,  // Q'ronar Shellback
-		0.8,  // Mactera Spawn
-		0.2,  // Mactera Grabber
-		0.9,  // Mactera Bomber
-		0.1,  // Naedocyte Breeder
-		0.9,  // Glyphid Brood Nexus
-		0.4,  // Spitball Infector
-		0.0,  // Cave Leech (no weakpoint)
-		0.8,  // Mactera Tri-Jaw
-		0.6   // Mactera Brundle
-	};
-
-	// These numbers are taken straight from the Wiki
-	private static double[] defaultWeakpointDamageBonusPerEnemyType = {
-		0.0,  // Glyphid Swarmer (no weakpoint)
-		2.0,  // Glyphid Grunt
-		2.0,  // Glyphid Grunt Guard
-		2.0,  // Glyphid Grunt Slasher
-		1.0,  // Glyphid Praetorian (has a weakpoint, but it only takes normal damage without mods/OCs)
-		2.0,  // Glyphid Exploder
-		3.0,  // Glyphid Bulk Detonator
-		3.0,  // Glyphid Crassus Detonator
-		2.0,  // Glyphid Webspitter
-		2.0,  // Glyphid Acidspitter
-		2.0,  // Glyphid Menace
-		3.0,  // Glyphid Warden
-		1.0,  // Glyphid Oppressor (has a weakpoint, but it only takes normal damage without mods/OCs)
-		2.0,  // Q'ronar Shellback
-		3.0,  // Mactera Spawn
-		3.0,  // Mactera Grabber
-		3.0,  // Mactera Bomber
-		3.0,  // Naedocyte Breeder
-		2.0,  // Glyphid Brood Nexus
-		2.0,  // Spitball Infector
-		0.0,  // Cave Leech (no weakpoint)
-		3.0,  // Mactera Tri-Jaw
-		3.0   // Mactera Brundle
-	};
-	
-	// These base values are just taken from the Wiki's default values; Hazard level and player count not factored in. (effectively Haz2, 4 players)
-	private static double[] enemyHealthPools = {
-		12,    // Glyphid Swarmer
-		90,    // Glyphid Grunt
-		270,   // Glyphid Grunt Guard
-		148,   // Glyphid Grunt Slasher
-		750,   // Glyphid Praetorian
-		20,    // Glyphid Exploder
-		4000,  // Glyphid Bulk Detonator
-		6000,  // Glyphid Crassus Detonator
-		40,    // Glyphid Webspitter
-		120,   // Glyphid Acidspitter
-		700,   // Glyphid Menace
-		800,   // Glyphid Warden
-		900,   // Glyphid Oppressor
-		450,   // Q'ronar Shellback
-		223,   // Mactera Spawn
-		500,   // Mactera Grabber
-		800,   // Mactera Bomber
-		1500,  // Naedocyte Breeder
-		1800,  // Glyphid Brood Nexus
-		800,   // Spitball Infector
-		100,   // Cave Leech
-		350,   // Mactera Tri-Jaw
-		600    // Mactera Brundle
-	};
 	
 	// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
 	private static double[] normalEnemyResistances = {
@@ -190,133 +44,6 @@ public class EnemyInformation {
 		{1.20, 1.20, 1.40, 1.50}   // Haz5
 	};
 	
-	// Resistance/weakness values taken from Elythnwaen's Spreadsheet
-	// Positive number means that the creature resists that element; negative means it's weak to that element.
-	// None of the enemies I'm modeling resist Poison or Radiation damage
-	
-	// Weighted Q'Ronar Shellback rolling state at 2/3 and non-rolling state at 1/3
-	private static double qronarShellbackRolling = 0.66;
-	private static double qronarShellbackUnolled = 0.34;
-	private static double[][] enemyResistances = {
-		// Explosive, Fire, Frost, Electric
-		{0, 0, 0, 0},  				// Glyphid Swarmer
-		{0, 0, 0, 0},  				// Glyphid Grunt
-		{0.3, 0.25, 0.3, 0},  		// Glyphid Grunt Guard
-		{-0.3, 0, 0, 0},  			// Glyphid Grunt Slasher
-		{0, 0, 0, 0},  				// Glyphid Praetorian
-		{0, 0, 0, 0},  				// Glyphid Exploder
-		{0.5, 0, 0, 0},  			// Glyphid Bulk Detonator
-		{0.5, 0, 0, 0},  			// Glyphid Crassus Detonator
-		{0, 0, 0, 0},  				// Glyphid Webspitter
-		{0, 0, 0, -0.1},  			// Glyphid Acidspitter
-		{0, 0, 0, 0},  				// Glyphid Menace
-		{0, 0, 0, 0},  				// Glyphid Warden
-		{0.66, 0.66, 0.5, 0.25},  	// Glyphid Oppressor
-		{qronarShellbackRolling*0.8, qronarShellbackRolling*0.3 + qronarShellbackUnolled*-0.5, qronarShellbackRolling*0.3 + qronarShellbackUnolled*-0.7, qronarShellbackRolling*1.0},  // Q'ronar Shellback
-		{-1, -1, 0, -0.5},  		// Mactera Spawn
-		{0, 0, 0, 0},  				// Mactera Grabber
-		{0, -0.2, 0, 0},  			// Mactera Bomber
-		{0, 0, 0, 0},  				// Naedocyte Breeder
-		{0, 0, 0, 0},  				// Glyphid Brood Nexus
-		{0, -1, 0, 0},  			// Spitball Infector
-		{0, 0, 0, 0},   			// Cave Leech
-		{-1, -1, 0, -0.5},  		// Mactera Tri-Jaw
-		{-1, -1, 0, -0.5}   		// Mactera Brundle
-	};
-	
-	// This info comes from Elythnwaen's Temperatures spreadsheet, and many of those values were seeded from MikeGSG giving us the values for the 5 "base" creature types.
-	private static double[][] enemyTemperatures = {
-		// Ignite Temp, Douse Temp, Heat Loss Rate, Freeze Temp, Thaw Temp, Heat Gain Rate
-		{5, 0, 1, -20, 0, 2},			// Glyphid Swarmer
-		{30, 10, 6, -30, 0, 6},			// Glyphid Grunt
-		{60, 40, 6, -80, -40, 6},		// Glyphid Grunt Guard
-		{30, 10, 6, -30, 0, 6},			// Glyphid Grunt Slasher
-		{100, 40, 10, -150, -100, 10},	// Glyphid Praetorian
-		{10, 0, 6, -10, 0, 12},			// Glyphid Exploder
-		{60, 30, 10, -490, -200, 300},	// Glyphid Bulk Detonator
-		{60, 30, 10, -490, -200, 300},	// Glyphid Crassus Detonator
-		{30, 0, 6, -75, 0, 10},			// Glyphid Webspitter
-		{35, 5, 6, -50, 0, 6},			// Glyphid Acidspitter
-		{30, 0, 6, -50, 0, 6},			// Glyphid Menace
-		{50, 25, 6, -70, -30, 6},		// Glyphid Warden
-		{100, 40, 20, -300, -200, 100},	// Glyphid Oppressor
-		{100, 70, 10, -120, 0, 10},		// Q'ronar Shellback
-		{35, 5, 10, -100, 0, 40},		// Mactera Spawn
-		{30, 0, 10, -180, 0, 40},		// Mactera Grabber
-		{35, 5, 10, -320, 0, 50},		// Mactera Bomber
-		{60, 30, 10, -150, 0, 40},		// Naedocyte Breeder
-		{30/4.0, 0, 4, -50/4.0, 0, 4},	// Glyphid Brood Nexus
-		{30, 0, 10, -50, 0, 10},		// Spitball Infector
-		{30, 0, 10, -50, 0, 10},		// Cave Leech
-		{35, 5, 10, -100, 0, 40}, 		// Mactera Tri-Jaw
-		{35, 5, 10, -200, 0, 40}  		// Mactera Brundle
-	};
-	
-	// This information comes straight from MikeGSG -- Thanks, Mike!
-	private static double[] enemyLightArmorStrengthValues = {
-		15,  // Glyphid Grunt
-		15,  // Glyphid Grunt Guard
-		15,  // Glyphid Grunt Slasher
-		10,  // Glyphid Webspitter
-		10,  // Glyphid Acidspitter
-	};
-	
-	// This information extracted via UUU
-	private static double[] enemyCourageValues = {
-		0.0,  // Glyphid Swarmer
-		0.5,  // Glyphid Grunt
-		0.5,  // Glyphid Grunt Guard
-		0.5,  // Glyphid Grunt Slasher
-		0.5,  // Glyphid Praetorian
-		0.0,  // Glyphid Exploder
-		1.0,  // Glyphid Bulk Detonator
-		1.0,  // Glyphid Crassus Detonator
-		0.3,  // Glyphid Webspitter
-		0.3,  // Glyphid Acidspitter
-		0.7,  // Glyphid Menace
-		0.5,  // Glyphid Warden
-		1.0,  // Glyphid Oppressor (technically 100.0 in-game, but I think that's an erroneous value.)
-		0.0,  // Q'ronar Shellback
-		0.0,  // Mactera Spawn
-		0.0,  // Mactera Grabber
-		0.0,  // Mactera Bomber
-		0.0,  // Naedocyte Breeder
-		0.0,  // Glyphid Brood Nexus
-		0.0,  // Spitball Infector
-		0.0,  // Cave Leech
-		0.0,  // Mactera Tri-Jaw
-		0.0   // Mactera Brundle
-	};
-	
-	// Used to determine average regular Fear duration. Enemies that fly, can't move on the ground, or can't be feared will have this value set to zero to maintain correct values.
-	// Additionally, all creatures that get Feared have a x1.5 speedboost, except for Oppressor (x2) and Bulk/Crassus/Dread (x1) which can only be feared by Field Medic/SYiH/Bosco Revive
-	// Values listed as m/sec groundspeed
-	private static double[] enemyFearMovespeed = {
-		3.5,  // Glyphid Swarmer
-		2.9,  // Glyphid Grunt
-		2.7,  // Glyphid Grunt Guard
-		3.1,  // Glyphid Grunt Slasher
-		2.0,  // Glyphid Praetorian
-		4.0,  // Glyphid Exploder
-		0.0,  // Glyphid Bulk Detonator
-		0.0,  // Glyphid Crassus Detonator
-		2.5,  // Glyphid Webspitter
-		2.5,  // Glyphid Acidspitter
-		2.5,  // Glyphid Menace
-		2.9,  // Glyphid Warden
-		0.0,  // Glyphid Oppressor
-		0.0,  // Q'ronar Shellback
-		0.0,  // Mactera Spawn
-		0.0,  // Mactera Grabber
-		0.0,  // Mactera Bomber
-		0.0,  // Naedocyte Breeder
-		0.0,  // Glyphid Brood Nexus
-		0.0,  // Spitball Infector
-		0.0,  // Cave Leech
-		0.0,  // Mactera Tri-Jaw
-		0.0   // Mactera Brundle
-	};
-	
 	private static double[] movespeedDifficultyScaling = {
 		0.8,  // Haz1
 		0.9,  // Haz2
@@ -325,6 +52,17 @@ public class EnemyInformation {
 		1.1   // Haz5
 	};
 	
+	/* 
+		Dimensions of a Glyphid Grunt used for estimating how many grunts would be hit by AoE damage of a certain radius 
+		(see method Weapon.calculateNumGlyphidsInRadius())
+		Measured using meters
+	*/
+	// This is the radius of a Glyphid Grunt's hitbox that shouldn't overlap with other grunts, like the torso
+	public static double GlyphidGruntBodyRadius = 0.41;
+	// This is the radius of the entire Glyphid Grunt, from its center to the tip of its legs. The legs can overlap with other Grunts' legs.
+	public static double GlyphidGruntBodyAndLegsRadius = 0.97;
+	
+	// Organized in same order as in-game Miner's Manual
 	private static Enemy[] enemiesModeled = new Enemy[] {
 		new Swarmer(),
 		new Grunt(),
@@ -1436,15 +1174,4 @@ public class EnemyInformation {
 		
 		return toReturn;
 	}
-	
-	/* 
-		Dimensions of a Glyphid Grunt used for estimating how many grunts would be hit by AoE damage of a certain radius 
-		(see method Weapon.calculateNumGlyphidsInRadius())
-		Measured using meters
-	*/
-	// This is the radius of a Glyphid Grunt's hitbox that shouldn't overlap with other grunts, like the torso
-	public static double GlyphidGruntBodyRadius = 0.41;
-	// This is the radius of the entire Glyphid Grunt, from its center to the tip of its legs. The legs can overlap with other Grunts' legs.
-	public static double GlyphidGruntBodyAndLegsRadius = 0.97;
-	
 }
