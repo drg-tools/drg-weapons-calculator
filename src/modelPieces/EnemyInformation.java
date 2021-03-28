@@ -597,7 +597,11 @@ public class EnemyInformation {
 		return averageFearDuration(0.0, 0.0);
 	}
 	public static double averageFearDuration(double enemySlowMultiplier, double slowDuration) {
-		double averageFearMovespeed = MathUtils.vectorDotProduct(exactSpawnRates, enemyFearMovespeed);
+		double averageFearMovespeed = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			averageFearMovespeed += enemiesModeled[i].getSpawnProbability(true) * enemiesModeled[i].getMaxMovespeedWhenFeared();
+		}
+		
 		double difficultyScalingMovespeedModifier = movespeedDifficultyScaling[hazardLevel - 1];
 		
 		// This value gathered from internal property TSK_FleeFrom_C.distance
@@ -1060,45 +1064,37 @@ public class EnemyInformation {
 		return percentageDamageWastedByArmor(directDamage, numPellets, areaDamage, armorBreaking, weakpointModifier, generalAccuracy, weakpointAccuracy, false);
 	}
 	public static double[][] percentageDamageWastedByArmor(double directDamage, int numPellets, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy, boolean embeddedDetonators) {
-		double[][] creaturesArmorMatrix = {
-			// Creature Index, Number of Light Armor plates, Avg Armor Strength, Number of Heavy Armor plates, Avg Armor Plate HP
-			{1, 6, 15, 0, 0},  					// Glyphid Grunt
-			{2, 2, 15, 4, 60},  				// Glyphid Guard
-			{3, 6, 15, 0, 0},  					// Glyphid Slasher
-			{4, 0, 0, 6, 100},  				// Glyphid Praetorian
-			{8, 3, 10, 0, 0},  					// Glyphid Web Spitter
-			{9, 3, 10, 0, 0},  					// Glyphid Acid Spitter
-			{10, 0, (1*1 + 2*10)/3.0, 3, 0},  	// Glyphid Menace
-			{11, 0, 15, 3, 0},  				// Glyphid Warden
-			{13, 0, 0, 6, (6*70 + 14*30)/20},  	// Q'ronar Shellback
-			{22, 0, 0, 2, 80}					// Mactera Brundle
-		};
-		
-		double[][] toReturn = new double[2][creaturesArmorMatrix.length];
-		
+		// I have not thought of an elegant way to look ahead and count how many enemies have Light or Heavy Armor. For now I'm going to "cheat" because I know in advance that the answer is 10.
+		double[][] toReturn = new double[2][10];
 		
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
-		int creatureIndex, i, j;
+		int creatureIndex = 0, i, j;
 		double baseHealth, heavyArmorPlateHealth;
 		double damageDealtPerPellet, proportionOfDamageThatHitsArmor, proportionOfDamageThatHitsWeakpoint;
 		int avgNumHitsToBreakArmorStrengthPlate, numHitsOnArmorStrengthPlate;
 		double totalDamageSpent, actualDamageDealt;
-		for (i = 0; i < creaturesArmorMatrix.length; i++) {
-			creatureIndex = (int) creaturesArmorMatrix[i][0];
-			baseHealth = enemyHealthPools[creatureIndex];
+		Enemy alias;
+		for (i = 0; i < enemiesModeled.length; i++) {
+			alias = enemiesModeled[i];
 			
-			if (creaturesArmorMatrix[i][4] > 0) {
+			// Skip any enemy that either has no Armor or Unbreakable Armor
+			if (!alias.hasBreakableArmor()) {
+				continue;
+			}
+			
+			baseHealth = alias.getBaseHealth();
+			
+			if (alias.hasHeavyArmorHealth()) {
 				// All Heavy Armor plates with healthbars have their health scale with normal resistance.
-				heavyArmorPlateHealth = creaturesArmorMatrix[i][4] * normalResistance;
+				heavyArmorPlateHealth = alias.getArmorBaseHealth() * normalResistance;
 			}
 			else {
 				heavyArmorPlateHealth = 0;
 			}
 			
-			if (i == 3) {
-				// Special case: Glyphid Praetorian
+			if (alias.getName().equals("Glyphid Praetorian")) {
 				baseHealth *= largeResistance;
 				
 				proportionOfDamageThatHitsArmor = (100.0 - generalAccuracy) / 100.0;
@@ -1158,8 +1154,7 @@ public class EnemyInformation {
 					}
 				}
 			}
-			else if (i == 8) {
-				// Special case: Q'ronar Shellback
+			else if (alias.getName().equals("Q'ronar Shellback")) {
 				baseHealth *= largeResistance;
 				
 				totalDamageSpent = 0;
@@ -1216,8 +1211,7 @@ public class EnemyInformation {
 					}
 				}
 			}
-			else if (i == 9) {
-				// Special case: Mactera Brundle
+			else if (alias.getName().equals("Mactera Brundle")) {
 				baseHealth *= normalResistance;
 				
 				double theoreticalDamagePerPellet;
@@ -1225,7 +1219,7 @@ public class EnemyInformation {
 					theoreticalDamagePerPellet = directDamage;
 				}
 				else {
-					theoreticalDamagePerPellet = directDamage * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex];
+					theoreticalDamagePerPellet = directDamage * (1.0 + weakpointModifier) * alias.getWeakpointMultiplier();
 				}
 				
 				totalDamageSpent = 0;
@@ -1283,26 +1277,23 @@ public class EnemyInformation {
 				}
 			}
 			else {
-				// General case
-				if (i == 6 || i == 7) {
-					// Menaces and Wardens get large HP scaling
-					baseHealth *= largeResistance;
+				if (alias.usesNormalScaling()) {
+					baseHealth *= normalResistance;
 				}
 				else {
-					// All the other enemies get normal HP scaling
-					baseHealth *= normalResistance;
+					baseHealth *= largeResistance;
 				}
 				
 				proportionOfDamageThatHitsArmor = (100.0 - weakpointAccuracy) / 100.0;
 				proportionOfDamageThatHitsWeakpoint = weakpointAccuracy / 100.0;
 				
-				if (creaturesArmorMatrix[i][2] > 0) {
+				if (alias.hasLightArmor() || alias.hasHeavyArmorStrength()) {
 					if (embeddedDetonators || (areaDamage > 0 && numPellets > 1)) {
 						// Boomstick special case -- I'm choosing to model it as if the Blastwave doesn't break Light Armor Plates for simplicity later in the method
-						avgNumHitsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(directDamage, armorBreaking, creaturesArmorMatrix[i][2])));
+						avgNumHitsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(directDamage, armorBreaking, alias.getArmorStrength())));
 					}
 					else {
-						avgNumHitsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(directDamage + areaDamage, armorBreaking, creaturesArmorMatrix[i][2])));
+						avgNumHitsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(directDamage + areaDamage, armorBreaking, alias.getArmorStrength())));
 					}
 				}
 				else {
@@ -1320,55 +1311,54 @@ public class EnemyInformation {
 							damageDealtPerPellet = directDamage * proportionOfDamageThatHitsWeakpoint;
 						}
 						else {
-							totalDamageSpent += directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex] + directDamage * proportionOfDamageThatHitsArmor;
-							damageDealtPerPellet = directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex];
+							totalDamageSpent += directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * alias.getWeakpointMultiplier() + directDamage * proportionOfDamageThatHitsArmor;
+							damageDealtPerPellet = directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * alias.getWeakpointMultiplier();
 						}
 						
 						// 1. Light Armor plates (always Armor Strength, mixes with Heavy Armor plates on Guards)
-						if (creaturesArmorMatrix[i][1] > 0) {
+						if (alias.hasLightArmor()) {
 							numHitsOnArmorStrengthPlate++;
 							if (numHitsOnArmorStrengthPlate > avgNumHitsToBreakArmorStrengthPlate || (armorBreaking > 1.0 && numHitsOnArmorStrengthPlate == avgNumHitsToBreakArmorStrengthPlate)) {
-								damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * creaturesArmorMatrix[i][1] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+								damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * alias.getNumArmorStrengthPlates() / (alias.getNumArmorStrengthPlates() + alias.getNumArmorHealthPlates());
 							}
 							else {
-								damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * UtilityInformation.LightArmor_DamageReduction * creaturesArmorMatrix[i][1] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+								damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * UtilityInformation.LightArmor_DamageReduction * alias.getNumArmorStrengthPlates() / (alias.getNumArmorStrengthPlates() + alias.getNumArmorHealthPlates());
 							}
 						}
 						
-						if (creaturesArmorMatrix[i][3] > 0) {
-							// 2. Heavy Armor Plates with health (mixes with Light Armor plates on Guards)
-							if (creaturesArmorMatrix[i][4] > 0) { 
-								if (heavyArmorPlateHealth > 0) {
-									if (armorBreaking > 1.0) {
-										if (directDamage * armorBreaking > heavyArmorPlateHealth) {
-											damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * creaturesArmorMatrix[i][3] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
-											heavyArmorPlateHealth = 0;
-										}
-										else {
-											// Direct Damage insufficient to break the Heavy Armor Plate
-											heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
-										}
+						// 2. Heavy Armor Plates with health (mixes with Light Armor plates on Guards)
+						if (alias.hasHeavyArmorHealth()) { 
+							if (heavyArmorPlateHealth > 0) {
+								if (armorBreaking > 1.0) {
+									if (directDamage * armorBreaking > heavyArmorPlateHealth) {
+										damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * alias.getNumArmorHealthPlates() / (alias.getNumArmorStrengthPlates() + alias.getNumArmorHealthPlates());
+										heavyArmorPlateHealth = 0;
 									}
 									else {
-										if (directDamage * proportionOfDamageThatHitsArmor * armorBreaking > heavyArmorPlateHealth) {
-											heavyArmorPlateHealth = 0;
-										}
-										else {
-											// Direct Damage insufficient to break the Heavy Armor Plate
-											heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
-										}
+										// Direct Damage insufficient to break the Heavy Armor Plate
+										heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
 									}
 								}
 								else {
-									damageDealtPerPellet += proportionOfDamageThatHitsArmor * directDamage * creaturesArmorMatrix[i][3] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+									if (directDamage * proportionOfDamageThatHitsArmor * armorBreaking > heavyArmorPlateHealth) {
+										heavyArmorPlateHealth = 0;
+									}
+									else {
+										// Direct Damage insufficient to break the Heavy Armor Plate
+										heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
+									}
 								}
 							}
-							// 3. Heavy Armor plates with Armor Strength (mutually exclusive with Light Armor plates)
-							else if (creaturesArmorMatrix[i][1] == 0 && creaturesArmorMatrix[i][2] > 0) {
-								numHitsOnArmorStrengthPlate++;
-								if (numHitsOnArmorStrengthPlate > avgNumHitsToBreakArmorStrengthPlate || (armorBreaking > 1.0 && numHitsOnArmorStrengthPlate == avgNumHitsToBreakArmorStrengthPlate)) {
-									damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor;
-								}
+							else {
+								damageDealtPerPellet += proportionOfDamageThatHitsArmor * directDamage * alias.getNumArmorHealthPlates() / (alias.getNumArmorStrengthPlates() + alias.getNumArmorHealthPlates());
+							}
+						}
+						
+						// 3. Heavy Armor plates with Armor Strength (mutually exclusive with Light Armor plates)
+						if (alias.hasHeavyArmorStrength()) {
+							numHitsOnArmorStrengthPlate++;
+							if (numHitsOnArmorStrengthPlate > avgNumHitsToBreakArmorStrengthPlate || (armorBreaking > 1.0 && numHitsOnArmorStrengthPlate == avgNumHitsToBreakArmorStrengthPlate)) {
+								damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor;
 							}
 						}
 						
@@ -1380,14 +1370,14 @@ public class EnemyInformation {
 					totalDamageSpent += areaDamage;
 					if (embeddedDetonators) {
 						// Case 1: Guards' front leg plates have HP and block Embedded Detonators' damage until they're broken
-						if (creaturesArmorMatrix[i][4] > 0) {
+						if (alias.hasHeavyArmorHealth()) {
 							if (heavyArmorPlateHealth == 0) {
 								actualDamageDealt += areaDamage;
 								baseHealth -= areaDamage;
 							}
 						}
 						// Case 2: Wardens and Menaces have Heavy Armor that uses Armor Strength
-						else if (creaturesArmorMatrix[i][1] == 0 && creaturesArmorMatrix[i][2] > 0) {
+						else if (alias.hasHeavyArmorStrength()) {
 							// Detonators aren't placed until after the Heavy Armor plate is broken
 							if (numHitsOnArmorStrengthPlate > avgNumHitsToBreakArmorStrengthPlate) {
 								actualDamageDealt += areaDamage;
@@ -1395,7 +1385,7 @@ public class EnemyInformation {
 							}
 						}
 						// Case 3: Light Armor plates don't stop the embedded detonators from dealing damage
-						else if (creaturesArmorMatrix[i][1] > 0) {
+						else if (alias.hasLightArmor()) {
 							actualDamageDealt += areaDamage;
 							baseHealth -= areaDamage;
 						}
@@ -1411,8 +1401,9 @@ public class EnemyInformation {
 				}
 			}
 			
-			toReturn[0][i] = exactSpawnRates[creatureIndex];
-			toReturn[1][i] = 1.0 - actualDamageDealt / totalDamageSpent;
+			toReturn[0][creatureIndex] = alias.getSpawnProbability(true);
+			toReturn[1][creatureIndex] = 1.0 - actualDamageDealt / totalDamageSpent;
+			creatureIndex++;
 		}
 		
 		return toReturn;

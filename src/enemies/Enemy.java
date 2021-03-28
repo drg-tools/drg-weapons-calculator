@@ -37,7 +37,7 @@ public class Enemy {
 	
 	protected boolean hasLightArmor = false, hasHeavyArmorRNG = false, hasHeavyArmorHealth = false, heavyArmorCoversWeakpoint = false, hasUnbreakableArmor = false;
 	protected double armorStrength = 0.0, armorBaseHealth = 0.0;
-	protected int numArmorStrengthPlates = 0, numArmorHealthPlates = 0;  // These variables are NOT how many armor plates the enemy has total, but rather how many armor plates will be modeled by ArmorWasting()
+	protected double numArmorStrengthPlates = 0, numArmorHealthPlates = 0;  // These variables are NOT how many armor plates the enemy has total, but rather how many armor plates will be modeled by ArmorWasting()
 	
 	/****************************************************************************************
 	* Constructors
@@ -149,7 +149,7 @@ public class Enemy {
 			return 0.0;
 		}
 	}
-	public int getNumArmorStrengthPlates() {
+	public double getNumArmorStrengthPlates() {
 		if (hasLightArmor || hasHeavyArmorRNG) {
 			return numArmorStrengthPlates;
 		}
@@ -165,7 +165,7 @@ public class Enemy {
 			return 0.0;
 		}
 	}
-	public int getNumArmorHealthPlates() {
+	public double getNumArmorHealthPlates() {
 		if (hasHeavyArmorHealth) {
 			return numArmorHealthPlates;
 		}
@@ -181,5 +181,10 @@ public class Enemy {
 	// This method gets used in Breakpoints()
 	public boolean hasNeitherWeakpointNorArmor() {
 		return !hasWeakpoint && !hasLightArmor && !hasHeavyArmorRNG && !hasHeavyArmorHealth && !hasUnbreakableArmor;
+	}
+	
+	// This method gets used in ArmorWasting()
+	public boolean hasBreakableArmor() {
+		return hasLightArmor || hasHeavyArmorRNG || hasHeavyArmorHealth;
 	}
 }
