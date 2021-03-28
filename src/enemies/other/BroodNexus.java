@@ -13,6 +13,8 @@ public class BroodNexus extends Enemy {
 		baseHealth = 1800;
 		normalScaling = false;
 		
+		hasExposedBodySomewhere = true;
+		
 		hasWeakpoint = true;
 		weakpointMultiplier = 2;
 		estimatedProbabilityBulletHitsWeakpoint = 0.9;

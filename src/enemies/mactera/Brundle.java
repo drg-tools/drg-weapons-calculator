@@ -12,6 +12,8 @@ public class Brundle extends Enemy {
 		baseHealth = 600;
 		normalScaling = true;
 		
+		hasExposedBodySomewhere = true;
+		
 		hasWeakpoint = true;
 		weakpointMultiplier = 3;
 		estimatedProbabilityBulletHitsWeakpoint = 0.6;

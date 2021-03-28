@@ -12,6 +12,8 @@ public class Spawn extends Enemy {
 		baseHealth = 223;
 		normalScaling = true;
 		
+		hasExposedBodySomewhere = true;
+		
 		hasWeakpoint = true;
 		weakpointMultiplier = 3;
 		estimatedProbabilityBulletHitsWeakpoint = 0.8;

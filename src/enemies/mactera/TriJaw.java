@@ -9,8 +9,10 @@ public class TriJaw extends Enemy {
 		
 		enemyName = "Mactera Tri-Jaw";
 		macteraType = true;
-		baseHealth = 2350;
+		baseHealth = 350;
 		normalScaling = true;
+		
+		hasExposedBodySomewhere = true;
 		
 		hasWeakpoint = true;
 		weakpointMultiplier = 3;

@@ -529,7 +529,7 @@ public class EnemyInformation {
 			}
 			
 			// Normal Damage
-			if (alias.hasNeitherWeakpointNorArmor()) {
+			if (alias.hasExposedBodySomewhere()) {
 				breakpointCounter = 0;
 				aliasHP = creatureHP;
 				

@@ -28,6 +28,9 @@ public class Enemy {
 	protected double baseHealth;
 	protected boolean normalScaling;
 	
+	// a.k.a. you can shoot this enemy somewhere that isn't covered by Armor and isn't a Weakpoint (used in Breakpoints)
+	protected boolean hasExposedBodySomewhere = false;
+	
 	protected boolean hasWeakpoint = false;
 	// These numbers are taken straight from the Wiki
 	protected double weakpointMultiplier;
@@ -89,6 +92,9 @@ public class Enemy {
 	}
 	public boolean usesNormalScaling() {
 		return normalScaling;
+	}
+	public boolean hasExposedBodySomewhere() {
+		return hasExposedBodySomewhere;
 	}
 	public boolean hasWeakpoint() {
 		return hasWeakpoint;
@@ -197,11 +203,6 @@ public class Enemy {
 	/****************************************************************************************
 	* Other Methods
 	****************************************************************************************/
-	
-	// This method gets used in Breakpoints()
-	public boolean hasNeitherWeakpointNorArmor() {
-		return !hasWeakpoint && !hasLightArmor && !hasHeavyArmorRNG && !hasHeavyArmorHealth && !hasUnbreakableArmor;
-	}
 	
 	// This method gets used in ArmorWasting()
 	public boolean hasBreakableArmor() {

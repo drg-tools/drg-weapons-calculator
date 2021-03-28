@@ -11,6 +11,8 @@ public class CaveLeech extends Enemy {
 		baseHealth = 100;
 		normalScaling = true;
 		
+		hasExposedBodySomewhere = true;
+		
 		igniteTemperature = 30; 
 		douseTemperature = 0;
 		coolingRate = 10;

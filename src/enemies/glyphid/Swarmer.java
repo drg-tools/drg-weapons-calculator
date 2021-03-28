@@ -11,6 +11,8 @@ public class Swarmer extends Enemy {
 		baseHealth = 12;
 		normalScaling = true;
 		
+		hasExposedBodySomewhere = true;
+		
 		igniteTemperature = 5; 
 		douseTemperature = 0;
 		coolingRate = 1;

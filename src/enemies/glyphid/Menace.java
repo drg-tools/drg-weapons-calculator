@@ -11,6 +11,8 @@ public class Menace extends Enemy {
 		baseHealth = 700;
 		normalScaling = false;
 		
+		hasExposedBodySomewhere = true;
+		
 		hasWeakpoint = true;
 		weakpointMultiplier = 2;
 		estimatedProbabilityBulletHitsWeakpoint = 0.7;

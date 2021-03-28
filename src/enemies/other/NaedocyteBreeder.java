@@ -13,6 +13,8 @@ public class NaedocyteBreeder extends Enemy {
 		baseHealth = 1500;
 		normalScaling = false;
 		
+		hasExposedBodySomewhere = true;
+		
 		hasWeakpoint = true;
 		weakpointMultiplier = 3;
 		estimatedProbabilityBulletHitsWeakpoint = 0.1;

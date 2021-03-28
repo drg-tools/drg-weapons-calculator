@@ -11,6 +11,8 @@ public class Exploder extends Enemy {
 		baseHealth = 20;
 		normalScaling = true;
 		
+		hasExposedBodySomewhere = true;
+		
 		hasWeakpoint = true;
 		weakpointMultiplier = 2;
 		estimatedProbabilityBulletHitsWeakpoint = 0.1;

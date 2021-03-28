@@ -13,6 +13,8 @@ public class SpitballInfector extends Enemy {
 		baseHealth = 800;
 		normalScaling = false;
 		
+		hasExposedBodySomewhere = true;
+		
 		hasWeakpoint = true;
 		weakpointMultiplier = 2;
 		estimatedProbabilityBulletHitsWeakpoint = 0.4;

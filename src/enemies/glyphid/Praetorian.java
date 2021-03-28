@@ -11,6 +11,8 @@ public class Praetorian extends Enemy {
 		baseHealth = 750;
 		normalScaling = false;
 		
+		hasExposedBodySomewhere = true;
+		
 		hasWeakpoint = true;
 		weakpointMultiplier = 1;
 		estimatedProbabilityBulletHitsWeakpoint = 0.4;

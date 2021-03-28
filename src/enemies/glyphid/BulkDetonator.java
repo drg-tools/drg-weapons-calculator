@@ -13,6 +13,8 @@ public class BulkDetonator extends Enemy {
 		baseHealth = 4000;
 		normalScaling = false;
 		
+		hasExposedBodySomewhere = true;
+		
 		hasWeakpoint = true;
 		weakpointMultiplier = 3;
 		estimatedProbabilityBulletHitsWeakpoint = 0.2;

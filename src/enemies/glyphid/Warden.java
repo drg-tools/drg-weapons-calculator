@@ -11,6 +11,8 @@ public class Warden extends Enemy {
 		baseHealth = 800;
 		normalScaling = false;
 		
+		hasExposedBodySomewhere = true;
+		
 		hasWeakpoint = true;
 		weakpointMultiplier = 3;
 		estimatedProbabilityBulletHitsWeakpoint = 0.5;
