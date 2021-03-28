@@ -10,7 +10,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 
 import guiPieces.GuiConstants;
-import modelPieces.Weapon;
+import weapons.Weapon;
 
 public class AoEVisualizerButton extends JButton implements ActionListener {
 	private static final long serialVersionUID = 1L;

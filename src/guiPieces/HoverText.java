@@ -19,6 +19,9 @@ public class HoverText extends JToolTip {
 	}
 	
 	public static String breakLongToolTipString(String input, int maxNumCharsPerLine) {
+		 return breakLongToolTipString(input, maxNumCharsPerLine, true); 
+	}
+	public static String breakLongToolTipString(String input, int maxNumCharsPerLine, boolean encloseWithBodyTags) {
 		// First, check if the input string already contains fewer characters than the desired output.
 		if (input.length() < maxNumCharsPerLine) {
 			return input;
@@ -49,12 +52,26 @@ public class HoverText extends JToolTip {
 		lines.add(currentLine);
 	
 		String[] wrappedLines = lines.toArray(new String[lines.size()]);
+		
 		// I read online that ToolTipText supports HTML, so I'm going to try to leverage that to my advantage.
-		String newToolTipText = "<html><body><p>" + wrappedLines[0] + "<br/>";
+		String newToolTipText;
+		if (encloseWithBodyTags) {
+			 newToolTipText = "<html><body><p>" + wrappedLines[0] + "<br/>";
+		}
+		else {
+			 newToolTipText = "<p>" + wrappedLines[0] + "<br/>";
+		}
+		
 		for (int i = 1; i < wrappedLines.length; i++) {
 			newToolTipText += wrappedLines[i] + "<br/>";
 		}
-		newToolTipText += "</p></body></html>";
+		
+		if (encloseWithBodyTags) {
+			newToolTipText += "</p></body></html>";
+		}
+		else {
+			newToolTipText += "</p>";
+		}
 		
 		return newToolTipText;
 	}

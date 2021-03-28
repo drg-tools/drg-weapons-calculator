@@ -22,8 +22,8 @@ import javax.swing.ToolTipManager;
 
 import dataGenerator.DatabaseConstants;
 import guiPieces.customButtons.CustomJMenuCheckbox;
-import modelPieces.Weapon;
 import utilities.ResourceLoader;
+import weapons.Weapon;
 
 public class View extends JFrame implements Observer {
 	
@@ -39,6 +39,9 @@ public class View extends JFrame implements Observer {
 	private JRadioButton dsHaz1, dsHaz2, dsHaz3, dsHaz4, dsHaz5, dsPC1, dsPC2, dsPC3, dsPC4;
 	private JMenu exportMenu;
 	private JMenuItem exportCurrent, exportAll, exportMetricsToMySQL, exportModsOCsToMySQL, exportChangedModsOCsToMySQL;
+	private JMenu compareMenu;
+	private JMenuItem buildMetricsComparison, buildAccuracyGraphsComparison;
+	private JMenuItem[] loadCombinationToColumns;
 	private JMenu miscMenu;	
 	private JMenuItem miscWeaponTabScreenshot, miscExportCombination, miscLoadCombination, miscSuggestion;
 	
@@ -190,7 +193,8 @@ public class View extends JFrame implements Observer {
 		subsetBestCombinationsMenu = new JMenu("Best Combinations (Subset)");
 		
 		// This for loop depends on overallBestCombinations and subsetBestCombinations being the same length
-		for (int i = 0; i < overallBestCombinations.length; i++) {
+		int i;
+		for (i = 0; i < overallBestCombinations.length; i++) {
 			overallBestCombinationsMenu.add(overallBestCombinations[i]);
 			subsetBestCombinationsMenu.add(subsetBestCombinations[i]);
 			
@@ -278,6 +282,20 @@ public class View extends JFrame implements Observer {
 		exportChangedModsOCsToMySQL = new JMenuItem("Export changed mods & OCs to MySQL");
 		exportMenu.add(exportChangedModsOCsToMySQL);
 		menuBar.add(exportMenu);
+		
+		// Compare two or more builds to each other menu
+		compareMenu = new JMenu("Compare Builds");
+		buildMetricsComparison = new JMenuItem("Compare up to four builds metric-to-metric");
+		compareMenu.add(buildMetricsComparison);
+		buildAccuracyGraphsComparison = new JMenuItem("Compare up to four builds based on Accuracy");
+		compareMenu.add(buildAccuracyGraphsComparison);
+		compareMenu.addSeparator();
+		loadCombinationToColumns = new JMenuItem[4];
+		for (i = 0; i < 4; i++) {
+			loadCombinationToColumns[i] = new JMenuItem("Load current build as combination #" + (i+1));
+			compareMenu.add(loadCombinationToColumns[i]);
+		}
+		menuBar.add(compareMenu);
 		
 		// Miscellaneous Actions menu
 		miscMenu = new JMenu("Misc. Actions");
@@ -368,6 +386,20 @@ public class View extends JFrame implements Observer {
 		return exportChangedModsOCsToMySQL;
 	}
 	
+	public JMenuItem getCompareBuildMetrics() {
+		return buildMetricsComparison;
+	}
+	public JMenuItem getCompareAccuracyGraphs() {
+		return buildAccuracyGraphsComparison;
+	}
+	public JMenuItem getCompareLoadCombinationIntoColumn(int index) {
+		if (index < 0 || index > loadCombinationToColumns.length - 1) {
+			return null;
+		}
+		
+		return loadCombinationToColumns[index];
+	}
+	
 	public JMenuItem getMiscScreenshot() {
 		return miscWeaponTabScreenshot;
 	}
@@ -406,7 +438,8 @@ public class View extends JFrame implements Observer {
 	
 	// This method gets called by GuiController; I use it to add it as an ActionListener to all buttons and menu items in the GUI
 	public void activateButtonsAndMenus(ActionListener parent) {
-		for (int i = 0; i < overallBestCombinations.length; i++) {
+		int i;
+		for (i = 0; i < overallBestCombinations.length; i++) {
 			overallBestCombinations[i].addActionListener(parent);
 			subsetBestCombinations[i].addActionListener(parent);
 		}
@@ -426,6 +459,12 @@ public class View extends JFrame implements Observer {
 		exportMetricsToMySQL.addActionListener(parent);
 		exportModsOCsToMySQL.addActionListener(parent);
 		exportChangedModsOCsToMySQL.addActionListener(parent);
+		
+		buildMetricsComparison.addActionListener(parent);
+		buildAccuracyGraphsComparison.addActionListener(parent);
+		for (i = 0; i < loadCombinationToColumns.length; i++) {
+			loadCombinationToColumns[i].addActionListener(parent);
+		}
 		
 		miscWeaponTabScreenshot.addActionListener(parent);
 		miscExportCombination.addActionListener(parent);

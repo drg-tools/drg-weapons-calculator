@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import modelPieces.Weapon;
+import weapons.Weapon;
 
 public class MetricsCalculator {
 	

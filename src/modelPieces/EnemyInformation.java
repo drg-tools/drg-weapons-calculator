@@ -1,14 +1,15 @@
 package modelPieces;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import enemies.Enemy;
+import enemies.glyphid.*;
+import enemies.mactera.*;
+import enemies.other.*;
 import utilities.MathUtils;
 
-// TODO: remove Crassus Detonator from the enemy pool because it spawns more like a BET-C or Korlok than the common "swarm" enemies that this program uses for its models.
 public class EnemyInformation {
 	
 	private static int hazardLevel = 4;
@@ -23,149 +24,6 @@ public class EnemyInformation {
 			playerCount = newPlayerCount;
 		}
 	}
-	
-	// These are the values that I guessed for the proportion of each enemy spawn type. It worked REALLY well for avg TTK-based mods like Cold as the Grave and Battle Cool, but it's not representative of the actual game.
-	// All of these numbers must sum up to exactly 1.0 for it to be a probability vector.
-	private static double[] guessedSpawnRates = {
-		0.165, // Glyphid Swarmer
-		0.25,  // Glyphid Grunt
-		0.07,  // Glyphid Grunt Guard
-		0.07,  // Glyphid Grunt Slasher
-		0.04,  // Glyphid Praetorian
-		0.04,  // Glyphid Exploder
-		0.01,  // Glyphid Bulk Detonator
-		0.005, // Glyphid Crassus Detonator
-		0.04,  // Glyphid Webspitter
-		0.02,  // Glyphid Acidspitter
-		0.02,  // Glyphid Menace
-		0.02,  // Glyphid Warden
-		0.01,  // Glyphid Oppressor
-		0.01,  // Q'ronar Shellback
-		0.08,  // Mactera Spawn
-		0.01,  // Mactera Grabber
-		0.03,  // Mactera Bomber
-		0.02,  // Naedocyte Breeder
-		0.02,  // Glyphid Brood Nexus
-		0.01,  // Spitball Infector
-		0.01,  // Cave Leech
-		0.04,  // Mactera Tri-Jaw
-		0.01   // Mactera Brundle
-	};
-	
-	/* 
-		When U33 introduced the Tri-Jaw and Brundle common enemies, I had to redo these probabilities. To that end I chose to write down what the current kill counter was for every enemy type,
-		and then play vanilla Haz4/5 until I achieved at least 15,000 Grunt kills. In the end it took me about 50 hours of playtime to achieve that, and I ended up with a total of 33,606 kills 
-		of all kinds for these probability amounts. It's not as broad as U31's 153,000 kills from 6 players, but I didn't want to ask people to go 50 hours of playtime only on vanilla Haz4/5.
-		
-		Biome-specific enemies, "hatchling" enemy types, and Dreadnoughts not included.
-		All of these numbers must sum up to exactly 1.0 for it to be a probability vector.
-	*/
-	private static double[] exactSpawnRates = {
-		0.2503719574, 	 // Glyphid Swarmer
-		0.4661369993,  	 // Glyphid Grunt
-		0.05400821282,   // Glyphid Grunt Guard
-		0.05838243171,   // Glyphid Grunt Slasher
-		0.02074034399,   // Glyphid Praetorian
-		0.03895137773,   // Glyphid Exploder
-		0.001220020234,  // Glyphid Bulk Detonator
-		0.00002975659108,// Glyphid Crassus Detonator
-		0.02963756472,   // Glyphid Webspitter
-		0.01276557758,   // Glyphid Acidspitter
-		0.001577099328,  // Glyphid Menace
-		0.002082961376,  // Glyphid Warden
-		0.00330298161,   // Glyphid Oppressor
-		0.001755638874,  // Q'ronar Shellback
-		0.02550139856,   // Mactera Spawn
-		0.001934178421,  // Mactera Grabber
-		0.005088377076,  // Mactera Bomber
-		0.000684401595,  // Naedocyte Breeder
-		0.001666369101,  // Glyphid Brood Nexus
-		0.003660060703,  // Spitball Infector
-		0.004552758436,  // Cave Leech
-		0.01282509076,   // Mactera Tri-Jaw
-		0.003124442064   // Mactera Brundle
-	};
-	
-	// These numbers are estimates of what percentage of bullets shot at each enemy type will hit the enemy's weakpoints
-	private static double[] probabilityBulletHitsWeakpointPerEnemyType = {
-		0.0,  // Glyphid Swarmer (no weakpoint)
-		0.9,  // Glyphid Grunt
-		0.5,  // Glyphid Grunt Guard
-		0.9,  // Glyphid Grunt Slasher
-		0.4,  // Glyphid Praetorian
-		0.1,  // Glyphid Exploder
-		0.2,  // Glyphid Bulk Detonator
-		0.2,  // Glyphid Crassus Detonator
-		0.1,  // Glyphid Webspitter
-		0.4,  // Glyphid Acidspitter
-		0.7,  // Glyphid Menace
-		0.5,  // Glyphid Warden
-		1.0,  // Glyphid Oppressor
-		0.1,  // Q'ronar Shellback
-		0.8,  // Mactera Spawn
-		0.2,  // Mactera Grabber
-		0.9,  // Mactera Bomber
-		0.1,  // Naedocyte Breeder
-		0.9,  // Glyphid Brood Nexus
-		0.4,  // Spitball Infector
-		0.0,  // Cave Leech (no weakpoint)
-		0.8,  // Mactera Tri-Jaw
-		0.6   // Mactera Brundle
-	};
-
-	// These numbers are taken straight from the Wiki
-	private static double[] defaultWeakpointDamageBonusPerEnemyType = {
-		0.0,  // Glyphid Swarmer (no weakpoint)
-		2.0,  // Glyphid Grunt
-		2.0,  // Glyphid Grunt Guard
-		2.0,  // Glyphid Grunt Slasher
-		1.0,  // Glyphid Praetorian (has a weakpoint, but it only takes normal damage without mods/OCs)
-		2.0,  // Glyphid Exploder
-		3.0,  // Glyphid Bulk Detonator
-		3.0,  // Glyphid Crassus Detonator
-		2.0,  // Glyphid Webspitter
-		2.0,  // Glyphid Acidspitter
-		2.0,  // Glyphid Menace
-		3.0,  // Glyphid Warden
-		1.0,  // Glyphid Oppressor (has a weakpoint, but it only takes normal damage without mods/OCs)
-		2.0,  // Q'ronar Shellback
-		3.0,  // Mactera Spawn
-		3.0,  // Mactera Grabber
-		3.0,  // Mactera Bomber
-		3.0,  // Naedocyte Breeder
-		2.0,  // Glyphid Brood Nexus
-		2.0,  // Spitball Infector
-		0.0,  // Cave Leech (no weakpoint)
-		3.0,  // Mactera Tri-Jaw
-		3.0   // Mactera Brundle
-	};
-	
-	// These base values are just taken from the Wiki's default values; Hazard level and player count not factored in. (effectively Haz2, 4 players)
-	private static double[] enemyHealthPools = {
-		12,    // Glyphid Swarmer
-		90,    // Glyphid Grunt
-		270,   // Glyphid Grunt Guard
-		148,   // Glyphid Grunt Slasher
-		750,   // Glyphid Praetorian
-		20,    // Glyphid Exploder
-		4000,  // Glyphid Bulk Detonator
-		6000,  // Glyphid Crassus Detonator
-		40,    // Glyphid Webspitter
-		120,   // Glyphid Acidspitter
-		700,   // Glyphid Menace
-		800,   // Glyphid Warden
-		900,   // Glyphid Oppressor
-		450,   // Q'ronar Shellback
-		223,   // Mactera Spawn
-		500,   // Mactera Grabber
-		800,   // Mactera Bomber
-		1500,  // Naedocyte Breeder
-		1800,  // Glyphid Brood Nexus
-		800,   // Spitball Infector
-		100,   // Cave Leech
-		350,   // Mactera Tri-Jaw
-		600    // Mactera Brundle
-	};
 	
 	// Normal enemies have their health scaled up or down depending on Hazard Level, with the notable exception that the health does not currently increase between Haz4 and haz5
 	private static double[] normalEnemyResistances = {
@@ -186,133 +44,6 @@ public class EnemyInformation {
 		{1.20, 1.20, 1.40, 1.50}   // Haz5
 	};
 	
-	// Resistance/weakness values taken from Elythnwaen's Spreadsheet
-	// Positive number means that the creature resists that element; negative means it's weak to that element.
-	// None of the enemies I'm modeling resist Poison or Radiation damage
-	
-	// Weighted Q'Ronar Shellback rolling state at 2/3 and non-rolling state at 1/3
-	private static double qronarShellbackRolling = 0.66;
-	private static double qronarShellbackUnolled = 0.34;
-	private static double[][] enemyResistances = {
-		// Explosive, Fire, Frost, Electric
-		{0, 0, 0, 0},  				// Glyphid Swarmer
-		{0, 0, 0, 0},  				// Glyphid Grunt
-		{0.3, 0.25, 0.3, 0},  		// Glyphid Grunt Guard
-		{-0.3, 0, 0, 0},  			// Glyphid Grunt Slasher
-		{0, 0, 0, 0},  				// Glyphid Praetorian
-		{0, 0, 0, 0},  				// Glyphid Exploder
-		{0.5, 0, 0, 0},  			// Glyphid Bulk Detonator
-		{0.5, 0, 0, 0},  			// Glyphid Crassus Detonator
-		{0, 0, 0, 0},  				// Glyphid Webspitter
-		{0, 0, 0, -0.1},  			// Glyphid Acidspitter
-		{0, 0, 0, 0},  				// Glyphid Menace
-		{0, 0, 0, 0},  				// Glyphid Warden
-		{0.66, 0.66, 0.5, 0.25},  	// Glyphid Oppressor
-		{qronarShellbackRolling*0.8, qronarShellbackRolling*0.3 + qronarShellbackUnolled*-0.5, qronarShellbackRolling*0.3 + qronarShellbackUnolled*-0.7, qronarShellbackRolling*1.0},  // Q'ronar Shellback
-		{-1, -1, 0, -0.5},  		// Mactera Spawn
-		{0, 0, 0, 0},  				// Mactera Grabber
-		{0, -0.2, 0, 0},  			// Mactera Bomber
-		{0, 0, 0, 0},  				// Naedocyte Breeder
-		{0, 0, 0, 0},  				// Glyphid Brood Nexus
-		{0, -1, 0, 0},  			// Spitball Infector
-		{0, 0, 0, 0},   			// Cave Leech
-		{-1, -1, 0, -0.5},  		// Mactera Tri-Jaw
-		{-1, -1, 0, -0.5}   		// Mactera Brundle
-	};
-	
-	// This info comes from Elythnwaen's Temperatures spreadsheet, and many of those values were seeded from MikeGSG giving us the values for the 5 "base" creature types.
-	private static double[][] enemyTemperatures = {
-		// Ignite Temp, Douse Temp, Heat Loss Rate, Freeze Temp, Thaw Temp, Heat Gain Rate
-		{5, 0, 1, -20, 0, 2},			// Glyphid Swarmer
-		{30, 10, 6, -30, 0, 6},			// Glyphid Grunt
-		{60, 40, 6, -80, -40, 6},		// Glyphid Grunt Guard
-		{30, 10, 6, -30, 0, 6},			// Glyphid Grunt Slasher
-		{100, 40, 10, -150, -100, 10},	// Glyphid Praetorian
-		{10, 0, 6, -10, 0, 12},			// Glyphid Exploder
-		{60, 30, 10, -490, -200, 300},	// Glyphid Bulk Detonator
-		{60, 30, 10, -490, -200, 300},	// Glyphid Crassus Detonator
-		{30, 0, 6, -75, 0, 10},			// Glyphid Webspitter
-		{35, 5, 6, -50, 0, 6},			// Glyphid Acidspitter
-		{30, 0, 6, -50, 0, 6},			// Glyphid Menace
-		{50, 25, 6, -70, -30, 6},		// Glyphid Warden
-		{100, 40, 20, -300, -200, 100},	// Glyphid Oppressor
-		{100, 70, 10, -120, 0, 10},		// Q'ronar Shellback
-		{35, 5, 10, -100, 0, 40},		// Mactera Spawn
-		{30, 0, 10, -180, 0, 40},		// Mactera Grabber
-		{35, 5, 10, -320, 0, 50},		// Mactera Bomber
-		{60, 30, 10, -150, 0, 40},		// Naedocyte Breeder
-		{30/4.0, 0, 4, -50/4.0, 0, 4},	// Glyphid Brood Nexus
-		{30, 0, 10, -50, 0, 10},		// Spitball Infector
-		{30, 0, 10, -50, 0, 10},		// Cave Leech
-		{35, 5, 10, -100, 0, 40}, 		// Mactera Tri-Jaw
-		{35, 5, 10, -200, 0, 40}  		// Mactera Brundle
-	};
-	
-	// This information comes straight from MikeGSG -- Thanks, Mike!
-	private static double[] enemyLightArmorStrengthValues = {
-		15,  // Glyphid Grunt
-		15,  // Glyphid Grunt Guard
-		15,  // Glyphid Grunt Slasher
-		10,  // Glyphid Webspitter
-		10,  // Glyphid Acidspitter
-	};
-	
-	// This information extracted via UUU
-	private static double[] enemyCourageValues = {
-		0.0,  // Glyphid Swarmer
-		0.5,  // Glyphid Grunt
-		0.5,  // Glyphid Grunt Guard
-		0.5,  // Glyphid Grunt Slasher
-		0.5,  // Glyphid Praetorian
-		0.0,  // Glyphid Exploder
-		1.0,  // Glyphid Bulk Detonator
-		1.0,  // Glyphid Crassus Detonator
-		0.3,  // Glyphid Webspitter
-		0.3,  // Glyphid Acidspitter
-		0.7,  // Glyphid Menace
-		0.5,  // Glyphid Warden
-		1.0,  // Glyphid Oppressor (technically 100.0 in-game, but I think that's an erroneous value.)
-		0.0,  // Q'ronar Shellback
-		0.0,  // Mactera Spawn
-		0.0,  // Mactera Grabber
-		0.0,  // Mactera Bomber
-		0.0,  // Naedocyte Breeder
-		0.0,  // Glyphid Brood Nexus
-		0.0,  // Spitball Infector
-		0.0,  // Cave Leech
-		0.0,  // Mactera Tri-Jaw
-		0.0   // Mactera Brundle
-	};
-	
-	// Used to determine average regular Fear duration. Enemies that fly, can't move on the ground, or can't be feared will have this value set to zero to maintain correct values.
-	// Additionally, all creatures that get Feared have a x1.5 speedboost, except for Oppressor (x2) and Bulk/Crassus/Dread (x1) which can only be feared by Field Medic/SYiH/Bosco Revive
-	// Values listed as m/sec groundspeed
-	private static double[] enemyFearMovespeed = {
-		3.5,  // Glyphid Swarmer
-		2.9,  // Glyphid Grunt
-		2.7,  // Glyphid Grunt Guard
-		3.1,  // Glyphid Grunt Slasher
-		2.0,  // Glyphid Praetorian
-		4.0,  // Glyphid Exploder
-		0.0,  // Glyphid Bulk Detonator
-		0.0,  // Glyphid Crassus Detonator
-		2.5,  // Glyphid Webspitter
-		2.5,  // Glyphid Acidspitter
-		2.5,  // Glyphid Menace
-		2.9,  // Glyphid Warden
-		0.0,  // Glyphid Oppressor
-		0.0,  // Q'ronar Shellback
-		0.0,  // Mactera Spawn
-		0.0,  // Mactera Grabber
-		0.0,  // Mactera Bomber
-		0.0,  // Naedocyte Breeder
-		0.0,  // Glyphid Brood Nexus
-		0.0,  // Spitball Infector
-		0.0,  // Cave Leech
-		0.0,  // Mactera Tri-Jaw
-		0.0   // Mactera Brundle
-	};
-	
 	private static double[] movespeedDifficultyScaling = {
 		0.8,  // Haz1
 		0.9,  // Haz2
@@ -321,10 +52,46 @@ public class EnemyInformation {
 		1.1   // Haz5
 	};
 	
+	/* 
+		Dimensions of a Glyphid Grunt used for estimating how many grunts would be hit by AoE damage of a certain radius 
+		(see method Weapon.calculateNumGlyphidsInRadius())
+		Measured using meters
+	*/
+	// This is the radius of a Glyphid Grunt's hitbox that shouldn't overlap with other grunts, like the torso
+	public static double GlyphidGruntBodyRadius = 0.41;
+	// This is the radius of the entire Glyphid Grunt, from its center to the tip of its legs. The legs can overlap with other Grunts' legs.
+	public static double GlyphidGruntBodyAndLegsRadius = 0.97;
+	
+	// Organized in same order as in-game Miner's Manual
+	private static Enemy[] enemiesModeled = new Enemy[] {
+		new Swarmer(),
+		new Grunt(),
+		new Guard(),
+		new Slasher(),
+		new Warden(),
+		new Praetorian(),
+		new Oppressor(),
+		new AcidSpitter(),
+		new WebSpitter(),
+		new Menace(),
+		new Exploder(),
+		new BulkDetonator(),
+		new BroodNexus(),
+		new Spawn(),
+		new Brundle(),
+		new TriJaw(),
+		new GooBomber(),
+		new Grabber(),
+		new NaedocyteBreeder(),
+		new QronarShellback(),
+		new SpitballInfector(),
+		new CaveLeech()
+	};
+	
 	private static boolean verifySpawnRatesTotalIsOne() {
 		double sum = 0.0;
-		for (int i = 0; i < exactSpawnRates.length; i++) {
-			sum += exactSpawnRates[i];
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			sum += enemiesModeled[i].getSpawnProbability(true);
 		}
 		
 		// Double addition is wonky; round it.
@@ -337,8 +104,11 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		double toReturn = MathUtils.vectorDotProduct(exactSpawnRates, probabilityBulletHitsWeakpointPerEnemyType);
-		// System.out.println("Estimated percentage of bullets fired that will hit a weakpoint: " + toReturn);
+		double toReturn = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			toReturn += enemiesModeled[i].getSpawnProbability(true) * enemiesModeled[i].getProbabilityBulletHitsWeakpoint();
+		}
+		
 		return toReturn;
 	}
 	
@@ -347,8 +117,11 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		double toReturn = MathUtils.vectorDotProduct(exactSpawnRates, defaultWeakpointDamageBonusPerEnemyType);
-		// System.out.println("Average damage multiplier from hitting a weakpoint: " + toReturn);
+		double toReturn = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			toReturn += enemiesModeled[i].getSpawnProbability(true) * enemiesModeled[i].getWeakpointMultiplier();
+		}
+		
 		return toReturn;
 	}
 	
@@ -360,36 +133,22 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		double[] spawnRates;
-		if (exact) {
-			spawnRates = exactSpawnRates;
-		}
-		else {
-			spawnRates = guessedSpawnRates;
-		}
-		
-		int i, enemyIndex;
-
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
-		int[] normalEnemyIndexes = {0, 1, 2, 3, 5, 8, 9, 14, 20, 21, 22};
-		double normalEnemyHealth = 0;
-		for (i = 0; i < normalEnemyIndexes.length; i++) {
-			enemyIndex = normalEnemyIndexes[i];
-			normalEnemyHealth += spawnRates[enemyIndex] * enemyHealthPools[enemyIndex];
-		}
-		normalEnemyHealth *= normalResistance;
-		
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
-		int[] largeEnemyIndexes = {4, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19};
-		double largeEnemyHealth = 0;
-		for (i = 0; i < largeEnemyIndexes.length; i++) {
-			enemyIndex = largeEnemyIndexes[i];
-			largeEnemyHealth += spawnRates[enemyIndex] * enemyHealthPools[enemyIndex];
-		}
-		largeEnemyHealth *= largeResistance;
 		
-		// System.out.println("Average health of an enemy: " + (normalEnemyHealth + largeEnemyHealth));
-		return normalEnemyHealth + largeEnemyHealth;
+		double toReturn = 0.0;
+		Enemy alias;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			alias = enemiesModeled[i];
+			if (alias.usesNormalScaling()) {
+				toReturn += alias.getSpawnProbability(exact) * alias.getBaseHealth() * normalResistance;
+			}
+			else {
+				toReturn += alias.getSpawnProbability(exact) * alias.getBaseHealth() * largeResistance;
+			}
+		}
+		
+		return toReturn;
 	}
 	
 	public static double averageTimeToIgnite(double burstOfHeat, double heatPerShot, double RoF, double heatPerSec) {
@@ -397,43 +156,34 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		int numEnemyTypes = exactSpawnRates.length;
-		double[] ignitionTimes = new double[numEnemyTypes];
-		double igniteTemp, coolingRate;
+		double igniteTemp;
 		
-		for (int i = 0; i < numEnemyTypes; i++) {
-			igniteTemp = enemyTemperatures[i][0];
+		double toReturn = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			igniteTemp = enemiesModeled[i].getIgniteTemp();
 			
 			// Early exit: if Heat/Shot >= 100, then all enemies get ignited instantly since the largest Ignite Temp modeled in this program is 100.
 			if (burstOfHeat >= igniteTemp || heatPerShot >= igniteTemp || burstOfHeat + heatPerShot >= igniteTemp) {
-				ignitionTimes[i] = 0.0;
+				// Technically this adds (Exact Spawn Probability * 0.0), but to save some CPU cycles I'm just going to skip to the next enemy.
 				continue;
 			}
 			
-			coolingRate = enemyTemperatures[i][2];
-			
-			ignitionTimes[i] = (igniteTemp - burstOfHeat) / (heatPerShot * RoF + heatPerSec - coolingRate);
+			toReturn += enemiesModeled[i].getSpawnProbability(true) * ((igniteTemp - burstOfHeat) / (heatPerShot * RoF + heatPerSec - enemiesModeled[i].getCoolingRate()));
 		}
 		
-		return MathUtils.vectorDotProduct(exactSpawnRates, ignitionTimes);
+		return toReturn;
 	}
 	public static double averageBurnDuration() {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
 		}
 		
-		int numEnemyTypes = exactSpawnRates.length;
-		double burnDurations[] = new double[numEnemyTypes];
-		double igniteTemp, douseTemp, coolingRate;
-		
-		for (int i = 0; i < numEnemyTypes; i++) {
-			igniteTemp = enemyTemperatures[i][0];
-			douseTemp = enemyTemperatures[i][1];
-			coolingRate = enemyTemperatures[i][2];
-			burnDurations[i] = (igniteTemp - douseTemp) / coolingRate;
+		double toReturn = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			toReturn += enemiesModeled[i].getSpawnProbability(true) * ((enemiesModeled[i].getIgniteTemp() - enemiesModeled[i].getDouseTemp()) / enemiesModeled[i].getCoolingRate());
 		}
 		
-		return MathUtils.vectorDotProduct(exactSpawnRates, burnDurations);
+		return toReturn;
 	}
 	// This method is currently only used by Gunner/Minigun/Mod/5/Aggressive Venting in maxDamage() and Engineer/GrenadeLauncher/Mod/3/Incendiary Compound single-target DPS
 	public static double percentageEnemiesIgnitedBySingleBurstOfHeat(double heatPerBurst) {
@@ -441,14 +191,14 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		double sum = 0;
-		for (int i = 0; i < exactSpawnRates.length; i++) {
-			if (enemyTemperatures[i][0] <= heatPerBurst) {
-				sum += exactSpawnRates[i];
+		double toReturn = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			if (enemiesModeled[i].getIgniteTemp() <= heatPerBurst) {
+				toReturn += enemiesModeled[i].getSpawnProbability(true);
 			}
 		}
 		
-		return MathUtils.round(sum, 4);
+		return MathUtils.round(toReturn, 4);
 	}
 	
 	/*
@@ -464,23 +214,22 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		int numEnemyTypes = exactSpawnRates.length;
-		double[] freezeTimes = new double[numEnemyTypes];
 		double freezeTemp;
 		
-		for (int i = 0; i < numEnemyTypes; i++) {
-			freezeTemp = enemyTemperatures[i][3];
+		double toReturn = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			freezeTemp = enemiesModeled[i].getFreezeTemp();
 			
-			// Early exit: if Cold/Shot >= 300, then all enemies get ignited instantly since the largest Freeze Temp modeled in this program is 300.
+			// Early exit: if Cold/Shot <= -490, then all enemies get frozen instantly since the largest Freeze Temp modeled in this program is -490 (Bulk Detonator).
 			if (burstOfCold <= freezeTemp || coldPerShot <= freezeTemp || burstOfCold + coldPerShot <= freezeTemp) {
-				freezeTimes[i] = 0.0;
+				// Technically this adds (Exact Spawn Probability * 0.0), but to save some CPU cycles I'm just going to skip to the next enemy.
 				continue;
 			}
 			
-			freezeTimes[i] = (freezeTemp - burstOfCold) / (coldPerShot * RoF + coldPerSec);
+			toReturn += enemiesModeled[i].getSpawnProbability(true) * ((freezeTemp - burstOfCold) / (coldPerShot * RoF + coldPerSec));
 		}
 		
-		return MathUtils.vectorDotProduct(exactSpawnRates, freezeTimes);
+		return toReturn;
 	}
 	// Because the creatures have had a negative temperature for longer than 2 seconds (due to being Frozen already) I'm keeping warming rate in the refreeze method
 	public static double averageTimeToRefreeze(double coldPerSecond) {
@@ -488,40 +237,25 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		int numEnemyTypes = exactSpawnRates.length;
-		double[] refreezeTimes = new double[numEnemyTypes];
-		double freezeTemp, thawTemp, warmingRate;
-		
-		for (int i = 0; i < numEnemyTypes; i++) {
-			freezeTemp = enemyTemperatures[i][3];
-			thawTemp = enemyTemperatures[i][4];
-			warmingRate = enemyTemperatures[i][5];
-			
-			// Negative Freeze temps divided by negative cold per seconds results in a positive number of seconds
-			refreezeTimes[i] = (freezeTemp - thawTemp) / (coldPerSecond + warmingRate);
+		double toReturn = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			toReturn += enemiesModeled[i].getSpawnProbability(true) * ((enemiesModeled[i].getFreezeTemp() - enemiesModeled[i].getUnfreezeTemp()) / (coldPerSecond + enemiesModeled[i].getWarmingRate()));
 		}
 		
-		return MathUtils.vectorDotProduct(exactSpawnRates, refreezeTimes);
+		return toReturn;
 	}
 	public static double averageFreezeDuration() {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
 		}
 		
-		int numEnemyTypes = exactSpawnRates.length;
-		double freezeDurations[] = new double[numEnemyTypes];
-		double freezeTemp, thawTemp, warmingRate;
-		
-		for (int i = 0; i < numEnemyTypes; i++) {
-			freezeTemp = enemyTemperatures[i][3];
-			thawTemp = enemyTemperatures[i][4];
-			warmingRate = enemyTemperatures[i][5];
-			
-			// Because every Freeze temp is negative and is strictly less than the corresponding Thaw temp, subtracting Freeze from Thaw guarantees a positive number.
-			freezeDurations[i] = (thawTemp - freezeTemp) / warmingRate;
+		double toReturn = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			// Because every Freeze temp is negative and is strictly less than the corresponding Unfreeze temp, subtracting Freeze from Unfreeze guarantees a positive number.
+			toReturn += enemiesModeled[i].getSpawnProbability(true) * ((enemiesModeled[i].getUnfreezeTemp() - enemiesModeled[i].getFreezeTemp()) / enemiesModeled[i].getWarmingRate());
 		}
 		
-		return MathUtils.vectorDotProduct(exactSpawnRates, freezeDurations);
+		return toReturn;
 	}
 	// This method is currently only used by Driller/CryoCannon/OC/Snowball in Utility
 	public static double percentageEnemiesFrozenBySingleBurstOfCold(double coldPerBurst) {
@@ -529,24 +263,29 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		double sum = 0;
-		for (int i = 0; i < exactSpawnRates.length; i++) {
-			if (enemyTemperatures[i][3] >= coldPerBurst) {
-				sum += exactSpawnRates[i];
+		double toReturn = 0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			if (enemiesModeled[i].getFreezeTemp() >= coldPerBurst) {
+				toReturn += enemiesModeled[i].getSpawnProbability(true);
 			}
 		}
 		
-		return MathUtils.round(sum, 4);
+		return MathUtils.round(toReturn, 4);
 	}
 	
 	public static double averageLightArmorStrength() {
-		int[] indexesOfEnemiesWithLightArmor = new int[] {1, 2, 3, 8, 9};
-		double[] subsetSpawnRates = new double[indexesOfEnemiesWithLightArmor.length];
-		for (int i = 0; i < indexesOfEnemiesWithLightArmor.length; i++) {
-			subsetSpawnRates[i] = exactSpawnRates[indexesOfEnemiesWithLightArmor[i]];
+		double totalLightArmorStrength = 0.0;
+		double totalSpawnPercentage = 0.0;
+		Enemy alias;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			alias = enemiesModeled[i];
+			if (alias.hasLightArmor()) {
+				totalLightArmorStrength += alias.getArmorStrength() * alias.getSpawnProbability(true);
+				totalSpawnPercentage += alias.getSpawnProbability(true);
+			}
 		}
 		
-		return MathUtils.vectorDotProduct(enemyLightArmorStrengthValues, subsetSpawnRates) / MathUtils.sum(subsetSpawnRates);
+		return totalLightArmorStrength / totalSpawnPercentage;
 	}
 	public static double lightArmorBreakProbabilityLookup(double damage, double armorBreakingModifier, double armorStrength) {
 		// Input sanitization
@@ -576,7 +315,12 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		return MathUtils.vectorDotProduct(exactSpawnRates, enemyCourageValues);
+		double toReturn = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			toReturn += enemiesModeled[i].getSpawnProbability(true) * enemiesModeled[i].getCourage();
+		}
+		
+		return toReturn;
 	}
 	
 	/*
@@ -591,7 +335,11 @@ public class EnemyInformation {
 		return averageFearDuration(0.0, 0.0);
 	}
 	public static double averageFearDuration(double enemySlowMultiplier, double slowDuration) {
-		double averageFearMovespeed = MathUtils.vectorDotProduct(exactSpawnRates, enemyFearMovespeed);
+		double averageFearMovespeed = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			averageFearMovespeed += enemiesModeled[i].getSpawnProbability(true) * enemiesModeled[i].getMaxMovespeedWhenFeared();
+		}
+		
 		double difficultyScalingMovespeedModifier = movespeedDifficultyScaling[hazardLevel - 1];
 		
 		// This value gathered from internal property TSK_FleeFrom_C.distance
@@ -611,20 +359,26 @@ public class EnemyInformation {
 	}
 	
 	public static double averageDifficultyScalingResistance() {
-		int[] normalEnemyIndexes = {0, 1, 2, 3, 5, 8, 9, 14, 20, 21, 22};
+		if (!verifySpawnRatesTotalIsOne()) {
+			return -1.0;
+		}
+		
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
-		int[] largeEnemyIndexes = {4, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19};
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
-		double sum = 0;
-		for (int i: normalEnemyIndexes) {
-			sum += exactSpawnRates[i] * normalResistance;
-		}
-		for (int i: largeEnemyIndexes) {
-			sum += exactSpawnRates[i] * largeResistance;
+		double toReturn = 0.0;
+		Enemy alias;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			alias = enemiesModeled[i];
+			if (alias.usesNormalScaling()) {
+				toReturn += alias.getSpawnProbability(true) * normalResistance;
+			}
+			else {
+				toReturn += alias.getSpawnProbability(true) * largeResistance;
+			}
 		}
 		
-		return sum;
+		return toReturn;
 	}
 	
 	/*
@@ -655,21 +409,10 @@ public class EnemyInformation {
 	public static int[] calculateBreakpoints(double[] directDamageByType, double[] areaDamageByType, double[] DoT_DPS, double[] DoT_durations, double[] DoT_probabilities, 
 											 double weakpointModifier, double armorBreaking, double RoF, double heatPerShot, double macteraModifier, 
 											 boolean frozen, boolean IFG, boolean flyingNightmare, boolean embeddedDetonators) {
-		int[] creaturesToModel = {0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 14, 15, 16, 20, 21, 22};
+		ArrayList<Integer> toReturn = new ArrayList<Integer>();
 		
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
-		
-		ArrayList<Integer> toReturn = new ArrayList<Integer>();
-		
-		HashSet<Integer> normalEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 1, 2, 3, 5, 8, 9, 14, 20, 21, 22}));
-		HashSet<Integer> largeEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {4, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19}));
-		// Grunts, Guards, Slashers, Web Spitters, and Acid Spitters intentionally neglected from this list since they are entirely covered by Light Armor except for their Weakpoints
-		HashSet<Integer> indexesWithNormalHealth = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 4, 5, 6, 7, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22}));
-		HashSet<Integer> indexesWithLightArmor = new HashSet<Integer>(Arrays.asList(new Integer[] {1, 2, 3, 8, 9}));
-		HashSet<Integer> indexesWithHeavyArmorCoveringWeakpoint = new HashSet<Integer>(Arrays.asList(new Integer[] {22}));
-		HashSet<Integer> indexesWithoutWeakpoints = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 20}));
-		HashSet<Integer> indexesOfMacteras = new HashSet<Integer>(Arrays.asList(new Integer[] {14, 15, 16, 21, 22}));
 		
 		// Frozen
 		double lightArmorReduction = UtilityInformation.LightArmor_DamageReduction;
@@ -707,25 +450,30 @@ public class EnemyInformation {
 		int breakpointCounter;
 		double fourSecondsDoTDamage;
 		double lightArmorStrength, heavyArmorHP, numShotsToBreakArmor;
-		for (int creatureIndex: creaturesToModel) {
-			if (normalEnemyScalingIndexes.contains(creatureIndex)) {
-				creatureHP = enemyHealthPools[creatureIndex] * normalResistance;
+		Enemy alias;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			alias = enemiesModeled[i];
+			
+			// If this enemy shouldn't be modeled in breakpoints, skip it.
+			if (!alias.shouldHaveBreakpointsCalculated()) {
+				continue;
 			}
-			else if (largeEnemyScalingIndexes.contains(creatureIndex)) {
-				creatureHP = enemyHealthPools[creatureIndex] * largeResistance;
+			
+			if (alias.usesNormalScaling()) {
+				creatureHP = alias.getBaseHealth() * normalResistance;
 			}
 			else {
-				creatureHP = enemyHealthPools[creatureIndex];
+				creatureHP = alias.getBaseHealth() * largeResistance;
 			}
 			
 			creatureResistances = new double[] {
-				1.0 - enemyResistances[creatureIndex][0],	// Explosive
-				1.0 - enemyResistances[creatureIndex][1],	// Fire
-				1.0 - enemyResistances[creatureIndex][2],	// Frost
-				1.0 - enemyResistances[creatureIndex][3],	// Electric
+				1.0 - alias.getExplosiveResistance(),
+				1.0 - alias.getFireResistance(),
+				1.0 - alias.getFrostResistance(),
+				1.0 - alias.getElectricResistance()
 			};
 			
-			creatureWeakpointModifier = defaultWeakpointDamageBonusPerEnemyType[creatureIndex];
+			creatureWeakpointModifier = alias.getWeakpointMultiplier();
 			if (weakpointModifier < 0) {
 				creatureWeakpointModifier = 1.0;
 			}
@@ -740,7 +488,7 @@ public class EnemyInformation {
 			modifiedAreaDamage = areaDamageByType[0] + areaDamageByType[1] * creatureResistances[0] + areaDamageByType[2] * creatureResistances[1] + areaDamageByType[3] * creatureResistances[2] + areaDamageByType[4] * creatureResistances[3];
 			
 			// Driller/Subata/Mod/5/B "Mactera Neurotoxin Coating" makes the Subata's damage do x1.2 more to Mactera-type enemies
-			if (indexesOfMacteras.contains(creatureIndex)) {
+			if (alias.isMacteraType()) {
 				modifiedDirectDamage *= (1.0 + macteraModifier);
 				modifiedAreaDamage *= (1.0 + macteraModifier);
 			}
@@ -757,14 +505,14 @@ public class EnemyInformation {
 			numShotsToProcPersistentPlasma = 0;
 			numShotsToProcRadiation = 0;
 			if (!frozen && heatPerShot > 0.0) {
-				if (heatPerShot > enemyTemperatures[creatureIndex][0]) {
+				if (heatPerShot >= alias.getIgniteTemp()) {
 					numShotsToProcBurn = 1;
-					burnDuration = (heatPerShot - enemyTemperatures[creatureIndex][1]) / enemyTemperatures[creatureIndex][2];
+					burnDuration = (heatPerShot - alias.getDouseTemp()) / alias.getCoolingRate();
 				}
 				else {
 					// This is technically an approximation and not precisely how it works in-game, but it's close enough for what I need.
-					numShotsToProcBurn = Math.floor((enemyTemperatures[creatureIndex][0] * RoF) / (heatPerShot * RoF - enemyTemperatures[creatureIndex][2]));
-					burnDuration = (enemyTemperatures[creatureIndex][0] - enemyTemperatures[creatureIndex][1]) / enemyTemperatures[creatureIndex][2];
+					numShotsToProcBurn = Math.floor((alias.getIgniteTemp() * RoF) / (heatPerShot * RoF - alias.getCoolingRate()));
+					burnDuration = (alias.getIgniteTemp() - alias.getDouseTemp()) / alias.getCoolingRate();
 				}
 			}
 			if (DoT_probabilities[0] > 0.0) {
@@ -781,7 +529,7 @@ public class EnemyInformation {
 			}
 			
 			// Normal Damage
-			if (indexesWithNormalHealth.contains(creatureIndex)) {
+			if (alias.hasExposedBodySomewhere()) {
 				breakpointCounter = 0;
 				aliasHP = creatureHP;
 				
@@ -841,20 +589,11 @@ public class EnemyInformation {
 			}
 			
 			// Light Armor
-			if (indexesWithLightArmor.contains(creatureIndex)) {
+			if (alias.hasLightArmor()) {
 				breakpointCounter = 0;
 				aliasHP = creatureHP;
 				
-				if (creatureIndex == 1 || creatureIndex == 2 || creatureIndex == 3) {
-					lightArmorStrength = 15;
-				}
-				else if (creatureIndex == 8 || creatureIndex == 9) {
-					lightArmorStrength = 10;
-				}
-				else {
-					// This is an error case.
-					lightArmorStrength = 1;
-				}
+				lightArmorStrength = alias.getArmorStrength();
 				
 				if (embeddedDetonators) {
 					numShotsToBreakArmor = Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(rawDirectDamage, armorBreaking, lightArmorStrength)));
@@ -927,20 +666,12 @@ public class EnemyInformation {
 			}
 			
 			// Weakpoint
-			if (!indexesWithoutWeakpoints.contains(creatureIndex)) {
+			if (alias.hasWeakpoint()) {
 				breakpointCounter = 0;
 				aliasHP = creatureHP;
 				
-				if (indexesWithHeavyArmorCoveringWeakpoint.contains(creatureIndex)) {
-					if (creatureIndex == 22) {
-						heavyArmorHP = 80;
-					}
-					else {
-						// Error case
-						heavyArmorHP = 1000;
-					}
-					
-					heavyArmorHP *= normalResistance;
+				if (alias.weakpointIsCoveredByHeavyArmor()) {
+					heavyArmorHP = alias.getArmorBaseHealth() * normalResistance;
 					
 					if (embeddedDetonators) {
 						numShotsToBreakArmor = heavyArmorHP / (rawDirectDamage * armorBreaking);
@@ -1071,45 +802,37 @@ public class EnemyInformation {
 		return percentageDamageWastedByArmor(directDamage, numPellets, areaDamage, armorBreaking, weakpointModifier, generalAccuracy, weakpointAccuracy, false);
 	}
 	public static double[][] percentageDamageWastedByArmor(double directDamage, int numPellets, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy, boolean embeddedDetonators) {
-		double[][] creaturesArmorMatrix = {
-			// Creature Index, Number of Light Armor plates, Avg Armor Strength, Number of Heavy Armor plates, Avg Armor Plate HP
-			{1, 6, 15, 0, 0},  					// Glyphid Grunt
-			{2, 2, 15, 4, 60},  				// Glyphid Guard
-			{3, 6, 15, 0, 0},  					// Glyphid Slasher
-			{4, 0, 0, 6, 100},  				// Glyphid Praetorian
-			{8, 3, 10, 0, 0},  					// Glyphid Web Spitter
-			{9, 3, 10, 0, 0},  					// Glyphid Acid Spitter
-			{10, 0, (1*1 + 2*10)/3.0, 3, 0},  	// Glyphid Menace
-			{11, 0, 15, 3, 0},  				// Glyphid Warden
-			{13, 0, 0, 6, (6*70 + 14*30)/20},  	// Q'ronar Shellback
-			{22, 0, 0, 2, 80}					// Mactera Brundle
-		};
-		
-		double[][] toReturn = new double[2][creaturesArmorMatrix.length];
-		
+		// I have not thought of an elegant way to look ahead and count how many enemies have Light or Heavy Armor. For now I'm going to "cheat" because I know in advance that the answer is 10.
+		double[][] toReturn = new double[2][10];
 		
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
-		int creatureIndex, i, j;
+		int creatureIndex = 0, i, j;
 		double baseHealth, heavyArmorPlateHealth;
 		double damageDealtPerPellet, proportionOfDamageThatHitsArmor, proportionOfDamageThatHitsWeakpoint;
 		int avgNumHitsToBreakArmorStrengthPlate, numHitsOnArmorStrengthPlate;
 		double totalDamageSpent, actualDamageDealt;
-		for (i = 0; i < creaturesArmorMatrix.length; i++) {
-			creatureIndex = (int) creaturesArmorMatrix[i][0];
-			baseHealth = enemyHealthPools[creatureIndex];
+		Enemy alias;
+		for (i = 0; i < enemiesModeled.length; i++) {
+			alias = enemiesModeled[i];
 			
-			if (creaturesArmorMatrix[i][4] > 0) {
+			// Skip any enemy that either has no Armor or Unbreakable Armor
+			if (!alias.hasBreakableArmor()) {
+				continue;
+			}
+			
+			baseHealth = alias.getBaseHealth();
+			
+			if (alias.hasHeavyArmorHealth()) {
 				// All Heavy Armor plates with healthbars have their health scale with normal resistance.
-				heavyArmorPlateHealth = creaturesArmorMatrix[i][4] * normalResistance;
+				heavyArmorPlateHealth = alias.getArmorBaseHealth() * normalResistance;
 			}
 			else {
 				heavyArmorPlateHealth = 0;
 			}
 			
-			if (i == 3) {
-				// Special case: Glyphid Praetorian
+			if (alias.getName().equals("Glyphid Praetorian")) {
 				baseHealth *= largeResistance;
 				
 				proportionOfDamageThatHitsArmor = (100.0 - generalAccuracy) / 100.0;
@@ -1169,8 +892,7 @@ public class EnemyInformation {
 					}
 				}
 			}
-			else if (i == 8) {
-				// Special case: Q'ronar Shellback
+			else if (alias.getName().equals("Q'ronar Shellback")) {
 				baseHealth *= largeResistance;
 				
 				totalDamageSpent = 0;
@@ -1227,8 +949,7 @@ public class EnemyInformation {
 					}
 				}
 			}
-			else if (i == 9) {
-				// Special case: Mactera Brundle
+			else if (alias.getName().equals("Mactera Brundle")) {
 				baseHealth *= normalResistance;
 				
 				double theoreticalDamagePerPellet;
@@ -1236,7 +957,7 @@ public class EnemyInformation {
 					theoreticalDamagePerPellet = directDamage;
 				}
 				else {
-					theoreticalDamagePerPellet = directDamage * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex];
+					theoreticalDamagePerPellet = directDamage * (1.0 + weakpointModifier) * alias.getWeakpointMultiplier();
 				}
 				
 				totalDamageSpent = 0;
@@ -1294,26 +1015,23 @@ public class EnemyInformation {
 				}
 			}
 			else {
-				// General case
-				if (i == 6 || i == 7) {
-					// Menaces and Wardens get large HP scaling
-					baseHealth *= largeResistance;
+				if (alias.usesNormalScaling()) {
+					baseHealth *= normalResistance;
 				}
 				else {
-					// All the other enemies get normal HP scaling
-					baseHealth *= normalResistance;
+					baseHealth *= largeResistance;
 				}
 				
 				proportionOfDamageThatHitsArmor = (100.0 - weakpointAccuracy) / 100.0;
 				proportionOfDamageThatHitsWeakpoint = weakpointAccuracy / 100.0;
 				
-				if (creaturesArmorMatrix[i][2] > 0) {
+				if (alias.hasLightArmor() || alias.hasHeavyArmorStrength()) {
 					if (embeddedDetonators || (areaDamage > 0 && numPellets > 1)) {
 						// Boomstick special case -- I'm choosing to model it as if the Blastwave doesn't break Light Armor Plates for simplicity later in the method
-						avgNumHitsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(directDamage, armorBreaking, creaturesArmorMatrix[i][2])));
+						avgNumHitsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(directDamage, armorBreaking, alias.getArmorStrength())));
 					}
 					else {
-						avgNumHitsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(directDamage + areaDamage, armorBreaking, creaturesArmorMatrix[i][2])));
+						avgNumHitsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(directDamage + areaDamage, armorBreaking, alias.getArmorStrength())));
 					}
 				}
 				else {
@@ -1331,55 +1049,54 @@ public class EnemyInformation {
 							damageDealtPerPellet = directDamage * proportionOfDamageThatHitsWeakpoint;
 						}
 						else {
-							totalDamageSpent += directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex] + directDamage * proportionOfDamageThatHitsArmor;
-							damageDealtPerPellet = directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * defaultWeakpointDamageBonusPerEnemyType[creatureIndex];
+							totalDamageSpent += directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * alias.getWeakpointMultiplier() + directDamage * proportionOfDamageThatHitsArmor;
+							damageDealtPerPellet = directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * alias.getWeakpointMultiplier();
 						}
 						
 						// 1. Light Armor plates (always Armor Strength, mixes with Heavy Armor plates on Guards)
-						if (creaturesArmorMatrix[i][1] > 0) {
+						if (alias.hasLightArmor()) {
 							numHitsOnArmorStrengthPlate++;
 							if (numHitsOnArmorStrengthPlate > avgNumHitsToBreakArmorStrengthPlate || (armorBreaking > 1.0 && numHitsOnArmorStrengthPlate == avgNumHitsToBreakArmorStrengthPlate)) {
-								damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * creaturesArmorMatrix[i][1] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+								damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * alias.getNumArmorStrengthPlates() / (alias.getNumArmorStrengthPlates() + alias.getNumArmorHealthPlates());
 							}
 							else {
-								damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * UtilityInformation.LightArmor_DamageReduction * creaturesArmorMatrix[i][1] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+								damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * UtilityInformation.LightArmor_DamageReduction * alias.getNumArmorStrengthPlates() / (alias.getNumArmorStrengthPlates() + alias.getNumArmorHealthPlates());
 							}
 						}
 						
-						if (creaturesArmorMatrix[i][3] > 0) {
-							// 2. Heavy Armor Plates with health (mixes with Light Armor plates on Guards)
-							if (creaturesArmorMatrix[i][4] > 0) { 
-								if (heavyArmorPlateHealth > 0) {
-									if (armorBreaking > 1.0) {
-										if (directDamage * armorBreaking > heavyArmorPlateHealth) {
-											damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * creaturesArmorMatrix[i][3] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
-											heavyArmorPlateHealth = 0;
-										}
-										else {
-											// Direct Damage insufficient to break the Heavy Armor Plate
-											heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
-										}
+						// 2. Heavy Armor Plates with health (mixes with Light Armor plates on Guards)
+						if (alias.hasHeavyArmorHealth()) { 
+							if (heavyArmorPlateHealth > 0) {
+								if (armorBreaking > 1.0) {
+									if (directDamage * armorBreaking > heavyArmorPlateHealth) {
+										damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * alias.getNumArmorHealthPlates() / (alias.getNumArmorStrengthPlates() + alias.getNumArmorHealthPlates());
+										heavyArmorPlateHealth = 0;
 									}
 									else {
-										if (directDamage * proportionOfDamageThatHitsArmor * armorBreaking > heavyArmorPlateHealth) {
-											heavyArmorPlateHealth = 0;
-										}
-										else {
-											// Direct Damage insufficient to break the Heavy Armor Plate
-											heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
-										}
+										// Direct Damage insufficient to break the Heavy Armor Plate
+										heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
 									}
 								}
 								else {
-									damageDealtPerPellet += proportionOfDamageThatHitsArmor * directDamage * creaturesArmorMatrix[i][3] / (creaturesArmorMatrix[i][1] + creaturesArmorMatrix[i][3]);
+									if (directDamage * proportionOfDamageThatHitsArmor * armorBreaking > heavyArmorPlateHealth) {
+										heavyArmorPlateHealth = 0;
+									}
+									else {
+										// Direct Damage insufficient to break the Heavy Armor Plate
+										heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
+									}
 								}
 							}
-							// 3. Heavy Armor plates with Armor Strength (mutually exclusive with Light Armor plates)
-							else if (creaturesArmorMatrix[i][1] == 0 && creaturesArmorMatrix[i][2] > 0) {
-								numHitsOnArmorStrengthPlate++;
-								if (numHitsOnArmorStrengthPlate > avgNumHitsToBreakArmorStrengthPlate || (armorBreaking > 1.0 && numHitsOnArmorStrengthPlate == avgNumHitsToBreakArmorStrengthPlate)) {
-									damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor;
-								}
+							else {
+								damageDealtPerPellet += proportionOfDamageThatHitsArmor * directDamage * alias.getNumArmorHealthPlates() / (alias.getNumArmorStrengthPlates() + alias.getNumArmorHealthPlates());
+							}
+						}
+						
+						// 3. Heavy Armor plates with Armor Strength (mutually exclusive with Light Armor plates)
+						if (alias.hasHeavyArmorStrength()) {
+							numHitsOnArmorStrengthPlate++;
+							if (numHitsOnArmorStrengthPlate > avgNumHitsToBreakArmorStrengthPlate || (armorBreaking > 1.0 && numHitsOnArmorStrengthPlate == avgNumHitsToBreakArmorStrengthPlate)) {
+								damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor;
 							}
 						}
 						
@@ -1391,14 +1108,14 @@ public class EnemyInformation {
 					totalDamageSpent += areaDamage;
 					if (embeddedDetonators) {
 						// Case 1: Guards' front leg plates have HP and block Embedded Detonators' damage until they're broken
-						if (creaturesArmorMatrix[i][4] > 0) {
+						if (alias.hasHeavyArmorHealth()) {
 							if (heavyArmorPlateHealth == 0) {
 								actualDamageDealt += areaDamage;
 								baseHealth -= areaDamage;
 							}
 						}
 						// Case 2: Wardens and Menaces have Heavy Armor that uses Armor Strength
-						else if (creaturesArmorMatrix[i][1] == 0 && creaturesArmorMatrix[i][2] > 0) {
+						else if (alias.hasHeavyArmorStrength()) {
 							// Detonators aren't placed until after the Heavy Armor plate is broken
 							if (numHitsOnArmorStrengthPlate > avgNumHitsToBreakArmorStrengthPlate) {
 								actualDamageDealt += areaDamage;
@@ -1406,7 +1123,7 @@ public class EnemyInformation {
 							}
 						}
 						// Case 3: Light Armor plates don't stop the embedded detonators from dealing damage
-						else if (creaturesArmorMatrix[i][1] > 0) {
+						else if (alias.hasLightArmor()) {
 							actualDamageDealt += areaDamage;
 							baseHealth -= areaDamage;
 						}
@@ -1422,8 +1139,9 @@ public class EnemyInformation {
 				}
 			}
 			
-			toReturn[0][i] = exactSpawnRates[creatureIndex];
-			toReturn[1][i] = 1.0 - actualDamageDealt / totalDamageSpent;
+			toReturn[0][creatureIndex] = alias.getSpawnProbability(true);
+			toReturn[1][creatureIndex] = 1.0 - actualDamageDealt / totalDamageSpent;
+			creatureIndex++;
 		}
 		
 		return toReturn;
@@ -1433,43 +1151,27 @@ public class EnemyInformation {
 		This method intentionally ignores elemental resistances/weaknesses and weakpoint damage bonuses because I don't want to repeat the Breakpoints insanity.
 	*/
 	public static double[][] overkillPerCreature(double totalDamagePerShot){
-		double[][] toReturn = new double[2][exactSpawnRates.length];
-		toReturn[0] = new double[exactSpawnRates.length];
-		toReturn[1] = new double[exactSpawnRates.length];
+		int numEnemies = enemiesModeled.length;
+		double[][] toReturn = new double[2][numEnemies];
+		toReturn[0] = new double[numEnemies];
+		toReturn[1] = new double[numEnemies];
 		
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
-		HashSet<Integer> normalEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 1, 2, 3, 5, 8, 9, 14, 20, 21, 22}));
-		HashSet<Integer> largeEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {4, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19}));
-		
 		double creatureHP;
-		for (int i = 0; i < exactSpawnRates.length; i++) {
-			if (normalEnemyScalingIndexes.contains(i)) {
-				creatureHP = enemyHealthPools[i] * normalResistance;
-			}
-			else if (largeEnemyScalingIndexes.contains(i)) {
-				creatureHP = enemyHealthPools[i] * largeResistance;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			if (enemiesModeled[i].usesNormalScaling()) {
+				creatureHP = enemiesModeled[i].getBaseHealth() * normalResistance;
 			}
 			else {
-				creatureHP = enemyHealthPools[i];
+				creatureHP = enemiesModeled[i].getBaseHealth() * largeResistance;
 			}
 			
-			toReturn[0][i] = 1.0 / ((double) exactSpawnRates.length);
+			toReturn[0][i] = 1.0 / ((double) numEnemies);
 			toReturn[1][i] = ((Math.ceil(creatureHP / totalDamagePerShot) * totalDamagePerShot) / creatureHP - 1.0) * 100.0;
 		}
 		
 		return toReturn;
 	}
-	
-	/* 
-		Dimensions of a Glyphid Grunt used for estimating how many grunts would be hit by AoE damage of a certain radius 
-		(see method Weapon.calculateNumGlyphidsInRadius())
-		Measured using meters
-	*/
-	// This is the radius of a Glyphid Grunt's hitbox that shouldn't overlap with other grunts, like the torso
-	public static double GlyphidGruntBodyRadius = 0.41;
-	// This is the radius of the entire Glyphid Grunt, from its center to the tip of its legs. The legs can overlap with other Grunts' legs.
-	public static double GlyphidGruntBodyAndLegsRadius = 0.97;
-	
 }

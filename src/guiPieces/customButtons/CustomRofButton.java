@@ -18,8 +18,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import guiPieces.GuiConstants;
-import modelPieces.Weapon;
 import utilities.MathUtils;
+import weapons.Weapon;
 
 public class CustomRofButton extends JButton implements ActionListener, ChangeListener  {
 	private static final long serialVersionUID = 1L;

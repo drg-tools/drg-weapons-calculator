@@ -20,8 +20,8 @@ import guiPieces.CustomCursors;
 import guiPieces.GuiConstants;
 import guiPieces.HoverText;
 import modelPieces.Mod;
-import modelPieces.Weapon;
 import net.coobird.thumbnailator.Thumbnails;
+import weapons.Weapon;
 
 public class ModButton extends JButton implements MouseInputListener {
 	private static final long serialVersionUID = 1L;

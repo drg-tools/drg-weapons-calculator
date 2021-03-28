@@ -19,31 +19,33 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import buildComparators.CompareAccuracyGraphs;
+import buildComparators.CompareMetrics;
 import dataGenerator.DatabaseConstants;
 import dataGenerator.MetricsCalculator;
-import drillerWeapons.CryoCannon;
-import drillerWeapons.EPC_ChargeShot;
-import drillerWeapons.EPC_RegularShot;
-import drillerWeapons.Flamethrower;
-import drillerWeapons.Subata;
-import engineerWeapons.BreachCutter;
-import engineerWeapons.BreachCutter_Projectile;
-import engineerWeapons.GrenadeLauncher;
-import engineerWeapons.SMG;
-import engineerWeapons.Shotgun;
 import guiPieces.HoverText;
 import guiPieces.View;
-import gunnerWeapons.Autocannon;
-import gunnerWeapons.BurstPistol;
-import gunnerWeapons.Minigun;
-import gunnerWeapons.Revolver;
 import modelPieces.EnemyInformation;
-import modelPieces.Weapon;
-import scoutWeapons.Boomstick;
-import scoutWeapons.Classic_FocusShot;
-import scoutWeapons.Classic_Hipfire;
-import scoutWeapons.AssaultRifle;
-import scoutWeapons.Zhukov;
+import weapons.Weapon;
+import weapons.driller.CryoCannon;
+import weapons.driller.EPC_ChargeShot;
+import weapons.driller.EPC_RegularShot;
+import weapons.driller.Flamethrower;
+import weapons.driller.Subata;
+import weapons.engineer.BreachCutter;
+import weapons.engineer.BreachCutter_Projectile;
+import weapons.engineer.GrenadeLauncher;
+import weapons.engineer.SMG;
+import weapons.engineer.Shotgun;
+import weapons.gunner.Autocannon;
+import weapons.gunner.BurstPistol;
+import weapons.gunner.Minigun;
+import weapons.gunner.Revolver;
+import weapons.scout.AssaultRifle;
+import weapons.scout.Boomstick;
+import weapons.scout.Classic_FocusShot;
+import weapons.scout.Classic_Hipfire;
+import weapons.scout.Zhukov;
 
 /*
 	Benchmarks: 
@@ -61,6 +63,8 @@ public class GuiController implements ActionListener {
 	private Weapon[] scoutWeapons;
 	private View gui;
 	private MetricsCalculator calculator;
+	private CompareMetrics metricsComparator;
+	private CompareAccuracyGraphs accuracyComparator;
 	private JFileChooser folderChooser;
 	
 	public static void main(String[] args) {
@@ -97,6 +101,8 @@ public class GuiController implements ActionListener {
 			weaponSelected = new Minigun();
 		}
 		calculator = new MetricsCalculator(weaponSelected);
+		metricsComparator = new CompareMetrics(weaponSelected);
+		accuracyComparator = new CompareAccuracyGraphs(weaponSelected);
 		folderChooser = new JFileChooser();
 		folderChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 	}
@@ -330,6 +336,7 @@ public class GuiController implements ActionListener {
 		Object e = arg0.getSource();
 		
 		Weapon currentlySelectedWeapon;
+		String currentlyEquippedCombination;
 		int classIndex = gui.getCurrentClassIndex();
 		
 		// Have these commands disabled when Information is at the front.
@@ -354,10 +361,16 @@ public class GuiController implements ActionListener {
 			System.out.println("Error: no weapons in GuiController's arrays");
 			currentlySelectedWeapon = new Minigun();
 		}
+		
+		currentlyEquippedCombination = currentlySelectedWeapon.getCombination();
 		calculator.changeWeapon(currentlySelectedWeapon);
+		// This method is coded to do nothing if it's trying to change the weapon to the one that's already selected
+		metricsComparator.changeWeapon(currentlySelectedWeapon);
+		accuracyComparator.changeWeapon(currentlySelectedWeapon);
 		
 		// There are currently 15 options for Best Combinations menus
-		for (int i = 0; i < 15; i++) {
+		int i;
+		for (i = 0; i < 15; i++) {
 			if (e == gui.getOverallBestCombination(i)) {
 				
 				gui.activateThinkingCursor();
@@ -481,7 +494,6 @@ public class GuiController implements ActionListener {
 		else if (e == gui.getExportAll()) {
 			chooseFolder();
 			gui.activateThinkingCursor();
-			int i;
 			for (i = 0; i < drillerWeapons.length; i++) {
 				calculator.changeWeapon(drillerWeapons[i]);
 				calculator.exportMetricsToCSV();
@@ -519,11 +531,47 @@ public class GuiController implements ActionListener {
 			gui.deactivateThinkingCursor();
 		}
 		
+		else if (e == gui.getCompareBuildMetrics()) {
+			// Adapted from https://stackoverflow.com/a/13760416 and https://www.tutorialspoint.com/how-to-display-a-jframe-to-the-center-of-a-screen-in-java
+			JOptionPane a = new JOptionPane(metricsComparator.getComparisonPanel(), JOptionPane.INFORMATION_MESSAGE);
+			JDialog d = a.createDialog(null, "Compare multiple builds directly, metric-to-metric");
+			d.setLocationRelativeTo(gui);
+			d.setVisible(true);
+		}
+		else if (e == gui.getCompareAccuracyGraphs()) {
+			if (currentlySelectedWeapon.getGeneralAccuracy() < 0.0) {
+				JOptionPane.showMessageDialog(gui, "This weapon doesn't use the Accuracy metrics in a meaningful way. As such, trying to compare builds in this manner is useless.", "Pointless Comparison", JOptionPane.INFORMATION_MESSAGE);
+			}
+			else {
+				// Adapted from https://stackoverflow.com/a/13760416 and https://www.tutorialspoint.com/how-to-display-a-jframe-to-the-center-of-a-screen-in-java
+				JOptionPane a = new JOptionPane(accuracyComparator.getComparisonPanel(), JOptionPane.INFORMATION_MESSAGE);
+				JDialog d = a.createDialog(null, "Visually compare metrics affected by Accuracy and distance");
+				d.setLocationRelativeTo(gui);
+				d.setVisible(true);
+			}
+		}
+		else if (e == gui.getCompareLoadCombinationIntoColumn(0)) {
+			metricsComparator.setNewBuildAtIndex(0, currentlyEquippedCombination);
+			accuracyComparator.setNewBuildAtIndex(0, currentlyEquippedCombination);
+		}
+		else if (e == gui.getCompareLoadCombinationIntoColumn(1)) {
+			metricsComparator.setNewBuildAtIndex(1, currentlyEquippedCombination);
+			accuracyComparator.setNewBuildAtIndex(1, currentlyEquippedCombination);
+		}
+		else if (e == gui.getCompareLoadCombinationIntoColumn(2)) {
+			metricsComparator.setNewBuildAtIndex(2, currentlyEquippedCombination);
+			accuracyComparator.setNewBuildAtIndex(2, currentlyEquippedCombination);
+		}
+		else if (e == gui.getCompareLoadCombinationIntoColumn(3)) {
+			metricsComparator.setNewBuildAtIndex(3, currentlyEquippedCombination);
+			accuracyComparator.setNewBuildAtIndex(3, currentlyEquippedCombination);
+		}
+		
 		else if (e == gui.getMiscScreenshot()) {
 			chooseFolder();
 			String weaponClass = currentlySelectedWeapon.getDwarfClass();
 			String weaponName = currentlySelectedWeapon.getSimpleName();
-			File pngOut = new File(calculator.getOutputFolder(), weaponClass + "_" + weaponName + "_" + currentlySelectedWeapon.getCombination() + ".png");
+			File pngOut = new File(calculator.getOutputFolder(), weaponClass + "_" + weaponName + "_" + currentlyEquippedCombination + ".png");
 			
 			// Sourced from https://stackoverflow.com/a/44019372
 			BufferedImage screenshot = gui.getScreenshot();
@@ -534,8 +582,7 @@ public class GuiController implements ActionListener {
 			}
 		}
 		else if (e == gui.getMiscExport()) {
-			String combination = currentlySelectedWeapon.getCombination();
-			JTextField output = new JTextField(combination);
+			JTextField output = new JTextField(currentlyEquippedCombination);
 			output.setFont(new Font("Monospaced", Font.PLAIN, 18));
 			
 			// Adapted from https://stackoverflow.com/a/13760416 and https://www.tutorialspoint.com/how-to-display-a-jframe-to-the-center-of-a-screen-in-java
@@ -548,10 +595,39 @@ public class GuiController implements ActionListener {
 			String instructions = "Enter the combination you want to load for this weapon. It should consist of 5 capital letters, A-C, and 1 number, 1-7. Each capital letter "
 					+ "corresponds to a mod tier and the number corresponds to the desired overclock. If you do not want to use a mod tier or overclock, substitute the "
 					+ "corresponding character with a hyphen.";
-			instructions = HoverText.breakLongToolTipString(instructions, 90);
-			String newCombination = JOptionPane.showInputDialog(gui, instructions);
-			if (newCombination != null) {
-				currentlySelectedWeapon.buildFromCombination(newCombination);
+			instructions = HoverText.breakLongToolTipString(instructions, 90, false);
+			
+			String displayedMessage = "";
+			String newCombination;
+			boolean isValidCombination = false;
+			String errorMessage = "";
+			boolean showErrorMessage = false;
+			while(true) {
+				if (showErrorMessage) {
+					displayedMessage = "<html><body>" + instructions + "<span style=\"color: red\">" + errorMessage + "</span></body></html>";
+				}
+				else {
+					displayedMessage = "<html><body>" + instructions + "</body></html>";
+				}
+				
+				newCombination = JOptionPane.showInputDialog(gui, displayedMessage);
+				
+				if (newCombination != null) {
+					isValidCombination = currentlySelectedWeapon.isCombinationValid(newCombination);
+					
+					if (isValidCombination) {
+						currentlySelectedWeapon.buildFromCombination(newCombination);
+						break;
+					}
+					else {
+						errorMessage = currentlySelectedWeapon.getInvalidCombinationErrorMessage();
+						showErrorMessage = true;
+					}
+				}
+				else {
+					// If the user doesn't enter a combination, break the while loop instantly.
+					break;
+				}
 			}
 		}
 		else if (e == gui.getMiscSuggestion()) {

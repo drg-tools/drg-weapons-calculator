@@ -23,7 +23,7 @@ import javax.swing.event.ChangeListener;
 
 import guiPieces.GuiConstants;
 import guiPieces.HoverText;
-import modelPieces.Weapon;
+import weapons.Weapon;
 
 public class AccuracyEstimatorSettingsButton extends JButton implements ActionListener, ChangeListener {
 	private static final long serialVersionUID = 1L;

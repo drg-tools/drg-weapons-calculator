@@ -7,7 +7,7 @@ import javax.swing.JButton;
 import javax.swing.SwingConstants;
 
 import guiPieces.GuiConstants;
-import modelPieces.Weapon;
+import weapons.Weapon;
 
 public class DPSToggleButton extends JButton implements ActionListener {
 	private static final long serialVersionUID = 1L;
