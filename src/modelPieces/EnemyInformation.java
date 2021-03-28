@@ -667,21 +667,10 @@ public class EnemyInformation {
 	public static int[] calculateBreakpoints(double[] directDamageByType, double[] areaDamageByType, double[] DoT_DPS, double[] DoT_durations, double[] DoT_probabilities, 
 											 double weakpointModifier, double armorBreaking, double RoF, double heatPerShot, double macteraModifier, 
 											 boolean frozen, boolean IFG, boolean flyingNightmare, boolean embeddedDetonators) {
-		int[] creaturesToModel = {0, 1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 14, 15, 16, 20, 21, 22};
+		ArrayList<Integer> toReturn = new ArrayList<Integer>();
 		
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
-		
-		ArrayList<Integer> toReturn = new ArrayList<Integer>();
-		
-		HashSet<Integer> normalEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 1, 2, 3, 5, 8, 9, 14, 20, 21, 22}));
-		HashSet<Integer> largeEnemyScalingIndexes = new HashSet<Integer>(Arrays.asList(new Integer[] {4, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19}));
-		// Grunts, Guards, Slashers, Web Spitters, and Acid Spitters intentionally neglected from this list since they are entirely covered by Light Armor except for their Weakpoints
-		HashSet<Integer> indexesWithNormalHealth = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 4, 5, 6, 7, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22}));
-		HashSet<Integer> indexesWithLightArmor = new HashSet<Integer>(Arrays.asList(new Integer[] {1, 2, 3, 8, 9}));
-		HashSet<Integer> indexesWithHeavyArmorCoveringWeakpoint = new HashSet<Integer>(Arrays.asList(new Integer[] {22}));
-		HashSet<Integer> indexesWithoutWeakpoints = new HashSet<Integer>(Arrays.asList(new Integer[] {0, 20}));
-		HashSet<Integer> indexesOfMacteras = new HashSet<Integer>(Arrays.asList(new Integer[] {14, 15, 16, 21, 22}));
 		
 		// Frozen
 		double lightArmorReduction = UtilityInformation.LightArmor_DamageReduction;
@@ -719,25 +708,30 @@ public class EnemyInformation {
 		int breakpointCounter;
 		double fourSecondsDoTDamage;
 		double lightArmorStrength, heavyArmorHP, numShotsToBreakArmor;
-		for (int creatureIndex: creaturesToModel) {
-			if (normalEnemyScalingIndexes.contains(creatureIndex)) {
-				creatureHP = enemyHealthPools[creatureIndex] * normalResistance;
+		Enemy alias;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			alias = enemiesModeled[i];
+			
+			// If this enemy shouldn't be modeled in breakpoints, skip it.
+			if (!alias.shouldHaveBreakpointsCalculated()) {
+				continue;
 			}
-			else if (largeEnemyScalingIndexes.contains(creatureIndex)) {
-				creatureHP = enemyHealthPools[creatureIndex] * largeResistance;
+			
+			if (alias.usesNormalScaling()) {
+				creatureHP = alias.getBaseHealth() * normalResistance;
 			}
 			else {
-				creatureHP = enemyHealthPools[creatureIndex];
+				creatureHP = alias.getBaseHealth() * largeResistance;
 			}
 			
 			creatureResistances = new double[] {
-				1.0 - enemyResistances[creatureIndex][0],	// Explosive
-				1.0 - enemyResistances[creatureIndex][1],	// Fire
-				1.0 - enemyResistances[creatureIndex][2],	// Frost
-				1.0 - enemyResistances[creatureIndex][3],	// Electric
+				1.0 - alias.getExplosiveResistance(),
+				1.0 - alias.getFireResistance(),
+				1.0 - alias.getFrostResistance(),
+				1.0 - alias.getElectricResistance()
 			};
 			
-			creatureWeakpointModifier = defaultWeakpointDamageBonusPerEnemyType[creatureIndex];
+			creatureWeakpointModifier = alias.getWeakpointMultiplier();
 			if (weakpointModifier < 0) {
 				creatureWeakpointModifier = 1.0;
 			}
@@ -752,7 +746,7 @@ public class EnemyInformation {
 			modifiedAreaDamage = areaDamageByType[0] + areaDamageByType[1] * creatureResistances[0] + areaDamageByType[2] * creatureResistances[1] + areaDamageByType[3] * creatureResistances[2] + areaDamageByType[4] * creatureResistances[3];
 			
 			// Driller/Subata/Mod/5/B "Mactera Neurotoxin Coating" makes the Subata's damage do x1.2 more to Mactera-type enemies
-			if (indexesOfMacteras.contains(creatureIndex)) {
+			if (alias.isMacteraType()) {
 				modifiedDirectDamage *= (1.0 + macteraModifier);
 				modifiedAreaDamage *= (1.0 + macteraModifier);
 			}
@@ -769,14 +763,14 @@ public class EnemyInformation {
 			numShotsToProcPersistentPlasma = 0;
 			numShotsToProcRadiation = 0;
 			if (!frozen && heatPerShot > 0.0) {
-				if (heatPerShot > enemyTemperatures[creatureIndex][0]) {
+				if (heatPerShot >= alias.getIgniteTemp()) {
 					numShotsToProcBurn = 1;
-					burnDuration = (heatPerShot - enemyTemperatures[creatureIndex][1]) / enemyTemperatures[creatureIndex][2];
+					burnDuration = (heatPerShot - alias.getDouseTemp()) / alias.getCoolingRate();
 				}
 				else {
 					// This is technically an approximation and not precisely how it works in-game, but it's close enough for what I need.
-					numShotsToProcBurn = Math.floor((enemyTemperatures[creatureIndex][0] * RoF) / (heatPerShot * RoF - enemyTemperatures[creatureIndex][2]));
-					burnDuration = (enemyTemperatures[creatureIndex][0] - enemyTemperatures[creatureIndex][1]) / enemyTemperatures[creatureIndex][2];
+					numShotsToProcBurn = Math.floor((alias.getIgniteTemp() * RoF) / (heatPerShot * RoF - alias.getCoolingRate()));
+					burnDuration = (alias.getIgniteTemp() - alias.getDouseTemp()) / alias.getCoolingRate();
 				}
 			}
 			if (DoT_probabilities[0] > 0.0) {
@@ -793,7 +787,7 @@ public class EnemyInformation {
 			}
 			
 			// Normal Damage
-			if (indexesWithNormalHealth.contains(creatureIndex)) {
+			if (alias.hasNeitherWeakpointNorArmor()) {
 				breakpointCounter = 0;
 				aliasHP = creatureHP;
 				
@@ -853,20 +847,11 @@ public class EnemyInformation {
 			}
 			
 			// Light Armor
-			if (indexesWithLightArmor.contains(creatureIndex)) {
+			if (alias.hasLightArmor()) {
 				breakpointCounter = 0;
 				aliasHP = creatureHP;
 				
-				if (creatureIndex == 1 || creatureIndex == 2 || creatureIndex == 3) {
-					lightArmorStrength = 15;
-				}
-				else if (creatureIndex == 8 || creatureIndex == 9) {
-					lightArmorStrength = 10;
-				}
-				else {
-					// This is an error case.
-					lightArmorStrength = 1;
-				}
+				lightArmorStrength = alias.getArmorStrength();
 				
 				if (embeddedDetonators) {
 					numShotsToBreakArmor = Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(rawDirectDamage, armorBreaking, lightArmorStrength)));
@@ -939,20 +924,12 @@ public class EnemyInformation {
 			}
 			
 			// Weakpoint
-			if (!indexesWithoutWeakpoints.contains(creatureIndex)) {
+			if (alias.hasWeakpoint()) {
 				breakpointCounter = 0;
 				aliasHP = creatureHP;
 				
-				if (indexesWithHeavyArmorCoveringWeakpoint.contains(creatureIndex)) {
-					if (creatureIndex == 22) {
-						heavyArmorHP = 80;
-					}
-					else {
-						// Error case
-						heavyArmorHP = 1000;
-					}
-					
-					heavyArmorHP *= normalResistance;
+				if (alias.weakpointIsCoveredByHeavyArmor()) {
+					heavyArmorHP = alias.getArmorBaseHealth() * normalResistance;
 					
 					if (embeddedDetonators) {
 						numShotsToBreakArmor = heavyArmorHP / (rawDirectDamage * armorBreaking);
