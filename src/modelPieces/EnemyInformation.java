@@ -6,6 +6,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import enemies.Enemy;
+import enemies.glyphid.*;
+import enemies.mactera.*;
+import enemies.other.*;
 import utilities.MathUtils;
 
 // TODO: remove Crassus Detonator from the enemy pool because it spawns more like a BET-C or Korlok than the common "swarm" enemies that this program uses for its models.
@@ -321,10 +325,35 @@ public class EnemyInformation {
 		1.1   // Haz5
 	};
 	
+	private static Enemy[] enemiesModeled = new Enemy[] {
+		new Swarmer(),
+		new Grunt(),
+		new Guard(),
+		new Slasher(),
+		new Warden(),
+		new Praetorian(),
+		new Oppressor(),
+		new AcidSpitter(),
+		new WebSpitter(),
+		new Menace(),
+		new Exploder(),
+		new BulkDetonator(),
+		new BroodNexus(),
+		new Spawn(),
+		new Brundle(),
+		new TriJaw(),
+		new GooBomber(),
+		new Grabber(),
+		new NaedocyteBreeder(),
+		new QronarShellback(),
+		new SpitballInfector(),
+		new CaveLeech()
+	};
+	
 	private static boolean verifySpawnRatesTotalIsOne() {
 		double sum = 0.0;
-		for (int i = 0; i < exactSpawnRates.length; i++) {
-			sum += exactSpawnRates[i];
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			sum += enemiesModeled[i].getSpawnProbability(true);
 		}
 		
 		// Double addition is wonky; round it.
@@ -337,8 +366,11 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		double toReturn = MathUtils.vectorDotProduct(exactSpawnRates, probabilityBulletHitsWeakpointPerEnemyType);
-		// System.out.println("Estimated percentage of bullets fired that will hit a weakpoint: " + toReturn);
+		double toReturn = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			toReturn += enemiesModeled[i].getSpawnProbability(true) * enemiesModeled[i].getProbabilityBulletHitsWeakpoint();
+		}
+		
 		return toReturn;
 	}
 	
@@ -347,8 +379,11 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		double toReturn = MathUtils.vectorDotProduct(exactSpawnRates, defaultWeakpointDamageBonusPerEnemyType);
-		// System.out.println("Average damage multiplier from hitting a weakpoint: " + toReturn);
+		double toReturn = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			toReturn += enemiesModeled[i].getSpawnProbability(true) * enemiesModeled[i].getWeakpointMultiplier();
+		}
+		
 		return toReturn;
 	}
 	
@@ -360,36 +395,22 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		double[] spawnRates;
-		if (exact) {
-			spawnRates = exactSpawnRates;
-		}
-		else {
-			spawnRates = guessedSpawnRates;
-		}
-		
-		int i, enemyIndex;
-
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
-		int[] normalEnemyIndexes = {0, 1, 2, 3, 5, 8, 9, 14, 20, 21, 22};
-		double normalEnemyHealth = 0;
-		for (i = 0; i < normalEnemyIndexes.length; i++) {
-			enemyIndex = normalEnemyIndexes[i];
-			normalEnemyHealth += spawnRates[enemyIndex] * enemyHealthPools[enemyIndex];
-		}
-		normalEnemyHealth *= normalResistance;
-		
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
-		int[] largeEnemyIndexes = {4, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19};
-		double largeEnemyHealth = 0;
-		for (i = 0; i < largeEnemyIndexes.length; i++) {
-			enemyIndex = largeEnemyIndexes[i];
-			largeEnemyHealth += spawnRates[enemyIndex] * enemyHealthPools[enemyIndex];
-		}
-		largeEnemyHealth *= largeResistance;
 		
-		// System.out.println("Average health of an enemy: " + (normalEnemyHealth + largeEnemyHealth));
-		return normalEnemyHealth + largeEnemyHealth;
+		double toReturn = 0.0;
+		Enemy alias;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			alias = enemiesModeled[i];
+			if (alias.usesNormalScaling()) {
+				toReturn += alias.getSpawnProbability(exact) * alias.getBaseHealth() * normalResistance;
+			}
+			else {
+				toReturn += alias.getSpawnProbability(exact) * alias.getBaseHealth() * largeResistance;
+			}
+		}
+		
+		return toReturn;
 	}
 	
 	public static double averageTimeToIgnite(double burstOfHeat, double heatPerShot, double RoF, double heatPerSec) {
@@ -397,43 +418,34 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		int numEnemyTypes = exactSpawnRates.length;
-		double[] ignitionTimes = new double[numEnemyTypes];
-		double igniteTemp, coolingRate;
+		double igniteTemp;
 		
-		for (int i = 0; i < numEnemyTypes; i++) {
-			igniteTemp = enemyTemperatures[i][0];
+		double toReturn = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			igniteTemp = enemiesModeled[i].getIgniteTemp();
 			
 			// Early exit: if Heat/Shot >= 100, then all enemies get ignited instantly since the largest Ignite Temp modeled in this program is 100.
 			if (burstOfHeat >= igniteTemp || heatPerShot >= igniteTemp || burstOfHeat + heatPerShot >= igniteTemp) {
-				ignitionTimes[i] = 0.0;
+				// Technically this adds (Exact Spawn Probability * 0.0), but to save some CPU cycles I'm just going to skip to the next enemy.
 				continue;
 			}
 			
-			coolingRate = enemyTemperatures[i][2];
-			
-			ignitionTimes[i] = (igniteTemp - burstOfHeat) / (heatPerShot * RoF + heatPerSec - coolingRate);
+			toReturn += enemiesModeled[i].getSpawnProbability(true) * ((igniteTemp - burstOfHeat) / (heatPerShot * RoF + heatPerSec - enemiesModeled[i].getCoolingRate()));
 		}
 		
-		return MathUtils.vectorDotProduct(exactSpawnRates, ignitionTimes);
+		return toReturn;
 	}
 	public static double averageBurnDuration() {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
 		}
 		
-		int numEnemyTypes = exactSpawnRates.length;
-		double burnDurations[] = new double[numEnemyTypes];
-		double igniteTemp, douseTemp, coolingRate;
-		
-		for (int i = 0; i < numEnemyTypes; i++) {
-			igniteTemp = enemyTemperatures[i][0];
-			douseTemp = enemyTemperatures[i][1];
-			coolingRate = enemyTemperatures[i][2];
-			burnDurations[i] = (igniteTemp - douseTemp) / coolingRate;
+		double toReturn = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			toReturn += enemiesModeled[i].getSpawnProbability(true) * ((enemiesModeled[i].getIgniteTemp() - enemiesModeled[i].getDouseTemp()) / enemiesModeled[i].getCoolingRate());
 		}
 		
-		return MathUtils.vectorDotProduct(exactSpawnRates, burnDurations);
+		return toReturn;
 	}
 	// This method is currently only used by Gunner/Minigun/Mod/5/Aggressive Venting in maxDamage() and Engineer/GrenadeLauncher/Mod/3/Incendiary Compound single-target DPS
 	public static double percentageEnemiesIgnitedBySingleBurstOfHeat(double heatPerBurst) {
@@ -441,14 +453,14 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		double sum = 0;
-		for (int i = 0; i < exactSpawnRates.length; i++) {
-			if (enemyTemperatures[i][0] <= heatPerBurst) {
-				sum += exactSpawnRates[i];
+		double toReturn = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			if (enemiesModeled[i].getIgniteTemp() <= heatPerBurst) {
+				toReturn += enemiesModeled[i].getSpawnProbability(true);
 			}
 		}
 		
-		return MathUtils.round(sum, 4);
+		return MathUtils.round(toReturn, 4);
 	}
 	
 	/*
@@ -464,23 +476,22 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		int numEnemyTypes = exactSpawnRates.length;
-		double[] freezeTimes = new double[numEnemyTypes];
 		double freezeTemp;
 		
-		for (int i = 0; i < numEnemyTypes; i++) {
-			freezeTemp = enemyTemperatures[i][3];
+		double toReturn = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			freezeTemp = enemiesModeled[i].getFreezeTemp();
 			
-			// Early exit: if Cold/Shot >= 300, then all enemies get ignited instantly since the largest Freeze Temp modeled in this program is 300.
+			// Early exit: if Cold/Shot <= -490, then all enemies get frozen instantly since the largest Freeze Temp modeled in this program is -490 (Bulk Detonator).
 			if (burstOfCold <= freezeTemp || coldPerShot <= freezeTemp || burstOfCold + coldPerShot <= freezeTemp) {
-				freezeTimes[i] = 0.0;
+				// Technically this adds (Exact Spawn Probability * 0.0), but to save some CPU cycles I'm just going to skip to the next enemy.
 				continue;
 			}
 			
-			freezeTimes[i] = (freezeTemp - burstOfCold) / (coldPerShot * RoF + coldPerSec);
+			toReturn += enemiesModeled[i].getSpawnProbability(true) * ((freezeTemp - burstOfCold) / (coldPerShot * RoF + coldPerSec));
 		}
 		
-		return MathUtils.vectorDotProduct(exactSpawnRates, freezeTimes);
+		return toReturn;
 	}
 	// Because the creatures have had a negative temperature for longer than 2 seconds (due to being Frozen already) I'm keeping warming rate in the refreeze method
 	public static double averageTimeToRefreeze(double coldPerSecond) {
@@ -488,40 +499,25 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		int numEnemyTypes = exactSpawnRates.length;
-		double[] refreezeTimes = new double[numEnemyTypes];
-		double freezeTemp, thawTemp, warmingRate;
-		
-		for (int i = 0; i < numEnemyTypes; i++) {
-			freezeTemp = enemyTemperatures[i][3];
-			thawTemp = enemyTemperatures[i][4];
-			warmingRate = enemyTemperatures[i][5];
-			
-			// Negative Freeze temps divided by negative cold per seconds results in a positive number of seconds
-			refreezeTimes[i] = (freezeTemp - thawTemp) / (coldPerSecond + warmingRate);
+		double toReturn = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			toReturn += enemiesModeled[i].getSpawnProbability(true) * ((enemiesModeled[i].getFreezeTemp() - enemiesModeled[i].getUnfreezeTemp()) / (coldPerSecond + enemiesModeled[i].getWarmingRate()));
 		}
 		
-		return MathUtils.vectorDotProduct(exactSpawnRates, refreezeTimes);
+		return toReturn;
 	}
 	public static double averageFreezeDuration() {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
 		}
 		
-		int numEnemyTypes = exactSpawnRates.length;
-		double freezeDurations[] = new double[numEnemyTypes];
-		double freezeTemp, thawTemp, warmingRate;
-		
-		for (int i = 0; i < numEnemyTypes; i++) {
-			freezeTemp = enemyTemperatures[i][3];
-			thawTemp = enemyTemperatures[i][4];
-			warmingRate = enemyTemperatures[i][5];
-			
-			// Because every Freeze temp is negative and is strictly less than the corresponding Thaw temp, subtracting Freeze from Thaw guarantees a positive number.
-			freezeDurations[i] = (thawTemp - freezeTemp) / warmingRate;
+		double toReturn = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			// Because every Freeze temp is negative and is strictly less than the corresponding Unfreeze temp, subtracting Freeze from Unfreeze guarantees a positive number.
+			toReturn += enemiesModeled[i].getSpawnProbability(true) * ((enemiesModeled[i].getUnfreezeTemp() - enemiesModeled[i].getFreezeTemp()) / enemiesModeled[i].getWarmingRate());
 		}
 		
-		return MathUtils.vectorDotProduct(exactSpawnRates, freezeDurations);
+		return toReturn;
 	}
 	// This method is currently only used by Driller/CryoCannon/OC/Snowball in Utility
 	public static double percentageEnemiesFrozenBySingleBurstOfCold(double coldPerBurst) {
@@ -529,24 +525,29 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		double sum = 0;
-		for (int i = 0; i < exactSpawnRates.length; i++) {
-			if (enemyTemperatures[i][3] >= coldPerBurst) {
-				sum += exactSpawnRates[i];
+		double toReturn = 0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			if (enemiesModeled[i].getFreezeTemp() >= coldPerBurst) {
+				toReturn += enemiesModeled[i].getSpawnProbability(true);
 			}
 		}
 		
-		return MathUtils.round(sum, 4);
+		return MathUtils.round(toReturn, 4);
 	}
 	
 	public static double averageLightArmorStrength() {
-		int[] indexesOfEnemiesWithLightArmor = new int[] {1, 2, 3, 8, 9};
-		double[] subsetSpawnRates = new double[indexesOfEnemiesWithLightArmor.length];
-		for (int i = 0; i < indexesOfEnemiesWithLightArmor.length; i++) {
-			subsetSpawnRates[i] = exactSpawnRates[indexesOfEnemiesWithLightArmor[i]];
+		double totalLightArmorStrength = 0.0;
+		double totalSpawnPercentage = 0.0;
+		Enemy alias;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			alias = enemiesModeled[i];
+			if (alias.hasLightArmor()) {
+				totalLightArmorStrength += alias.getArmorStrength() * alias.getSpawnProbability(true);
+				totalSpawnPercentage += alias.getSpawnProbability(true);
+			}
 		}
 		
-		return MathUtils.vectorDotProduct(enemyLightArmorStrengthValues, subsetSpawnRates) / MathUtils.sum(subsetSpawnRates);
+		return totalLightArmorStrength / totalSpawnPercentage;
 	}
 	public static double lightArmorBreakProbabilityLookup(double damage, double armorBreakingModifier, double armorStrength) {
 		// Input sanitization
@@ -576,7 +577,12 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		return MathUtils.vectorDotProduct(exactSpawnRates, enemyCourageValues);
+		double toReturn = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			toReturn += enemiesModeled[i].getSpawnProbability(true) * enemiesModeled[i].getCourage();
+		}
+		
+		return toReturn;
 	}
 	
 	/*
@@ -611,20 +617,26 @@ public class EnemyInformation {
 	}
 	
 	public static double averageDifficultyScalingResistance() {
-		int[] normalEnemyIndexes = {0, 1, 2, 3, 5, 8, 9, 14, 20, 21, 22};
+		if (!verifySpawnRatesTotalIsOne()) {
+			return -1.0;
+		}
+		
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
-		int[] largeEnemyIndexes = {4, 6, 7, 10, 11, 12, 13, 15, 16, 17, 18, 19};
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
-		double sum = 0;
-		for (int i: normalEnemyIndexes) {
-			sum += exactSpawnRates[i] * normalResistance;
-		}
-		for (int i: largeEnemyIndexes) {
-			sum += exactSpawnRates[i] * largeResistance;
+		double toReturn = 0.0;
+		Enemy alias;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			alias = enemiesModeled[i];
+			if (alias.usesNormalScaling()) {
+				toReturn += alias.getSpawnProbability(true) * normalResistance;
+			}
+			else {
+				toReturn += alias.getSpawnProbability(true) * largeResistance;
+			}
 		}
 		
-		return sum;
+		return toReturn;
 	}
 	
 	/*
