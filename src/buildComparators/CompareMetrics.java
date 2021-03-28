@@ -264,7 +264,6 @@ public class CompareMetrics extends Comparator {
 					bestIndex = 0;
 					for (j = 1; j < numBuildsToCompare; j++) {
 						// These specific metrics want to find the lowest positive number
-						// TODO: I'd like to improve how these specific metrics are checked for this if statement
 						if (i == 6 || i == 10 || i == 11 || i == 12 || i == 14) {
 							if (bestValue < 0.0 && metricsToCompare[j][i] >= 0.0) {
 								bestValue = metricsToCompare[j][i];

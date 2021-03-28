@@ -12,6 +12,7 @@ import java.awt.Stroke;
 import javax.swing.JPanel;
 
 import guiPieces.GuiConstants;
+import utilities.MathUtils;
 
 // Adapted from guiPieces.accuracyEstimator.LineGraph
 public class MultiLineGraph extends JPanel {
@@ -85,7 +86,7 @@ public class MultiLineGraph extends JPanel {
 			g2.drawLine(padding + labelPadding + 1 + pointWidth, y0, getWidth() - padding, y1);
 			
 			g2.setColor(GuiConstants.drgHighlightedYellow);
-			String yLabel = ((int) (((maxY - minY) * ((i * 1.0) / numYDivisions)) * 100)) / 100.0 + yUnit;  // TODO: this is so convoluted, can it be simplified?
+			String yLabel = MathUtils.round((maxY - minY) * i / (double) numYDivisions, 2) + yUnit;
 			int labelWidth = metrics.stringWidth(yLabel);
 			g2.setColor(GuiConstants.drgHighlightedYellow);
 			g2.drawString(yLabel, x0 - labelWidth - 5, y0 + (metrics.getHeight() / 2) - 3);
@@ -102,7 +103,7 @@ public class MultiLineGraph extends JPanel {
 			g2.drawLine(x0, getHeight() - padding - labelPadding - 1 - pointWidth, x1, padding);
 			
 			g2.setColor(GuiConstants.drgHighlightedYellow);
-			String xLabel = (minX + ((int) (((maxX - minX) * ((i * 1.0) / numXDivisions)) * 100)) / 100.0) + xUnit;  // TODO: this is so convoluted, can it be simplified?
+			String xLabel = MathUtils.round(minX + (maxX - minX) * i / (double) numXDivisions, 2) + xUnit;
 			int labelWidth = metrics.stringWidth(xLabel);
 			g2.drawString(xLabel, x0 - labelWidth / 2, y0 + metrics.getHeight() + 3);
 		}
