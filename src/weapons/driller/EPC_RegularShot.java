@@ -87,7 +87,7 @@ public class EPC_RegularShot extends EPC {
 		
 		toReturn[1] = new StatsRow("Projectile Velocity:", convertDoubleToPercentage(getRegularShotVelocity()), modIcons.projectileVelocity, selectedTier2 == 1, selectedTier2 == 1);
 		
-		boolean heatPerShotModified = selectedTier5 == 1 || selectedOverclock == 2 || selectedOverclock == 3;
+		boolean heatPerShotModified = selectedTier5 == 1 || selectedOverclock == 3;
 		toReturn[2] = new StatsRow("Heat/Shot:", getHeatPerRegularShot(), modIcons.blank, heatPerShotModified);
 		
 		toReturn[3] = new StatsRow("Shots Fired Before Overheating:", getNumRegularShotsBeforeOverheat(), modIcons.magSize, coolingRateModified || heatPerShotModified);
@@ -99,7 +99,7 @@ public class EPC_RegularShot extends EPC {
 		
 		toReturn[6] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), modIcons.coolingRate, coolingRateModified);
 		
-		toReturn[7] = new StatsRow("Cooldown After Overheating:", getCooldownDuration(), modIcons.hourglass, coolingRateModified);
+		toReturn[7] = new StatsRow("Cooldown After Overheating:", getOverheatCooldownDuration(), modIcons.hourglass, coolingRateModified);
 		
 		return toReturn;
 	}
@@ -148,7 +148,7 @@ public class EPC_RegularShot extends EPC {
 			duration = burstSize / getCustomRoF();
 		}
 		else {
-			duration = burstSize / getCustomRoF() + getCooldownDuration();
+			duration = burstSize / getCustomRoF() + getOverheatCooldownDuration();
 		}
 		
 		double burnDPS = 0;
@@ -201,7 +201,7 @@ public class EPC_RegularShot extends EPC {
 		double timeToFireBurst = burstSize / getCustomRoF();
 		// Choosing not to use Weapon.numMagazines since the "burst" size isn't adding to total ammo count like normal bullets in a mag do.
 		double numBursts = (double) getBatterySize() / (double) burstSize;
-		return numBursts * timeToFireBurst + numReloads(getBatterySize(), burstSize) * getCooldownDuration();
+		return numBursts * timeToFireBurst + numReloads(getBatterySize(), burstSize) * getOverheatCooldownDuration();
 	}
 	
 	@Override

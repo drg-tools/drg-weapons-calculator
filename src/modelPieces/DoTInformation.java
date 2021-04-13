@@ -87,9 +87,12 @@ public class DoTInformation {
 			Driller - EPC (Overclock, Persistent Plasma, 7 + 0.6 sec duration)
 			Engineer - Breach Cutter (Tier 5 Mods, Explosive Goodbye and Plasma Trail, 4 + 0.6 sec duration)
 	*/
-	public static double Plasma_DmgPerTick = 5;
-	public static double Plasma_TicksPerSec = 2 / (0.2 + 0.3);
-	public static double Plasma_DPS = Plasma_DmgPerTick * Plasma_TicksPerSec;
+	public static double Plasma_Trail_DmgPerTick = 5;
+	public static double Plasma_Trail_TicksPerSec = 2 / (0.2 + 0.3);
+	public static double Plasma_Trail_DPS = Plasma_Trail_DmgPerTick * Plasma_Trail_TicksPerSec;
+	public static double Plasma_EPC_DmgPerTick = 8;
+	public static double Plasma_EPC_TicksPerSec = 2 / (0.2 + 0.25);
+	public static double Plasma_EPC_DPS = Plasma_EPC_DmgPerTick * Plasma_EPC_TicksPerSec;
 	
 	// Cryo is another elemental damage type, but has no DoT associated. Instead, enemies who have their "cold" meter filled become frozen in place.
 }
