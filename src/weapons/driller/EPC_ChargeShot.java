@@ -55,7 +55,7 @@ public class EPC_ChargeShot extends EPC {
 	public StatsRow[] getStats() {
 		boolean coolingRateModified = selectedTier3 == 2 || selectedOverclock == 1 || selectedOverclock == 4;
 		
-		StatsRow[] toReturn = new StatsRow[11];
+		StatsRow[] toReturn = new StatsRow[12];
 		
 		boolean chargedDirectDamageModified = selectedTier1 == 2 || selectedTier4 == 2 || selectedTier5 == 1 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Direct Damage:", getChargedDirectDamage(), modIcons.directDamage, chargedDirectDamageModified);
