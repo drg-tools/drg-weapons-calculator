@@ -287,8 +287,8 @@ public class EPC_ChargeShot extends EPC {
 		utilityScores[2] = calculateProbabilityToBreakLightArmor(aoeEfficiency[1] * 0.5 * getChargedAreaDamage()) * UtilityInformation.ArmorBreak_Utility;
 		
 		// Slow
-		// U34 added a 20% Slow (x0.8 Movespeed) to the Persistent Plasma sphere. At 2.9 m/sec, it should take Grunts 3/(2.9*0.8) ~ 1.3 seconds to leave the sphere
 		if (selectedOverclock == 5) {
+			// U34 added a 20% Slow (x0.8 Movespeed) to the Persistent Plasma sphere. At 2.9 m/sec, it should take Grunts 3/(2.9*0.8) ~ 1.3 seconds to leave the sphere
 			utilityScores[3] = calculateNumGlyphidsInRadius(3.0) * 1.3 * 0.2;
 		}
 		else {
