@@ -87,9 +87,9 @@ public class Classic_FocusShot extends Classic {
 		
 		toReturn[3] = new StatsRow("Focus Shot Charge-up Duration:", getFocusDuration(), modIcons.chargeSpeed, selectedTier2 == 0 || selectedOverclock == 2 || selectedOverclock == 5);
 		
-		toReturn[4] = new StatsRow("Clip Size:", getMagazineSize(), modIcons.magSize, selectedTier3 == 1);
+		toReturn[4] = new StatsRow("Clip Size:", getMagazineSize(), modIcons.magSize, selectedTier3 == 1 || selectedOverclock == 1);
 		
-		boolean carriedAmmoModified = selectedTier1 == 0 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
+		boolean carriedAmmoModified = selectedTier1 == 0 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
 		boolean RoFmodified = selectedTier2 == 0 || selectedOverclock == 2 || selectedOverclock == 3 || selectedOverclock == 5;
@@ -99,7 +99,7 @@ public class Classic_FocusShot extends Classic {
 		
 		toReturn[8] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedTier4 == 1);
 		
-		toReturn[9] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier4 == 2);
+		toReturn[9] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier2 == 2);
 		
 		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, selectedTier5 == 0, selectedTier5 == 0);
 		
@@ -242,11 +242,11 @@ public class Classic_FocusShot extends Classic {
 			utilityScores[3] = 0;
 		}
 		
-		// According to MikeGSG & GreyHound, Mod Tier 5 "Precision Terror" does 2 Fear in a 3.5m radius
+		// T5.B "Precision Terror" does 2.5 Fear in a 4m radius
 		if (selectedTier5 == 1) {
 			double probabilityToHitWeakpoint = EnemyInformation.probabilityBulletWillHitWeakpoint();
-			int numGlyphidsFeared = calculateNumGlyphidsInRadius(3.5);
-			double probabilityToFear = calculateFearProcProbability(2.0);
+			int numGlyphidsFeared = calculateNumGlyphidsInRadius(4.0);
+			double probabilityToFear = calculateFearProcProbability(2.5);
 			// Although it is technically possible to electrocute a Feared enemy with Electrocuting Focus Shots and Blowthrough Rounds, it's so unlikely to happen that I'm choosing not to model that overlap.
 			utilityScores[4] = probabilityToHitWeakpoint * probabilityToFear * numGlyphidsFeared * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
 		}
