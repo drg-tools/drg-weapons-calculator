@@ -57,7 +57,7 @@ public class Flamethrower extends Weapon {
 		weaponPic = WeaponPictures.flamethrower;
 		
 		// Base stats, before mods or overclocks alter them:
-		particleDamage = 10;
+		particleDamage = 11;
 		particleHeat = 10;
 		carriedFuel = 300;
 		fuelTankSize = 50;
@@ -93,7 +93,7 @@ public class Flamethrower extends Weapon {
 		tier1[1] = new Mod("High Pressure Ejector", "+5m Flame Reach", modIcons.distance, 1, 1);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Unfiltered Fuel", "+5 Damage per Particle", modIcons.directDamage, 2, 0);
+		tier2[0] = new Mod("Unfiltered Fuel", "+4 Damage per Particle", modIcons.directDamage, 2, 0);
 		tier2[1] = new Mod("Triple Filtered Fuel", "+10 Heat per Particle", modIcons.heatDamage, 2, 1);
 		tier2[2] = new Mod("Sticky Flame Duration", "+3 sec Sticky Flames duration", modIcons.hourglass, 2, 2);
 		
@@ -103,7 +103,7 @@ public class Flamethrower extends Weapon {
 		tier3[2] = new Mod("More Fuel", "+75 Max Fuel", modIcons.carriedAmmo, 3, 2);
 		
 		tier4 = new Mod[3];
-		tier4[0] = new Mod("It Burns!", "Every ammo consumed deals 0.13 Fear Factor to all enemies hit by that particle", modIcons.fear, 4, 0);
+		tier4[0] = new Mod("It Burns!", "Every ammo consumed deals 0.2 Fear Factor to all enemies hit by that particle", modIcons.fear, 4, 0);
 		tier4[1] = new Mod("Sticky Flame Duration", "+3 sec Sticky Flames duration", modIcons.hourglass, 4, 1);
 		tier4[2] = new Mod("More Fuel", "+75 Max Fuel", modIcons.carriedAmmo, 4, 2);
 		
@@ -114,9 +114,9 @@ public class Flamethrower extends Weapon {
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Lighter Tanks", "+75 Max Fuel", overclockIcons.carriedAmmo, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Sticky Additive", "+1 Damage per Particle, +1 sec Sticky Flame duration", overclockIcons.hourglass, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Feed Valves", "+25 Fuel Tank Size, -2m Flame Reach", overclockIcons.magSize, 2);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Feed Valves", "+25 Tank Size, +75 Max Fuel, +0.2 Reload Time, -2m Flame Reach", overclockIcons.magSize, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Fuel Stream Diffuser", "+5m Flame Reach, -1.2 Flow Rate", overclockIcons.distance, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Face Melter", "+2 Damage per Particle, +1.8 Flow Rate, -75 Max Fuel, x0.5 Movement Speed while using", overclockIcons.directDamage, 4);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Face Melter", "+4 Damage per Particle, +1.8 Flow Rate, -15 Tank Size, -3m Flame Reach", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Sticky Fuel", "+5 Sticky Flames damage, +6 sec Sticky Flames duration, -25 Tank Size, -75 Max Fuel", overclockIcons.hourglass, 5);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
@@ -149,14 +149,14 @@ public class Flamethrower extends Weapon {
 		double toReturn = particleDamage;
 		
 		if (selectedTier2 == 0) {
-			toReturn += 5;
+			toReturn += 4;
 		}
 		
 		if (selectedOverclock == 1) {
 			toReturn += 1;
 		}
 		else if (selectedOverclock == 4) {
-			toReturn += 2;
+			toReturn += 4;
 		}
 		
 		return toReturn;
@@ -180,10 +180,10 @@ public class Flamethrower extends Weapon {
 			toReturn += 75;
 		}
 		
-		if (selectedOverclock == 0) {
+		if (selectedOverclock == 0 || selectedOverclock == 2) {
 			toReturn += 75;
 		}
-		else if (selectedOverclock == 4 || selectedOverclock == 5) {
+		else if (selectedOverclock == 5) {
 			toReturn -= 75;
 		}
 		
@@ -198,6 +198,9 @@ public class Flamethrower extends Weapon {
 		
 		if (selectedOverclock == 2) {
 			toReturn += 25;
+		}
+		else if (selectedOverclock == 4) {
+			toReturn -= 15;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn -= 25;
@@ -221,6 +224,15 @@ public class Flamethrower extends Weapon {
 		
 		return toReturn;
 	}
+	private double getReloadTime() {
+		double toReturn = reloadTime;
+		
+		if (selectedOverclock == 2) {
+			toReturn += 0.2;
+		}
+		
+		return toReturn;
+	}
 	private double getFlameReach() {
 		double toReturn = flameReach;
 		
@@ -233,6 +245,9 @@ public class Flamethrower extends Weapon {
 		}
 		else if (selectedOverclock == 3) {
 			toReturn += 5;
+		}
+		else if (selectedOverclock == 4) {
+			toReturn -= 3;
 		}
 		
 		return toReturn;
@@ -275,17 +290,18 @@ public class Flamethrower extends Weapon {
 		
 		return toReturn;
 	}
-	private double getMovespeedWhileFiring() {
-		double modifier = 1.0;
-		if (selectedOverclock == 4) {
-			modifier -= 0.5;
+	private double getFearFactorPerParticle() {
+		if (selectedTier4 == 0) {
+			return 0.2;
 		}
-		return MathUtils.round(modifier * DwarfInformation.walkSpeed, 2);
+		else {
+			return 0.0;
+		}
 	}
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[15];
+		StatsRow[] toReturn = new StatsRow[14];
 		
 		// Stats about the direct stream's DPS
 		boolean damageModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 4;
@@ -296,35 +312,33 @@ public class Flamethrower extends Weapon {
 		boolean reachModified = selectedTier1 == 1 || selectedOverclock == 2 || selectedOverclock == 3;
 		toReturn[2] = new StatsRow("Flame Reach:", getFlameReach(), modIcons.distance, reachModified);
 		
-		boolean tankSizeModified = selectedTier1 == 0 || selectedOverclock == 2 || selectedOverclock == 5;
-		toReturn[3] = new StatsRow("Fuel Tank Size:", getFuelTankSize(), modIcons.magSize, tankSizeModified);
+		boolean tankSizeModified = selectedTier1 == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
+		toReturn[3] = new StatsRow("Tank Size:", getFuelTankSize(), modIcons.magSize, tankSizeModified);
 		
-		boolean carriedFuelModified = selectedTier3 == 2 || selectedTier4 == 2 || selectedOverclock == 0 || selectedOverclock == 4 || selectedOverclock == 5;
+		boolean carriedFuelModified = selectedTier3 == 2 || selectedTier4 == 2 || selectedOverclock == 0 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[4] = new StatsRow("Max Fuel:", getCarriedFuel(), modIcons.carriedAmmo, carriedFuelModified);
 		
 		boolean flowRateModified = selectedTier3 == 0 || selectedOverclock == 3 || selectedOverclock == 4;
 		toReturn[5] = new StatsRow("Flow Rate:", getFlowRate(), modIcons.rateOfFire, flowRateModified);
 		
-		toReturn[6] = new StatsRow("Reload Time:", reloadTime, modIcons.reloadSpeed, false);
+		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 2);
 		
-		toReturn[7] = new StatsRow("Fear Factor per Particle:", 0.13, modIcons.fear, selectedTier4 == 0, selectedTier4 == 0);
-		
-		toReturn[8] = new StatsRow("Movement Speed While Using: (m/sec)", getMovespeedWhileFiring(), modIcons.movespeed, selectedOverclock == 4, selectedOverclock == 4);
+		toReturn[7] = new StatsRow("Fear Factor per Particle:", getFearFactorPerParticle(), modIcons.fear, selectedTier4 == 0, selectedTier4 == 0);
 		
 		// Burn DPS
-		toReturn[9] = new StatsRow("Burn DoT DPS:", DoTInformation.Burn_DPS, modIcons.heatDamage, false);
+		toReturn[8] = new StatsRow("Burn DoT DPS:", DoTInformation.Burn_DPS, modIcons.heatDamage, false);
 		
 		// Stats about the Sticky Flames
-		toReturn[10] = new StatsRow("Sticky Flames Dmg per Tick:", getSFDamagePerTick(), modIcons.directDamage, selectedOverclock == 5);
+		toReturn[9] = new StatsRow("Sticky Flames Dmg per Tick:", getSFDamagePerTick(), modIcons.directDamage, selectedOverclock == 5);
 		
-		toReturn[11] = new StatsRow("Sticky Flames Heat per Tick:", stickyFlamesHeatPerTick, modIcons.heatDamage, false);
+		toReturn[10] = new StatsRow("Sticky Flames Heat per Tick:", stickyFlamesHeatPerTick, modIcons.heatDamage, false);
 		
-		toReturn[12] = new StatsRow("Sticky Flames Avg Ticks/Sec:", stickyFlamesTicksPerSec, modIcons.blank, false);
+		toReturn[11] = new StatsRow("Sticky Flames Avg Ticks/Sec:", stickyFlamesTicksPerSec, modIcons.blank, false);
 		
 		boolean SFDurationModified = selectedTier2 == 2 || selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 5;
-		toReturn[13] = new StatsRow("Sticky Flames Duration:", getSFDuration(), modIcons.hourglass, SFDurationModified);
+		toReturn[12] = new StatsRow("Sticky Flames Duration:", getSFDuration(), modIcons.hourglass, SFDurationModified);
 		
-		toReturn[14] = new StatsRow("Sticky Flames Slow:", convertDoubleToPercentage(getSFSlow()), modIcons.slowdown, selectedTier3 == 1);
+		toReturn[13] = new StatsRow("Sticky Flames Slow:", convertDoubleToPercentage(getSFSlow()), modIcons.slowdown, selectedTier3 == 1);
 		
 		return toReturn;
 	}
@@ -372,7 +386,7 @@ public class Flamethrower extends Weapon {
 			burnDPS = burnDoTUptimeCoefficient * DoTInformation.Burn_DPS;
 		}
 		else {
-			duration = (((double) getFuelTankSize()) / getFlowRate()) + reloadTime;
+			duration = (((double) getFuelTankSize()) / getFlowRate()) + getReloadTime();
 			burnDPS = DoTInformation.Burn_DPS;
 		}
 		
@@ -465,7 +479,7 @@ public class Flamethrower extends Weapon {
 		int magSize = getFuelTankSize();
 		int carriedAmmo = getCarriedFuel();
 		double timeToFireMagazine = ((double) magSize) / getFlowRate();
-		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * reloadTime;
+		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * getReloadTime();
 	}
 	
 	@Override
@@ -496,9 +510,6 @@ public class Flamethrower extends Weapon {
 	public double utilityScore() {
 		double numTargets = calculateMaxNumTargets();
 		
-		// Mobility
-		utilityScores[0] = (getMovespeedWhileFiring() - DwarfInformation.walkSpeed) * UtilityInformation.Movespeed_Utility;
-		
 		// Armor Break -- Flamethrower ignores Armor of all kinds, so this will always be zero.
 		
 		// Slow
@@ -508,7 +519,7 @@ public class Flamethrower extends Weapon {
 		
 		// Fear
 		if (selectedTier4 == 0) {
-			double probabilityToFear = calculateFearProcProbability(0.13);
+			double probabilityToFear = calculateFearProcProbability(getFearFactorPerParticle());
 			double fearDuration = EnemyInformation.averageFearDuration(getSFSlow(), getSFDuration());
 			utilityScores[4] = probabilityToFear * numTargets * fearDuration * UtilityInformation.Fear_Utility;
 		}

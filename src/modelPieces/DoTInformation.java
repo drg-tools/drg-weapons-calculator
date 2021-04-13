@@ -55,8 +55,8 @@ public class DoTInformation {
 			Gunner - Incendiary Grenade
 			Scout - Boomstick (Mod Tier 5, White Phosphorus Shells)
 	*/
-	public static double Burn_DmgPerTick = 5;
-	public static double Burn_TicksPerSec = 2 / (0.25 + 0.5);
+	public static double Burn_DmgPerTick = 6;
+	public static double Burn_TicksPerSec = 2 / (0.3 + 0.5);
 	// Burn DoT durations are specific per enemy, but it averages around 5 seconds.
 	public static double Burn_SecsDuration = EnemyInformation.averageBurnDuration();
 	public static double Burn_DPS = Burn_DmgPerTick * Burn_TicksPerSec;
