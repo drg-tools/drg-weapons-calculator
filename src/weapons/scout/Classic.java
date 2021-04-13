@@ -74,7 +74,7 @@ public abstract class Classic extends Weapon {
 		tier1[0] = new Mod("Expanded Ammo Bags", "+40 Max Ammo", modIcons.carriedAmmo, 1, 0);
 		tier1[1] = new Mod("Increased Caliber Rounds", "+6 Direct Damage", modIcons.directDamage, 1, 1);
 		
-		tier2 = new Mod[2];
+		tier2 = new Mod[3];
 		tier2[0] = new Mod("Fast-Charging Coils", "+25% Focus Speed", modIcons.chargeSpeed, 2, 0);
 		tier2[1] = new Mod("Better Weight Balance", "-30% Spread per Shot, x0.8 Max Bloom, x0.5 Recoil", modIcons.recoil, 2, 1);
 		tier2[2] = new Mod("Hardened Rounds", "+220% Armor Breaking", modIcons.armorBreaking, 2, 2);
@@ -83,7 +83,7 @@ public abstract class Classic extends Weapon {
 		tier3[0] = new Mod("Killer Focus", "+25% Focused Shot Multiplier", modIcons.directDamage, 3, 0);
 		tier3[1] = new Mod("Extended Clip", "+6 Clip Size", modIcons.magSize, 3, 1);
 		
-		tier4 = new Mod[3];
+		tier4 = new Mod[2];
 		tier4[0] = new Mod("Super Blowthrough Rounds", "+3 Penetrations", modIcons.blowthrough, 4, 0);
 		tier4[1] = new Mod("Hollow-Point Bullets", "+20% Weakpoint Bonus", modIcons.weakpointBonus, 4, 1);
 		
