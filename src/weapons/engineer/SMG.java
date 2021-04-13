@@ -107,11 +107,12 @@ public class SMG extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Well Oiled Machine", "+2 Rate of Fire, -0.2 Reload Time", overclockIcons.rateOfFire, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "EM Refire Booster", "+2 Electric Damage per bullet, +4 Rate of Fire, x1.5 Base Spread", overclockIcons.rateOfFire, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Light-Weight Rounds", "+180 Max Ammo, -1 Direct Damage, -2 Rate of Fire", overclockIcons.carriedAmmo, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Turret Arc", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, that turret deals constant Electric Damage in a small radius around it for 15 seconds. "
-				+ "Additionally, if 2 turrets are less than 10m apart and both are electrocuted at the same time, then an electric arc will pass between them that slows enemies by 70% and does 20 Electric Damage per Second until the first turret's electrocute expires. "
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Turret Arc", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, that turret deals constant Electric Damage in a small radius around it for 20 seconds. "
+				+ "Additionally, if 2 turrets are less than 15m apart and both are electrocuted at the same time, then an electric arc will pass between them that slows enemies by 80% and does 30 Electric Damage per Second until the first turret's electrocute expires. "
+				+ "Electrocuted turrets also apply the 80% slow and 30 DPS to all enemies within a 2m radius around them. "
 				+ "-120 Max Ammo, -2 Rate of Fire", overclockIcons.electricity, 4, false);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Turret EM Discharge", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, it triggers an explosion that deals 40 Electric Damage and 0.5 Fear to all enemies "
-				+ "within a 5m radius, as well as Electrocuting them. There's a 1.5 second cooldown between explosions. -5% Chance to Electrocute an enemy, -3 Direct Damage", overclockIcons.areaDamage, 5, false);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Turret EM Discharge", "If a bullet fired from the SMG hits a turret and applies an Electrocute DoT, it triggers an explosion that deals 60 Electric Damage and 0.5 Fear to all enemies "
+				+ "within a 5m radius, as well as Electrocuting them. There's a 1.5 second cooldown between explosions. -2 Direct Damage, -5 Magazine Size.", overclockIcons.areaDamage, 5, false);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
 		modsAndOCsInitialized = true;
@@ -146,10 +147,6 @@ public class SMG extends Weapon {
 			toReturn += 0.3;
 		}
 		
-		if (selectedOverclock == 5) {
-			toReturn -= 0.05;
-		}
-		
 		return toReturn;
 	}
 	private double getDirectDamage() {
@@ -166,7 +163,7 @@ public class SMG extends Weapon {
 			toReturn -= 1;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn -= 3;
+			toReturn -= 2;
 		}
 		
 		// Multiplicative bonuses last
@@ -204,6 +201,9 @@ public class SMG extends Weapon {
 		
 		if (selectedOverclock == 0) {
 			toReturn += 5;
+		}
+		else if (selectedOverclock == 5) {
+			toReturn -= 5;
 		}
 		
 		return toReturn;
@@ -304,7 +304,7 @@ public class SMG extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[11];
 		
-		toReturn[0] = new StatsRow("Electrocute DoT Chance:", convertDoubleToPercentage(getElectrocutionDoTChance()), modIcons.homebrewPowder, selectedTier1 == 1 || selectedOverclock == 5);
+		toReturn[0] = new StatsRow("Electrocute DoT Chance:", convertDoubleToPercentage(getElectrocutionDoTChance()), modIcons.homebrewPowder, selectedTier1 == 1);
 		toReturn[1] = new StatsRow("Electrocute DoT DPS:", DoTInformation.Electro_DPS, modIcons.electricity, false);
 		
 		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 0 || selectedTier4 == 1 || selectedOverclock == 3 || selectedOverclock == 5;
@@ -312,7 +312,7 @@ public class SMG extends Weapon {
 		
 		toReturn[3] = new StatsRow("Electric Damage:", getElectricDamage(), modIcons.directDamage, selectedTier4 == 1 || selectedOverclock == 2, selectedOverclock == 2);
 		
-		boolean magSizeModified = selectedTier2 == 0 || selectedTier5 == 0 || selectedOverclock == 0;
+		boolean magSizeModified = selectedTier2 == 0 || selectedTier5 == 0 || selectedOverclock == 0 || selectedOverclock == 5;
 		toReturn[4] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, magSizeModified);
 		
 		boolean carriedAmmoModified = selectedTier1 == 2 || selectedTier3 == 1 || selectedOverclock == 3 || selectedOverclock == 4;
@@ -473,8 +473,8 @@ public class SMG extends Weapon {
 		double maxBloom = 4.0;
 		double minSpreadWhileMoving = 1.5;
 		
-		// Technically the SMG can have its RecoilPitch range anywhere from 35 to 45, but for simplicity's sake I'm choosing to use the average of 40.
-		double recoilPitch = 40.0 * getRecoil();
+		// Technically the SMG can have its RecoilPitch range anywhere from 35 to 40, but for simplicity's sake I'm choosing to use the average of 37.5.
+		double recoilPitch = 37.5 * getRecoil();
 		double recoilYaw = 7.0 * getRecoil();
 		double mass = 1.0;
 		double springStiffness = 40.0;
@@ -519,10 +519,10 @@ public class SMG extends Weapon {
 			utilityScores[3] += getElectrocutionDoTChance() * 0.25 * (calculateMaxNumTargets() - 1) * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
 		}
 		if (selectedOverclock == 4) {
-			// Turret Arc can emit a beam up to 10m long that applies a 70% slow, doing 4 Electric Damage per tick, 5 ticks/sec for up to 15 seconds.
+			// Turret Arc can emit a beam up to 15m long that applies a 80% slow, doing 6 Electric Damage per tick, 5 ticks/sec for up to 20 seconds.
 			// Using Grunts' 2m length and 2.9 m/sec movespeed as a baseline, I expect it will take 2 / (0.3 * 2.9) = 2.3 seconds to pass through
-			int numEnemiesSlowedByTurretArc = calculateNumGlyphidsInStream(10.0);
-			utilityScores[3] += numEnemiesSlowedByTurretArc * 2.3 * 0.7;
+			int numEnemiesSlowedByTurretArc = calculateNumGlyphidsInStream(15.0);
+			utilityScores[3] += numEnemiesSlowedByTurretArc * 2.3 * 0.8;
 		}
 		
 		// Fear
