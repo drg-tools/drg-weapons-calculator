@@ -99,7 +99,7 @@ public class Subata extends Weapon {
 		tier5[1] = new Mod("Mactera Toxin-Coating", "+20% Damage dealt to Mactera-type enemies", modIcons.special, 5, 1);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 75% chance to ricochet into a nearby enemy.", overclockIcons.ricochet, 0);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 75% chance to ricochet into a nearby enemy within 10m.", overclockIcons.ricochet, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, overclockIcons.homebrewPowder, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Oversized Magazine", "+10 Magazine Size, +0.5 Reload Time", overclockIcons.magSize, 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Automatic Fire", "Changes the Subata from semi-automatic to fully automatic, +2 Rate of Fire, +100% Base Spread, x2.5 Recoil", overclockIcons.rateOfFire, 3);
