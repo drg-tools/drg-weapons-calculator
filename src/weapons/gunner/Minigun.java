@@ -32,6 +32,7 @@ public class Minigun extends Weapon {
 	private double maxHeat;
 	private double heatPerSecond;
 	private double coolingRate;
+	private double coolingDelay;
 	private int rateOfFire;
 	private double spinupTime;
 	private int spindownTime;
@@ -67,6 +68,7 @@ public class Minigun extends Weapon {
 		maxHeat = 9.5;
 		heatPerSecond = 1.0;
 		coolingRate = 1.5;
+		coolingDelay = 0.3;
 		rateOfFire = 30;  // equal to 15 pellets/sec
 		spinupTime = 0.7;
 		spindownTime = 2;  // seconds for the barrels to stop spinning -- does not affect the stability
@@ -96,8 +98,7 @@ public class Minigun extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
-		// TODO: U34XP.1 patch added "ManualCooldownDelay = 1.15" to T1.A but no one has figured out what it does yet.
-		tier1[0] = new Mod("Magnetic Refrigeration", "+1.5 Cooling Rate", modIcons.coolingRate, 1, 0);
+		tier1[0] = new Mod("Magnetic Refrigeration", "+1.5 Cooling Rate, -0.15 sec Cooling Delay", modIcons.coolingRate, 1, 0);
 		tier1[1] = new Mod("Improved Motor", "+4 Rate of Fire", modIcons.rateOfFire, 1, 1);
 		tier1[2] = new Mod("Improved Platform Stability", "x0.25 Base Spread", modIcons.baseSpread, 1, 2);
 		
@@ -113,7 +114,7 @@ public class Minigun extends Weapon {
 		tier4 = new Mod[3];
 		tier4[0] = new Mod("Variable Chamber Pressure", "+15% Damage per Pellet after reaching Base Spread", modIcons.directDamage, 4, 0);
 		tier4[1] = new Mod("Lighter Barrel Assembly", "-0.4 seconds spinup time", modIcons.chargeSpeed, 4, 1);
-		tier4[2] = new Mod("Magnetic Bearings", "+4 seconds spindown time", modIcons.special, 4, 2);
+		tier4[2] = new Mod("Magnetic Bearings", "Increases Max Bloom from 3.5 to 4.25. This effectively raises the delay before Minigun loses Max Stability from 0.5 seconds to 1.25. Additionally, +1 second spindown time", modIcons.special, 4, 2);
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Aggressive Venting", "After overheating, deal 60 Heat Damage and 10 Fear to all enemies within a 10m radius. Additionally, reduces Overheat duration from 10 seconds to 5.", modIcons.addedExplosion, 5, 0);
@@ -130,7 +131,7 @@ public class Minigun extends Weapon {
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Compact Feed Mechanism", "+800 Max Ammo, -4 Rate of Fire", overclockIcons.carriedAmmo, 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Exhaust Vectoring", "+2 Damage per Pellet, x2.5 Base Spread", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Bullet Hell", "75% chance for bullets that impact an enemy or terrain to ricochet into another enemy within 6m. -3 Damage per Pellet, x6 Base Spread", overclockIcons.ricochet, 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Storm", "+4 Damage per Pellet, x0 Movespeed while using, and the Minigun cannot stun enemies anymore.", overclockIcons.directDamage, 6);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Storm", "+4 Damage per Pellet, x0 Movespeed while using, x0.25 Stun Chance per Pellet, x0.5 Stun Duration", overclockIcons.directDamage, 6);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
 		modsAndOCsInitialized = true;
@@ -194,7 +195,7 @@ public class Minigun extends Weapon {
 		}
 		
 		if (selectedOverclock == 6) {
-			toReturn *= 0;
+			toReturn *= 0.25;
 		}
 		
 		return toReturn;
@@ -206,7 +207,7 @@ public class Minigun extends Weapon {
 		}
 		
 		if (selectedOverclock == 6) {
-			toReturn *= 0;
+			toReturn *= 0.5;
 		}
 		
 		return toReturn;
@@ -241,6 +242,15 @@ public class Minigun extends Weapon {
 		}
 		return toReturn;
 	}
+	private double getCoolingDelay() {
+		double toReturn = coolingDelay;
+		
+		if (selectedTier1 == 0) {
+			toReturn -= 0.15;
+		}
+		
+		return toReturn;
+	}
 	@Override
 	public double getRateOfFire() {
 		int toReturn = rateOfFire;
@@ -266,7 +276,7 @@ public class Minigun extends Weapon {
 	private int getSpindownTime() {
 		int toReturn = spindownTime;
 		if (selectedTier4 == 2) {
-			toReturn += 4;
+			toReturn += 1;
 		}
 		return toReturn;
 	}
@@ -289,6 +299,14 @@ public class Minigun extends Weapon {
 			toReturn *= 6.0;
 		}
 		return toReturn;
+	}
+	private double getMaxBloom() {
+		if (selectedTier4 == 2) {
+			return 4.25;
+		}
+		else {
+			return 3.5;
+		}
 	}
 	private double getArmorBreaking() {
 		if (selectedTier3 == 0) {
@@ -383,9 +401,8 @@ public class Minigun extends Weapon {
 		return Math.floor(calculateFiringPeriod() * getRateOfFire() / 2.0);
 	}
 	private double calculateCooldownPeriod() {
-		// TODO: this will probably have to be refactored once I figure out T1.A's new functionality
 		// This equation took a while to figure out, and it's still just an approximation. A very close approximation, but an approximation nonetheless.
-		return 9.5 / getCoolingRate() + getCoolingRate() / 9;
+		return getCoolingDelay() + 9.5 / getCoolingRate() + getCoolingRate() / 9;
 	}
 	
 	@Override
@@ -401,15 +418,14 @@ public class Minigun extends Weapon {
 		
 		toReturn[3] = new StatsRow("Max Duration of Firing Without Overheating:", calculateFiringPeriod(), modIcons.hourglass, selectedTier5 == 1 || selectedOverclock == 2);
 		
-		boolean pelletsPerBurstModified = selectedTier5 == 1 || selectedOverclock == 2 || selectedTier1 == 1 || selectedOverclock == 3;
-		toReturn[4] = new StatsRow("Max Num Pellets Fired per Burst:", calculateMaxNumPelletsFiredWithoutOverheating(), modIcons.magSize, pelletsPerBurstModified);
-		
 		boolean ammoModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 3;
-		toReturn[5] = new StatsRow("Max Ammo:", getMaxAmmo(), modIcons.carriedAmmo, ammoModified);
+		toReturn[4] = new StatsRow("Max Ammo:", getMaxAmmo(), modIcons.carriedAmmo, ammoModified);
 		
-		toReturn[6] = new StatsRow("Rate of Fire (Ammo/Sec):", getRateOfFire(), modIcons.rateOfFire, selectedTier1 == 1 || selectedOverclock == 3);
+		toReturn[5] = new StatsRow("Rate of Fire (Ammo/Sec):", getRateOfFire(), modIcons.rateOfFire, selectedTier1 == 1 || selectedOverclock == 3);
 		
-		toReturn[7] = new StatsRow("Cooling Rate:", getCoolingRate(), modIcons.coolingRate, selectedTier1 == 0 || selectedOverclock == 1);
+		toReturn[6] = new StatsRow("Cooling Rate:", getCoolingRate(), modIcons.coolingRate, selectedTier1 == 0 || selectedOverclock == 1);
+		
+		toReturn[7] = new StatsRow("Cooling Delay:", getCoolingDelay(), modIcons.duration, selectedTier1 == 0);
 		
 		toReturn[8] = new StatsRow("Max Cooldown Without Overheating:", calculateCooldownPeriod(), modIcons.hourglass, selectedTier1 == 0 || selectedOverclock == 1);
 		
@@ -734,7 +750,7 @@ public class Minigun extends Weapon {
 		double baseSpread = 4.5 * getBaseSpread();
 		double spreadPerShot = 0.2;
 		double spreadRecoverySpeed = 1.0;
-		double maxBloom = 3.5;
+		double maxBloom = getMaxBloom();
 		double minSpreadWhileMoving = 0.0;
 		
 		// I'm choosing to model Minigun as if it has no recoil. Although it does, it's so negligible that it would have no effect.
@@ -802,7 +818,7 @@ public class Minigun extends Weapon {
 			utilityScores[4] = 0;
 		}
 		
-		// Innate stun = 20% chance, 1 sec duration (duration and chance improved by T3.B "Improved Stun")
+		// Innate stun = 20% chance, 1 sec duration (duration and chance improved by T3.B "Improved Stun", penalized by OC "Lead Storm")
 		utilityScores[5] = getStunChancePerPellet() * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
 		
 		return MathUtils.sum(utilityScores);
