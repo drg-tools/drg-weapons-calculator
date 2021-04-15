@@ -256,11 +256,11 @@ public class Autocannon extends Weapon {
 			toReturn += 0.3;
 		}
 		else if (selectedTier2 == 2) {
-			toReturn += 0.3;
+			toReturn += 0.6;
 		}
 		
 		if (selectedTier3 == 0) {
-			toReturn += 0.6;
+			toReturn += 0.3;
 		}
 		return toReturn;
 	}
