@@ -8,7 +8,6 @@ import guiPieces.customButtons.ButtonIcons.modIcons;
 import guiPieces.customButtons.ButtonIcons.overclockIcons;
 import modelPieces.UtilityInformation;
 import modelPieces.DoTInformation;
-import modelPieces.DwarfInformation;
 import modelPieces.EnemyInformation;
 import modelPieces.Mod;
 import modelPieces.Overclock;

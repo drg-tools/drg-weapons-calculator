@@ -56,6 +56,8 @@ public class EnemyInformation {
 		Dimensions of a Glyphid Grunt used for estimating how many grunts would be hit by AoE damage of a certain radius 
 		(see method Weapon.calculateNumGlyphidsInRadius())
 		Measured using meters
+		
+		// TODO: update Grunt's dimensions here using the measurements I made last week. Autocannon's 2 -> 2.6 radius stays at 12, which will probably generate bug reports
 	*/
 	// This is the radius of a Glyphid Grunt's hitbox that shouldn't overlap with other grunts, like the torso
 	public static double GlyphidGruntBodyRadius = 0.41;

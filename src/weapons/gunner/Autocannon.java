@@ -97,7 +97,7 @@ public class Autocannon extends Weapon {
 		tier2[2] = new Mod("Lighter Barrel Assembly", "+0.6 Min Rate of Fire, x1.5 RoF Scaling Rate", modIcons.rateOfFire, 2, 2);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Supercharged Feed Mechanism", "+0.6 Min Rate of Fire, +2 Max Rate of Fire", modIcons.rateOfFire, 3, 0);
+		tier3[0] = new Mod("Supercharged Feed Mechanism", "+0.3 Min Rate of Fire, +2 Max Rate of Fire", modIcons.rateOfFire, 3, 0);
 		tier3[1] = new Mod("Loaded Rounds", "+2 Area Damage", modIcons.areaDamage, 3, 1);
 		tier3[2] = new Mod("High Velocity Rounds", "+4 Direct Damage", modIcons.directDamage, 3, 2);
 		
@@ -256,7 +256,7 @@ public class Autocannon extends Weapon {
 			toReturn += 0.3;
 		}
 		else if (selectedTier2 == 2) {
-			toReturn += 0.6;
+			toReturn += 0.3;
 		}
 		
 		if (selectedTier3 == 0) {
