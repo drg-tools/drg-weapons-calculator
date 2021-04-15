@@ -117,7 +117,7 @@ public class Autocannon extends Weapon {
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Combat Mobility", "Increases movement speed while using from 50% to 85% of normal walk speed, x1.5 RoF Scaling Rate, x0.7 Base Spread, x0.5 Magazine Size", overclockIcons.movespeed, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Big Bertha", "+12 Direct Damage, x0.7 Base Spread, x0.5 Magazine Size, -110 Max Ammo, -1.5 Max Rate of Fire", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neurotoxin Payload", "50% Chance to inflict a Neurotoxin DoT that deals an average of " + MathUtils.round(DoTInformation.Neuro_DPS, GuiConstants.numDecimalPlaces) + 
-				" Poison Damage per Second for 10 seconds to all enemies within the AoE Radius upon impact. +0.6m AoE Radius, -5 Area Damage", overclockIcons.neurotoxin, 5);
+				" Poison Damage per Second for 10 seconds to all enemies within the AoE Radius upon impact. +0.6m AoE Radius, -2 Direct Damage, -5 Area Damage", overclockIcons.neurotoxin, 5);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
 		modsAndOCsInitialized = true;
@@ -160,6 +160,9 @@ public class Autocannon extends Weapon {
 		}
 		else if (selectedOverclock == 4) {
 			toReturn += 12;
+		}
+		else if (selectedOverclock == 5) {
+			toReturn -= 2;
 		}
 		
 		// Multiplicative bonuses last
@@ -342,7 +345,7 @@ public class Autocannon extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[16];
 		
-		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 2 || selectedTier5 == 0 || selectedOverclock == 2 || selectedOverclock == 4;
+		boolean directDamageModified = selectedTier1 == 0 || selectedTier3 == 2 || selectedTier5 == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
 		boolean areaDamageModified = selectedTier3 == 1 || selectedTier5 == 0 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 5;
