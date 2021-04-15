@@ -200,8 +200,8 @@ public class Minigun extends Weapon {
 		
 		return toReturn;
 	}
-	private int getStunDuration() {
-		int toReturn = stunDuration;
+	private double getStunDuration() {
+		double toReturn = stunDuration;
 		if (selectedTier3 == 1) {
 			toReturn += 2;
 		}
@@ -441,7 +441,7 @@ public class Minigun extends Weapon {
 		
 		toReturn[14] = new StatsRow("Max Ricochets:", getNumberOfRicochets(), modIcons.ricochet, selectedOverclock == 5, selectedOverclock == 5);
 		
-		toReturn[15] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(getStunChancePerPellet()), modIcons.homebrewPowder, selectedOverclock == 6);
+		toReturn[15] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(getStunChancePerPellet()), modIcons.homebrewPowder, selectedTier3 == 1 || selectedOverclock == 6);
 		
 		toReturn[16] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, selectedTier3 == 1 || selectedOverclock == 6);
 		
