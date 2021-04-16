@@ -16,7 +16,7 @@ import weapons.Weapon;
 
 /*
 	Extracted via UUU:
-		Charge Speed 0.7
+		Charge Speed 0.6
 */
 
 public abstract class EPC extends Weapon {
@@ -41,7 +41,7 @@ public abstract class EPC extends Weapon {
 	private double heatPerSecondWhileCharged;
 	
 	/*
- 	Damage breakdown, sourced from the Wiki:
+ 	Damage breakdown, sourced from Elythnwaen:
  	
 		Normal Shots
 		Damage type is 50% Electric and 50% Kinetic.
@@ -53,7 +53,7 @@ public abstract class EPC extends Weapon {
 		65% Explosive / 25% Fire / 10% Disintegrate for the AoE part.
 		
 		Flying Nightmare
-		Damage type is Fire.
+		Damage type inherits from normal Charged Shots
 		Damage done is equal to the Charged Shot direct damage.
 		
 		Thin Containment Field
@@ -120,7 +120,8 @@ public abstract class EPC extends Weapon {
 		tier4[2] = new Mod("Reactive Shockwave", "+15 Charged Shot Direct Damage, +15 Charged Shot Area Damage", modIcons.areaDamage, 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Flying Nightmare", "Charged Shots now deal their Direct Damage to enemies hit by the AoE while in-flight but it no longer explodes upon impact. In exchange, x0.55 AoE Radius", modIcons.aoeRadius, 5, 0);
+		tier5[0] = new Mod("Flying Nightmare", "Charged Shots now deal their Direct Damage to enemies hit by the projectile while in-flight, but it no longer explodes upon impact (functionally removing Area Damage). Deals x3 damage vs Frozen targets. "
+				+ "Additionally: x1.2 Charged Shot Direct Damage, x0.4 AoE Radius.", modIcons.aoeRadius, 5, 0);
 		tier5[1] = new Mod("Thin Containment Field", "Shoot the Charged Shot with a Regular Shot before it impacts anything to make it detonate for 240 Damage and carve terrain within a 3m radius. "
 				+ "Additionally, x0.8 Heat per Regular Shot and x0.8 Heat per Charged Shot", modIcons.special, 5, 1);
 		tier5[2] = new Mod("Plasma Burn", "Regular Shots also do [5 plus 25% of their Direct Damage] Heat per shot which can ignite enemies, dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second.", modIcons.heatDamage, 5, 2);
@@ -187,6 +188,11 @@ public abstract class EPC extends Weapon {
 			toReturn -= 15;
 		}
 		
+		// Multiplicative bonuses last
+		if (selectedTier5 == 0) {
+			toReturn *= 1.2;
+		}
+		
 		return toReturn;
 	}
 	protected double getChargedAreaDamage() {
@@ -221,20 +227,20 @@ public abstract class EPC extends Weapon {
 	protected double getChargedAoERadius() {
 		double toReturn = chargedAoERadius;
 		
+		// Special case: Thin Containment Field
+		if (selectedTier5 == 1) {
+			return 3.0;
+		}
+		
 		if (selectedTier4 == 0) {
 			toReturn += 1.0;
 		}
 		
 		if (selectedTier5 == 0) {
-			toReturn *= 0.55;
+			toReturn *= 0.4;
 		}
 		if (selectedOverclock == 4) {
 			toReturn *= 1.2;
-		}
-		
-		// Special case: Thin Containment Field
-		if (selectedTier5 == 1) {
-			return 3.0;
 		}
 		
 		return toReturn;

@@ -425,13 +425,11 @@ public class EnemyInformation {
 			// Bypasses all Armor types
 			lightArmorReduction = 1.0;
 			
-			// Multiplies Direct Damage by x3 (except for Flying Nightmare)
-			if (!flyingNightmare) {
-				directDamageByType = MathUtils.vectorScalarMultiply(UtilityInformation.Frozen_Damage_Multiplier, directDamageByType);
-			}
+			// Multiplies Direct Damage by x3 (including Flying Nightmare as of U34)
+			directDamageByType = MathUtils.vectorScalarMultiply(UtilityInformation.Frozen_Damage_Multiplier, directDamageByType);
 		}
 		
-		// Flying Nightmare is weird... it does the Direct Damage listed but it passes through enemies, ignores armor, and doesn't benefit from Weakpoints like the Breach Cutter.
+		// Flying Nightmare is weird... it does the Direct Damage listed but it passes through enemies and ignores armor like the Breach Cutter, but doesn't benefit from Weakpoints.
 		if (flyingNightmare) {
 			weakpointModifier = -1.0;
 			lightArmorReduction = 1.0;

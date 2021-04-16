@@ -57,7 +57,7 @@ public class EPC_ChargeShot extends EPC {
 		
 		StatsRow[] toReturn = new StatsRow[12];
 		
-		boolean chargedDirectDamageModified = selectedTier1 == 2 || selectedTier4 == 2 || selectedTier5 == 1 || selectedOverclock == 4 || selectedOverclock == 5;
+		boolean chargedDirectDamageModified = selectedTier1 == 2 || selectedTier4 == 2 || selectedTier5 == 0 || selectedTier5 == 1 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Direct Damage:", getChargedDirectDamage(), modIcons.directDamage, chargedDirectDamageModified);
 		
 		boolean chargedAreaDamageModified = selectedTier1 == 2 || selectedTier4 == 2 || selectedTier5 == 0 || selectedTier5 == 1 || selectedOverclock == 4 || selectedOverclock == 5;
@@ -237,28 +237,34 @@ public class EPC_ChargeShot extends EPC {
 	
 	@Override
 	public int breakpoints() {
+		double chargedShotDirectDamage = getChargedDirectDamage();
+		double chargedShotAreaDamage = getChargedAreaDamage();
+		
 		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
 		double[] dDamage = new double[5];
 		double[] aDamage = new double[5];
 		if (selectedTier5 == 0) {
-			// Flying Nightmare converts all Direct Damage to Fire element and removes Area Damage.
-			dDamage[2] = getChargedDirectDamage();
+			// Disintegrate is functionally identical to Kinetic; both are resistance-less
+			// 65% Electric / 25 % Fire / 10% Disintegrate for the single target part.
+			dDamage[0] = 0.10 * chargedShotDirectDamage;  // Kinetic
+			dDamage[2] = 0.25 * chargedShotDirectDamage;  // Fire
+			dDamage[4] = 0.65 * chargedShotDirectDamage;  // Electric
 		}
 		else if (selectedTier5 == 1) {
 			// Thin Containment Field converts all Area Damage to Fire Element and removes Direct Damage.
-			aDamage[2] = getChargedAreaDamage();
+			aDamage[2] = chargedShotAreaDamage;
 		}
 		else {
 			// Disintegrate is functionally identical to Kinetic; both are resistance-less
 			// 65% Electric / 25 % Fire / 10% Disintegrate for the single target part.
-			dDamage[0] = 0.10 * getChargedDirectDamage();  // Kinetic
-			dDamage[2] = 0.25 * getChargedDirectDamage();  // Fire
-			dDamage[4] = 0.65 * getChargedDirectDamage();  // Electric
+			dDamage[0] = 0.10 * chargedShotDirectDamage;  // Kinetic
+			dDamage[2] = 0.25 * chargedShotDirectDamage;  // Fire
+			dDamage[4] = 0.65 * chargedShotDirectDamage;  // Electric
 			
 			// 65% Explosive / 25% Fire / 10% Disintegrate for the AoE part.
-			aDamage[0] = 0.10 * getChargedAreaDamage();  // Kinetic
-			aDamage[1] = 0.65 * getChargedAreaDamage();  // Explosive
-			aDamage[2] = 0.25 * getChargedAreaDamage();  // Fire
+			aDamage[0] = 0.10 * chargedShotAreaDamage;  // Kinetic
+			aDamage[1] = 0.65 * chargedShotAreaDamage;  // Explosive
+			aDamage[2] = 0.25 * chargedShotAreaDamage;  // Fire
 		}
 		
 		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
