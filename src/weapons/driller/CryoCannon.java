@@ -116,7 +116,7 @@ public class CryoCannon extends Weapon {
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Flow Rate Expansion", "x2.7 Pressure Gain Rate, +0.8 Flow Rate, x2.25 Pressure Drop Rate", overclockIcons.duration, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Ice Spear", "Press the Reload button to consume 50 ammo and fire an Ice Spear that does 350 Direct Damage and 150 Area Damage in a 1.4m radius and stuns enemies for 3 seconds. "
 				+ "In exchange, +1 sec Repressurization Delay", overclockIcons.projectileVelocity, 3, false);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Ice Storm", "x2 Damage per Particle, x2.5 Damage vs Frozen Enemies, -3 Cold per Particle, -75 Tank Size, x1.5 Pressure Drop Rate", overclockIcons.directDamage, 4);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Ice Storm", "x2 Damage per Particle, x2 Damage vs Frozen Enemies, -3 Cold per Particle, -75 Tank Size, x1.5 Pressure Drop Rate", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Snowball", "Press the Reload button to consume 35 ammo and fire a Snowball that does 200 Cold in a 4m radius, which will freeze most enemies instantly. "
 				+ "In exchange, -100 Tank Size, +1 sec Repressurization Delay", overclockIcons.aoeRadius, 5);
 		
@@ -298,7 +298,7 @@ public class CryoCannon extends Weapon {
 		
 		toReturn[2] = new StatsRow("Avg Freeze Multiplier for other weapons:", averageFreezeMultiplier(UtilityInformation.Frozen_Damage_Multiplier), modIcons.special, false);
 		
-		toReturn[3] = new StatsRow("Avg Freeze Multiplier for itself:", averageFreezeMultiplier(2.5), modIcons.special, selectedOverclock == 4, selectedOverclock == 4);
+		toReturn[3] = new StatsRow("Avg Freeze Multiplier for itself:", averageFreezeMultiplier(2.0), modIcons.special, selectedOverclock == 4, selectedOverclock == 4);
 		
 		toReturn[4] = new StatsRow("Cold Stream Reach:", getColdStreamReach(), modIcons.distance, selectedTier2 == 1);
 		
@@ -363,7 +363,7 @@ public class CryoCannon extends Weapon {
 		// Contrary to what some people have told me, CryoCannon does NOT gain bonus damage vs Frozen targets unless OC "Ice Storm" is equipped.
 		double dmgPerParticle = getParticleDamage();
 		if (selectedOverclock == 4) {
-			dmgPerParticle *= averageFreezeMultiplier(2.5);
+			dmgPerParticle *= averageFreezeMultiplier(2.0);
 		}
 		double firingTime = pressureDropDuration / getPressureDropModifier();
 		double flowRate = getFlowRate();

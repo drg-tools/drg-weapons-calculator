@@ -59,10 +59,6 @@ public abstract class EPC extends Weapon {
 		Thin Containment Field
 		Damage type is Fire.
 		Damage done is 240 and is not affected by mods or overclocks.
-		
-		Persistent Plasma
-		Damage type is Electric.
-		The area last 6 seconds and deals 5 damage every 0.25 seconds. 
 	*/
 	
 	/****************************************************************************************
