@@ -158,22 +158,32 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		double igniteTemp;
+		double igniteTemp, coolingRate, spawnProbability;
 		
-		double toReturn = 0.0;
+		double totalIgniteTime = 0.0;
+		double totalProbability = 0.0;
 		for (int i = 0; i < enemiesModeled.length; i++) {
 			igniteTemp = enemiesModeled[i].getIgniteTemp();
+			coolingRate = enemiesModeled[i].getCoolingRate();
+			spawnProbability = enemiesModeled[i].getSpawnProbability(true);
 			
-			// Early exit: if Heat/Shot >= 100, then all enemies get ignited instantly since the largest Ignite Temp modeled in this program is 100.
+			// Early exit: if Heat/Shot >= igniteTemp, then this enemy gets ignited instantly.
 			if (burstOfHeat >= igniteTemp || heatPerShot >= igniteTemp || burstOfHeat + heatPerShot >= igniteTemp) {
-				// Technically this adds (Exact Spawn Probability * 0.0), but to save some CPU cycles I'm just going to skip to the next enemy.
+				// Technically this adds (Exact Spawn Probability * 0.0) to totalIgniteTime, but to save some CPU cycles I'm just going to skip to the next enemy.
+				totalProbability += spawnProbability;
 				continue;
 			}
 			
-			toReturn += enemiesModeled[i].getSpawnProbability(true) * ((igniteTemp - burstOfHeat) / (heatPerShot * RoF + heatPerSec - enemiesModeled[i].getCoolingRate()));
+			// Early exit: if the heat/sec of the weapon is <= cooling rate of an enemy, it will never ignite. Skip this enemy to avoid negative ignition times, or Infinity when divided by zero.
+			if (heatPerShot * RoF + heatPerSec <= coolingRate) {
+				continue;
+			}
+			
+			totalIgniteTime += spawnProbability * ((igniteTemp - burstOfHeat) / (heatPerShot * RoF + heatPerSec - coolingRate));
+			totalProbability += spawnProbability;
 		}
 		
-		return toReturn;
+		return totalIgniteTime / totalProbability;
 	}
 	public static double averageBurnDuration() {
 		if (!verifySpawnRatesTotalIsOne()) {
