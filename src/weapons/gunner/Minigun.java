@@ -643,19 +643,19 @@ public class Minigun extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		double numTargets = 1;
+		double multitargetDamageMultiplier = 1.0;
 		if (selectedTier3 == 2) {
-			numTargets += 1;
+			multitargetDamageMultiplier = calculateBlowthroughDamageMultiplier(getNumberOfPenetrations());
 		}
 		if (selectedOverclock == 5) {
 			// Because Bullet Hell ricochets off of 75% of everything, it's functionally just a +75% max damage boost
-			numTargets += 0.75;
+			multitargetDamageMultiplier += 0.75;
 		}
 		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
 		double numberOfBursts = (double) getMaxAmmo() / (2.0 * numPelletsFiredBeforeOverheat);
 		double damagePerBurst = numPelletsFiredBeforeOverheat * getDamagePerPellet(false);
 		
-		double totalDamage = numberOfBursts * damagePerBurst * numTargets;
+		double totalDamage = numberOfBursts * damagePerBurst * multitargetDamageMultiplier;
 		
 		double burningHellAoEDamage = 0;
 		
@@ -673,7 +673,7 @@ public class Minigun extends Weapon {
 			// Because Hot Bullets only starts igniting enemies after 4 seconds, reduce this damage by the uptime coefficient.
 			fireDoTDamagePerEnemy *= (timeAfterHotBullets / defaultFiringPeriod);
 			
-			estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
+			estimatedNumEnemiesKilled = multitargetDamageMultiplier * (calculateFiringDuration() / averageTimeToKill());
 			
 			fireDoTTotalDamage += fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		}

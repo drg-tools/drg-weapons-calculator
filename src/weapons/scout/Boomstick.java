@@ -488,21 +488,21 @@ public class Boomstick extends Weapon {
 		// The frontal blastwave is a 20 degree isosceles triangle, 4m height; 1.41m base. 4 grunts can be hit in a 1-2-1 stack.
 		int gruntsHitByBlastwave = 4;
 		int blastwaveDamagePerShot = gruntsHitByBlastwave * getBlastwaveDamage();
-		int numTargets = calculateMaxNumTargets();
+		double multitargetDamageMultiplier = calculateBlowthroughDamageMultiplier(getMaxPenetrations());
 		int numShots = getMagazineSize() + getCarriedAmmo();
-		double totalDamage = numShots * (directDamagePerShot*numTargets + blastwaveDamagePerShot);
+		double totalDamage = numShots * (directDamagePerShot*multitargetDamageMultiplier + blastwaveDamagePerShot);
 		
 		double fireDoTTotalDamage = 0;
 		if (selectedTier5 == 2) {
 			
-			double estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
+			double estimatedNumEnemiesKilled = multitargetDamageMultiplier * (calculateFiringDuration() / averageTimeToKill());
 			double fireDoTDamagePerEnemy;
 			if (selectedOverclock == 1) {
 				// Double barrel fires twice in a row, so it's double the heat of half the damage. Works out to just damage = heat.
 				double percentageOfEnemiesIgnitedPerShot = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(directDamagePerShot + getBlastwaveDamage());
 				fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 				
-				fireDoTTotalDamage += numShots * (percentageOfEnemiesIgnitedPerShot * numTargets) * fireDoTDamagePerEnemy;
+				fireDoTTotalDamage += numShots * (percentageOfEnemiesIgnitedPerShot * multitargetDamageMultiplier) * fireDoTDamagePerEnemy;
 			}
 			else {
 				double timeBeforeIgnite = calculateTimeToIgnite(false);

@@ -150,7 +150,7 @@ public class Classic_Hipfire extends Classic {
 	// Multi-target calculations
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		return (getMagazineSize() + getCarriedAmmo()) * getDirectDamage() * calculateMaxNumTargets();
+		return (getMagazineSize() + getCarriedAmmo()) * getDirectDamage() * calculateBlowthroughDamageMultiplier(getMaxPenetrations());
 	}
 	
 	@Override

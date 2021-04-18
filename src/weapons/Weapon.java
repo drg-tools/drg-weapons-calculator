@@ -1557,6 +1557,24 @@ public abstract class Weapon extends Observable {
 		return ((1.0 - probabilityBulletHitsWeakpoint) + probabilityBulletHitsWeakpoint * estimatedDamageIncreaseWithoutModifier * (1.0 + weakpointBonusModifier)) * preWeakpointBulletDamage;
 	}
 	
+	protected double calculateBlowthroughDamageMultiplier(int numPenetrations) {
+		/*
+			This method uses a geometric sequence. The first penetration adds 50% damage, the second 25%, the third 12.5%, etc. As a result, infinite penetrations
+			will converge to 2x total damage.
+			
+			Due to how the for loop is coded, if numPenetrations is 0 or negative, this will just return 1.0 so it's safe to use in the other classes without surrounding
+			logic to check for enabled penetrations, and it doesn't need input sanitization beyond the strict typing already enforced by Java's compiler.
+			
+			Returns 100 + % value, so it can be used natively by MaxMultiTargetDamage(). (1.5x, 1.75x, 1.875x, etc...)
+		*/
+		
+		double toReturn = 1.0;
+		for (int i = numPenetrations; i > 0; i--) {
+			toReturn += Math.pow(2, -i);
+		}
+		return toReturn;
+	}
+	
 	/*
 		These methods feed into the output field at the bottom-left of the WeaponTab in the GUI
 	*/

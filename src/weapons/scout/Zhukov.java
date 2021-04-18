@@ -276,7 +276,7 @@ public class Zhukov extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[10];
 		
-		boolean directDamageModified = selectedTier1 == 1 || selectedTier3 == 0 || (selectedOverclock > 0 && selectedOverclock < 5);
+		boolean directDamageModified = selectedTier1 == 1 || selectedTier3 == 0 || (selectedOverclock > 1 && selectedOverclock < 5);
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
 		// This stat only applies to OC "Embedded Detonators"
@@ -288,7 +288,7 @@ public class Zhukov extends Weapon {
 		boolean carriedAmmoModified = selectedTier1 == 0 || selectedTier4 == 2 || selectedOverclock == 3;
 		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
-		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier2 == 1 || selectedOverclock == 0);
+		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock == 1);
 		
 		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier2 == 2 || selectedOverclock == 0);
 		
@@ -423,7 +423,7 @@ public class Zhukov extends Weapon {
 	public double calculateMaxMultiTargetDamage() {
 		double effectiveMagazineSize = getMagazineSize() / 2.0;
 		double effectiveCarriedAmmo = getCarriedAmmo() / 2.0;
-		return (effectiveMagazineSize + effectiveCarriedAmmo) * (getDirectDamage() + getAreaDamage()) * calculateMaxNumTargets();
+		return (effectiveMagazineSize + effectiveCarriedAmmo) * (getDirectDamage() + getAreaDamage()) * calculateBlowthroughDamageMultiplier(getMaxPenetrations());
 	}
 
 	@Override

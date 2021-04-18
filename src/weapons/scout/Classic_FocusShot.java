@@ -160,7 +160,7 @@ public class Classic_FocusShot extends Classic {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		double totalDamageDealt = calculateMaxNumTargets() * (getMagazineSize() + getCarriedAmmo()) * getDirectDamage() * getFocusedShotMultiplier();
+		double totalDamageDealt = calculateBlowthroughDamageMultiplier(getMaxPenetrations()) * (getMagazineSize() + getCarriedAmmo()) * getDirectDamage() * getFocusedShotMultiplier();
 		
 		double electrocuteDoTTotalDamage = 0;
 		if (selectedOverclock == 4) {
