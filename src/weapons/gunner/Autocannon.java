@@ -62,7 +62,7 @@ public class Autocannon extends Weapon {
 		carriedAmmo = 440;
 		movespeedWhileFiring = 0.5;
 		increaseScalingRate = 0.4;
-		minRateOfFire = 3.5;
+		minRateOfFire = 3.4;
 		maxRateOfFire = 5.5;
 		reloadTime = 5.0;  // seconds
 		
