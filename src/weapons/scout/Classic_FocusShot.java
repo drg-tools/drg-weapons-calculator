@@ -223,11 +223,10 @@ public class Classic_FocusShot extends Classic {
 		// OC "Active Stability System" removes the movespeed penalty while Focusing
 		utilityScores[0] = (getMovespeedWhileFocusing() - MathUtils.round(movespeedWhileFocusing * DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
 		
-		// OC "Hoverclock" gives a 2 second cap to Scout's vertical movement speed (guess: 0.5 m/sec?), but after that 2sec ends original velocity is restored
+		// GreyHound tells me that OC "Hoverclock" slows your velocity by 80% for 1.5 seconds
 		if (selectedOverclock == 0) {
-			// Because the vertical movespeed cap of +- 0.5 m/sec can be used to negate fall damage from infinite height, there's not really a 
-			// way to give this OC a numerical value. For now, I'm just gonna call it 10 and move on.
-			utilityScores[0] += 10;
+			// Duration divided by the movespeed multiplier; 1.5 * 5 = 7.5
+			utilityScores[0] += 1.5 / (1.0 - 0.8);
 		}
 		
 		// Light Armor Breaking probability

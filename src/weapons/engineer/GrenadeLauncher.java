@@ -104,7 +104,8 @@ public class GrenadeLauncher extends Weapon {
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Clean Sweep", "+10 Area Damage, +0.5m AoE Radius", overclockIcons.aoeRadius, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Pack Rat", "+2 Max Ammo", overclockIcons.carriedAmmo, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Rounds", "+5 Max Ammo, -10 Area Damage, -0.5m AoE Radius", overclockIcons.carriedAmmo, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "RJ250 Compound", "Jump and shoot the ground beneath you to Grenade Jump. Can also be used on allies who are jumping. Additinally, -0.5 Reload Time.", overclockIcons.grenadeJump, 3);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "RJ250 Compound", "Jump and shoot the ground beneath you to \"blast jump\", which adds up to 11.65 m/sec to your velocity based on how far you are from the explosion center. "
+				+ "Can also be used on allies who are jumping. Additinally, -0.5 Reload Time.", overclockIcons.grenadeJump, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Fat Boy", "x4 Area Damage, +1m AoE Radius, x0.3 Max Ammo, x0.7 Projectile Velocity. Also leaves behind an 8m radius field that does "
 				+ "an average of " + MathUtils.round(DoTInformation.Rad_FB_DPS, GuiConstants.numDecimalPlaces) + " Radiation Damage per Second for 15 seconds.", overclockIcons.areaDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Hyper Propellant", "+385 Direct Damage, +350% Projectile Velocity, changes element from Explosive to Disintegrate, x0.3 AoE Radius, -2 Max Ammo", overclockIcons.projectileVelocity, 5);
@@ -517,11 +518,9 @@ public class GrenadeLauncher extends Weapon {
 
 	@Override
 	public double utilityScore() {
-		// OC "RJ250 Compound" gives a ton of Mobility (8m vertical, 12m horizontal)
+		// OC "RJ250 Compound" adds up to 11.65 m/sec velocity
 		if (selectedOverclock == 3) {
-			// For now, until I think of a better system, I'll just add the max vertical jump and max horizontal jump distances at 1/2 weight each.
-			// Ideally I would like to calculate the m/sec velocity of launch, but that could take a while to test and calculate.
-			utilityScores[0] = (0.5 * 8 + 0.5 * 12) * UtilityInformation.BlastJump_Utility;
+			utilityScores[0] = 11.65 * UtilityInformation.BlastJump_Utility;
 		}
 		else {
 			utilityScores[0] = 0;
