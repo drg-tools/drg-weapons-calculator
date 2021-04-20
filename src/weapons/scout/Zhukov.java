@@ -27,6 +27,7 @@ public class Zhukov extends Weapon {
 	private int magazineSize;
 	private double rateOfFire;
 	private double reloadTime;
+	private double weakpointBonus;
 	
 	/****************************************************************************************
 	* Constructors
@@ -53,6 +54,7 @@ public class Zhukov extends Weapon {
 		magazineSize = 50;  // Really 25
 		rateOfFire = 30.0;  // Really 15
 		reloadTime = 1.8;
+		weakpointBonus = 0.15;
 		
 		// Override default 10m distance
 		accEstimator.setDistance(4.0);
@@ -251,16 +253,19 @@ public class Zhukov extends Weapon {
 		}
 	}
 	private double getWeakpointBonus() {
+		double toReturn = weakpointBonus;
+		
+		// Early exit: OC "Gas Recycling"
 		if (selectedOverclock == 4) {
 			// Since this removes the Zhukov's ability to get weakpoint bonus damage, return a -100% to symbolize it.
 			return -1.0;
 		}
-		else if (selectedTier4 == 1){
-			return 0.3;
+		
+		if (selectedTier4 == 1){
+			toReturn += 0.3;
 		}
-		else {
-			return 0;
-		}
+		
+		return toReturn;
 	}
 	private double getMovespeedWhileFiring() {
 		double modifier = 1.0;
@@ -298,7 +303,7 @@ public class Zhukov extends Weapon {
 		}
 		
 		boolean weakpointModified = selectedTier4 == 1 || selectedOverclock == 4;
-		toReturn[6] = new StatsRow("Weakpoint Bonus:", sign + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, weakpointModified, weakpointModified);
+		toReturn[6] = new StatsRow("Weakpoint Bonus:", sign + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, weakpointModified);
 		
 		toReturn[7] = new StatsRow("Max Penetrations:", getMaxPenetrations(), modIcons.blowthrough, selectedTier4 == 0, selectedTier4 == 0);
 		
