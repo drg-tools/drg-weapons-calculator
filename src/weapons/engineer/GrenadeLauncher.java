@@ -105,7 +105,7 @@ public class GrenadeLauncher extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Pack Rat", "+2 Max Ammo", overclockIcons.carriedAmmo, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Rounds", "+5 Max Ammo, -10 Area Damage, -0.5m AoE Radius", overclockIcons.carriedAmmo, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "RJ250 Compound", "Jump and shoot the ground beneath you to \"blast jump\", which adds up to 11.65 m/sec to your velocity based on how far you are from the explosion center. "
-				+ "Can also be used on allies who are jumping. Additinally, -0.5 Reload Time.", overclockIcons.grenadeJump, 3);
+				+ "Can also be used on allies who are jumping. Additionally: x1.7 Max Ammo, -0.6 Reload Time, and -35 Area Damage.", overclockIcons.grenadeJump, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Fat Boy", "x4 Area Damage, +1m AoE Radius, x0.3 Max Ammo, x0.7 Projectile Velocity. Also leaves behind an 8m radius field that does "
 				+ "an average of " + MathUtils.round(DoTInformation.Rad_FB_DPS, GuiConstants.numDecimalPlaces) + " Radiation Damage per Second for 15 seconds.", overclockIcons.areaDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Hyper Propellant", "+385 Direct Damage, +350% Projectile Velocity, changes element from Explosive to Disintegrate, x0.3 AoE Radius, -2 Max Ammo", overclockIcons.projectileVelocity, 5);
@@ -176,6 +176,9 @@ public class GrenadeLauncher extends Weapon {
 		else if (selectedOverclock == 2) {
 			toReturn -= 10;
 		}
+		else if (selectedOverclock == 3) {
+			toReturn -= 35;
+		}
 
 		if (selectedTier4 == 0) {
 			toReturn *= homebrewPowderCoefficient;
@@ -237,7 +240,7 @@ public class GrenadeLauncher extends Weapon {
 		double toReturn = reloadTime;
 		
 		if (selectedOverclock == 3) {
-			toReturn -= 0.5;
+			toReturn -= 0.6;
 		}
 		
 		return toReturn;
@@ -257,6 +260,9 @@ public class GrenadeLauncher extends Weapon {
 		}
 		else if (selectedOverclock == 2) {
 			toReturn += 5;
+		}
+		else if (selectedOverclock == 3) {
+			toReturn *= 1.7;
 		}
 		else if (selectedOverclock == 4) {
 			toReturn *= 0.3;
@@ -318,7 +324,7 @@ public class GrenadeLauncher extends Weapon {
 		boolean directDamageModified = selectedTier5 == 1 || selectedTier3 == 0 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified, selectedTier5 == 1 || selectedOverclock == 5);
 		
-		boolean areaDamageModified = selectedTier1 == 2 || selectedTier2 == 1 || selectedTier3 == 0 || selectedTier4 == 0 || selectedOverclock % 2 == 0;
+		boolean areaDamageModified = selectedTier1 == 2 || selectedTier2 == 1 || selectedTier3 == 0 || selectedTier4 == 0 || selectedOverclock % 2 == 0 || selectedOverclock == 3;
 		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), modIcons.areaDamage, areaDamageModified);
 		
 		boolean aoeRadiusModified = selectedTier1 == 0 || selectedTier4 == 1 || selectedTier5 == 0 || selectedOverclock == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
@@ -329,7 +335,7 @@ public class GrenadeLauncher extends Weapon {
 		
 		toReturn[4] = new StatsRow("Magazine Size:", magazineSize, modIcons.magSize, false);
 		
-		boolean carriedAmmoModified = selectedTier1 == 1 || selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
+		boolean carriedAmmoModified = selectedTier1 == 1 || selectedTier2 == 0 || selectedOverclock > 0;
 		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 3);
 		
