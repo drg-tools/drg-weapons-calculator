@@ -339,7 +339,7 @@ public class GrenadeLauncher extends Weapon {
 		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 3);
 		
-		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier3 > -1, selectedTier3 > -1);
+		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier3 == 0 || selectedTier3 == 1, selectedTier3 == 0 || selectedTier3 == 1);
 		
 		toReturn[8] = new StatsRow("Fear Factor:", fearFactor, modIcons.fear, false);
 		
@@ -525,7 +525,6 @@ public class GrenadeLauncher extends Weapon {
 	@Override
 	public double utilityScore() {
 		// OC "RJ250 Compound" adds up to 11.65 m/sec velocity
-		// Regular jumping is 5 m/sec in the upward direction
 		if (selectedOverclock == 3) {
 			utilityScores[0] = 11.65 * UtilityInformation.BlastJump_Utility;
 		}

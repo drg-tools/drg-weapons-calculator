@@ -308,7 +308,7 @@ public class Flamethrower extends Weapon {
 		
 		toReturn[1] = new StatsRow("Heat per Particle:", getParticleHeat(), modIcons.heatDamage, selectedTier2 == 1);
 		
-		boolean reachModified = selectedTier1 == 1 || selectedOverclock == 2 || selectedOverclock == 3;
+		boolean reachModified = selectedTier1 == 1 || selectedOverclock == 2 || selectedOverclock == 3 || selectedOverclock == 4;
 		toReturn[2] = new StatsRow("Flame Reach:", getFlameReach(), modIcons.distance, reachModified);
 		
 		boolean tankSizeModified = selectedTier1 == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
