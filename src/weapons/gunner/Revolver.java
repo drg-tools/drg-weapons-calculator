@@ -33,6 +33,8 @@ public class Revolver extends Weapon {
 	private double stunDuration;
 	private double weakpointBonus;
 	
+	private double revolverHomebrewPowderCoefficient = 1.375;
+	
 	/****************************************************************************************
 	* Constructors
 	****************************************************************************************/
@@ -54,14 +56,14 @@ public class Revolver extends Weapon {
 		customizableRoF = true;
 		
 		// Base stats, before mods or overclocks alter them:
-		directDamage = 50.0;
-		carriedAmmo = 28;
+		directDamage = 60.0;
+		carriedAmmo = 24;
 		magazineSize = 4;
 		rateOfFire = 2.0;  // bullets per second
 		reloadTime = 2.0;  // seconds
 		stunChance = 0.5;
 		stunDuration = 1.5;  // seconds
-		weakpointBonus = 0.15;
+		weakpointBonus = 0.25;
 		
 		// Override default 10m distance
 		accEstimator.setDistance(9.0);
@@ -89,18 +91,18 @@ public class Revolver extends Weapon {
 		tier1[1] = new Mod("Perfect Weight Balance", "x0.3 Base Spread", modIcons.baseSpread, 1, 1);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Increased Caliber Rounds", "+15 Direct Damage", modIcons.directDamage, 2, 0);
+		tier2[0] = new Mod("Increased Caliber Rounds", "+10 Direct Damage", modIcons.directDamage, 2, 0);
 		tier2[1] = new Mod("Floating Barrel", "-80% Spread per Shot, x0.75 Recoil", modIcons.recoil, 2, 1);
 		tier2[2] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", modIcons.carriedAmmo, 2, 2);
 		
 		tier3 = new Mod[3];
 		tier3[0] = new Mod("Super Blowthrough Rounds", "+3 Penetrations", modIcons.blowthrough, 3, 0);
 		tier3[1] = new Mod("Explosive Rounds", "+30 Area Damage in a 1.5m radius, x0.5 Direct Damage", modIcons.addedExplosion, 3, 1);
-		tier3[2] = new Mod("Hollow-Point Bullets", "+50% Weakpoint Bonus", modIcons.weakpointBonus, 3, 2);
+		tier3[2] = new Mod("Hollow-Point Bullets", "+35% Weakpoint Bonus", modIcons.weakpointBonus, 3, 2);
 		
 		tier4 = new Mod[2];
 		tier4[0] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", modIcons.carriedAmmo, 4, 0);
-		tier4[1] = new Mod("High Velocity Rounds", "+15 Direct Damage", modIcons.directDamage, 4, 1);
+		tier4[1] = new Mod("High Velocity Rounds", "+10 Direct Damage", modIcons.directDamage, 4, 1);
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Dead-Eye", "No aim penalty while moving", modIcons.baseSpread, 5, 0);
@@ -109,12 +111,12 @@ public class Revolver extends Weapon {
 				+ "Neurotoxin does an average of " + MathUtils.round(DoTInformation.Neuro_DPS, GuiConstants.numDecimalPlaces) + " Poison Damage per Second", modIcons.neurotoxin, 5, 1);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, overclockIcons.homebrewPowder, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 33% chance to ricochet into a nearby enemy.", overclockIcons.ricochet, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Bullets", "x4 Direct and Area Damage to Burning targets, -25 Direct Damage", overclockIcons.heatDamage, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Six Shooter", "+2 Magazine Size, +8 Max Ammo, +4 Rate of Fire, x1.5 Base Spread, +0.5 Reload Time", overclockIcons.magSize, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -13 Max Ammo, +0.5 Reload Time, x0.5 Base Spread, +71% Spread per Shot, x1.5 Max Bloom, x1.5 Recoil, +3.5 Mass", overclockIcons.directDamage, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Magic Bullets", "All bullets that impact terrain automatically ricochet to nearby enemies (effectively raising accuracy to 100%). +8 Max Ammo, -20 Direct Damage", overclockIcons.ricochet, 5);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 75% chance to ricochet into a nearby enemy within 5m.", overclockIcons.ricochet, 0);
+		overclocks[1] = new Overclock(Overclock.classification.balanced, "Homebrew Powder", "Anywhere from x0.75 - x2 damage per shot, averaged to x" + revolverHomebrewPowderCoefficient, overclockIcons.homebrewPowder, 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Bullets", "x4 Direct and Area Damage to Burning targets, -10 Direct Damage", overclockIcons.heatDamage, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Six Shooter", "+2 Magazine Size, +6 Max Ammo, +2 Rate of Fire, x1.5 Base Spread, +0.5 Reload Time", overclockIcons.magSize, 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -12 Max Ammo, +0.5 Reload Time, x0.5 Base Spread, +71% Spread per Shot, x1.5 Max Bloom, x1.5 Recoil, +3.5 Mass", overclockIcons.directDamage, 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Magic Bullets", "All bullets that impact terrain automatically ricochet to nearby enemies within 5m (effectively raising accuracy to 100%). +8 Max Ammo, -20 Direct Damage", overclockIcons.ricochet, 5);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
 		modsAndOCsInitialized = true;
@@ -146,14 +148,14 @@ public class Revolver extends Weapon {
 		double toReturn = directDamage;
 		// Start by adding flat damage bonuses
 		if (selectedTier2 == 0) {
-			toReturn += 15.0;
+			toReturn += 10.0;
 		}
 		if (selectedTier4 == 1) {
-			toReturn += 15.0;
+			toReturn += 10.0;
 		}
 		
 		if (selectedOverclock == 2) {
-			toReturn -= 25.0;
+			toReturn -= 10.0;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn -= 20.0;
@@ -163,8 +165,8 @@ public class Revolver extends Weapon {
 		if (selectedTier3 == 1) {
 			toReturn *= 0.5;
 		}
-		if (selectedOverclock == 0) {
-			toReturn *= homebrewPowderCoefficient;
+		if (selectedOverclock == 1) {
+			toReturn *= revolverHomebrewPowderCoefficient;
 		}
 		else if (selectedOverclock == 4) {
 			toReturn *= 2.0;
@@ -178,8 +180,8 @@ public class Revolver extends Weapon {
 			toReturn = 30.0;
 		}
 		
-		if (selectedOverclock == 0) {
-			toReturn *= homebrewPowderCoefficient;
+		if (selectedOverclock == 1) {
+			toReturn *= revolverHomebrewPowderCoefficient;
 		}
 		
 		return toReturn;
@@ -202,11 +204,14 @@ public class Revolver extends Weapon {
 			toReturn += 12;
 		}
 		
-		if (selectedOverclock == 3 || selectedOverclock == 5) {
-			toReturn += 8;
+		if (selectedOverclock == 3) {
+			toReturn += 6;
 		}
 		else if (selectedOverclock == 4) {
-			toReturn -= 13;
+			toReturn -= 12;
+		}
+		else if (selectedOverclock == 5) {
+			toReturn += 8;
 		}
 		return toReturn;
 	}
@@ -224,7 +229,7 @@ public class Revolver extends Weapon {
 		double toReturn = rateOfFire;
 		
 		if (selectedOverclock == 3) {
-			toReturn += 4.0;
+			toReturn += 2.0;
 		}
 		
 		return toReturn;
@@ -250,7 +255,7 @@ public class Revolver extends Weapon {
 	}
 	private int getMaxRicochets() {
 		// According to GreyHound, these ricochets search for enemies within 5m
-		if (selectedOverclock == 1 || selectedOverclock == 5) {
+		if (selectedOverclock == 0 || selectedOverclock == 5) {
 			return 1;
 		}
 		else {
@@ -260,7 +265,7 @@ public class Revolver extends Weapon {
 	private double getWeakpointBonus() {
 		double toReturn = weakpointBonus;
 		if (selectedTier3 == 2) {
-			toReturn += 0.5;
+			toReturn += 0.35;
 		}
 		return toReturn;
 	}
@@ -349,11 +354,11 @@ public class Revolver extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[17];
 		
-		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
+		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 || selectedTier4 == 1 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
 		boolean explosiveEquipped = selectedTier3 == 1;
-		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), modIcons.areaDamage, explosiveEquipped || selectedOverclock == 0, explosiveEquipped);
+		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), modIcons.areaDamage, explosiveEquipped || selectedOverclock == 1, explosiveEquipped);
 		
 		toReturn[2] = new StatsRow("AoE Radius:", getAoERadius(), modIcons.aoeRadius, explosiveEquipped, explosiveEquipped);
 		
@@ -374,9 +379,9 @@ public class Revolver extends Weapon {
 		
 		toReturn[10] = new StatsRow("Max Penetrations:", getMaxPenetrations(), modIcons.blowthrough, selectedTier3 == 0, selectedTier3 == 0);
 		
-		toReturn[11] = new StatsRow("Weakpoint Chain Hit Chance:", convertDoubleToPercentage(0.33), modIcons.homebrewPowder, selectedOverclock == 1, selectedOverclock == 1);
+		toReturn[11] = new StatsRow("Weakpoint Chain Hit Chance:", convertDoubleToPercentage(0.75), modIcons.homebrewPowder, selectedOverclock == 0, selectedOverclock == 0);
 		
-		boolean canRicochet = selectedOverclock == 1 || selectedOverclock == 5;
+		boolean canRicochet = selectedOverclock == 0 || selectedOverclock == 5;
 		toReturn[12] = new StatsRow("Max Ricochets:", getMaxRicochets(), modIcons.ricochet, canRicochet, canRicochet);
 		
 		boolean baseSpreadModified = selectedTier1 == 1 || selectedOverclock == 3 || selectedOverclock == 4;
@@ -404,6 +409,16 @@ public class Revolver extends Weapon {
 		// It appears that Revolver doesn't have any damage falloff within its 1.5m radius, so its AoE efficiency would be [1.5, 1.0, 5].
 		// However, in order to save a few cycles every auto-calculate, I'm choosing not to implement that as it has no mathematical effect on the outputs.
 		return selectedTier3 == 1;
+	}
+	
+	@Override
+	protected void setAoEEfficiency() {
+		if (selectedTier3 == 1) {
+			aoeEfficiency = calculateAverageAreaDamage(getAoERadius(), 0.75, 0.5);
+		}
+		else {
+			aoeEfficiency = new double[3];
+		}
 	}
 	
 	/*
@@ -504,123 +519,97 @@ public class Revolver extends Weapon {
 		
 		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * (directDamage + areaDamage)) / duration + neuroDPS;
 	}
-	
-	private double calculateDamagePerMagazine(boolean weakpointBonus, int numTargets) {
-		// TODO: I'd like to refactor this method out
-		if (weakpointBonus) {
-			return (increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) + numTargets * getAreaDamage()) * getMagazineSize();
-		}
-		else {
-			return (getDirectDamage() + numTargets * getAreaDamage()) * getMagazineSize();
-		}
-	}
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		// TODO: I'd like to refactor this method a little.
 		/*
 			There are 8 combinations of ways for the Revolver to hit an additional target, based on various combinations of
 			the Overclocks "Chain Hit" and "Magic Bullets", and the Tier 3 Mods "Super Blowthrough Rounds" and "Explosive Rounds"
 		*/
 		double sustainedAdditionalDPS;
 		double directDamage = getDirectDamage();
-		double areaDamage = getAreaDamage();
-		double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getCustomRoF()) + getReloadTime();
+		double areaDamage = 0;
+		if (selectedTier3 == 1) {
+			areaDamage = getAreaDamage() * aoeEfficiency[1];
+		}
+		double magazineSize = getMagazineSize();
+		double timeToFireMagazineAndReload = (magazineSize / getCustomRoF()) + getReloadTime();
 		
 		// If Super Blowthrough Rounds is equipped, then the ricochets from either "Chain Hit" or "Magic Bullets" won't affect the additional DPS
 		if (selectedTier3 == 0) {
 			// Because Super Blowthrough Rounds are just the same damage to another enemy behind the primary target (or from a ricochet), return Ideal Sustained DPS
-			return calculateSingleTargetDPS(false, false, false, false);
+			sustainedAdditionalDPS = magazineSize * directDamage / timeToFireMagazineAndReload;
 		}
 		
 		// Only Explosive
 		else if (selectedTier3 == 1 && selectedOverclock != 1 && selectedOverclock != 5) {
 			// Explosive Rounds are just the Area Damage, so I have to re-model the sustained DPS formula here
-			sustainedAdditionalDPS = getMagazineSize() * areaDamage / timeToFireMagazineAndReload;
-			
-			if (selectedTier5 == 1) {
-				sustainedAdditionalDPS += DoTInformation.Neuro_DPS;
-			}
-			
-			return sustainedAdditionalDPS;
+			sustainedAdditionalDPS = magazineSize * areaDamage / timeToFireMagazineAndReload;
 		}
 		
 		// Only "Chain Hit" OR "Chain Hit" + Explosive Rounds
-		else if (selectedOverclock == 1 && selectedTier3 != 0) {
-			// If "Chain Hit" is equipped, 33% of bullets that hit a weakpoint will ricochet to nearby enemies.
-			// Effectively 25% of ideal sustained DPS?
+		else if (selectedOverclock == 0 && selectedTier3 != 0) {
+			// If "Chain Hit" is equipped, 75% of bullets that hit a weakpoint will ricochet to nearby enemies.
 			// Making the assumption that the ricochet won't hit another weakpoint, and will just do normal damage.
-			double ricochetProbability = 0.33 * getWeakpointAccuracy() / 100.0;
-			double numBulletsRicochetPerMagazine = Math.round(ricochetProbability * getMagazineSize());
+			double ricochetProbability = 0.75 * getWeakpointAccuracy() / 100.0;
+			double numBulletsRicochetPerMagazine = Math.round(ricochetProbability * magazineSize);
 			
 			sustainedAdditionalDPS = numBulletsRicochetPerMagazine * (directDamage + areaDamage) / timeToFireMagazineAndReload;
-			
-			if (selectedTier5 == 1) {
-				sustainedAdditionalDPS += DoTInformation.Neuro_DPS;
-			}
-			
-			return sustainedAdditionalDPS;
 		}
 		
 		// Only "Magic Bullets"
-		else if (selectedOverclock == 5 && selectedTier3 != 0 && selectedTier3 != 1) {
+		else if (selectedOverclock == 5 && selectedTier3 != 0 && selectedTier3 != 0) {
 			// "Magic Bullets" mean that any bullet that MISSES the primary target will try to automatically ricochet to a nearby enemy.
 			// This can be modeled by returning (1 - Accuracy) * Ideal Sustained DPS
-			sustainedAdditionalDPS = (1.0 - getGeneralAccuracy() / 100.0) * calculateSingleTargetDPS(false, false, false, false);
-			
-			if (selectedTier5 == 1) {
-				sustainedAdditionalDPS += DoTInformation.Neuro_DPS;
-			}
-			
-			return sustainedAdditionalDPS;
+			sustainedAdditionalDPS = (1.0 - getGeneralAccuracy() / 100.0) * magazineSize * directDamage / timeToFireMagazineAndReload;
 		}
 		
 		// "Magic Bullets" + Explosive
 		else if (selectedOverclock == 5 && selectedTier3 == 1) {
 			// This combination is the hardest to model: when a missed bullet ricochets, it still deals an explosion of damage on the ground before redirecting to the new target. This means that if you shoot the ground next to an
 			// enemy with this combination, they'll take the Area Damage, followed by the Direct + Area Damage of the bullet after it redirects.
-			sustainedAdditionalDPS = getMagazineSize() * (directDamage + 2 * areaDamage) / timeToFireMagazineAndReload;
-			
-			if (selectedTier5 == 1) {
-				sustainedAdditionalDPS += DoTInformation.Neuro_DPS;
-			}
-			
-			return sustainedAdditionalDPS;
+			sustainedAdditionalDPS = magazineSize * (directDamage + 2 * areaDamage) / timeToFireMagazineAndReload;
 		}
 		else {
+			// This means that none of the four mods/OCs that hit additional targets are equipped, therefore it cannot do Additional Target DPS.
 			return 0;
 		}
+		
+		if (selectedTier5 == 1) {
+			sustainedAdditionalDPS += DoTInformation.Neuro_DPS;
+		}
+		
+		return sustainedAdditionalDPS;
 	}
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		int numberOfTargets = calculateMaxNumTargets();
-		double damagePerMagazine = calculateDamagePerMagazine(false, numberOfTargets);
-		double numberOfMagazines = numMagazines(getCarriedAmmo(), getMagazineSize());
+		double multitargetDirectDamageMultiplier = calculateBlowthroughDamageMultiplier(getMaxPenetrations());
 		
-		double ricochetTotalDamage = 0;
-		// If Blowthrough Rounds is selected, multiply the dmg/mag times the total num targets hit
-		if (selectedTier3 == 0) {
-			damagePerMagazine *= numberOfTargets;
+		// OC "Chain Hit" adds a 75% chance to ricochet to another enemy within 5m if it hits a Weakpoint
+		// OC "Magic Bullets" only ricochets off of terrain, so it doesn't directly increase the Direct Damage dealt.
+		if (selectedOverclock == 0) {
+			multitargetDirectDamageMultiplier += 0.75 * getWeakpointAccuracy() / 100.0;
 		}
-		else if (selectedOverclock == 1 && selectedTier3 != 1) {
-			// Only Chain Hit
-			double ricochetProbability = 0.33 * getWeakpointAccuracy() / 100.0;
-			double totalNumRicochets = Math.round(ricochetProbability * (getMagazineSize() + getCarriedAmmo()));
-			ricochetTotalDamage = totalNumRicochets * getDirectDamage();
+		
+		double damagePerBullet = getDirectDamage();
+		if (selectedTier3 == 1) {
+			damagePerBullet += getAreaDamage() * aoeEfficiency[2] * aoeEfficiency[1];
 		}
+		
+		double baseTotalDamage = (getMagazineSize() + getCarriedAmmo()) * damagePerBullet * multitargetDirectDamageMultiplier;
 		
 		double neurotoxinDoTTotalDamage = 0;
 		if (selectedTier5 == 1) {
 			double timeBeforeNeuroProc = MathUtils.meanRolls(0.5) / getCustomRoF();
 			double neurotoxinDoTTotalDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeNeuroProc, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
 			
-			double estimatedNumEnemiesKilled = numberOfTargets * (calculateFiringDuration() / averageTimeToKill());
+			double estimatedNumEnemiesKilled = calculateMaxNumTargets() * (calculateFiringDuration() / averageTimeToKill());
 			
 			neurotoxinDoTTotalDamage = neurotoxinDoTTotalDamagePerEnemy * estimatedNumEnemiesKilled;
 		}
 
-		return damagePerMagazine * numberOfMagazines + ricochetTotalDamage + neurotoxinDoTTotalDamage;
+		return baseTotalDamage + neurotoxinDoTTotalDamage;
 	}
 
 	@Override
@@ -632,7 +621,7 @@ public class Revolver extends Weapon {
 		// If Super Blowthrough Rounds is equipped, then any potential Ricochet can simply be added
 		if (selectedTier3 == 0) {
 			int toReturn = 1 + getMaxPenetrations();
-			if (selectedOverclock == 1) {
+			if (selectedOverclock == 0) {
 				// Only Chain Hit can bounce to another target from a current one. Magic Bullets only bounces off of terrain, so it doesn't increase the Blowthrough count.
 				toReturn += getMaxRicochets();
 			}
@@ -640,21 +629,21 @@ public class Revolver extends Weapon {
 		}
 		
 		// Only Explosive
-		else if (selectedTier3 == 1 && selectedOverclock != 1 && selectedOverclock != 5) {
+		else if (selectedTier3 == 1 && selectedOverclock != 0 && selectedOverclock != 5) {
 			// From my limited testing, it appears that the full damage radius == full radius, so the efficiency will be 100%
-			return calculateNumGlyphidsInRadius(getAoERadius());
+			return (int) aoeEfficiency[2];
 		}
 		
 		// Only "Chain Hit"
-		else if (selectedOverclock == 1 && selectedTier3 != 0 && selectedTier3 != 1) {
-			return 2;
+		else if (selectedOverclock == 0 && selectedTier3 != 0 && selectedTier3 != 1) {
+			return 1 + getMaxRicochets();
 		}
 		
 		// "Chain Hit" + Explosive
-		else if (selectedOverclock == 1 && selectedTier3 == 1) {
+		else if (selectedOverclock == 0 && selectedTier3 == 1) {
 			// Because the second hit is guaranteed to hit another primary target, this is 2*numTargets - overlap
 			// I'm guessing that of the 8 Glyphid Grunts, about 3 would be hit by both explosions.
-			return (2 * calculateNumGlyphidsInRadius(getAoERadius())) - 3;
+			return (int) (2 * aoeEfficiency[2]) - 3;
 		}
 		
 		// "Magic Bullets" + Explosive
@@ -662,7 +651,7 @@ public class Revolver extends Weapon {
 			// Because the bullet has to first MISS a target, but the ricochet explodes, this is effectively (2*numTargets - 1) - overlap so that the primary target doesn't get double-counted
 			// I'm choosing to model the overlapping Grunts as 5 instead of 3, because it's likely that the bullet lands near the center target that it ricochets to so more of the Grunts would 
 			// be hit by both explosions.
-			return (2 * calculateNumGlyphidsInRadius(getAoERadius()) - 1) - 5;
+			return (int) (2 * aoeEfficiency[2] - 1) - 5;
 		}
 		
 		else {
@@ -766,20 +755,33 @@ public class Revolver extends Weapon {
 	
 	@Override
 	public double damagePerMagazine() {
-		double damagePerShot;
-		if (selectedTier3 == 0) {
-			// Blowthrough Rounds
-			damagePerShot = getDirectDamage() * (1 + getMaxPenetrations() + getMaxRicochets());
-		}
-		else if (selectedTier3 == 1) {
-			// Explosive Rounds
-			damagePerShot = getDirectDamage() + getAreaDamage() * calculateNumGlyphidsInRadius(getAoERadius());
-		}
-		else {
-			damagePerShot = getDirectDamage();
+		// This is copy/pasted from MultiTargetDamage, but only uses MagSize instead of MagSize + CarriedAmmo
+		double multitargetDirectDamageMultiplier = calculateBlowthroughDamageMultiplier(getMaxPenetrations());
+		
+		// OC "Chain Hit" adds a 75% chance to ricochet to another enemy within 5m if it hits a Weakpoint
+		// OC "Magic Bullets" only ricochets off of terrain, so it doesn't directly increase the Direct Damage dealt.
+		if (selectedOverclock == 0) {
+			multitargetDirectDamageMultiplier += 0.75 * getWeakpointAccuracy() / 100.0;
 		}
 		
-		return damagePerShot * getMagazineSize();
+		double damagePerBullet = getDirectDamage();
+		if (selectedTier3 == 1) {
+			damagePerBullet += getAreaDamage() * aoeEfficiency[2] * aoeEfficiency[1];
+		}
+		
+		double baseTotalDamage = getMagazineSize() * damagePerBullet * multitargetDirectDamageMultiplier;
+		
+		double neurotoxinDoTTotalDamage = 0;
+		if (selectedTier5 == 1) {
+			double timeBeforeNeuroProc = MathUtils.meanRolls(0.5) / getCustomRoF();
+			double neurotoxinDoTTotalDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeBeforeNeuroProc, DoTInformation.Neuro_SecsDuration, DoTInformation.Neuro_DPS);
+			
+			double estimatedNumEnemiesKilled = calculateMaxNumTargets() * (timeToFireMagazine() / averageTimeToKill());
+			
+			neurotoxinDoTTotalDamage = neurotoxinDoTTotalDamagePerEnemy * estimatedNumEnemiesKilled;
+		}
+
+		return baseTotalDamage + neurotoxinDoTTotalDamage;
 	}
 	
 	@Override

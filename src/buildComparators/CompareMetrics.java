@@ -25,8 +25,8 @@ public class CompareMetrics extends Comparator {
 	private JCheckBox enableWeakpoints, enableAccuracy, enableArmorWasting;
 	private JLabel[][] outputMatrix;
 	
-	private JButton showBreakpointsComparison;
-	private JPanel compareBreakpoints;
+	private JButton showStatsPanelsComparison, showBreakpointsComparison;
+	private JPanel compareStatsPanels, compareBreakpoints;
 	
 	public CompareMetrics(Weapon toUse) {
 		super(toUse);
@@ -53,7 +53,11 @@ public class CompareMetrics extends Comparator {
 		compareBuilds = new JButton("Compare all metrics");
 		compareBuilds.addActionListener(this);
 		compareButtons.add(compareBuilds);
-		showBreakpointsComparison = new JButton("Compare just Breakpoints");
+		showStatsPanelsComparison = new JButton("Compare the Stat Panels");
+		showStatsPanelsComparison.addActionListener(this);
+		showStatsPanelsComparison.setEnabled(false);
+		compareButtons.add(showStatsPanelsComparison);
+		showBreakpointsComparison = new JButton("Compare Breakpoints");
 		showBreakpointsComparison.addActionListener(this);
 		showBreakpointsComparison.setEnabled(false);
 		compareButtons.add(showBreakpointsComparison);
@@ -180,7 +184,8 @@ public class CompareMetrics extends Comparator {
 			
 			// Guaranteed to have at the left-most two columns at this point in the method
 			double[][] metricsToCompare = new double[numBuildsToCompare][15];
-			StatsRow[][] breakpointsToCompare = new StatsRow[numBuildsToCompare][31];
+			StatsRow[][] statsPanelsToCompare = new StatsRow[numBuildsToCompare][baseModel.getStats().length];
+			StatsRow[][] breakpointsToCompare = new StatsRow[numBuildsToCompare][baseModel.breakpointsExplanation().length];
 			for (i = 0; i < numBuildsToCompare; i++) {
 				baseModel.buildFromCombination(justifyLeft.get(i), false);
 				metricsToCompare[i] = new double[] {
@@ -201,16 +206,52 @@ public class CompareMetrics extends Comparator {
 					baseModel.averageTimeToCauterize()
 				};
 				
+				statsPanelsToCompare[i] = baseModel.getStats();
 				breakpointsToCompare[i] = baseModel.breakpointsExplanation();
 			}
 			
 			/*
-				Fourth, build the Breakpoints comparison matrix and enable the button for user to compare them
+				Fourth, build the Stats Panels and Breakpoints comparison matrices and enable the buttons for user to compare them
 			*/
+			compareStatsPanels = new JPanel();
+			compareStatsPanels.setBackground(GuiConstants.drgBackgroundBrown);
+			compareStatsPanels.setBorder(GuiConstants.blackLine);
+			compareStatsPanels.setLayout(new GridLayout(statsPanelsToCompare[0].length + 1, numBuildsToCompare + 1));
+			
+			// Make the first row show the build Strings at the top of each column
+			compareStatsPanels.add(new JLabel());
+			JLabel statsBuildStrings;
+			for (j = 0; j < numBuildsToCompare; j++) {
+				statsBuildStrings = new JLabel(justifyLeft.get(j));
+				statsBuildStrings.setFont(GuiConstants.customFontBold);
+				statsBuildStrings.setForeground(GuiConstants.drgRegularOrange);
+				compareStatsPanels.add(statsBuildStrings);
+			}
+			
+			JLabel statName, statValue;
+			for (i = 0; i < statsPanelsToCompare[0].length; i++) {
+				statName = new JLabel(statsPanelsToCompare[0][i].getName() + "    ");
+				statName.setFont(GuiConstants.customFont);
+				statName.setForeground(Color.white);
+				compareStatsPanels.add(statName);
+				
+				for (j = 0; j < numBuildsToCompare; j++) {
+					if (statsPanelsToCompare[j][i].shouldBeDisplayed()) {
+						statValue = new JLabel(statsPanelsToCompare[j][i].getValue());
+					}
+					else {
+						statValue = new JLabel("N/A");
+					}
+					statValue.setFont(GuiConstants.customFont);
+					statValue.setForeground(GuiConstants.drgRegularOrange);
+					compareStatsPanels.add(statValue);
+				}
+			}
+			
 			compareBreakpoints = new JPanel();
 			compareBreakpoints.setBackground(GuiConstants.drgBackgroundBrown);
 			compareBreakpoints.setBorder(GuiConstants.blackLine);
-			compareBreakpoints.setLayout(new GridLayout(32, (numBuildsToCompare + 1)));
+			compareBreakpoints.setLayout(new GridLayout(breakpointsToCompare[0].length + 1, numBuildsToCompare + 1));
 			
 			// Make the first row show the build Strings at the top of each column
 			compareBreakpoints.add(new JLabel());
@@ -223,7 +264,7 @@ public class CompareMetrics extends Comparator {
 			}
 			
 			JLabel breakpointName, breakpointValue;
-			for (i = 0; i < 31; i++) {
+			for (i = 0; i < breakpointsToCompare[0].length; i++) {
 				breakpointName = new JLabel(breakpointsToCompare[0][i].getName());
 				breakpointName.setFont(GuiConstants.customFont);
 				breakpointName.setForeground(Color.white);
@@ -237,8 +278,12 @@ public class CompareMetrics extends Comparator {
 				}
 			}
 			
-			// Now that content can be shown, enable this button.
-			showBreakpointsComparison.setEnabled(true);
+			// Now that content can be shown, enable these buttons.
+			showStatsPanelsComparison.setEnabled(true);
+			// Don't let users compare Breakpoints for weapons that don't calculate Breakpoints
+			if (metricsToCompare[0][12] > 0) {
+				showBreakpointsComparison.setEnabled(true);
+			}
 			
 			/*
 				Fifth, go row by row and assess if the 2-4 numbers are all equal, or if one is greater than all the others. All equal => yellow font; one greater => one green, the rest red
@@ -305,10 +350,16 @@ public class CompareMetrics extends Comparator {
 				}
 			}
 		}
+		else if (e == showStatsPanelsComparison) {
+			// Adapted from https://stackoverflow.com/a/13760416 and https://www.tutorialspoint.com/how-to-display-a-jframe-to-the-center-of-a-screen-in-java
+			JOptionPane a = new JOptionPane(compareStatsPanels, JOptionPane.INFORMATION_MESSAGE);
+			JDialog d = a.createDialog(null, "Compare the Stat Panels of multiple builds");
+			d.setVisible(true);
+		}
 		else if (e == showBreakpointsComparison) {
 			// Adapted from https://stackoverflow.com/a/13760416 and https://www.tutorialspoint.com/how-to-display-a-jframe-to-the-center-of-a-screen-in-java
 			JOptionPane a = new JOptionPane(compareBreakpoints, JOptionPane.INFORMATION_MESSAGE);
-			JDialog d = a.createDialog(null, "Compare the breakpoints of multiple builds");
+			JDialog d = a.createDialog(null, "Compare the Breakpoints of multiple builds");
 			d.setVisible(true);
 		}
 	}

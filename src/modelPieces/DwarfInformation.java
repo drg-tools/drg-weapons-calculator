@@ -16,4 +16,5 @@ public class DwarfInformation {
 	// These are measured in m/sec
 	public static double walkSpeed = 3.0;
 	public static double runSpeed = 4.35;
+	public static double jumpVelocityAdded = 5.0;
 }

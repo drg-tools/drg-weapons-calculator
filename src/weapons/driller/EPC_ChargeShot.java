@@ -48,48 +48,47 @@ public class EPC_ChargeShot extends EPC {
 	
 	@Override
 	public double getRateOfFire() {
-		double timeToFireChargedShot = getChargedShotWindup();
-		double timeToCoolDownAfterChargedShot = getCooldownDuration();
-		
-		return 1 / (timeToFireChargedShot + timeToCoolDownAfterChargedShot);
+		return 1 / (getChargedShotWindup() + getChargedShotCooldownDuration());
 	}
 
 	@Override
 	public StatsRow[] getStats() {
 		boolean coolingRateModified = selectedTier3 == 2 || selectedOverclock == 1 || selectedOverclock == 4;
 		
-		StatsRow[] toReturn = new StatsRow[11];
+		StatsRow[] toReturn = new StatsRow[12];
 		
-		boolean chargedDirectDamageModified = selectedTier1 == 2 || selectedTier2 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
+		boolean chargedDirectDamageModified = selectedTier1 == 2 || selectedTier4 == 2 || selectedTier5 == 0 || selectedTier5 == 1 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Direct Damage:", getChargedDirectDamage(), modIcons.directDamage, chargedDirectDamageModified);
 		
-		boolean chargedAreaDamageModified = selectedTier1 == 2 || selectedTier2 == 2 || selectedTier5 == 0 || selectedTier5 == 1 || selectedOverclock == 4 || selectedOverclock == 5;
+		boolean chargedAreaDamageModified = selectedTier1 == 2 || selectedTier4 == 2 || selectedTier5 == 0 || selectedTier5 == 1 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[1] = new StatsRow("Area Damage:", getChargedAreaDamage(), modIcons.areaDamage, chargedAreaDamageModified);
 		
-		boolean radiusModified = selectedTier2 == 0 || selectedTier5 == 0 || selectedOverclock == 4;
+		boolean radiusModified = selectedTier4 == 0 || selectedTier5 == 0 || selectedOverclock == 4;
 		toReturn[2] = new StatsRow("AoE Radius:", aoeEfficiency[0], modIcons.aoeRadius, radiusModified);
 		
-		boolean windupModified = selectedTier3 == 1 || selectedTier5 == 0 || selectedOverclock == 0 || selectedOverclock == 2;
+		boolean windupModified = selectedTier3 == 1 || selectedOverclock == 0 || selectedOverclock == 2;
 		toReturn[3] = new StatsRow("Charged Shot Windup:", getChargedShotWindup(), modIcons.chargeSpeed, windupModified);
 		
-		toReturn[4] = new StatsRow("Heat/Sec While Charged:", getHeatPerSecondWhileCharged(), modIcons.blank, selectedTier4 == 0 || selectedOverclock == 1);
+		boolean heatPerShotModified = selectedTier5 == 1 || selectedOverclock == 2;
+		toReturn[4] = new StatsRow("Heat/Shot:", getHeatPerChargedShot(), modIcons.blank, heatPerShotModified);
 		
-		toReturn[5] = new StatsRow("Seconds Charged Shot can be Held Before Overheating:", getSecondsBeforeOverheatWhileCharged(), modIcons.hourglass, selectedTier4 == 0 || selectedOverclock == 1);
+		boolean heatPerSecModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2;
+		toReturn[5] = new StatsRow("Heat/Sec While Charged:", getHeatPerSecondWhileCharged(), modIcons.blank, heatPerSecModified);
+		
+		toReturn[6] = new StatsRow("Seconds Charged Shot can be Held Before Overheating:", getSecondsBeforeOverheatWhileCharged(), modIcons.hourglass, heatPerSecModified);
 		
 		boolean ammoPerShotModified = selectedTier3 == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedTier5 == 1;
-		toReturn[6] = new StatsRow("Ammo/Charged Shot:", getAmmoPerChargedShot(), modIcons.fuel, ammoPerShotModified);
+		toReturn[7] = new StatsRow("Ammo/Charged Shot:", getAmmoPerChargedShot(), modIcons.fuel, ammoPerShotModified);
 		
 		boolean batterySizeModified = selectedTier1 == 1 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 3;
-		toReturn[7] = new StatsRow("Battery Size:", getBatterySize(), modIcons.carriedAmmo, batterySizeModified);
+		toReturn[8] = new StatsRow("Battery Size:", getBatterySize(), modIcons.carriedAmmo, batterySizeModified);
 		
-		// This is equivalent to "Did either the time to charge a shot or the time to cool down after a shot change?"
-		//boolean RoFModified = selectedTier3 == 1 || selectedTier3 == 2 || selectedTier5 == 0 || (selectedOverclock > -1 && selectedOverclock < 3) || selectedOverclock == 4;
-		boolean RoFModified = windupModified || selectedTier5 == 1 || coolingRateModified;
-		toReturn[8] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, RoFModified);
+		boolean RoFModified = windupModified || heatPerShotModified || coolingRateModified;
+		toReturn[9] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, RoFModified);
 		
-		toReturn[9] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), modIcons.coolingRate, coolingRateModified);
+		toReturn[10] = new StatsRow("Cooling Rate:", convertDoubleToPercentage(getCoolingRateModifier()), modIcons.coolingRate, coolingRateModified);
 		
-		toReturn[10] = new StatsRow("Cooldown After Overheating:", getCooldownDuration(), modIcons.hourglass, coolingRateModified || selectedTier5 == 1);
+		toReturn[11] = new StatsRow("Cooldown After Overheating:", getChargedShotCooldownDuration(), modIcons.hourglass, coolingRateModified || selectedTier5 == 1);
 		
 		return toReturn;
 	}
@@ -148,7 +147,7 @@ public class EPC_ChargeShot extends EPC {
 		double baseDPS = (directDamage + areaDamage) * getRateOfFire();
 		
 		if (selectedOverclock == 5) {
-			return baseDPS + DoTInformation.Plasma_DPS;
+			return baseDPS + DoTInformation.Plasma_EPC_DPS;
 		}
 		else {
 			return baseDPS;
@@ -169,7 +168,7 @@ public class EPC_ChargeShot extends EPC {
 		}
 		
 		if (selectedOverclock == 5) {
-			return getChargedAreaDamage() * aoeEfficiency[1] * getRateOfFire() + DoTInformation.Plasma_DPS;
+			return getChargedAreaDamage() * aoeEfficiency[1] * getRateOfFire() + DoTInformation.Plasma_EPC_DPS;
 		}
 		else {
 			return getChargedAreaDamage() * aoeEfficiency[1] * getRateOfFire();
@@ -190,12 +189,12 @@ public class EPC_ChargeShot extends EPC {
 		double baseDamage = numberOfChargedShots * (getChargedDirectDamage() + getChargedAreaDamage() * aoeEfficiency[1] * aoeEfficiency[2]);
 		if (selectedOverclock == 5) {
 			/*
-				Since Persistent Plasma is a DoT that last 6 seconds, but doesn't guarantee to hit every target for that full 6 seconds, 
+				Since Persistent Plasma is a DoT that last 7.6 seconds, but doesn't guarantee to hit every target for that full 7.6 seconds, 
 				I'm choosing to have its total damage be equal to how the DoT DPS times firing duration times the max num targets divided by 3.
 				The divide by 3 is to simulate the fact that the enemies are not stationary within the DoT field, and will move out of it before 
 				the duration expires.
 			*/
-			double persistentPlasmaDamage = DoTInformation.Plasma_DPS * calculateFiringDuration() * aoeEfficiency[2] / 3.0;
+			double persistentPlasmaDamage = DoTInformation.Plasma_EPC_DPS * calculateFiringDuration() * aoeEfficiency[2] / 3.0;
 			return baseDamage + persistentPlasmaDamage;
 		}
 		else {
@@ -219,7 +218,7 @@ public class EPC_ChargeShot extends EPC {
 
 	@Override
 	public double calculateFiringDuration() {
-		double firingInterval = getChargedShotWindup() + getCooldownDuration();
+		double firingInterval = getChargedShotWindup() + getChargedShotCooldownDuration();
 		int numChargedShots = (int) Math.ceil(getBatterySize() / getAmmoPerChargedShot());
 		return numChargedShots * firingInterval;
 	}
@@ -238,28 +237,34 @@ public class EPC_ChargeShot extends EPC {
 	
 	@Override
 	public int breakpoints() {
+		double chargedShotDirectDamage = getChargedDirectDamage();
+		double chargedShotAreaDamage = getChargedAreaDamage();
+		
 		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
 		double[] dDamage = new double[5];
 		double[] aDamage = new double[5];
 		if (selectedTier5 == 0) {
-			// Flying Nightmare converts all Direct Damage to Fire element and removes Area Damage.
-			dDamage[2] = getChargedDirectDamage();
+			// Disintegrate is functionally identical to Kinetic; both are resistance-less
+			// 65% Electric / 25 % Fire / 10% Disintegrate for the single target part.
+			dDamage[0] = 0.10 * chargedShotDirectDamage;  // Kinetic
+			dDamage[2] = 0.25 * chargedShotDirectDamage;  // Fire
+			dDamage[4] = 0.65 * chargedShotDirectDamage;  // Electric
 		}
 		else if (selectedTier5 == 1) {
 			// Thin Containment Field converts all Area Damage to Fire Element and removes Direct Damage.
-			aDamage[2] = getChargedAreaDamage();
+			aDamage[2] = chargedShotAreaDamage;
 		}
 		else {
 			// Disintegrate is functionally identical to Kinetic; both are resistance-less
 			// 65% Electric / 25 % Fire / 10% Disintegrate for the single target part.
-			dDamage[0] = 0.10 * getChargedDirectDamage();  // Kinetic
-			dDamage[2] = 0.25 * getChargedDirectDamage();  // Fire
-			dDamage[4] = 0.65 * getChargedDirectDamage();  // Electric
+			dDamage[0] = 0.10 * chargedShotDirectDamage;  // Kinetic
+			dDamage[2] = 0.25 * chargedShotDirectDamage;  // Fire
+			dDamage[4] = 0.65 * chargedShotDirectDamage;  // Electric
 			
 			// 65% Explosive / 25% Fire / 10% Disintegrate for the AoE part.
-			aDamage[0] = 0.10 * getChargedAreaDamage();  // Kinetic
-			aDamage[1] = 0.65 * getChargedAreaDamage();  // Explosive
-			aDamage[2] = 0.25 * getChargedAreaDamage();  // Fire
+			aDamage[0] = 0.10 * chargedShotAreaDamage;  // Kinetic
+			aDamage[1] = 0.65 * chargedShotAreaDamage;  // Explosive
+			aDamage[2] = 0.25 * chargedShotAreaDamage;  // Fire
 		}
 		
 		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
@@ -269,7 +274,7 @@ public class EPC_ChargeShot extends EPC {
 		
 		// Flying Nightmare only gets Persistent Plasma when it impacts terrain.
 		if (selectedOverclock == 5 && selectedTier5 != 0) {
-			dot_dps[2] = DoTInformation.Plasma_DPS;
+			dot_dps[2] = DoTInformation.Plasma_EPC_DPS;
 			dot_duration[2] = 7.6;
 			dot_probability[2] = 1.0;
 		}
@@ -286,6 +291,16 @@ public class EPC_ChargeShot extends EPC {
 		// EPC charged shot's AoE damage is 50% Explosive, so it does have a chance to break Light Armor plates
 		// Additionally, to average out this probability to break all Light Armor plates inside the AoE, multiply it by its AoE Efficiency coefficient, too.
 		utilityScores[2] = calculateProbabilityToBreakLightArmor(aoeEfficiency[1] * 0.5 * getChargedAreaDamage()) * UtilityInformation.ArmorBreak_Utility;
+		
+		// Slow
+		if (selectedOverclock == 5) {
+			// U34 added a 20% Slow (x0.8 Movespeed) to the Persistent Plasma sphere. At 2.9 m/sec, it should take Grunts 3/(2.9*0.8) ~ 1.3 seconds to leave the sphere
+			utilityScores[3] = calculateNumGlyphidsInRadius(3.0) * 1.3 * 0.2;
+		}
+		else {
+			utilityScores[3] = 0.0;
+		}
+		
 		return MathUtils.sum(utilityScores);
 	}
 	

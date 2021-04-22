@@ -58,9 +58,11 @@ public class EnemyInformation {
 		Measured using meters
 	*/
 	// This is the radius of a Glyphid Grunt's hitbox that shouldn't overlap with other grunts, like the torso
-	public static double GlyphidGruntBodyRadius = 0.41;
+	// Calculated as average width (Torso width 0.733m + Back legs width 1.4m)/4
+	public static double GlyphidGruntBodyRadius = 0.53325;
 	// This is the radius of the entire Glyphid Grunt, from its center to the tip of its legs. The legs can overlap with other Grunts' legs.
-	public static double GlyphidGruntBodyAndLegsRadius = 0.97;
+	// Calculated as SqRt[(Full Length 2.73m / 2)*((Front legs 2.166m + Back legs 1.4m)/4)]
+	public static double GlyphidGruntBodyAndLegsRadius = 1.10313;
 	
 	// Organized in same order as in-game Miner's Manual
 	private static Enemy[] enemiesModeled = new Enemy[] {
@@ -156,22 +158,32 @@ public class EnemyInformation {
 			return -1.0;
 		}
 		
-		double igniteTemp;
+		double igniteTemp, coolingRate, spawnProbability;
 		
-		double toReturn = 0.0;
+		double totalIgniteTime = 0.0;
+		double totalProbability = 0.0;
 		for (int i = 0; i < enemiesModeled.length; i++) {
 			igniteTemp = enemiesModeled[i].getIgniteTemp();
+			coolingRate = enemiesModeled[i].getCoolingRate();
+			spawnProbability = enemiesModeled[i].getSpawnProbability(true);
 			
-			// Early exit: if Heat/Shot >= 100, then all enemies get ignited instantly since the largest Ignite Temp modeled in this program is 100.
+			// Early exit: if Heat/Shot >= igniteTemp, then this enemy gets ignited instantly.
 			if (burstOfHeat >= igniteTemp || heatPerShot >= igniteTemp || burstOfHeat + heatPerShot >= igniteTemp) {
-				// Technically this adds (Exact Spawn Probability * 0.0), but to save some CPU cycles I'm just going to skip to the next enemy.
+				// Technically this adds (Exact Spawn Probability * 0.0) to totalIgniteTime, but to save some CPU cycles I'm just going to skip to the next enemy.
+				totalProbability += spawnProbability;
 				continue;
 			}
 			
-			toReturn += enemiesModeled[i].getSpawnProbability(true) * ((igniteTemp - burstOfHeat) / (heatPerShot * RoF + heatPerSec - enemiesModeled[i].getCoolingRate()));
+			// Early exit: if the heat/sec of the weapon is <= cooling rate of an enemy, it will never ignite. Skip this enemy to avoid negative ignition times, or Infinity when divided by zero.
+			if (heatPerShot * RoF + heatPerSec <= coolingRate) {
+				continue;
+			}
+			
+			totalIgniteTime += spawnProbability * ((igniteTemp - burstOfHeat) / (heatPerShot * RoF + heatPerSec - coolingRate));
+			totalProbability += spawnProbability;
 		}
 		
-		return toReturn;
+		return totalIgniteTime / totalProbability;
 	}
 	public static double averageBurnDuration() {
 		if (!verifySpawnRatesTotalIsOne()) {
@@ -324,11 +336,9 @@ public class EnemyInformation {
 	}
 	
 	/*
-		Although at this time this model is unconfirmed, I have some evidence to support this theory.
-		
 		The regular Fear status effect inflicted by weapons and grenades works like this: for every creature that has the Fear Factor attack applied to them,
 		the probability that they will have the Fear status effect inflicted is equal to Fear Factor * (1.0 - Courage). If it is inflicted, then ground-based 
-		enemies will move 8m away from the point of Fear at a rate of 1.5 * Max Movespeed * Difficulty Scaling * (1.0 - Movespeed Slow). As a result of this formula,
+		enemies will move 10m away from the point of Fear at a rate of 1.5 * Max Movespeed * Difficulty Scaling * (1.0 - Movespeed Slow). As a result of this formula,
 		Slowing an enemy that is being Feared will increase the duration of the Fear status effect, and it will naturally be shorter at higher hazard levels.
 	*/
 	public static double averageFearDuration() {
@@ -423,13 +433,11 @@ public class EnemyInformation {
 			// Bypasses all Armor types
 			lightArmorReduction = 1.0;
 			
-			// Multiplies Direct Damage by x3 (except for Flying Nightmare)
-			if (!flyingNightmare) {
-				directDamageByType = MathUtils.vectorScalarMultiply(UtilityInformation.Frozen_Damage_Multiplier, directDamageByType);
-			}
+			// Multiplies Direct Damage by x3 (including Flying Nightmare as of U34)
+			directDamageByType = MathUtils.vectorScalarMultiply(UtilityInformation.Frozen_Damage_Multiplier, directDamageByType);
 		}
 		
-		// Flying Nightmare is weird... it does the Direct Damage listed but it passes through enemies, ignores armor, and doesn't benefit from Weakpoints like the Breach Cutter.
+		// Flying Nightmare is weird... it does the Direct Damage listed but it passes through enemies and ignores armor like the Breach Cutter, but doesn't benefit from Weakpoints.
 		if (flyingNightmare) {
 			weakpointModifier = -1.0;
 			lightArmorReduction = 1.0;

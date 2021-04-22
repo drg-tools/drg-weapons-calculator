@@ -79,16 +79,16 @@ public class GrenadeLauncher extends Weapon {
 		tier1 = new Mod[3];
 		tier1[0] = new Mod("Fragmentary Shell", "+1m AoE Radius", modIcons.aoeRadius, 1, 0);
 		tier1[1] = new Mod("Extra Ammo", "+2 Max Ammo", modIcons.carriedAmmo, 1, 1);
-		tier1[2] = new Mod("HE Compound", "+15 Area Damage", modIcons.areaDamage, 1, 2);
+		tier1[2] = new Mod("HE Compound", "+20 Area Damage", modIcons.areaDamage, 1, 2);
 		
-		tier2 = new Mod[3];
-		tier2[0] = new Mod("Expanded Ammo Bags", "+3 Max Ammo", modIcons.carriedAmmo, 2, 0);
+		tier2 = new Mod[2];
+		tier2[0] = new Mod("Expanded Ammo Bags", "+2 Max Ammo", modIcons.carriedAmmo, 2, 0);
 		tier2[1] = new Mod("Larger Payload", "+20 Area Damage", modIcons.areaDamage, 2, 1);
-		tier2[2] = new Mod("High Velocity Grenades", "+180% Projectile Velocity", modIcons.projectileVelocity, 2, 2, false);
 		
-		tier3 = new Mod[2];
+		tier3 = new Mod[3];
 		tier3[0] = new Mod("Incendiary Compound", "Lose 50% of Direct, Area, and Armor Damage, and convert it to Heat that will ignite enemies, dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second", modIcons.heatDamage, 3, 0);
 		tier3[1] = new Mod("Pressure Wave", "+500% Armor Breaking", modIcons.armorBreaking, 3, 1);
+		tier3[2] = new Mod("High Velocity Grenades", "+180% Projectile Velocity", modIcons.projectileVelocity, 3, 2, false);
 		
 		tier4 = new Mod[3];
 		tier4[0] = new Mod("Homebrew Explosive", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, modIcons.homebrewPowder, 4, 0);
@@ -97,14 +97,15 @@ public class GrenadeLauncher extends Weapon {
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Proximity Trigger", "After 0.2 seconds of arming time, any grenade that passes within 2m of an enemy will detonate after a 0.1 second delay. After being armed, grenades will emit a green light. "
-				+ "Grenades no longer explode upon impacting terrain, but instead automatically self-detonate 3.3 seconds after being fired.", modIcons.special, 5, 0, false);
+				+ "Grenades no longer explode upon impacting terrain, but instead automatically self-detonate 3.3 seconds after being fired or when they stop moving. Additionally, x1.1 AoE Radius.", modIcons.special, 5, 0);
 		tier5[1] = new Mod("Spiky Grenade", "+60 Direct Damage to any target directly impacted by a grenade.", modIcons.directDamage, 5, 1);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Clean Sweep", "+10 Area Damage, +0.5m AoE Radius", overclockIcons.aoeRadius, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Pack Rat", "+2 Max Ammo", overclockIcons.carriedAmmo, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Rounds", "+4 Max Ammo, -10 Area Damage, -0.5m AoE Radius", overclockIcons.carriedAmmo, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "RJ250 Compound", "Jump and shoot the ground beneath you to Grenade Jump. Can also be used on allies who are jumping. In exchange, -25 Area Damage.", overclockIcons.grenadeJump, 3);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Rounds", "+5 Max Ammo, -10 Area Damage, -0.5m AoE Radius", overclockIcons.carriedAmmo, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "RJ250 Compound", "Jump and shoot the ground beneath you to \"blast jump\", which adds up to 11.65 m/sec to your velocity based on how far you are from the explosion center. "
+				+ "Can also be used on allies who are jumping. Additionally: x1.7 Max Ammo, -0.6 Reload Time, and -35 Area Damage.", overclockIcons.grenadeJump, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Fat Boy", "x4 Area Damage, +1m AoE Radius, x0.3 Max Ammo, x0.7 Projectile Velocity. Also leaves behind an 8m radius field that does "
 				+ "an average of " + MathUtils.round(DoTInformation.Rad_FB_DPS, GuiConstants.numDecimalPlaces) + " Radiation Damage per Second for 15 seconds.", overclockIcons.areaDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Hyper Propellant", "+385 Direct Damage, +350% Projectile Velocity, changes element from Explosive to Disintegrate, x0.3 AoE Radius, -2 Max Ammo", overclockIcons.projectileVelocity, 5);
@@ -163,7 +164,7 @@ public class GrenadeLauncher extends Weapon {
 	private double getAreaDamage() {
 		double toReturn = areaDamage;
 		if (selectedTier1 == 2) {
-			toReturn += 15;
+			toReturn += 20;
 		}
 		if (selectedTier2 == 1) {
 			toReturn += 20;
@@ -176,7 +177,7 @@ public class GrenadeLauncher extends Weapon {
 			toReturn -= 10;
 		}
 		else if (selectedOverclock == 3) {
-			toReturn -= 25;
+			toReturn -= 35;
 		}
 
 		if (selectedTier4 == 0) {
@@ -206,6 +207,8 @@ public class GrenadeLauncher extends Weapon {
 	}
 	private double getAoERadius() {
 		double toReturn = aoeRadius;
+		
+		// Additive bonuses first
 		if (selectedTier1 == 0) {
 			toReturn += 1.0;
 		}
@@ -226,6 +229,20 @@ public class GrenadeLauncher extends Weapon {
 			toReturn *= 0.3;
 		}
 		
+		// Multiplicative bonuses last
+		if (selectedTier5 == 0) {
+			toReturn *= 1.1;
+		}
+		
+		return toReturn;
+	}
+	private double getReloadTime() {
+		double toReturn = reloadTime;
+		
+		if (selectedOverclock == 3) {
+			toReturn -= 0.6;
+		}
+		
 		return toReturn;
 	}
 	private int getCarriedAmmo() {
@@ -235,14 +252,17 @@ public class GrenadeLauncher extends Weapon {
 			toReturn += 2;
 		}
 		if (selectedTier2 == 0) {
-			toReturn += 3;
+			toReturn += 2;
 		}
 		
 		if (selectedOverclock == 1) {
 			toReturn += 2;
 		}
 		else if (selectedOverclock == 2) {
-			toReturn += 4;
+			toReturn += 5;
+		}
+		else if (selectedOverclock == 3) {
+			toReturn *= 1.7;
 		}
 		else if (selectedOverclock == 4) {
 			toReturn *= 0.3;
@@ -283,7 +303,7 @@ public class GrenadeLauncher extends Weapon {
 		// Elythnwaen tells me that the default velocity is 30 m/sec
 		double toReturn = 1.0;
 		
-		if (selectedTier2 == 2) {
+		if (selectedTier3 == 2) {
 			toReturn += 1.8;
 		}
 		
@@ -304,22 +324,22 @@ public class GrenadeLauncher extends Weapon {
 		boolean directDamageModified = selectedTier5 == 1 || selectedTier3 == 0 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified, selectedTier5 == 1 || selectedOverclock == 5);
 		
-		boolean areaDamageModified = selectedTier1 == 2 || selectedTier2 == 1 || selectedTier3 == 0 || selectedTier4 == 0 || selectedOverclock == 0 || (selectedOverclock > 1 && selectedOverclock < 5);
+		boolean areaDamageModified = selectedTier1 == 2 || selectedTier2 == 1 || selectedTier3 == 0 || selectedTier4 == 0 || selectedOverclock % 2 == 0 || selectedOverclock == 3;
 		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), modIcons.areaDamage, areaDamageModified);
 		
-		boolean aoeRadiusModified = selectedTier1 == 0 || selectedTier4 == 1 || selectedOverclock == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
+		boolean aoeRadiusModified = selectedTier1 == 0 || selectedTier4 == 1 || selectedTier5 == 0 || selectedOverclock == 0 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[2] = new StatsRow("AoE Radius:", aoeEfficiency[0], modIcons.aoeRadius, aoeRadiusModified);
 		
-		boolean velocityModified = selectedTier2 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
+		boolean velocityModified = selectedTier3 == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[3] = new StatsRow("Projectile Velocity:", convertDoubleToPercentage(getProjectileVelocity()), modIcons.projectileVelocity, velocityModified, velocityModified);
 		
 		toReturn[4] = new StatsRow("Magazine Size:", magazineSize, modIcons.magSize, false);
 		
-		boolean carriedAmmoModified = selectedTier1 == 1 || selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
+		boolean carriedAmmoModified = selectedTier1 == 1 || selectedTier2 == 0 || selectedOverclock > 0;
 		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
-		toReturn[6] = new StatsRow("Reload Time:", reloadTime, modIcons.reloadSpeed, false);
+		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 3);
 		
-		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier3 > -1, selectedTier3 > -1);
+		toReturn[7] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier3 == 0 || selectedTier3 == 1, selectedTier3 == 0 || selectedTier3 == 1);
 		
 		toReturn[8] = new StatsRow("Fear Factor:", fearFactor, modIcons.fear, false);
 		
@@ -341,8 +361,8 @@ public class GrenadeLauncher extends Weapon {
 	
 	@Override
 	protected void setAoEEfficiency() {
-		// According to Elythnwaen, PGL has a full damage radius of 1.5m, and 15% damage at full radius
-		aoeEfficiency = calculateAverageAreaDamage(getAoERadius(), 1.5, 0.15);
+		// PGL has a full damage radius of 2m, and 50% damage at full radius
+		aoeEfficiency = calculateAverageAreaDamage(getAoERadius(), 2.0, 0.5);
 	}
 	
 	@Override
@@ -373,7 +393,7 @@ public class GrenadeLauncher extends Weapon {
 		}
 		
 		double damagePerProjectile = directDamage + areaDamage;
-		double baseDPS = damagePerProjectile / ((1.0/rateOfFire) + reloadTime);
+		double baseDPS = damagePerProjectile / ((1.0/rateOfFire) + getReloadTime());
 		
 		double burnDPS = 0.0;
 		// Incendiary Compound
@@ -400,7 +420,7 @@ public class GrenadeLauncher extends Weapon {
 
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		double totalDPS = getAreaDamage() * aoeEfficiency[1] / ((1.0/rateOfFire) + reloadTime);
+		double totalDPS = getAreaDamage() * aoeEfficiency[1] / ((1.0/rateOfFire) + getReloadTime());
 		if (selectedTier3 == 0 && !statusEffects[1]) {
 			totalDPS += DoTInformation.Burn_DPS;
 		}
@@ -442,7 +462,7 @@ public class GrenadeLauncher extends Weapon {
 	@Override
 	public double calculateFiringDuration() {
 		// This is equivalent to counting how many times it has to reload, which is one less than the carried ammo + 1 in the chamber
-		return getCarriedAmmo() * ((1.0/rateOfFire) + reloadTime);
+		return getCarriedAmmo() * ((1.0/rateOfFire) + getReloadTime());
 	}
 	
 	@Override
@@ -497,18 +517,16 @@ public class GrenadeLauncher extends Weapon {
 		}
 		
 		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
-															0.0, getArmorBreaking(), 1.0/((1.0/rateOfFire) + reloadTime), heatPerGrenade, 0.0, 
+															0.0, getArmorBreaking(), 1.0/((1.0/rateOfFire) + getReloadTime()), heatPerGrenade, 0.0, 
 															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
 
 	@Override
 	public double utilityScore() {
-		// OC "RJ250 Compound" gives a ton of Mobility (8m vertical, 12m horizontal)
+		// OC "RJ250 Compound" adds up to 11.65 m/sec velocity
 		if (selectedOverclock == 3) {
-			// For now, until I think of a better system, I'll just add the max vertical jump and max horizontal jump distances at 1/2 weight each.
-			// Ideally I would like to calculate the m/sec velocity of launch, but that could take a while to test and calculate.
-			utilityScores[0] = (0.5 * 8 + 0.5 * 12) * UtilityInformation.BlastJump_Utility;
+			utilityScores[0] = 11.65 * UtilityInformation.BlastJump_Utility;
 		}
 		else {
 			utilityScores[0] = 0;
@@ -545,7 +563,7 @@ public class GrenadeLauncher extends Weapon {
 	@Override
 	public double averageTimeToCauterize() {
 		if (selectedTier3 == 0) {
-			return EnemyInformation.averageTimeToIgnite(0, getHeatPerGrenade(), 1.0 / ((1.0/rateOfFire) + reloadTime), 0);
+			return EnemyInformation.averageTimeToIgnite(0, getHeatPerGrenade(), 1.0 / ((1.0/rateOfFire) + getReloadTime()), 0);
 		}
 		else {
 			return -1;

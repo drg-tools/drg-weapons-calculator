@@ -1467,9 +1467,6 @@ public abstract class Weapon extends Observable {
 				
 			Using those assumptions and some estimated measurements of in-game Glyphid models, this method should provide a reasonable estimate of how many Glyphid Grunts you can expect will 
 			take damage from a projectile with the given radius of AoE damage.
-			
-			Quadratic regression approximation: f(x) = 0.942x^2 + 3.81x + 1.02 
-			Approximation of the approximation: f(x) = x^2 + 4x + 1
 		*/
 		
 		double glyphidBodyRadius = EnemyInformation.GlyphidGruntBodyRadius;
@@ -1515,7 +1512,7 @@ public abstract class Weapon extends Observable {
 				continue;
 			}
 			
-			// Due to rounding errors from double subtraction, this gets rounded to 2 decimal points
+			// Due to rounding errors from subtraction of Doubles, this gets rounded to 2 decimal points
 			if (MathUtils.round((distanceFromCenterToOrigin - glyphidBodyAndLegsRadius), 2) < radius) {
 				numGlyphidsHitBySplash++;
 			}
@@ -1555,6 +1552,24 @@ public abstract class Weapon extends Observable {
 		*/
 		double estimatedDamageIncreaseWithoutModifier = EnemyInformation.averageWeakpointDamageIncrease();
 		return ((1.0 - probabilityBulletHitsWeakpoint) + probabilityBulletHitsWeakpoint * estimatedDamageIncreaseWithoutModifier * (1.0 + weakpointBonusModifier)) * preWeakpointBulletDamage;
+	}
+	
+	protected double calculateBlowthroughDamageMultiplier(int numPenetrations) {
+		/*
+			This method uses a geometric sequence. The first penetration adds 50% damage, the second 25%, the third 12.5%, etc. As a result, infinite penetrations
+			will converge to 2x total damage.
+			
+			Due to how the for loop is coded, if numPenetrations is 0 or negative, this will just return 1.0 so it's safe to use in the other classes without surrounding
+			logic to check for enabled penetrations, and it doesn't need input sanitization beyond the strict typing already enforced by Java's compiler.
+			
+			Returns 100 + % value, so it can be used natively by MaxMultiTargetDamage(). (1.5x, 1.75x, 1.875x, etc...)
+		*/
+		
+		double toReturn = 1.0;
+		for (int i = numPenetrations; i > 0; i--) {
+			toReturn += Math.pow(2, -i);
+		}
+		return toReturn;
 	}
 	
 	/*
@@ -1607,6 +1622,7 @@ public abstract class Weapon extends Observable {
 	public StatsRow[] breakpointsExplanation() {
 		StatsRow[] toReturn = new StatsRow[breakpoints.length];
 		
+		// TODO: I bet this could be dynamically generated based on the Enemies objects...
 		toReturn[0] = new StatsRow("Glypid Swarmer:", breakpoints[0], null, false);
 		toReturn[1] = new StatsRow("Glypid Grunt (Light Armor):", breakpoints[1], null, false);
 		toReturn[2] = new StatsRow("Glypid Grunt (Weakpoint):", breakpoints[2], null, false);
@@ -1676,6 +1692,7 @@ public abstract class Weapon extends Observable {
 	public StatsRow[] armorWastingExplanation() {
 		StatsRow[] toReturn = new StatsRow[damageWastedByArmorPerCreature[1].length];
 		
+		// TODO: I bet this could be dynamically generated based on the Enemies objects...
 		toReturn[0] = new StatsRow("Glyphid Grunt:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][0], GuiConstants.numDecimalPlaces) + "%", null, false);
 		toReturn[1] = new StatsRow("Glyphid Guard:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][1], GuiConstants.numDecimalPlaces) + "%", null, false);
 		toReturn[2] = new StatsRow("Glyphid Slasher:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][2], GuiConstants.numDecimalPlaces) + "%", null, false);
@@ -1693,6 +1710,7 @@ public abstract class Weapon extends Observable {
 	public StatsRow[] overkillExplanation() {
 		StatsRow[] toReturn = new StatsRow[overkillPercentages[1].length];
 		
+		// TODO: I bet this could be dynamically generated based on the Enemies objects...
 		toReturn[0] = new StatsRow("Glypid Swarmer:", MathUtils.round(overkillPercentages[1][0], GuiConstants.numDecimalPlaces) + "%", null, false);
 		toReturn[1] = new StatsRow("Glypid Grunt:", MathUtils.round(overkillPercentages[1][1], GuiConstants.numDecimalPlaces) + "%", null, false);
 		toReturn[2] = new StatsRow("Glypid Grunt Guard:", MathUtils.round(overkillPercentages[1][2], GuiConstants.numDecimalPlaces) + "%", null, false);

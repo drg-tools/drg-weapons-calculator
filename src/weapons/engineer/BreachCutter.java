@@ -98,7 +98,7 @@ public class BreachCutter extends Weapon {
 		tier3 = new Mod[2];
 		// Although getStats() shows this change, it has no effect on any numbers in this model. As such, I'm marking as "not modeled".
 		tier3[0] = new Mod("Quick Deploy", "-0.2 Plasma Expansion Delay", modIcons.duration, 3, 0, false);
-		tier3[1] = new Mod("Improved Case Ejector", "-0.4 Reload Time", modIcons.reloadSpeed, 3, 1);
+		tier3[1] = new Mod("Improved Case Ejector", "-0.6 Reload Time", modIcons.reloadSpeed, 3, 1);
 		
 		tier4 = new Mod[2];
 		tier4[0] = new Mod("Armor Breaking", "+200% Armor Breaking", modIcons.armorBreaking, 4, 0);
@@ -106,9 +106,9 @@ public class BreachCutter extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Explosive Goodbye", "After firing a line and a 0.4 second delay, the player can press the fire button again to manually detonate the line dealing 40 Explosive element Area Damage in a 3m radius "
-				+ "and leaving behind a 3m radius sphere of Persistent Plasma that does an average of " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per second for 4.6 seconds. "
+				+ "and leaving behind a 3m radius sphere of Persistent Plasma that does an average of " + MathUtils.round(DoTInformation.Plasma_EPC_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per second and slows enemies by 20% for 4.6 seconds. "
 				+ "If the player doesn't detonate it manually, the line explodes at the end of its lifetime.", modIcons.addedExplosion, 5, 0);
-		tier5[1] = new Mod("Plasma Trail", "Leaves behind a Persistent Plasma field that does an average of " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per second for 4.6 seconds "
+		tier5[1] = new Mod("Plasma Trail", "Leaves behind a Persistent Plasma field that does an average of " + MathUtils.round(DoTInformation.Plasma_Trail_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per second for 4.6 seconds "
 				+ "along the entire length of the line's path", modIcons.areaDamage, 5, 1);
 		// Since the additional lines neither increase targets hit nor DPS per target, I'm marking it as "not modeled"
 		tier5[2] = new Mod("Triple Split Line", "Adds a line above and below the primary projectile (multiple lines hitting doesn't increase DPS)", modIcons.aoeRadius, 5, 2, false);
@@ -116,16 +116,16 @@ public class BreachCutter extends Weapon {
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Light-Weight Cases", "+3 Max Ammo, -0.2 Reload Time", overclockIcons.carriedAmmo, 0);
 		// Roll Control has no effect on DPS stats, so it gets marked as "not modeled"
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Roll Control", "Holding down the trigger after the line leaves the gun causes the line to start rolling. On release of the trigger, the line stops rolling.", overclockIcons.rollControl, 1, false);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Roll Control", "Holding down the trigger after the line leaves the gun causes the line to start rolling at 300 degrees per second. On release of the trigger, the line stops rolling.", overclockIcons.rollControl, 1, false);
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Stronger Plasma Current", "+1 Damage per Tick, +0.5 Projectile Lifetime", overclockIcons.directDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Return to Sender", "Holding down the trigger after line leaves the gun activates a remote connection, which on release of the trigger causes "
 				+ "the line to change direction and move back towards the gun. In exchange, -6 Max Ammo", overclockIcons.returnToSender, 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "High Voltage Crossover", "100% chance to electrocute enemies, which deals an average of " + MathUtils.round(4.0 * DoTInformation.Electro_TicksPerSec, GuiConstants.numDecimalPlaces) + " Electric Damage per "
 				+ "Second for 4 seconds. In exchange, x0.67 Magazine Size.", overclockIcons.electricity, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Spinning Death", "Instead of flying in a straight line, the projectile now rotates 2 times per second about the Yaw axis. Additionally: x0.05 Projectile Velocity, x0 Impact Damage, "
-				+ "x2.5 Projectile Lifetime, x0.2 Damage per Tick, +1.5m Plasma Beam Width, x0.5 Max Ammo, and x0.33 Magazine Size", overclockIcons.special, 5);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Spinning Death", "Instead of flying in a straight line, the projectile now rotates 2 times per second about the Yaw axis. Additionally: x0.15 Projectile Velocity, x0 Impact Damage, "
+				+ "x2.5 Projectile Lifetime, x0.24 Damage per Tick, +1.5m Plasma Beam Width, x0.5 Max Ammo, and x0.33 Magazine Size", overclockIcons.special, 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Inferno", "The first time the beam hits an enemy, it inflicts 75 Heat and applies a DoT that does 7 Fire Damage and 7 Heat at a rate of 2 ticks/sec for 5 seconds (does 11 ticks total). "
-				+ "Additionally, it converts 90% of the Damage per Tick from Electric element to Fire element and adds the amount converted as Heat per tick. In exchange: -3.5 Damage per Tick, -6 Max Ammo, and x0.25 Armor Breaking", overclockIcons.heatDamage, 6);
+				+ "Additionally, it converts 90% of the Damage per Tick from Electric element to Fire element and adds the amount converted as Heat per tick. In exchange: -3.5 Damage per Tick and x0.25 Armor Breaking", overclockIcons.heatDamage, 6);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
 		modsAndOCsInitialized = true;
@@ -158,7 +158,8 @@ public class BreachCutter extends Weapon {
 		
 		// Spinning Death makes it move a lot slower
 		if (selectedOverclock == 5) {
-			toReturn *= 0.05;
+			// TODO: Dagadegatto says that this is still supposed to be 0.05 (0.5 m/sec) but U34 bugged it out and now it's going 1.5 m/sec and they haven't fixed it as of U34XP ending
+			toReturn *= 0.15;
 		}
 		
 		return toReturn;
@@ -182,7 +183,7 @@ public class BreachCutter extends Weapon {
 			toReturn += 1.0;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn *= 0.2;
+			toReturn *= 0.24;
 		}
 		else if (selectedOverclock == 6) {
 			toReturn -= 3.5;
@@ -253,7 +254,7 @@ public class BreachCutter extends Weapon {
 		if (selectedOverclock == 0) {
 			toReturn += 3;
 		}
-		else if (selectedOverclock == 3 || selectedOverclock == 6) {
+		else if (selectedOverclock == 3) {
 			toReturn -= 6;
 		}
 		else if (selectedOverclock == 5) {
@@ -276,7 +277,7 @@ public class BreachCutter extends Weapon {
 		double toReturn = reloadTime;
 		
 		if (selectedTier3 == 1) {
-			toReturn -= 0.4;
+			toReturn -= 0.6;
 		}
 		if (selectedOverclock == 0) {
 			toReturn -= 0.2;
@@ -323,7 +324,7 @@ public class BreachCutter extends Weapon {
 		boolean magSizeModified = selectedTier1 == 1 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[8] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, magSizeModified);
 		
-		boolean carriedAmmoModified = selectedTier2 == 0 || selectedOverclock == 0 || selectedOverclock == 3 || selectedOverclock == 5 || selectedOverclock == 6;
+		boolean carriedAmmoModified = selectedTier2 == 0 || selectedOverclock == 0 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[9] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
 		toReturn[10] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedOverclock == 3);
@@ -518,24 +519,28 @@ public class BreachCutter extends Weapon {
 		
 		double plasmaDamage = 0;
 		if (selectedTier5 == 0 || selectedTier5 == 1) {
-			double plasmaDoTDuration;
-			if (extendDoTsBeyondIntersection) {
-				if (selectedTier5 == 0) {
-					// I'm estimating that Grunts will walk out of the Explosive Goodbye sphere in about 1.5 seconds
-					plasmaDoTDuration = 1.5;
-				}
-				else {
-					// Due to top-level if-statement, this is implicitly selectedTier5 == 1
-					// I'm estimating that Grunts will walk out of the Persistent Plasma trail in about 2 seconds
-					plasmaDoTDuration = 2.0;
-				}
+			double plasmaDoTDuration, plasmaDPS;
+			if (selectedTier5 == 0) {
+				// 3m radius, Grunts move at 2.9 m/sec, and U34 Persistent Plasma slows by 20%
+				plasmaDoTDuration = 3.0 / (2.9 * 0.8);
+				plasmaDPS = DoTInformation.Plasma_EPC_DPS;
+			}
+			else if (selectedTier5 == 1) {
+				// I'm estimating that Grunts will walk out of the Persistent Plasma trail in about 2 seconds
+				plasmaDoTDuration = 2.0;
+				plasmaDPS = DoTInformation.Plasma_Trail_DPS;
 			}
 			else {
+				plasmaDoTDuration = 0;
+				plasmaDPS = 0;
+			}
+			
+			if (!extendDoTsBeyondIntersection) {
 				// Because intersectionTime takes into account both Spinning Death and Return to Sender, I shouldn't have to worry about them here.
 				plasmaDoTDuration = intersectionTime;
 			}
 			
-			plasmaDamage = DoTInformation.Plasma_DPS * plasmaDoTDuration;
+			plasmaDamage = plasmaDPS * plasmaDoTDuration;
 		}
 		
 		return baseDamage + burnDamage + electrocuteDamage + plasmaDamage;
@@ -590,8 +595,11 @@ public class BreachCutter extends Weapon {
 		}
 		
 		double plasmaDPS = 0;
-		if (selectedTier5 == 0 || selectedTier5 == 1) {
-			plasmaDPS = DoTInformation.Plasma_DPS;
+		if (selectedTier5 == 0) {
+			plasmaDPS = DoTInformation.Plasma_EPC_DPS;
+		}
+		else if (selectedTier5 == 1) {
+			plasmaDPS = DoTInformation.Plasma_Trail_DPS;
 		}
 		
 		return baseDPS + burnDPS + electroDPS + plasmaDPS;
@@ -675,21 +683,26 @@ public class BreachCutter extends Weapon {
 		int maxNumTargets = calculateMaxNumTargets();
 		
 		// Slow
-		if (selectedOverclock == 4) {
-			// OC "High Voltage Crossover" applies an Electrocute DoT that slows movement by 80% for 4 seconds
-			// This overrides the built-in 70% slow during intersection, instead of adding to it.
-			utilityScores[3] = maxNumTargets * 4.0 * UtilityInformation.Electrocute_Slow_Utility;
+		// Baseline BC slows enemies by 70% while in contact.
+		double intersectionTime;
+		if (selectedOverclock == 5) {
+			intersectionTime = calculateAverageGruntIntersectionTimePerSpinningDeathProjectile();
 		}
 		else {
-			// Breach Cutter slows enemy movement by 70% while the line intersects their hitbox.
-			double intersectionTime;
-			if (selectedOverclock == 5) {
-				intersectionTime = calculateAverageGruntIntersectionTimePerSpinningDeathProjectile();
-			}
-			else {
-				intersectionTime = calculateGruntIntersectionTimePerRegularProjectile();
-			}
-			utilityScores[3] = maxNumTargets * intersectionTime * 0.7;
+			intersectionTime = calculateGruntIntersectionTimePerRegularProjectile();
+		}
+		utilityScores[3] = maxNumTargets * intersectionTime * 0.7;
+		
+		// T5.A "Explosive Goodbye"
+		if (selectedTier5 == 0) {
+			// U34 added a 20% Slow (x0.8 Movespeed) to the Persistent Plasma sphere. At 2.9 m/sec, it should take Grunts 3/(2.9*0.8) ~ 1.3 seconds to leave the sphere
+			utilityScores[3] += calculateNumGlyphidsInRadius(3.0) * 1.3 * 0.2;
+		}
+		
+		// OC "High Voltage Contact"
+		if (selectedOverclock == 4) {
+			// OC "High Voltage Crossover" applies an Electrocute DoT that slows movement by 80% for 4 seconds
+			utilityScores[3] += maxNumTargets * 4.0 * UtilityInformation.Electrocute_Slow_Utility;
 		}
 		
 		// Stun

@@ -14,9 +14,9 @@ public class DoTInformation {
 		Neurotoxin
 		
 		Weapons that can apply this DoT:
-			Driller - Neurotoxin Grenade (AoE gas cloud, 100% chance to proc. +20 sec duration)
-			Gunner - "Bulldog" Revolver (Mod Tier 5, Glyphid Neurotoxin Coating, 50% chance to proc)
-			Gunner - "Thunderhead" Autocannon (Overclock, Neurotoxin Payload, 20% chance to proc)
+			Driller - Neurotoxin Grenade (AoE gas cloud, 100% chance to proc. 30 sec duration)
+			Gunner - "Bulldog" Revolver (T5.A "Neurotoxin Coating", 50% chance to proc)
+			Gunner - "Thunderhead" Autocannon (OC "Neurotoxin Payload", 50% chance to proc)
 	*/
 	public static double Neuro_DmgPerTick = 12;
 	public static double Neuro_TicksPerSec = 2 / (0.75 + 1.25);
@@ -28,10 +28,10 @@ public class DoTInformation {
 		
 		Weapons that can apply this DoT:
 			Engineer - "Stubby" SMG (built into weapon, proc chance ranges from 20 - 50% depending on Mods and OC)
-			Engineer - Breach Cutter (Overclock, High Voltage Crossover, 100% chance to proc)
-			Gunner - Burst Pistol (Overclock, Electro Minelets, 100% chance to proc)
-			Scout - Deepcore AR (Overclock, Electrifying Reload, 100% proc chance upon reload even if only one bullet hits)
-			Scout - M1000 Classic (Overclock, Electrocuting Focus Shots, 100% chance to proc on focused shots)
+			Engineer - Breach Cutter (OC "High Voltage Crossover", 100% chance to proc for 4 seconds and 16 DPS)
+			Gunner - Burst Pistol (OC "Electro Minelets", 100% chance to proc for 6 seconds)
+			Scout - GK2 (OC "Electrifying Reload", 100% chance to proc for 6 seconds upon reload even if only one bullet hits)
+			Scout - M1000 Classic (OC "Electrocuting Focus Shots", 100% chance to proc on focused shots for 4 seconds)
 			All dwarves - Armor (Tier 4, Static Discharge, around 50% chance to proc?)
 			Bosco - Tier 5 upgrade, Overcharged Rounds, 30% chance to proc
 	*/
@@ -47,16 +47,17 @@ public class DoTInformation {
 		
 		Weapons that can apply this DoT:
 			Driller - CRSPR Flamethrower (built into weapon)
-			Engineer - Grenade Launcher (Mod Tier 3, Incendiary Compound)
-			Engineer - Breach Cutter (Overclock, Inferno)
-			Gunner - Minigun (Mod Tier 5, Hot Bullets)
-			Gunner - Minigun (Mod Tier 5, Aggressive Overheat)
-			Gunner - Minigun (Overclock, Burning Hell)
+			Driller - EPC (T5.C "Plasma Burn"
+			Engineer - Grenade Launcher (T3.A "Incendiary Compound")
+			Engineer - Breach Cutter (OC "Inferno")
+			Gunner - Minigun (T5.A "Aggressive Venting")
+			Gunner - Minigun (T5.C "Hot Bullets")
+			Gunner - Minigun (OC "Burning Hell")
 			Gunner - Incendiary Grenade
-			Scout - Boomstick (Mod Tier 5, White Phosphorus Shells)
+			Scout - Boomstick (T5.C "White Phosphorus Shells")
 	*/
-	public static double Burn_DmgPerTick = 5;
-	public static double Burn_TicksPerSec = 2 / (0.25 + 0.5);
+	public static double Burn_DmgPerTick = 6;
+	public static double Burn_TicksPerSec = 2 / (0.3 + 0.5);
 	// Burn DoT durations are specific per enemy, but it averages around 5 seconds.
 	public static double Burn_SecsDuration = EnemyInformation.averageBurnDuration();
 	public static double Burn_DPS = Burn_DmgPerTick * Burn_TicksPerSec;
@@ -84,12 +85,16 @@ public class DoTInformation {
 		its damage over time in an area, and after a couple of seconds it goes away
 		
 		Weapons that can apply this DoT:
-			Driller - EPC (Overclock, Persistent Plasma, 7 + 0.6 sec duration)
-			Engineer - Breach Cutter (Tier 5 Mods, Explosive Goodbye and Plasma Trail, 4 + 0.6 sec duration)
+			Driller - EPC (OC "Persistent Plasma", 7 + 0.6 sec duration and the higher DPS)
+			Engineer - Breach Cutter (T5.A "Explosive Goodbye", 4 + 0.6 sec duration and the higher DPS)
+			Engineer - Breach Cutter (T5.B "Plasma Trail", 4 + 0.6 sec duration and the lower DPS
 	*/
-	public static double Plasma_DmgPerTick = 5;
-	public static double Plasma_TicksPerSec = 2 / (0.2 + 0.3);
-	public static double Plasma_DPS = Plasma_DmgPerTick * Plasma_TicksPerSec;
+	public static double Plasma_Trail_DmgPerTick = 5;
+	public static double Plasma_Trail_TicksPerSec = 2 / (0.2 + 0.3);
+	public static double Plasma_Trail_DPS = Plasma_Trail_DmgPerTick * Plasma_Trail_TicksPerSec;
+	public static double Plasma_EPC_DmgPerTick = 8;
+	public static double Plasma_EPC_TicksPerSec = 2 / (0.2 + 0.25);
+	public static double Plasma_EPC_DPS = Plasma_EPC_DmgPerTick * Plasma_EPC_TicksPerSec;
 	
 	// Cryo is another elemental damage type, but has no DoT associated. Instead, enemies who have their "cold" meter filled become frozen in place.
 }

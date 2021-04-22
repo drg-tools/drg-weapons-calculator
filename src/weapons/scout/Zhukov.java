@@ -27,6 +27,7 @@ public class Zhukov extends Weapon {
 	private int magazineSize;
 	private double rateOfFire;
 	private double reloadTime;
+	private double weakpointBonus;
 	
 	/****************************************************************************************
 	* Constructors
@@ -49,10 +50,11 @@ public class Zhukov extends Weapon {
 		
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 12;
-		carriedAmmo = 600;
+		carriedAmmo = 650;
 		magazineSize = 50;  // Really 25
 		rateOfFire = 30.0;  // Really 15
 		reloadTime = 1.8;
+		weakpointBonus = 0.15;
 		
 		// Override default 10m distance
 		accEstimator.setDistance(4.0);
@@ -85,12 +87,12 @@ public class Zhukov extends Weapon {
 		
 		tier3 = new Mod[2];
 		tier3[0] = new Mod("Increased Caliber Rounds", "+1 Direct Damage", modIcons.directDamage, 3, 0);
-		tier3[1] = new Mod("Better Weight Balance", "x0.5 Base Spread", modIcons.baseSpread, 3, 1);
+		tier3[1] = new Mod("Better Weight Balance", "x0.4 Base Spread", modIcons.baseSpread, 3, 1);
 		
 		tier4 = new Mod[3];
 		tier4[0] = new Mod("Blowthrough Rounds", "+1 Penetration", modIcons.blowthrough, 4, 0);
 		tier4[1] = new Mod("Hollow-Point Bullets", "+30% Weakpoint Bonus", modIcons.weakpointBonus, 4, 1);
-		tier4[2] = new Mod("Expanded Ammo Bags", "+150 Max Ammo", modIcons.carriedAmmo, 4, 2);
+		tier4[2] = new Mod("Expanded Ammo Bags", "+100 Max Ammo", modIcons.carriedAmmo, 4, 2);
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Conductive Bullets", "+30% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 5, 0);
@@ -98,7 +100,7 @@ public class Zhukov extends Weapon {
 		
 		overclocks = new Overclock[5];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Minimal Magazines", "+2 Rate of Fire, -0.4 Reload Time", overclockIcons.reloadSpeed, 0);
-		overclocks[1] = new Overclock(Overclock.classification.balanced, "Custom Casings", "+30 Mag Size, -1 Direct Damage", overclockIcons.magSize, 1);
+		overclocks[1] = new Overclock(Overclock.classification.balanced, "Custom Casings", "+30 Mag Size, -4 Rate of Fire", overclockIcons.magSize, 1);
 		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "Any bullets that impact terrain get converted to Cryo Minelets. It takes 0.1 seconds to form the minelets, "
 				+ "0.8 seconds to arm them, and they only last for 3 seconds after being armed. If an enemy passes within 1.5m of a minelet, it will detonate and deal 10 Cold to all enemies "
 				+ "within range. In exchange, -1 Direct Damage and -10 Magazine Size.", overclockIcons.coldDamage, 2);
@@ -143,7 +145,7 @@ public class Zhukov extends Weapon {
 			toReturn += 1;
 		}
 		
-		if (selectedOverclock == 1 || selectedOverclock == 2) {
+		if (selectedOverclock == 2) {
 			toReturn -= 1;
 		}
 		else if (selectedOverclock == 3) {
@@ -171,7 +173,7 @@ public class Zhukov extends Weapon {
 			toReturn += 100;
 		}
 		if (selectedTier4 == 2) {
-			toReturn += 150;
+			toReturn += 100;
 		}
 		
 		if (selectedOverclock == 3) {
@@ -210,6 +212,9 @@ public class Zhukov extends Weapon {
 		if (selectedOverclock == 0) {
 			toReturn += 2.0;
 		}
+		else if (selectedOverclock == 1) {
+			toReturn -= 4.0;
+		}
 		
 		return toReturn;
 	}
@@ -230,7 +235,7 @@ public class Zhukov extends Weapon {
 		double toReturn = 1.0;
 		
 		if (selectedTier3 == 1) {
-			toReturn *= 0.5;
+			toReturn *= 0.4;
 		}
 		
 		if (selectedOverclock == 4) {
@@ -248,16 +253,19 @@ public class Zhukov extends Weapon {
 		}
 	}
 	private double getWeakpointBonus() {
+		double toReturn = weakpointBonus;
+		
+		// Early exit: OC "Gas Recycling"
 		if (selectedOverclock == 4) {
 			// Since this removes the Zhukov's ability to get weakpoint bonus damage, return a -100% to symbolize it.
 			return -1.0;
 		}
-		else if (selectedTier4 == 1){
-			return 0.3;
+		
+		if (selectedTier4 == 1){
+			toReturn += 0.3;
 		}
-		else {
-			return 0;
-		}
+		
+		return toReturn;
 	}
 	private double getMovespeedWhileFiring() {
 		double modifier = 1.0;
@@ -273,7 +281,7 @@ public class Zhukov extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[10];
 		
-		boolean directDamageModified = selectedTier1 == 1 || selectedTier3 == 0 || (selectedOverclock > 0 && selectedOverclock < 5);
+		boolean directDamageModified = selectedTier1 == 1 || selectedTier3 == 0 || (selectedOverclock > 1 && selectedOverclock < 5);
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
 		// This stat only applies to OC "Embedded Detonators"
@@ -285,7 +293,7 @@ public class Zhukov extends Weapon {
 		boolean carriedAmmoModified = selectedTier1 == 0 || selectedTier4 == 2 || selectedOverclock == 3;
 		toReturn[3] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
-		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier2 == 1 || selectedOverclock == 0);
+		toReturn[4] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier2 == 1 || selectedOverclock == 0 || selectedOverclock == 1);
 		
 		toReturn[5] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier2 == 2 || selectedOverclock == 0);
 		
@@ -295,7 +303,7 @@ public class Zhukov extends Weapon {
 		}
 		
 		boolean weakpointModified = selectedTier4 == 1 || selectedOverclock == 4;
-		toReturn[6] = new StatsRow("Weakpoint Bonus:", sign + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, weakpointModified, weakpointModified);
+		toReturn[6] = new StatsRow("Weakpoint Bonus:", sign + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, weakpointModified);
 		
 		toReturn[7] = new StatsRow("Max Penetrations:", getMaxPenetrations(), modIcons.blowthrough, selectedTier4 == 0, selectedTier4 == 0);
 		
@@ -420,7 +428,7 @@ public class Zhukov extends Weapon {
 	public double calculateMaxMultiTargetDamage() {
 		double effectiveMagazineSize = getMagazineSize() / 2.0;
 		double effectiveCarriedAmmo = getCarriedAmmo() / 2.0;
-		return (effectiveMagazineSize + effectiveCarriedAmmo) * (getDirectDamage() + getAreaDamage()) * calculateMaxNumTargets();
+		return (effectiveMagazineSize + effectiveCarriedAmmo) * (getDirectDamage() + getAreaDamage()) * calculateBlowthroughDamageMultiplier(getMaxPenetrations());
 	}
 
 	@Override
@@ -461,7 +469,7 @@ public class Zhukov extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		double horizontalBaseSpread = 36.0 * getBaseSpread();
+		double horizontalBaseSpread = 33.0 * getBaseSpread();
 		double verticalBaseSpread = 5.0 * getBaseSpread();
 		double recoilPitch = 20.0;
 		double recoilYaw = 20.0;

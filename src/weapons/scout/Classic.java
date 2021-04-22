@@ -31,7 +31,6 @@ public abstract class Classic extends Weapon {
 	private double reloadTime;
 	private double focusDuration;
 	protected double movespeedWhileFocusing;
-	private double weakpointBonus;
 	private double armorBreaking;
 	
 	/****************************************************************************************
@@ -42,15 +41,14 @@ public abstract class Classic extends Weapon {
 		weaponPic = WeaponPictures.classic;
 		
 		// Base stats, before mods or overclocks alter them:
-		directDamage = 50;
+		directDamage = 55;
 		focusedShotMultiplier = 2.0;
 		carriedAmmo = 96;
 		magazineSize = 8;
 		rateOfFire = 4.0;
 		reloadTime = 2.5;
-		focusDuration = 1.0 / 1.55;  // seconds
+		focusDuration = 1.0 / 1.6;  // seconds
 		movespeedWhileFocusing = 0.3;
-		weakpointBonus = 0.1;
 		armorBreaking = 0.3;
 		
 		accEstimator.setSpreadCurve(new ClassicCurve());
@@ -76,32 +74,32 @@ public abstract class Classic extends Weapon {
 		tier1[0] = new Mod("Expanded Ammo Bags", "+40 Max Ammo", modIcons.carriedAmmo, 1, 0);
 		tier1[1] = new Mod("Increased Caliber Rounds", "+10 Direct Damage", modIcons.directDamage, 1, 1);
 		
-		tier2 = new Mod[2];
-		tier2[0] = new Mod("Fast-Charging Coils", "+30% Focus Speed", modIcons.chargeSpeed, 2, 0);
+		tier2 = new Mod[3];
+		tier2[0] = new Mod("Fast-Charging Coils", "+25% Focus Speed", modIcons.chargeSpeed, 2, 0);
 		tier2[1] = new Mod("Better Weight Balance", "-30% Spread per Shot, x0.8 Max Bloom, x0.5 Recoil", modIcons.recoil, 2, 1);
+		tier2[2] = new Mod("Hardened Rounds", "+220% Armor Breaking", modIcons.armorBreaking, 2, 2);
 		
 		tier3 = new Mod[2];
 		tier3[0] = new Mod("Killer Focus", "+25% Focused Shot Multiplier", modIcons.directDamage, 3, 0);
 		tier3[1] = new Mod("Extended Clip", "+6 Clip Size", modIcons.magSize, 3, 1);
 		
-		tier4 = new Mod[3];
+		tier4 = new Mod[2];
 		tier4[0] = new Mod("Super Blowthrough Rounds", "+3 Penetrations", modIcons.blowthrough, 4, 0);
-		tier4[1] = new Mod("Hollow-Point Bullets", "+25% Weakpoint Bonus", modIcons.weakpointBonus, 4, 1);
-		tier4[2] = new Mod("Hardened Rounds", "+220% Armor Breaking", modIcons.armorBreaking, 4, 2);
+		tier4[1] = new Mod("Hollow-Point Bullets", "+20% Weakpoint Bonus", modIcons.weakpointBonus, 4, 1);
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Hitting Where it Hurts", "Focused shots Stun enemies for 3 seconds", modIcons.stun, 5, 0);
-		tier5[1] = new Mod("Precision Terror", "Killing an enemy with a focused shot to a weakpoint will inflict 2.0 Fear on enemies within 3.5m of the kill", modIcons.fear, 5, 1);
+		tier5[1] = new Mod("Precision Terror", "Killing an enemy with a focused shot to a weakpoint will inflict 2.5 Fear Factor on enemies within 4m of the kill", modIcons.fear, 5, 1);
 		tier5[2] = new Mod("Killing Machine", "Manually reloading within 1 second after a kill reduces reload time by 0.75 seconds", modIcons.reloadSpeed, 5, 2);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Hoverclock", "While Focusing in midair, your current velocity is reduced by 80% for 1.5 seconds or until you fire/stop focusing. Getting a kill or touching the ground lets you Hover again.", overclockIcons.hoverclock, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Minimal Clips", "+16 Max Ammo, -0.2 Reload Time", overclockIcons.carriedAmmo, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Active Stability System", "No movement penalty while Focusing, +20% Focus Speed, +0.5 Reload Time", overclockIcons.movespeed, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Hipster", "+3 Rate of Fire, x1.75 Max Ammo, -10% Spread per Shot, x0.85 Max Bloom, x0.5 Recoil, x0.6 Direct Damage", overclockIcons.baseSpread, 3);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Minimal Clips", "x1.25 Clip Size, -0.2 Reload Time", overclockIcons.magSize, 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Active Stability System", "No movement penalty while Focusing, +19% Focus Speed, +0.5 Reload Time", overclockIcons.movespeed, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Hipster", "+3 Rate of Fire, x1.913 Max Ammo, -10% Spread per Shot, x0.85 Max Bloom, x0.5 Recoil, -17 Direct Damage", overclockIcons.baseSpread, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Electrocuting Focus Shots", "Focused Shots apply an Electrocute DoT which does "
 				+ "an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per Second for 4 seconds, -25% Focused Shot Multiplier", overclockIcons.electricity, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Supercooling Chamber", "+125% Focused Shot Multiplier, x0.635 Max Ammo, x0.5 Focus Speed, no movement while focusing", overclockIcons.directDamage, 5);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Supercooling Chamber", "+125% Focused Shot Multiplier, x0.665 Max Ammo, x0.6 Focus Speed, no movement while focusing", overclockIcons.directDamage, 5);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
 		modsAndOCsInitialized = true;
@@ -124,14 +122,12 @@ public abstract class Classic extends Weapon {
 	protected double getDirectDamage() {
 		double toReturn = directDamage;
 		
-		// Additive bonuses first
 		if (selectedTier1 == 1) {
 			toReturn += 10;
 		}
 		
-		// Multiplicative bonuses last
 		if (selectedOverclock == 3) {
-			toReturn *= 0.6;
+			toReturn -= 17;
 		}
 		
 		return toReturn;
@@ -160,14 +156,11 @@ public abstract class Classic extends Weapon {
 			toReturn += 40;
 		}
 		
-		if (selectedOverclock == 1) {
-			toReturn += 16;
-		}
-		else if (selectedOverclock == 3) {
-			toReturn *= 1.75;
+		if (selectedOverclock == 3) {
+			toReturn *= 1.913;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn *= 0.635;
+			toReturn *= 0.665;
 		}
 		
 		return (int) Math.round(toReturn);
@@ -177,6 +170,10 @@ public abstract class Classic extends Weapon {
 		
 		if (selectedTier3 == 1) {
 			toReturn += 6;
+		}
+		
+		if (selectedOverclock == 1) {
+			toReturn = (int) Math.ceil(toReturn * 1.25);
 		}
 		
 		return toReturn;
@@ -211,14 +208,14 @@ public abstract class Classic extends Weapon {
 	protected double getFocusDuration() {
 		double focusSpeedCoefficient = 1.0;
 		if (selectedTier2 == 0) {
-			focusSpeedCoefficient += 0.3;
+			focusSpeedCoefficient += 0.25;
 		}
 		
 		if (selectedOverclock == 2) {
-			focusSpeedCoefficient += 0.2;
+			focusSpeedCoefficient += 0.19;
 		}
 		else if (selectedOverclock == 5) {
-			focusSpeedCoefficient *= 0.5;
+			focusSpeedCoefficient *= 0.6;
 		}
 		
 		return focusDuration / focusSpeedCoefficient;
@@ -244,10 +241,10 @@ public abstract class Classic extends Weapon {
 		}
 	}
 	protected double getWeakpointBonus() {
-		double toReturn = weakpointBonus;
+		double toReturn = 0.0;
 		
 		if (selectedTier4 == 1) {
-			toReturn += 0.25;
+			toReturn += 0.2;
 		}
 		
 		return toReturn;
@@ -255,7 +252,7 @@ public abstract class Classic extends Weapon {
 	protected double getArmorBreaking() {
 		double toReturn = armorBreaking;
 		
-		if (selectedTier4 == 2) {
+		if (selectedTier2 == 2) {
 			toReturn += 2.2;
 		}
 		

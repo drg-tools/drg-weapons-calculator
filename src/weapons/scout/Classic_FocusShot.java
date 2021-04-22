@@ -87,9 +87,9 @@ public class Classic_FocusShot extends Classic {
 		
 		toReturn[3] = new StatsRow("Focus Shot Charge-up Duration:", getFocusDuration(), modIcons.chargeSpeed, selectedTier2 == 0 || selectedOverclock == 2 || selectedOverclock == 5);
 		
-		toReturn[4] = new StatsRow("Clip Size:", getMagazineSize(), modIcons.magSize, selectedTier3 == 1);
+		toReturn[4] = new StatsRow("Clip Size:", getMagazineSize(), modIcons.magSize, selectedTier3 == 1 || selectedOverclock == 1);
 		
-		boolean carriedAmmoModified = selectedTier1 == 0 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
+		boolean carriedAmmoModified = selectedTier1 == 0 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
 		boolean RoFmodified = selectedTier2 == 0 || selectedOverclock == 2 || selectedOverclock == 3 || selectedOverclock == 5;
@@ -99,7 +99,7 @@ public class Classic_FocusShot extends Classic {
 		
 		toReturn[8] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedTier4 == 1);
 		
-		toReturn[9] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier4 == 2);
+		toReturn[9] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier2 == 2);
 		
 		toReturn[10] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, selectedTier5 == 0, selectedTier5 == 0);
 		
@@ -160,7 +160,7 @@ public class Classic_FocusShot extends Classic {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		double totalDamageDealt = calculateMaxNumTargets() * (getMagazineSize() + getCarriedAmmo()) * getDirectDamage() * getFocusedShotMultiplier();
+		double totalDamageDealt = calculateBlowthroughDamageMultiplier(getMaxPenetrations()) * (getMagazineSize() + getCarriedAmmo()) * getDirectDamage() * getFocusedShotMultiplier();
 		
 		double electrocuteDoTTotalDamage = 0;
 		if (selectedOverclock == 4) {
@@ -223,11 +223,10 @@ public class Classic_FocusShot extends Classic {
 		// OC "Active Stability System" removes the movespeed penalty while Focusing
 		utilityScores[0] = (getMovespeedWhileFocusing() - MathUtils.round(movespeedWhileFocusing * DwarfInformation.walkSpeed, 2)) * UtilityInformation.Movespeed_Utility;
 		
-		// OC "Hoverclock" gives a 2 second cap to Scout's vertical movement speed (guess: 0.5 m/sec?), but after that 2sec ends original velocity is restored
+		// GreyHound tells me that OC "Hoverclock" slows your velocity by 80% for 1.5 seconds
 		if (selectedOverclock == 0) {
-			// Because the vertical movespeed cap of +- 0.5 m/sec can be used to negate fall damage from infinite height, there's not really a 
-			// way to give this OC a numerical value. For now, I'm just gonna call it 10 and move on.
-			utilityScores[0] += 10;
+			// Duration divided by the movespeed multiplier; 1.5 * 5 = 7.5
+			utilityScores[0] += 1.5 / (1.0 - 0.8);
 		}
 		
 		// Light Armor Breaking probability
@@ -242,11 +241,11 @@ public class Classic_FocusShot extends Classic {
 			utilityScores[3] = 0;
 		}
 		
-		// According to MikeGSG & GreyHound, Mod Tier 5 "Precision Terror" does 2 Fear in a 3.5m radius
+		// T5.B "Precision Terror" does 2.5 Fear in a 4m radius
 		if (selectedTier5 == 1) {
 			double probabilityToHitWeakpoint = EnemyInformation.probabilityBulletWillHitWeakpoint();
-			int numGlyphidsFeared = calculateNumGlyphidsInRadius(3.5);
-			double probabilityToFear = calculateFearProcProbability(2.0);
+			int numGlyphidsFeared = calculateNumGlyphidsInRadius(4.0);
+			double probabilityToFear = calculateFearProcProbability(2.5);
 			// Although it is technically possible to electrocute a Feared enemy with Electrocuting Focus Shots and Blowthrough Rounds, it's so unlikely to happen that I'm choosing not to model that overlap.
 			utilityScores[4] = probabilityToHitWeakpoint * probabilityToFear * numGlyphidsFeared * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
 		}

@@ -102,7 +102,7 @@ public class Boomstick extends Weapon {
 		tier2[1] = new Mod("Quickfire Ejector", "-0.7 Reload Time", modIcons.reloadSpeed, 2, 1);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Stun Duration", "+2.5 seconds Stun duration", modIcons.stun, 3, 0);
+		tier3[0] = new Mod("Improved Stun", "+20% Stun Chance per Pellet, +3.5 seconds Stun duration", modIcons.stun, 3, 0);
 		tier3[1] = new Mod("Expanded Ammo Bags", "+12 Max Ammo", modIcons.carriedAmmo, 3, 1);
 		tier3[2] = new Mod("High Capacity Shells", "+3 Pellets per Shot", modIcons.pelletsPerShot, 3, 2);
 		
@@ -120,9 +120,9 @@ public class Boomstick extends Weapon {
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Compact Shells", "+6 Max Ammo, -0.2 Reload Time", overclockIcons.carriedAmmo, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Double Barrel", "Fire both barrels with a single tigger pull as a 2-round burst. Additionally, +1 Damage per Pellet.", overclockIcons.rateOfFire, 1);
-		overclocks[2] = new Overclock(Overclock.classification.clean, "Special Powder", "Jump off of the ground and fire the shotgun to \"blast jump\" around the caves for increased mobility.", overclockIcons.shotgunJump, 2);
+		overclocks[2] = new Overclock(Overclock.classification.clean, "Special Powder", "Jump off of the ground and fire the shotgun to \"blast jump\", which adds 13 m/sec to your velocity.", overclockIcons.shotgunJump, 2);
 		overclocks[3] = new Overclock(Overclock.classification.clean, "Stuffed Shells", "+1 Damage per Pellet, +1 Pellet per Shot", overclockIcons.pelletsPerShot, 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "-35% Base Spread, -2 Pellets per Shot", overclockIcons.baseSpread, 4);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "-50% Base Spread, -1 Pellet per Shot", overclockIcons.baseSpread, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Jumbo Shells", "+8 Damage per Pellet, -10 Max Ammo, +0.5 Reload Time", overclockIcons.directDamage, 5);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
@@ -178,7 +178,7 @@ public class Boomstick extends Weapon {
 			toReturn += 1;
 		}
 		else if (selectedOverclock == 4) {
-			toReturn -= 2;
+			toReturn -= 1;
 		}
 		
 		return toReturn;
@@ -251,11 +251,20 @@ public class Boomstick extends Weapon {
 		
 		return toReturn;
 	}
+	private double getStunChancePerPellet() {
+		double toReturn = stunChance;
+		
+		if (selectedTier3 == 0) {
+			toReturn += 0.2;
+		}
+		
+		return toReturn;
+	}
 	private double getStunDuration() {
 		double toReturn = stunDuration;
 		
 		if (selectedTier3 == 0) {
-			toReturn += 2.5;
+			toReturn += 3.5;
 		}
 		
 		return toReturn;
@@ -278,7 +287,7 @@ public class Boomstick extends Weapon {
 	}
 	private double getBaseSpread() {
 		if (selectedOverclock == 4) {
-			return 0.65;
+			return 0.5;
 		}
 		else {
 			return 1.0;
@@ -314,7 +323,7 @@ public class Boomstick extends Weapon {
 		
 		toReturn[9] = new StatsRow("Fear Factor:", 0.5, modIcons.fear, selectedTier5 == 1, selectedTier5 == 1);
 		
-		toReturn[10] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(stunChance), modIcons.homebrewPowder, false);
+		toReturn[10] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(getStunChancePerPellet()), modIcons.homebrewPowder, selectedTier3 == 0);
 		
 		toReturn[11] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, selectedTier3 == 0);
 		
@@ -341,7 +350,7 @@ public class Boomstick extends Weapon {
 		int numPelletsThatHaveStunChance = (int) Math.round(getNumberOfPellets() * stunAccuracy);
 		if (numPelletsThatHaveStunChance > 0) {
 			// Only 1 pellet needs to succeed in order to stun the creature
-			return MathUtils.cumulativeBinomialProbability(stunChance, numPelletsThatHaveStunChance, 1);
+			return MathUtils.cumulativeBinomialProbability(getStunChancePerPellet(), numPelletsThatHaveStunChance, 1);
 		}
 		else {
 			// This is a special case -- when the Accuracy is so low that none of the pellets are expected to hit a weakpoint, the cumulative binomial probability returns -1, which in turn destroys the Utility Score unnecessarily.
@@ -479,21 +488,21 @@ public class Boomstick extends Weapon {
 		// The frontal blastwave is a 20 degree isosceles triangle, 4m height; 1.41m base. 4 grunts can be hit in a 1-2-1 stack.
 		int gruntsHitByBlastwave = 4;
 		int blastwaveDamagePerShot = gruntsHitByBlastwave * getBlastwaveDamage();
-		int numTargets = calculateMaxNumTargets();
+		double multitargetDamageMultiplier = calculateBlowthroughDamageMultiplier(getMaxPenetrations());
 		int numShots = getMagazineSize() + getCarriedAmmo();
-		double totalDamage = numShots * (directDamagePerShot*numTargets + blastwaveDamagePerShot);
+		double totalDamage = numShots * (directDamagePerShot*multitargetDamageMultiplier + blastwaveDamagePerShot);
 		
 		double fireDoTTotalDamage = 0;
 		if (selectedTier5 == 2) {
 			
-			double estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
+			double estimatedNumEnemiesKilled = multitargetDamageMultiplier * (calculateFiringDuration() / averageTimeToKill());
 			double fireDoTDamagePerEnemy;
 			if (selectedOverclock == 1) {
 				// Double barrel fires twice in a row, so it's double the heat of half the damage. Works out to just damage = heat.
 				double percentageOfEnemiesIgnitedPerShot = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(directDamagePerShot + getBlastwaveDamage());
 				fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 				
-				fireDoTTotalDamage += numShots * (percentageOfEnemiesIgnitedPerShot * numTargets) * fireDoTDamagePerEnemy;
+				fireDoTTotalDamage += numShots * (percentageOfEnemiesIgnitedPerShot * multitargetDamageMultiplier) * fireDoTDamagePerEnemy;
 			}
 			else {
 				double timeBeforeIgnite = calculateTimeToIgnite(false);
@@ -604,10 +613,9 @@ public class Boomstick extends Weapon {
 	}
 	@Override
 	public double utilityScore() {
-		// OC "Special Powder" gives a lot of Mobility (7.8m vertical per shot, 13m horizontal per shot)
+		// OC "Special Powder" adds 13 m/sec to your velocity
 		if (selectedOverclock == 2) {
-			// Multiply by 2 for mobility per shot
-			utilityScores[0] = 2 * (0.5 * 7.8 + 0.5 * 13) * UtilityInformation.BlastJump_Utility;
+			utilityScores[0] = 13 * UtilityInformation.BlastJump_Utility;
 		}
 		else {
 			utilityScores[0] = 0;
@@ -629,7 +637,7 @@ public class Boomstick extends Weapon {
 			utilityScores[4] = 0;
 		}
 		
-		// Innate Stun = 30% chance per pellet for 2.5 sec (improved by Mod Tier 3 "Stun Duration")
+		// Innate Stun = 30% chance per pellet for 2.5 sec (improved by T3.A)
 		utilityScores[5] = calculateCumulativeStunChancePerShot() * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
 		
 		return MathUtils.sum(utilityScores);

@@ -32,6 +32,7 @@ public class Minigun extends Weapon {
 	private double maxHeat;
 	private double heatPerSecond;
 	private double coolingRate;
+	private double coolingDelay;
 	private int rateOfFire;
 	private double spinupTime;
 	private int spindownTime;
@@ -60,16 +61,17 @@ public class Minigun extends Weapon {
 		
 		// Base stats, before mods or overclocks alter them:
 		damagePerPellet = 10;
-		stunChancePerPellet = 0.3;
+		stunChancePerPellet = 0.2;
 		stunDuration = 1;
 		maxAmmo = 2400; // equal to 1200 pellets
 		// MikeGSG confirmed that 9.5 is the max Heat, and the default Heat gain rate is 1 Heat/sec, so this translates into 9.5 seconds of firing before Overheat.
 		maxHeat = 9.5;
 		heatPerSecond = 1.0;
 		coolingRate = 1.5;
+		coolingDelay = 0.3;
 		rateOfFire = 30;  // equal to 15 pellets/sec
 		spinupTime = 0.7;
-		spindownTime = 3;  // seconds for the barrels to stop spinning -- does not affect the stability
+		spindownTime = 2;  // seconds for the barrels to stop spinning -- does not affect the stability
 		movespeedWhileFiring = 0.5;
 		secondsBeforeHotBullets = 3.17805;  // See explanation in calculateIgnitionTime() 
 		cooldownAfterOverheat = 10;
@@ -96,9 +98,9 @@ public class Minigun extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
-		tier1[0] = new Mod("Magnetic Refrigeration", "+1.5 Cooling Rate", modIcons.coolingRate, 1, 0);
+		tier1[0] = new Mod("Magnetic Refrigeration", "+1.5 Cooling Rate, -0.15 sec Cooling Delay", modIcons.coolingRate, 1, 0);
 		tier1[1] = new Mod("Improved Motor", "+4 Rate of Fire", modIcons.rateOfFire, 1, 1);
-		tier1[2] = new Mod("Improved Platform Stability", "x0.2 Base Spread", modIcons.baseSpread, 1, 2);
+		tier1[2] = new Mod("Improved Platform Stability", "x0.25 Base Spread", modIcons.baseSpread, 1, 2);
 		
 		tier2 = new Mod[2];
 		tier2[0] = new Mod("Oversized Drum", "+600 Max Ammo", modIcons.carriedAmmo, 2, 0);
@@ -106,17 +108,17 @@ public class Minigun extends Weapon {
 		
 		tier3 = new Mod[3];
 		tier3[0] = new Mod("Hardened Rounds", "+200% Armor Breaking", modIcons.armorBreaking, 3, 0);
-		tier3[1] = new Mod("Stun Duration", "+1 second Stun duration", modIcons.stun, 3, 1);
+		tier3[1] = new Mod("Improved Stun", "+20% Stun Chance per Pellet, +2 second Stun duration", modIcons.stun, 3, 1);
 		tier3[2] = new Mod("Blowthrough Rounds", "+1 Penetration", modIcons.blowthrough, 3, 2);
 		
 		tier4 = new Mod[3];
 		tier4[0] = new Mod("Variable Chamber Pressure", "+15% Damage per Pellet after reaching Base Spread", modIcons.directDamage, 4, 0);
 		tier4[1] = new Mod("Lighter Barrel Assembly", "-0.4 seconds spinup time", modIcons.chargeSpeed, 4, 1);
-		tier4[2] = new Mod("Magnetic Bearings", "+3 seconds spindown time", modIcons.special, 4, 2);
+		tier4[2] = new Mod("Magnetic Bearings", "Increases Max Bloom from 3.5 to 4.25. This effectively raises the delay before Minigun loses Max Stability from 0.5 seconds to 1.25. Additionally, +1 second spindown time", modIcons.special, 4, 2);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Aggressive Venting", "After overheating, deal 60 Heat Damage and 10 Fear to all enemies within a 10m radius", modIcons.addedExplosion, 5, 0);
-		tier5[1] = new Mod("Cold As The Grave", "Every kill subtracts 0.8 Heat from the Heat Meter (maxes at 9.5 Heat) and thus increases the firing duration before overheating", modIcons.coolingRate, 5, 1);
+		tier5[0] = new Mod("Aggressive Venting", "After overheating, deal 60 Heat Damage and 10 Fear to all enemies within a 10m radius. Additionally, reduces Overheat duration from 10 seconds to 5.", modIcons.addedExplosion, 5, 0);
+		tier5[1] = new Mod("Cold As The Grave", "Every kill subtracts 0.6 Heat from the Heat Meter (maxes at 9.5 Heat) and thus increases the firing duration before overheating", modIcons.coolingRate, 5, 1);
 		tier5[2] = new Mod("Hot Bullets", "After the Heat Meter turns red, 50% of the Damage per Pellet gets added as Heat which can ignite enemies, dealing " + 
 		MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second.", modIcons.heatDamage, 5, 2);
 		
@@ -128,8 +130,8 @@ public class Minigun extends Weapon {
 				+ "weapon's heat meter, which translates to 2/3 the firing period", overclockIcons.heatDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Compact Feed Mechanism", "+800 Max Ammo, -4 Rate of Fire", overclockIcons.carriedAmmo, 3);
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Exhaust Vectoring", "+2 Damage per Pellet, x2.5 Base Spread", overclockIcons.directDamage, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Bullet Hell", "50% chance for bullets that impact an enemy or terrain to ricochet into another enemy. -3 Damage per Pellet, x6 Base Spread", overclockIcons.ricochet, 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Storm", "+4 Damage per Pellet, x0 Movespeed while using, and the Minigun cannot stun enemies anymore.", overclockIcons.directDamage, 6);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Bullet Hell", "75% chance for bullets that impact an enemy or terrain to ricochet into another enemy within 6m. -3 Damage per Pellet, x6 Base Spread", overclockIcons.ricochet, 5);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Storm", "+4 Damage per Pellet, x0 Movespeed while using, x0.25 Stun Chance per Pellet, x0.5 Stun Duration", overclockIcons.directDamage, 6);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
 		modsAndOCsInitialized = true;
@@ -188,20 +190,24 @@ public class Minigun extends Weapon {
 	private double getStunChancePerPellet() {
 		double toReturn = stunChancePerPellet;
 		
+		if (selectedTier3 == 1) {
+			toReturn += 0.2;
+		}
+		
 		if (selectedOverclock == 6) {
-			toReturn *= 0;
+			toReturn *= 0.25;
 		}
 		
 		return toReturn;
 	}
-	private int getStunDuration() {
-		int toReturn = stunDuration;
+	private double getStunDuration() {
+		double toReturn = stunDuration;
 		if (selectedTier3 == 1) {
-			toReturn += 1;
+			toReturn += 2;
 		}
 		
 		if (selectedOverclock == 6) {
-			toReturn *= 0;
+			toReturn *= 0.5;
 		}
 		
 		return toReturn;
@@ -236,6 +242,15 @@ public class Minigun extends Weapon {
 		}
 		return toReturn;
 	}
+	private double getCoolingDelay() {
+		double toReturn = coolingDelay;
+		
+		if (selectedTier1 == 0) {
+			toReturn -= 0.15;
+		}
+		
+		return toReturn;
+	}
 	@Override
 	public double getRateOfFire() {
 		int toReturn = rateOfFire;
@@ -261,7 +276,7 @@ public class Minigun extends Weapon {
 	private int getSpindownTime() {
 		int toReturn = spindownTime;
 		if (selectedTier4 == 2) {
-			toReturn += 3;
+			toReturn += 1;
 		}
 		return toReturn;
 	}
@@ -275,7 +290,7 @@ public class Minigun extends Weapon {
 	private double getBaseSpread() {
 		double toReturn = 1.0;
 		if (selectedTier1 == 2) {
-			toReturn *= 0.2;
+			toReturn *= 0.25;
 		}
 		if (selectedOverclock == 4) {
 			toReturn *= 2.5;
@@ -284,6 +299,14 @@ public class Minigun extends Weapon {
 			toReturn *= 6.0;
 		}
 		return toReturn;
+	}
+	private double getMaxBloom() {
+		if (selectedTier4 == 2) {
+			return 4.25;
+		}
+		else {
+			return 3.5;
+		}
 	}
 	private double getArmorBreaking() {
 		if (selectedTier3 == 0) {
@@ -302,12 +325,20 @@ public class Minigun extends Weapon {
 		}
 	}
 	private int getNumberOfRicochets() {
-		// According to GreyHound, this ricochet searches for enemies within 5m
+		// According to GreyHound, this ricochet searches for enemies within 6m
 		if (selectedOverclock == 5) {
 			return 1;
 		}
 		else {
 			return 0;
+		}
+	}
+	private int getOverheatDuration() {
+		if (selectedTier5 == 0) {
+			return 5;
+		}
+		else {
+			return cooldownAfterOverheat;
 		}
 	}
 	
@@ -324,9 +355,9 @@ public class Minigun extends Weapon {
 		double RoF = getRateOfFire();
 		double firingPeriod = maxHeat / heatPerSecond;
 		
-		// Cold as the Grave removes 0.8 Heat from the Minigun's meter every time that the Minigun gets the killing blow on an enemy.
+		// Cold as the Grave removes 0.6 Heat from the Minigun's meter every time that the Minigun gets the killing blow on an enemy.
 		if (selectedTier5 == 1) {
-			double heatRemovedPerKill = 0.8;
+			double heatRemovedPerKill = 0.6;
 			
 			// This is a quick-and-dirty way to guess what the Ideal Burst DPS will be when it's all said and done without calculating Firing Period and causing an infinite loop.
 			double estimatedBurstDPS = getDamagePerPellet(true) * RoF / 2.0;
@@ -371,7 +402,7 @@ public class Minigun extends Weapon {
 	}
 	private double calculateCooldownPeriod() {
 		// This equation took a while to figure out, and it's still just an approximation. A very close approximation, but an approximation nonetheless.
-		return 9.5 / getCoolingRate() + getCoolingRate() / 9;
+		return getCoolingDelay() + 9.5 / getCoolingRate() + getCoolingRate() / 9;
 	}
 	
 	@Override
@@ -387,19 +418,18 @@ public class Minigun extends Weapon {
 		
 		toReturn[3] = new StatsRow("Max Duration of Firing Without Overheating:", calculateFiringPeriod(), modIcons.hourglass, selectedTier5 == 1 || selectedOverclock == 2);
 		
-		boolean pelletsPerBurstModified = selectedTier5 == 1 || selectedOverclock == 2 || selectedTier1 == 1 || selectedOverclock == 3;
-		toReturn[4] = new StatsRow("Max Num Pellets Fired per Burst:", calculateMaxNumPelletsFiredWithoutOverheating(), modIcons.magSize, pelletsPerBurstModified);
-		
 		boolean ammoModified = selectedTier2 == 0 || selectedOverclock == 1 || selectedOverclock == 3;
-		toReturn[5] = new StatsRow("Max Ammo:", getMaxAmmo(), modIcons.carriedAmmo, ammoModified);
+		toReturn[4] = new StatsRow("Max Ammo:", getMaxAmmo(), modIcons.carriedAmmo, ammoModified);
 		
-		toReturn[6] = new StatsRow("Rate of Fire (Ammo/Sec):", getRateOfFire(), modIcons.rateOfFire, selectedTier1 == 1 || selectedOverclock == 3);
+		toReturn[5] = new StatsRow("Rate of Fire (Ammo/Sec):", getRateOfFire(), modIcons.rateOfFire, selectedTier1 == 1 || selectedOverclock == 3);
 		
-		toReturn[7] = new StatsRow("Cooling Rate:", getCoolingRate(), modIcons.coolingRate, selectedTier1 == 0 || selectedOverclock == 1);
+		toReturn[6] = new StatsRow("Cooling Rate:", getCoolingRate(), modIcons.coolingRate, selectedTier1 == 0 || selectedOverclock == 1);
+		
+		toReturn[7] = new StatsRow("Cooling Delay:", getCoolingDelay(), modIcons.duration, selectedTier1 == 0);
 		
 		toReturn[8] = new StatsRow("Max Cooldown Without Overheating:", calculateCooldownPeriod(), modIcons.hourglass, selectedTier1 == 0 || selectedOverclock == 1);
 		
-		toReturn[9] = new StatsRow("Cooldown After Overheat:", cooldownAfterOverheat, modIcons.duration, false);
+		toReturn[9] = new StatsRow("Cooldown After Overheat:", getOverheatDuration(), modIcons.duration, selectedTier5 == 0);
 		
 		toReturn[10] = new StatsRow("Spinup Time:", getSpinupTime(), modIcons.chargeSpeed, selectedTier4 == 1 || selectedOverclock == 0);
 		
@@ -411,7 +441,7 @@ public class Minigun extends Weapon {
 		
 		toReturn[14] = new StatsRow("Max Ricochets:", getNumberOfRicochets(), modIcons.ricochet, selectedOverclock == 5, selectedOverclock == 5);
 		
-		toReturn[15] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(getStunChancePerPellet()), modIcons.homebrewPowder, selectedOverclock == 6);
+		toReturn[15] = new StatsRow("Stun Chance per Pellet:", convertDoubleToPercentage(getStunChancePerPellet()), modIcons.homebrewPowder, selectedTier3 == 1 || selectedOverclock == 6);
 		
 		toReturn[16] = new StatsRow("Stun Duration:", getStunDuration(), modIcons.stun, selectedTier3 == 1 || selectedOverclock == 6);
 		
@@ -446,7 +476,7 @@ public class Minigun extends Weapon {
 		// Special case: the overclock Bullet Hell gives every bullet a 50% chance to ricochet into nearby enemies after impacting terrain or an enemy
 		if (selectedOverclock == 5 && accuracy) {
 			// Never let it be above 1.0 probability to hit a target.
-			generalAccuracy = Math.min(generalAccuracy + 0.5, 1.0);
+			generalAccuracy = Math.min(generalAccuracy + 0.75, 1.0);
 		}
 		
 		/*
@@ -507,10 +537,10 @@ public class Minigun extends Weapon {
 			generalAccuracy = 1.0;
 		}
 		
-		// Special case: the overclock Bullet Hell gives every bullet a 50% chance to ricochet into nearby enemies after impacting terrain or an enemy
+		// Special case: the overclock Bullet Hell gives every bullet a 75% chance to ricochet into nearby enemies after impacting terrain or an enemy
 		if (selectedOverclock == 5 && accuracy) {
 			// Never let it be above 1.0 probability to hit a target.
-			generalAccuracy = Math.min(generalAccuracy + 0.5, 1.0);
+			generalAccuracy = Math.min(generalAccuracy + 0.75, 1.0);
 		}
 		
 		double burstSize = calculateMaxNumPelletsFiredWithoutOverheating();
@@ -603,8 +633,8 @@ public class Minigun extends Weapon {
 			return 20 + DoTInformation.Burn_DPS;
 		}
 		else if (selectedOverclock == 5) {
-			// Bullet Hell has a 50% chance to ricochet
-			return 0.5 * idealSustained;
+			// Bullet Hell has a 75% chance to ricochet
+			return 0.75 * idealSustained;
 		}
 		else {
 			return 0;
@@ -613,12 +643,19 @@ public class Minigun extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		int numTargets = calculateMaxNumTargets();
+		double multitargetDamageMultiplier = 1.0;
+		if (selectedTier3 == 2) {
+			multitargetDamageMultiplier = calculateBlowthroughDamageMultiplier(getNumberOfPenetrations());
+		}
+		if (selectedOverclock == 5) {
+			// Because Bullet Hell ricochets off of 75% of everything, it's functionally just a +75% max damage boost
+			multitargetDamageMultiplier += 0.75;
+		}
 		double numPelletsFiredBeforeOverheat = calculateMaxNumPelletsFiredWithoutOverheating();
 		double numberOfBursts = (double) getMaxAmmo() / (2.0 * numPelletsFiredBeforeOverheat);
 		double damagePerBurst = numPelletsFiredBeforeOverheat * getDamagePerPellet(false);
 		
-		double totalDamage = numberOfBursts * damagePerBurst * numTargets;
+		double totalDamage = numberOfBursts * damagePerBurst * multitargetDamageMultiplier;
 		
 		double burningHellAoEDamage = 0;
 		
@@ -636,7 +673,7 @@ public class Minigun extends Weapon {
 			// Because Hot Bullets only starts igniting enemies after 4 seconds, reduce this damage by the uptime coefficient.
 			fireDoTDamagePerEnemy *= (timeAfterHotBullets / defaultFiringPeriod);
 			
-			estimatedNumEnemiesKilled = numTargets * (calculateFiringDuration() / averageTimeToKill());
+			estimatedNumEnemiesKilled = multitargetDamageMultiplier * (calculateFiringDuration() / averageTimeToKill());
 			
 			fireDoTTotalDamage += fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
 		}
@@ -655,7 +692,7 @@ public class Minigun extends Weapon {
 		
 		// According to MikeGSG, AV does 60 Heat Damage in a 6m radius that falls off to 15 Heat Damage at 10m. It also inflicts 10 Fear on all enemies within that 10m radius.
 		if (selectedTier5 == 0) {
-			// I'm choosing to model Aggressive Venting as Fire DoT max damage without affecting DPS stats, since the 10 sec cooldown penalty would TANK all of those stats.
+			// I'm choosing to model Aggressive Venting as Fire DoT max damage without affecting DPS stats, since the 5 sec cooldown penalty would TANK all of those stats.
 			// Additionally, I'm choosing to not combine its burst of 60 Heat Damage with the Heat/sec dealt by Hot Bullets or Burning Hell. It gets its own section, all to itself.
 			double[] aggressiveVentingAoeEfficiency = calculateAverageAreaDamage(10, 6, 15.0/60.0);
 			double percentageOfEnemiesIgnitedByAV = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(60 * aggressiveVentingAoeEfficiency[1]);
@@ -710,10 +747,10 @@ public class Minigun extends Weapon {
 		double effectiveRoF = getRateOfFire() / 2.0;
 		int effectiveMagSize = (int) calculateMaxNumPelletsFiredWithoutOverheating();
 		
-		double baseSpread = 5.0 * getBaseSpread();
+		double baseSpread = 4.5 * getBaseSpread();
 		double spreadPerShot = 0.2;
 		double spreadRecoverySpeed = 1.0;
-		double maxBloom = 3.5;
+		double maxBloom = getMaxBloom();
 		double minSpreadWhileMoving = 0.0;
 		
 		// I'm choosing to model Minigun as if it has no recoil. Although it does, it's so negligible that it would have no effect.
@@ -781,7 +818,7 @@ public class Minigun extends Weapon {
 			utilityScores[4] = 0;
 		}
 		
-		// Innate stun = 30% chance, 1 sec duration (duration improved by Mod Tier 3 "Stun Duration")
+		// Innate stun = 20% chance, 1 sec duration (duration and chance improved by T3.B "Improved Stun", penalized by OC "Lead Storm")
 		utilityScores[5] = getStunChancePerPellet() * calculateMaxNumTargets() * getStunDuration() * UtilityInformation.Stun_Utility;
 		
 		return MathUtils.sum(utilityScores);

@@ -52,12 +52,12 @@ public class BurstPistol extends Weapon {
 		weaponPic = WeaponPictures.burstPistol;
 		
 		// Base stats, before mods or overclocks alter them:
-		directDamage = 20;
+		directDamage = 21;
 		burstSize = 3;
 		delayBetweenBulletsDuringBurst = 0.05;
 		carriedAmmo = 120;
 		magazineSize = 24;
-		rateOfFire = 2.5;
+		rateOfFire = 3.0;
 		reloadTime = 2.2;
 		armorBreaking = 0.5;
 		
@@ -86,7 +86,7 @@ public class BurstPistol extends Weapon {
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("Recoil Dampener", "x0.5 Recoil", modIcons.recoil, 2, 0);
 		tier2[1] = new Mod("Quickfire Ejector", "-0.7 Reload Time", modIcons.reloadSpeed, 2, 1);
-		tier2[2] = new Mod("Disabled Safety", "+3 Rate of Fire (translates to less time between bursts)", modIcons.rateOfFire, 2, 2);
+		tier2[2] = new Mod("Disabled Safety", "+2 Rate of Fire (translates to less time between bursts)", modIcons.rateOfFire, 2, 2);
 		
 		tier3 = new Mod[2];
 		tier3[0] = new Mod("High Capacity Magazine", "+12 Magazine Size", modIcons.magSize, 3, 0);
@@ -105,12 +105,12 @@ public class BurstPistol extends Weapon {
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Composite Casings", "+36 Max Ammo, +1 Rate of Fire", overclockIcons.rateOfFire, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Full Chamber Seal", "+1 Direct Damage, -0.2 Reload Time", overclockIcons.directDamage, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Compact Mags", "+84 Max Ammo, -1 Rate of Fire, +0.4 Reload Time", overclockIcons.carriedAmmo, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Experimental Rounds", "+9 Direct Damage, -6 Magazine Size, -36 Max Ammo", overclockIcons.directDamage, 3);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Experimental Rounds", "+9 Direct Damage, -6 Magazine Size, -30 Max Ammo", overclockIcons.directDamage, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Electro Minelets", "Any bullets that impact terrain get converted to Electro Minelets. It takes 0.1 seconds to form the minelets, "
-				+ "0.8 seconds to arm them, and they only last for 3 seconds after being armed. If an enemy passes within 1.5m of a minelet, it will detonate and inflict an Electrocute DoT to all enemies "
-				+ "within range. The Electrocute DoTs deal an average of " + MathUtils.round(DoTInformation.Electro_TicksPerSec * 2, GuiConstants.numDecimalPlaces) 
-				+ " Electric Damage per Second for 2 seconds. In exchange, -3 Direct Damage and -6 Magazine Size.", overclockIcons.electricity, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Micro Flechettes", "+30 Magazine Size, x2 Max Ammo, x0.5 Spread per Shot, x0.5 Recoil, x0.5 Damage per bullet", overclockIcons.miniShells, 5);
+				+ "0.8 seconds to arm them, and they only last for 5 seconds after being armed. If an enemy passes within 1.5m of a minelet, it will detonate and inflict an Electrocute DoT to all enemies "
+				+ "within range. The Electrocute DoTs deal an average of " + MathUtils.round(DoTInformation.Electro_TicksPerSec * 3, GuiConstants.numDecimalPlaces) 
+				+ " Electric Damage per Second for 6 seconds. In exchange, -2 Direct Damage and -12 Magazine Size.", overclockIcons.electricity, 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Micro Flechettes", "+30 Magazine Size, x2 Max Ammo, x0.5 Spread per Shot, x0.5 Recoil, -11 Damage per bullet", overclockIcons.miniShells, 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Lead Spray", "x1.5 Direct Damage, x4 Base Spread", overclockIcons.special, 6);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
@@ -156,10 +156,10 @@ public class BurstPistol extends Weapon {
 			toReturn += 9;
 		}
 		else if (selectedOverclock == 4) {
-			toReturn -= 3;
+			toReturn -= 2;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn *= 0.5;
+			toReturn -= 11;
 		}
 		else if (selectedOverclock == 6) {
 			toReturn *= 1.5;
@@ -190,7 +190,7 @@ public class BurstPistol extends Weapon {
 			toReturn += 84;
 		}
 		else if (selectedOverclock == 3) {
-			toReturn -= 36;
+			toReturn -= 30;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn *= 2;
@@ -205,8 +205,11 @@ public class BurstPistol extends Weapon {
 			toReturn += 12;
 		}
 		
-		if (selectedOverclock == 3 || selectedOverclock == 4) {
+		if (selectedOverclock == 3) {
 			toReturn -= 6;
+		}
+		else if (selectedOverclock == 4) {
+			toReturn -= 12;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn += 30;
@@ -219,7 +222,7 @@ public class BurstPistol extends Weapon {
 		double toReturn = rateOfFire;
 		
 		if (selectedTier2 == 2) {
-			toReturn += 3.0;
+			toReturn += 2.0;
 		}
 		
 		if (selectedOverclock == 0) {
@@ -421,12 +424,12 @@ public class BurstPistol extends Weapon {
 		if (selectedOverclock == 4) {
 			if (burst) {
 				// Because the Electro Minelets don't arm for 0.9 seconds, the Burst DPS needs to be reduced by an uptime coefficient
-				// Additionally, they only do 2 dmg per tick for 2 secs
+				// Additionally, they do 3 dmg per tick for 6 secs
 				double electroMinesUptimeCoefficient = (duration - 0.9) / duration;
-				electroDPS = electroMinesUptimeCoefficient * DoTInformation.Electro_TicksPerSec * 2;
+				electroDPS = electroMinesUptimeCoefficient * DoTInformation.Electro_TicksPerSec * 3;
 			}
 			else {
-				electroDPS = DoTInformation.Electro_TicksPerSec * 2;
+				electroDPS = DoTInformation.Electro_TicksPerSec * 3;
 			}
 		}
 		
@@ -441,8 +444,8 @@ public class BurstPistol extends Weapon {
 	public double calculateAdditionalTargetDPS() {
 		double electroDPS = 0;
 		if (selectedOverclock == 4) {
-			// OC "Electro Minelets" only does 2 dmg/tick for 2 secs
-			electroDPS = DoTInformation.Electro_TicksPerSec * 2;
+			// OC "Electro Minelets" does 3 dmg/tick for 6 secs
+			electroDPS = DoTInformation.Electro_TicksPerSec * 3;
 		}
 		
 		double blowthroughDPS = 0;
@@ -455,17 +458,13 @@ public class BurstPistol extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		double totalDamage = getDirectDamage() * (getMagazineSize() + getCarriedAmmo());
-		
-		if (selectedTier1 == 2) {
-			totalDamage *= (1 + getMaxPenetrations());
-		}
+		double totalDamage = getDirectDamage() * (getMagazineSize() + getCarriedAmmo()) * calculateBlowthroughDamageMultiplier(getMaxPenetrations());
 		
 		if (selectedOverclock == 4) {
 			double accuracy = getGeneralAccuracy() / 100.0;
 			int numBulletsThatMiss = (int) Math.ceil((1 - accuracy) * (getCarriedAmmo() + getMagazineSize()));
-			// OC "Electro Minelets" only does 2 dmg/tick for 2 secs
-			totalDamage += numBulletsThatMiss * DoTInformation.Electro_TicksPerSec * 2 * 2;
+			// OC "Electro Minelets" does 3 dmg/tick for 6 secs
+			totalDamage += numBulletsThatMiss * DoTInformation.Electro_TicksPerSec * 3 * 6;
 		}
 		
 		return totalDamage;
@@ -532,9 +531,9 @@ public class BurstPistol extends Weapon {
 		double[] dot_probability = new double[4];
 		
 		if (selectedOverclock == 4) {
-			// OC "Electro Minelets" only does 2 dmg/tick for 2 secs
-			dot_dps[0] = DoTInformation.Electro_TicksPerSec * 2;
-			dot_duration[0] = 2;
+			// OC "Electro Minelets" does 3 dmg/tick for 6 secs
+			dot_dps[0] = DoTInformation.Electro_TicksPerSec * 3;
+			dot_duration[0] = 6;
 			dot_probability[0] = 1.0;
 		}
 		
@@ -551,10 +550,10 @@ public class BurstPistol extends Weapon {
 		
 		// OC "Electro Minelets" = 100% Electrocute Chance, but only on bullets that miss... maybe (1.0 - Accuracy)?
 		if (selectedOverclock == 4) {
-			// Electro Minelets arm in 0.9 seconds, detonate on any enemies that come within ~1.5m, and then explode after 4 seconds. 100% chance to apply Electrocute for 2 sec.
+			// Electro Minelets arm in 0.9 seconds, detonate on any enemies that come within ~1.5m, and then explode after 5 seconds. 100% chance to apply Electrocute for 6 sec.
 			double probabilityBulletsMiss = 1.0 - getGeneralAccuracy() / 100.0;
 			int numGlyphidsInMineletRadius = calculateNumGlyphidsInRadius(1.5);
-			utilityScores[3] = probabilityBulletsMiss * numGlyphidsInMineletRadius * 2 * UtilityInformation.Electrocute_Slow_Utility;
+			utilityScores[3] = probabilityBulletsMiss * numGlyphidsInMineletRadius * 6 * UtilityInformation.Electrocute_Slow_Utility;
 		}
 		else {
 			utilityScores[3] = 0;

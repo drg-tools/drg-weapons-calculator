@@ -58,7 +58,7 @@ public class InformationTabsText {
 		answerOrDefinition.setBackground(GuiConstants.drgBackgroundBrown);
 		answerOrDefinition.setForeground(GuiConstants.drgHighlightedYellow);
 		// Left-pad the answer a bit for visual clarity
-		answerOrDefinition.setMargin(new Insets(0, 30, 8, 0));
+		answerOrDefinition.setMargin(new Insets(0, 30, 8, 22));
 		answerOrDefinition.setWrapStyleWord(true);
 		answerOrDefinition.setLineWrap(true);
 		toReturn.add(answerOrDefinition);
@@ -95,10 +95,10 @@ public class InformationTabsText {
 					+ "much damage is \"wasted\" by Armor as a result. Click on the button to see the list of Armored enemies modeled, along with the percentage wasted per creature."},
 			{"Accuracy Visualizer", "For weapons that use elliptical crosshairs, there will be a button that brings up a detailed overview of the variables used to generate the Accuracy percentages seen, "
 					+ "graphs of Spread, Recoil, and player-reduced Recoil, an animation of \"raw\" Accuracy, and an animation of player-affected Accuracy."},
-			{"General Accuracy", "A pretty straight-forward metric to understand, General Accuracy is an estimate of what percentage of projectiles would hit a target from 5-10m away using sustained "
+			{"General Accuracy", "A pretty straight-forward metric to understand, General Accuracy is an estimate of what percentage of projectiles would hit a target from 4-10m away using sustained "
 					+ "fire. Some weapons like both of Driller's primary weapons, Engineer's secondary weapons, or Scout's M1000 Classic (Focused Shots) can't have their accuracy modeled and will "
-					+ "instead say \"Manually Aimed\". Clicking on General Accuracy will bring up a Settings panel that will let you change how the Accuracy gets modeled, as well as which target gets"},
-			{"Weakpoint Accuracy", "Just like General Accuracy, this metric represents what percentage of projectiles would hit an enemy's Weakpoint from 5-10m away. For weapons that can't have their "
+					+ "instead say \"Manually Aimed\". Clicking on General Accuracy will bring up a Settings panel that will let you change how the Accuracy gets modeled."},
+			{"Weakpoint Accuracy", "Just like General Accuracy, this metric represents what percentage of projectiles would hit an enemy's Weakpoint from 4-10m away. For weapons that can't have their "
 					+ "Accuracy modeled, it will instead say \"Manually Aimed\"."},
 			{"Firing Duration", "This answers the question of how long it will take to fire every projectile from the weapon if you were to fire continuously, even through reloads or cooldowns. "
 					+ "Slower rates of fire and large carried ammo capacities increase the duration, whereas faster rates of fire and faster reloads decrease duration."},
@@ -107,7 +107,7 @@ public class InformationTabsText {
 			{"Avg Overkill", "This is an estimate of how much damage gets \"wasted\" by bullets when enemies have lower remaining health than the damage per projectile. Because different creatures have "
 					+ "different healthpools that scale with Hazard Level and Player Count, this uses a weighted average of all enemies' healthpools for its Overkill calculations."},
 			{"Breakpoints", "Although the number displayed is pretty meaningless by itself, clicking on this metric will have a small window pop up that shows you the fewest number of projectiles "
-					+ "needed to kill various enemies under different conditions. Weapons that shoot multiple pellets per shot (Engineer/Shotgun and Scout/Boomstick) have the damage per shot multiplied by "
+					+ "needed to kill various enemies under different conditions. Weapons that shoot multiple pellets per shot (Engineer's Shotgun and Scout's Boomstick) have the damage per shot multiplied by "
 					+ "General Accuracy to be slightly more realistic."},
 			{"Utility", "Another abstract metric, this tries to numerically represent the value of certain mods that don't affect DPS or total damage, but do things like slow or stun enemies. "
 					+ "Additionally, if the weapon can break Light Armor Plates, then the average probability that each shot can break a Light Armor plate will be listed."},
@@ -129,13 +129,14 @@ public class InformationTabsText {
 	
 	public static JPanel getFAQText() {
 		String[][] FAQtext = {
-			{"Why do some Mods and Overclocks have a Red outline?", "Mods or Overclocks with a Red outline either are not implemented yet, or how they work in-game can't be represented by the Weapon's stats."},
+			{"Why do some Mods and Overclocks have a Red outline?", "Mods or Overclocks with a Red outline can't be represented by the Weapon's stats because how they work in-game doesn't affect how I've chosen to model the Weapon."},
 			{"What's the point of this program?", "To help the DRG community compare and contrast their preferred builds for each weapon, and to provide more detail about how the weapons work than described either in-game or on the wiki."},
 			{"How long should I wait for the program to calculate the best build?", "This should run pretty fast. I would expect it to be done in a second or two, ten at most."},
 			{"I think something is wrong/missing, how do I communicate that to you?", "In the 'Misc. Actions' Menu, there's an option to suggest changes. That should automatically open up this project's GitHub issue creation page for you."},
 			{"Can I help improve to this project?", "Yes! This is an open-source, freeware fan project. Although it's started out as just one developer, I would love to have help."},
-			{"How frequently will this be updated?", "There are a couple features that I want to add before calling this 'done', but I'm planning to update each weapon's stats as GSG devs update them in-game on their production build."},
-			{"Will this be made available as a live website?", "Probably not. Thousands of lines of Java code do not port well into HTML/CSS/Javascript. The data generated by this program will be available on karl.gg in the near future."},
+			{"How frequently will this be updated?", "This is pretty much the final product in terms of functionality, but I'm planning to release an update with every weapon balance patch for DRG."},
+			{"Will this be made available as a live website?", "Probably not. Thousands of lines of Java code do not port well into HTML/CSS/Javascript. The data generated by this program is currently available on Karl.gg in the "
+					+ "Advanced Statistics View, and they're working on adding it to the Build page too."},
 			{"How did you model [insert mechanic here]?", "This is an open-source project. Feel free to look around the source code and see how it was done. In general though: I chose to model everything like a continuous function instead of "
 					+ "discrete. Slight loss of precision, but significantly easier."},
 			{"How are Status Effect Utility scores calculated?", "The formula I chose to use is (% Chance to Proc) * (Number of Targets) * (Effect Duration) * (Utility Factor), where 'Utility Factor' is some scalar value assigned to each effect."},
@@ -174,36 +175,36 @@ public class InformationTabsText {
 			{"Armor Breaking", "Increasing this stat above 100% means that it takes fewer shots to break Grunt and Praetorian armor plates, so you lose less damage to Armor. Doesn't affect the third type of Armor, though. "
 					+ "Likewise, if this is less than 100%, it means that damage is less effective vs Armor."},
 			{"Weakpoint", "Most enemies have certain spots on their body that will take extra Direct Damage. Those spots are referred to as Weakpoints. Common areas are the mouths of medium-sized Glyphids, the abdomens of "
-					+ "Macteras, Praetorians, and Dreadnoughts, and glowing bulbs on the sides of larger enemies like Bulk Detonators, Wardens, and Menaces. With the exception of mouths, weakpoints are usually brightly colored and will light up when damaged."},
+					+ "Macteras, Praetorians, and Dreadnoughts, and glowing bulbs on the sides of larger enemies like Bulk Detonators, Wardens, and Menaces. With the exception of mouths, Weakpoints are usually brightly colored and will light up when damaged."},
 			{"Weakpoint Bonus", "Some weapons that deal Direct Damage have Mods or Overclocks that affect how that damage gets multiplied when impacting a Weakpoint. Most of the time, it's a multiplicative bonus that gets applied to the projectile before the Weakpoint's multiplier gets used."},
 			{"Direct Damage", "One of the three main Types of damage dealt by weapons, Direct Damage is the only one of the three that is affected by Armor, Weakpoints, and the Frozen Status Effect. Direct Damage gets reduced when passing through Light Armor, negated entirely by Heavy Armor "
-					+ "and Unbreakable Armor, and gets multiplied when impacting a creature's Weakpoint or a Frozen enemy. Direct Damage can be any of these 5 Elements: Kinetic, Explosive, Fire, Frost, or Electric."},
+					+ "and Unbreakable Armor, and gets multiplied when impacting a creature's Weakpoint or a Frozen enemy. Direct Damage can be any of these Elements: Kinetic, Disintegrate, Explosive, Fire, Frost, or Electric."},
 			{"Area Damage", "The second of the three main Types of damage, Area Damage ignores Armor, Weakpoints, and the Frozen Status Effect. Any Area Damage inflicted to a creature simply reduces their healthbar. Not all Area Damage is dealt in an Area-of-Effect, like Embedded Detonators "
-					+ "or Explosive Reload. Area Damage can be any of these 5 elements: Kinetic, Explosive, Fire, Frost, or Electric"},
-			{"Temperature Damage", "The third Type of damage dealt by weapons, all forms of Temperature Damage only affect a creature's Temperature meter and do not directly affect the enemies' healthbars. Heat Damage increases the Temperature Meter, and Cold Damage decreases it."},
-			{"Elemental Damage Types", "All Direct Damage, Area Damage, and Damage Over Time is comprised of one or more of the following types: Kinetic, Explosive, Fire, Frost, Electric, Poison, or Radiation. Depending on the creature being shot and the biome you're in, each of these "
+					+ "or Explosive Reload. Area Damage can be any of these Elements: Disintegrate, Internal, Explosive, Fire, Frost, or Electric"},
+			{"Temperature Damage", "The third Type of damage dealt by weapons, all forms of Temperature Damage only affect a creature's Temperature meter and do not directly affect the enemies' healthbars. Heat increases the Temperature Meter, and Cold decreases it."},
+			{"Elemental Damage Types", "All Direct Damage, Area Damage, and Damage Over Time is comprised of one or more of the following types: Kinetic, Disintegrate, Internal, Explosive, Fire, Frost, Electric, Poison, or Radiation. Depending on the creature being shot and the biome you're in, each of these "
 					+ "elements can either be more effective against or resisted by the creature."},
 			{"Heat (Temperature Damage)", "Heat Damage doesn't actually affect an enemy's healthbar; rather it affects their Temperature. Once enough Heat has been accumulated, the enemy receives a Burn DoT which continues until the enemy "
-					+ "sheds enough Heat to be doused, or the enemy dies. Applying more Heat Damage to an already ignited enemy prolongs the Burn duration. Heat Damage counteracts Cold Damage, and can cause Temperature Shock if applied to a Frozen enemy."},
-			{"Cold (Temperature Damage)", "As Frost Damage is to Fire, so Cold is to Heat. Applying Cold Damage to an enemy decreases their Temperature until eventually they become Frozen. Enemies remain Frozen until they gain enough Heat to thaw, "
-					+ "at which point they can start accumulating Cold Damage again. Applying more Cold Damage to Frozen enemies does NOT increase the Freeze Duration. Cold Damage counteracts Heat Damage, and can cause Temperature Shock if applied to a Burning enemy."},
-			{"DoT", "An acronym that stands for \"Damage Over Time\". This term is used to refer to damage which doesn't get applied per projectile, but rather gets applied over a period of time."},
+					+ "sheds enough Heat to be doused, or the enemy dies. Applying more Heat to an already ignited enemy prolongs the Burn duration. Heat counteracts Cold, and can cause Temperature Shock if applied to a Frozen enemy."},
+			{"Cold (Temperature Damage)", "As Frost element Damage is to Fire, so Cold is to Heat. Applying Cold to an enemy decreases their Temperature until eventually they become Frozen. Enemies remain Frozen until they gain enough Heat to thaw, "
+					+ "at which point they can start accumulating Cold again. Applying more Cold to Frozen enemies does NOT increase the Freeze Duration. Cold counteracts Heat, and can cause Temperature Shock if applied to a Burning enemy."},
+			{"DoT", "An acronym that stands for \"Damage Over Time\". This term is used to refer to damage which doesn't get applied per projectile, but rather gets applied over a period of several seconds."},
 			{"Status Effect", "A conditional effect that can be applied to enemies. Sometimes it's a DoT, other times it's a crowd control effect."},
-			{"Burn (DoT)", "When an enemy has its Temperature meter increased to maximum by taking sustained Heat Damage, it ignites and gains a Burn DoT. While Burning, enemies take an average of " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) 
-					+  " Fire Damage per second. If no more Heat Damage is applied, then their Temperature will steadily decrease until they are doused and the Burn DoT will end. On the other hand, sustaining even more Heat Damage will prolong the Burn duration. Applying "
-					+ "Cold Damage will significantly shorten the duration of the Burn, but also inflict Temperature Shock."},
-			{"Frozen (Status Effect)", "Thematically the opposite of the Burn DoT, enemies become Frozen when their Temperature is lowered enough by sustained Cold Damage. Once Frozen, they receive x" + UtilityInformation.Frozen_Damage_Multiplier + " Direct Damage. Frozen enemies "
-					+ "cannot have the freeze duration increased; instead they will thaw over time. Once they have thawed, more Cold Damage can be applied to freeze them again. Applying Heat Damage will significantly shorten the duration of the Freeze, but also inflict Temperature Shock."},
+			{"Burn (DoT)", "When an enemy has its Temperature meter increased to maximum by taking sustained Heat, it ignites and gains a Burn DoT. While Burning, enemies take an average of " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) 
+					+  " Fire Damage per second. If no more Heat is applied, then their Temperature will steadily decrease until they are doused and the Burn DoT will end. On the other hand, sustaining even more Heat will prolong the Burn duration. Applying "
+					+ "Cold will significantly shorten the duration of the Burn, but also inflict Temperature Shock for 200 Disintegrate element Damage."},
+			{"Frozen (Status Effect)", "Thematically the opposite of the Burn DoT, enemies become Frozen when their Temperature is lowered enough by sustained Cold. Once Frozen, they receive x" + UtilityInformation.Frozen_Damage_Multiplier + " Direct Damage. Frozen enemies "
+					+ "cannot have the freeze duration increased; instead they will thaw over time. Once they have thawed, more Cold can be applied to freeze them again. Applying Heat will significantly shorten the duration of the Freeze, but also inflict Temperature Shock for 200 Disintegrate element Damage."},
 			{"Electrocute (DoT, Status Effect)", "Some of the Weapons and Overclocks have a chance to apply the Electrocute Status Effect. Once applied, enemies take an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per second for " 
 					+ DoTInformation.Electro_SecsDuration + " seconds, while also being slowed by 80%. Enemies can only have one Electrocute applied to them at once; if another shot were to apply a second Electrocute, the first DoT has its duration refreshed instead."},
 			{"Radiation (DoT)", "There are two types of Radiation: environmental hazards in the Radioactive Exclusion Zone which deal an average of " + MathUtils.round(DoTInformation.Rad_Env_DPS, GuiConstants.numDecimalPlaces) + " Radiation Damage per second to the player, and the Radiation field left behind by the "
 					+ "Overclock 'Fat Boy', which does an average of " + MathUtils.round(DoTInformation.Rad_FB_DPS, GuiConstants.numDecimalPlaces) + " Radiation Damage per second to enemies."},
 			{"Neurotoxin (DoT, Status Effect)", "Similar to Electrocute, a few weapons can have a chance to apply Neurotoxin. Enemies afflicted by Neurotoxin take an average of " + MathUtils.round(DoTInformation.Neuro_DPS, GuiConstants.numDecimalPlaces) + " Poison Damage per second for up to " 
 					+ DoTInformation.Neuro_SecsDuration + " seconds, while also being slowed by 30%. Also like Electrocute, enemies can only have one Neurotoxin DoT applied to them at once; anything that would apply a second effect instead refreshes the duration."},
-			{"Persistent Plasma (DoT)", "Similar to Radiation, this is an area-of-effect DoT that gets left behind by certain mods and overclocks. It deals an average of " + MathUtils.round(DoTInformation.Plasma_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per second."},
-			{"Stun (Status Effect)", "Stunning an enemy stops them from moving or attacking for a set duration. That duration changes from weapon to weapon, but it's typically around 2 seconds. Enemies that channel their attacks (like Praetorians) can have those attacks interrurpted by a Stun."},
+			{"Persistent Plasma (DoT)", "Similar to Radiation, this is an area-of-effect DoT that gets left behind by certain mods and overclocks. It deals an average of " + MathUtils.round(DoTInformation.Plasma_EPC_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per second."},
+			{"Stun (Status Effect)", "Stunning an enemy stops them from moving or attacking for a set duration. That duration changes from weapon to weapon, but it's typically around 2 seconds. Enemies that channel their attacks (like Praetorians) can have those attacks interrupted by a Stun."},
 			{"Fear (Status Effect)", "Inflicting Fear on an enemy causes them to stop what they're doing and run from the source of the Fear as fast as they can move for about " + MathUtils.round(EnemyInformation.averageFearDuration(), GuiConstants.numDecimalPlaces) + " seconds. After the Fear "
-					+ "wears off, they return to normal behavior."},
+					+ "wears off, they return to normal behavior. Slowing, Stunning, or Freezing an enemy that is fleeing in Fear will effectively increase the Fear's duration."},
 			{"Base Spread", "This stat affects how accurate the first shot will be. At 0%, that means the first shot is guaranteed to go exactly where your crosshair is pointing. As the percentage goes higher, the probability that the first shot will hit decreases."},
 			{"Spread Per Shot", "After every shot gets fired, the maximum area of the crosshair increases by this amount. Thus, successive shots get increasingly less likely to hit your intended target until it reaches Max Spread."},
 			{"Spread Recovery", "This stat is constantly reducing the current Bloom of the gun, trying to return to Base Spread. Because this is a constant rate, it's more effective the lower the Rate of Fire."},
@@ -238,6 +239,7 @@ public class InformationTabsText {
 			{"Ghost Ship Games", "Thank you for making the game Deep Rock Galactic and letting me use some images and artwork from the game in this program."},
 			{"Mike @ GSG / Dagadegatto", "Thank you for being willing to answer so many of my technical questions about DRG and helping to improve the quality of this program's models."},
 			{"Elythnwaen", "Thank you for collecting data about elemental weaknesses, resistances, Burn/Freeze temperatures, and more! Also, thank you for finding a bunch of information for me."},
+			{"GreyHound", "Thank you for looking through this source code and finding incorrect values, as well as finding some values in the game files."},
 			{"Ian McDonagh", "Thank you for creating the open-source JAR 'image4j' that allows me to use .ico files natively."},
 			{"Chris Kroells", "Thank you for creating the open-source JAR 'thumbnailator' that does a better job compressing image files than Java Graphics2D can do natively."},
 			{"USteppin", "Thank you for collecting some data and testing weapon builds for me on Hazard 5. Twitch Channel: https://www.twitch.tv/usteppin"},

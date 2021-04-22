@@ -518,6 +518,7 @@ public class GuiController implements ActionListener {
 			createMetricsMysqlFile();
 			gui.deactivateThinkingCursor();
 		}
+		/*
 		else if (e == gui.getExportModsOCsMySQL()) {
 			chooseFolder();
 			gui.activateThinkingCursor();
@@ -530,6 +531,7 @@ public class GuiController implements ActionListener {
 			createModsOCsMysqlFiles(false);
 			gui.deactivateThinkingCursor();
 		}
+		*/
 		
 		else if (e == gui.getCompareBuildMetrics()) {
 			// Adapted from https://stackoverflow.com/a/13760416 and https://www.tutorialspoint.com/how-to-display-a-jframe-to-the-center-of-a-screen-in-java
