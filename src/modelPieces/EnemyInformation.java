@@ -60,9 +60,11 @@ public class EnemyInformation {
 		// TODO: update Grunt's dimensions here using the measurements I made last week. Autocannon's 2 -> 2.6 radius stays at 12, which will probably generate bug reports
 	*/
 	// This is the radius of a Glyphid Grunt's hitbox that shouldn't overlap with other grunts, like the torso
-	public static double GlyphidGruntBodyRadius = 0.41;
+	// Calculated as average width (Torso width 0.733m + Back legs width 1.4m)/4
+	public static double GlyphidGruntBodyRadius = 0.53325;
 	// This is the radius of the entire Glyphid Grunt, from its center to the tip of its legs. The legs can overlap with other Grunts' legs.
-	public static double GlyphidGruntBodyAndLegsRadius = 0.97;
+	// Calculated as SqRt[(Full Length 2.73m / 2)*((Front legs 2.166m + Back legs 1.4m)/4)]
+	public static double GlyphidGruntBodyAndLegsRadius = 1.10313;
 	
 	// Organized in same order as in-game Miner's Manual
 	private static Enemy[] enemiesModeled = new Enemy[] {
