@@ -56,8 +56,6 @@ public class EnemyInformation {
 		Dimensions of a Glyphid Grunt used for estimating how many grunts would be hit by AoE damage of a certain radius 
 		(see method Weapon.calculateNumGlyphidsInRadius())
 		Measured using meters
-		
-		// TODO: update Grunt's dimensions here using the measurements I made last week. Autocannon's 2 -> 2.6 radius stays at 12, which will probably generate bug reports
 	*/
 	// This is the radius of a Glyphid Grunt's hitbox that shouldn't overlap with other grunts, like the torso
 	// Calculated as average width (Torso width 0.733m + Back legs width 1.4m)/4
@@ -338,11 +336,9 @@ public class EnemyInformation {
 	}
 	
 	/*
-		Although at this time this model is unconfirmed, I have some evidence to support this theory.
-		
 		The regular Fear status effect inflicted by weapons and grenades works like this: for every creature that has the Fear Factor attack applied to them,
 		the probability that they will have the Fear status effect inflicted is equal to Fear Factor * (1.0 - Courage). If it is inflicted, then ground-based 
-		enemies will move 8m away from the point of Fear at a rate of 1.5 * Max Movespeed * Difficulty Scaling * (1.0 - Movespeed Slow). As a result of this formula,
+		enemies will move 10m away from the point of Fear at a rate of 1.5 * Max Movespeed * Difficulty Scaling * (1.0 - Movespeed Slow). As a result of this formula,
 		Slowing an enemy that is being Feared will increase the duration of the Fear status effect, and it will naturally be shorter at higher hazard levels.
 	*/
 	public static double averageFearDuration() {
