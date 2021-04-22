@@ -88,8 +88,8 @@ ___
 * Bundled for Windows using Launch4j 3.12 and Inno Setup 6.0.4
 
 ___
-According to CLOC, 1.0.8's metrics:
-* 69 .java files
-* 3560 blank lines
-* 2370 comment lines
-* 18991 code lines
+According to CLOC, 1.1.0's metrics:
+* 96 .java files
+* 3804 blank lines
+* 2572 comment lines
+* 18648 code lines
