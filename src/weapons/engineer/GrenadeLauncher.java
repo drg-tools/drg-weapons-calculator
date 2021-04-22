@@ -525,6 +525,7 @@ public class GrenadeLauncher extends Weapon {
 	@Override
 	public double utilityScore() {
 		// OC "RJ250 Compound" adds up to 11.65 m/sec velocity
+		// Regular jumping is 5 m/sec in the upward direction
 		if (selectedOverclock == 3) {
 			utilityScores[0] = 11.65 * UtilityInformation.BlastJump_Utility;
 		}

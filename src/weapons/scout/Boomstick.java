@@ -614,6 +614,7 @@ public class Boomstick extends Weapon {
 	@Override
 	public double utilityScore() {
 		// OC "Special Powder" adds 13 m/sec to your velocity
+		// Regular jumping is 5 m/sec in the upward direction
 		if (selectedOverclock == 2) {
 			utilityScores[0] = 13 * UtilityInformation.BlastJump_Utility;
 		}
