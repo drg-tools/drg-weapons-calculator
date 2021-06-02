@@ -33,4 +33,10 @@ public class Praetorian extends Enemy {
 		// These variables are NOT how many armor plates the enemy has total, but rather how many armor plates will be modeled by ArmorWasting()
 		numArmorHealthPlates = 6;
 	}
+	
+	@Override
+	public String getBodyshotName() {
+		// Prepend an extra space to insert this between the name and the trailing colon
+		return " (Mouth)";
+	}
 }

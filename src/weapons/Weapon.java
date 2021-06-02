@@ -8,6 +8,7 @@ import java.util.Observable;
 
 import javax.swing.JPanel;
 
+import enemies.Enemy;
 import guiPieces.AoEVisualizer;
 import guiPieces.GuiConstants;
 import guiPieces.customButtons.ButtonIcons.modIcons;
@@ -1622,38 +1623,30 @@ public abstract class Weapon extends Observable {
 	public StatsRow[] breakpointsExplanation() {
 		StatsRow[] toReturn = new StatsRow[breakpoints.length];
 		
-		// TODO: I bet this could be dynamically generated based on the Enemies objects...
-		toReturn[0] = new StatsRow("Glyphid Swarmer:", breakpoints[0], null, false);
-		toReturn[1] = new StatsRow("Glyphid Grunt (Light Armor):", breakpoints[1], null, false);
-		toReturn[2] = new StatsRow("Glyphid Grunt (Weakpoint):", breakpoints[2], null, false);
-		toReturn[3] = new StatsRow("Glyphid Grunt Guard (Light Armor):", breakpoints[3], null, false);
-		toReturn[4] = new StatsRow("Glyphid Grunt Guard (Weakpoint):", breakpoints[4], null, false);
-		toReturn[5] = new StatsRow("Glyphid Grunt Slasher (Light Armor):", breakpoints[5], null, false);
-		toReturn[6] = new StatsRow("Glyphid Grunt Slasher (Weakpoint):", breakpoints[6], null, false);
-		toReturn[7] = new StatsRow("Glyphid Warden:", breakpoints[7], null, false);
-		toReturn[8] = new StatsRow("Glyphid Warden (Orb):", breakpoints[8], null, false);
-		toReturn[9] = new StatsRow("Glyphid Praetorian (Mouth):", breakpoints[9], null, false);
-		toReturn[10] = new StatsRow("Glyphid Praetorian (Weakpoint):", breakpoints[10], null, false);
-		toReturn[11] = new StatsRow("Glyphid Oppressor (Weakpoint):", breakpoints[11], null, false);
-		toReturn[12] = new StatsRow("Glyphid Acid Spitter (Light Armor):", breakpoints[12], null, false);
-		toReturn[13] = new StatsRow("Glyphid Acid Spitter (Weakpoint):", breakpoints[13], null, false);
-		toReturn[14] = new StatsRow("Glyphid Web Spitter (Light Armor):", breakpoints[14], null, false);
-		toReturn[15] = new StatsRow("Glyphid Web Spitter (Weakpoint):", breakpoints[15], null, false);
-		toReturn[16] = new StatsRow("Glyphid Menace:", breakpoints[16], null, false);
-		toReturn[17] = new StatsRow("Glyphid Menace (Weakpoint):", breakpoints[17], null, false);
-		toReturn[18] = new StatsRow("Glyphid Exploder:", breakpoints[18], null, false);
-		toReturn[19] = new StatsRow("Glyphid Exploder (Weakpoint):", breakpoints[19], null, false);
-		toReturn[20] = new StatsRow("Mactera Spawn:", breakpoints[20], null, false);
-		toReturn[21] = new StatsRow("Mactera Spawn (Weakpoint):", breakpoints[21], null, false);
-		toReturn[22] = new StatsRow("Mactera Brundle:", breakpoints[22], null, false);
-		toReturn[23] = new StatsRow("Mactera Brundle (Weakpoint):", breakpoints[23], null, false);
-		toReturn[24] = new StatsRow("Mactera Tri-Jaw:", breakpoints[24], null, false);
-		toReturn[25] = new StatsRow("Mactera Tri-Jaw (Weakpoint):", breakpoints[25], null, false);
-		toReturn[26] = new StatsRow("Mactera Goo Bomber:", breakpoints[26], null, false);
-		toReturn[27] = new StatsRow("Mactera Goo Bomber (Weakpoint):    ", breakpoints[27], null, false);  // Added spaces at the end to create some whitespace in the JPanel
-		toReturn[28] = new StatsRow("Mactera Grabber:", breakpoints[28], null, false);
-		toReturn[29] = new StatsRow("Mactera Grabber (Weakpoint):", breakpoints[29], null, false);
-		toReturn[30] = new StatsRow("Cave Leech:", breakpoints[30], null, false);
+		String whitespaceBuffer = "    ";
+		int breakpointIndex = 0;
+		String breakpointName;
+		for (Enemy e: EnemyInformation.enemiesModeled) {
+			if (e.shouldHaveBreakpointsCalculated()) {
+				if (e.hasExposedBodySomewhere()) {
+					breakpointName = e.getName() + e.getBodyshotName() + ":" + whitespaceBuffer;
+					toReturn[breakpointIndex] = new StatsRow(breakpointName, breakpoints[breakpointIndex], null, false);
+					breakpointIndex++;
+				}
+				
+				if (e.hasLightArmor()) {
+					breakpointName = e.getName() + " (Light Armor):" + whitespaceBuffer;
+					toReturn[breakpointIndex] = new StatsRow(breakpointName, breakpoints[breakpointIndex], null, false);
+					breakpointIndex++;
+				}
+				
+				if (e.hasWeakpoint()) {
+					breakpointName = e.getName() + " (" + e.getWeakpointName() + "):" + whitespaceBuffer;
+					toReturn[breakpointIndex] = new StatsRow(breakpointName, breakpoints[breakpointIndex], null, false);
+					breakpointIndex++;
+				}
+			}
+		}
 		
 		return toReturn;
 	}
@@ -1692,17 +1685,14 @@ public abstract class Weapon extends Observable {
 	public StatsRow[] armorWastingExplanation() {
 		StatsRow[] toReturn = new StatsRow[damageWastedByArmorPerCreature[1].length];
 		
-		// TODO: I bet this could be dynamically generated based on the Enemies objects...
-		toReturn[0] = new StatsRow("Glyphid Grunt:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][0], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[1] = new StatsRow("Glyphid Guard:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][1], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[2] = new StatsRow("Glyphid Slasher:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][2], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[3] = new StatsRow("Glyphid Warden:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][3], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[4] = new StatsRow("Glyphid Praetorian:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][4], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[5] = new StatsRow("Glyphid Acid Spitter:      ", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][5], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[6] = new StatsRow("Glyphid Web Spitter:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][6], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[7] = new StatsRow("Glyphid Menace:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][7], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[8] = new StatsRow("Mactera Brundle:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][8], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[9] = new StatsRow("Q'ronar Shellback:", MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][9], GuiConstants.numDecimalPlaces) + "%", null, false);
+		String whitespaceBuffer = "      ";
+		int creatureIndex = 0;
+		for (Enemy e: EnemyInformation.enemiesModeled) {
+			if (e.hasBreakableArmor()) {
+				toReturn[creatureIndex] = new StatsRow(e.getName() + ":" + whitespaceBuffer, MathUtils.round(100.0 * damageWastedByArmorPerCreature[1][creatureIndex], GuiConstants.numDecimalPlaces) + "%", null, false);
+				creatureIndex++;
+			}
+		}
 		
 		return toReturn;
 	}
@@ -1710,29 +1700,10 @@ public abstract class Weapon extends Observable {
 	public StatsRow[] overkillExplanation() {
 		StatsRow[] toReturn = new StatsRow[overkillPercentages[1].length];
 		
-		// TODO: I bet this could be dynamically generated based on the Enemies objects...
-		toReturn[0] = new StatsRow("Glyphid Swarmer:", MathUtils.round(overkillPercentages[1][0], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[1] = new StatsRow("Glyphid Grunt:", MathUtils.round(overkillPercentages[1][1], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[2] = new StatsRow("Glyphid Grunt Guard:", MathUtils.round(overkillPercentages[1][2], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[3] = new StatsRow("Glyphid Grunt Slasher:", MathUtils.round(overkillPercentages[1][3], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[4] = new StatsRow("Glyphid Warden:", MathUtils.round(overkillPercentages[1][4], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[5] = new StatsRow("Glyphid Praetorian:", MathUtils.round(overkillPercentages[1][5], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[6] = new StatsRow("Glyphid Oppressor:    ", MathUtils.round(overkillPercentages[1][6], GuiConstants.numDecimalPlaces) + "%", null, false);  // Added spaces at the end to create some whitespace in the JPanel
-		toReturn[7] = new StatsRow("Glyphid Acid Spitter:", MathUtils.round(overkillPercentages[1][7], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[8] = new StatsRow("Glyphid Web Spitter:", MathUtils.round(overkillPercentages[1][8], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[9] = new StatsRow("Glyphid Menace:", MathUtils.round(overkillPercentages[1][9], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[10] = new StatsRow("Glyphid Exploder:", MathUtils.round(overkillPercentages[1][10], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[11] = new StatsRow("Glyphid Bulk Detonator:", MathUtils.round(overkillPercentages[1][11], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[12] = new StatsRow("Glyphid Brood Nexus:", MathUtils.round(overkillPercentages[1][12], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[13] = new StatsRow("Mactera Spawn:", MathUtils.round(overkillPercentages[1][13], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[14] = new StatsRow("Mactera Brundle:", MathUtils.round(overkillPercentages[1][14], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[15] = new StatsRow("Mactera Tri-Jaw:", MathUtils.round(overkillPercentages[1][15], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[16] = new StatsRow("Mactera Goo Bomber:", MathUtils.round(overkillPercentages[1][16], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[17] = new StatsRow("Mactera Grabber:", MathUtils.round(overkillPercentages[1][17], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[18] = new StatsRow("Naedocyte Breeder:", MathUtils.round(overkillPercentages[1][18], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[19] = new StatsRow("Q'ronar Shellback:", MathUtils.round(overkillPercentages[1][19], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[20] = new StatsRow("Spitball Infector:", MathUtils.round(overkillPercentages[1][20], GuiConstants.numDecimalPlaces) + "%", null, false);
-		toReturn[21] = new StatsRow("Cave Leech:", MathUtils.round(overkillPercentages[1][21], GuiConstants.numDecimalPlaces) + "%", null, false);
+		String whitespaceBuffer = "    ";
+		for (int i = 0; i < EnemyInformation.enemiesModeled.length; i++) {
+			toReturn[i] = new StatsRow(EnemyInformation.enemiesModeled[i].getName() + ":" + whitespaceBuffer, MathUtils.round(overkillPercentages[1][i], GuiConstants.numDecimalPlaces) + "%", null, false);
+		}
 		
 		return toReturn;
 	}

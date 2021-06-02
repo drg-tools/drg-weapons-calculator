@@ -208,4 +208,12 @@ public class Enemy {
 	public boolean hasBreakableArmor() {
 		return hasLightArmor || hasHeavyArmorRNG || hasHeavyArmorHealth;
 	}
+	
+	// These methods get used in Weapon.breakpointsExplanation() to override Praetorian's bodyshot and Warden's Weakpoint terms
+	public String getBodyshotName() {
+		return "";
+	}
+	public String getWeakpointName() {
+		return "Weakpoint";
+	}
 }
