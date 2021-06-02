@@ -294,8 +294,8 @@ public class EPC_ChargeShot extends EPC {
 		
 		// Slow
 		if (selectedOverclock == 5) {
-			// U34 added a 20% Slow (x0.8 Movespeed) to the Persistent Plasma sphere. At 2.9 m/sec, it should take Grunts 3/(2.9*0.8) ~ 1.3 seconds to leave the sphere
-			utilityScores[3] = calculateNumGlyphidsInRadius(3.0) * 1.3 * 0.2;
+			// U34 added a 20% Slow (x0.8 Movespeed) to the Persistent Plasma sphere. At 2.9 m/sec, it should take Grunts 3.25/(2.9*0.8) ~ 1.4 seconds to leave the sphere
+			utilityScores[3] = calculateNumGlyphidsInRadius(3.25) * (3.25/(2.9*0.8)) * 0.2;
 		}
 		else {
 			utilityScores[3] = 0.0;

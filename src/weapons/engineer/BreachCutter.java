@@ -102,8 +102,8 @@ public class BreachCutter extends Weapon {
 		tier4[1] = new Mod("Disruptive Frequency Tuning", "+100% Stun Chance, 3 sec Stun duration", modIcons.stun, 4, 1);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Explosive Goodbye", "After firing a line and a 0.4 second delay, the player can press the fire button again to manually detonate the line dealing 40 Explosive element Area Damage in a 3m radius "
-				+ "and leaving behind a 3.5m radius sphere of Persistent Plasma that does an average of " + MathUtils.round(DoTInformation.Plasma_EPC_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per second and slows enemies by 20% for 4.6 seconds. "
+		tier5[0] = new Mod("Explosive Goodbye", "After firing a line and a 0.4 second delay, the player can press the fire button again to manually detonate the line dealing 40 Explosive element Area Damage in a 3.5m radius "
+				+ "and leaving behind a 3.25m radius sphere of Persistent Plasma that does an average of " + MathUtils.round(DoTInformation.Plasma_EPC_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per second and slows enemies by 20% for 4.6 seconds. "
 				+ "If the player doesn't detonate it manually, the line explodes at the end of its lifetime.", modIcons.addedExplosion, 5, 0);
 		tier5[1] = new Mod("Plasma Trail", "Leaves behind a Persistent Plasma field that does an average of " + MathUtils.round(DoTInformation.Plasma_Trail_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per second for 4.6 seconds "
 				+ "along the entire length of the line's path", modIcons.areaDamage, 5, 1);
@@ -518,8 +518,8 @@ public class BreachCutter extends Weapon {
 		if (selectedTier5 == 0 || selectedTier5 == 1) {
 			double plasmaDoTDuration, plasmaDPS;
 			if (selectedTier5 == 0) {
-				// 3.5m radius, Grunts move at 2.9 m/sec, and U34 Persistent Plasma slows by 20%
-				plasmaDoTDuration = 3.5 / (2.9 * 0.8);
+				// 3.25m radius, Grunts move at 2.9 m/sec, and U34 Persistent Plasma slows by 20%
+				plasmaDoTDuration = 3.25 / (2.9 * 0.8);
 				plasmaDPS = DoTInformation.Plasma_EPC_DPS;
 			}
 			else if (selectedTier5 == 1) {
@@ -691,8 +691,8 @@ public class BreachCutter extends Weapon {
 		
 		// T5.A "Explosive Goodbye"
 		if (selectedTier5 == 0) {
-			// U34 added a 20% Slow (x0.8 Movespeed) to the Persistent Plasma sphere. At 2.9 m/sec, it should take Grunts 3/(2.9*0.8) ~ 1.3 seconds to leave the sphere
-			utilityScores[3] += calculateNumGlyphidsInRadius(3.0) * 1.3 * 0.2;
+			// U34 added a 20% Slow (x0.8 Movespeed) to the Persistent Plasma sphere. At 2.9 m/sec, it should take Grunts 3.25/(2.9*0.8) ~ 1.4 seconds to leave the sphere
+			utilityScores[3] += calculateNumGlyphidsInRadius(3.25) * (3.25/(2.9*0.8)) * 0.2;
 		}
 		
 		// OC "High Voltage Contact"
