@@ -447,8 +447,11 @@ public class BreachCutter extends Weapon {
 		double impactDamage = getImpactDamage();
 		double dmgPerTick = getDamagePerTick();
 		double explosiveGoodbyeDmg = 0;
-		if (selectedTier5 == 0 && primaryTarget) {
+		if (selectedTier5 == 0) {
 			explosiveGoodbyeDmg = 40.0;
+			if (!primaryTarget) {
+				explosiveGoodbyeDmg *= aoeEfficiency[1];
+			}
 		}
 		
 		if (!ignoreStatusEffects) {
@@ -546,14 +549,13 @@ public class BreachCutter extends Weapon {
 	@Override
 	public boolean currentlyDealsSplashDamage() {
 		// Breach Cutter sometimes deals Splash damage for Explosive Goodbye
-		// TODO: in the current model, this splash damage doesn't get used. I'm unsure if I want to keep this.
 		return selectedTier5 == 0;
 	}
 	
 	@Override
 	protected void setAoEEfficiency() {
 		// According to GreyHound, Explosive Goodbye does 40 Explosive Damage in a 3.5m radius, 2.5m Full Damage radius, 50% Falloff.
-		// TODO: in the current model, this AoE Efficiency isn't used. I'm unsure if I want to keep this.
+		// This is only used in calculateAverageDamagePerGrunt(), when the 40 damage gets multiplied by the 0.8772 efficiency.
 		aoeEfficiency = calculateAverageAreaDamage(3.5, 2.5, 0.5);
 	}
 	

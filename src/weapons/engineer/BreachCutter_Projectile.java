@@ -82,20 +82,6 @@ public class BreachCutter_Projectile extends BreachCutter {
 	* Other Methods
 	****************************************************************************************/
 	
-	@Override
-	public boolean currentlyDealsSplashDamage() {
-		// Breach Cutter sometimes deals Splash damage for Explosive Goodbye
-		// TODO: in the current model, this splash damage doesn't get used. I'm unsure if I want to keep this.
-		return selectedTier5 == 0;
-	}
-	
-	@Override
-	protected void setAoEEfficiency() {
-		// According to GreyHound, Explosive Goodbye does 40 Explosive Damage in a 3.5m radius, 2.5m Full Damage radius, 50% Falloff.
-		// TODO: in the current model, this AoE Efficiency isn't used. I'm unsure if I want to keep this.
-		aoeEfficiency = calculateAverageAreaDamage(3.5, 2.5, 0.5);
-	}
-	
 	// Single-target calculations
 	private double calculateSingleTargetDPS(boolean primaryTarget, boolean weakpoint) {
 		double intersectionTime;
