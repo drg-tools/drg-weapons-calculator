@@ -1736,7 +1736,4 @@ public abstract class Weapon extends Observable {
 		
 		return toReturn;
 	}
-	
-	public abstract ArrayList<String> exportModsToMySQL(boolean exportAllMods);
-	public abstract ArrayList<String> exportOCsToMySQL(boolean exportAllOCs);
 }

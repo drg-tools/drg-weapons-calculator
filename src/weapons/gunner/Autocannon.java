@@ -1,7 +1,5 @@
 package weapons.gunner;
 
-import java.util.ArrayList;
-
 import dataGenerator.DatabaseConstants;
 import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
@@ -14,7 +12,6 @@ import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
-import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 import weapons.Weapon;
 
@@ -661,109 +658,5 @@ public class Autocannon extends Weapon {
 	public double damageWastedByArmor() {
 		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, getAreaDamage(), getArmorBreaking(), 0.0, getGeneralAccuracy(), getWeakpointAccuracy());
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
-	}
-	
-	@Override
-	public ArrayList<String> exportModsToMySQL(boolean exportAllMods) {
-		ConditionalArrayList<String> toReturn = new ConditionalArrayList<String>();
-		
-		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.modsTableName, getDwarfClassID(), getWeaponID());
-		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
-		
-		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
-		// Tier 1
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1200, 0, 25, 0, 0, 0, 0, tier1[0].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 3 } }", "Icon_Upgrade_DamageGeneral", "Damage"),
-				exportAllMods || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1200, 0, 0, 0, 0, 25, 0, tier1[1].getText(true), "{ \"clip\": { \"name\": \"Magazine Size\", \"value\": 110 } }", "Icon_Upgrade_ClipSize", "Magazine Size"),
-				exportAllMods || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 1, tier1[2].getLetterRepresentation(), tier1[2].getName(), 1200, 0, 0, 0, 25, 0, 0, tier1[2].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 220 } }", "Icon_Upgrade_Ammo", "Total Ammo"),
-				exportAllMods || false);
-		
-		// Tier 2
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 2000, 0, 0, 0, 24, 15, 0, tier2[0].getText(true), "{ \"ex3\": { \"name\": \"Base Spread\", \"value\": 30, \"percent\": true, \"subtract\": true } }", "Icon_Upgrade_Accuracy", "Accuracy"),
-				exportAllMods || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 2000, 0, 0, 0, 0, 15, 24, tier2[1].getText(true), "{ \"rate\": { \"name\": \"Top Rate of Fire\", \"value\": 1.5 } }", "Icon_Upgrade_FireRate", "Rate of Fire"),
-				exportAllMods || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 2000, 0, 15, 0, 0, 24, 0, tier2[2].getText(true), "{ \"ex4\": { \"name\": \"Rate of Fire Growth Speed\", \"value\": 100, \"percent\": true } }", "Icon_Upgrade_FireRate", "Rate of Fire"),
-				exportAllMods || false);
-		
-		// Tier 3
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2800, 0, 0, 0, 50, 0, 35, tier3[0].getText(true), "{ \"rate\": { \"name\": \"Top Rate of Fire\", \"value\": 2 } }", "Icon_Upgrade_FireRate", "Rate of Fire"),
-				exportAllMods || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2800, 35, 0, 50, 0, 0, 0, tier3[1].getText(true), "{ \"ex1\": { \"name\": \"Area Damage\", \"value\": 2 } }", "Icon_Upgrade_AreaDamage", "Area Damage"),
-				exportAllMods || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 3, tier3[2].getLetterRepresentation(), tier3[2].getName(), 2800, 50, 0, 0, 0, 35, 0, tier3[2].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 4 } }", "Icon_Upgrade_DamageGeneral", "Damage"),
-				exportAllMods || false);
-		
-		// Tier 4
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 4800, 48, 0, 0, 0, 50, 72, tier4[0].getText(true), "{ \"ex5\": { \"name\": \"Armor Breaking\", \"value\": 400, \"percent\": true } }", "Icon_Upgrade_ArmorBreaking", "Armor Breaking"),
-				exportAllMods || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 4800, 50, 0, 48, 0, 0, 72, tier4[1].getText(true), "{ \"ex2\": { \"name\": \"Effect Radius\", \"value\": 0.6 } }", "Icon_Upgrade_Area", "Area of effect"),
-				exportAllMods || false);
-		
-		// Tier 5
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 5600, 64, 70, 0, 140, 0, 0, tier5[0].getText(true), "{ \"ex7\": { \"name\": \"Top RoF Damage Bonus\", \"value\": 20, \"percent\": true } }", "Icon_Upgrade_DamageGeneral", "Damage"),
-				exportAllMods || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 5600, 64, 70, 140, 0, 0, 0, tier5[1].getText(true), "{ \"ex8\": { \"name\": \"Impact Fear AoE\", \"value\": 1 } }", "Icon_Upgrade_ScareEnemies", "Fear"),
-				exportAllMods || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 5, tier5[2].getLetterRepresentation(), tier5[2].getName(), 5600, 0, 0, 0, 64, 70, 140, tier5[2].getText(true), "{ \"ex9\": { \"name\": \"Damage Resistance at Full RoF\", \"value\": 33, \"percent\": true } }", "Icon_Upgrade_Resistance", "Resistance"),
-				exportAllMods || false);
-		
-		return toReturn;
-	}
-	@Override
-	public ArrayList<String> exportOCsToMySQL(boolean exportAllOCs) {
-		ConditionalArrayList<String> toReturn = new ConditionalArrayList<String>();
-		
-		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.OCsTableName, getDwarfClassID(), getWeaponID());
-		rowFormat += "'%s', %s, '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
-		
-		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
-		// Clean
-		toReturn.conditionalAdd(
-				String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 7850, 105, 0, 0, 135, 70, 0, overclocks[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 110 }, "
-				+ "\"reload\": { \"name\": \"Reload Time\", \"value\": 0.5, \"subtract\": true } }", "Icon_Upgrade_Ammo"),
-				exportAllOCs || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 7300, 65, 0, 0, 95, 0, 125, overclocks[1].getText(true), "{ \"ex1\": { \"name\": \"Area Damage\", \"value\": 1 }, "
-				+ "\"ex2\": { \"name\": \"Effect Radius\", \"value\": 0.3 } }", "Icon_Upgrade_Area"),
-				exportAllOCs || false);
-		
-		// Balanced
-		toReturn.conditionalAdd(
-				String.format(rowFormat, "Balanced", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 7350, 105, 0, 70, 120, 0, 0, overclocks[2].getText(true), "{ \"ex1\": { \"name\": \"Area Damage\", \"value\": 3 }, "
-				+ "\"ex2\": { \"name\": \"Effect Radius\", \"value\": 0.7 }, \"dmg\": { \"name\": \"Damage\", \"value\": 6, \"subtract\": true } }", "Icon_Upgrade_AreaDamage"),
-				exportAllOCs || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, "Balanced", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 7650, 95, 0, 0, 70, 0, 120, overclocks[3].getText(true), "{ \"ex6\": { \"name\": \"Movement Speed While Using\", \"value\": 35, \"percent\": true }, "
-				+ "\"reload\": { \"name\": \"Reload Time\", \"value\": 1, \"subtract\": true }, \"ex3\": { \"name\": \"Base Spread\", \"value\": 30, \"percent\": true, \"subtract\": true }, \"clip\": { \"name\": \"Magazine Size\", \"value\": 0.5, \"multiply\": true } }", "Icon_Upgrade_MovementSpeed"),
-				exportAllOCs || false);
-		
-		// Unstable
-		toReturn.conditionalAdd(
-				String.format(rowFormat, "Unstable", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 8400, 0, 125, 80, 105, 0, 0, overclocks[4].getText(true), "{ \"dmg\": { \"name\": \"Damage\", \"value\": 12 }, "
-				+ "\"clip\": { \"name\": \"Magazine Size\", \"value\": 0.5, \"multiply\": true }, \"ammo\": { \"name\": \"Max Ammo\", \"value\": 110, \"subtract\": true }, \"ex3\": { \"name\": \"Base Spread\", \"value\": 30, \"percent\": true, \"subtract\": true }, "
-				+ "\"rate\": { \"name\": \"Top Rate of Fire\", \"value\": 1.5, \"subtract\": true } }", "Icon_Upgrade_DamageGeneral"),
-				exportAllOCs || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 8100, 135, 0, 0, 100, 0, 75, overclocks[5].getText(true), "{ \"ex10\": { \"name\": \"Neurotoxin Payload\", \"value\": 1, \"boolean\": true }, "
-				+ "\"dmg\": { \"name\": \"Damage\", \"value\": 3, \"subtract\": true }, \"ex1\": { \"name\": \"Area Damage\", \"value\": 6, \"subtract\": true }, \"ex2\": { \"name\": \"Effect Radius\", \"value\": 0.3 } }", "Icon_Overclock_Neuro"),
-				exportAllOCs || false);
-		
-		return toReturn;
 	}
 }
