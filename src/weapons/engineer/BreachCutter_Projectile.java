@@ -91,10 +91,9 @@ public class BreachCutter_Projectile extends BreachCutter {
 	
 	@Override
 	protected void setAoEEfficiency() {
-		// According to Elythnwaen, Explosive Goodbye does 40 Explosive Damage in a 3m radius, 2m Full Damage radius. 
-		// No listed falloff percentage, so I'm just going to use the default 0.25
+		// According to GreyHound, Explosive Goodbye does 40 Explosive Damage in a 3.5m radius, 2.5m Full Damage radius, 50% Falloff.
 		// TODO: in the current model, this AoE Efficiency isn't used. I'm unsure if I want to keep this.
-		aoeEfficiency = calculateAverageAreaDamage(3, 2, 0.25);
+		aoeEfficiency = calculateAverageAreaDamage(3.5, 2.5, 0.5);
 	}
 	
 	// Single-target calculations
