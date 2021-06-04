@@ -117,7 +117,6 @@ public class GuiController implements ActionListener {
 	
 	private void createMetricsMysqlFile() {
 		ArrayList<String> mysqlCommands = new ArrayList<String>();
-		mysqlCommands.add(String.format("USE `%s`;\n\n", DatabaseConstants.databaseName));
 		mysqlCommands.add(String.format("DROP TABLE IF EXISTS `%s`;\n\n", DatabaseConstants.statsTableName));
 		mysqlCommands.add(String.format("CREATE TABLE `%s` (\n", DatabaseConstants.statsTableName));
 		mysqlCommands.add("    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,\n");
