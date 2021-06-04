@@ -1,7 +1,5 @@
 package weapons.engineer;
 
-import java.util.ArrayList;
-
 import dataGenerator.DatabaseConstants;
 import guiPieces.GuiConstants;
 import guiPieces.WeaponPictures;
@@ -13,7 +11,6 @@ import modelPieces.Mod;
 import modelPieces.Overclock;
 import modelPieces.StatsRow;
 import modelPieces.UtilityInformation;
-import utilities.ConditionalArrayList;
 import utilities.MathUtils;
 import weapons.Weapon;
 
@@ -105,8 +102,8 @@ public class BreachCutter extends Weapon {
 		tier4[1] = new Mod("Disruptive Frequency Tuning", "+100% Stun Chance, 3 sec Stun duration", modIcons.stun, 4, 1);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Explosive Goodbye", "After firing a line and a 0.4 second delay, the player can press the fire button again to manually detonate the line dealing 40 Explosive element Area Damage in a 3m radius "
-				+ "and leaving behind a 3m radius sphere of Persistent Plasma that does an average of " + MathUtils.round(DoTInformation.Plasma_EPC_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per second and slows enemies by 20% for 4.6 seconds. "
+		tier5[0] = new Mod("Explosive Goodbye", "After firing a line and a 0.4 second delay, the player can press the fire button again to manually detonate the line dealing 40 Explosive element Area Damage in a 3.5m radius "
+				+ "and leaving behind a 3.25m radius sphere of Persistent Plasma that does an average of " + MathUtils.round(DoTInformation.Plasma_EPC_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per second and slows enemies by 20% for 4.6 seconds. "
 				+ "If the player doesn't detonate it manually, the line explodes at the end of its lifetime.", modIcons.addedExplosion, 5, 0);
 		tier5[1] = new Mod("Plasma Trail", "Leaves behind a Persistent Plasma field that does an average of " + MathUtils.round(DoTInformation.Plasma_Trail_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per second for 4.6 seconds "
 				+ "along the entire length of the line's path", modIcons.areaDamage, 5, 1);
@@ -158,7 +155,7 @@ public class BreachCutter extends Weapon {
 		
 		// Spinning Death makes it move a lot slower
 		if (selectedOverclock == 5) {
-			// TODO: Dagadegatto says that this is still supposed to be 0.05 (0.5 m/sec) but U34 bugged it out and now it's going 1.5 m/sec and they haven't fixed it as of U34XP ending
+			// TODO: Dagadegatto says that this is still supposed to be 0.05 (0.5 m/sec) but U34 bugged it out and now it's going 1.5 m/sec and they haven't fixed it as of U34
 			toReturn *= 0.15;
 		}
 		
@@ -450,8 +447,11 @@ public class BreachCutter extends Weapon {
 		double impactDamage = getImpactDamage();
 		double dmgPerTick = getDamagePerTick();
 		double explosiveGoodbyeDmg = 0;
-		if (selectedTier5 == 0 && primaryTarget) {
+		if (selectedTier5 == 0) {
 			explosiveGoodbyeDmg = 40.0;
+			if (!primaryTarget) {
+				explosiveGoodbyeDmg *= aoeEfficiency[1];
+			}
 		}
 		
 		if (!ignoreStatusEffects) {
@@ -521,8 +521,8 @@ public class BreachCutter extends Weapon {
 		if (selectedTier5 == 0 || selectedTier5 == 1) {
 			double plasmaDoTDuration, plasmaDPS;
 			if (selectedTier5 == 0) {
-				// 3m radius, Grunts move at 2.9 m/sec, and U34 Persistent Plasma slows by 20%
-				plasmaDoTDuration = 3.0 / (2.9 * 0.8);
+				// 3.25m radius, Grunts move at 2.9 m/sec, and U34 Persistent Plasma slows by 20%
+				plasmaDoTDuration = 3.25 / (2.9 * 0.8);
 				plasmaDPS = DoTInformation.Plasma_EPC_DPS;
 			}
 			else if (selectedTier5 == 1) {
@@ -549,16 +549,14 @@ public class BreachCutter extends Weapon {
 	@Override
 	public boolean currentlyDealsSplashDamage() {
 		// Breach Cutter sometimes deals Splash damage for Explosive Goodbye
-		// TODO: in the current model, this splash damage doesn't get used. I'm unsure if I want to keep this.
 		return selectedTier5 == 0;
 	}
 	
 	@Override
 	protected void setAoEEfficiency() {
-		// According to Elythnwaen, Explosive Goodbye does 40 Explosive Damage in a 3m radius, 2m Full Damage radius. 
-		// No listed falloff percentage, so I'm just going to use the default 0.25
-		// TODO: in the current model, this AoE Efficiency isn't used. I'm unsure if I want to keep this.
-		aoeEfficiency = calculateAverageAreaDamage(3, 2, 0.25);
+		// According to GreyHound, Explosive Goodbye does 40 Explosive Damage in a 3.5m radius, 2.5m Full Damage radius, 50% Falloff.
+		// This is only used in calculateAverageDamagePerGrunt(), when the 40 damage gets multiplied by the 0.8772 efficiency.
+		aoeEfficiency = calculateAverageAreaDamage(3.5, 2.5, 0.5);
 	}
 	
 	// Single-target calculations
@@ -695,8 +693,8 @@ public class BreachCutter extends Weapon {
 		
 		// T5.A "Explosive Goodbye"
 		if (selectedTier5 == 0) {
-			// U34 added a 20% Slow (x0.8 Movespeed) to the Persistent Plasma sphere. At 2.9 m/sec, it should take Grunts 3/(2.9*0.8) ~ 1.3 seconds to leave the sphere
-			utilityScores[3] += calculateNumGlyphidsInRadius(3.0) * 1.3 * 0.2;
+			// U34 added a 20% Slow (x0.8 Movespeed) to the Persistent Plasma sphere. At 2.9 m/sec, it should take Grunts 3.25/(2.9*0.8) ~ 1.4 seconds to leave the sphere
+			utilityScores[3] += calculateNumGlyphidsInRadius(3.25) * (3.25/(2.9*0.8)) * 0.2;
 		}
 		
 		// OC "High Voltage Contact"
@@ -753,107 +751,5 @@ public class BreachCutter extends Weapon {
 	@Override
 	public double damageWastedByArmor() {
 		return 0;
-	}
-	
-	@Override
-	public ArrayList<String> exportModsToMySQL(boolean exportAllMods) {
-		ConditionalArrayList<String> toReturn = new ConditionalArrayList<String>();
-		
-		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.modsTableName, getDwarfClassID(), getWeaponID());
-		rowFormat += "%d, '%s', '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
-		
-		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
-		// Tier 1
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 1, tier1[0].getLetterRepresentation(), tier1[0].getName(), 1000, 0, 0, 20, 0, 0, 0, tier1[0].getText(true), "{ \"ex1\": { \"name\": \"Projectile Lifetime\", \"value\": 1.5 } }", "Icon_Upgrade_Duration", "Delay"),
-				exportAllMods || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 1, tier1[1].getLetterRepresentation(), tier1[1].getName(), 1000, 0, 20, 0, 0, 0, 0, tier1[1].getText(true), "{ \"clip\": { \"name\": \"Magazine Size\", \"value\": 3 } }", "Icon_Upgrade_ClipSize", "Magazine Size"),
-				exportAllMods || false);
-		
-		// Tier 2
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 2, tier2[0].getLetterRepresentation(), tier2[0].getName(), 1800, 0, 18, 12, 0, 0, 0, tier2[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 6 } }", "Icon_Upgrade_Ammo", "Total Ammo"),
-				exportAllMods || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 2, tier2[1].getLetterRepresentation(), tier2[1].getName(), 1800, 0, 0, 18, 0, 12, 0, tier2[1].getText(true), "{ \"dmg\": { \"name\": \"Beam DPS\", \"value\": 175 } }", "Icon_Upgrade_DamageGeneral", "Damage"),
-				exportAllMods || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 2, tier2[2].getLetterRepresentation(), tier2[2].getName(), 1800, 12, 0, 0, 18, 0, 0, tier2[2].getText(true), "{ \"ex2\": { \"name\": \"Plasma Beam Width\", \"value\": 1.5 } }", "Icon_Upgrade_Area", "Area of effect"),
-				exportAllMods || false);
-		
-		// Tier 3
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 3, tier3[0].getLetterRepresentation(), tier3[0].getName(), 2200, 0, 0, 20, 0, 30, 0, tier3[0].getText(true), "{ \"ex3\": { \"name\": \"Plasma Expansion Delay\", \"value\": 0.2, \"subtract\": true } }", "Icon_Upgrade_Duration", "Charge Speed"),
-				exportAllMods || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 3, tier3[1].getLetterRepresentation(), tier3[1].getName(), 2200, 20, 30, 0, 0, 0, 0, tier3[1].getText(true), "{ \"reload\": { \"name\": \"Reload Time\", \"value\": 0.4, \"subtract\": true } }", "Icon_Upgrade_Speed", "Reload Speed"),
-				exportAllMods || false);
-		
-		// Tier 4
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 4, tier4[0].getLetterRepresentation(), tier4[0].getName(), 3800, 0, 25, 15, 36, 0, 0, tier4[0].getText(true), "{ \"ex4\": { \"name\": \"Armor Breaking\", \"value\": 200, \"percent\": true } }", "Icon_Upgrade_ArmorBreaking", "Armor Breaking"),
-				exportAllMods || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 4, tier4[1].getLetterRepresentation(), tier4[1].getName(), 3800, 25, 0, 15, 0, 36, 0, tier4[1].getText(true), "{ \"ex13\": { \"name\": \"Stun Chance\", \"value\": 100, \"percent\": true }, "
-				+ "\"ex14\": { \"name\": \"Stun Duration\", \"value\": 3 } }", "Icon_Upgrade_Stun", "Stun"),
-				exportAllMods || false);
-		
-		// Tier 5
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 5, tier5[0].getLetterRepresentation(), tier5[0].getName(), 4400, 60, 0, 0, 40, 0, 110, tier5[0].getText(true), "{ \"ex5\": { \"name\": \"Explosive Goodbye\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Explosion", "Explosion"),
-				exportAllMods || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 5, tier5[1].getLetterRepresentation(), tier5[1].getName(), 4400, 110, 40, 0, 60, 0, 0, tier5[1].getText(true), "{ \"ex6\": { \"name\": \"Plasma Trail\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_AreaDamage", "Area Damage"),
-				exportAllMods || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, 5, tier5[2].getLetterRepresentation(), tier5[2].getName(), 4400, 0, 0, 40, 0, 110, 60, tier5[2].getText(true), "{ \"ex7\": { \"name\": \"Triple Split Line\", \"value\": 1, \"boolean\": true } }", "Icon_Upgrade_Area", "Area of effect"),
-				exportAllMods || false);
-		
-		return toReturn;
-	}
-	@Override
-	public ArrayList<String> exportOCsToMySQL(boolean exportAllOCs) {
-		ConditionalArrayList<String> toReturn = new ConditionalArrayList<String>();
-		
-		String rowFormat = String.format("INSERT INTO `%s` VALUES (NULL, %d, %d, ", DatabaseConstants.OCsTableName, getDwarfClassID(), getWeaponID());
-		rowFormat += "'%s', %s, '%s', %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', " + DatabaseConstants.patchNumberID + ");\n";
-		
-		// Credits, Magnite, Bismor, Umanite, Croppa, Enor Pearl, Jadiz
-		// Clean
-		toReturn.conditionalAdd(
-				String.format(rowFormat, "Clean", overclocks[0].getShortcutRepresentation(), overclocks[0].getName(), 8700, 0, 130, 0, 100, 0, 80, overclocks[0].getText(true), "{ \"ammo\": { \"name\": \"Max Ammo\", \"value\": 3 }, "
-				+ "\"reload\": { \"name\": \"Reload Time\", \"value\": 0.2, \"subtract\": true } }", "Icon_Upgrade_Ammo"),
-				exportAllOCs || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, "Clean", overclocks[1].getShortcutRepresentation(), overclocks[1].getName(), 8150, 80, 0, 135, 95, 0, 0, overclocks[1].getText(true), "{ \"ex8\": { \"name\": \"Roll Control\", \"value\": 1, \"boolean\": true } }", "Icon_Overclock_Spinning_Linecutter"),
-				exportAllOCs || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, "Clean", overclocks[2].getShortcutRepresentation(), overclocks[2].getName(), 8650, 75, 0, 0, 100, 0, 140, overclocks[2].getText(true), "{ \"dmg\": { \"name\": \"Beam DPS\", \"value\": 50 }, "
-				+ "\"ex1\": { \"name\": \"Projectile Lifetime\", \"value\": 0.5 } }", "Icon_Upgrade_DamageGeneral"),
-				exportAllOCs || false);
-		
-		// Balanced
-		toReturn.conditionalAdd(
-				String.format(rowFormat, "Balanced", overclocks[3].getShortcutRepresentation(), overclocks[3].getName(), 7950, 0, 140, 80, 0, 100, 0, overclocks[3].getText(true), "{ \"ex9\": { \"name\": \"Return to Sender\", \"value\": 1, \"boolean\": true }, "
-				+ "\"ammo\": { \"name\": \"Max Ammo\", \"value\": 6, \"subtract\": true } }", "Icon_Overclock_ForthAndBack_Linecutter"),
-				exportAllOCs || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, "Balanced", overclocks[4].getShortcutRepresentation(), overclocks[4].getName(), 7300, 0, 75, 120, 95, 0, 0, overclocks[4].getText(true), "{ \"ex11\": { \"name\": \"High Voltage Crossover\", \"value\": 1, \"boolean\": true }, "
-				+ "\"clip\": { \"name\": \"Magazine Size\", \"value\": 0.67, \"multiply\": true } }", "Icon_Upgrade_Electricity"),
-				exportAllOCs || false);
-		
-		// Unstable
-		toReturn.conditionalAdd(
-				String.format(rowFormat, "Unstable", overclocks[5].getShortcutRepresentation(), overclocks[5].getName(), 8250, 100, 120, 0, 0, 80, 0, overclocks[5].getText(true), "{ \"ex10\": { \"name\": \"Spinning Death\", \"value\": 1, \"boolean\": true }, "
-				+ "\"dmg\": { \"name\": \"Beam DPS\", \"value\": 0.2, \"multiply\": true }, \"ex1\": { \"name\": \"Projectile Lifetime\", \"value\": 2.5, \"multiply\": true }, \"ex2\": { \"name\": \"Plasma Beam Width\", \"value\": 1.5 }, "
-				+ "\"ammo\": { \"name\": \"Max Ammo\", \"value\": 0.5, \"multiply\": true }, \"clip\": { \"name\": \"Magazine Size\", \"value\": 0.33, \"multiply\": true } }", "Icon_Upgrade_Special"),
-				exportAllOCs || false);
-		toReturn.conditionalAdd(
-				String.format(rowFormat, "Unstable", overclocks[6].getShortcutRepresentation(), overclocks[6].getName(), 7550, 135, 0, 0, 70, 0, 90, overclocks[6].getText(true), "{ \"ex12\": { \"name\": \"Inferno\", \"value\": 1, \"boolean\": true }, "
-				+ "\"dmg\": { \"name\": \"Beam DPS\", \"value\": 175, \"subtract\": true }, \"ammo\": { \"name\": \"Max Ammo\", \"value\": 6, \"subtract\": true }, \"ex4\": { \"name\": \"Armor Breaking\", \"value\": 0.25, \"percent\": true, \"multiply\": true } }", "Icon_Upgrade_Heat"),
-				exportAllOCs || false);
-		
-		return toReturn;
 	}
 }

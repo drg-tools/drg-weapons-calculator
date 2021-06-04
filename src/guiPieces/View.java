@@ -38,7 +38,7 @@ public class View extends JFrame implements Observer {
 	private ButtonGroup dsHazGroup, dsPCGroup;
 	private JRadioButton dsHaz1, dsHaz2, dsHaz3, dsHaz4, dsHaz5, dsPC1, dsPC2, dsPC3, dsPC4;
 	private JMenu exportMenu;
-	private JMenuItem exportCurrent, exportAll, exportMetricsToMySQL;  // , exportModsOCsToMySQL, exportChangedModsOCsToMySQL;
+	private JMenuItem exportCurrent, exportAll, exportMetricsToMySQL;
 	private JMenu compareMenu;
 	private JMenuItem buildMetricsComparison, buildAccuracyGraphsComparison;
 	private JMenuItem[] loadCombinationToColumns;
@@ -277,12 +277,6 @@ public class View extends JFrame implements Observer {
 		exportMenu.add(exportAll);
 		exportMetricsToMySQL = new JMenuItem("Export all weapons' metrics to MySQL");
 		exportMenu.add(exportMetricsToMySQL);
-		/*
-		exportModsOCsToMySQL = new JMenuItem("Export all mods & OCs to MySQL");
-		exportMenu.add(exportModsOCsToMySQL);
-		exportChangedModsOCsToMySQL = new JMenuItem("Export changed mods & OCs to MySQL");
-		exportMenu.add(exportChangedModsOCsToMySQL);
-		*/
 		menuBar.add(exportMenu);
 		
 		// Compare two or more builds to each other menu
@@ -381,14 +375,6 @@ public class View extends JFrame implements Observer {
 	public JMenuItem getExportMetricsMySQL() {
 		return exportMetricsToMySQL;
 	}
-	/*
-	public JMenuItem getExportModsOCsMySQL() {
-		return exportModsOCsToMySQL;
-	}
-	public JMenuItem getExportChangedModsOCsMySQL() {
-		return exportChangedModsOCsToMySQL;
-	}
-	*/
 	
 	public JMenuItem getCompareBuildMetrics() {
 		return buildMetricsComparison;
@@ -461,10 +447,6 @@ public class View extends JFrame implements Observer {
 		exportCurrent.addActionListener(parent);
 		exportAll.addActionListener(parent);
 		exportMetricsToMySQL.addActionListener(parent);
-		/*
-		exportModsOCsToMySQL.addActionListener(parent);
-		exportChangedModsOCsToMySQL.addActionListener(parent);
-		*/
 		
 		buildMetricsComparison.addActionListener(parent);
 		buildAccuracyGraphsComparison.addActionListener(parent);

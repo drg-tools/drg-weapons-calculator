@@ -168,9 +168,18 @@ public class MetricsCalculator {
 		int[] tier5 = weaponToTest.getModsAtTier(5, false);
 		int[] overclocks = weaponToTest.getOverclocks(false);
 		
-		String format = "INSERT INTO `%s` VALUES(NULL, %d, %d, '%s', '%s', "  			// Identifying this row
-				+ "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, "  	// 16 primary target DPS calculations
-				+ "%f, %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %f, %f, %d);\n";  	// 15 other metrics and patch ID
+		String bulkInsertHeader = String.format("INSERT INTO `%s` (`id`, `character_id`, `gun_id`, `weapon_short_name`, `build_combination`, "
+				+ "`ideal_burst_dps`, `burst_dps_wp`, `burst_dps_acc`, `burst_dps_aw`, `burst_dps_wp_acc`, `burst_dps_wp_aw`, `burst_dps_acc_aw`, `burst_dps_wp_acc_aw`, "
+				+ "`ideal_sustained_dps`, `sustained_dps_wp`, `sustained_dps_acc`, `sustained_dps_aw`, `sustained_dps_wp_acc`, `sustained_dps_wp_aw`, `sustained_dps_acc_aw`, `sustained_dps_wp_acc_aw`, "
+				+ "`ideal_additional_target_dps`, `max_num_targets_per_shot`, `max_multi_target_damage`, `ammo_efficiency`, `damage_wasted_by_armor`, "
+				+ "`general_accuracy`, `weakpoint_accuracy`, `firing_duration`, `average_time_to_kill`, "
+				+ "`average_overkill`, `breakpoints`, `utility`, `average_time_to_ignite_or_freeze`, "
+				+ "`damage_per_magazine`, `time_to_fire_magazine`, `patch_id`)\nVALUES\n", DatabaseConstants.statsTableName);
+		toReturn.add(bulkInsertHeader);
+		
+		String format = "(NULL, %d, %d, '%s', '%s', "  										// Identifying this row
+				+ "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, "  		// 16 primary target DPS calculations
+				+ "%f, %d, %f, %f, %f, %f, %f, %f, %f, %f, %d, %f, %f, %f, %f, %d),\n";  	// 15 other metrics and patch ID
 		
 		// The overclocks are the outermost loop because they should change last, and tier 1 is the innermost loop since it should change first.
 		for (int oc: overclocks) {
@@ -193,7 +202,7 @@ public class MetricsCalculator {
 								
 								toReturn.add(String.format(format, 
 									// Identifying this row
-									DatabaseConstants.statsTableName, dwarfClassID, weaponID, simpleName, weaponToTest.getCombination(),
+									dwarfClassID, weaponID, simpleName, weaponToTest.getCombination(),
 									// 8 Burst DPS
 									weaponToTest.calculateSingleTargetDPS(true, false, false, false), weaponToTest.calculateSingleTargetDPS(true, true, false, false), 
 									weaponToTest.calculateSingleTargetDPS(true, false, true, false), weaponToTest.calculateSingleTargetDPS(true, false, false, true), 
@@ -216,6 +225,12 @@ public class MetricsCalculator {
 				}
 			}
 		}
+		
+		// Reach into the ArrayList, get the last VALUES row, and change its tailing comma to a semicolon to satisfy MySQL syntax.
+		int lastRowIndex = toReturn.size() - 1;
+		StringBuilder punctuationChanger = new StringBuilder(toReturn.get(lastRowIndex));
+		punctuationChanger.setCharAt(punctuationChanger.length() - 2, ';');
+		toReturn.set(lastRowIndex, punctuationChanger.toString() + "\n");
 		
 		// Return the weapon to the combination it had before
 		weaponToTest.buildFromCombination(currentCombination);

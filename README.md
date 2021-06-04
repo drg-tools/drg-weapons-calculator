@@ -90,6 +90,6 @@ ___
 ___
 According to CLOC, 1.1.0's metrics:
 * 96 .java files
-* 3804 blank lines
-* 2572 comment lines
-* 18648 code lines
+* 3575 blank lines
+* 2368 comment lines
+* 17260 code lines

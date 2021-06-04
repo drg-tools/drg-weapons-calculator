@@ -65,7 +65,7 @@ public class EnemyInformation {
 	public static double GlyphidGruntBodyAndLegsRadius = 1.10313;
 	
 	// Organized in same order as in-game Miner's Manual
-	private static Enemy[] enemiesModeled = new Enemy[] {
+	public static Enemy[] enemiesModeled = new Enemy[] {
 		new Swarmer(),
 		new Grunt(),
 		new Guard(),
@@ -392,7 +392,7 @@ public class EnemyInformation {
 	}
 	
 	/*
-		This method is used to quickly show how many shots it would take for projectile-based weapons to kill the 23 modeled creatures under various conditions. It models 
+		This method is used to quickly show how many shots it would take for projectile-based weapons to kill the 22 modeled creatures under various conditions. It models 
 		Elemental resistances, DoTs, Light Armor resistance, Weakpoint bonus damage, Subata's T5.B +20% vs Mactera, IFGs, and Frozen.
 		
 		The first two arguments are arrays of how much damage is being done of the three types (direct, area, and DoT) split between the elements in this order:

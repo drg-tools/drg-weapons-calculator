@@ -33,4 +33,9 @@ public class Warden extends Enemy {
 		// These variables are NOT how many armor plates the enemy has total, but rather how many armor plates will be modeled by ArmorWasting()
 		numArmorStrengthPlates = 3;
 	}
+	
+	@Override
+	public String getWeakpointName() {
+		return "Orb";
+	}
 }
