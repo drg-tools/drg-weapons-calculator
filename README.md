@@ -38,7 +38,7 @@ ___
   - Giving the player Damage Resistance
   - Average probability to break a Light Armor plate
   - Slowing enemies
-  - Inflicing Fear on enemies
+  - Inflicting Fear on enemies
   - Stunning enemies
   - Freezing enemies
 - Average time required to Ignite or Freeze an enemy (if the Weapon is able to do either Heat or Cold with its attacks)
@@ -59,7 +59,7 @@ After you finish installing it on your local computer, there are a wide variety 
   - Any Mod or Overclock that you already have selected will be guaranteed to be in the final build
   - Right-click on a Mod or Overclock to exclude it from being part of the calculations
 - By default, it starts out by modeling its metrics based on (Hazard 4/4 Player) Difficulty Scaling, but you can customize it to any Hazard level and any number of Players (excluding Deep Dive and Elite Deep Dive scaling)
-- Export the data for every comination of Mods and Overclocks for every weapon! 
+- Export the data for every combination of Mods and Overclocks for every weapon! 
   - Export a CSV file for only the selected model
   - Export the CSV files for all models simultaneously
   - Export every combination of every model in one giant MySQL table
