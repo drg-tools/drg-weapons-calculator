@@ -92,10 +92,11 @@ public class GrenadeLauncher extends Weapon {
 		tier4[1] = new Mod("Nails + Tape", "+1m AoE Radius", modIcons.aoeRadius, 4, 1);
 		tier4[2] = new Mod("Concussive Blast", "Stuns creatures within the blast radius for 3 seconds", modIcons.stun, 4, 2);
 		
-		tier5 = new Mod[2];
+		tier5 = new Mod[3];
 		tier5[0] = new Mod("Proximity Trigger", "After 0.2 seconds of arming time, any grenade that passes within 2m of an enemy will detonate after a 0.1 second delay. After being armed, grenades will emit a green light. "
 				+ "Grenades no longer explode upon impacting terrain, but instead automatically self-detonate 3.3 seconds after being fired or when they stop moving. Additionally, x1.1 AoE Radius.", modIcons.special, 5, 0);
 		tier5[1] = new Mod("Spiky Grenade", "+60 Direct Damage to any target directly impacted by a grenade.", modIcons.directDamage, 5, 1);
+		tier5[2] = new Mod("Disabled Inertia Inhibitor", "Changes the PGL to add the player's current velocity to the grenades being fired, instead of using a flat velocity for every grenade. ", modIcons.projectileVelocity, 5, 2, false);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Clean Sweep", "+10 Area Damage, +0.5m AoE Radius", overclockIcons.aoeRadius, 0);
