@@ -518,6 +518,7 @@ public class EnemyInformation {
 					burnDuration = (heatPerShot - alias.getDouseTemp()) / alias.getCoolingRate();
 				}
 				else {
+					// TODO: Lunari noticed a bug where Bullet Hell + Hot Bullets makes this "ignite" a swarmer in one bullet due to the floor() function, whereas it should need 2.
 					// This is technically an approximation and not precisely how it works in-game, but it's close enough for what I need.
 					numShotsToProcBurn = Math.floor((alias.getIgniteTemp() * RoF) / (heatPerShot * RoF - alias.getCoolingRate()));
 					burnDuration = (alias.getIgniteTemp() - alias.getDouseTemp()) / alias.getCoolingRate();
@@ -682,10 +683,10 @@ public class EnemyInformation {
 					heavyArmorHP = alias.getArmorBaseHealth() * normalResistance;
 					
 					if (embeddedDetonators) {
-						numShotsToBreakArmor = heavyArmorHP / (rawDirectDamage * armorBreaking);
+						numShotsToBreakArmor = Math.ceil(heavyArmorHP / (rawDirectDamage * armorBreaking));
 					}
 					else {
-						numShotsToBreakArmor = heavyArmorHP / ((rawDirectDamage + rawAreaDamage) * armorBreaking);
+						numShotsToBreakArmor = Math.ceil(heavyArmorHP / ((rawDirectDamage + rawAreaDamage) * armorBreaking));
 					}
 				}
 				else {

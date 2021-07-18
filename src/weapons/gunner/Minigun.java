@@ -470,7 +470,7 @@ public class Minigun extends Weapon {
 			generalAccuracy = 1.0;
 		}
 		
-		// Special case: the overclock Bullet Hell gives every bullet a 50% chance to ricochet into nearby enemies after impacting terrain or an enemy
+		// Special case: the overclock Bullet Hell gives every bullet a 75% chance to ricochet into nearby enemies after impacting terrain or an enemy
 		if (selectedOverclock == 5 && accuracy) {
 			// Never let it be above 1.0 probability to hit a target.
 			generalAccuracy = Math.min(generalAccuracy + 0.75, 1.0);
