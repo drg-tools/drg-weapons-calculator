@@ -518,9 +518,16 @@ public class EnemyInformation {
 					burnDuration = (heatPerShot - alias.getDouseTemp()) / alias.getCoolingRate();
 				}
 				else {
-					// TODO: Lunari noticed a bug where Bullet Hell + Hot Bullets makes this "ignite" a swarmer in one bullet due to the floor() function, whereas it should need 2.
-					// This is technically an approximation and not precisely how it works in-game, but it's close enough for what I need.
-					numShotsToProcBurn = Math.floor((alias.getIgniteTemp() * RoF) / (heatPerShot * RoF - alias.getCoolingRate()));
+					// First, check if the weapon can fully ignite the enemy in less than one second (the default interval for CoolingRate, only Bulk Detonators use 0.25)
+					if (heatPerShot * Math.floor(0.99 * RoF) >= alias.getIgniteTemp()) {
+						numShotsToProcBurn = Math.ceil(alias.getIgniteTemp() / heatPerShot);
+					}
+					// If not, then this has to account for the Cooling Rate increasing the number of shots required.
+					else {
+						// This is technically an approximation and not precisely how it works in-game, but it's close enough for what I need.
+						numShotsToProcBurn = Math.floor((alias.getIgniteTemp() * RoF) / (heatPerShot * RoF - alias.getCoolingRate()));
+					}
+					
 					burnDuration = (alias.getIgniteTemp() - alias.getDouseTemp()) / alias.getCoolingRate();
 				}
 			}
