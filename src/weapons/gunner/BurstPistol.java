@@ -51,7 +51,7 @@ public class BurstPistol extends Weapon {
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 21;
 		burstSize = 3;
-		delayBetweenBulletsDuringBurst = 0.05;
+		delayBetweenBulletsDuringBurst = 0.08;
 		carriedAmmo = 120;
 		magazineSize = 24;
 		rateOfFire = 3.0;
