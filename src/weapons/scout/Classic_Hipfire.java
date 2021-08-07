@@ -30,6 +30,7 @@ public class Classic_Hipfire extends Classic {
 	public Classic_Hipfire(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		super(mod1, mod2, mod3, mod4, mod5, overclock);
 		fullName = "M1000 Classic (Hipfired)";
+		customizableRoF = true;
 	}
 	
 	@Override
@@ -57,6 +58,29 @@ public class Classic_Hipfire extends Classic {
 	}
 	
 	@Override
+	public double getRecommendedRateOfFire() {
+		// Variables copied from estimatedAccuracy() to reverse-calculate the slow RoF needed for high accuracy
+		double spreadPerShot = 3.0 * getSpreadPerShot();
+		double spreadRecoverySpeed = 8.5;
+		
+		double recoilPitch = 50 * getRecoil();
+		double recoilYaw = 5 * getRecoil();
+		double mass = 4.0;
+		double springStiffness = 70;
+		
+		// These numbers are chosen arbitrarily.
+		double desiredIncreaseInSpread = 1.0;
+		double desiredIncreaseInRecoil = 1.08;
+		
+		double timeToRecoverSpread = (spreadPerShot - desiredIncreaseInSpread) / spreadRecoverySpeed;
+		double timeToRecoverRecoil = calculateTimeToRecoverRecoil(recoilPitch, recoilYaw, mass, springStiffness, desiredIncreaseInRecoil);
+		
+		double longerTime = Math.max(timeToRecoverSpread, timeToRecoverRecoil);
+		
+		return Math.min(1.0 / longerTime, getRateOfFire());
+	}
+	
+	@Override
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[11];
 		
@@ -67,7 +91,7 @@ public class Classic_Hipfire extends Classic {
 		boolean carriedAmmoModified = selectedTier1 == 0 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[2] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
-		toReturn[3] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedOverclock == 3);
+		toReturn[3] = new StatsRow("Rate of Fire:", getCustomRoF(), modIcons.rateOfFire, selectedOverclock == 3);
 		
 		toReturn[4] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedTier5 == 2 || selectedOverclock == 1 || selectedOverclock == 2);
 		
@@ -105,10 +129,10 @@ public class Classic_Hipfire extends Classic {
 		}
 		
 		if (burst) {
-			duration = ((double) getMagazineSize()) / getRateOfFire();
+			duration = ((double) getMagazineSize()) / getCustomRoF();
 		}
 		else {
-			duration = (((double) getMagazineSize()) / getRateOfFire()) + getReloadTime();
+			duration = (((double) getMagazineSize()) / getCustomRoF()) + getReloadTime();
 		}
 		
 		double directDamage = getDirectDamage();
@@ -179,7 +203,7 @@ public class Classic_Hipfire extends Classic {
 		double mass = 4.0;
 		double springStiffness = 70.0;
 		
-		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getRateOfFire(), getMagazineSize(), 1, 
+		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getCustomRoF(), getMagazineSize(), 1, 
 				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, minSpreadWhileMoving,
 				recoilPitch, recoilYaw, mass, springStiffness);
 	}
@@ -198,7 +222,7 @@ public class Classic_Hipfire extends Classic {
 		double[] dot_probability = new double[4];
 		
 		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
-															getWeakpointBonus(), getArmorBreaking(), getRateOfFire(), 0.0, 0.0, 
+															getWeakpointBonus(), getArmorBreaking(), getCustomRoF(), 0.0, 0.0, 
 															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
