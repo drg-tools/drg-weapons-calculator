@@ -398,8 +398,8 @@ public class Minigun extends Weapon {
 		return Math.floor(calculateFiringPeriod() * getRateOfFire() / 2.0);
 	}
 	private double calculateCooldownPeriod() {
-		// This equation took a while to figure out, and it's still just an approximation. A very close approximation, but an approximation nonetheless.
-		return getCoolingDelay() + 9.5 / getCoolingRate() + getCoolingRate() / 9;
+		// MikeGSG told me that my approximation was wrong. It's just a simple linear cooling rate. 6 Heat at 1.5 Cooling Rate would take 4 seconds to cool off, after the CoolingDelay.
+		return getCoolingDelay() + maxHeat / getCoolingRate();
 	}
 	
 	@Override
@@ -470,7 +470,7 @@ public class Minigun extends Weapon {
 			generalAccuracy = 1.0;
 		}
 		
-		// Special case: the overclock Bullet Hell gives every bullet a 50% chance to ricochet into nearby enemies after impacting terrain or an enemy
+		// Special case: the overclock Bullet Hell gives every bullet a 75% chance to ricochet into nearby enemies after impacting terrain or an enemy
 		if (selectedOverclock == 5 && accuracy) {
 			// Never let it be above 1.0 probability to hit a target.
 			generalAccuracy = Math.min(generalAccuracy + 0.75, 1.0);
@@ -487,6 +487,8 @@ public class Minigun extends Weapon {
 				GetAll GatlingHotShellsBonusUpgrade TemperatureRequired
 			
 			Unless Burning Hell is equipped, that's functionally the time before bullets have Heat Damage added to them.
+			
+			Additionally, from my own testing, it seems that the Heat Meter changes from Green to Yellow at y=30 and Yellow to Red at y=60. That's x=1.78 and x=3.88, respectively.
 		*/
 		double timeBeforeHotBullets = secondsBeforeHotBullets;
 		
