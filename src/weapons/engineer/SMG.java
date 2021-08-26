@@ -419,6 +419,8 @@ public class SMG extends Weapon {
 			There's no good way to model RNG-based mechanics' max damage, such as the Electrocute DoT. I'm choosing
 			to model it as how much DPS it does per magazine times how many seconds it takes to fire every bullet. 
 			This value should always be less than the full DoT DPS times firing duration.
+			
+			TODO: maybe change this to imitate how AC NTP has its Max Dmg calculated?
 		*/
 		totalDamage += calculateBurstElectrocutionDoTDPS() * calculateFiringDuration();
 		

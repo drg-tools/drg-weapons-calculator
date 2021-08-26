@@ -39,6 +39,7 @@ public class ButtonIcons {
 	private static BufferedImage durationWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Duration.png");
 	private static BufferedImage slowdownWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Sticky.png");
 	private static BufferedImage hourglassWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Duration_V2.png");
+	private static BufferedImage specialReloadWhite = ResourceLoader.loadImage("images/mod/white/Icon_Overclock_ExplosiveReload.png");
 	
 	private static BufferedImage baseSpreadBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Aim_Black.png");
 	private static BufferedImage magSizeBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_ClipSize_Black.png");
@@ -73,6 +74,7 @@ public class ButtonIcons {
 	private static BufferedImage durationBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Duration_Black.png");
 	private static BufferedImage slowdownBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Sticky_Black.png");
 	private static BufferedImage hourglassBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Duration_V2_Black.png");
+	private static BufferedImage specialReloadBlack = ResourceLoader.loadImage("images/mod/black/Icon_Overclock_ExplosiveReload_Black.png");
 	
 	// This gets used by StatsRow when there's no associated picture.
 	private static BufferedImage blank = ResourceLoader.loadImage("images/mod/blank.png");
@@ -80,7 +82,6 @@ public class ButtonIcons {
 	public static BufferedImage cleanFrame = ResourceLoader.loadImage("images/overclock/Frame_Overclock_Clean.png");
 	public static BufferedImage balancedFrame = ResourceLoader.loadImage("images/overclock/Frame_Overclock_Balanced.png");
 	public static BufferedImage unstableFrame = ResourceLoader.loadImage("images/overclock/Frame_Overclock_Unstable.png");
-	private static BufferedImage specialReload = ResourceLoader.loadImage("images/overclock/Icon_Overclock_ExplosiveReload.png");
 	private static BufferedImage minishells = ResourceLoader.loadImage("images/overclock/Icon_Overclock_SmallBullets.png");
 	private static BufferedImage grenadeJump = ResourceLoader.loadImage("images/overclock/Icon_Overclock_ExplosionJump.png");
 	private static BufferedImage hoverclock = ResourceLoader.loadImage("images/overclock/Icon_Overclock_Hoverclock.png");
@@ -127,7 +128,8 @@ public class ButtonIcons {
 		duration,
 		slowdown,
 		hourglass,
-		blank
+		blank,
+		specialReload
 	};
 	
 	public static BufferedImage getModIcon(modIcons iconSelection, boolean getBlackVersion) {
@@ -399,6 +401,14 @@ public class ButtonIcons {
 			case blank: {
 				return blank;
 			}
+			case specialReload: {
+				if (getBlackVersion) {
+					return specialReloadBlack;
+				}
+				else {
+					return specialReloadWhite;
+				}
+			}
 			default: {
 				return null;
 			}
@@ -437,7 +447,8 @@ public class ButtonIcons {
 		hourglass,
 		special,
 		rollControl,
-		returnToSender
+		returnToSender,
+		damageResistance
 	}
 	
 	public static BufferedImage getOverclockIcon(overclockIcons iconSelection) {
@@ -458,7 +469,7 @@ public class ButtonIcons {
 				return rateOfFireWhite;
 			}
 			case specialReload: {
-				return specialReload;
+				return specialReloadWhite;
 			}
 			case stun: {
 				return stunWhite;
@@ -537,6 +548,9 @@ public class ButtonIcons {
 			}
 			case returnToSender: {
 				return breachCutterReturn;
+			}
+			case damageResistance: {
+				return damageResistanceWhite;
 			}
 			default: {
 				return null;
