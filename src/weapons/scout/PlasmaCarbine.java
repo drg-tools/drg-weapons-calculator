@@ -88,17 +88,17 @@ public class PlasmaCarbine extends Weapon {
 		tier3 = new Mod[3];
 		tier3[0] = new Mod("Custom Coil Alignment", "-70% Base Spread", modIcons.baseSpread, 3, 0);
 		tier3[1] = new Mod("Gen 2 Cooling System", "+50% Cooling Rate, -0.1 sec Cooldown Delay", modIcons.coolingRate, 3, 1);
-		tier3[2] = new Mod("Hot Feet", "Move faster while the weapon is Overheated", modIcons.movespeed, 3, 2, false);
+		tier3[2] = new Mod("Hot Feet", "Move faster while the weapon is Overheated", modIcons.movespeed, 3, 2);
 		
 		tier4 = new Mod[3];
 		tier4[0] = new Mod("Overcharged PCF", "30% Chance to inflict an Electrocute DoT which does " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric "
-				+ "Damage per Second and slows enemies by 80% for " + DoTInformation.Electro_SecsDuration + " seconds.", modIcons.electricity, 4, 0, false);
+				+ "Damage per Second and slows enemies by 80% for " + DoTInformation.Electro_SecsDuration + " seconds.", modIcons.electricity, 4, 0);
 		tier4[1] = new Mod("Plasma Splash", "-5 Direct Damage, +5 Area Damage", modIcons.addedExplosion, 4, 1);
 		tier4[2] = new Mod("Destructive Resonance Amp", "+200% Armor Breaking", modIcons.armorBreaking, 4, 2);
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Manual Heat Dump", "Press the Reload button to manually activate the Overheat mode, for faster cooling", modIcons.specialReload, 5, 0, false);
-		tier5[1] = new Mod("Thermal Feedback Loop", "When the Heat Meter is greater than 50%, the Rate of Fire is increased by +7.6.", modIcons.special, 5, 1, false);
+		tier5[1] = new Mod("Thermal Feedback Loop", "When the Heat Meter is greater than 50%, the Rate of Fire is increased by +7.6.", modIcons.special, 5, 1);
 		
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Impact Deflection", "Projectiles are bouncy", overclockIcons.ricochet, 0, false);
@@ -109,7 +109,7 @@ public class PlasmaCarbine extends Weapon {
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Shield Battery Booster", "While Shield is full, increased Direct Damage? and +150% Projectile Velocity. In exchange, -160 Battery Capacity, -50% Cooling Rate, "
 				+ "+2.5 Overheat Duration, and +50% Heat per Shot. Additionally, when the weapon Overheats it disables your shield until the Overheat ends.", overclockIcons.damageResistance, 5, false);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Thermal Exhaust Feedback", "After the Heat Meter exceeds 50%, every additional 10% on the Heat Meter adds 5 Fire Damage and 5 Heat to every projectile, "
-				+ "up to +25 Damage/Heat at 90%. In exchange, +1.3 sec Overheat Duration and +20% Heat per Shot.", overclockIcons.heatDamage, 6, false);
+				+ "up to +25 Damage/Heat at 90%. In exchange, +1.3 sec Overheat Duration and +20% Heat per Shot.", overclockIcons.heatDamage, 6);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
 		modsAndOCsInitialized = true;
@@ -605,6 +605,9 @@ public class PlasmaCarbine extends Weapon {
 		if (selectedTier3 == 2) {
 			utilityScores[0] = getOverheatDuration() * MathUtils.round(0.5 * DwarfInformation.walkSpeed, 2) * UtilityInformation.Movespeed_Utility;
 		}
+		else {
+			utilityScores[0] = 0;
+		}
 		
 		// Armor Breaking
 		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDirectDamage() + getAreaDamage(), getArmorBreaking()) * UtilityInformation.ArmorBreak_Utility;
@@ -614,6 +617,9 @@ public class PlasmaCarbine extends Weapon {
 			// Electrocute
 			utilityScores[3] = calculateMaxNumTargets() * 0.3 * DoTInformation.Electro_SecsDuration * UtilityInformation.Electrocute_Slow_Utility;
 		}
+		else {
+			utilityScores[3] = 0;
+		}
 		
 		// Fear
 		if (selectedOverclock == 3) {
@@ -622,6 +628,9 @@ public class PlasmaCarbine extends Weapon {
 			int numGlyphidsFeared = (int) Math.round(aggressiveVentingAoeEfficiency[1] * aggressiveVentingAoeEfficiency[2]);
 			double probabilityToFear = calculateFearProcProbability(10.0);
 			utilityScores[4] = probabilityToFear * numGlyphidsFeared * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
+		}
+		else {
+			utilityScores[4] = 0;
 		}
 		
 		return MathUtils.sum(utilityScores);

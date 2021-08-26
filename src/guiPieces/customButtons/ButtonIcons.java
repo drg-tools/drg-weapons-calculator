@@ -448,7 +448,8 @@ public class ButtonIcons {
 		special,
 		rollControl,
 		returnToSender,
-		damageResistance
+		damageResistance,
+		blowthrough
 	}
 	
 	public static BufferedImage getOverclockIcon(overclockIcons iconSelection) {
@@ -551,6 +552,9 @@ public class ButtonIcons {
 			}
 			case damageResistance: {
 				return damageResistanceWhite;
+			}
+			case blowthrough: {
+				return blowthroughWhite;
 			}
 			default: {
 				return null;

@@ -6,8 +6,8 @@ public class DatabaseConstants {
 	public static String modsTableName = "mods";
 	public static String OCsTableName = "overclocks";
 	
-	public static String patchNumber = "34.5";
-	public static int patchNumberID = 7;
+	public static String patchNumber = "35.0";
+	public static int patchNumberID = 8;
 	
 	public static int drillerCharacterID = 3;
 	public static int engineerCharacterID = 1;
@@ -26,6 +26,7 @@ public class DatabaseConstants {
 	
 	public static int minigunGunsID = 13;
 	public static int autocannonGunsID = 14;
+	public static int guidedRocketLauncherGunsID = 18;  // TODO: update this to match Karl.gg database
 	public static int revolverGunsID = 15;
 	public static int burstPistolGunsID = 16;
 	
