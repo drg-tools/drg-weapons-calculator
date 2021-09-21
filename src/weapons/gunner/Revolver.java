@@ -110,7 +110,7 @@ public class Revolver extends Weapon {
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 75% chance to ricochet into a nearby enemy within 5m.", overclockIcons.ricochet, 0);
 		overclocks[1] = new Overclock(Overclock.classification.balanced, "Homebrew Powder", "Anywhere from x0.75 - x2 damage per shot, averaged to x" + revolverHomebrewPowderCoefficient, overclockIcons.homebrewPowder, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Bullets", "x4 Direct and Area Damage to Burning targets, -10 Direct Damage", overclockIcons.heatDamage, 2);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Bullets", "+300% Direct and Area Damage dealt to Burning enemies, -10 Direct Damage. Bonus damage is Fire element and adds the same amount of Heat, extending the Burn duration.", overclockIcons.heatDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Six Shooter", "+2 Magazine Size, +6 Max Ammo, +2 Rate of Fire, x1.5 Base Spread, +0.5 Reload Time", overclockIcons.magSize, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Elephant Rounds", "x2 Direct Damage, -1 Mag Size, -12 Max Ammo, +0.5 Reload Time, x0.5 Base Spread, +71% Spread per Shot, x1.5 Max Bloom, x1.5 Recoil, +3.5 Mass", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Magic Bullets", "All bullets that impact terrain automatically ricochet to nearby enemies within 5m (effectively raising accuracy to 100%). +8 Max Ammo, -20 Direct Damage", overclockIcons.ricochet, 5);
