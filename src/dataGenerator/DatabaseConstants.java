@@ -21,6 +21,7 @@ public class DatabaseConstants {
 	
 	public static int shotgunGunsID = 1;
 	public static int SMGGunsID = 2;
+	public static int smartRifleGunsID = 19;  // TODO: update this to match Karl.gg database
 	public static int grenadeLauncherGunsID = 3;
 	public static int breachCutterGunsID = 4;
 	

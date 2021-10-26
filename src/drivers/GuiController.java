@@ -37,6 +37,8 @@ import weapons.engineer.BreachCutter_Projectile;
 import weapons.engineer.GrenadeLauncher;
 import weapons.engineer.SMG;
 import weapons.engineer.Shotgun;
+import weapons.engineer.SmartRifle;
+import weapons.engineer.SmartRifle_LockOn;
 import weapons.gunner.Autocannon;
 import weapons.gunner.BurstPistol;
 import weapons.gunner.GuidedRocketLauncher;
@@ -71,7 +73,7 @@ public class GuiController implements ActionListener {
 	
 	public static void main(String[] args) {
 		Weapon[] drillerWeapons = new Weapon[] {new Flamethrower(), new CryoCannon(), new Subata(), new EPC_RegularShot(), new EPC_ChargeShot()};
-		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new GrenadeLauncher(), new BreachCutter(), new BreachCutter_Projectile()};
+		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new SmartRifle(), new SmartRifle_LockOn(), new GrenadeLauncher(), new BreachCutter(), new BreachCutter_Projectile()};
 		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new GuidedRocketLauncher(), new Revolver(), new BurstPistol()};
 		Weapon[] scoutWeapons = new Weapon[] {new AssaultRifle(), new Classic_Hipfire(), new Classic_FocusShot(), new PlasmaCarbine(), new Boomstick(), new Zhukov()};
 		View gui = new View(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons);

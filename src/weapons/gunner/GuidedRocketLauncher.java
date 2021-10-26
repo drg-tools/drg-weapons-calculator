@@ -99,7 +99,7 @@ public class GuidedRocketLauncher extends Weapon {
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Napalm-Infused Rounds", "Adds 50% of damage as Heat", modIcons.heatDamage, 5, 0);
 		tier5[1] = new Mod("Uncontrolled Decompression", "25% Chance to Stun enemies for 3 seconds", modIcons.stun, 5, 1);
-		tier5[2] = new Mod("Nitroglycerin Compound", "Rockets do more damage the longer they're airborne", modIcons.special, 5, 2, false);  // TODO: get the correct image; I think I remember seeing this as an older version of the image of Max Ammo.
+		tier5[2] = new Mod("Nitroglycerin Compound", "Rockets do more damage the longer they're airborne", modIcons.special, 5, 2, false);  // TODO: get the correct image; it's not currently in the Wiki.
 																																			// TODO: find the damage bonus vs distance traveled.
 		
 		overclocks = new Overclock[7];
@@ -323,7 +323,7 @@ public class GuidedRocketLauncher extends Weapon {
 		toReturn[7] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, maxAmmoModified);
 		toReturn[8] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier3 == 1 || selectedOverclock == 1);
 		toReturn[9] = new StatsRow("Reload Time:", reloadTime, modIcons.reloadSpeed, false);
-		toReturn[10] = new StatsRow("Weakpoint Bonus:", convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedTier4 == 0, selectedTier4 == 0);
+		toReturn[10] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedTier4 == 0, selectedTier4 == 0);
 		toReturn[11] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier2 == 1, selectedTier2 == 1);
 		
 		boolean stunEnabled = selectedTier5 == 1;

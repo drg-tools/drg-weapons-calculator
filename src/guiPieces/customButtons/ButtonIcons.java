@@ -40,6 +40,8 @@ public class ButtonIcons {
 	private static BufferedImage slowdownWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Sticky.png");
 	private static BufferedImage hourglassWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Duration_V2.png");
 	private static BufferedImage specialReloadWhite = ResourceLoader.loadImage("images/mod/white/Icon_Overclock_ExplosiveReload.png");
+	private static BufferedImage angleWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Angle.png");
+	private static BufferedImage lightWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Light.png");
 	
 	private static BufferedImage baseSpreadBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Aim_Black.png");
 	private static BufferedImage magSizeBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_ClipSize_Black.png");
@@ -75,6 +77,8 @@ public class ButtonIcons {
 	private static BufferedImage slowdownBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Sticky_Black.png");
 	private static BufferedImage hourglassBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Duration_V2_Black.png");
 	private static BufferedImage specialReloadBlack = ResourceLoader.loadImage("images/mod/black/Icon_Overclock_ExplosiveReload_Black.png");
+	private static BufferedImage angleBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Angle_Black.png");
+	private static BufferedImage lightBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Light_Black.png");
 	
 	// This gets used by StatsRow when there's no associated picture.
 	private static BufferedImage blank = ResourceLoader.loadImage("images/mod/blank.png");
@@ -129,7 +133,9 @@ public class ButtonIcons {
 		slowdown,
 		hourglass,
 		blank,
-		specialReload
+		specialReload,
+		angle,
+		light
 	};
 	
 	public static BufferedImage getModIcon(modIcons iconSelection, boolean getBlackVersion) {
@@ -409,6 +415,22 @@ public class ButtonIcons {
 					return specialReloadWhite;
 				}
 			}
+			case angle: {
+				if (getBlackVersion) {
+					return angleBlack;
+				}
+				else {
+					return angleWhite;
+				}
+			}
+			case light: {
+				if (getBlackVersion) {
+					return lightBlack;
+				}
+				else {
+					return lightWhite;
+				}
+			}
 			default: {
 				return null;
 			}
@@ -449,7 +471,11 @@ public class ButtonIcons {
 		rollControl,
 		returnToSender,
 		damageResistance,
-		blowthrough
+		blowthrough,
+		armorBreaking,
+		addedExplosion,
+		weakpointBonus,
+		slowdown
 	}
 	
 	public static BufferedImage getOverclockIcon(overclockIcons iconSelection) {
@@ -555,6 +581,18 @@ public class ButtonIcons {
 			}
 			case blowthrough: {
 				return blowthroughWhite;
+			}
+			case armorBreaking: {
+				return armorBreakingWhite;
+			}
+			case addedExplosion: {
+				return addedExplosionWhite;
+			}
+			case weakpointBonus: {
+				return weakpointBonusWhite;
+			}
+			case slowdown: {
+				return slowdownWhite;
 			}
 			default: {
 				return null;
