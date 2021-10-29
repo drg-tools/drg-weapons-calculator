@@ -576,7 +576,7 @@ public class BurstPistol extends Weapon {
 	
 	@Override
 	public double damagePerMagazine() {
-		return getDirectDamage() * getMagazineSize();
+		return getDirectDamage() * getMagazineSize() * calculateBlowthroughDamageMultiplier(getMaxPenetrations());
 	}
 	
 	@Override

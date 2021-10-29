@@ -554,7 +554,7 @@ public class Zhukov extends Weapon {
 	@Override
 	public double damagePerMagazine() {
 		double effectiveMagazineSize = getMagazineSize() / 2.0;
-		return effectiveMagazineSize * (getDirectDamage() + getAreaDamage()) * calculateMaxNumTargets();
+		return effectiveMagazineSize * (getDirectDamage() + getAreaDamage()) * calculateBlowthroughDamageMultiplier(getMaxPenetrations());
 	}
 	
 	@Override

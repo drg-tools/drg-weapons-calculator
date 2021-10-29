@@ -25,10 +25,11 @@ public class SmartRifle extends Weapon {
 	private double reloadTime;
 	private double timeBetweenBulletsDuringBurst;
 	private double lockonRange;
-	private double lockonThreshold;
+	private double maxLockonDegree;
+	private double loseLockonDegree;
 	private double lockonTime;
-	private double lockonDuration;
 	private int maxNumLockons;
+	private double armorBreaking;
 	
 	/****************************************************************************************
 	* Constructors
@@ -51,17 +52,19 @@ public class SmartRifle extends Weapon {
 		customizableRoF = true;
 		
 		// Base stats, before mods or overclocks alter them:
-		directDamage = 20;
+		directDamage = 21;
 		carriedAmmo = 180;
 		magazineSize = 36;
 		rateOfFire = 6.0;
 		reloadTime = 3.0;
-		timeBetweenBulletsDuringBurst = 0.08;
+		timeBetweenBulletsDuringBurst = 0.06;
 		lockonRange = 25.0; // meters
-		lockonThreshold = 40.0; // degrees
-		lockonTime = 0.25;
-		lockonDuration = 4.0;
+		// Note: these are actual degrees. To compare to Accuracy's terminology, these are equal to "20 Spread" and "140 Spread" respectively.
+		maxLockonDegree = 10.0;
+		loseLockonDegree = 70.0;
+		lockonTime = 0.1;
 		maxNumLockons = 12;
+		armorBreaking = 1.5;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -81,36 +84,37 @@ public class SmartRifle extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[2];
-		tier1[0] = new Mod("Increased Caliber Rounds", "+7 Direct Damage", modIcons.directDamage, 1, 0);
+		tier1[0] = new Mod("Increased Caliber Rounds", "+6 Direct Damage", modIcons.directDamage, 1, 0);
 		tier1[1] = new Mod("Expanded Ammo Bags", "+72 Max Ammo", modIcons.carriedAmmo, 1, 1);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Macro Lens", "+25m Lock-On Range, -50% Lock-On Threshold", modIcons.aoeRadius, 2, 0, false);
-		tier2[1] = new Mod("CCD Array Add-On", "+50% Lock-On Threshold", modIcons.angle, 2, 1, false);
+		tier2[0] = new Mod("Macro Lens", "x2 Lock-On Range, x0.2 Lock-On Threshold", modIcons.aoeRadius, 2, 0, false);
+		tier2[1] = new Mod("CCD Array Add-On", "+1.3 degrees Lock-On Threshold, x1.5 lose Lock-On threshold", modIcons.angle, 2, 1, false);
 		tier2[2] = new Mod("Zoom Lens", "+10m Lock-On Range", modIcons.distance, 2, 2, false);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Electro-Chemical Rounds", "x1.33 Damage vs enemies afflicted by Electrocution, IFG Grenade, or Burning", modIcons.directDamage, 3, 0);
-		tier3[1] = new Mod("SM&#7449;T Targeting Software", "Lock-On now prioritizes low-health enemies, and cannot stack more locks on a target than the number of shots required to kill it.", modIcons.light, 3, 1, false);
+		tier3[0] = new Mod("Electro-Chemical Rounds", "+20% Direct Damage vs enemies afflicted by Electrocution, IFG Grenade, or Burning. "
+				+ "The bonus damage element matches the Status Effect's element, extends Burn DoT duration, and can be applied twice per bullet (once for Electric damage, once for Fire damage + Heat).", modIcons.special, 3, 0);
+		tier3[1] = new Mod("SM&#7449;T Targeting Software&#8482;", "Lock-On now prioritizes low-health enemies, and cannot stack more locks on a target than the number of shots required to kill it.", modIcons.light, 3, 1, false);
 		tier3[2] = new Mod("Piercing Rounds", "+1 Penetration", modIcons.blowthrough, 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Shutter Speed Sensor", "-20% Lock-On Time", modIcons.baseSpread, 4, 0);
-		tier4[1] = new Mod("Aperture Extension", "+6 Max Number of Lock-Ons", modIcons.baseSpread, 4, 1);
+		tier4[0] = new Mod("Shutter Speed Sensor", "x0.8 Lock-On Time", modIcons.baseSpread, 4, 0);
+		tier4[1] = new Mod("Aperture Extension", "+6 Max Number of Lock-Ons", modIcons.baseSpread, 4, 1);  // TODO: need to get the new icon from somewhere... maybe CyRob?
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Electric Generator Mod", "Targets with 3 or more Locks on them get Electrocuted when shot", modIcons.electricity, 5, 0);
+		tier5[0] = new Mod("Electric Generator Mod", "Targets with 3 or more Locks on them get Electrocuted when the burst gets fired. The Electrocute DoT does 12 Electic-element Damage per Second, slows enemies by 80%, and lasts for 3 seconds.", modIcons.electricity, 5, 0);
 		tier5[1] = new Mod("Unstable Lock Mechanism", "Full Lock increases the damage of all shots by 20%", modIcons.directDamage, 5, 1);
-		tier5[2] = new Mod("High Frequency Bullet", "Full Lock scares enemies", modIcons.fear, 5, 2);
+		tier5[2] = new Mod("High Frequency Bullet", "Firing a burst with Full Lock makes every bullet that damages an enemy inflict 1.0 Fear Factor.", modIcons.fear, 5, 2);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Armor Break Module", "Armor Breaking on Full Lock", overclockIcons.armorBreaking, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Eraser", "+12 Magazine Size, +6 Max Number of Lock-Ons", overclockIcons.magSize, 1);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Seeker Rounds", "Lock-On shots will always hit their target and ignore Armor, with +33% Lock-On Threshold. In exchange: 25% slower Burst Fire speed and +0.5 Reload Time.", overclockIcons.baseSpread, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Explosive Chemical Rounds", "Targets with 3 or more Locks on them will explode when shot, dealing 15 Area Damage in a 3m radius around them. "
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Armor Break Module", "x6 Armor Breaking on Full Lock", overclockIcons.armorBreaking, 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Eraser", "+12 Magazine Size, x1.33 Max Number of Lock-Ons", overclockIcons.magSize, 1);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Seeker Rounds", "Lock-On shots will always hit their target and ignore Armor, with x1.33 Lock-On Threshold. In exchange: 47.37% slower Burst Fire speed and +0.5 Reload Time.", overclockIcons.baseSpread, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Explosive Chemical Rounds", "Targets with 3 or more Locks on them will tigger an explosion on the last shot, dealing 50 Area Damage and 0.5 Fear Factor in a 4m radius around them. "
 				+ "In exchange: -5 Direct Damage and -36 Max Ammo", overclockIcons.addedExplosion, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Executioner", "+70% Weakpoint Bonus on Full Lock, -50% Lock-On Time, -12 Magazine Size, -12 Max Ammo", overclockIcons.weakpointBonus, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neuro-Lasso", "Each Lock on an enemy slows it down by 5%, up to a maximum of 50%. In exchange: +75% Lock-On Time, Limited Lock-On Duration, and -6 Max Number of Lock-Ons", overclockIcons.slowdown, 5);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Executioner", "+100% Weakpoint Bonus on Full Lock, x0.5 Lock-On Time, x0.66 Max Number of Lock-Ons, -12 Magazine Size, -12 Max Ammo", overclockIcons.weakpointBonus, 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neuro-Lasso", "Each Lock on an enemy slows it down by 10% (x0.9), and the slows multiply together on each enemy. In exchange: x1.5 Lock-On Time and Limited Lock-On Duration of 5 seconds", overclockIcons.slowdown, 5);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
 		modsAndOCsInitialized = true;
@@ -142,7 +146,7 @@ public class SmartRifle extends Weapon {
 		double toReturn = directDamage;
 		
 		if (selectedTier1 == 0) {
-			toReturn += 7;
+			toReturn += 6;
 		}
 		
 		if (selectedOverclock == 3) {
@@ -153,7 +157,8 @@ public class SmartRifle extends Weapon {
 	}
 	protected double getAreaDamage() {
 		if (selectedOverclock == 3) {
-			return 15;
+			// 50 Area Damage, 50% falloff, 4m radius, 2m maxdmgradius, 0.5 fear
+			return 50;
 		}
 		else {
 			return 0;
@@ -161,7 +166,7 @@ public class SmartRifle extends Weapon {
 	}
 	protected double getAoERadius() {
 		if (selectedOverclock == 3) {
-			return 3;
+			return 4;
 		}
 		else {
 			return 0;
@@ -211,19 +216,21 @@ public class SmartRifle extends Weapon {
 	}
 	protected double getWeakpointBonus() {
 		if (selectedOverclock == 4) {
-			return 0.7;
+			// In the files this is actually x2, but for notation consistency with other weapons I'm choosing to display it as +100%
+			return 1.0;
 		}
 		else {
 			return 0.0;
 		}
 	}
 	protected double getArmorBreaking() {
+		double toReturn = armorBreaking;
+		
 		if (selectedOverclock == 0) {
-			return 6.0;
+			toReturn *= 6.0;
 		}
-		else {
-			return 1.0;
-		}
+		
+		return toReturn;
 	}
 	protected int getNumberOfPenetrations() {
 		if (selectedTier3 == 2) {
@@ -237,7 +244,7 @@ public class SmartRifle extends Weapon {
 		double toReturn = timeBetweenBulletsDuringBurst;
 		
 		if (selectedOverclock == 2) {
-			toReturn *= 1.25;
+			toReturn *= 1.9;
 		}
 		
 		return toReturn;
@@ -255,62 +262,71 @@ public class SmartRifle extends Weapon {
 		
 		return toReturn;
 	}
-	protected double getLockonThreshold() {
-		double modifier = 1.0;
+	protected double getMaxLockonDegree() {
+		double toReturn = maxLockonDegree;
 		
 		if (selectedTier2 == 0) {
-			modifier -= 0.5; 
+			toReturn *= 0.2; 
 		}
 		else if (selectedTier2 == 1) {
-			modifier += 0.5;
+			toReturn += 1.3;
 		}
 		
 		if (selectedOverclock == 2) {
-			modifier += 0.33;
-		}
-		
-		return lockonThreshold * modifier;
-	}
-	protected double getLockonTime() {
-		double modifier = 1.0;
-		
-		if (selectedTier4 == 0) {
-			modifier -= 0.2;
-		}
-		
-		if (selectedOverclock == 4) {
-			modifier -= 0.5;
-		}
-		else if (selectedOverclock == 5) {
-			modifier += 0.75;
-		}
-		
-		return lockonTime * modifier;
-	}
-	protected double getLockonDuration() {
-		double toReturn = lockonDuration;
-		
-		if (selectedOverclock == 5) {
-			toReturn -= 2;
+			toReturn *= 1.33;
 		}
 		
 		return toReturn;
 	}
+	protected double getLoseLockonDegree() {
+		double toReturn = loseLockonDegree;
+		
+		if (selectedTier2 == 1) {
+			toReturn *= 1.5;
+		}
+		
+		return toReturn;
+	}
+	protected double getLockonTime() {
+		double toReturn = lockonTime;
+		
+		if (selectedTier4 == 0) {
+			toReturn *= 0.8;
+		}
+		
+		if (selectedOverclock == 4) {
+			toReturn *= 0.5;
+		}
+		else if (selectedOverclock == 5) {
+			toReturn *= 1.5;
+		}
+		
+		return toReturn;
+	}
+	protected double getLockonDuration() {
+		if (selectedOverclock == 5) {
+			return 5.0;
+		}
+		else {
+			// This will indicate that it has "infinite" duration, barring the enemy leaving the LoseLockonDegree threshold.
+			return -1;
+		}
+	}
 	protected int getMaxNumLockons() {
-		int toReturn = maxNumLockons;
+		double toReturn = maxNumLockons;
 		
 		if (selectedTier4 == 1) {
 			toReturn += 6;
 		}
 		
 		if (selectedOverclock == 1) {
-			toReturn += 6;
+			toReturn *= 1.33;
 		}
-		else if (selectedOverclock == 5) {
-			toReturn -= 6;
+		else if (selectedOverclock == 4) {
+			toReturn *= 0.66;
 		}
 		
-		return toReturn;
+		return (int) Math.round(toReturn);
 	}
 	
 	@Override
@@ -320,7 +336,7 @@ public class SmartRifle extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[6];
+		StatsRow[] toReturn = new StatsRow[7];
 		
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, selectedTier1 == 0 || selectedOverclock == 3);
 		toReturn[1] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, selectedOverclock == 1 || selectedOverclock == 4);
@@ -328,7 +344,8 @@ public class SmartRifle extends Weapon {
 		toReturn[2] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, maxAmmoModified);
 		toReturn[3] = new StatsRow("Rate of Fire:", getCustomRoF(), modIcons.rateOfFire, false);
 		toReturn[4] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 2);
-		toReturn[5] = new StatsRow("Max Penetrations:", getNumberOfPenetrations(), modIcons.blowthrough, selectedTier3 == 2, selectedTier3 == 2);
+		toReturn[5] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(armorBreaking), modIcons.armorBreaking, false);
+		toReturn[6] = new StatsRow("Max Penetrations:", getNumberOfPenetrations(), modIcons.blowthrough, selectedTier3 == 2, selectedTier3 == 2);
 		
 		return toReturn;
 	}
@@ -381,8 +398,18 @@ public class SmartRifle extends Weapon {
 		}
 		
 		// T3.A "Electro-Chemical Rounds" damage increase
-		if (selectedTier3 == 0 && (statusEffects[0] || statusEffects[2] || statusEffects[3])) {
-			directDamage *= 1.33;
+		if (selectedTier3 == 0) {
+			// Currently, the +20% Fire-element + Heat and +20% Electric-element damage components are added separately, so this can add up to +40% damage per shot.
+			double multiplier = 1.0;
+			
+			if (statusEffects[0]) {
+				multiplier += 0.2;
+			}
+			if (statusEffects[2] || statusEffects[3]) {
+				multiplier += 0.2;
+			}
+			
+			directDamage *= multiplier;
 		}
 		
 		double weakpointAccuracy;
@@ -443,16 +470,17 @@ public class SmartRifle extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		double baseSpread = 0.9;
-		double spreadPerShot = 1.4;
-		double spreadRecoverySpeed = 8.1;
-		double maxBloom = 4.2;
-		double minSpreadWhileMoving = 1.0;
+		double baseSpread = 1.3;
+		double spreadPerShot = 3.5;
+		double spreadRecoverySpeed = 10.0;
+		double maxBloom = 5.0;
+		double minSpreadWhileMoving = 0.7;  // 3.0 while sprinting
 		
+		// Technically the SmartRifle can have its RecoilPitch range anywhere from 30 to 40, but for simplicity's sake I'm choosing to use the average of 35.
 		double recoilPitch = 35.0;
 		double recoilYaw = 5.0;
-		double mass = 1.0;
-		double springStiffness = 50.0;
+		double mass = 1.5;
+		double springStiffness = 70.0;
 		
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getCustomRoF(), getMagazineSize(), 1, 
 				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, minSpreadWhileMoving,
@@ -465,9 +493,17 @@ public class SmartRifle extends Weapon {
 		double[] directDamage = new double[5];
 		directDamage[0] = getDirectDamage();  // Kinetic
 		
-		// T4.A "Electro-Chemical Rounds" is a x1.33 Damage multiplier vs enemies afflicted by Burning, Electrocute, or IFG
-		if (selectedTier3 == 0 && (statusEffects[0] || statusEffects[2] || statusEffects[3])) {
-			directDamage[0] *= 1.33;
+		// T3.A "Electro-Chemical Rounds" is a x1.2 Damage multiplier vs enemies afflicted by Burning, Electrocute, or IFG
+		if (selectedTier3 == 0) {
+			// Burning adds Fire-element
+			if (statusEffects[0]) {
+				directDamage[2] = 0.2 * directDamage[0];
+			}
+			
+			// Electrocute/IFG adds Electric Element
+			if (statusEffects[2] || statusEffects[3]) {
+				directDamage[4] = 0.2 * directDamage[0];
+			}
 		}
 		
 		double[] areaDamage = new double[5];
@@ -478,7 +514,7 @@ public class SmartRifle extends Weapon {
 		double[] dot_probability = new double[4];
 		
 		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
-															0.0, 1.0, getCustomRoF(), 0.0, 0.0, 
+															0.0, armorBreaking, getCustomRoF(), 0.0, 0.0, 
 															statusEffects[1], statusEffects[3], false, false);
 		return MathUtils.sum(breakpoints);
 	}
@@ -488,7 +524,7 @@ public class SmartRifle extends Weapon {
 		// All of the Utility of this weapon is only accessible via the Lock-On functionality (which this object doesn't model)
 		
 		// Light Armor Breaking probability
-		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDirectDamage()) * UtilityInformation.ArmorBreak_Utility;
+		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDirectDamage(), armorBreaking) * UtilityInformation.ArmorBreak_Utility;
 		
 		return MathUtils.sum(utilityScores);
 	}
@@ -510,7 +546,7 @@ public class SmartRifle extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, 0.0, 1.0, 0.0, getGeneralAccuracy(), getWeakpointAccuracy());
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, 0.0, armorBreaking, 0.0, getGeneralAccuracy(), getWeakpointAccuracy());
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 }

@@ -266,7 +266,7 @@ public class Classic_FocusShot extends Classic {
 	
 	@Override
 	public double damagePerMagazine() {
-		double bulletDamage = getDirectDamage() * getFocusedShotMultiplier() * getMagazineSize();
+		double bulletDamage = getDirectDamage() * getFocusedShotMultiplier() * getMagazineSize() * calculateBlowthroughDamageMultiplier(getMaxPenetrations());
 		
 		double electrocuteDamage = 0;
 		if (selectedOverclock == 4) {
@@ -274,7 +274,7 @@ public class Classic_FocusShot extends Classic {
 			electrocuteDamage = calculateAverageDoTDamagePerEnemy(0, 4, DoTInformation.Electro_DPS);
 		}
 		
-		return (bulletDamage + electrocuteDamage) * calculateMaxNumTargets();
+		return bulletDamage + electrocuteDamage * calculateMaxNumTargets();
 	}
 	
 	@Override
