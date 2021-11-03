@@ -43,7 +43,7 @@ public abstract class Classic extends Weapon {
 		carriedAmmo = 96;
 		magazineSize = 8;
 		rateOfFire = 4.0;
-		reloadTime = 2.5;
+		reloadTime = 2.55;
 		focusDuration = 1.0 / 1.6;  // seconds
 		movespeedWhileFocusing = 0.3;
 		armorBreaking = 0.3;

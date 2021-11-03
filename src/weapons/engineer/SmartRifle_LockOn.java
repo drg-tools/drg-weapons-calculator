@@ -372,8 +372,11 @@ public class SmartRifle_LockOn extends SmartRifle {
 		
 		// Fear
 		utilityScores[4] = 0;
-		// T5.C "High Frequency Bullet" adds 1.0 Fear to every bullet fired that damages an enemy when at Full Lock.
+		// T5.C "Fear Frequency" does a burst of 2.5 Fear in a 5m radius around then player on the last bullet fired from Full Lock.
 		if (selectedTier5 == 2) {
+			// Just like SMG OC "Turret EM Discharge", I'm choosing to artificially halve the radius of the AoE Fear effect to get more realistic numbers.
+			double numEnemiesHitByFear = 12.0; // calculateNumGlyphidsInRadius(2.5);
+			System.out.println(numEnemiesHitByFear);
 			double fearDuration = 0;
 			if (selectedOverclock == 5) {
 				fearDuration = EnemyInformation.averageFearDuration(1.0 - Math.pow(0.9, avgNumLocksPerEnemy), 5.0);
@@ -381,7 +384,7 @@ public class SmartRifle_LockOn extends SmartRifle {
 			else {
 				fearDuration = EnemyInformation.averageFearDuration();
 			}
-			utilityScores[4] += calculateFearProcProbability(1.0) * avgNumEnemiesLockedOnto * fearDuration * UtilityInformation.Fear_Utility;
+			utilityScores[4] += calculateFearProcProbability(2.5) * numEnemiesHitByFear * fearDuration * UtilityInformation.Fear_Utility;
 		}
 		
 		// OC "Explosive Chemical Rounds" inflicts 0.5 Fear to all enemies within its 4m radius

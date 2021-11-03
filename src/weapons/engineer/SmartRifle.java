@@ -88,7 +88,7 @@ public class SmartRifle extends Weapon {
 		tier1[1] = new Mod("Expanded Ammo Bags", "+72 Max Ammo", modIcons.carriedAmmo, 1, 1);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Macro Lens", "x2 Lock-On Range, x0.2 Lock-On Threshold", modIcons.aoeRadius, 2, 0, false);
+		tier2[0] = new Mod("Macro Lens", "x2 Lock-On Range, x0.2 Lock-On Threshold", modIcons.baseSpread, 2, 0, false);
 		tier2[1] = new Mod("CCD Array Add-On", "+1.3 degrees Lock-On Threshold, x1.5 lose Lock-On threshold", modIcons.angle, 2, 1, false);
 		tier2[2] = new Mod("Zoom Lens", "+10m Lock-On Range", modIcons.distance, 2, 2, false);
 		
@@ -99,16 +99,16 @@ public class SmartRifle extends Weapon {
 		tier3[2] = new Mod("Piercing Rounds", "+1 Penetration", modIcons.blowthrough, 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Shutter Speed Sensor", "x0.8 Lock-On Time", modIcons.baseSpread, 4, 0);
+		tier4[0] = new Mod("Shutter Speed Sensor", "x0.8 Lock-On Time", modIcons.duration, 4, 0);
 		tier4[1] = new Mod("Aperture Extension", "+6 Max Number of Lock-Ons", modIcons.baseSpread, 4, 1);  // TODO: need to get the new icon from somewhere... maybe CyRob?
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Electric Generator Mod", "Targets with 3 or more Locks on them get Electrocuted when the burst gets fired. The Electrocute DoT does 12 Electic-element Damage per Second, slows enemies by 80%, and lasts for 3 seconds.", modIcons.electricity, 5, 0);
 		tier5[1] = new Mod("Unstable Lock Mechanism", "Full Lock increases the damage of all shots by 20%", modIcons.directDamage, 5, 1);
-		tier5[2] = new Mod("High Frequency Bullet", "Firing a burst with Full Lock makes every bullet that damages an enemy inflict 1.0 Fear Factor.", modIcons.fear, 5, 2);
+		tier5[2] = new Mod("Fear Frequency", "Firing a burst with Full Lock makes the last bullet fired inflict 2.5 Fear Factor in a 5m radius around the player.", modIcons.fear, 5, 2);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Armor Break Module", "x6 Armor Breaking on Full Lock", overclockIcons.armorBreaking, 0);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Armor Break Module", "1250% Armor Breaking on Full Lock", overclockIcons.armorBreaking, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Eraser", "+12 Magazine Size, x1.33 Max Number of Lock-Ons", overclockIcons.magSize, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Seeker Rounds", "Lock-On shots will always hit their target and ignore Armor, with x1.33 Lock-On Threshold. In exchange: 47.37% slower Burst Fire speed and +0.5 Reload Time.", overclockIcons.baseSpread, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Explosive Chemical Rounds", "Targets with 3 or more Locks on them will tigger an explosion on the last shot, dealing 50 Area Damage and 0.5 Fear Factor in a 4m radius around them. "
@@ -224,13 +224,12 @@ public class SmartRifle extends Weapon {
 		}
 	}
 	protected double getArmorBreaking() {
-		double toReturn = armorBreaking;
-		
 		if (selectedOverclock == 0) {
-			toReturn *= 6.0;
+			return 12.5;
 		}
-		
-		return toReturn;
+		else {
+			return armorBreaking;
+		}
 	}
 	protected int getNumberOfPenetrations() {
 		if (selectedTier3 == 2) {
