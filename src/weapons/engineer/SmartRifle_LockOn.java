@@ -165,9 +165,9 @@ public class SmartRifle_LockOn extends SmartRifle {
 				damageBoostMultiplier += 0.2;
 			}
 			else if (selectedTier5 == 0) {
-				// As far as I can tell, T5.A applies its 3 sec Electrocute DoT on the third bullet of the burst, so the first two bullets don't get the +20% damage bonus.
-				// To imitate that effect, I'm re-using the short effect method and pretending it's a 50% chance to proc (which should trick the method into applying the damage on the third bullet)
-				damageBoostMultiplier += (averageBonusPerMagazineForShortEffects(1.2, duration, false, 0.5, magSize, RoF) - 1.0);
+				// As far as I can tell, T5.A applies its 3 sec Electrocute DoT on the first bullet of the burst, so the first bullet doesn't get the +20% damage bonus.
+				// To imitate that effect, I'm re-using the short effect method and pretending it's a 100% chance to proc (which should trick the method into applying the damage on the second bullet)
+				damageBoostMultiplier += (averageBonusPerMagazineForShortEffects(1.2, duration, false, 1.0, magSize, RoF) - 1.0);
 			}
 		}
 		

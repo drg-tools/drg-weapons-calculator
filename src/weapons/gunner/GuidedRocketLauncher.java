@@ -16,6 +16,17 @@ import weapons.Weapon;
 
 public class GuidedRocketLauncher extends Weapon {
 	
+	/*
+	 	Extracted from WPN_MicroMissileLauncher
+			MaxHomingProjectiles 9
+			MinTracerDistance 250 (2.5m)
+				
+		Extracted from PRJ_MicroMissile
+			AccelerationCurve CRV_MML_Acceleration ???
+			MaxPropulsionTime 30
+			HomingAccelerationMagnitude 20000 ???
+	*/
+	
 	/****************************************************************************************
 	* Class Variables
 	****************************************************************************************/
@@ -58,9 +69,9 @@ public class GuidedRocketLauncher extends Weapon {
 		carriedAmmo = 288;
 		movespeedWhileFiring = 0.5;
 		rateOfFire = 3.0;
-		reloadTime = 3.0;  // seconds
+		reloadTime = 3.5;  // seconds
 		startingVelocity = 10.0;
-		maxVelocity = 20.0;
+		maxVelocity = 15.0;
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -80,16 +91,16 @@ public class GuidedRocketLauncher extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
-		tier1[0] = new Mod("Missile Round Belts", "+72 Max Ammo", modIcons.carriedAmmo, 1, 0);
+		tier1[0] = new Mod("Missile Belts", "+72 Max Ammo", modIcons.carriedAmmo, 1, 0);
 		tier1[1] = new Mod("Pressurized Gas Cylinder", "+4 Direct Damage", modIcons.directDamage, 1, 1);
 		tier1[2] = new Mod("Increased Blast Radius", "+0.5m AoE Radius", modIcons.aoeRadius, 1, 2);
 		
 		tier2 = new Mod[2];
-		tier2[0] = new Mod("Bigger Jet Engine", "+33% Max Velocity, +100% Turn Rate", modIcons.projectileVelocity, 2, 0, false);
+		tier2[0] = new Mod("Bigger Jet Engine", "+5 m/sec Max Velocity, x2 Turn Rate", modIcons.projectileVelocity, 2, 0, false);
 		tier2[1] = new Mod("Anti-Tank Missiles", "+300% Armor Breaking", modIcons.armorBreaking, 2, 1);
 		
 		tier3 = new Mod[2];
-		tier3[0] = new Mod("Nano Missiles", "+36 Magazine Size", modIcons.magSize, 3, 0);
+		tier3[0] = new Mod("Nano Missiles", "x2 Magazine Size", modIcons.magSize, 3, 0);
 		tier3[1] = new Mod("Improved Feed Mechanism", "+1 Rate of Fire", modIcons.rateOfFire, 3, 1);
 		
 		tier4 = new Mod[2];
@@ -99,20 +110,20 @@ public class GuidedRocketLauncher extends Weapon {
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Napalm-Infused Rounds", "Adds 50% of damage as Heat", modIcons.heatDamage, 5, 0);
 		tier5[1] = new Mod("Uncontrolled Decompression", "25% Chance to Stun enemies for 3 seconds", modIcons.stun, 5, 1);
-		tier5[2] = new Mod("Nitroglycerin Compound", "Rockets do more damage the longer they're airborne", modIcons.special, 5, 2, false);  // TODO: get the correct image; it's not currently in the Wiki.
-																																			// TODO: find the damage bonus vs distance traveled.
+		tier5[2] = new Mod("Nitroglycerin Compound", "For every full second that a missile is flying through the air, it gains +1 Direct Damage.", modIcons.special, 5, 2, false);  // TODO: get the correct image; it's not currently in the Wiki.
 		
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Manual Guidance Cutoff", "Releasing the trigger disables the guidance system. Additionally, x1.33 Max Velocity.", overclockIcons.rollControl, 0, false);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Overtuned Feed Mechanism", "x1.2 Max Velocity, +1 Rate of Fire", overclockIcons.rateOfFire, 1);
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Fragmentation Missiles", "+2 Area Damage, +0.5m AoE Radius", overclockIcons.aoeRadius, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Plasma Burster Missiles", "Missiles are no longer destroyed when they impact enemies. Additionally: +100% Turn Rate, "
-				+ "x0.25 Direct Damage, x0.5 AoE Radius, x0.75 Max Velocity", overclockIcons.blowthrough, 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Minelayer System", "When missiles impact terrain, they transform into mines that will detonate when enemies get too close. Mines have a 10 second lifetime and can be detonated by damage. "
-				+ "In exchange, you can no longer guide the missiles, x0 Turn Rate, and -72 Max Ammo.", overclockIcons.special, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Jet Fuel Homebrew", "x1.5 Max Velocity, increases Starting Velocity to Max, x1.5 Direct Damage, x0.5 Area Damage, -0.5m AoE Radius, -18 Magazine Size, -72 Max Ammo", overclockIcons.projectileVelocity, 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Salvo Module", "Hold down the trigger to load up to 9 missiles into a single shot. For each missile added to the burst, "
-				+ "all missiles get faster and deal more damage. In exchange, manual guidance is disabled.", overclockIcons.rateOfFire, 6, false);  // TODO: find the damage+velocity bonus per rocket in the burst
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Plasma Burster Missiles", "Missiles are no longer destroyed when they impact enemies. Each missile can damage enemies up to 5 times, and there's a maximum of 10 missiles "
+				+ "in the air at once, and each missile has a lifetime of 20 seconds. Additionally: x1.3 Turn Rate, x0.25 Direct Damage, x0.5 Area Damage, x0.5 AoE Radius, x0.75 Max Velocity, -108 Max Ammo", overclockIcons.blowthrough, 3);
+		// TODO: i should model how the 0.9 sec arming time works, and how not every missile fired will hit an enemy or turn into a mine with bonus damage/radius.
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Minelayer System", "When missiles impact terrain, they transform into mines that will detonate when enemies get too close. Mines have a 10 second lifetime, do 2x Area Damage, "
+				+ "have a x1.5 AoE Radius and trigger when enemies get within 2m. In exchange, you can no longer guide the missiles, x0 Turn Rate, and -72 Max Ammo.", overclockIcons.special, 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Jet Fuel Homebrew", "x2.5 Direct Damage, x1.5 Max Velocity, increases Starting Velocity to Max, x0.5 Area Damage, -0.5m AoE Radius, x0.75 Magazine Size, -72 Max Ammo", overclockIcons.projectileVelocity, 5);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Salvo Module", "Hold down the trigger to load up to 9 missiles into a single shot. Salvo Missiles have their Starting Velocity and Max Velocity increased to 20 m/sec by default. "
+				+ "For each missile added to the salvo, all missiles deal more damage up to +4/+4 at 9 rockets. In exchange, manual guidance is disabled for all missiles in the salvo.", overclockIcons.rateOfFire, 6, false);  // TODO: find the damage+velocity bonus per rocket in the burst
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
 		modsAndOCsInitialized = true;
@@ -148,12 +159,22 @@ public class GuidedRocketLauncher extends Weapon {
 			toReturn += 4;
 		}
 		
+		if (selectedTier5 == 2) {
+			// TODO: figure out how to model T5.C's +1/sec mechanic, and how it interacts with the two OCs' multiplicative boosts.
+			toReturn += 1;
+		}
+		
+		if (selectedOverclock == 6) {
+			// TODO: figure out Salvo Module's damage bonus. i know it's +4/+4 at 9 rockets, but haven't yet figured out the scaling.
+			toReturn += 4;
+		}
+		
 		// Multiplicative bonuses last
 		if (selectedOverclock == 3) {
 			toReturn *= 0.25;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn *= 1.5;
+			toReturn *= 2.5;
 		}
 		
 		return toReturn;
@@ -161,7 +182,6 @@ public class GuidedRocketLauncher extends Weapon {
 	private double getAreaDamage() {
 		double toReturn = areaDamage;
 		
-		// Additive bonuses first
 		if (selectedTier4 == 1) {
 			toReturn += 5;
 		}
@@ -169,9 +189,15 @@ public class GuidedRocketLauncher extends Weapon {
 		if (selectedOverclock == 2) {
 			toReturn += 2;
 		}
-		// Multiplicative bonuses last
-		else if (selectedOverclock == 5) {
+		else if (selectedOverclock == 3 || selectedOverclock == 5) {
 			toReturn *= 0.5;
+		}
+		else if (selectedOverclock == 4) {
+			// the Minelets left behind get x2 Area Damage
+			toReturn *= 2.0;
+		}
+		else if (selectedOverclock == 6) {
+			toReturn += 4;
 		}
 		
 		return toReturn;
@@ -189,24 +215,36 @@ public class GuidedRocketLauncher extends Weapon {
 		else if (selectedOverclock == 3) {
 			toReturn *= 0.5;
 		}
+		else if (selectedOverclock == 4) {
+			// the Minelets left behind get x1.5 AoE Radius
+			toReturn *= 1.5;
+		}
 		else if (selectedOverclock == 5) {
 			toReturn -= 0.5;
 		}
 		
 		return toReturn;
 	}
+	private double getMaxDmgRadius() {
+		if (selectedOverclock == 3) {
+			return 0.01;
+		}
+		else {
+			return 1.0;
+		}
+	}
 	private int getMagazineSize() {
-		int toReturn = magazineSize;
+		double toReturn = magazineSize;
 		
 		if (selectedTier3 == 0) {
-			toReturn += 36;
+			toReturn *= 2;
 		}
 		
 		if (selectedOverclock == 5) {
-			toReturn -= 18;
+			toReturn *= 0.75;
 		}
 		
-		return toReturn;
+		return (int) toReturn;
 	}
 	private int getCarriedAmmo() {
 		int toReturn = carriedAmmo;
@@ -215,7 +253,10 @@ public class GuidedRocketLauncher extends Weapon {
 			toReturn += 72;
 		}
 		
-		if (selectedOverclock == 4 || selectedOverclock == 5) {
+		if (selectedOverclock == 3) {
+			toReturn -= 108;
+		}
+		else if (selectedOverclock == 4 || selectedOverclock == 5) {
 			toReturn -= 72;
 		}
 		
@@ -253,19 +294,30 @@ public class GuidedRocketLauncher extends Weapon {
 	}
 	private double getStartingVelocity() {
 		if (selectedOverclock == 5) {
+			// Jet Fuel sets Start speed = Max speed
 			return getMaxVelocity();
+		}
+		else if (selectedOverclock == 6) {
+			// Salvo Rockets start at 20 m/sec
+			return 20.0;
 		}
 		else {
 			return startingVelocity;
 		}
 	}
 	private double getMaxVelocity() {
-		double modifier = 1.0;
+		double baseSpeed = maxVelocity;
 		
-		if (selectedTier2 == 0) {
-			modifier += 0.33;
+		if (selectedOverclock == 6) {
+			// Salvo Rockets have their Max Speed increased to 20 m/sec
+			baseSpeed = 20.0;
 		}
 		
+		if (selectedTier2 == 0) {
+			baseSpeed += 5.0;
+		}
+		
+		double modifier = 1.0;
 		if (selectedOverclock == 0) {
 			modifier *= 1.33;
 		}
@@ -279,17 +331,17 @@ public class GuidedRocketLauncher extends Weapon {
 			modifier *= 1.5;
 		}
 		
-		return maxVelocity * modifier;
+		return baseSpeed * modifier;
 	}
 	private double getTurnRate() {
 		double toReturn = 1.0;
 		
 		if (selectedTier2 == 0) {
-			toReturn += 1;
+			toReturn *= 2.0;
 		}
 		
 		if (selectedOverclock == 3) {
-			toReturn += 1;
+			toReturn *= 1.3;
 		}
 		else if (selectedOverclock == 4) {
 			toReturn *= 0;
@@ -297,29 +349,41 @@ public class GuidedRocketLauncher extends Weapon {
 		
 		return toReturn;
 	}
+	private double getBaseSpread() {
+		// Technically it looks like Salvo Module has the 50% Base Spread bonus, too, but then it also has the massive penalties when charging up the shots.
+		if (selectedOverclock == 0 || selectedOverclock == 4) {
+			return 0.5;
+		}
+		else if (selectedOverclock == 5) {
+			return 0.2;
+		}
+		else {
+			return 1.0;
+		}
+	}
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[15];
+		StatsRow[] toReturn = new StatsRow[16];
 		
-		boolean directDamageModified = selectedTier1 == 1 || selectedOverclock == 3 || selectedOverclock == 5;
+		boolean directDamageModified = selectedTier1 == 1 || selectedTier5 == 2 || selectedOverclock == 3 || selectedOverclock == 5 || selectedOverclock == 6;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
-		boolean areaDamageModified = selectedTier4 == 1 || selectedOverclock == 2 || selectedOverclock == 5;
+		boolean areaDamageModified = selectedTier4 == 1 || selectedOverclock == 2 || selectedOverclock == 3 || selectedOverclock == 4 || selectedOverclock == 5 || selectedOverclock == 6;
 		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), modIcons.areaDamage, areaDamageModified);
 		
-		boolean aoeRadiusModified = selectedTier1 == 2 || selectedOverclock == 2 || selectedOverclock == 3 || selectedOverclock == 5;
+		boolean aoeRadiusModified = selectedTier1 == 2 || selectedOverclock == 2 || selectedOverclock == 3 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[2] = new StatsRow("AoE Radius:", getAoERadius(), modIcons.aoeRadius, aoeRadiusModified);
-		toReturn[3] = new StatsRow("Starting Velocity:", getStartingVelocity(), modIcons.projectileVelocity, selectedOverclock == 5);
+		toReturn[3] = new StatsRow("Starting Velocity:", getStartingVelocity(), modIcons.projectileVelocity, selectedOverclock == 5 || selectedOverclock == 6);
 		
-		boolean maxVelocityModified = selectedTier2 == 0 || selectedOverclock == 0 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
+		boolean maxVelocityModified = selectedTier2 == 0 || selectedOverclock == 0 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5 || selectedOverclock == 6;
 		toReturn[4] = new StatsRow("Max Velocity:", getMaxVelocity(), modIcons.projectileVelocity, maxVelocityModified);
 		
 		boolean turnRateModified = selectedTier2 == 0 || selectedOverclock == 3 || selectedOverclock == 4;
 		toReturn[5] = new StatsRow("Turn Rate:", convertDoubleToPercentage(getTurnRate()), modIcons.projectileVelocity, turnRateModified);
 		toReturn[6] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, selectedTier3 == 0 || selectedOverclock == 5);
 		
-		boolean maxAmmoModified = selectedTier1 == 0 || selectedOverclock == 4 || selectedOverclock == 5;
+		boolean maxAmmoModified = selectedTier1 == 0 || selectedOverclock == 3 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[7] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, maxAmmoModified);
 		toReturn[8] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier3 == 1 || selectedOverclock == 1);
 		toReturn[9] = new StatsRow("Reload Time:", reloadTime, modIcons.reloadSpeed, false);
@@ -330,7 +394,10 @@ public class GuidedRocketLauncher extends Weapon {
 		toReturn[12] = new StatsRow("Stun Chance:", convertDoubleToPercentage(0.25), modIcons.homebrewPowder, stunEnabled, stunEnabled);
 		toReturn[13] = new StatsRow("Stun Duration:", 3, modIcons.stun, stunEnabled, stunEnabled);
 		
-		toReturn[14] = new StatsRow("Movement Speed While Using: (m/sec)", MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2), modIcons.movespeed, false);
+		boolean baseSpreadModified = selectedOverclock == 0 || selectedOverclock == 4 || selectedOverclock == 5;  // selectedOverclock == 6?
+		toReturn[14] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, baseSpreadModified, baseSpreadModified);
+		
+		toReturn[15] = new StatsRow("Movement Speed While Using: (m/sec)", MathUtils.round(movespeedWhileFiring * DwarfInformation.walkSpeed, 2), modIcons.movespeed, false);
 		
 		return toReturn;
 	}
@@ -346,7 +413,32 @@ public class GuidedRocketLauncher extends Weapon {
 	
 	@Override
 	protected void setAoEEfficiency() {
-		aoeEfficiency = calculateAverageAreaDamage(getAoERadius(), 0.75, 0.5);
+		aoeEfficiency = calculateAverageAreaDamage(getAoERadius(), getMaxDmgRadius(), 0.5);
+	}
+	
+	private double calculateTimeToLoadFullSalvo() {
+		/*
+			WPN_MicroMissileLauncher
+				BuckShotDelay 0.5
+				ChargedProjectileLauncher
+					ProjectileChangeChargeValue 0.11
+					
+			GetAll WPN_MicroMissileLauncher_C ChargeTime 2.0  (don't have the OC yet, so I'm guessing this value gets changed.)
+			
+			T3.B RoF decreases the amount of time to charge up the salvo
+			
+			OBS recordings:
+				0.5 + 1.6 at RoF 3
+				0.5 + 1.1 at RoF 4
+		*/
+		// TODO: figure out the proper formula
+		// Until then, just return the dumb version.
+		if (selectedTier3 == 1) {
+			return 1.6;
+		}
+		else {
+			return 2.1;
+		}
 	}
 	
 	// Single-target calculations
@@ -354,12 +446,20 @@ public class GuidedRocketLauncher extends Weapon {
 	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
 		double directDamage = getDirectDamage();
 		double areaDamage = getAreaDamage();
+		
+		// I'm choosing to model the DPS of OC "Salvo Module" as if the player loads 9 rockets for every salvo.
 		int magSize = getMagazineSize();
-		double RoF = getRateOfFire();
+		double timeToFireMagazine;
+		if (selectedOverclock == 6) {
+			timeToFireMagazine = calculateTimeToLoadFullSalvo() * magSize / 9.0;
+		}
+		else {
+			timeToFireMagazine = magSize / getRateOfFire();
+		}
 		
 		double duration, burnDPS = 0;
 		if (burst) {
-			duration = magSize / RoF;
+			duration = timeToFireMagazine;
 			
 			if (selectedTier5 == 0 && !statusEffects[1]) {
 				double timeToIgnite = averageTimeToCauterize();
@@ -368,7 +468,7 @@ public class GuidedRocketLauncher extends Weapon {
 			}
 		}
 		else {
-			duration = magSize / RoF + reloadTime;
+			duration = timeToFireMagazine + reloadTime;
 			
 			if (selectedTier5 == 0 && !statusEffects[1]) {
 				burnDPS = DoTInformation.Burn_DPS;
@@ -405,7 +505,13 @@ public class GuidedRocketLauncher extends Weapon {
 	@Override
 	public double calculateAdditionalTargetDPS() {
 		double magSize = (double) getMagazineSize();
-		double timeToFireMagazineAndReload = (magSize / getRateOfFire()) + reloadTime;
+		double timeToFireMagazineAndReload;
+		if (selectedOverclock == 6) {
+			timeToFireMagazineAndReload = calculateTimeToLoadFullSalvo() * magSize / 9.0 + reloadTime;
+		}
+		else {
+			timeToFireMagazineAndReload = magSize / getRateOfFire() + reloadTime;
+		}
 		double areaDamage = getAreaDamage();
 		
 		double areaDamagePerMag = areaDamage * aoeEfficiency[1] * magSize;
@@ -420,8 +526,34 @@ public class GuidedRocketLauncher extends Weapon {
 
 	@Override
 	public double calculateMaxMultiTargetDamage() {
-		// TODO: Burn DoT
-		return (getDirectDamage() + getAreaDamage() * aoeEfficiency[2] * aoeEfficiency[1]) * (getMagazineSize() + getCarriedAmmo());
+		double directDamage = getDirectDamage();
+		double areaDamage = getAreaDamage();
+		double magSize = getMagazineSize();
+		double carriedAmmo = getCarriedAmmo();
+		double damagePerRocket = directDamage + areaDamage * aoeEfficiency[2] * aoeEfficiency[1];
+		double baseDamage = damagePerRocket * (magSize + carriedAmmo);
+		
+		double burnDamage = 0;
+		if (selectedTier5 == 0) {
+			if (selectedOverclock == 6) {
+				double burstOfHeat = 4 * directDamage + 9 * areaDamage * aoeEfficiency[1];
+				double percentageIgnitedPerBurst = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(burstOfHeat);
+				double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
+				double numEnemiesHitPerSalvo = aoeEfficiency[2] * 1.5;  // This is a pure guess. I'm running out of time so I just have to get it done and move on.
+				double numSalvos = (magSize / 9.0) * (1 + carriedAmmo / magSize);
+				burnDamage = numSalvos * numEnemiesHitPerSalvo * percentageIgnitedPerBurst * fireDoTDamagePerEnemy;
+			}
+			else {
+				// Average damage per rocket, divided by 2 for 50% Heat.
+				double avgHeatPerRocket = damagePerRocket / (2.0 * aoeEfficiency[2]);
+				double timeToIgnite = EnemyInformation.averageTimeToIgnite(0, avgHeatPerRocket, getRateOfFire(), 0);
+				double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
+				double estimatedNumEnemiesKilled = aoeEfficiency[2] * (calculateFiringDuration() / averageTimeToKill());
+				burnDamage = fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
+			}
+		}
+		
+		return baseDamage + burnDamage;
 	}
 
 	@Override
@@ -433,7 +565,14 @@ public class GuidedRocketLauncher extends Weapon {
 	public double calculateFiringDuration() {
 		int magSize = getMagazineSize();
 		int carriedAmmo = getCarriedAmmo();
-		double timeToFireMagazine = magSize / getRateOfFire();
+		double timeToFireMagazine;
+		if (selectedOverclock == 6) {
+			timeToFireMagazine = calculateTimeToLoadFullSalvo() * magSize / 9.0;
+		}
+		else {
+			timeToFireMagazine = magSize / getRateOfFire();
+		}
+		
 		return numMagazines(carriedAmmo, magSize) * timeToFireMagazine + numReloads(carriedAmmo, magSize) * reloadTime;
 	}
 	
@@ -451,6 +590,20 @@ public class GuidedRocketLauncher extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
+		/*
+			WPN_MicroMissileLauncher.ChargedProjectileLauncher.VerticalSpread and .HorizontalSpread
+			Base Spread: 10
+			
+			Manual Guidance Cutoff and Minelayer System both have x0.5 Base Spread,
+			Jet Fuel Homebrew has a x0.2 Base Spread
+			Salvo Module adds +6 Horizontal and +4 Vertical
+			
+			RecoilPitch: 3
+			RecoilYaw: 2
+			CanRecoilDown: false
+			SpringStiffness: 50
+			Mass: 1
+		*/
 		return -1.0;
 	}
 	
@@ -460,8 +613,16 @@ public class GuidedRocketLauncher extends Weapon {
 		double[] directDamage = new double[5];
 		directDamage[0] = getDirectDamage();  // Kinetic
 		
+		double aDamage = getAreaDamage();
 		double[] areaDamage = new double[5];
-		areaDamage[1] = getAreaDamage();  // Explosive
+		if (selectedOverclock == 3) {
+			// OC "Plasma Burster Missiles" changes the Radial Damage from Explosive to Fire/Electric 
+			areaDamage[2] = 0.5 * aDamage;  // Fire
+			areaDamage[4] = 0.5 * aDamage;  // Electric
+		}
+		else {
+			areaDamage[1] = aDamage;  // Explosive
+		}
 		
 		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
 		double[] dot_dps = new double[4];
@@ -514,9 +675,33 @@ public class GuidedRocketLauncher extends Weapon {
 
 	@Override
 	public double damagePerMagazine() {
-		// TODO: Burn DoT
-		double damagePerBullet = getDirectDamage() + getAreaDamage() * aoeEfficiency[1] * aoeEfficiency[2];
-		return damagePerBullet * getMagazineSize();
+		double directDamage = getDirectDamage();
+		double areaDamage = getAreaDamage();
+		double magSize = getMagazineSize();
+		double damagePerRocket = directDamage + areaDamage * aoeEfficiency[2] * aoeEfficiency[1];
+		double baseDamage = damagePerRocket * magSize;
+		
+		double burnDamage = 0;
+		if (selectedTier5 == 0) {
+			if (selectedOverclock == 6) {
+				double burstOfHeat = 4 * directDamage + 9 * areaDamage * aoeEfficiency[1];
+				double percentageIgnitedPerBurst = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(burstOfHeat);
+				double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
+				double numEnemiesHitPerSalvo = aoeEfficiency[2] * 1.5;  // This is a pure guess. I'm running out of time so I just have to get it done and move on.
+				double numSalvos = magSize / 9.0;
+				burnDamage = numSalvos * numEnemiesHitPerSalvo * percentageIgnitedPerBurst * fireDoTDamagePerEnemy;
+			}
+			else {
+				// Average damage per rocket, divided by 2 for 50% Heat.
+				double avgHeatPerRocket = damagePerRocket / (2.0 * aoeEfficiency[2]);
+				double timeToIgnite = EnemyInformation.averageTimeToIgnite(0, avgHeatPerRocket, getRateOfFire(), 0);
+				double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
+				double estimatedNumEnemiesKilled = aoeEfficiency[2] * (calculateFiringDuration() / averageTimeToKill());
+				burnDamage = fireDoTDamagePerEnemy * estimatedNumEnemiesKilled;
+			}
+		}
+		
+		return baseDamage + burnDamage;
 	}
 	
 	@Override
