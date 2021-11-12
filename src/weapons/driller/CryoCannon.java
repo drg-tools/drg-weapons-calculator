@@ -109,7 +109,7 @@ public class CryoCannon extends Weapon {
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Improved Thermal Efficiency", "+25 Tank Size, x0.75 Pressure Drop Rate", overclockIcons.magSize, 0);
-		overclocks[1] = new Overclock(Overclock.classification.balanced, "Tuned Cooler", "+1 Cold per Particle, +0.8 Flow Rate, x0.8 Pressure Gain Rate, +0.2 sec Chargeup Time", overclockIcons.coldDamage, 1);
+		overclocks[1] = new Overclock(Overclock.classification.balanced, "Tuned Cooler", "+1 Cold per Particle, +0.8 Flow Rate, x0.5 Pressure Gain Rate, +0.2 sec Chargeup Time", overclockIcons.coldDamage, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Flow Rate Expansion", "x2.7 Pressure Gain Rate, +0.8 Flow Rate, x2.25 Pressure Drop Rate", overclockIcons.duration, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Ice Spear", "Press the Reload button to consume 50 ammo and fire an Ice Spear that does 350 Direct Damage and 150 Area Damage in a 1.4m radius and stuns enemies for 3 seconds. "
 				+ "In exchange, +1 sec Repressurization Delay", overclockIcons.projectileVelocity, 3, false);
@@ -264,7 +264,7 @@ public class CryoCannon extends Weapon {
 		}
 		
 		if (selectedOverclock == 1) {
-			modifier *= 0.8;
+			modifier *= 0.5;
 		}
 		else if (selectedOverclock == 2) {
 			modifier *= 2.7;
@@ -343,7 +343,7 @@ public class CryoCannon extends Weapon {
 		
 		double coldRadianceColdPerSec = 0;
 		if (selectedTier5 == 1) {
-			// 60 Cold/sec in a 4m radius
+			// 60 Cold in a 4m radius, 4m MaxDmgRadius and 25% Falloff, once per full second of firing.
 			// I want this to be less effective with far-reaching streams to model how the further the steam flies the less likely it is that the enemies will be within the 4m.
 			coldRadianceColdPerSec = -60.0 * 4.0 / getColdStreamReach();
 		}
