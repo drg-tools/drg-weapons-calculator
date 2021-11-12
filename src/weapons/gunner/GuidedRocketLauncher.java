@@ -110,7 +110,7 @@ public class GuidedRocketLauncher extends Weapon {
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Napalm-Infused Rounds", "Adds 50% of damage as Heat", modIcons.heatDamage, 5, 0);
 		tier5[1] = new Mod("Uncontrolled Decompression", "25% Chance to Stun enemies for 3 seconds", modIcons.stun, 5, 1);
-		tier5[2] = new Mod("Nitroglycerin Compound", "For every full second that a missile is flying through the air, it gains +1 Direct Damage.", modIcons.special, 5, 2, false);  // TODO: get the correct image; it's not currently in the Wiki.
+		tier5[2] = new Mod("Nitroglycerin Compound", "For every full second that a missile is flying through the air, it gains +1 Direct Damage.", modIcons.lastShotDamage, 5, 2, false);
 		
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Manual Guidance Cutoff", "Releasing the trigger disables the guidance system. Additionally, x1.33 Max Velocity.", overclockIcons.rollControl, 0, false);
@@ -123,7 +123,7 @@ public class GuidedRocketLauncher extends Weapon {
 				+ "have a x1.5 AoE Radius and trigger when enemies get within 2m. In exchange, you can no longer guide the missiles, x0 Turn Rate, and -72 Max Ammo.", overclockIcons.special, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Jet Fuel Homebrew", "x2.5 Direct Damage, x1.5 Max Velocity, increases Starting Velocity to Max, x0.5 Area Damage, -0.5m AoE Radius, x0.75 Magazine Size, -72 Max Ammo", overclockIcons.projectileVelocity, 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Salvo Module", "Hold down the trigger to load up to 9 missiles into a single shot. Salvo Missiles have their Starting Velocity and Max Velocity increased to 20 m/sec by default. "
-				+ "For each missile added to the salvo, all missiles deal more damage up to +4/+4 at 9 rockets. In exchange, manual guidance is disabled for all missiles in the salvo.", overclockIcons.rateOfFire, 6, false);  // TODO: find the damage+velocity bonus per rocket in the burst
+				+ "For each missile added to the salvo, all missiles deal more damage up to +4/+4 at 9 rockets. In exchange, manual guidance is disabled for all missiles in the salvo.", overclockIcons.numPellets2, 6, false);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
 		modsAndOCsInitialized = true;
@@ -419,25 +419,19 @@ public class GuidedRocketLauncher extends Weapon {
 	private double calculateTimeToLoadFullSalvo() {
 		/*
 			WPN_MicroMissileLauncher
-				BuckShotDelay 0.5
+				BuckShotDelay 0.5   <-- This value seems unused?
 				ChargedProjectileLauncher
 					ProjectileChangeChargeValue 0.11
 					
-			GetAll WPN_MicroMissileLauncher_C ChargeTime 2.0  (don't have the OC yet, so I'm guessing this value gets changed.)
-			
-			T3.B RoF decreases the amount of time to charge up the salvo
-			
-			OBS recordings:
-				0.5 + 1.6 at RoF 3
-				0.5 + 1.1 at RoF 4
+			GetAll WPN_MicroMissileLauncher_C ChargeTime
+				Returns 2.0  at RoF 3
+				Returns 1.25 at RoF 4 (from T3.B)
 		*/
-		// TODO: figure out the proper formula
-		// Until then, just return the dumb version.
 		if (selectedTier3 == 1) {
-			return 1.6;
+			return 1.25;
 		}
 		else {
-			return 2.1;
+			return 2.0;
 		}
 	}
 	
@@ -447,7 +441,7 @@ public class GuidedRocketLauncher extends Weapon {
 		double directDamage = getDirectDamage();
 		double areaDamage = getAreaDamage();
 		
-		// I'm choosing to model the DPS of OC "Salvo Module" as if the player loads 9 rockets for every salvo.
+		// I'm choosing to model the DPS of OC "Salvo Module" as if the player loads 9 rockets for every salvo to maximize damage.
 		int magSize = getMagazineSize();
 		double timeToFireMagazine;
 		if (selectedOverclock == 6) {

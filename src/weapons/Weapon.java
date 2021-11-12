@@ -1177,7 +1177,7 @@ public abstract class Weapon extends Observable {
 		return toReturn;
 	}
 	protected String convertDoubleToPercentage(double input) {
-		int percent = (int) Math.round(input * 100.0);
+		double percent = MathUtils.round(input * 100.0, GuiConstants.numDecimalPlaces);
 		return percent + "%";
 	}
 	
@@ -1299,11 +1299,13 @@ public abstract class Weapon extends Observable {
 		
 		return timeWhileAfflictedByDoT * DoTDPS;
 	}
-	
 	protected double[] calculateAverageAreaDamage(double radius, double fullDamageRadius, double falloffPercentageAtOuterEdge) {
+		return calculateAverageAreaDamage(radius, fullDamageRadius, falloffPercentageAtOuterEdge, true);
+	}
+	protected double[] calculateAverageAreaDamage(double radius, double fullDamageRadius, double falloffPercentageAtOuterEdge, boolean updateIllustration) {
 		// Special condition: if fullDamageRadius >= radius, then return with 100% efficiency
 		if (fullDamageRadius >= radius) {
-			return new double[] {radius, 1.0, calculateNumGlyphidsInRadius(radius)};
+			return new double[] {radius, 1.0, calculateNumGlyphidsInRadius(radius, updateIllustration)};
 		}
 		
 		// Want to test the fullDamageRadius radius and every radius in +0.05m increments, and finally the outermost radius
@@ -1326,14 +1328,14 @@ public abstract class Weapon extends Observable {
 			toReturn[i+1] = new double[3];
 			toReturn[i+1][0] = currentRadius;
 			toReturn[i+1][1] = currentDamage;
-			currentGlyphids = calculateNumGlyphidsInRadius(currentRadius) - totalNumGlyphids;
+			currentGlyphids = calculateNumGlyphidsInRadius(currentRadius, updateIllustration) - totalNumGlyphids;
 			toReturn[i+1][2] = currentGlyphids;
 			totalNumGlyphids += currentGlyphids;
 		}
 		toReturn[numRadiiToTest] = new double[3];
 		toReturn[numRadiiToTest][0] = radius;
 		toReturn[numRadiiToTest][1] = falloffPercentageAtOuterEdge;
-		currentGlyphids = calculateNumGlyphidsInRadius(radius) - totalNumGlyphids;
+		currentGlyphids = calculateNumGlyphidsInRadius(radius, updateIllustration) - totalNumGlyphids;
 		toReturn[numRadiiToTest][2] = currentGlyphids;
 		totalNumGlyphids += currentGlyphids;
 		
@@ -1455,6 +1457,10 @@ public abstract class Weapon extends Observable {
 	}
 	
 	protected int calculateNumGlyphidsInRadius(double radius) {
+		return calculateNumGlyphidsInRadius(radius, true);
+	}
+	
+	protected int calculateNumGlyphidsInRadius(double radius, boolean updateIllustration) {
 		/*
 			This method should be used any time a projectile fired from this weapon has area-of-effect (AoE) damage in a radius.
 			Assumptions made for this method:
@@ -1519,7 +1525,9 @@ public abstract class Weapon extends Observable {
 			}
 		}
 		
-		illustration = new AoEVisualizer(glyphidBodyRadius, glyphidBodyAndLegsRadius, radius, glyphidCenters);
+		if (updateIllustration) {
+			illustration = new AoEVisualizer(glyphidBodyRadius, glyphidBodyAndLegsRadius, radius, glyphidCenters);
+		}
 		
 		return numGlyphidsHitBySplash;
 	}

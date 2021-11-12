@@ -100,7 +100,7 @@ public class SmartRifle extends Weapon {
 		
 		tier4 = new Mod[2];
 		tier4[0] = new Mod("Shutter Speed Sensor", "x0.8 Lock-On Time", modIcons.duration, 4, 0);
-		tier4[1] = new Mod("Aperture Extension", "+6 Max Number of Lock-Ons", modIcons.baseSpread, 4, 1);  // TODO: need to get the new icon from somewhere... maybe CyRob?
+		tier4[1] = new Mod("Aperture Extension", "+6 Max Number of Lock-Ons", modIcons.numTargets, 4, 1);
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Electric Generator Mod", "Targets with 3 or more Locks on them get Electrocuted when the burst gets fired. The Electrocute DoT does 12 Electic-element Damage per Second, slows enemies by 80%, and lasts for 3 seconds.", modIcons.electricity, 5, 0);
@@ -111,7 +111,7 @@ public class SmartRifle extends Weapon {
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Armor Break Module", "1250% Armor Breaking on Full Lock", overclockIcons.armorBreaking, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Eraser", "+12 Magazine Size, x1.33 Max Number of Lock-Ons", overclockIcons.magSize, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Seeker Rounds", "Lock-On shots will always hit their target and ignore Armor, with x1.33 Lock-On Threshold. In exchange: 47.37% slower Burst Fire speed and +0.5 Reload Time.", overclockIcons.baseSpread, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Explosive Chemical Rounds", "Targets with 3 or more Locks on them will tigger an explosion on the last shot, dealing 50 Area Damage and 0.5 Fear Factor in a 4m radius around them. "
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Explosive Chemical Rounds", "Targets with 3 or more Locks on them will trigger an explosion on the last shot, dealing 50 Area Damage and 0.5 Fear Factor in a 4m radius around them. "
 				+ "In exchange: -5 Direct Damage and -36 Max Ammo", overclockIcons.addedExplosion, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Executioner", "+100% Weakpoint Bonus on Full Lock, x0.5 Lock-On Time, x0.66 Max Number of Lock-Ons, -12 Magazine Size, -12 Max Ammo", overclockIcons.weakpointBonus, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neuro-Lasso", "Each Lock on an enemy slows it down by 10% (x0.9), and the slows multiply together on each enemy. In exchange: x1.5 Lock-On Time and Limited Lock-On Duration of 5 seconds", overclockIcons.slowdown, 5);
@@ -535,7 +535,7 @@ public class SmartRifle extends Weapon {
 	
 	@Override
 	public double damagePerMagazine() {
-		return getMagazineSize() * getDirectDamage();
+		return getMagazineSize() * getDirectDamage() * calculateBlowthroughDamageMultiplier(getNumberOfPenetrations());
 	}
 	
 	@Override

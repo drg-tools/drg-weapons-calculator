@@ -42,6 +42,9 @@ public class ButtonIcons {
 	private static BufferedImage specialReloadWhite = ResourceLoader.loadImage("images/mod/white/Icon_Overclock_ExplosiveReload.png");
 	private static BufferedImage angleWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Angle.png");
 	private static BufferedImage lightWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Light.png");
+	private static BufferedImage acidWhite = ResourceLoader.loadImage("images/mod/white/Icon_Acid.png");
+	private static BufferedImage numTargetsWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Arperture_Extension.png");
+	private static BufferedImage lastShotDamageWhite = ResourceLoader.loadImage("images/mod/white/Icon_Overclock_LastShellHigherDamage.png");
 	
 	private static BufferedImage baseSpreadBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Aim_Black.png");
 	private static BufferedImage magSizeBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_ClipSize_Black.png");
@@ -79,6 +82,9 @@ public class ButtonIcons {
 	private static BufferedImage specialReloadBlack = ResourceLoader.loadImage("images/mod/black/Icon_Overclock_ExplosiveReload_Black.png");
 	private static BufferedImage angleBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Angle_Black.png");
 	private static BufferedImage lightBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Light_Black.png");
+	private static BufferedImage acidBlack = ResourceLoader.loadImage("images/mod/black/Icon_Acid_Black.png");
+	private static BufferedImage numTargetsBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Arperture_Extension_Black.png");
+	private static BufferedImage lastShotDamageBlack = ResourceLoader.loadImage("images/mod/black/Icon_Overclock_LastShellHigherDamage_Black.png");
 	
 	// This gets used by StatsRow when there's no associated picture.
 	private static BufferedImage blank = ResourceLoader.loadImage("images/mod/blank.png");
@@ -92,6 +98,7 @@ public class ButtonIcons {
 	private static BufferedImage shotgunJump = ResourceLoader.loadImage("images/overclock/Icon_Overclock_ShotgunJump.png");
 	private static BufferedImage breachCutterRoll = ResourceLoader.loadImage("images/overclock/Icon_Overclock_Spinning_Linecutter.png");
 	private static BufferedImage breachCutterReturn = ResourceLoader.loadImage("images/overclock/Icon_Overclock_ForthAndBack_Linecutter.png");
+	private static BufferedImage numPellets2 = ResourceLoader.loadImage("images/overclock/Icon_Upgrade_Shotgun_Pellet2.png");
 	
 	private static BufferedImage statusFire = ResourceLoader.loadImage("images/statusEffect/Status_fire.png");
 	private static BufferedImage statusFrozen = ResourceLoader.loadImage("images/statusEffect/Status_frozen.png");
@@ -135,7 +142,10 @@ public class ButtonIcons {
 		blank,
 		specialReload,
 		angle,
-		light
+		light,
+		acid,
+		numTargets,
+		lastShotDamage
 	};
 	
 	public static BufferedImage getModIcon(modIcons iconSelection, boolean getBlackVersion) {
@@ -431,6 +441,30 @@ public class ButtonIcons {
 					return lightWhite;
 				}
 			}
+			case acid: {
+				if (getBlackVersion) {
+					return acidBlack;
+				}
+				else {
+					return acidWhite;
+				}
+			}
+			case numTargets: {
+				if (getBlackVersion) {
+					return numTargetsBlack;
+				}
+				else {
+					return numTargetsWhite;
+				}
+			}
+			case lastShotDamage: {
+				if (getBlackVersion) {
+					return lastShotDamageBlack;
+				}
+				else {
+					return lastShotDamageWhite;
+				}
+			}
 			default: {
 				return null;
 			}
@@ -475,7 +509,9 @@ public class ButtonIcons {
 		armorBreaking,
 		addedExplosion,
 		weakpointBonus,
-		slowdown
+		slowdown,
+		acid,
+		numPellets2
 	}
 	
 	public static BufferedImage getOverclockIcon(overclockIcons iconSelection) {
@@ -593,6 +629,12 @@ public class ButtonIcons {
 			}
 			case slowdown: {
 				return slowdownWhite;
+			}
+			case acid: {
+				return acidWhite;
+			}
+			case numPellets2: {
+				return numPellets2;
 			}
 			default: {
 				return null;
