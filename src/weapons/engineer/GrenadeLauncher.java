@@ -488,11 +488,11 @@ public class GrenadeLauncher extends Weapon {
 		double[] directDamage = new double[5];
 		double[] areaDamage = new double[5];
 		if (selectedOverclock == 5) {
-			directDamage[0] = getDirectDamage();  // Kinetic
-			areaDamage[0] = getAreaDamage();  // Kinetic
+			directDamage[0] = getDirectDamage();  // Disintegrate (reuses Kinetic, which has no resistances)
+			areaDamage[0] = getAreaDamage();  // Disintegrate (reuses Kinetic, which has no resistances)
 		}
 		else {
-			directDamage[1] = getDirectDamage();  // Explosive
+			directDamage[0] = getDirectDamage();  // Kinetic
 			areaDamage[1] = getAreaDamage();  // Explosive
 		}
 		
