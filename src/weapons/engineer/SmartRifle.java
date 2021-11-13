@@ -113,7 +113,7 @@ public class SmartRifle extends Weapon {
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Seeker Rounds", "Lock-On shots will always hit their target and ignore Armor, with x1.33 Lock-On Threshold. In exchange: 47.37% slower Burst Fire speed and +0.5 Reload Time.", overclockIcons.baseSpread, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Explosive Chemical Rounds", "Targets with 3 or more Locks on them will trigger an explosion on the last shot, dealing 50 Area Damage and 0.5 Fear Factor in a 4m radius around them. "
 				+ "In exchange: -5 Direct Damage and -36 Max Ammo", overclockIcons.addedExplosion, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Executioner", "+100% Weakpoint Bonus on Full Lock, x0.5 Lock-On Time, x0.66 Max Number of Lock-Ons, -12 Magazine Size, -12 Max Ammo", overclockIcons.weakpointBonus, 4);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Executioner", "+50% Weakpoint Bonus on Full Lock, x0.5 Lock-On Time, x0.66 Max Number of Lock-Ons, -12 Magazine Size, -12 Max Ammo", overclockIcons.weakpointBonus, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neuro-Lasso", "Each Lock on an enemy slows it down by 10% (x0.9), and the slows multiply together on each enemy. In exchange: x1.5 Lock-On Time and Limited Lock-On Duration of 5 seconds", overclockIcons.slowdown, 5);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
@@ -216,8 +216,7 @@ public class SmartRifle extends Weapon {
 	}
 	protected double getWeakpointBonus() {
 		if (selectedOverclock == 4) {
-			// In the files this is actually x2, but for notation consistency with other weapons I'm choosing to display it as +100%
-			return 1.0;
+			return 0.5;
 		}
 		else {
 			return 0.0;
