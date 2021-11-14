@@ -61,7 +61,7 @@ public class SmartRifle_LockOn extends SmartRifle {
 		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), modIcons.areaDamage, selectedOverclock == 3, selectedOverclock == 3);
 		toReturn[2] = new StatsRow("AoE Radius:", getAoERadius(), modIcons.aoeRadius, selectedOverclock == 3, selectedOverclock == 3);
 		
-		toReturn[3] = new StatsRow("Lock-On Range:", getLockonRange(), modIcons.distance, selectedTier2 == 0 || selectedTier2 == 2);
+		toReturn[3] = new StatsRow("Acquire Lock-On Range:", getLockonRange(), modIcons.distance, selectedTier2 == 0 || selectedTier2 == 2);
 		boolean acquireThresholdModified = selectedTier2 == 0 || selectedTier2 == 1 || selectedOverclock == 2;
 		toReturn[4] = new StatsRow("Acquire Lock-On Threshold (degrees):", getMaxLockonDegree(), modIcons.angle, acquireThresholdModified);
 		toReturn[5] = new StatsRow("Lose Lock-On Threshold (degrees):", getLoseLockonDegree(), modIcons.angle, selectedTier2 == 1);
@@ -372,7 +372,7 @@ public class SmartRifle_LockOn extends SmartRifle {
 		
 		// Fear
 		utilityScores[4] = 0;
-		// T5.C "Fear Frequency" does a burst of 2.5 Fear in a 5m radius around then player on the last bullet fired from Full Lock.
+		// T5.C "Fear Frequency" does a burst of 5.0 Fear in a 5m radius around then player on the last bullet fired from Full Lock.
 		if (selectedTier5 == 2) {
 			// Just like SMG OC "Turret EM Discharge", I'm choosing to artificially halve the radius of the AoE Fear effect to get more realistic numbers.
 			double numEnemiesHitByFear = 12.0; // calculateNumGlyphidsInRadius(2.5);
@@ -384,7 +384,7 @@ public class SmartRifle_LockOn extends SmartRifle {
 			else {
 				fearDuration = EnemyInformation.averageFearDuration();
 			}
-			utilityScores[4] += calculateFearProcProbability(2.5) * numEnemiesHitByFear * fearDuration * UtilityInformation.Fear_Utility;
+			utilityScores[4] += calculateFearProcProbability(5.0) * numEnemiesHitByFear * fearDuration * UtilityInformation.Fear_Utility;
 		}
 		
 		// OC "Explosive Chemical Rounds" inflicts 0.5 Fear to all enemies within its 4m radius
