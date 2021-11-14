@@ -360,7 +360,13 @@ public class CryoCannon extends Weapon {
 		// Contrary to what some people have told me, CryoCannon does NOT gain bonus damage vs Frozen targets unless OC "Ice Storm" is equipped.
 		double dmgPerParticle = getParticleDamage();
 		if (selectedOverclock == 4) {
-			dmgPerParticle *= averageFreezeMultiplier(2.0);
+			if (primaryTarget && statusEffects[1]) {
+				// Converal pointed out that if they toggle the Frozen button, then it should use the full x2 bonus damage instead of the average.
+				dmgPerParticle *= 2.0;
+			}
+			else {
+				dmgPerParticle *= averageFreezeMultiplier(2.0);
+			}
 		}
 		double firingTime = pressureDropDuration / getPressureDropModifier();
 		double flowRate = getFlowRate();
