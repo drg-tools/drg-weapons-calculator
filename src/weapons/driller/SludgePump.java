@@ -86,8 +86,8 @@ public class SludgePump extends Weapon {
 		reloadTime = 3.0;
 		// From reading the gamefiles, it appears that the Charged Shot inherits the projectile velocity from the base shot.
 		projectileVelocity = 15.0;  // m/sec
-		regularShotPuddleRadius = 0.47;
-		chargedShotPuddleRadius = 0.82;
+		regularShotPuddleRadius = 0.6;
+		chargedShotPuddleRadius = 1.2;
 		corrosiveDoTDuration = 4.0;
 		puddleLifetime = 12.0;
 		
@@ -319,10 +319,19 @@ public class SludgePump extends Weapon {
 	protected double getSmallPuddleRadius() {
 		double toReturn = regularShotPuddleRadius;
 		
+		/*
+			From my tests with Arthiio0 using Engineer's 4m diameter platforms, I got a little better measurement estimations of Sludge Puddles.
+			
+			Default Small: 1.2m diameter
+			T1.C Small: 1.6m diameter (+33% !!!)
+			
+			Default Large: 2.4m diameter
+			T1.C Large: 3.2m diameter (+33% !!!)
+			
+		*/
+		
 		if (selectedTier1 == 2) {
-			// TODO DRG-4164; the 10% height and 33% width are being applied opposite, so small puddles only get 10% wider instead of 33%.
-			// This really hurts T1.C and OC "Goo Bomber Special" in my modeling...
-			toReturn *= 1.1;
+			toReturn *= 1.33;
 		}
 		
 		return toReturn;
@@ -331,7 +340,6 @@ public class SludgePump extends Weapon {
 		double toReturn = chargedShotPuddleRadius;
 		
 		if (selectedTier1 == 2) {
-			// TODO DRG-4164; large puddles seem to get 33% wider as intended.
 			toReturn *= 1.33;
 		}
 		
@@ -498,7 +506,9 @@ public class SludgePump extends Weapon {
 		
 		// Damage dealt by Sludge Puddles
 		double sludgePuddleDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, getSludgePuddleDPS(), getSludgePuddleDuration());
-		double totalSludgePuddleDamage = sludgePuddleDamagePerEnemy * calculateNumGlyphidsInRadius(getSmallPuddleRadius(), false);
+		// These numbers are entirely arbitrary so that T1.C can have a noticeable effect on Max Damage when it increases the puddles' size.
+		double[] smallPuddleAoeEfficiency = calculateAverageAreaDamage(getSmallPuddleRadius(), 0.01, 0.25, false);
+		double totalSludgePuddleDamage = sludgePuddleDamagePerEnemy * smallPuddleAoeEfficiency[1] * smallPuddleAoeEfficiency[2];
 		
 		double avgTTK = averageTimeToKill();
 		double firingDuration = calculateFiringDuration();

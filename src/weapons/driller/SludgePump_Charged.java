@@ -216,7 +216,10 @@ public class SludgePump_Charged extends SludgePump {
 		
 		// Damage dealt by Sludge Puddles
 		double sludgePuddleDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, getSludgePuddleDPS(), getSludgePuddleDuration());
-		double totalSludgePuddleDamage = sludgePuddleDamagePerEnemy * (numEnemiesInLargePuddle + numEnemiesInSmallPuddles);
+		// These numbers are entirely arbitrary so that T1.C can have a noticeable effect on Max Damage when it increases the puddles' size.
+		double[] smallPuddleAoeEfficiency = calculateAverageAreaDamage(getSmallPuddleRadius(), 0.01, 0.25, false);
+		double[] largePuddleAoeEfficiency = calculateAverageAreaDamage(getSmallPuddleRadius(), 0.01, 0.25, false);
+		double totalSludgePuddleDamage = sludgePuddleDamagePerEnemy * (numEnemiesInLargePuddle * largePuddleAoeEfficiency[1] + numEnemiesInSmallPuddles * smallPuddleAoeEfficiency[1]);
 		
 		// Finally, the actual calculation!
 		double avgTTK = averageTimeToKill();
