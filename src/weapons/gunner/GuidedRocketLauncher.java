@@ -73,6 +73,9 @@ public class GuidedRocketLauncher extends Weapon {
 		startingVelocity = 10.0;
 		maxVelocity = 15.0;
 		
+		// Override default 10m distance for OC "Salvo Module"
+		accEstimator.setDistance(5.0);
+		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
 		setBaselineStats();
@@ -590,7 +593,7 @@ public class GuidedRocketLauncher extends Weapon {
 			
 			Manual Guidance Cutoff and Minelayer System both have x0.5 Base Spread,
 			Jet Fuel Homebrew has a x0.2 Base Spread
-			Salvo Module adds +6 Horizontal and +4 Vertical
+			Salvo Module adds +6 Horizontal degrees and +4 Vertical degrees (12 and 8 spread, respectively
 			
 			RecoilPitch: 3
 			RecoilYaw: 2
@@ -598,7 +601,12 @@ public class GuidedRocketLauncher extends Weapon {
 			SpringStiffness: 50
 			Mass: 1
 		*/
-		return -1.0;
+		if (selectedOverclock == 6) {
+			return accEstimator.calculateRectangularAccuracy(weakpointAccuracy, 22.0, 18.0, 3, 2, 1.0, 50);
+		}
+		else {
+			return -1.0;
+		}
 	}
 	
 	@Override
