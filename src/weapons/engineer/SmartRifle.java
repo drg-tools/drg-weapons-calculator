@@ -62,7 +62,7 @@ public class SmartRifle extends Weapon {
 		// Note: these are actual degrees. To compare to Accuracy's terminology, these are equal to "20 Spread" and "140 Spread" respectively.
 		maxLockonDegree = 10.0;
 		loseLockonDegree = 70.0;
-		lockonTime = 0.1;
+		lockonTime = 0.095;
 		maxNumLockons = 12;
 		armorBreaking = 1.5;
 		
@@ -96,10 +96,10 @@ public class SmartRifle extends Weapon {
 		tier3[0] = new Mod("Electro-Chemical Rounds", "+20% Direct Damage vs enemies afflicted by Electrocution, IFG Grenade, or Burning. "
 				+ "The bonus damage element matches the Status Effect's element, extends Burn DoT duration, and can be applied twice per bullet (once for Electric damage, once for Fire damage + Heat).", modIcons.special, 3, 0);
 		tier3[1] = new Mod("SM&#7449;T Targeting Software&#8482;", "Lock-On now prioritizes low-health enemies, and cannot stack more locks on a target than the number of shots required to kill it.", modIcons.light, 3, 1, false);
-		tier3[2] = new Mod("Piercing Rounds", "+1 Penetration", modIcons.blowthrough, 3, 2);
+		tier3[2] = new Mod("Super Blowthrough Rounds", "+3 Penetrations", modIcons.blowthrough, 3, 2);
 		
 		tier4 = new Mod[2];
-		tier4[0] = new Mod("Shutter Speed Sensor", "x0.8 Lock-On Time", modIcons.duration, 4, 0);
+		tier4[0] = new Mod("Shutter Speed Sensor", "x0.85 Lock-On Time", modIcons.duration, 4, 0);
 		tier4[1] = new Mod("Aperture Extension", "+6 Max Number of Lock-Ons", modIcons.numTargets, 4, 1);
 		
 		tier5 = new Mod[3];
@@ -114,7 +114,7 @@ public class SmartRifle extends Weapon {
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Explosive Chemical Rounds", "Targets with 3 or more Locks on them will trigger an explosion on the last shot, dealing 50 Area Damage and 0.5 Fear Factor in a 4m radius around them. "
 				+ "In exchange: -5 Direct Damage and -36 Max Ammo", overclockIcons.addedExplosion, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Executioner", "+50% Weakpoint Bonus on Full Lock, x0.5 Lock-On Time, x0.66 Max Number of Lock-Ons, -12 Magazine Size, -12 Max Ammo", overclockIcons.weakpointBonus, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neuro-Lasso", "Each Lock on an enemy slows it down by 10% (x0.9), and the slows multiply together on each enemy. In exchange: x1.5 Lock-On Time and Limited Lock-On Duration of 5 seconds", overclockIcons.slowdown, 5);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neuro-Lasso", "Each Lock on an enemy slows it down by 10% (x0.9), and the slows multiply together on each enemy. In exchange: x1.25 Lock-On Time and Limited Lock-On Duration of 6 seconds", overclockIcons.slowdown, 5);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
 		modsAndOCsInitialized = true;
@@ -232,7 +232,7 @@ public class SmartRifle extends Weapon {
 	}
 	protected int getNumberOfPenetrations() {
 		if (selectedTier3 == 2) {
-			return 1;
+			return 3;
 		}
 		else {
 			return 0;
@@ -289,21 +289,21 @@ public class SmartRifle extends Weapon {
 		double toReturn = lockonTime;
 		
 		if (selectedTier4 == 0) {
-			toReturn *= 0.8;
+			toReturn *= 0.85;
 		}
 		
 		if (selectedOverclock == 4) {
 			toReturn *= 0.5;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn *= 1.5;
+			toReturn *= 1.25;
 		}
 		
 		return toReturn;
 	}
 	protected double getLockonDuration() {
 		if (selectedOverclock == 5) {
-			return 5.0;
+			return 6.0;
 		}
 		else {
 			// This will indicate that it has "infinite" duration, barring the enemy leaving the LoseLockonDegree threshold.

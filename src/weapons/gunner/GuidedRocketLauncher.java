@@ -64,7 +64,7 @@ public class GuidedRocketLauncher extends Weapon {
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 16;
 		areaDamage = 20;
-		aoeRadius = 1.5;  // meters
+		aoeRadius = 1.4;  // meters
 		magazineSize = 36;
 		carriedAmmo = 288;
 		movespeedWhileFiring = 0.5;
@@ -96,11 +96,11 @@ public class GuidedRocketLauncher extends Weapon {
 		tier1 = new Mod[3];
 		tier1[0] = new Mod("Missile Belts", "+72 Max Ammo", modIcons.carriedAmmo, 1, 0);
 		tier1[1] = new Mod("Pressurized Gas Cylinder", "+4 Direct Damage", modIcons.directDamage, 1, 1);
-		tier1[2] = new Mod("Increased Blast Radius", "+0.5m AoE Radius", modIcons.aoeRadius, 1, 2);
+		tier1[2] = new Mod("Increased Blast Radius", "+0.6m AoE Radius", modIcons.aoeRadius, 1, 2);
 		
 		tier2 = new Mod[2];
 		tier2[0] = new Mod("Bigger Jet Engine", "+5 m/sec Max Velocity, x2 Turn Rate", modIcons.projectileVelocity, 2, 0, false);
-		tier2[1] = new Mod("Anti-Tank Missiles", "+300% Armor Breaking", modIcons.armorBreaking, 2, 1);
+		tier2[1] = new Mod("Anti-Tank Missiles", "x2 Armor Breaking", modIcons.armorBreaking, 2, 1);
 		
 		tier3 = new Mod[2];
 		tier3[0] = new Mod("Nano Missiles", "x2 Magazine Size", modIcons.magSize, 3, 0);
@@ -108,18 +108,18 @@ public class GuidedRocketLauncher extends Weapon {
 		
 		tier4 = new Mod[2];
 		tier4[0] = new Mod("Shrapnel Load", "+50% Weakpoint Bonus", modIcons.weakpointBonus, 4, 0);
-		tier4[1] = new Mod("Zip Fuel", "+5 Area Damage", modIcons.areaDamage, 4, 1);
+		tier4[1] = new Mod("Zip Fuel", "+4 Area Damage", modIcons.areaDamage, 4, 1);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Napalm-Infused Rounds", "Adds 50% of damage as Heat", modIcons.heatDamage, 5, 0);
+		tier5[0] = new Mod("Napalm-Infused Rounds", "Converts 25% of damage to Heat", modIcons.heatDamage, 5, 0);
 		tier5[1] = new Mod("Uncontrolled Decompression", "25% Chance to Stun enemies for 3 seconds", modIcons.stun, 5, 1);
-		tier5[2] = new Mod("Nitroglycerin Compound", "For every full second that a missile is flying through the air, it gains +1 Direct Damage.", modIcons.lastShotDamage, 5, 2, false);
+		tier5[2] = new Mod("Nitroglycerin Compound", "For every full second that a missile is flying through the air, it gains +1 Area Damage.", modIcons.lastShotDamage, 5, 2, false);
 		
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Manual Guidance Cutoff", "Releasing the trigger disables the guidance system. Additionally, x1.33 Max Velocity.", overclockIcons.rollControl, 0, false);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Overtuned Feed Mechanism", "x1.2 Max Velocity, +1 Rate of Fire", overclockIcons.rateOfFire, 1);
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Fragmentation Missiles", "+2 Area Damage, +0.5m AoE Radius", overclockIcons.aoeRadius, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Plasma Burster Missiles", "Missiles are no longer destroyed when they impact enemies. Each missile can damage enemies up to 5 times, and there's a maximum of 10 missiles "
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Plasma Burster Missiles", "Missiles are no longer destroyed when they impact enemies. Each missile can damage enemies up to 5 times, and there's a maximum of 18 missiles "
 				+ "in the air at once, and each missile has a lifetime of 20 seconds. Additionally: x1.3 Turn Rate, x0.25 Direct Damage, x0.5 Area Damage, x0.5 AoE Radius, x0.75 Max Velocity, -108 Max Ammo", overclockIcons.blowthrough, 3);
 		// TODO: i should model how the 0.9 sec arming time works, and how not every missile fired will hit an enemy or turn into a mine with bonus damage/radius.
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Minelayer System", "When missiles impact terrain, they transform into mines that will detonate when enemies get too close. Mines have a 10 second lifetime, do 2x Area Damage, "
@@ -162,9 +162,8 @@ public class GuidedRocketLauncher extends Weapon {
 			toReturn += 4;
 		}
 		
-		if (selectedTier5 == 2) {
-			// TODO: figure out how to model T5.C's +1/sec mechanic, and how it interacts with the two OCs' multiplicative boosts.
-			toReturn += 1;
+		if (selectedTier5 == 0) {
+			toReturn *= 0.75;
 		}
 		
 		if (selectedOverclock == 6) {
@@ -186,7 +185,15 @@ public class GuidedRocketLauncher extends Weapon {
 		double toReturn = areaDamage;
 		
 		if (selectedTier4 == 1) {
-			toReturn += 5;
+			toReturn += 4;
+		}
+		
+		if (selectedTier5 == 0) {
+			toReturn *= 0.75;
+		}
+		else if (selectedTier5 == 2) {
+			// TODO: figure out how to model T5.C's +1/sec mechanic, and how it interacts with the two OCs' multiplicative boosts.
+			toReturn += 1;
 		}
 		
 		if (selectedOverclock == 2) {
@@ -209,7 +216,7 @@ public class GuidedRocketLauncher extends Weapon {
 		double toReturn = aoeRadius;
 		
 		if (selectedTier1 == 2) {
-			toReturn += 0.5;
+			toReturn += 0.6;
 		}
 		
 		if (selectedOverclock == 2) {
@@ -289,7 +296,7 @@ public class GuidedRocketLauncher extends Weapon {
 	}
 	private double getArmorBreaking() {
 		if (selectedTier2 == 1) {
-			return 4.0;
+			return 2.0;
 		}
 		else {
 			return 1.0;
@@ -369,10 +376,10 @@ public class GuidedRocketLauncher extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[16];
 		
-		boolean directDamageModified = selectedTier1 == 1 || selectedTier5 == 2 || selectedOverclock == 3 || selectedOverclock == 5 || selectedOverclock == 6;
+		boolean directDamageModified = selectedTier1 == 1 || selectedTier5 == 0 || selectedTier5 == 2 || selectedOverclock == 3 || selectedOverclock == 5 || selectedOverclock == 6;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
-		boolean areaDamageModified = selectedTier4 == 1 || selectedOverclock == 2 || selectedOverclock == 3 || selectedOverclock == 4 || selectedOverclock == 5 || selectedOverclock == 6;
+		boolean areaDamageModified = selectedTier4 == 1 || selectedTier5 == 0 || selectedOverclock == 2 || selectedOverclock == 3 || selectedOverclock == 4 || selectedOverclock == 5 || selectedOverclock == 6;
 		toReturn[1] = new StatsRow("Area Damage:", getAreaDamage(), modIcons.areaDamage, areaDamageModified);
 		
 		boolean aoeRadiusModified = selectedTier1 == 2 || selectedOverclock == 2 || selectedOverclock == 3 || selectedOverclock == 4 || selectedOverclock == 5;
@@ -541,8 +548,8 @@ public class GuidedRocketLauncher extends Weapon {
 				burnDamage = numSalvos * numEnemiesHitPerSalvo * percentageIgnitedPerBurst * fireDoTDamagePerEnemy;
 			}
 			else {
-				// Average damage per rocket, divided by 2 for 50% Heat.
-				double avgHeatPerRocket = damagePerRocket / (2.0 * aoeEfficiency[2]);
+				// Because T5.A converts 25% of damage to Heat, I just need to take 1/3 of the total damage (75% / 25% = 3)
+				double avgHeatPerRocket = damagePerRocket / (3.0 * aoeEfficiency[2]);
 				double timeToIgnite = EnemyInformation.averageTimeToIgnite(0, avgHeatPerRocket, getRateOfFire(), 0);
 				double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 				double estimatedNumEnemiesKilled = aoeEfficiency[2] * (calculateFiringDuration() / averageTimeToKill());
@@ -667,7 +674,8 @@ public class GuidedRocketLauncher extends Weapon {
 	@Override
 	public double averageTimeToCauterize() {
 		if (selectedTier5 == 0) {
-			double heatPerRocket = (getDirectDamage() + getAreaDamage()) / 2.0;
+			// Because T5.A converts 25% of damage to Heat, I just need to take 1/3 of the total damage (75% / 25% = 3)
+			double heatPerRocket = (getDirectDamage() + getAreaDamage()) / 3.0;
 			return EnemyInformation.averageTimeToIgnite(0, heatPerRocket, getRateOfFire(), 0);
 		}
 		else {

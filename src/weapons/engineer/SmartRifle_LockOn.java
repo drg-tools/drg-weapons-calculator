@@ -367,7 +367,7 @@ public class SmartRifle_LockOn extends SmartRifle {
 		
 		// OC "Neuro-Lasso" slows every enemy by x0.9 for each Lock on it (stacks with itself)
 		if (selectedOverclock == 5) {
-			utilityScores[3] += avgNumEnemiesLockedOnto * 5.0 * (1.0 - Math.pow(0.9, avgNumLocksPerEnemy));
+			utilityScores[3] += avgNumEnemiesLockedOnto * getLockonDuration() * (1.0 - Math.pow(0.9, avgNumLocksPerEnemy));
 		}
 		
 		// Fear
@@ -379,7 +379,7 @@ public class SmartRifle_LockOn extends SmartRifle {
 			System.out.println(numEnemiesHitByFear);
 			double fearDuration = 0;
 			if (selectedOverclock == 5) {
-				fearDuration = EnemyInformation.averageFearDuration(1.0 - Math.pow(0.9, avgNumLocksPerEnemy), 5.0);
+				fearDuration = EnemyInformation.averageFearDuration(1.0 - Math.pow(0.9, avgNumLocksPerEnemy), getLockonDuration());
 			}
 			else {
 				fearDuration = EnemyInformation.averageFearDuration();

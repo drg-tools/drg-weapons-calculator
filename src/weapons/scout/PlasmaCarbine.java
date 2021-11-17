@@ -91,7 +91,7 @@ public class PlasmaCarbine extends Weapon {
 		tier3 = new Mod[3];
 		tier3[0] = new Mod("Custom Coil Alignment", "-70% Horizontal and Vertical Base Spread", modIcons.baseSpread, 3, 0);
 		tier3[1] = new Mod("Gen 2 Cooling System", "x1.5 Cooling Rate, x0.7 Cooldown Delay", modIcons.coolingRate, 3, 1);
-		tier3[2] = new Mod("Hot Feet", "Move 50% faster while the weapon is Overheated and for 1 second afterwards.", modIcons.movespeed, 3, 2);
+		tier3[2] = new Mod("Hot Feet", "Move 50% faster while the weapon is Overheated and for 2 seconds afterwards.", modIcons.movespeed, 3, 2);
 		
 		tier4 = new Mod[3];
 		tier4[0] = new Mod("Overcharged PCF", "15% Chance per bullet to inflict an Electrocute DoT which does " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric "
@@ -805,7 +805,7 @@ public class PlasmaCarbine extends Weapon {
 	public double utilityScore() {
 		// Mobility
 		if (selectedTier3 == 2) {
-			utilityScores[0] = (getOverheatDuration() + 1.0) * MathUtils.round(0.5 * DwarfInformation.walkSpeed, 2) * UtilityInformation.Movespeed_Utility;
+			utilityScores[0] = (getOverheatDuration() + 2.0) * MathUtils.round(0.5 * DwarfInformation.walkSpeed, 2) * UtilityInformation.Movespeed_Utility;
 		}
 		else {
 			utilityScores[0] = 0;

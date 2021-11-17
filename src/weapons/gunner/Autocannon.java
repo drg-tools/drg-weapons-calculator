@@ -206,6 +206,23 @@ public class Autocannon extends Weapon {
 		}
 		return toReturn;
 	}
+	private double getFearRadius() {
+		// TODO: can't find these values, need Dagadegatto to share the info
+		double toReturn = 1.0;
+		
+		if (selectedTier4 == 1) {
+			
+		}
+		
+		if (selectedOverclock == 1) {
+			
+		}
+		else if (selectedOverclock == 2 || selectedOverclock == 5) {
+			
+		}
+		
+		return toReturn;
+	}
 	private int getMagazineSize() {
 		int toReturn = magazineSize;
 		if (selectedTier1 == 1) {
@@ -618,9 +635,9 @@ public class Autocannon extends Weapon {
 			utilityScores[3] = 0;
 		}
 		
-		// According to MikeGSG, Mod Tier 5 "Suppressive Fire" does 0.5 Fear in a 1m radius
+		// According to MikeGSG, Mod Tier 5 "Suppressive Fire" does 0.5 Fear in a 1m radius. U35.3 patchnotes say that the radius scales with AoE Radius upgrades now. 
 		if (selectedTier5 == 1) {
-			int numGlyphidsFeared = 5;  // calculateNumGlyphidsInRadius(1.0);
+			int numGlyphidsFeared = calculateNumGlyphidsInRadius(getFearRadius(), false);
 			double probabilityToFear = calculateFearProcProbability(0.5);
 			double fearDuration = 0;
 			if (selectedOverclock == 5) {

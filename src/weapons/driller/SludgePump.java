@@ -125,7 +125,7 @@ public class SludgePump extends Weapon {
 		
 		tier3 = new Mod[3];
 		tier3[0] = new Mod("Supersaturation", "x1.5 Corrosive DoT duration, x1.5 Sludge Puddle duration", modIcons.hourglass, 3, 0);
-		tier3[1] = new Mod("Potent Goo Mix", "+10 Regular Shot Area Damage", modIcons.directDamage, 3, 1);
+		tier3[1] = new Mod("Potent Goo Mix", "+15 Regular Shot Area Damage", modIcons.directDamage, 3, 1);
 		tier3[2] = new Mod("More Goo Cannisters", "+50 Max Ammo", modIcons.carriedAmmo, 3, 2);
 		
 		tier4 = new Mod[2];
@@ -134,13 +134,13 @@ public class SludgePump extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Protein Disruption Mix", "Increases Corrosive DoT's Slow from 35% to 51.25%, and increases the Sludge Puddle's Slow from 45% to 72.5%", modIcons.slowdown, 5, 0);
-		tier5[1] = new Mod("Fluoroantimonic Acid", "Increases Corrosive DoT's average DPS by +8, and increases Sludge Puddle's average DPS by +20", modIcons.acid, 5, 1);
+		tier5[1] = new Mod("Fluoroantimonic Acid", "Increases Corrosive DoT's average DPS by +4, and increases Sludge Puddle's average DPS by +20", modIcons.acid, 5, 1);
 		tier5[2] = new Mod("Ingredient X", "The Corrosive DoT now does an average of 90 Corrosive Damage per Second to enemies' Armor (normally it can't damage Armor)", modIcons.armorBreaking, 5, 2);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Hydrogen Ion Additive", "Increases Corrosive DoT's average DPS by +8, and increases Corrosive DoT's Slow from 35% to 51.25%", overclockIcons.acid, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "AG Mixture", "+15% Projectile Velocity, x0.25 Gravity on projectiles, and decreases the projectiles' launch angle from 9 degrees to 3.", overclockIcons.projectileVelocity, 1, false);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Impact Mixture", "+10 Regular Shot Area Damage, +20 Charged Shot Area Damage, x0.5 Corrosive DoT duration, x0.5 Sludge Puddle duration", overclockIcons.directDamage, 2);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Impact Mixture", "+10 Regular Shot Area Damage, +20 Charged Shot Area Damage, x0.75 Corrosive DoT duration, x0.75 Sludge Puddle duration", overclockIcons.directDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Disperser Compound", "+6 Charged Shot Fragments, +5 Fragment Area Damage, -20 Charged Shot Area Damage", overclockIcons.areaDamage, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Goo Bomber Special", "Charged Shots now drop their Fragments straight down while flying, instead of upon impact. Every Fragment dropped reduces the "
 				+ "damage of the main projectile. After every Fragment has been dropped, the main projectile is destroyed. Additionally: +5 Fragment Area Damage, x1.5 Charged Shot Fragments, x1.33 Sludge Puddle duration", overclockIcons.special, 4);
@@ -177,7 +177,7 @@ public class SludgePump extends Weapon {
 		double toReturn = regularShotDamage;
 		
 		if (selectedTier3 == 1) {
-			toReturn += 10;
+			toReturn += 15;
 		}
 		
 		if (selectedOverclock == 2) {
@@ -349,7 +349,7 @@ public class SludgePump extends Weapon {
 		double damagePerTick = 4;
 		
 		if (selectedTier5 == 1) {
-			damagePerTick += 2;
+			damagePerTick += 1;
 		}
 		
 		if (selectedOverclock == 0) {
@@ -380,7 +380,7 @@ public class SludgePump extends Weapon {
 		}
 		
 		if (selectedOverclock == 2) {
-			toReturn *= 0.5;
+			toReturn *= 0.75;
 		}
 		
 		return toReturn;
@@ -416,7 +416,7 @@ public class SludgePump extends Weapon {
 		}
 		
 		if (selectedOverclock == 2) {
-			toReturn *= 0.5;
+			toReturn *= 0.75;
 		}
 		else if (selectedOverclock == 4) {
 			toReturn *= 1.33;
