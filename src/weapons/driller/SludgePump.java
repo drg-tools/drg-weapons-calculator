@@ -117,7 +117,7 @@ public class SludgePump extends Weapon {
 		tier1 = new Mod[3];
 		tier1[0] = new Mod("High Capacity Tanks", "x2 Magazine Size", modIcons.magSize, 1, 0);
 		tier1[1] = new Mod("Better Air Pressurizer", "+33% Projectile Velocity", modIcons.projectileVelocity, 1, 1, false);
-		tier1[2] = new Mod("Air Sensitive Compound", "Increases Sludge Puddle width by x1.33 and height by x1.1 (works on Large Puddles, bugged to do +10% width and +33% height on Small Puddles?)", modIcons.aoeRadius, 1, 2);
+		tier1[2] = new Mod("Air Sensitive Compound", "Increases Sludge Puddles' width by x1.33 and height by x1.1", modIcons.aoeRadius, 1, 2);
 		
 		tier2 = new Mod[2];
 		tier2[0] = new Mod("Dyse Nozzle", "+25 Charged Shot Area Damage", modIcons.directDamage, 2, 0);

@@ -88,11 +88,15 @@ public class SludgePump_Charged extends SludgePump {
 	
 	private double calculateGooBomberSpecialPathLength() {
 		/*
-			From observation, it seems like the length of this path is equal to the number of fragments dropped times the width of the puddles.
-			It scales both with T1.C making the small puddles 10% wider (bug; DRG4164; should be 33% wider) as well as T2.B adding more fragments.
+			MikeGSG told me that fragments are dropped every 0.03 + (Projectile Speed x 0.00002) seconds, and after the last fragment gets dropped the main 
+			projectile gets destroyed. Puddle size has no effect on the length, I have no idea what I saw during that test that made me think it got 10% longer.
 		*/
-		// TODO: this is greatly affected by T1.B's +33% velocity. don't know how yet.
-		return getNumberOfFragmentsPerChargedShot() * getSmallPuddleRadius() * 2.0;
+		
+		// Note: the internal velocity is 1500, but that's in cm/sec not m/sec like this program uses. Thus, I have to multiply this term by 100 to make the math work.
+		double chargedShotVelocity = getChargedProjectileVelocity();
+		double intervalBetweenDroppingFragments = 0.03 + 0.002 * chargedShotVelocity;
+		double totalProjectileLifetime = getNumberOfFragmentsPerChargedShot() * intervalBetweenDroppingFragments;
+		return totalProjectileLifetime * chargedShotVelocity;
 	}
 	
 	@Override
@@ -210,6 +214,7 @@ public class SludgePump_Charged extends SludgePump {
 			numEnemiesInSmallPuddles = Math.round((1.0 - probabilityFragmentHitsNewEnemy) * numFragmentsTotal) * enemiesHitBySmallPuddles;
 		}
 		
+		// TODO: magazine size is reducing the damage dealt by DoTs because it's making the firing duration so much shorter.
 		// Damage dealt by Corrosive DoTs
 		double corrosiveDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, getCorrosiveDoTDuration(), getCorrosiveDoTDPS());
 		double totalCorrosiveDoTDamage = corrosiveDoTDamagePerEnemy * numEnemiesCorrosiveDoTGetsAppliedTo;
