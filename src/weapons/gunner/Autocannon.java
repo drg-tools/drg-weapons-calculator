@@ -104,7 +104,7 @@ public class Autocannon extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Feedback Loop", "x1.1 Direct and Area Damage when at Max Rate of Fire", modIcons.directDamage, 5, 0);
-		tier5[1] = new Mod("Suppressive Fire", "Deal 0.5 Fear to enemies within a 1m radius of bullet impact", modIcons.fear, 5, 1);
+		tier5[1] = new Mod("Suppressive Fire", "Deal 0.5 Fear to enemies within a 1m radius of bullet impact. The radius of the Fear gets the same increases as the Area Damage.", modIcons.fear, 5, 1);
 		tier5[2] = new Mod("Damage Resistance At Full RoF", "33% Damage Resistance when at Max Rate of Fire", modIcons.damageResistance, 5, 2);
 		
 		overclocks = new Overclock[6];
@@ -207,18 +207,18 @@ public class Autocannon extends Weapon {
 		return toReturn;
 	}
 	private double getFearRadius() {
-		// TODO: can't find these values, need Dagadegatto to share the info
+		// Dagadegatto informed me that the AoE Radius upgrades apply equally to the Radial Damage as well as the Fear.
 		double toReturn = 1.0;
 		
 		if (selectedTier4 == 1) {
-			
+			toReturn += 0.6;
 		}
 		
 		if (selectedOverclock == 1) {
-			
+			toReturn += 0.3;
 		}
 		else if (selectedOverclock == 2 || selectedOverclock == 5) {
-			
+			toReturn += 0.6;
 		}
 		
 		return toReturn;

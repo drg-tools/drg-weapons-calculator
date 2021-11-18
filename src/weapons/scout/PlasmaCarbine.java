@@ -108,7 +108,7 @@ public class PlasmaCarbine extends Weapon {
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Impact Deflection", "Projectiles will bounce 1 time, either off of terrain or enemies.", overclockIcons.ricochet, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Thermal Liquid Coolant", "x1.25 Cooling Rate, x0.85 Heat per Shot", overclockIcons.coolingRate, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Rewiring Mod", "Regenerate Ammo while Overheated. At full Overheat, up to 31.5 ammo gets regenerated on average. This effect scales with the "
-				+ "current Heat level, so manually Overheating early returns less ammo. In exchange, x1.3 Overheat Duration and x0.6 Battery Capacity", overclockIcons.carriedAmmo, 2);
+				+ "current Heat level, so manually Overheating early returns less ammo. In exchange, +0.8 sec Overheat Duration and x0.6 Battery Capacity", overclockIcons.carriedAmmo, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Aggressive Venting", "Upon Overheating, deal 6 Damage, 60 Heat, and 5.0 Fear Factor to enemies within 5m of you. This effect scales with the "
 				+ "current Heat level, so manually Overheating early deals less Damage and Heat. Additionally, reduces Overheat duration by x0.7. In exchange, x0.8 Battery Capacity and x0.7 Cooling Rate", overclockIcons.special, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Overtuned Particle Accelerator", "+8 Direct Damage, x0.8 Battery Capacity, x1.5 Heat per Shot, +400% Horizontal Base Spread, +133% Vertical Base Spread", overclockIcons.directDamage, 4);
@@ -271,8 +271,7 @@ public class PlasmaCarbine extends Weapon {
 		double toReturn = overheatDuration;
 		
 		if (selectedOverclock == 2) {
-			// This might be a flat +0.8?
-			toReturn *= 1.3;
+			toReturn += 0.8;
 		}
 		else if (selectedOverclock == 3) {
 			toReturn *= 0.7;
