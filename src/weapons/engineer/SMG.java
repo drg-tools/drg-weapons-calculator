@@ -527,7 +527,7 @@ public class SMG extends Weapon {
 		if (selectedOverclock == 5) {
 			// OC "Turret EM Discharge" inflicts 0.5 Fear in a 5m radius around the sentry. Also, since the enemies will be electrocuted the Fear duration gets increased.
 			// 5m radius returns 41 Grunts, which is more than I think would realistically be hit by these explosions. As such, I'm artificially halving the Fear radius to 2.5m
-			utilityScores[4] = calculateFearProcProbability(0.5) * calculateNumGlyphidsInRadius(5.0/2.0) * EnemyInformation.averageFearDuration(0.8, 3) * UtilityInformation.Fear_Utility;
+			utilityScores[4] = calculateFearProcProbability(0.5) * calculateNumGlyphidsInRadius(5.0/2.0, false) * EnemyInformation.averageFearDuration(0.8, 3) * UtilityInformation.Fear_Utility;
 		}
 		else {
 			utilityScores[4] = 0;

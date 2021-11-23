@@ -128,7 +128,7 @@ public class GuiController implements ActionListener {
 		mysqlCommands.add("    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,\n");
 		mysqlCommands.add("    `character_id` BIGINT UNSIGNED NOT NULL,\n");
 		mysqlCommands.add("    `gun_id` BIGINT UNSIGNED NOT NULL,\n");
-		mysqlCommands.add("    `weapon_short_name` VARCHAR(20) NOT NULL,\n");
+		mysqlCommands.add("    `weapon_short_name` VARCHAR(50) NOT NULL,\n");
 		mysqlCommands.add("    `build_combination` VARCHAR(6) NOT NULL,\n");
 		
 		// Burst DPS

@@ -111,19 +111,19 @@ public class GuidedRocketLauncher extends Weapon {
 		tier4[1] = new Mod("Zip Fuel", "+4 Area Damage", modIcons.areaDamage, 4, 1);
 		
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Napalm-Infused Rounds", "Converts 25% of damage to Heat", modIcons.heatDamage, 5, 0);
+		tier5[0] = new Mod("Napalm-Infused Rounds", "Converts 33% of damage to Heat", modIcons.heatDamage, 5, 0);
 		tier5[1] = new Mod("Uncontrolled Decompression", "25% Chance to Stun enemies for 3 seconds", modIcons.stun, 5, 1);
-		tier5[2] = new Mod("Nitroglycerin Compound", "For every full second that a missile is flying through the air, it gains +1 Area Damage.", modIcons.lastShotDamage, 5, 2, false);
+		tier5[2] = new Mod("Nitroglycerin Compound", "For every 0.75 seconds that a missile is flying through the air, it gains +1 Area Damage.", modIcons.lastShotDamage, 5, 2, false);
 		
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Manual Guidance Cutoff", "Releasing the trigger disables the guidance system. Additionally, x1.33 Max Velocity.", overclockIcons.rollControl, 0, false);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Overtuned Feed Mechanism", "x1.2 Max Velocity, +1 Rate of Fire", overclockIcons.rateOfFire, 1);
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Fragmentation Missiles", "+2 Area Damage, +0.5m AoE Radius", overclockIcons.aoeRadius, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Plasma Burster Missiles", "Missiles are no longer destroyed when they impact enemies. Each missile can damage enemies up to 5 times, and there's a maximum of 18 missiles "
-				+ "in the air at once, and each missile has a lifetime of 20 seconds. Additionally: x1.3 Turn Rate, x0.25 Direct Damage, x0.5 Area Damage, x0.5 AoE Radius, x0.75 Max Velocity, -108 Max Ammo", overclockIcons.blowthrough, 3);
+				+ "in the air at once, and each missile has a lifetime of 20 seconds. Additionally: x1.3 Turn Rate, x0.5 Direct Damage, x0.5 Area Damage, x0.5 AoE Radius, x0.75 Max Velocity, -108 Max Ammo", overclockIcons.blowthrough, 3);
 		// TODO: i should model how the 0.9 sec arming time works, and how not every missile fired will hit an enemy or turn into a mine with bonus damage/radius.
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Minelayer System", "When missiles impact terrain, they transform into mines that will detonate when enemies get too close. Mines have a 10 second lifetime, do 2x Area Damage, "
-				+ "have a x1.5 AoE Radius and trigger when enemies get within 2m. In exchange, you can no longer guide the missiles, x0 Turn Rate, and -72 Max Ammo.", overclockIcons.special, 4);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Minelayer System", "When missiles impact terrain, they transform into mines that will detonate when enemies get too close. Mines have a 15 second lifetime, do x2.75 Area Damage, "
+				+ "have a x1.5 AoE Radius and trigger when enemies get within 2m. In exchange, you can no longer guide the missiles, x0 Turn Rate, and -36 Max Ammo.", overclockIcons.special, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Jet Fuel Homebrew", "x2.5 Direct Damage, x1.5 Max Velocity, increases Starting Velocity to Max, x0.5 Area Damage, -0.5m AoE Radius, x0.75 Magazine Size, -72 Max Ammo", overclockIcons.projectileVelocity, 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Salvo Module", "Hold down the trigger to load up to 9 missiles into a single shot. Salvo Missiles have their Starting Velocity and Max Velocity increased to 20 m/sec by default. "
 				+ "For each missile added to the salvo, all missiles deal more damage up to +4/+4 at 9 rockets. In exchange, manual guidance is disabled for all missiles in the salvo.", overclockIcons.numPellets2, 6, false);
@@ -163,7 +163,7 @@ public class GuidedRocketLauncher extends Weapon {
 		}
 		
 		if (selectedTier5 == 0) {
-			toReturn *= 0.75;
+			toReturn *= 0.67;
 		}
 		
 		if (selectedOverclock == 6) {
@@ -173,7 +173,7 @@ public class GuidedRocketLauncher extends Weapon {
 		
 		// Multiplicative bonuses last
 		if (selectedOverclock == 3) {
-			toReturn *= 0.25;
+			toReturn *= 0.5;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn *= 2.5;
@@ -189,10 +189,10 @@ public class GuidedRocketLauncher extends Weapon {
 		}
 		
 		if (selectedTier5 == 0) {
-			toReturn *= 0.75;
+			toReturn *= 0.67;
 		}
 		else if (selectedTier5 == 2) {
-			// TODO: figure out how to model T5.C's +1/sec mechanic, and how it interacts with the two OCs' multiplicative boosts.
+			// TODO: figure out how to model T5.C's +1/0.75 sec mechanic, and how it interacts with the two OCs' multiplicative boosts.
 			toReturn += 1;
 		}
 		
@@ -203,8 +203,8 @@ public class GuidedRocketLauncher extends Weapon {
 			toReturn *= 0.5;
 		}
 		else if (selectedOverclock == 4) {
-			// the Minelets left behind get x2 Area Damage
-			toReturn *= 2.0;
+			// the Minelets left behind get x2.75 Area Damage
+			toReturn *= 2.75;
 		}
 		else if (selectedOverclock == 6) {
 			toReturn += 4;
@@ -266,7 +266,10 @@ public class GuidedRocketLauncher extends Weapon {
 		if (selectedOverclock == 3) {
 			toReturn -= 108;
 		}
-		else if (selectedOverclock == 4 || selectedOverclock == 5) {
+		else if (selectedOverclock == 4) {
+			toReturn -= 36;
+		}
+		else if (selectedOverclock == 5) {
 			toReturn -= 72;
 		}
 		
@@ -540,7 +543,8 @@ public class GuidedRocketLauncher extends Weapon {
 		double burnDamage = 0;
 		if (selectedTier5 == 0) {
 			if (selectedOverclock == 6) {
-				double burstOfHeat = 4 * directDamage + 9 * areaDamage * aoeEfficiency[1];
+				// Because T5.A converts 33% of damage to Heat, I just need to take 1/2 of the total damage (67% / 33% = 2.03)
+				double burstOfHeat = (4 * directDamage + 9 * areaDamage * aoeEfficiency[1]) / 2.03;
 				double percentageIgnitedPerBurst = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(burstOfHeat);
 				double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 				double numEnemiesHitPerSalvo = aoeEfficiency[2] * 1.5;  // This is a pure guess. I'm running out of time so I just have to get it done and move on.
@@ -548,8 +552,8 @@ public class GuidedRocketLauncher extends Weapon {
 				burnDamage = numSalvos * numEnemiesHitPerSalvo * percentageIgnitedPerBurst * fireDoTDamagePerEnemy;
 			}
 			else {
-				// Because T5.A converts 25% of damage to Heat, I just need to take 1/3 of the total damage (75% / 25% = 3)
-				double avgHeatPerRocket = damagePerRocket / (3.0 * aoeEfficiency[2]);
+				// Because T5.A converts 33% of damage to Heat, I just need to take 1/2 of the total damage (67% / 33% = 2.03)
+				double avgHeatPerRocket = damagePerRocket / (2.03 * aoeEfficiency[2]);
 				double timeToIgnite = EnemyInformation.averageTimeToIgnite(0, avgHeatPerRocket, getRateOfFire(), 0);
 				double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 				double estimatedNumEnemiesKilled = aoeEfficiency[2] * (calculateFiringDuration() / averageTimeToKill());
@@ -640,7 +644,8 @@ public class GuidedRocketLauncher extends Weapon {
 		
 		double heatPerShot = 0;
 		if (selectedTier5 == 0) {
-			heatPerShot = (getDirectDamage() + getAreaDamage()) / 2.0;
+			// Because T5.A converts 33% of damage to Heat, I just need to take 1/2 of the total damage (67% / 33% = 2.03)
+			heatPerShot = (getDirectDamage() + getAreaDamage()) / 2.03;
 		}
 		
 		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
@@ -674,8 +679,8 @@ public class GuidedRocketLauncher extends Weapon {
 	@Override
 	public double averageTimeToCauterize() {
 		if (selectedTier5 == 0) {
-			// Because T5.A converts 25% of damage to Heat, I just need to take 1/3 of the total damage (75% / 25% = 3)
-			double heatPerRocket = (getDirectDamage() + getAreaDamage()) / 3.0;
+			// Because T5.A converts 33% of damage to Heat, I just need to take 1/2 of the total damage (67% / 33% = 2.03)
+			double heatPerRocket = (getDirectDamage() + getAreaDamage()) / 2.03;
 			return EnemyInformation.averageTimeToIgnite(0, heatPerRocket, getRateOfFire(), 0);
 		}
 		else {
@@ -694,7 +699,8 @@ public class GuidedRocketLauncher extends Weapon {
 		double burnDamage = 0;
 		if (selectedTier5 == 0) {
 			if (selectedOverclock == 6) {
-				double burstOfHeat = 4 * directDamage + 9 * areaDamage * aoeEfficiency[1];
+				// Because T5.A converts 33% of damage to Heat, I just need to take 1/2 of the total damage (67% / 33% = 2.03)
+				double burstOfHeat = (4 * directDamage + 9 * areaDamage * aoeEfficiency[1]) / 2.03;
 				double percentageIgnitedPerBurst = EnemyInformation.percentageEnemiesIgnitedBySingleBurstOfHeat(burstOfHeat);
 				double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(0, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 				double numEnemiesHitPerSalvo = aoeEfficiency[2] * 1.5;  // This is a pure guess. I'm running out of time so I just have to get it done and move on.
@@ -702,8 +708,8 @@ public class GuidedRocketLauncher extends Weapon {
 				burnDamage = numSalvos * numEnemiesHitPerSalvo * percentageIgnitedPerBurst * fireDoTDamagePerEnemy;
 			}
 			else {
-				// Average damage per rocket, divided by 2 for 50% Heat.
-				double avgHeatPerRocket = damagePerRocket / (2.0 * aoeEfficiency[2]);
+				// Because T5.A converts 33% of damage to Heat, I just need to take 1/2 of the total damage (67% / 33% = 2.03)
+				double avgHeatPerRocket = damagePerRocket / (2.03 * aoeEfficiency[2]);
 				double timeToIgnite = EnemyInformation.averageTimeToIgnite(0, avgHeatPerRocket, getRateOfFire(), 0);
 				double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(timeToIgnite, DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 				double estimatedNumEnemiesKilled = aoeEfficiency[2] * (calculateFiringDuration() / averageTimeToKill());

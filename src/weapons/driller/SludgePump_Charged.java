@@ -65,7 +65,7 @@ public class SludgePump_Charged extends SludgePump {
 		toReturn[6] = new StatsRow("Number of Fragments:", getNumberOfFragmentsPerChargedShot(), modIcons.pelletsPerShot, fragmentCountModified);
 		
 		toReturn[7] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, selectedTier1 == 0 || selectedOverclock == 5);
-		toReturn[8] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, selectedTier3 == 2 || selectedOverclock == 5);
+		toReturn[8] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, selectedTier3 == 1 || selectedOverclock == 5);
 		toReturn[9] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier4 == 1 || selectedOverclock == 5);
 		toReturn[10] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 5);
 		

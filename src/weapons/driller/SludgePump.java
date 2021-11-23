@@ -87,7 +87,7 @@ public class SludgePump extends Weapon {
 		// From reading the gamefiles, it appears that the Charged Shot inherits the projectile velocity from the base shot.
 		projectileVelocity = 15.0;  // m/sec
 		regularShotPuddleRadius = 0.6;
-		chargedShotPuddleRadius = 1.2;
+		chargedShotPuddleRadius = 0.75;
 		corrosiveDoTDuration = 4.0;
 		puddleLifetime = 12.0;
 		
@@ -119,14 +119,14 @@ public class SludgePump extends Weapon {
 		tier1[1] = new Mod("Better Air Pressurizer", "+33% Projectile Velocity", modIcons.projectileVelocity, 1, 1, false);
 		tier1[2] = new Mod("Air Sensitive Compound", "Increases Sludge Puddles' width by x1.25 and height by x1.1", modIcons.aoeRadius, 1, 2);
 		
-		tier2 = new Mod[2];
-		tier2[0] = new Mod("Dyse Nozzle", "+25 Charged Shot Area Damage", modIcons.directDamage, 2, 0);
+		tier2 = new Mod[3];
+		tier2[0] = new Mod("Dyse Nozzle", "+25 Charged Shot Area Damage", modIcons.areaDamage, 2, 0);
 		tier2[1] = new Mod("Atomizer Nozzle", "+4 Charged Shot Fragments", modIcons.aoeRadius, 2, 1);
+		tier2[2] = new Mod("Potent Goo Mix", "+15 Regular Shot Area Damage", modIcons.directDamage, 2, 2);
 		
-		tier3 = new Mod[3];
+		tier3 = new Mod[2];
 		tier3[0] = new Mod("Supersaturation", "x1.5 Corrosive DoT duration, x1.5 Sludge Puddle duration", modIcons.hourglass, 3, 0);
-		tier3[1] = new Mod("Potent Goo Mix", "+15 Regular Shot Area Damage", modIcons.directDamage, 3, 1);
-		tier3[2] = new Mod("More Goo Cannisters", "+50 Max Ammo", modIcons.carriedAmmo, 3, 2);
+		tier3[1] = new Mod("More Goo Cannisters", "+50 Max Ammo", modIcons.carriedAmmo, 3, 1);
 		
 		tier4 = new Mod[2];
 		tier4[0] = new Mod("Spillback Extension", "-1 Ammo per Charged Shot", modIcons.fuel, 4, 0);
@@ -134,11 +134,11 @@ public class SludgePump extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Protein Disruption Mix", "Increases Corrosive DoT's Slow from 35% to 51.25%, and increases the Sludge Puddle's Slow from 45% to 72.5%", modIcons.slowdown, 5, 0);
-		tier5[1] = new Mod("Fluoroantimonic Acid", "Increases Corrosive DoT's average DPS by +4, and increases Sludge Puddle's average DPS by +20", modIcons.acid, 5, 1);
+		tier5[1] = new Mod("Fluoroantimonic Acid", "Increases Corrosive DoT's average DPS by +4, and increases Sludge Puddle's average DPS by +4", modIcons.acid, 5, 1);
 		tier5[2] = new Mod("Ingredient X", "The Corrosive DoT now does an average of 90 Corrosive Damage per Second to enemies' Armor (normally it can't damage Armor)", modIcons.armorBreaking, 5, 2);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Hydrogen Ion Additive", "Increases Corrosive DoT's average DPS by +8, and increases Corrosive DoT's Slow from 35% to 51.25%", overclockIcons.acid, 0);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Hydrogen Ion Additive", "Increases Corrosive DoT's average DPS by +2, and increases Corrosive DoT's Slow from 35% to 44.75%", overclockIcons.acid, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "AG Mixture", "+15% Projectile Velocity, x0.25 Gravity on projectiles, and decreases the projectiles' launch angle from 9 degrees to 3.", overclockIcons.projectileVelocity, 1, false);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Impact Mixture", "+10 Regular Shot Area Damage, +20 Charged Shot Area Damage, x0.75 Corrosive DoT duration, x0.75 Sludge Puddle duration", overclockIcons.directDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Disperser Compound", "+6 Charged Shot Fragments, +5 Fragment Area Damage, -20 Charged Shot Area Damage", overclockIcons.areaDamage, 3);
@@ -176,7 +176,7 @@ public class SludgePump extends Weapon {
 	private double getRegularShotAreaDamage() {
 		double toReturn = regularShotDamage;
 		
-		if (selectedTier3 == 1) {
+		if (selectedTier2 == 2) {
 			toReturn += 15;
 		}
 		
@@ -255,7 +255,7 @@ public class SludgePump extends Weapon {
 	protected int getCarriedAmmo() {
 		double toReturn = carriedAmmo;
 		
-		if (selectedTier3 == 2) {
+		if (selectedTier3 == 1) {
 			toReturn += 50;
 		}
 		
@@ -346,14 +346,14 @@ public class SludgePump extends Weapon {
 		return toReturn;
 	}
 	protected double getCorrosiveDoTDPS() {
-		double damagePerTick = 4;
+		double damagePerTick = 5;
 		
 		if (selectedTier5 == 1) {
 			damagePerTick += 1;
 		}
 		
 		if (selectedOverclock == 0) {
-			damagePerTick += 2;
+			damagePerTick += 0.5;
 		}
 		
 		return damagePerTick * 2.0 / (0.2 + 0.3);
@@ -367,7 +367,7 @@ public class SludgePump extends Weapon {
 		}
 		
 		if (selectedOverclock == 0) {
-			multiplier *= 0.75;
+			multiplier *= 0.85;
 		}
 		
 		return multiplier;
@@ -387,12 +387,12 @@ public class SludgePump extends Weapon {
 	}
 	protected double getSludgePuddleDPS() {
 		// From STE_GooProjectile_GC
-		double baseDPS = 3.0 * 2.0 / (0.2 + 0.25);
+		double baseDPS = 4.0 * 2.0 / (0.2 + 0.25);
 		
 		double extraDPS = 0;
 		if (selectedTier5 == 1) {
 			// With this mod, the Puddle applies a second DoT: STE_GooPuddle_ImprovedPoison
-			extraDPS = 5.0 * 2.0 / (0.2 + 0.3);
+			extraDPS = 1.0 * 2.0 / (0.2 + 0.3);
 		}
 		
 		return baseDPS + extraDPS;
@@ -429,11 +429,11 @@ public class SludgePump extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[14];
 		
-		toReturn[0] = new StatsRow("Regular Shot Area Damage:", getRegularShotAreaDamage(), modIcons.areaDamage, selectedTier3 == 1 || selectedOverclock == 2);
+		toReturn[0] = new StatsRow("Regular Shot Area Damage:", getRegularShotAreaDamage(), modIcons.areaDamage, selectedTier2 == 2 || selectedOverclock == 2);
 		toReturn[1] = new StatsRow("Regular Shot AoE Radius:", aoeEfficiency[0], modIcons.aoeRadius, false);
 		toReturn[2] = new StatsRow("Regular Shot Velocity:", getRegularProjectileVelocity(), modIcons.projectileVelocity, selectedTier1 == 1 || selectedOverclock == 1);
 		toReturn[3] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, selectedTier1 == 0 || selectedOverclock == 5);
-		toReturn[4] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, selectedTier3 == 2 || selectedOverclock == 5);
+		toReturn[4] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, selectedTier3 == 1 || selectedOverclock == 5);
 		toReturn[5] = new StatsRow("Rate of Fire:", rateOfFire, modIcons.rateOfFire, false);
 		toReturn[6] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 5);
 		

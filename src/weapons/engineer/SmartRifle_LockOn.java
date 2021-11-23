@@ -372,11 +372,12 @@ public class SmartRifle_LockOn extends SmartRifle {
 		
 		// Fear
 		utilityScores[4] = 0;
-		// T5.C "Fear Frequency" does a burst of 5.0 Fear in a 5m radius around then player on the last bullet fired from Full Lock.
+		// T5.C "Fear Frequency" does a burst of Fear around the player on the last bullet fired during a Lock-On Burst. 2.4m + 0.15m/bullet radius, and +15% Fear per bullet.
 		if (selectedTier5 == 2) {
-			// Just like SMG OC "Turret EM Discharge", I'm choosing to artificially halve the radius of the AoE Fear effect to get more realistic numbers.
-			double numEnemiesHitByFear = 12.0; // calculateNumGlyphidsInRadius(2.5);
-			System.out.println(numEnemiesHitByFear);
+			double fearRadius = 2.4 + 0.15 * avgNumLocksPerEnemy;
+			double fearFactor = 0.15 * avgNumLocksPerEnemy;
+			
+			double numEnemiesHitByFear = calculateNumGlyphidsInRadius(fearRadius, false);
 			double fearDuration = 0;
 			if (selectedOverclock == 5) {
 				fearDuration = EnemyInformation.averageFearDuration(1.0 - Math.pow(0.9, avgNumLocksPerEnemy), getLockonDuration());
@@ -384,13 +385,13 @@ public class SmartRifle_LockOn extends SmartRifle {
 			else {
 				fearDuration = EnemyInformation.averageFearDuration();
 			}
-			utilityScores[4] += calculateFearProcProbability(5.0) * numEnemiesHitByFear * fearDuration * UtilityInformation.Fear_Utility;
+			utilityScores[4] += calculateFearProcProbability(fearFactor) * numEnemiesHitByFear * fearDuration * UtilityInformation.Fear_Utility;
 		}
 		
 		// OC "Explosive Chemical Rounds" inflicts 0.5 Fear to all enemies within its 4m radius
 		if (selectedOverclock == 3) {
 			// Just like SMG OC "Turret EM Discharge", I'm choosing to artificially halve the radius of the AoE Fear effect to get more realistic numbers.
-			double numEnemiesFearedPerExplosion = 8;  // calculateNumGlyphidsInRadius(2.0);
+			double numEnemiesFearedPerExplosion = calculateNumGlyphidsInRadius(2.0, false);
 			utilityScores[4] += calculateFearProcProbability(0.5) * numEnemiesFearedPerExplosion * EnemyInformation.averageFearDuration() * UtilityInformation.Fear_Utility;
 		}
 		

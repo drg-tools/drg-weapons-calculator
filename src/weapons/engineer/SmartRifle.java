@@ -105,7 +105,8 @@ public class SmartRifle extends Weapon {
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Electric Generator Mod", "Targets with 3 or more Locks on them get Electrocuted when the burst gets fired. The Electrocute DoT does 12 Electic-element Damage per Second, slows enemies by 80%, and lasts for 3 seconds.", modIcons.electricity, 5, 0);
 		tier5[1] = new Mod("Unstable Lock Mechanism", "Full Lock increases the damage of all shots by 20%", modIcons.directDamage, 5, 1);
-		tier5[2] = new Mod("Fear Frequency", "Firing a burst with Full Lock makes the last bullet fired inflict 5.0 Fear Factor in a 5m radius around the player.", modIcons.fear, 5, 2);
+		tier5[2] = new Mod("Fear Frequency", "Every time you release a Lock-On burst, the last bullet fired emits an aura of Fear to all enemies near you. For every bullet fired during the Lock-On burst, add 0.15 Fear to the aura (ranges from 15% Base Fear Chance at 1 Lock "
+				+ "to 360% Base Fear Chance at 24 Locks). The aura's radius starts at 2.4m and each bullet fired during the Lock-On burst increases it by +0.15m (ranges from 2.55m at 1 Lock to 6m at 24 Locks). ", modIcons.fear, 5, 2);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Armor Break Module", "1250% Armor Breaking on Full Lock", overclockIcons.armorBreaking, 0);
@@ -114,7 +115,7 @@ public class SmartRifle extends Weapon {
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Explosive Chemical Rounds", "Targets with 3 or more Locks on them will trigger an explosion on the last shot, dealing 50 Area Damage and 0.5 Fear Factor in a 4m radius around them. "
 				+ "In exchange: -5 Direct Damage and -36 Max Ammo", overclockIcons.addedExplosion, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Executioner", "+50% Weakpoint Bonus on Full Lock, x0.5 Lock-On Time, x0.66 Max Number of Lock-Ons, -12 Magazine Size, -12 Max Ammo", overclockIcons.weakpointBonus, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neuro-Lasso", "Each Lock on an enemy slows it down by 10% (x0.9), and the slows multiply together on each enemy. In exchange: x1.25 Lock-On Time and Limited Lock-On Duration of 6 seconds", overclockIcons.slowdown, 5);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neuro-Lasso", "Each Lock on an enemy slows it down by 10% (x0.9), and the slows multiply together on each enemy. In exchange: x1.15 Lock-On Time and Limited Lock-On Duration of 6 seconds", overclockIcons.slowdown, 5);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
 		modsAndOCsInitialized = true;
@@ -296,7 +297,7 @@ public class SmartRifle extends Weapon {
 			toReturn *= 0.5;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn *= 1.25;
+			toReturn *= 1.15;
 		}
 		
 		return toReturn;
