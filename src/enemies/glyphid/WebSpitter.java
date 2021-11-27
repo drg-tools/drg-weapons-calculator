@@ -8,7 +8,7 @@ public class WebSpitter extends Enemy {
 		exactSpawnProbability = 0.02963844666;
 		
 		enemyName = "Glyphid Web Spitter";
-		baseHealth = 40;
+		baseHealth = 39.9;
 		normalScaling = true;
 		
 		hasWeakpoint = true;

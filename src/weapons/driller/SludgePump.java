@@ -387,7 +387,7 @@ public class SludgePump extends Weapon {
 	}
 	protected double getSludgePuddleDPS() {
 		// From STE_GooProjectile_GC
-		double baseDPS = 4.0 * 2.0 / (0.2 + 0.25);
+		double baseDPS = 4.0 * 2.0 / (0.2 + 0.3);
 		
 		double extraDPS = 0;
 		if (selectedTier5 == 1) {

@@ -381,7 +381,7 @@ public class AccuracyEstimator {
 		double w = crosshairWidthMeters * 2.0, h = crosshairHeightMeters * 2.0;
 		double horizontalProbability, verticalProbability, totalProbability;
 		double sumOfProbabilitiesInsideTarget = 0.0, sumOfAllProbabilities = 0.0;
-		double precision = 100.0;
+		double precision = 50.0;
 		
 		double i, j;
 		for (i = 0.0; i < w; i += w / precision) {
