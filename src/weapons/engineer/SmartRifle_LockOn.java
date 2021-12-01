@@ -62,9 +62,8 @@ public class SmartRifle_LockOn extends SmartRifle {
 		toReturn[2] = new StatsRow("AoE Radius:", getAoERadius(), modIcons.aoeRadius, selectedOverclock == 3, selectedOverclock == 3);
 		
 		toReturn[3] = new StatsRow("Acquire Lock-On Range:", getLockonRange(), modIcons.distance, selectedTier2 == 0 || selectedTier2 == 2);
-		boolean acquireThresholdModified = selectedTier2 == 0 || selectedTier2 == 1 || selectedOverclock == 2;
-		toReturn[4] = new StatsRow("Acquire Lock-On Threshold (degrees):", getMaxLockonDegree(), modIcons.angle, acquireThresholdModified);
-		toReturn[5] = new StatsRow("Lose Lock-On Threshold (degrees):", getLoseLockonDegree(), modIcons.angle, selectedTier2 == 1);
+		toReturn[4] = new StatsRow("Acquire Lock-On Threshold (degrees):", getMaxLockonDegree(), modIcons.angle, selectedTier2 == 0 || selectedTier2 == 1);
+		toReturn[5] = new StatsRow("Lose Lock-On Threshold (degrees):", getLoseLockonDegree(), modIcons.angle, selectedTier2 == 1 || selectedOverclock == 2);
 		boolean timeModified = selectedTier4 == 0 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[6] = new StatsRow("Time to Acquire a Lock-On:", getLockonTime(), modIcons.duration, timeModified);
 		toReturn[7] = new StatsRow("Duration of a Lock-On:", getLockonDuration(), modIcons.hourglass, selectedOverclock == 5, selectedOverclock == 5);

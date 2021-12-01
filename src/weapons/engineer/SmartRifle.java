@@ -106,7 +106,7 @@ public class SmartRifle extends Weapon {
 		tier5[0] = new Mod("Electric Generator Mod", "Targets with 3 or more Locks on them get Electrocuted when the burst gets fired. The Electrocute DoT does 12 Electic-element Damage per Second, slows enemies by 80%, and lasts for 3 seconds.", modIcons.electricity, 5, 0);
 		tier5[1] = new Mod("Unstable Lock Mechanism", "Full Lock increases the damage of all shots by 20%", modIcons.directDamage, 5, 1);
 		tier5[2] = new Mod("Fear Frequency", "Every time you release a Lock-On burst, the last bullet fired emits an aura of Fear to all enemies near you. For every bullet fired during the Lock-On burst, add 0.15 Fear to the aura (ranges from 15% Base Fear Chance at 1 Lock "
-				+ "to 360% Base Fear Chance at 24 Locks). The aura's radius starts at 2.4m and each bullet fired during the Lock-On burst increases it by +0.15m (ranges from 2.55m at 1 Lock to 6m at 24 Locks). ", modIcons.fear, 5, 2);
+				+ "to 360% Base Fear Chance at 24 Locks). The aura's radius starts at 2.4m and each bullet fired during the Lock-On burst increases it by +0.15m (ranges from 2.55m at 1 Lock to 6m at 24 Locks).", modIcons.fear, 5, 2);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Armor Break Module", "1250% Armor Breaking on Full Lock", overclockIcons.armorBreaking, 0);

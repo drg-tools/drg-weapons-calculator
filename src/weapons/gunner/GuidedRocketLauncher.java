@@ -113,7 +113,7 @@ public class GuidedRocketLauncher extends Weapon {
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Napalm-Infused Rounds", "Converts 33% of damage to Heat", modIcons.heatDamage, 5, 0);
 		tier5[1] = new Mod("Uncontrolled Decompression", "25% Chance to Stun enemies for 3 seconds", modIcons.stun, 5, 1);
-		tier5[2] = new Mod("Nitroglycerin Compound", "For every 0.75 seconds that a missile is flying through the air, it gains +1 Area Damage.", modIcons.lastShotDamage, 5, 2, false);
+		tier5[2] = new Mod("Nitroglycerin Compound", "For every 0.75 seconds that a missile is flying through the air, it gains +1 Area Damage (up to a maximum of +10).", modIcons.lastShotDamage, 5, 2, false);
 		
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Manual Guidance Cutoff", "Releasing the trigger disables the guidance system. Additionally, x1.33 Max Velocity.", overclockIcons.rollControl, 0, false);
