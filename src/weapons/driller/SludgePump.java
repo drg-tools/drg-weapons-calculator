@@ -94,8 +94,8 @@ public class SludgePump extends Weapon {
 		// This number is completely arbitrary.
 		probabilityFragmentHitsNewEnemy = 0.5;
 		
-		// Override default 10m distance for ChargedShot model of OC "Sludge Blast"
-		accEstimator.setDistance(12.0);
+		// Override default 10m distance
+		accEstimator.setDistance(8.0);
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
@@ -315,6 +315,14 @@ public class SludgePump extends Weapon {
 		}
 		
 		return projectileVelocity * modifier;
+	}
+	protected double getProjectileGravityMultiplier() {
+		if (selectedOverclock == 1) {
+			return 0.25;
+		}
+		else {
+			return 1.0;
+		}
 	}
 	protected double getSmallPuddleRadius() {
 		double toReturn = regularShotPuddleRadius;
@@ -542,9 +550,9 @@ public class SludgePump extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		// This stat is only applicable to "gun"-type weapons
 		/* 
 			BaseSpread 1.0
+			LaunchAngle 9 (reduced to 3 by AG Mixture and Sludge Blast's Charged Shot)
 			
 			RecoilPitch 30
 			RecoilYaw 30
@@ -552,7 +560,10 @@ public class SludgePump extends Weapon {
 			SpringStiffness 145
 			Mass 1.6
 		*/
-		return -1.0;
+		// WeaponsNTools/GooCannon/PRJ_BaseGooProjectile
+		double projectileVelocity = getRegularProjectileVelocity();
+		double projectileRadius = 0.25;
+		return accEstimator.calculateProjectileAccuracy(weakpointAccuracy, projectileRadius, projectileVelocity, getProjectileGravityMultiplier());
 	}
 	
 	@Override

@@ -376,13 +376,4 @@ public abstract class EPC extends Weapon {
 	protected double getOverheatCooldownDuration() {
 		return maxHeat / (coolingRate * getCoolingRateModifier());
 	}
-	
-	/****************************************************************************************
-	* Other Methods
-	****************************************************************************************/
-
-	@Override
-	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		return -1.0;
-	}
 }

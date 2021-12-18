@@ -236,6 +236,14 @@ public class EPC_ChargeShot extends EPC {
 	}
 	
 	@Override
+	public double estimatedAccuracy(boolean weakpointAccuracy) {
+		// WeaponsNTools/ChargeBlaster/PRJ_ChargedBlasterShot
+		double projectileVelocity = 13.0;
+		double projectileRadius = 0.5;
+		return accEstimator.calculateProjectileAccuracy(weakpointAccuracy, projectileRadius, projectileVelocity, 0.0);
+	}
+	
+	@Override
 	public int breakpoints() {
 		double chargedShotDirectDamage = getChargedDirectDamage();
 		double chargedShotAreaDamage = getChargedAreaDamage();
