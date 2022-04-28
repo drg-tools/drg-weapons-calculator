@@ -82,7 +82,7 @@ public class SludgePump extends Weapon {
 		ammoPerChargedShot = 5;
 		carriedAmmo = 120;
 		magazineSize = 20;
-		rateOfFire = 2.0;
+		rateOfFire = 4.0;
 		reloadTime = 3.0;
 		// From reading the game files, it appears that the Charged Shot inherits the projectile velocity from the base shot.
 		projectileVelocity = 15.0;  // m/sec
@@ -138,13 +138,13 @@ public class SludgePump extends Weapon {
 
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Hydrogen Ion Additive", "Increases Corrosive DoT's average DPS by +2, and increases Corrosive DoT's Slow from 35% to 44.75%", overclockIcons.acid, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "AG Mixture", "+15% Projectile Velocity, x0.25 Gravity on projectiles, and decreases the projectiles' launch angle from 9 degrees to 3.", overclockIcons.projectileVelocity, 1, false);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Impact Mixture", "+10 Regular Shot Area Damage, +20 Charged Shot Area Damage, x0.75 Corrosive DoT duration, x0.75 Sludge Puddle duration", overclockIcons.directDamage, 2);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "AG Mixture", "+30% Projectile Velocity, x0.25 Gravity on projectiles, and decreases the projectiles' launch angle from 9 degrees to 3.", overclockIcons.projectileVelocity, 1, false);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Impact Mixture", "x2.0 Regular Shot Area Damage, x2.0 Charged Shot Area Damage, x0.5 Corrosive DoT duration, x0.75 Sludge Puddle duration", overclockIcons.directDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Disperser Compound", "+6 Charged Shot Fragments, +5 Fragment Area Damage, -20 Charged Shot Area Damage", overclockIcons.areaDamage, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Goo Bomber Special", "Charged Shots now drop their Fragments straight down while flying, instead of upon impact. Every Fragment dropped reduces the "
 				+ "damage of the main projectile. After every Fragment has been dropped, the main projectile is destroyed. Additionally: +5 Fragment Area Damage, x1.5 Charged Shot Fragments, x1.33 Sludge Puddle duration", overclockIcons.special, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Sludge Blast", "Changes the Charged Shot into a \"shotgun\" blast of the Fragments instead of a larger projectile. Fragments use the Charged Shot's damage instead. Additionally: +100% Charged Shot Velocity, "
-				+ "x0.4 Charged Shot Area Damage, x1.2 Charge Time, x0.8 Magazine Size, x0.8 Max Ammo, +0.6 Reload Time, and decreases the charged projectiles' launch angle from 9 degrees to 3.", overclockIcons.numPellets2, 5);
+				+ "x0.5 Charged Shot Area Damage, -40 Max Ammo, +0.6 Reload Time, and decreases the charged projectiles' launch angle from 9 degrees to 3.", overclockIcons.numPellets2, 5);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
 		modsAndOCsInitialized = true;
@@ -180,7 +180,7 @@ public class SludgePump extends Weapon {
 		}
 		
 		if (selectedOverclock == 2) {
-			toReturn += 10;
+			toReturn *= 2;
 		}
 		
 		return toReturn;
@@ -193,13 +193,13 @@ public class SludgePump extends Weapon {
 		}
 		
 		if (selectedOverclock == 2) {
-			toReturn += 20;
+			toReturn *= 2;
 		}
 		else if (selectedOverclock == 3) {
 			toReturn -= 20;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn *= 0.4;
+			toReturn *= 0.5;
 		}
 		
 		return toReturn;
@@ -233,11 +233,7 @@ public class SludgePump extends Weapon {
 		double toReturn = chargedShotWindup;
 		
 		if (selectedTier4 == 1) {
-			toReturn *= 0.5;
-		}
-		
-		if (selectedOverclock == 5) {
-			toReturn *= 1.2;
+			toReturn *= 0.4;
 		}
 		
 		return toReturn;
@@ -259,7 +255,7 @@ public class SludgePump extends Weapon {
 		}
 		
 		if (selectedOverclock == 5) {
-			toReturn *= 0.8;
+			toReturn -= 40;
 		}
 		
 		return (int) Math.round(toReturn);
@@ -270,11 +266,7 @@ public class SludgePump extends Weapon {
 		if (selectedTier1 == 0) {
 			toReturn *= 2;
 		}
-		
-		if (selectedOverclock == 5) {
-			toReturn *= 0.8;
-		}
-		
+
 		return (int) Math.round(toReturn);
 	}
 	protected double getReloadTime() {
@@ -290,11 +282,11 @@ public class SludgePump extends Weapon {
 		double modifier = 1.0;
 		
 		if (selectedTier1 == 1) {
-			modifier += 0.33;
+			modifier += 0.4;
 		}
 		
 		if (selectedOverclock == 1) {
-			modifier += 0.15;
+			modifier += 0.3;
 		}
 		
 		return projectileVelocity * modifier;
@@ -303,11 +295,11 @@ public class SludgePump extends Weapon {
 		double modifier = 1.0;
 		
 		if (selectedTier1 == 1) {
-			modifier += 0.33;
+			modifier += 0.4;
 		}
 		
 		if (selectedOverclock == 1) {
-			modifier += 0.15;
+			modifier += 0.3;
 		}
 		else if (selectedOverclock == 5) {
 			modifier += 1.0;
@@ -353,10 +345,10 @@ public class SludgePump extends Weapon {
 		return toReturn;
 	}
 	protected double getCorrosiveDoTDPS() {
-		double damagePerTick = 5;
+		double damagePerTick = 8;
 		
 		if (selectedTier5 == 1) {
-			damagePerTick += 1;
+			damagePerTick += 2;
 		}
 		
 		if (selectedOverclock == 0) {
@@ -387,7 +379,7 @@ public class SludgePump extends Weapon {
 		}
 		
 		if (selectedOverclock == 2) {
-			toReturn *= 0.75;
+			toReturn *= 0.5;
 		}
 		
 		return toReturn;
