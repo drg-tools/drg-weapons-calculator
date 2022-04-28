@@ -176,7 +176,7 @@ public class SludgePump extends Weapon {
 		double toReturn = regularShotDamage;
 		
 		if (selectedTier2 == 2) {
-			toReturn += 15;
+			toReturn += 8;
 		}
 		
 		if (selectedOverclock == 2) {
@@ -189,7 +189,7 @@ public class SludgePump extends Weapon {
 		double toReturn = chargedShotDamage;
 		
 		if (selectedTier2 == 0) {
-			toReturn += 25;
+			toReturn += 24;
 		}
 		
 		if (selectedOverclock == 2) {
