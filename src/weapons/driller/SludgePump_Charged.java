@@ -56,7 +56,7 @@ public class SludgePump_Charged extends SludgePump {
 		boolean chargedDamageModified = selectedTier2 == 0 || selectedOverclock == 2 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Charged Shot Area Damage:", getChargedShotAreaDamage(), modIcons.areaDamage, chargedDamageModified);
 		toReturn[1] = new StatsRow("Charged Shot AoE Radius:", aoeEfficiency[0], modIcons.aoeRadius, selectedOverclock == 5);
-		toReturn[2] = new StatsRow("Charged Shot Windup:", getChargeTime(), modIcons.duration, selectedTier4 == 1 || selectedOverclock == 5);
+		toReturn[2] = new StatsRow("Charged Shot Windup:", getChargeTime(), modIcons.duration, selectedTier4 == 1);
 		toReturn[3] = new StatsRow("Ammo/Charged Shot:", getAmmoPerChargedShot(), modIcons.fuel, selectedTier4 == 0);
 		boolean velocityModified = selectedTier1 == 1 || selectedOverclock == 1 || selectedOverclock == 5;
 		toReturn[4] = new StatsRow("Charged Shot Velocity:", getChargedProjectileVelocity(), modIcons.projectileVelocity, velocityModified);
@@ -64,7 +64,7 @@ public class SludgePump_Charged extends SludgePump {
 		boolean fragmentCountModified = selectedTier2 == 1 || selectedOverclock == 3 || selectedOverclock == 4;
 		toReturn[6] = new StatsRow("Number of Fragments:", getNumberOfFragmentsPerChargedShot(), modIcons.pelletsPerShot, fragmentCountModified);
 		
-		toReturn[7] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, selectedTier1 == 0 || selectedOverclock == 5);
+		toReturn[7] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, selectedTier1 == 0);
 		toReturn[8] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, selectedTier3 == 1 || selectedOverclock == 5);
 		toReturn[9] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier4 == 1 || selectedOverclock == 5);
 		toReturn[10] = new StatsRow("Reload Time:", getReloadTime(), modIcons.reloadSpeed, selectedOverclock == 5);
