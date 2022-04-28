@@ -119,7 +119,7 @@ public class Boomstick extends Weapon {
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Double Barrel", "Fire both barrels with a single tigger pull as a 2-round burst. Additionally, +1 Damage per Pellet.", overclockIcons.rateOfFire, 1);
 		overclocks[2] = new Overclock(Overclock.classification.clean, "Special Powder", "Jump off of the ground and fire the shotgun to \"blast jump\", which adds 13 m/sec to your velocity.", overclockIcons.shotgunJump, 2);
 		overclocks[3] = new Overclock(Overclock.classification.clean, "Stuffed Shells", "+1 Damage per Pellet, +1 Pellet per Shot", overclockIcons.pelletsPerShot, 3);
-		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "-50% Base Spread, -1 Pellet per Shot", overclockIcons.baseSpread, 4);
+		overclocks[4] = new Overclock(Overclock.classification.balanced, "Shaped Shells", "-50% Base Spread, -4 Max Ammo", overclockIcons.baseSpread, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Jumbo Shells", "+8 Damage per Pellet, -10 Max Ammo, +0.5 Reload Time", overclockIcons.directDamage, 5);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
@@ -174,9 +174,6 @@ public class Boomstick extends Weapon {
 		if (selectedOverclock == 3) {
 			toReturn += 1;
 		}
-		else if (selectedOverclock == 4) {
-			toReturn -= 1;
-		}
 		
 		return toReturn;
 	}
@@ -215,6 +212,9 @@ public class Boomstick extends Weapon {
 		
 		if (selectedOverclock == 0) {
 			toReturn += 6;
+		}
+		else if (selectedOverclock == 4) {
+			toReturn -= 4;
 		}
 		else if (selectedOverclock == 5) {
 			toReturn -= 10;
@@ -298,7 +298,7 @@ public class Boomstick extends Weapon {
 		boolean damageModified = selectedTier1 == 1 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Damage per Pellet:", getDamagePerPellet(), modIcons.directDamage, damageModified);
 		
-		boolean pelletsModified = selectedTier3 == 2 || selectedOverclock == 3 || selectedOverclock == 4;
+		boolean pelletsModified = selectedTier3 == 2 || selectedOverclock == 3;
 		toReturn[1] = new StatsRow("Number of Pellets/Shot:", getNumberOfPellets(), modIcons.pelletsPerShot, pelletsModified);
 		
 		toReturn[2] = new StatsRow("Blastwave Damage:", getBlastwaveDamage(), modIcons.areaDamage, selectedTier4 == 2);
@@ -308,7 +308,7 @@ public class Boomstick extends Weapon {
 		
 		toReturn[4] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, false);
 		
-		boolean carriedAmmoModified = selectedTier1 == 0 || selectedTier3 == 1 || selectedOverclock == 0 || selectedOverclock == 5;
+		boolean carriedAmmoModified = selectedTier1 == 0 || selectedTier3 == 1 || selectedOverclock == 0 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[5] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, carriedAmmoModified);
 		
 		toReturn[6] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, selectedTier2 == 0);

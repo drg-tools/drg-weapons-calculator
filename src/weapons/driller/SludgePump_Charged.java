@@ -304,15 +304,9 @@ public class SludgePump_Charged extends SludgePump {
 	@Override
 	public double utilityScore() {
 		// Armor Break
-		// Normally, Sludge Pump can't damage or interact with Armor in any way. The only exception is T5.C
-		if (selectedTier5 == 2) {
-			// The DoT that damages Armor plates can do a range of [20, 25] damage per Tick, and uses the same damage ticks as Corrosive DoT [0.2, 0.3]
-			double armorDoTDPS = (20 + 25) / (0.2 + 0.3);
-			utilityScores[2] = armorDoTDPS * UtilityInformation.ArmorBreak_Utility;
-		}
-		else {
-			utilityScores[2] = 0;
-		}
+		// The DoT that damages Armor plates can do a range of [20, 25] damage per Tick, and uses the same damage ticks as Corrosive DoT [0.2, 0.3]
+		double armorDoTDPS = (20 + 25) / (0.2 + 0.3);
+		utilityScores[2] = armorDoTDPS * UtilityInformation.ArmorBreak_Utility;
 		
 		// Slow
 		// The Corrosive DoT and Sludge Puddle both slow, and their slows multiply together. However, I'm choosing to just add them here because there's like... 9 overlapping cases of interaction to model if multiplying.

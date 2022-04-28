@@ -5,3 +5,4 @@ bin/*
 builds/*
 jars/v*.jar
 jars/proposedBalanceChanges.jar
+/drg-weapons-calculator.iml
