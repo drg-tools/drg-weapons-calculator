@@ -106,11 +106,11 @@ public class PlasmaCarbine extends Weapon {
 		
 		overclocks = new Overclock[7];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Aggressive Venting", "Upon Overheating, deal 6 Damage, 60 Heat, and 5.0 Fear Factor to enemies within 5m of you. This effect scales with the "
-				+ "current Heat level, so manually Overheating early deals less Damage and Heat. Additionally, reduces Overheat duration by x0.8.", overclockIcons.special, 3);
+				+ "current Heat level, so manually Overheating early deals less Damage and Heat. Additionally, reduces Overheat duration by x0.8.", overclockIcons.special, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Thermal Liquid Coolant", "x1.25 Cooling Rate, x0.85 Heat per Shot", overclockIcons.coolingRate, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Rewiring Mod", "Regenerate Ammo while Overheated. At full Overheat, up to 31.5 ammo gets regenerated on average. This effect scales with the "
 				+ "current Heat level, so manually Overheating early returns less ammo. In exchange, +0.8 sec Overheat Duration and x0.7 Battery Capacity", overclockIcons.carriedAmmo, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Impact Deflection", "Projectiles will bounce 1 time, either off of terrain or enemies. In exchange, -2 Rate of Fire", overclockIcons.ricochet, 0);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Impact Deflection", "Projectiles will bounce 1 time, either off of terrain or enemies. In exchange, -2 Rate of Fire", overclockIcons.ricochet, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Overtuned Particle Accelerator", "+8 Direct Damage, x0.8 Battery Capacity, x1.5 Heat per Shot, +400% Horizontal Base Spread, +133% Vertical Base Spread", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Shield Battery Booster", "+1 Rate of Fire, +50 Battery Capacity, x0.5 Cooling Rate, x1.5 Heat per Shot, x2 Overheat Duration. While Shield is full, +5.5 Direct Damage and "
 				+ "2x Projectile Velocity. Upon Overheating, your shield gets disabled until the Overheat finishes.", overclockIcons.damageResistance, 5);
