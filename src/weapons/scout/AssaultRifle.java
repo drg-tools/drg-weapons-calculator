@@ -314,7 +314,7 @@ public class AssaultRifle extends Weapon {
 		boolean magSizeModified = selectedTier3 == 2 || selectedOverclock == 0 || selectedOverclock == 4 || selectedOverclock == 6;
 		toReturn[1] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, magSizeModified);
 		
-		toReturn[2] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, selectedTier2 == 1);
+		toReturn[2] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, selectedTier2 == 1 || selectedOverclock == 6);
 		
 		boolean rofModified = selectedTier1 == 1 || selectedTier4 == 2 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[3] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, rofModified);
