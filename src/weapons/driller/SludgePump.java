@@ -35,21 +35,21 @@ public class SludgePump extends Weapon {
 	* Class Variables
 	****************************************************************************************/
 	
-	private final double regularShotDamage;
-	private final double chargedShotDamage;
-	private final double chargedShotFragmentDamage;
-	private final int numFragmentsPerChargedShot;
-	private final double chargedShotWindup;
-	private final int ammoPerChargedShot;
-	private final int carriedAmmo;
-	private final int magazineSize;
+	private double regularShotDamage;
+	private double chargedShotDamage;
+	private double chargedShotFragmentDamage;
+	private int numFragmentsPerChargedShot;
+	private double chargedShotWindup;
+	private int ammoPerChargedShot;
+	private int carriedAmmo;
+	private int magazineSize;
 	protected double rateOfFire;
-	private final double reloadTime;
-	private final double projectileVelocity;
-	private final double regularShotPuddleRadius;
-	private final double chargedShotPuddleRadius;
-	private final double corrosiveDoTDuration;
-	private final double puddleLifetime;
+	private double reloadTime;
+	private double projectileVelocity;
+	private double regularShotPuddleRadius;
+	private double chargedShotPuddleRadius;
+	private double corrosiveDoTDuration;
+	private double puddleLifetime;
 	
 	// Used in SludgePump_Charged
 	protected double probabilityFragmentHitsNewEnemy;
