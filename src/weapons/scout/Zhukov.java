@@ -377,34 +377,15 @@ public class Zhukov extends Weapon {
 		
 		double damagePerMagazine;
 		int bulletsThatHitTarget;
-		if (selectedOverclock == 2) {
-			// Is the primary target already frozen?
-			if (statusEffects[1]) {
-				// If this is the case, then the Frozen x3 damage has already been applied.
-				bulletsThatHitTarget = (int) Math.round(effectiveMagazineSize * generalAccuracy);
-			}
-			else {
-				// First, you have to intentionally miss bullets in order to convert them to Cryo Minelets, then wait 0.9 seconds, and unload the rest of the clip into
-				// the now-frozen enemy for x3 damage. Damage vs frozen enemies does NOT benefit from weakpoint damage on top of the frozen multiplier.
-				duration += 0.9;
-				double numBulletsMissedToBecomeCryoMinelets = calculateAvgNumBulletsNeededToFreeze();
-				directDamage *= UtilityInformation.Frozen_Damage_Multiplier;
-				bulletsThatHitTarget = (int) Math.round((effectiveMagazineSize - numBulletsMissedToBecomeCryoMinelets) * generalAccuracy);
-			}
-			
-			damagePerMagazine = directDamage * bulletsThatHitTarget;
-		}
-		else {
-			if (weakpoint && selectedOverclock != 4 && !statusEffects[1]) {
+		if (weakpoint && selectedOverclock != 4 && !statusEffects[1]) {
 				double weakpointAccuracy = getWeakpointAccuracy() / 100.0;
 				int bulletsThatHitWeakpoint = (int) Math.round(effectiveMagazineSize * weakpointAccuracy);
 				bulletsThatHitTarget = (int) Math.round(effectiveMagazineSize * generalAccuracy) - bulletsThatHitWeakpoint;
 				damagePerMagazine = bulletsThatHitWeakpoint * increaseBulletDamageForWeakpoints(directDamage, getWeakpointBonus(), 1.0) + bulletsThatHitTarget * directDamage + (bulletsThatHitWeakpoint + bulletsThatHitTarget) * areaDamage;
-			}
-			else {
+		}
+		else {
 				bulletsThatHitTarget = (int) Math.round(effectiveMagazineSize * generalAccuracy);
 				damagePerMagazine = (directDamage + areaDamage) * bulletsThatHitTarget;
-			}
 		}
 		
 		return damagePerMagazine / duration;
