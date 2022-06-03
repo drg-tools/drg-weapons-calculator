@@ -151,7 +151,8 @@ public class WeaponTab extends JPanel {
 		title.setForeground(GuiConstants.drgRegularOrange);
 		toReturn.add(title);
 		
-		StatusEffectButton burning = new StatusEffectButton(myWeapon, 0, "Burning", "Enemies that are Burning take an average of " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per second", 
+		StatusEffectButton burning = new StatusEffectButton(myWeapon, 0, "Burning", "Enemies that are Burning take an average of " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per second, "
+				+ "and heat up nearby enemies at an average of " + MathUtils.round(5.0 / ((0.9 + 1.1)/2.0), GuiConstants.numDecimalPlaces) + " Heat per second.", 
 				ButtonIcons.statusEffectIcons.fire, currentStatusEffects[0]);
 		StatusEffectButton frozen = new StatusEffectButton(myWeapon, 1, "Frozen", "Enemies that are Frozen cannot move, take 3x Direct Damage, normal Area Damage, but no Weakpoint Bonuses can be applied.", 
 				ButtonIcons.statusEffectIcons.frozen, currentStatusEffects[1]);

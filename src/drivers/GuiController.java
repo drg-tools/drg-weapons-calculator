@@ -31,20 +31,26 @@ import weapons.driller.CryoCannon;
 import weapons.driller.EPC_ChargeShot;
 import weapons.driller.EPC_RegularShot;
 import weapons.driller.Flamethrower;
+import weapons.driller.SludgePump;
+import weapons.driller.SludgePump_Charged;
 import weapons.driller.Subata;
 import weapons.engineer.BreachCutter;
 import weapons.engineer.BreachCutter_Projectile;
 import weapons.engineer.GrenadeLauncher;
 import weapons.engineer.SMG;
 import weapons.engineer.Shotgun;
+import weapons.engineer.SmartRifle;
+import weapons.engineer.SmartRifle_LockOn;
 import weapons.gunner.Autocannon;
 import weapons.gunner.BurstPistol;
+import weapons.gunner.GuidedRocketLauncher;
 import weapons.gunner.Minigun;
 import weapons.gunner.Revolver;
 import weapons.scout.AssaultRifle;
 import weapons.scout.Boomstick;
 import weapons.scout.Classic_FocusShot;
 import weapons.scout.Classic_Hipfire;
+import weapons.scout.PlasmaCarbine;
 import weapons.scout.Zhukov;
 
 /*
@@ -68,10 +74,10 @@ public class GuiController implements ActionListener {
 	private JFileChooser folderChooser;
 	
 	public static void main(String[] args) {
-		Weapon[] drillerWeapons = new Weapon[] {new Flamethrower(), new CryoCannon(), new Subata(), new EPC_RegularShot(), new EPC_ChargeShot()};
-		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new GrenadeLauncher(), new BreachCutter(), new BreachCutter_Projectile()};
-		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new Revolver(), new BurstPistol()};
-		Weapon[] scoutWeapons = new Weapon[] {new AssaultRifle(), new Classic_Hipfire(), new Classic_FocusShot(), new Boomstick(), new Zhukov()};
+		Weapon[] drillerWeapons = new Weapon[] {new Flamethrower(), new CryoCannon(), new SludgePump(), new SludgePump_Charged(), new Subata(), new EPC_RegularShot(), new EPC_ChargeShot()};
+		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new SmartRifle(), new SmartRifle_LockOn(), new GrenadeLauncher(), new BreachCutter(), new BreachCutter_Projectile()};
+		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new GuidedRocketLauncher(), new Revolver(), new BurstPistol()};
+		Weapon[] scoutWeapons = new Weapon[] {new AssaultRifle(), new Classic_Hipfire(), new Classic_FocusShot(), new PlasmaCarbine(), new Boomstick(), new Zhukov()};
 		View gui = new View(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons);
 		new GuiController(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons, gui);
 	}
@@ -122,7 +128,7 @@ public class GuiController implements ActionListener {
 		mysqlCommands.add("    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,\n");
 		mysqlCommands.add("    `character_id` BIGINT UNSIGNED NOT NULL,\n");
 		mysqlCommands.add("    `gun_id` BIGINT UNSIGNED NOT NULL,\n");
-		mysqlCommands.add("    `weapon_short_name` VARCHAR(20) NOT NULL,\n");
+		mysqlCommands.add("    `weapon_short_name` VARCHAR(50) NOT NULL,\n");
 		mysqlCommands.add("    `build_combination` VARCHAR(6) NOT NULL,\n");
 		
 		// Burst DPS

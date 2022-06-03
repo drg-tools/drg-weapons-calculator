@@ -92,7 +92,7 @@ public class Subata extends Weapon {
 		tier4[1] = new Mod("High Velocity Rounds", "+3 Direct Damage", modIcons.directDamage, 4, 1);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Volatile Bullets", "+50% Damage dealt to Burning enemies", modIcons.heatDamage, 5, 0);
+		tier5[0] = new Mod("Volatile Bullets", "+50% Direct Damage dealt to Burning enemies. Bonus damage is Fire element and adds the same amount of Heat, extending the Burn duration.", modIcons.heatDamage, 5, 0);
 		tier5[1] = new Mod("Mactera Toxin-Coating", "+20% Damage dealt to Mactera-type enemies", modIcons.special, 5, 1);
 		
 		overclocks = new Overclock[6];

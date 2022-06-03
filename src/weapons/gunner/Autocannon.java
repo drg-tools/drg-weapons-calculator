@@ -85,7 +85,7 @@ public class Autocannon extends Weapon {
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
 		tier1[0] = new Mod("Increased Caliber Rounds", "+3 Direct Damage", modIcons.directDamage, 1, 0);
-		tier1[1] = new Mod("High Capacity Magazine", "+110 Magazine Size", modIcons.magSize, 1, 1);
+		tier1[1] = new Mod("High Capacity Magazine", "x2 Magazine Size", modIcons.magSize, 1, 1);
 		tier1[2] = new Mod("Expanded Ammo Bags", "+220 Max Ammo", modIcons.carriedAmmo, 1, 2);
 		
 		tier2 = new Mod[3];
@@ -104,7 +104,7 @@ public class Autocannon extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Feedback Loop", "x1.1 Direct and Area Damage when at Max Rate of Fire", modIcons.directDamage, 5, 0);
-		tier5[1] = new Mod("Suppressive Fire", "Deal 0.5 Fear to enemies within a 1m radius of bullet impact", modIcons.fear, 5, 1);
+		tier5[1] = new Mod("Suppressive Fire", "Deal 0.5 Fear to enemies within a 1m radius of bullet impact. The radius of the Fear gets the same increases as the Area Damage.", modIcons.fear, 5, 1);
 		tier5[2] = new Mod("Damage Resistance At Full RoF", "33% Damage Resistance when at Max Rate of Fire", modIcons.damageResistance, 5, 2);
 		
 		overclocks = new Overclock[6];
@@ -114,7 +114,7 @@ public class Autocannon extends Weapon {
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Combat Mobility", "Increases movement speed while using from 50% to 85% of normal walk speed, +0.9 Min Rate of Fire, x1.5 RoF Scaling Rate, x0.7 Base Spread, x0.5 Magazine Size", overclockIcons.movespeed, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Big Bertha", "+12 Direct Damage, x0.7 Base Spread, x0.5 Magazine Size, -110 Max Ammo, -1.5 Max Rate of Fire", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Neurotoxin Payload", "50% Chance to inflict a Neurotoxin DoT that deals an average of " + MathUtils.round(DoTInformation.Neuro_DPS, GuiConstants.numDecimalPlaces) + 
-				" Poison Damage per Second for 10 seconds to all enemies within the AoE Radius upon impact. +0.6m AoE Radius, -2 Direct Damage, -5 Area Damage", overclockIcons.neurotoxin, 5);
+				" Poison Damage per Second and slows enemies by 30% for 10 seconds to all enemies within the AoE Radius upon impact. +0.6m AoE Radius, -2 Direct Damage, -5 Area Damage", overclockIcons.neurotoxin, 5);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
 		modsAndOCsInitialized = true;
@@ -204,6 +204,23 @@ public class Autocannon extends Weapon {
 		else if (selectedOverclock == 2 || selectedOverclock == 5) {
 			toReturn += 0.6;
 		}
+		return toReturn;
+	}
+	private double getFearRadius() {
+		// Dagadegatto informed me that the AoE Radius upgrades apply equally to the Radial Damage as well as the Fear.
+		double toReturn = 1.0;
+		
+		if (selectedTier4 == 1) {
+			toReturn += 0.6;
+		}
+		
+		if (selectedOverclock == 1) {
+			toReturn += 0.3;
+		}
+		else if (selectedOverclock == 2 || selectedOverclock == 5) {
+			toReturn += 0.6;
+		}
+		
 		return toReturn;
 	}
 	private int getMagazineSize() {
@@ -618,9 +635,9 @@ public class Autocannon extends Weapon {
 			utilityScores[3] = 0;
 		}
 		
-		// According to MikeGSG, Mod Tier 5 "Suppressive Fire" does 0.5 Fear in a 1m radius
+		// According to MikeGSG, Mod Tier 5 "Suppressive Fire" does 0.5 Fear in a 1m radius. U35.3 patchnotes say that the radius scales with AoE Radius upgrades now. 
 		if (selectedTier5 == 1) {
-			int numGlyphidsFeared = 5;  // calculateNumGlyphidsInRadius(1.0);
+			int numGlyphidsFeared = calculateNumGlyphidsInRadius(getFearRadius(), false);
 			double probabilityToFear = calculateFearProcProbability(0.5);
 			double fearDuration = 0;
 			if (selectedOverclock == 5) {

@@ -128,10 +128,15 @@ public class OverclockButton extends JButton implements MouseInputListener {
 		if (myOC.getType() == Overclock.classification.clean) {
 			iconVerticalOffset -= 3;
 		}
-		// I'm also choosing to move RollControl down a little bit
-		if (myOC.getIcon() == ButtonIcons.overclockIcons.rollControl) {
+		// I'm also choosing to move RollControl and ArmorBreaking down a little bit
+		else if (myOC.getIcon() == ButtonIcons.overclockIcons.rollControl || myOC.getIcon() == ButtonIcons.overclockIcons.armorBreaking) {
 			iconVerticalOffset += 2;
 		}
+		// Moving AddedExplosion up a smidge
+		else if (myOC.getIcon() == ButtonIcons.overclockIcons.addedExplosion) {
+			iconVerticalOffset -= 3;
+		}
+		
 		int iconHorizontalOffset = frameHorizontalOffset + (int) Math.round((frameWidth - iconWidth) / 2.0);
 		// The Damage skull and Ricochet icons are a little to the right; I'm going to move them to the left a little bit.
 		if (myOC.getIcon() == ButtonIcons.overclockIcons.directDamage || myOC.getIcon() == ButtonIcons.overclockIcons.ricochet) {

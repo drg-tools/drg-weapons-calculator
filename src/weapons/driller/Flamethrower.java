@@ -104,7 +104,7 @@ public class Flamethrower extends Weapon {
 		tier4[2] = new Mod("More Fuel", "+75 Max Fuel", modIcons.carriedAmmo, 4, 2);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Heat Radiance", "After every full second of firing, deal 80 Fire element Area Damage and 80 Heat in a 3m radius around you. The Heat/sec stacks with the direct stream and Sticky Flames' heat sources as well.", modIcons.heatDamage, 5, 0);
+		tier5[0] = new Mod("Heat Radiance", "After every full second of firing, deal 80 Fire-element Area Damage and 80 Heat in a 4m radius around you. The Heat/sec stacks with the direct stream and Sticky Flames' heat sources as well.", modIcons.heatDamage, 5, 0);
 		tier5[1] = new Mod("Targets Explode", "If the direct stream kills an enemy, there's a 50% chance that they will explode and deal 55 Fire Damage and 55 Heat to all enemies within a 3m radius.", modIcons.addedExplosion, 5, 1);
 		
 		overclocks = new Overclock[6];
@@ -366,9 +366,9 @@ public class Flamethrower extends Weapon {
 		double heatRadianceDmgAndHeatPerTick = 0;
 		int numTicksHeatRadianceWillProc = 0; 
 		if (selectedTier5 == 0) {
-			// 80 Heat/sec in a 3m radius
+			// 80 Fire-element Damage and Heat in a 4m radius, 3m MaxDmgRadius and 25% Falloff, once per full second of firing.
 			// I want this to be less effective with far-reaching streams to model how the further the steam flies the less likely it is that the enemies will be within the 3m.
-			heatRadianceDmgAndHeatPerTick = 80.0 * 3.0 / getFlameReach();
+			heatRadianceDmgAndHeatPerTick = 80.0 * 4.0 / getFlameReach();
 			// Because Heat Radiance only procs after every full second of firing, I'm choosing to take the floor() of how many seconds a single magazine can be fired.
 			numTicksHeatRadianceWillProc = (int) Math.floor(((double) getFuelTankSize()) / getFlowRate()); 
 		}
@@ -443,7 +443,7 @@ public class Flamethrower extends Weapon {
 			// 80 Fire + Heat/sec in a 3m radius
 			double numTicksOfHeatRadiance = numMagazines(getCarriedFuel(), getFuelTankSize()) * (int) Math.floor(((double) getFuelTankSize()) / getFlowRate());
 			// I'm choosing to model this as if the player is kiting enemies, keeping them about 1.5m away so that they don't receive melee attacks.
-			int numGlyphidsHitByHeatRadiancePerTick = calculateNumGlyphidsInRadius(3.0) - calculateNumGlyphidsInRadius(1.5);
+			int numGlyphidsHitByHeatRadiancePerTick = calculateNumGlyphidsInRadius(4.0) - calculateNumGlyphidsInRadius(1.5);
 			heatRadianceTotalDamage = 80 * numTicksOfHeatRadiance * numGlyphidsHitByHeatRadiancePerTick;
 		}
 		
@@ -532,9 +532,9 @@ public class Flamethrower extends Weapon {
 		
 		double heatRadianceDmgAndHeatPerTick = 0;
 		if (selectedTier5 == 0) {
-			// 80 Heat/sec in a 3m radius
+			// 80 Heat/sec in a 4m radius
 			// I want this to be less effective with far-reaching streams to model how the further the steam flies the less likely it is that the enemies will be within the 3m.
-			heatRadianceDmgAndHeatPerTick = 80.0 * 3.0 / getFlameReach();
+			heatRadianceDmgAndHeatPerTick = 80.0 * 4.0 / getFlameReach();
 		}
 		
 		return EnemyInformation.averageTimeToIgnite(0, getParticleHeat(), getFlowRate(), stickyFlamesHeatPerSec + heatRadianceDmgAndHeatPerTick);

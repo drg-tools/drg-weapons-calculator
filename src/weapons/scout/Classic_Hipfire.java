@@ -239,7 +239,7 @@ public class Classic_Hipfire extends Classic {
 	
 	@Override
 	public double damagePerMagazine() {
-		return getDirectDamage() * getMagazineSize() * calculateMaxNumTargets();
+		return getDirectDamage() * getMagazineSize() * calculateBlowthroughDamageMultiplier(getMaxPenetrations());
 	}
 	
 	@Override

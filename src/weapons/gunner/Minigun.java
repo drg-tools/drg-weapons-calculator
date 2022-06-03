@@ -839,7 +839,7 @@ public class Minigun extends Weapon {
 			The length of the burst is determined by the heat accumulated. Each burst duration should stop just shy of 
 			overheating the minigun so that it doesn't have the overheat cooldown penalty imposed.
 		*/
-		return calculateMaxNumPelletsFiredWithoutOverheating() * getDamagePerPellet(false);
+		return calculateMaxNumPelletsFiredWithoutOverheating() * getDamagePerPellet(false) * calculateBlowthroughDamageMultiplier(getNumberOfPenetrations());
 	}
 	
 	@Override

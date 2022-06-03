@@ -2,6 +2,7 @@ package guiPieces.customButtons;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -10,8 +11,10 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JToolTip;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputListener;
@@ -108,8 +111,34 @@ public class ModButton extends JButton implements MouseInputListener {
 			g2.setPaint(GuiConstants.drgHighlightedYellow);
 		}
 		String myText = this.getText();
-		int textWidth = g2.getFontMetrics().stringWidth(myText);
-		int textVerticalOffset = (int) Math.round((this.getHeight() + GuiConstants.fontHeight) / 2.0);
+		
+		JLabel mimic = null;
+		int textWidth, textVerticalOffset;
+		if (Pattern.matches(".*&#\\d+;.*", myText)) {
+			// If there are any HTML Character Codes like '&#7449;' in SmartRifle T3.B, this Regex should catch it and change how the text gets rendered accordingly.
+			// Adapted from https://stackoverflow.com/a/7778362
+			mimic = new JLabel("<html><body>" + myText + "</body></html>");
+			mimic.setFont(GuiConstants.customFont);
+			if (myMod.isSelected()) {
+				mimic.setBackground(GuiConstants.drgHighlightedYellow);
+				mimic.setForeground(Color.black);
+			}
+			else {
+				mimic.setBackground(Color.black);
+				mimic.setForeground(GuiConstants.drgHighlightedYellow);
+			}
+			Dimension mimicSize = mimic.getPreferredSize();
+			mimic.setSize(mimicSize);
+			
+			textWidth = mimicSize.width;
+			// This is a stupid solution, but it works. Fundamentally, g2.drawString has (0,0) at its bottom left and draws up-right but JLabel has (0,0) at its top left and draws down-right.
+			// Why it needs a +1 pixel offset is beyond me...
+			textVerticalOffset = (int) Math.round((this.getHeight() - mimicSize.height) / 2.0) + 1;
+		}
+		else {
+			textWidth = g2.getFontMetrics().stringWidth(myText);
+			textVerticalOffset = (int) Math.round((this.getHeight() + GuiConstants.fontHeight) / 2.0);
+		}
 		
 		int textHorizontalOffset = (this.getWidth() - textWidth + (int) iconWidth) / 2;
 		int iconHorizontalOffset = textHorizontalOffset - GuiConstants.paddingPixels - (int) iconWidth;
@@ -121,7 +150,15 @@ public class ModButton extends JButton implements MouseInputListener {
 		catch (IOException e) {}
 		
 		g2.drawImage(resizedIcon, iconHorizontalOffset, iconVerticalOffset, (int) (iconWidth), (int) (iconHeight), null);
-		g2.drawString(myText, textHorizontalOffset, textVerticalOffset);
+		if (mimic != null) {
+			// Adapted from https://stackoverflow.com/a/7778362
+			g2.translate(textHorizontalOffset, textVerticalOffset);
+			mimic.paint(g2);
+			g2.translate(-textHorizontalOffset, -textVerticalOffset);
+		}
+		else {
+			g2.drawString(myText, textHorizontalOffset, textVerticalOffset);
+		}
 		
 		// Paint this with a translucent red when it's not eligible for Best Combinations (Subset)
 		if (myMod.isIgnored()) {

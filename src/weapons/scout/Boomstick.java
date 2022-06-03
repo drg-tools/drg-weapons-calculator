@@ -654,7 +654,7 @@ public class Boomstick extends Weapon {
 	public double damagePerMagazine() {
 		// 20 degree isosceles triangle, 4m height; 1.41m base. 4 grunts can be hit in a 1-2-1 stack.
 		int gruntsHitByBlastwave = 4;
-		return getMagazineSize() * (getDamagePerPellet() * getNumberOfPellets() * calculateMaxNumTargets() + getBlastwaveDamage() * gruntsHitByBlastwave);
+		return getMagazineSize() * (getDamagePerPellet() * getNumberOfPellets() * calculateBlowthroughDamageMultiplier(getMaxPenetrations()) + getBlastwaveDamage() * gruntsHitByBlastwave);
 	}
 	
 	@Override

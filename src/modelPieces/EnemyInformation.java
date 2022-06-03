@@ -49,8 +49,11 @@ public class EnemyInformation {
 		0.9,  // Haz2
 		1.0,  // Haz3
 		1.0,  // Haz4
-		1.1   // Haz5
+		1.15   // Haz5
 	};
+	public static double getMovespeedDifficultyScaling() {
+		return movespeedDifficultyScaling[hazardLevel - 1];
+	}
 	
 	/* 
 		Dimensions of a Glyphid Grunt used for estimating how many grunts would be hit by AoE damage of a certain radius 
@@ -828,7 +831,7 @@ public class EnemyInformation {
 		double baseHealth, heavyArmorPlateHealth;
 		double damageDealtPerPellet, proportionOfDamageThatHitsArmor, proportionOfDamageThatHitsWeakpoint;
 		int avgNumHitsToBreakArmorStrengthPlate, numHitsOnArmorStrengthPlate;
-		double totalDamageSpent, actualDamageDealt;
+		double totalDamageSpent, actualDamageDealt, damageWasted;
 		Enemy alias;
 		for (i = 0; i < enemiesModeled.length; i++) {
 			alias = enemiesModeled[i];
@@ -1155,8 +1158,16 @@ public class EnemyInformation {
 				}
 			}
 			
+			
+			damageWasted = 1.0 - actualDamageDealt / totalDamageSpent;
 			toReturn[0][creatureIndex] = alias.getSpawnProbability(true);
-			toReturn[1][creatureIndex] = 1.0 - actualDamageDealt / totalDamageSpent;
+			// Mathematica's Chop[] function rounds any number lower than 10^-10 to the integer zero. Imitation, flattery, etc...
+			if (damageWasted < Math.pow(10.0, -10.0)) {
+				toReturn[1][creatureIndex] = 0.0;
+			}
+			else {
+				toReturn[1][creatureIndex] = damageWasted;
+			}
 			creatureIndex++;
 		}
 		
