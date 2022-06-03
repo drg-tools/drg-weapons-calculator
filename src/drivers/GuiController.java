@@ -27,13 +27,7 @@ import guiPieces.HoverText;
 import guiPieces.View;
 import modelPieces.EnemyInformation;
 import weapons.Weapon;
-import weapons.driller.CryoCannon;
-import weapons.driller.EPC_ChargeShot;
-import weapons.driller.EPC_RegularShot;
-import weapons.driller.Flamethrower;
-import weapons.driller.SludgePump;
-import weapons.driller.SludgePump_Charged;
-import weapons.driller.Subata;
+import weapons.driller.*;
 import weapons.engineer.BreachCutter;
 import weapons.engineer.BreachCutter_Projectile;
 import weapons.engineer.GrenadeLauncher;
@@ -74,7 +68,7 @@ public class GuiController implements ActionListener {
 	private JFileChooser folderChooser;
 	
 	public static void main(String[] args) {
-		Weapon[] drillerWeapons = new Weapon[] {new Flamethrower(), new CryoCannon(), new SludgePump(), new SludgePump_Charged(), new Subata(), new EPC_RegularShot(), new EPC_ChargeShot()};
+		Weapon[] drillerWeapons = new Weapon[] {new Flamethrower(), new CryoCannon(), new SludgePump(), new SludgePump_Charged(), new Subata(), new EPC_RegularShot(), new EPC_ChargeShot(), new WaveCooker()};
 		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new SmartRifle(), new SmartRifle_LockOn(), new GrenadeLauncher(), new BreachCutter(), new BreachCutter_Projectile()};
 		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new GuidedRocketLauncher(), new Revolver(), new BurstPistol()};
 		Weapon[] scoutWeapons = new Weapon[] {new AssaultRifle(), new Classic_Hipfire(), new Classic_FocusShot(), new PlasmaCarbine(), new Boomstick(), new Zhukov()};
