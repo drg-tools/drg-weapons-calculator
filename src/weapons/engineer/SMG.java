@@ -47,7 +47,7 @@ public class SMG extends Weapon {
 		weaponPic = WeaponPictures.SMG;
 		
 		// Base stats, before mods or overclocks alter them:
-		electrocutionDoTChance = 0.2;
+		electrocutionDoTChance = 0.25;
 		// Electrocution DoTs do not stack; it only refreshes the duration.
 		directDamage = 9;
 		electricDamage = 0; 
@@ -79,12 +79,12 @@ public class SMG extends Weapon {
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
 		tier1[0] = new Mod("Increased Caliber Rounds", "+2 Direct Damage", modIcons.directDamage, 1, 0);
-		tier1[1] = new Mod("Upgraded Capacitors", "+30% Chance to Electrocute an enemy", modIcons.electricity, 1, 1);
+		tier1[1] = new Mod("Upgraded Capacitors", "+25% Chance to Electrocute an enemy", modIcons.electricity, 1, 1);
 		tier1[2] = new Mod("Expanded Ammo Bags", "+120 Max Ammo", modIcons.carriedAmmo, 1, 2);
 		
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("High Capacity Magazine", "+10 Magazine Size", modIcons.magSize, 2, 0);
-		tier2[1] = new Mod("Recoil Dampener", "x0.5 Recoil", modIcons.recoil, 2, 1);
+		tier2[1] = new Mod("Recoil Dampener", "x0.6 Recoil", modIcons.recoil, 2, 1);
 		tier2[2] = new Mod("Improved Gas System", "+3 Rate of Fire", modIcons.rateOfFire, 2, 2);
 		
 		tier3 = new Mod[2];
@@ -140,7 +140,7 @@ public class SMG extends Weapon {
 		double toReturn = electrocutionDoTChance;
 		
 		if (selectedTier1 == 1) {
-			toReturn += 0.3;
+			toReturn += 0.25;
 		}
 		
 		return toReturn;
@@ -269,7 +269,7 @@ public class SMG extends Weapon {
 		double toReturn = 1.0;
 		
 		if (selectedTier2 == 1) {
-			toReturn *= 0.5;
+			toReturn *= 0.6;
 		}
 		
 		return toReturn;
@@ -472,8 +472,8 @@ public class SMG extends Weapon {
 		double minSpreadWhileMoving = 1.5;
 		
 		// Technically the SMG can have its RecoilPitch range anywhere from 35 to 40, but for simplicity's sake I'm choosing to use the average of 37.5.
-		double recoilPitch = 37.5 * getRecoil();
-		double recoilYaw = 7.0 * getRecoil();
+		double recoilPitch = 32.5 * getRecoil();
+		double recoilYaw = 6.0 * getRecoil();
 		double mass = 1.0;
 		double springStiffness = 40.0;
 		
