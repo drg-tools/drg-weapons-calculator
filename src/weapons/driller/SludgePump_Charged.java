@@ -279,6 +279,7 @@ public class SludgePump_Charged extends SludgePump {
 	
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
+		// This stat is only usable for OC "Sludge Blast"
 		/* 
 			BuckShotSpreadV 4
 			BuckShotSpreadH 8
@@ -289,15 +290,12 @@ public class SludgePump_Charged extends SludgePump {
 			SpringStiffness 145
 			Mass 1.6
 		*/
-		// WeaponsNTools/GooCannon/PRJ_BigGooProjectile
 		if (selectedOverclock == 5) {
 			// The distance is set to 12m in SludgePump's constructor.
 			return accEstimator.calculateRectangularAccuracy(weakpointAccuracy, 8.0, 4.0, 30, 30, 1.6, 145);
 		}
 		else {
-			double projectileVelocity = getChargedProjectileVelocity();
-			double projectileRadius = 0.45;
-			return accEstimator.calculateProjectileAccuracy(weakpointAccuracy, projectileRadius, projectileVelocity, getProjectileGravityMultiplier());
+			return -1.0;
 		}
 	}
 

@@ -477,10 +477,8 @@ public class GrenadeLauncher extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		// WeaponsNTools/GrenadeLauncher/PRJ_GrenadeLauncher
-		double projectileVelocity = 30.0 * getProjectileVelocity();
-		double projectileRadius = 0.2;  // Not seeing this value in the files; visually it looks the same size as EPC Regular Shots, which are 0.2m radius.
-		return accEstimator.calculateProjectileAccuracy(weakpointAccuracy, projectileRadius, projectileVelocity, 1.0);
+		// This stat is only applicable to "gun"-type weapons
+		return -1.0;
 	}
 	
 	@Override

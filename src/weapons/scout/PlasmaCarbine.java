@@ -738,6 +738,7 @@ public class PlasmaCarbine extends Weapon {
 			coolingPeriod = calculateCoolingPeriod();
 		}
 		
+		
 		double numMags = numMagazines(getBatteryCapacity(), magSize);
 		double numCooldowns = numReloads(getBatteryCapacity(), magSize);
 		
@@ -758,7 +759,6 @@ public class PlasmaCarbine extends Weapon {
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		/*
 		double hBaseSpread = 4.5 * getHorizontalBaseSpread();
 		double vBaseSpread = 4.5 * getVerticalBaseSpread();
 		double spreadPerShot = 0;
@@ -775,11 +775,6 @@ public class PlasmaCarbine extends Weapon {
 		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, calculateAverageRoF(), (int) calculateNumShotsFiredBeforeOverheating(), 1, 
 				hBaseSpread, vBaseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, minSpreadWhileMoving,
 				recoilPitch, recoilYaw, mass, springStiffness);
-		*/
-		// WeaponsNTools/PlasmaCarbine/PRJ_PlasmaCarbineShot
-		double projectileVelocity = 36.0 * getProjectileVelocity();
-		double projectileRadius = 0.15;
-		return accEstimator.calculateProjectileAccuracy(weakpointAccuracy, projectileRadius, projectileVelocity, 0.0);
 	}
 	
 	@Override

@@ -217,14 +217,6 @@ public class EPC_RegularShot extends EPC {
 	}
 	
 	@Override
-	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		// WeaponsNTools/ChargeBlaster/PRJ_NormalBlasterShot
-		double projectileVelocity = 35.0 * getRegularShotVelocity();
-		double projectileRadius = 0.2;
-		return accEstimator.calculateProjectileAccuracy(weakpointAccuracy, projectileRadius, projectileVelocity, 0.0);
-	}
-	
-	@Override
 	public int breakpoints() {
 		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
 		double[] directDamage = new double[5];
