@@ -49,7 +49,7 @@ public class EnemyInformation {
 		0.9,  // Haz2
 		1.0,  // Haz3
 		1.0,  // Haz4
-		1.1   // Haz5
+		1.15   // Haz5
 	};
 	
 	/* 
