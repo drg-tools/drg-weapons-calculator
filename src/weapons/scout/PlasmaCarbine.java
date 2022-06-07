@@ -26,6 +26,7 @@ public class PlasmaCarbine extends Weapon {
 	private int batteryCapacity;
 	private double heatPerShot;
 	private double maxHeat;
+	private double maxManualHeat;
 	private double coolingRate;
 	private double cooldownDelay;
 	private double overheatDuration;
@@ -58,6 +59,10 @@ public class PlasmaCarbine extends Weapon {
 		batteryCapacity = 800;
 		heatPerShot = 0.045;
 		maxHeat = 2.0;
+
+		// Assuming MHD will be used at 90% Heat
+		maxManualHeat = 1.5922;
+
 		coolingRate = 1.1;
 		cooldownDelay = 0.3;
 		overheatDuration = 2.5;
@@ -101,7 +106,7 @@ public class PlasmaCarbine extends Weapon {
 		
 		tier5 = new Mod[2];
 		tier5[0] = new Mod("Manual Heat Dump", "When the Heat Meter is greater than 50%, you can press the Reload button to manually activate the Overheat mode. When used in this way, Overheat's duration gets multiplied by x0.65, "
-				+ "and also scales with the current Heat level (50% Heat Meter = x0.5 Overheat Duration).", modIcons.specialReload, 5, 0, false);
+				+ "and also scales with the current Heat level (50% Heat Meter = x0.5 Overheat Duration).", modIcons.specialReload, 5, 0);
 		tier5[1] = new Mod("Thermal Feedback Loop", "When the Heat Meter is greater than 50%, the Rate of Fire is increased by +5 (up to a maximum of 20 RoF).", modIcons.special, 5, 1);
 		
 		overclocks = new Overclock[7];
@@ -505,13 +510,22 @@ public class PlasmaCarbine extends Weapon {
 	}
 	
 	private double calculateNumShotsFiredBeforeOverheating() {
-		// Because it only cools down after the player stops firing, then the "magazine size" is just ceil(maxHeat/heatPerShot)
-		// Subtract 1 so that it doesn't Overheat.
-		return Math.ceil(maxHeat / getHeatPerShot()) - 1.0;
+
+		if (selectedTier5 == 0) {
+			return Math.ceil(maxManualHeat / getHeatPerShot());
+		} else {
+			// Because it only cools down after the player stops firing, then the "magazine size" is just ceil(maxHeat/heatPerShot)
+			// Subtract 1 so that it doesn't Overheat.
+			return Math.ceil(maxHeat / getHeatPerShot()) - 1.0;
+		}
 	}
 	
 	private double calculateCoolingPeriod() {
-		return getCooldownDelay() + maxHeat / getCoolingRate();
+		if (selectedTier5 == 0) {
+			return maxManualHeat / getCoolingRate();
+		} else {
+			return getCooldownDelay() + maxHeat / getCoolingRate();
+		}
 	}
 
 	@Override
