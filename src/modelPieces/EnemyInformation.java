@@ -49,11 +49,8 @@ public class EnemyInformation {
 		0.9,  // Haz2
 		1.0,  // Haz3
 		1.0,  // Haz4
-		1.15   // Haz5
+		1.1   // Haz5
 	};
-	public static double getMovespeedDifficultyScaling() {
-		return movespeedDifficultyScaling[hazardLevel - 1];
-	}
 	
 	/* 
 		Dimensions of a Glyphid Grunt used for estimating how many grunts would be hit by AoE damage of a certain radius 
