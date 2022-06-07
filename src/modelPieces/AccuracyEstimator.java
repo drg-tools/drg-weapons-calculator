@@ -50,7 +50,7 @@ public class AccuracyEstimator {
 		playerRecoilRecoveryPerSecond = 1.00/0.35;  // Percentage of max recoil that the player recovers per second
 		
 		// Define the "max travel time" that a projectile would be expected to still hit its target dead-center
-		expectedPerfectAccuracyTravelTime = 0.3;  // seconds
+		expectedPerfectAccuracyTravelTime = 0.5;  // seconds
 		gravityAcceleration = 9.8;  // m/sec^2
 		ceilingHeight = 10.0;  // meters
 		
