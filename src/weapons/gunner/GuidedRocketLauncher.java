@@ -96,10 +96,10 @@ public class GuidedRocketLauncher extends Weapon {
 		tier1 = new Mod[3];
 		tier1[0] = new Mod("Missile Belts", "+72 Max Ammo", modIcons.carriedAmmo, 1, 0);
 		tier1[1] = new Mod("Pressurized Gas Cylinder", "+4 Direct Damage", modIcons.directDamage, 1, 1);
-		tier1[2] = new Mod("Increased Blast Radius", "+0.6m AoE Radius", modIcons.aoeRadius, 1, 2);
+		tier1[2] = new Mod("Increased Blast Radius", "+0.8m AoE Radius", modIcons.aoeRadius, 1, 2);
 		
 		tier2 = new Mod[2];
-		tier2[0] = new Mod("Bigger Jet Engine", "+5 m/sec Max Velocity, x2 Turn Rate", modIcons.projectileVelocity, 2, 0, false);
+		tier2[0] = new Mod("Bigger Jet Engine", "+7.5 m/sec Max Velocity, x2.25 Turn Rate", modIcons.projectileVelocity, 2, 0, false);
 		tier2[1] = new Mod("Anti-Tank Missiles", "x2 Armor Breaking", modIcons.armorBreaking, 2, 1);
 		
 		tier3 = new Mod[2];
@@ -216,7 +216,7 @@ public class GuidedRocketLauncher extends Weapon {
 		double toReturn = aoeRadius;
 		
 		if (selectedTier1 == 2) {
-			toReturn += 0.6;
+			toReturn += 0.8;
 		}
 		
 		if (selectedOverclock == 2) {
@@ -327,7 +327,7 @@ public class GuidedRocketLauncher extends Weapon {
 		}
 		
 		if (selectedTier2 == 0) {
-			baseSpeed += 5.0;
+			baseSpeed += 7.5;
 		}
 		
 		double modifier = 1.0;

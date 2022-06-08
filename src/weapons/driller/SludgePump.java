@@ -15,7 +15,7 @@ import weapons.Weapon;
 public class SludgePump extends Weapon {
 	
 	/*
-		Extracted from gamefiles
+		Extracted from game files
 		
 		WPN_GooCannon
 			"MassInKgOverride" 21.040535 ???????
@@ -25,7 +25,7 @@ public class SludgePump extends Weapon {
 			MaxSpeed 1400
 			ProjectileGravityScale 4
 			
-		PRJ_GooProjectile_Fragment_GooBomoberSpecial
+		PRJ_GooProjectile_Fragment_GooBoomberSpecial
 			InitialSpeed 400
 			MaxSpeed 400
 			ProjectileGravityScale 3
@@ -74,19 +74,19 @@ public class SludgePump extends Weapon {
 		weaponPic = WeaponPictures.flamethrower;
 		
 		// Base stats, before mods or overclocks alter them:
-		regularShotDamage = 25;
-		chargedShotDamage = 50;
-		chargedShotFragmentDamage = 5;
+		regularShotDamage = 16;
+		chargedShotDamage = 48;
+		chargedShotFragmentDamage = 4;
 		numFragmentsPerChargedShot = 8;
 		chargedShotWindup = 1.0;
 		ammoPerChargedShot = 5;
-		carriedAmmo = 100;
-		magazineSize = 25;
-		rateOfFire = 2.0;
+		carriedAmmo = 120;
+		magazineSize = 20;
+		rateOfFire = 4.0;
 		reloadTime = 3.0;
-		// From reading the gamefiles, it appears that the Charged Shot inherits the projectile velocity from the base shot.
+		// From reading the game files, it appears that the Charged Shot inherits the projectile velocity from the base shot.
 		projectileVelocity = 15.0;  // m/sec
-		regularShotPuddleRadius = 0.6;
+		regularShotPuddleRadius = 0.7;
 		chargedShotPuddleRadius = 0.75;
 		corrosiveDoTDuration = 4.0;
 		puddleLifetime = 12.0;
@@ -116,36 +116,35 @@ public class SludgePump extends Weapon {
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
 		tier1[0] = new Mod("High Capacity Tanks", "x2 Magazine Size", modIcons.magSize, 1, 0);
-		tier1[1] = new Mod("Better Air Pressurizer", "+33% Projectile Velocity", modIcons.projectileVelocity, 1, 1, false);
+		tier1[1] = new Mod("Better Air Pressurizer", "+40% Projectile Velocity", modIcons.projectileVelocity, 1, 1, false);
 		tier1[2] = new Mod("Air Sensitive Compound", "Increases Sludge Puddles' width by x1.25 and height by x1.1", modIcons.aoeRadius, 1, 2);
 		
 		tier2 = new Mod[3];
-		tier2[0] = new Mod("Dyse Nozzle", "+25 Charged Shot Area Damage", modIcons.areaDamage, 2, 0);
+		tier2[0] = new Mod("Dyse Nozzle", "+24 Charged Shot Area Damage", modIcons.areaDamage, 2, 0);
 		tier2[1] = new Mod("Atomizer Nozzle", "+4 Charged Shot Fragments", modIcons.aoeRadius, 2, 1);
-		tier2[2] = new Mod("Potent Goo Mix", "+15 Regular Shot Area Damage", modIcons.directDamage, 2, 2);
+		tier2[2] = new Mod("Potent Goo Mix", "+8 Regular Shot Area Damage", modIcons.directDamage, 2, 2);
 		
 		tier3 = new Mod[2];
 		tier3[0] = new Mod("Supersaturation", "x1.5 Corrosive DoT duration, x1.5 Sludge Puddle duration", modIcons.hourglass, 3, 0);
-		tier3[1] = new Mod("More Goo Cannisters", "+50 Max Ammo", modIcons.carriedAmmo, 3, 1);
+		tier3[1] = new Mod("More Goo Cannisters", "+40 Max Ammo", modIcons.carriedAmmo, 3, 1);
 		
 		tier4 = new Mod[2];
 		tier4[0] = new Mod("Spillback Extension", "-1 Ammo per Charged Shot", modIcons.fuel, 4, 0);
-		tier4[1] = new Mod("Improved Spooling Mechanism", "x0.5 Charge Time", modIcons.chargeSpeed, 4, 1);
+		tier4[1] = new Mod("Improved Spooling Mechanism", "x0.4 Charge Time", modIcons.chargeSpeed, 4, 1);
 		
-		tier5 = new Mod[3];
+		tier5 = new Mod[2];
 		tier5[0] = new Mod("Protein Disruption Mix", "Increases Corrosive DoT's Slow from 35% to 51.25%, and increases the Sludge Puddle's Slow from 45% to 72.5%", modIcons.slowdown, 5, 0);
 		tier5[1] = new Mod("Fluoroantimonic Acid", "Increases Corrosive DoT's average DPS by +4, and increases Sludge Puddle's average DPS by +4", modIcons.acid, 5, 1);
-		tier5[2] = new Mod("Ingredient X", "The Corrosive DoT now does an average of 90 Corrosive Damage per Second to enemies' Armor (normally it can't damage Armor)", modIcons.armorBreaking, 5, 2);
-		
+
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Hydrogen Ion Additive", "Increases Corrosive DoT's average DPS by +2, and increases Corrosive DoT's Slow from 35% to 44.75%", overclockIcons.acid, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "AG Mixture", "+15% Projectile Velocity, x0.25 Gravity on projectiles, and decreases the projectiles' launch angle from 9 degrees to 3.", overclockIcons.projectileVelocity, 1, false);
-		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Impact Mixture", "+10 Regular Shot Area Damage, +20 Charged Shot Area Damage, x0.75 Corrosive DoT duration, x0.75 Sludge Puddle duration", overclockIcons.directDamage, 2);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "AG Mixture", "+30% Projectile Velocity, x0.25 Gravity on projectiles, and decreases the projectiles' launch angle from 9 degrees to 3.", overclockIcons.projectileVelocity, 1, false);
+		overclocks[2] = new Overclock(Overclock.classification.balanced, "Volatile Impact Mixture", "x2.0 Regular Shot Area Damage, x2.0 Charged Shot Area Damage, x0.5 Corrosive DoT duration, x0.75 Sludge Puddle duration", overclockIcons.directDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Disperser Compound", "+6 Charged Shot Fragments, +5 Fragment Area Damage, -20 Charged Shot Area Damage", overclockIcons.areaDamage, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Goo Bomber Special", "Charged Shots now drop their Fragments straight down while flying, instead of upon impact. Every Fragment dropped reduces the "
 				+ "damage of the main projectile. After every Fragment has been dropped, the main projectile is destroyed. Additionally: +5 Fragment Area Damage, x1.5 Charged Shot Fragments, x1.33 Sludge Puddle duration", overclockIcons.special, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "Sludge Blast", "Changes the Charged Shot into a \"shotgun\" blast of the Fragments instead of a larger projectile. Fragments use the Charged Shot's damage instead. Additionally: +100% Charged Shot Velocity, "
-				+ "x0.4 Charged Shot Area Damage, x1.2 Charge Time, x0.8 Magazine Size, x0.8 Max Ammo, +0.6 Reload Time, and decreases the charged projectiles' launch angle from 9 degrees to 3.", overclockIcons.numPellets2, 5);
+				+ "x0.5 Charged Shot Area Damage, -40 Max Ammo, +0.6 Reload Time, and decreases the charged projectiles' launch angle from 9 degrees to 3.", overclockIcons.numPellets2, 5);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
 		modsAndOCsInitialized = true;
@@ -177,11 +176,11 @@ public class SludgePump extends Weapon {
 		double toReturn = regularShotDamage;
 		
 		if (selectedTier2 == 2) {
-			toReturn += 15;
+			toReturn += 8;
 		}
 		
 		if (selectedOverclock == 2) {
-			toReturn += 10;
+			toReturn *= 2;
 		}
 		
 		return toReturn;
@@ -190,17 +189,17 @@ public class SludgePump extends Weapon {
 		double toReturn = chargedShotDamage;
 		
 		if (selectedTier2 == 0) {
-			toReturn += 25;
+			toReturn += 24;
 		}
 		
 		if (selectedOverclock == 2) {
-			toReturn += 20;
+			toReturn *= 2;
 		}
 		else if (selectedOverclock == 3) {
 			toReturn -= 20;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn *= 0.4;
+			toReturn *= 0.5;
 		}
 		
 		return toReturn;
@@ -234,11 +233,7 @@ public class SludgePump extends Weapon {
 		double toReturn = chargedShotWindup;
 		
 		if (selectedTier4 == 1) {
-			toReturn *= 0.5;
-		}
-		
-		if (selectedOverclock == 5) {
-			toReturn *= 1.2;
+			toReturn *= 0.4;
 		}
 		
 		return toReturn;
@@ -260,7 +255,7 @@ public class SludgePump extends Weapon {
 		}
 		
 		if (selectedOverclock == 5) {
-			toReturn *= 0.8;
+			toReturn -= 40;
 		}
 		
 		return (int) Math.round(toReturn);
@@ -271,11 +266,7 @@ public class SludgePump extends Weapon {
 		if (selectedTier1 == 0) {
 			toReturn *= 2;
 		}
-		
-		if (selectedOverclock == 5) {
-			toReturn *= 0.8;
-		}
-		
+
 		return (int) Math.round(toReturn);
 	}
 	protected double getReloadTime() {
@@ -291,11 +282,11 @@ public class SludgePump extends Weapon {
 		double modifier = 1.0;
 		
 		if (selectedTier1 == 1) {
-			modifier += 0.33;
+			modifier += 0.4;
 		}
 		
 		if (selectedOverclock == 1) {
-			modifier += 0.15;
+			modifier += 0.3;
 		}
 		
 		return projectileVelocity * modifier;
@@ -304,11 +295,11 @@ public class SludgePump extends Weapon {
 		double modifier = 1.0;
 		
 		if (selectedTier1 == 1) {
-			modifier += 0.33;
+			modifier += 0.4;
 		}
 		
 		if (selectedOverclock == 1) {
-			modifier += 0.15;
+			modifier += 0.3;
 		}
 		else if (selectedOverclock == 5) {
 			modifier += 1.0;
@@ -346,10 +337,10 @@ public class SludgePump extends Weapon {
 		return toReturn;
 	}
 	protected double getCorrosiveDoTDPS() {
-		double damagePerTick = 5;
+		double damagePerTick = 8;
 		
 		if (selectedTier5 == 1) {
-			damagePerTick += 1;
+			damagePerTick += 2;
 		}
 		
 		if (selectedOverclock == 0) {
@@ -380,7 +371,7 @@ public class SludgePump extends Weapon {
 		}
 		
 		if (selectedOverclock == 2) {
-			toReturn *= 0.75;
+			toReturn *= 0.5;
 		}
 		
 		return toReturn;
@@ -392,7 +383,7 @@ public class SludgePump extends Weapon {
 		double extraDPS = 0;
 		if (selectedTier5 == 1) {
 			// With this mod, the Puddle applies a second DoT: STE_GooPuddle_ImprovedPoison
-			extraDPS = 1.0 * 2.0 / (0.2 + 0.3);
+			extraDPS = 2.0 / (0.2 + 0.3);
 		}
 		
 		return baseDPS + extraDPS;
@@ -565,15 +556,9 @@ public class SludgePump extends Weapon {
 	@Override
 	public double utilityScore() {
 		// Armor Break
-		// Normally, Sludge Pump can't damage or interact with Armor in any way. The only exception is T5.C
-		if (selectedTier5 == 2) {
-			// The DoT that damages Armor plates can do a range of [20, 25] damage per Tick, and uses the same damage ticks as Corrosive DoT [0.2, 0.3]
-			double armorDoTDPS = (20 + 25) / (0.2 + 0.3);
-			utilityScores[2] = armorDoTDPS * UtilityInformation.ArmorBreak_Utility;
-		}
-		else {
-			utilityScores[2] = 0;
-		}
+		// The DoT that damages Armor plates can do a range of [20, 25] damage per Tick, and uses the same damage ticks as Corrosive DoT [0.2, 0.3]
+		double armorDoTDPS = (20 + 25) / (0.2 + 0.3);
+		utilityScores[2] = armorDoTDPS * UtilityInformation.ArmorBreak_Utility;
 		
 		// Slow
 		// The Corrosive DoT and Sludge Puddle both slow, and their slows multiply together. However, I'm choosing to just add them here because there's like... 9 overlapping cases of interaction to model if multiplying.

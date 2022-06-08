@@ -110,7 +110,7 @@ public class AssaultRifle extends Weapon {
 		overclocks[4] = new Overclock(Overclock.classification.balanced, "Bullets of Mercy", "+33% Damage dealt to enemies that are burning, electrocuted, poisoned, stunned, or frozen. In exchange, -5 Magazine Size", overclockIcons.directDamage, 4);
 		overclocks[5] = new Overclock(Overclock.classification.unstable, "AI Stability Engine", "+40% Weakpoint Bonus, x0 Recoil, x2.11 Spread Recovery Speed, -2 Direct Damage, -2 Rate of Fire", overclockIcons.baseSpread, 5);
 		overclocks[6] = new Overclock(Overclock.classification.unstable, "Electrifying Reload", "If any bullets from a magazine damage an enemy's healthbar, then those enemies will have an Electrocute DoT applied when that "
-				+ "magazine gets reloaded. Electrocute does an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per Second for 6 seconds. -2 Direct Damage, -5 Magazine Size", overclockIcons.specialReload, 6);
+				+ "magazine gets reloaded. Electrocute does an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per Second for 6 seconds. -55 Max Ammo, -5 Magazine Size", overclockIcons.specialReload, 6);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
 		modsAndOCsInitialized = true;
@@ -152,9 +152,6 @@ public class AssaultRifle extends Weapon {
 		if (selectedOverclock == 5) {
 			toReturn -= 2;
 		}
-		else if (selectedOverclock == 6) {
-			toReturn -= 2;
-		}
 		
 		// Then do multiplicative bonuses
 		if (selectedOverclock == 2) {
@@ -168,6 +165,9 @@ public class AssaultRifle extends Weapon {
 		
 		if (selectedTier2 == 1) {
 			toReturn += 100;
+		}
+		else if (selectedOverclock == 6) {
+			toReturn -= 55;
 		}
 		
 		return toReturn;
@@ -308,13 +308,13 @@ public class AssaultRifle extends Weapon {
 	public StatsRow[] getStats() {
 		StatsRow[] toReturn = new StatsRow[12];
 		
-		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 || selectedOverclock == 2 || selectedOverclock == 5 || selectedOverclock == 6;
+		boolean directDamageModified = selectedTier2 == 0 || selectedTier3 == 1 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
 		boolean magSizeModified = selectedTier3 == 2 || selectedOverclock == 0 || selectedOverclock == 4 || selectedOverclock == 6;
 		toReturn[1] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, magSizeModified);
 		
-		toReturn[2] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, selectedTier2 == 1);
+		toReturn[2] = new StatsRow("Max Ammo:", getCarriedAmmo(), modIcons.carriedAmmo, selectedTier2 == 1 || selectedOverclock == 6);
 		
 		boolean rofModified = selectedTier1 == 1 || selectedTier4 == 2 || selectedOverclock == 1 || selectedOverclock == 3 || selectedOverclock == 5;
 		toReturn[3] = new StatsRow("Rate of Fire:", getRateOfFire(), modIcons.rateOfFire, rofModified);

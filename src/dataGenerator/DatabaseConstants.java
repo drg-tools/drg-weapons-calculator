@@ -6,7 +6,7 @@ public class DatabaseConstants {
 	public static String modsTableName = "mods";
 	public static String OCsTableName = "overclocks";
 	
-	public static String patchNumber = "35.7";  // Matches the most recent DRG Uppdate.Hotfix value
+	public static String patchNumber = "36.4";  // Matches the most recent DRG Uppdate.Hotfix value
 	public static int patchNumberID = 8;  // Matches the most recent Karl.gg Patches.id value
 	
 	// These values all match up to the Karl.gg Guns.id values

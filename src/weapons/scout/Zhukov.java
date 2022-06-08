@@ -92,7 +92,7 @@ public class Zhukov extends Weapon {
 		tier4[2] = new Mod("Expanded Ammo Bags", "+100 Max Ammo", modIcons.carriedAmmo, 4, 2);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Conductive Bullets", "+30% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 5, 0);
+		tier5[0] = new Mod("Conductive Bullets", "+33% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 5, 0);
 		tier5[1] = new Mod("Get In, Get Out", "+50% Movement Speed for 2.5 seconds after reloading an empty magazine", modIcons.movespeed, 5, 1);
 		
 		overclocks = new Overclock[5];
@@ -103,7 +103,7 @@ public class Zhukov extends Weapon {
 				+ "within range. In exchange, -1 Direct Damage and -10 Magazine Size.", overclockIcons.coldDamage, 2);
 		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 38 Internal Damage to the enemy "
 				+ "upon reloading. If reloading can kill an enemy, an icon will appear next to their healthbar. In exchange: -6 Direct Damage, -20 Magazine Size, -400 Max Ammo.", overclockIcons.specialReload, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Gas Recycling", "+5 Direct Damage, but it can no longer gain bonus damage from hitting a Weakpoint. Additionally, x1.5 Base Spread "
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Gas Recycling", "+6 Direct Damage, but it can no longer gain bonus damage from hitting a Weakpoint. Additionally, x1.5 Base Spread "
 				+ "and -50% Movement Speed while firing.", overclockIcons.directDamage, 4);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
@@ -149,7 +149,7 @@ public class Zhukov extends Weapon {
 			toReturn -= 6;
 		}
 		else if (selectedOverclock == 4) {
-			toReturn += 5;
+			toReturn += 6;
 		}
 		
 		return toReturn;
@@ -372,7 +372,7 @@ public class Zhukov extends Weapon {
 		
 		// Conductive Bullets is x1.3 multiplier on Electrocuted targets or targets inside IFG field
 		if (selectedTier5 == 0 && (statusEffects[2] || statusEffects[3])) {
-			directDamage *= 1.3;
+			directDamage *= 1.33;
 		}
 		
 		double damagePerMagazine;
