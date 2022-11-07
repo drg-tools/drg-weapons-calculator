@@ -1,0 +1,20 @@
+<xml>
+	<modelVersion>4</modelVersion>
+	
+	<group>drgtools</group>
+	<artifact>dpscalc</artifact>
+	<version>1.2.2</version>
+	
+	<dependencies>
+		<dependency>
+			<group>???</group>
+			<artifact>image4j</artifact>
+			<version>0.7.2</version>
+		</dependency>
+		<dependency>
+			<group>???</group>
+			<artifact>thumbnailator</artifact>
+			<version>0.4.11</version>
+		</dependency>
+	</dependencies>
+</xml>
