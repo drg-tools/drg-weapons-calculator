@@ -3,7 +3,7 @@ bin/*
 .classpath
 .project
 builds/*
-jars/v*.jar
+jars/*
 jars/proposedBalanceChanges.jar
 .idea/*
 target/*
