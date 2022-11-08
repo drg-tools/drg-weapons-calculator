@@ -1,5 +1,6 @@
 package drgtools.dpscalc.enemies.glyphid;
 
+import drgtools.dpscalc.damage.DamageElements.damageElement;
 import drgtools.dpscalc.enemies.Enemy;
 
 public class Oppressor extends Enemy {
@@ -21,6 +22,13 @@ public class Oppressor extends Enemy {
 		fireResistance = 0.66;
 		frostResistance = 0.5;
 		electricResistance = 0.25;
+		resistances.setResistance(damageElement.melee, -0.5);
+		resistances.setResistance(damageElement.piercing, 0.5);
+		resistances.setResistance(damageElement.fire, 0.66);
+		resistances.setResistance(damageElement.frost, 0.5);
+		resistances.setResistance(damageElement.explosive, 0.66);
+		resistances.setResistance(damageElement.electric, 0.25);
+		resistances.setResistance(damageElement.corrosive, 0.66);
 		
 		igniteTemperature = 100; 
 		douseTemperature = 40;

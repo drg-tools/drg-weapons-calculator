@@ -4,14 +4,13 @@ public class DamageElements {
 	/*
 		Group 1: "impact style"
 			Melee
-			Physical (dealt by enemies' attacks, not players')
 			Kinetic
 			Piercing
 			
 		Group 2: "elemental"
-			Explosive
 			Fire
 			Frost
+			Explosive
 			Electric
 			Poison
 			Radiation
@@ -25,7 +24,7 @@ public class DamageElements {
 			Heat
 			Cold
 	*/
-	public enum damageElement{melee, physical, kinetic, piercing, explosive, fire, frost, electric, poison, radiation, corrosive, disintegrate, internal};
+	public enum damageElement{melee, kinetic, piercing, fire, frost, explosive, electric, poison, radiation, corrosive, disintegrate, internal};
 	public static int numElements =  damageElement.values().length;
 	
 	public enum temperatureElement{heat, cold};
@@ -34,30 +33,28 @@ public class DamageElements {
 		switch(in) {
 			case melee:
 				return 0;
-			case physical:
-				return 1;
 			case kinetic:
-				return 2;
+				return 1;
 			case piercing:
-				return 3;
-			case explosive:
-				return 4;
+				return 2;
 			case fire:
-				return 5;
+				return 3;
 			case frost:
-				return 6;
+				return 4;
+			case explosive:
+				return 5;
 			case electric:
-				return 7;
+				return 6;
 			case poison:
-				return 8;
+				return 7;
 			case radiation:
-				return 9;
+				return 8;
 			case corrosive:
-				return 10;
+				return 9;
 			case disintegrate:
-				return 11;
+				return 10;
 			case internal:
-				return 12;
+				return 11;
 			default:
 				return -1;
 		}

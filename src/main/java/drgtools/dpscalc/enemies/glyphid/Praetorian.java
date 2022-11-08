@@ -1,5 +1,6 @@
 package drgtools.dpscalc.enemies.glyphid;
 
+import drgtools.dpscalc.damage.DamageElements.damageElement;
 import drgtools.dpscalc.enemies.Enemy;
 
 public class Praetorian extends Enemy {
@@ -16,6 +17,8 @@ public class Praetorian extends Enemy {
 		hasWeakpoint = true;
 		weakpointMultiplier = 1;
 		estimatedProbabilityBulletHitsWeakpoint = 0.4;
+
+		resistances.setResistance(damageElement.piercing, 0.3);
 		
 		igniteTemperature = 100; 
 		douseTemperature = 40;

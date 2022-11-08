@@ -1,5 +1,6 @@
 package drgtools.dpscalc.enemies.glyphid;
 
+import drgtools.dpscalc.damage.DamageElements.damageElement;
 import drgtools.dpscalc.enemies.Enemy;
 
 public class Exploder extends Enemy {
@@ -16,6 +17,8 @@ public class Exploder extends Enemy {
 		hasWeakpoint = true;
 		weakpointMultiplier = 2;
 		estimatedProbabilityBulletHitsWeakpoint = 0.1;
+
+		resistances.setResistance(damageElement.melee, -0.25);
 		
 		igniteTemperature = 10; 
 		douseTemperature = 0;

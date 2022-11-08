@@ -1,5 +1,6 @@
 package drgtools.dpscalc.enemies.mactera;
 
+import drgtools.dpscalc.damage.DamageElements.damageElement;
 import drgtools.dpscalc.enemies.Enemy;
 
 public class TriJaw extends Enemy {
@@ -23,6 +24,11 @@ public class TriJaw extends Enemy {
 		explosiveResistance = -1.0;
 		fireResistance = -1.0;
 		electricResistance = -0.5;
+		resistances.setResistance(damageElement.melee, -1.0);
+		resistances.setResistance(damageElement.fire, -1.0);
+		resistances.setResistance(damageElement.explosive, -1.0);
+		resistances.setResistance(damageElement.electric, -0.5);
+		resistances.setResistance(damageElement.corrosive, -1.2);
 		
 		igniteTemperature = 35; 
 		douseTemperature = 5;

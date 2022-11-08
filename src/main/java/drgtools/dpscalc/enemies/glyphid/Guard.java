@@ -1,5 +1,6 @@
 package drgtools.dpscalc.enemies.glyphid;
 
+import drgtools.dpscalc.damage.DamageElements.damageElement;
 import drgtools.dpscalc.enemies.Enemy;
 
 public class Guard extends Enemy {
@@ -20,7 +21,11 @@ public class Guard extends Enemy {
 		explosiveResistance = 0.3;
 		fireResistance = 0.25;
 		frostResistance = 0.3;
-		
+		resistances.setResistance(damageElement.fire, 0.25);
+		resistances.setResistance(damageElement.frost, 0.3);
+		resistances.setResistance(damageElement.explosive, 0.3);
+		resistances.setResistance(damageElement.corrosive, 0.2);
+
 		igniteTemperature = 60; 
 		douseTemperature = 40;
 		coolingRate = 6;

@@ -1,5 +1,6 @@
 package drgtools.dpscalc.enemies.other;
 
+import drgtools.dpscalc.damage.DamageElements.damageElement;
 import drgtools.dpscalc.enemies.Enemy;
 
 public class SpitballInfector extends Enemy {
@@ -22,6 +23,7 @@ public class SpitballInfector extends Enemy {
 		// If this number is greater than 0, that means that it takes less damage from that particular element.
 		// Conversely, if it's less than 0 it takes extra damage from that particular element
 		fireResistance = -1.0;
+		resistances.setResistance(damageElement.fire, -1.0);
 		
 		igniteTemperature = 30; 
 		douseTemperature = 0;

@@ -1,5 +1,6 @@
 package drgtools.dpscalc.enemies.mactera;
 
+import drgtools.dpscalc.damage.DamageElements.damageElement;
 import drgtools.dpscalc.enemies.Enemy;
 
 public class Grabber extends Enemy {
@@ -17,6 +18,8 @@ public class Grabber extends Enemy {
 		hasWeakpoint = true;
 		weakpointMultiplier = 3;
 		estimatedProbabilityBulletHitsWeakpoint = 0.2;
+
+		resistances.setResistance(damageElement.melee, -0.5);
 		
 		igniteTemperature = 30; 
 		douseTemperature = 0;
