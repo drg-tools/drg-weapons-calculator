@@ -7,7 +7,7 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import net.sf.image4j.codec.ico.ICODecoder;
+import net.ifok.image.image4j.codec.ico.ICODecoder;
 
 public class ResourceLoader {
 	

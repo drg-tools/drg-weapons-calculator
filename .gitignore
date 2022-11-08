@@ -5,3 +5,5 @@ bin/*
 builds/*
 jars/v*.jar
 jars/proposedBalanceChanges.jar
+.idea/*
+target/*

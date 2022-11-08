@@ -1,20 +1,39 @@
-<xml>
-	<modelVersion>4</modelVersion>
-	
-	<group>drgtools</group>
-	<artifact>dpscalc</artifact>
-	<version>1.2.2</version>
-	
+<project>
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>drgtools</groupId>
+	<artifactId>dpscalc</artifactId>
+	<version>1.2.2a</version>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+	</properties>
+
 	<dependencies>
 		<dependency>
-			<group>???</group>
-			<artifact>image4j</artifact>
+			<groupId>net.ifok.image</groupId>
+			<artifactId>image4j</artifactId>
 			<version>0.7.2</version>
 		</dependency>
 		<dependency>
-			<group>???</group>
-			<artifact>thumbnailator</artifact>
+			<groupId>net.coobird</groupId>
+			<artifactId>thumbnailator</artifactId>
 			<version>0.4.11</version>
 		</dependency>
 	</dependencies>
-</xml>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>12</source>
+					<target>12</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
