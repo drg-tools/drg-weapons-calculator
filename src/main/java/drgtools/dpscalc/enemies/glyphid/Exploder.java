@@ -18,6 +18,8 @@ public class Exploder extends Enemy {
 		weakpointMultiplier = 2;
 		estimatedProbabilityBulletHitsWeakpoint = 0.1;
 
+		// If this number is greater than 0, that means that it takes less damage from that particular element.
+		// Conversely, if it's less than 0 it takes extra damage from that particular element
 		resistances.setResistance(damageElement.melee, -0.25);
 		
 		igniteTemperature = 10; 

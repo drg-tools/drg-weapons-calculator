@@ -23,10 +23,6 @@ public class QronarShellback extends Enemy {
 		// Weighted Q'Ronar Shellback rolling state at 2/3 and non-rolling state at 1/3
 		double qronarShellbackRolling = 0.66;
 		double qronarShellbackUnrolled = 0.34;
-		explosiveResistance = qronarShellbackRolling * 0.8;
-		fireResistance = qronarShellbackRolling * 0.3 + qronarShellbackUnrolled * -0.5;
-		frostResistance = qronarShellbackRolling * 0.3 + qronarShellbackUnrolled * -0.7;
-		electricResistance = qronarShellbackRolling * 1.0;
 		resistances.setResistance(damageElement.fire, qronarShellbackRolling * 0.3 + qronarShellbackUnrolled * -0.5);
 		resistances.setResistance(damageElement.frost, qronarShellbackRolling * 0.3 + qronarShellbackUnrolled * -0.7);
 		resistances.setResistance(damageElement.explosive, qronarShellbackRolling * 0.8);

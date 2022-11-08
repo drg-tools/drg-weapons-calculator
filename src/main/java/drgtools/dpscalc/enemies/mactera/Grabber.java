@@ -19,6 +19,8 @@ public class Grabber extends Enemy {
 		weakpointMultiplier = 3;
 		estimatedProbabilityBulletHitsWeakpoint = 0.2;
 
+		// If this number is greater than 0, that means that it takes less damage from that particular element.
+		// Conversely, if it's less than 0 it takes extra damage from that particular element
 		resistances.setResistance(damageElement.melee, -0.5);
 		
 		igniteTemperature = 30; 

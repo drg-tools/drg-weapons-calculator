@@ -5,6 +5,7 @@ import drgtools.dpscalc.damage.DamageElements.temperatureElement;
 import drgtools.dpscalc.enemies.ElementalResistancesArray;
 import drgtools.dpscalc.utilities.MathUtils;
 
+// TODO: add Weakpoint Bonus value for the "direct damage" side
 // TODO: after finishing building this new feature, see how easy it would be to implement into Breakpoints' method.
 
 public class DamageComponent {

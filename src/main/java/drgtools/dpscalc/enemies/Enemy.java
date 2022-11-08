@@ -41,8 +41,6 @@ public class Enemy {
 	// Resistance/weakness values taken from Elythnwaen's Spreadsheet
 	// If this number is greater than 0, that means that it takes less damage from that particular element.
 	// Conversely, if it's less than 0 it takes extra damage from that particular element
-	// None of the enemies I'm modeling resist Poison or Radiation damage
-	protected double explosiveResistance = 0.0, fireResistance = 0.0, frostResistance = 0.0, electricResistance = 0.0;  // TODO: delete these values after implementing ElResArray
 	protected ElementalResistancesArray resistances = new ElementalResistancesArray();
 	
 	// This info comes from Elythnwaen's Temperatures spreadsheet, and many of those values were seeded from MikeGSG giving us the values for the 5 "base" creature types.
@@ -118,17 +116,8 @@ public class Enemy {
 			return 0.0;
 		}
 	}
-	public double getExplosiveResistance() {
-		return explosiveResistance;
-	}
-	public double getFireResistance() {
-		return fireResistance;
-	}
-	public double getFrostResistance() {
-		return frostResistance;
-	}
-	public double getElectricResistance() {
-		return electricResistance;
+	public ElementalResistancesArray getElementalResistances(){
+		return resistances;
 	}
 	public double getIgniteTemp() {
 		return igniteTemperature / temperatureChangeScale;

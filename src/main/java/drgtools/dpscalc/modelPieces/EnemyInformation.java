@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import drgtools.dpscalc.damage.DamageElements;
 import drgtools.dpscalc.enemies.Enemy;
 import drgtools.dpscalc.enemies.glyphid.*;
 import drgtools.dpscalc.enemies.mactera.*;
@@ -422,7 +423,7 @@ public class EnemyInformation {
 	public static int[] calculateBreakpoints(double[] directDamageByType, double[] areaDamageByType, double[] DoT_DPS, double[] DoT_durations, double[] DoT_probabilities, 
 											 double weakpointModifier, double armorBreaking, double RoF, double heatPerShot, double macteraModifier, 
 											 boolean frozen, boolean IFG, boolean flyingNightmare, boolean embeddedDetonators) {
-		ArrayList<Integer> toReturn = new ArrayList<Integer>();
+		ArrayList<Integer> toReturn = new ArrayList<>();
 		
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
@@ -477,11 +478,12 @@ public class EnemyInformation {
 				creatureHP = alias.getBaseHealth() * largeResistance;
 			}
 			
+			// creatureResistances = alias.getElementalResistances();  // for when this method gets refactored to use DamageComponents
 			creatureResistances = new double[] {
-				1.0 - alias.getExplosiveResistance(),
-				1.0 - alias.getFireResistance(),
-				1.0 - alias.getFrostResistance(),
-				1.0 - alias.getElectricResistance()
+				alias.getElementalResistances().getResistance(DamageElements.damageElement.explosive),
+				alias.getElementalResistances().getResistance(DamageElements.damageElement.fire),
+				alias.getElementalResistances().getResistance(DamageElements.damageElement.frost),
+				alias.getElementalResistances().getResistance(DamageElements.damageElement.electric)
 			};
 			
 			creatureWeakpointModifier = alias.getWeakpointMultiplier();

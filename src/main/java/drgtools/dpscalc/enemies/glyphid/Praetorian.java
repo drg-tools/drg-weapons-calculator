@@ -18,6 +18,8 @@ public class Praetorian extends Enemy {
 		weakpointMultiplier = 1;
 		estimatedProbabilityBulletHitsWeakpoint = 0.4;
 
+		// If this number is greater than 0, that means that it takes less damage from that particular element.
+		// Conversely, if it's less than 0 it takes extra damage from that particular element
 		resistances.setResistance(damageElement.piercing, 0.3);
 		
 		igniteTemperature = 100; 
