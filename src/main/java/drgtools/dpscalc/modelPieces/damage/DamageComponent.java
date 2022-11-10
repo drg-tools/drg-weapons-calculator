@@ -3,6 +3,7 @@ package drgtools.dpscalc.modelPieces.damage;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.damageElement;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.temperatureElement;
 import drgtools.dpscalc.enemies.ElementalResistancesArray;
+import drgtools.dpscalc.modelPieces.statusEffects.PushSTEComponent;
 import drgtools.dpscalc.utilities.MathUtils;
 
 // TODO: add Weakpoint Bonus value for the "direct damage" side
@@ -16,6 +17,9 @@ public class DamageComponent {
 	protected boolean reducedByArmor;
 	protected boolean canDamageArmor;
 
+	protected int numBlowthroughs = 0;
+	protected int numHitscanTracersPerShot = 1;  // Used for shotguns
+
 	protected double bonusDamage = 0;
 	protected damageElement bonusDmgElement = null;
 	
@@ -24,28 +28,32 @@ public class DamageComponent {
 	protected double maxDmgRadius;
 	protected double damageRadius;
 	protected double falloff;
-	
-	protected double armorBreaking;
-	protected double friendlyFire;
+
+	protected boolean stunOnWeakpointOnly;
+	protected double stunChance = 0;
+	protected double stunDuration = 0;
+	protected double baseFearChance = 0;
+	protected double armorBreaking = 1.0;
+	protected double friendlyFire = 1.0;
 	
 	protected temperatureElement tempElement;  // applies to both Damage and RadialDamage; can be either Heat or Cold. This can be assumed because it's illogical to do both Heat & Cold simultaneously.
 	protected double[] damageElements;
 	protected int startingDamageElementIndex = -1;
 	protected double[] radialDamageElements;
 	protected int startingRadialDamageElementIndex = -1;
-	// protected StatusEffect[] statusEffectsApplied;
+	protected PushSTEComponent[] statusEffectsApplied;
 
 	// Shortcut constructor for what is referred to as "Direct Damage"
 	public DamageComponent(double dmg, damageElement dmgElement, double ab, double ff, DamageConversion[] baselineConversions) {
 		this(dmg, dmgElement, 0, null, true, true, true, true,
-				0, null, 0, 0, 0, 0, ab, ff, baselineConversions);
+				0, null, 0, 0, 0, 0, false, 0, 0, 0, ab, ff, baselineConversions);
 	}
 
 	// Shortcut constructor for damage-only Direct+Radial, like Autocannon or PGL
 	public DamageComponent(double dmg, damageElement dmgElement, double rdlDmg, damageElement rdlDmgElement, double mdr,
 						   double dmgRd, double fal, double ab, double ff, DamageConversion[] baselineConversions) {
 		this(dmg, dmgElement, 0, null, true, true, true, true, rdlDmg,
-				rdlDmgElement, 0, mdr, dmgRd, fal, ab, ff, baselineConversions);
+				rdlDmgElement, 0, mdr, dmgRd, fal, false, 0, 0, 0, ab, ff, baselineConversions);
 	}
 
 	// Shortcut constructor for any DamageComponent that neither is "Direct Damage" nor uses RadialDamage
@@ -53,13 +61,14 @@ public class DamageComponent {
 						   boolean weakpoint, boolean frozen, boolean armor, boolean damagesArmor,
 						   double ab, double ff, DamageConversion[] baselineConversions) {
 		this(dmg, dmgElement, temp, tmpElement, weakpoint, frozen, armor, damagesArmor, 0,null,
-				0, 0, 0, 0, ab, ff, baselineConversions);
+				0, 0, 0, 0, false, 0, 0, 0, ab, ff, baselineConversions);
 	}
 
 	public DamageComponent(double dmg, damageElement dmgElement, double temp, temperatureElement tmpElement,
 						   boolean weakpoint, boolean frozen, boolean armor, boolean damagesArmor,
 						   double rdlDmg, damageElement rdlDmgElement, double radTemp, double mdr, double dmgRd, double fal,
-						   double ab, double ff, DamageConversion[] baselineConversions) {
+						   boolean stunOnlyWeakpoint, double stunChnc, double stunDur, double fear, double ab, double ff,
+						   DamageConversion[] baselineConversions) {
 		damage = dmg;
 		temperature = temp;
 		tempElement = tmpElement;
@@ -74,6 +83,10 @@ public class DamageComponent {
 		damageRadius = dmgRd;
 		falloff = fal;
 
+		stunOnWeakpointOnly = stunOnlyWeakpoint;
+		stunChance = stunChnc;
+		stunDuration = stunDur;
+		baseFearChance = fear;
 		armorBreaking = ab;
 		friendlyFire = ff;
 		
@@ -99,11 +112,26 @@ public class DamageComponent {
 	public void setDamage(double in) {
 		damage = in;
 	}
+	public void setNumBlowthroughs(int in) {
+		numBlowthroughs = in;
+	}
+	public void setNumPelletsPerShot(int in) {
+		numHitscanTracersPerShot = in;
+	}
 	public void setRadialDamage(double in) {
 		radialDamage = in;
 	}
 	public void setDamageRadius(double in) {
 		damageRadius = in;
+	}
+	public void setStunChance(double in) {
+		stunChance = in;
+	}
+	public void setStunDuration(double in) {
+		stunDuration = in;
+	}
+	public void setBaseFearChance(double in) {
+		baseFearChance = in;
 	}
 	public void setArmorBreaking(double in) {
 		armorBreaking = in;
@@ -140,13 +168,16 @@ public class DamageComponent {
 	}
 
 	// Used by Subata T5.B and SMG OC "EMRB"
-	public void addBonusDamage(damageElement bnsDmgElement, double bonus) {
+	public void setBonusDamage(damageElement bnsDmgElement, double bonus) {
 		bonusDmgElement = bnsDmgElement;
 		bonusDamage = bonus;
 	}
 
-	// TODO: add a way that this class can store Status Effects
-	// TODO: add a utility method that nicely formats this stuff
+	public void setStatusEffectsApplied(PushSTEComponent[] stes) {
+		statusEffectsApplied = stes;
+	}
+
+	// TODO: add a toString method that nicely formats this stuff
 	// TODO: this might need to have a "DamageInstance" class made which stores 2+ DamageComponents together, that get applied on each hit?
 
 	public double getRawDamage() {
@@ -173,7 +204,8 @@ public class DamageComponent {
 	public double getResistedRadialDamage(ElementalResistancesArray creatureResistances) {
 		return radialDamage * MathUtils.vectorDotProduct(radialDamageElements, creatureResistances.getResistances());
 	}
-	
+
+	// TODO: implement as many of the Utility calculations here as I can
 	// TODO: this is probably where I can implement the buggy Radial Damage insanity?
 	public double probabilityToBreakArmorStrengthPlate(double armorStrength) {
 		return 0;

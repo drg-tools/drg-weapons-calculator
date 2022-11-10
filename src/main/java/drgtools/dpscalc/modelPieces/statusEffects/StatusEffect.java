@@ -1,20 +1,22 @@
-package drgtools.dpscalc.modelPieces;
+package drgtools.dpscalc.modelPieces.statusEffects;
 
 import drgtools.dpscalc.modelPieces.damage.DamageElements.damageElement;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.temperatureElement;
 
 public class StatusEffect {
-    protected double chanceToInflict;
     protected damageElement damagePerTickElement = null;
     protected double minDamagePerTick = 0.0;
     protected double maxDamagePerTick = 0.0;
+    protected temperatureElement temperaturePerTickElement = null;
+    protected double minTemperaturePerTick = 0.0;
+    protected double maxTemperaturePerTick = 0.0;
     protected double minIntervalBetweenTicks = 0.0;
     protected double maxIntervalBetweenTicks = 0.0;
     protected double duration = 0.0;
     protected double movespeedMultiplier = 1.0;
 
-    // Shortcut constructor for a DoT that doesn't have a movespeed slow
-    protected StatusEffect(double procChance, damageElement dmgElement, double minDmg, double maxDmg, double minInterval, double maxInterval, double dur) {
-        chanceToInflict = procChance;
+    // Shortcut constructor for a DoT that doesn't have a movespeed slow and doesn't do Heat/Cold
+    protected StatusEffect(damageElement dmgElement, double minDmg, double maxDmg, double minInterval, double maxInterval, double dur) {
         damagePerTickElement = dmgElement;
         minDamagePerTick = minDmg;
         maxDamagePerTick = maxDmg;
@@ -23,28 +25,25 @@ public class StatusEffect {
         duration = dur;
     }
 
-    // Shortcut constructor for a Slow that doesn't deal damage
-    protected StatusEffect(double procChance, double slowMultiplier, double dur) {
-        chanceToInflict = procChance;
+    // Shortcut constructor for a Slow that doesn't deal damage or Heat/Cold
+    protected StatusEffect(double slowMultiplier, double dur) {
         movespeedMultiplier = slowMultiplier;
         duration = dur;
     }
 
-    protected StatusEffect(double procChance, damageElement dmgElement, double minDmg, double maxDmg, double minInterval, double maxInterval, double slowMultiplier, double dur) {
-        chanceToInflict = procChance;
+    protected StatusEffect(damageElement dmgElement, double minDmg, double maxDmg,
+                           temperatureElement tmpElement, double minTemp, double maxTemp,
+                           double minInterval, double maxInterval, double slowMultiplier, double dur) {
         damagePerTickElement = dmgElement;
         minDamagePerTick = minDmg;
         maxDamagePerTick = maxDmg;
+        temperaturePerTickElement = tmpElement;
+        minTemperaturePerTick = minTemp;
+        maxTemperaturePerTick = maxTemp;
         minIntervalBetweenTicks = minInterval;
         maxIntervalBetweenTicks = maxInterval;
         movespeedMultiplier = slowMultiplier;
         duration = dur;
-    }
-
-    // Technically speaking, this value gets set in the DamageComponents. But for my own sake while programming this, it makes sense to store it with the STE instead.
-    // TODO: This might get refactored later?
-    public void overrideChanceToInflict(double newProcChance) {
-        chanceToInflict = newProcChance;
     }
 
     public damageElement getDamageElement() {
@@ -56,8 +55,9 @@ public class StatusEffect {
         return avgDamagePerTick * avgNumTicksPerSec;
     }
 
-    public double getUtilityPerEnemy() {
-        return chanceToInflict * (1.0 - movespeedMultiplier) * duration;
+    public double getSlowUtilityPerEnemy() {
+        // This should evaluate to 0 unless the movespeed multiplier has been set.
+        return (1.0 - movespeedMultiplier) * duration;
     }
 
     // TODO: add a toString
