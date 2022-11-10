@@ -1,18 +1,28 @@
 package drgtools.dpscalc.modelPieces.statusEffects;
 
+import drgtools.dpscalc.modelPieces.EnemyInformation;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.damageElement;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.temperatureElement;
+import drgtools.dpscalc.modelPieces.temperature.EnvironmentalTemperature;
 
 public class StatusEffect {
     protected damageElement damagePerTickElement = null;
     protected double minDamagePerTick = 0.0;
     protected double maxDamagePerTick = 0.0;
+
+    protected boolean canDamageArmor = false;
+    protected double minArmorDamagePerTick = 0.0;
+    protected double maxArmorDamagePerTick = 0.0;
+
     protected temperatureElement temperaturePerTickElement = null;
     protected double minTemperaturePerTick = 0.0;
     protected double maxTemperaturePerTick = 0.0;
+    protected EnvironmentalTemperature envTemp = null;
+
     protected double minIntervalBetweenTicks = 0.0;
     protected double maxIntervalBetweenTicks = 0.0;
     protected double duration = 0.0;
+    protected boolean effectsStackWithMultipleApplications = false;
     protected double movespeedMultiplier = 1.0;
 
     // Shortcut constructor for a DoT that doesn't have a movespeed slow and doesn't do Heat/Cold
@@ -22,6 +32,17 @@ public class StatusEffect {
         maxDamagePerTick = maxDmg;
         minIntervalBetweenTicks = minInterval;
         maxIntervalBetweenTicks = maxInterval;
+        duration = dur;
+    }
+
+    // Shortcut constructor for a DoT that has a movespeed slow and doesn't do Heat/Cold
+    protected StatusEffect(damageElement dmgElement, double minDmg, double maxDmg, double minInterval, double maxInterval, double slowMultiplier, double dur) {
+        damagePerTickElement = dmgElement;
+        minDamagePerTick = minDmg;
+        maxDamagePerTick = maxDmg;
+        minIntervalBetweenTicks = minInterval;
+        maxIntervalBetweenTicks = maxInterval;
+        movespeedMultiplier = slowMultiplier;
         duration = dur;
     }
 
@@ -46,15 +67,33 @@ public class StatusEffect {
         duration = dur;
     }
 
+    public void setDamagePerTick(double newMin, double newMax) {
+        minDamagePerTick = newMin;
+        maxDamagePerTick = newMax;
+    }
+    public void setMovespeedMultiplier(double in) {
+        movespeedMultiplier = in;
+    }
+    public void setDuration(double in) {
+        duration = in;
+    }
+
     public damageElement getDamageElement() {
         return damagePerTickElement;
     }
     public double getAverageDPS() {
-        double avgDamagePerTick = (minDamagePerTick + maxDamagePerTick) / 2.0;
-        double avgNumTicksPerSec = 2.0 / (minIntervalBetweenTicks + maxIntervalBetweenTicks);
-        return avgDamagePerTick * avgNumTicksPerSec;
+        return (minDamagePerTick + maxDamagePerTick) * (minIntervalBetweenTicks + maxIntervalBetweenTicks);
     }
 
+    public double getArmorBreakUtilityPerEnemy() {
+        if (canDamageArmor) {
+            return EnemyInformation.lightArmorBreakProbabilityLookup((minArmorDamagePerTick + maxArmorDamagePerTick) / 2.0,
+                    1.0, EnemyInformation.averageLightArmorStrength());
+        }
+        else {
+            return 0;
+        }
+    }
     public double getSlowUtilityPerEnemy() {
         // This should evaluate to 0 unless the movespeed multiplier has been set.
         return (1.0 - movespeedMultiplier) * duration;

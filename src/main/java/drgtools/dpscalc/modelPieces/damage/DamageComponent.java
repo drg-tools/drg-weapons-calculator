@@ -6,7 +6,6 @@ import drgtools.dpscalc.enemies.ElementalResistancesArray;
 import drgtools.dpscalc.modelPieces.statusEffects.PushSTEComponent;
 import drgtools.dpscalc.utilities.MathUtils;
 
-// TODO: add Weakpoint Bonus value for the "direct damage" side
 // TODO: after finishing building this new feature, see how easy it would be to implement into Breakpoints' method.
 
 public class DamageComponent {
@@ -17,8 +16,9 @@ public class DamageComponent {
 	protected boolean reducedByArmor;
 	protected boolean canDamageArmor;
 
+	protected double weakpointBonus = 0;
 	protected int numBlowthroughs = 0;
-	protected int numHitscanTracersPerShot = 1;  // Used for shotguns
+	protected int numHitscanTracersPerShot = 1;  // Used for shotguns. Simpler than tracking NumPellets identical DamageComponents, just move the multiplier inside.
 
 	protected double bonusDamage = 0;
 	protected damageElement bonusDmgElement = null;
@@ -111,6 +111,9 @@ public class DamageComponent {
 	
 	public void setDamage(double in) {
 		damage = in;
+	}
+	public void setWeakpointBonus(double in) {
+		weakpointBonus = in;
 	}
 	public void setNumBlowthroughs(int in) {
 		numBlowthroughs = in;
