@@ -1,4 +1,4 @@
-package drgtools.dpscalc.damage;
+package drgtools.dpscalc.modelPieces.damage;
 
 public class DamageElements {
 	/*

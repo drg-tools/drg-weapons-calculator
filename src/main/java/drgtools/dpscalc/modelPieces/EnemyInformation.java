@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import drgtools.dpscalc.damage.DamageElements;
+import drgtools.dpscalc.modelPieces.damage.DamageElements;
 import drgtools.dpscalc.enemies.Enemy;
 import drgtools.dpscalc.enemies.glyphid.*;
 import drgtools.dpscalc.enemies.mactera.*;

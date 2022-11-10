@@ -1,6 +1,6 @@
 package drgtools.dpscalc.enemies.mactera;
 
-import drgtools.dpscalc.damage.DamageElements.damageElement;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.damageElement;
 import drgtools.dpscalc.enemies.Enemy;
 
 public class GooBomber extends Enemy {

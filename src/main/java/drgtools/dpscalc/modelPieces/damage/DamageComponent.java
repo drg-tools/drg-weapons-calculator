@@ -1,7 +1,7 @@
-package drgtools.dpscalc.damage;
+package drgtools.dpscalc.modelPieces.damage;
 
-import drgtools.dpscalc.damage.DamageElements.damageElement;
-import drgtools.dpscalc.damage.DamageElements.temperatureElement;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.damageElement;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.temperatureElement;
 import drgtools.dpscalc.enemies.ElementalResistancesArray;
 import drgtools.dpscalc.utilities.MathUtils;
 

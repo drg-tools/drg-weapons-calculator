@@ -1,7 +1,7 @@
 package drgtools.dpscalc.enemies;
 
-import drgtools.dpscalc.damage.DamageElements;
-import drgtools.dpscalc.damage.DamageElements.damageElement;
+import drgtools.dpscalc.modelPieces.damage.DamageElements;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.damageElement;
 
 public class ElementalResistancesArray {
 	private double[] resistances;
