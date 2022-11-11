@@ -1,9 +1,10 @@
 package drgtools.dpscalc.weapons.driller.sludgePump;
 
-import drgtools.dpscalc.modelPieces.statusEffects.StatusEffect;
+import drgtools.dpscalc.modelPieces.statusEffects.AoEStatusEffect;
 
-public class STE_GooPuddle_ImprovedSlow extends StatusEffect {
-    public STE_GooPuddle_ImprovedSlow() {
-        super(0.5, 0.75);
+public class STE_GooPuddle_ImprovedSlow extends AoEStatusEffect {
+    public STE_GooPuddle_ImprovedSlow(double puddleRadius, double puddleDuration) {
+        // TODO: find default TickInterval values
+        super(2 * puddleRadius, null, 0, 0, 0.5, 0.5, 0.5, 0.75, puddleDuration);
     }
 }

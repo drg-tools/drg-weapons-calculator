@@ -1,11 +1,36 @@
 package drgtools.dpscalc.modelPieces.statusEffects;
 
-// TODO
+import drgtools.dpscalc.modelPieces.EnemyInformation;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.TemperatureElement;
+
 // For things like Persistent Plasma, Fat Boy, Sticky Flames, Coilgun trail, etc. Any STE that has a short duration but
 // gets re-applied frequently as long as enemies stay within the Area of Effect
-// Needs to know the average speed of enemies, scales with Hazard Level
 public class AoEStatusEffect extends StatusEffect {
-    public AoEStatusEffect() {
-        super(0, 0);
+    private double maxDuration;
+    private double cumulativeDuration;
+
+    public AoEStatusEffect(double areaEffectDistanceMeters, DamageElement dmgElement, double minDmg, double maxDmg,
+                           double minInterval, double maxInterval, double slowMultiplier, double dur, double maxDur) {
+        super(dmgElement, minDmg, maxDmg, minInterval, maxInterval, slowMultiplier, dur);
+        double timeItTakesAverageCreatureToTraverseDistance = areaEffectDistanceMeters / (EnemyInformation.averageMovespeed() * slowMultiplier);
+        maxDuration = maxDur;
+        cumulativeDuration = Math.min(Math.ceil(timeItTakesAverageCreatureToTraverseDistance / dur) * dur, maxDur + dur);
+    }
+
+    public AoEStatusEffect(double areaEffectDistanceMeters, DamageElement dmgElement, double minDmg, double maxDmg,
+                           TemperatureElement tmpElement, double minTemp, double maxTemp,
+                           double minInterval, double maxInterval, double slowMultiplier, double dur, double maxDur) {
+        super(dmgElement, minDmg, maxDmg, tmpElement, minTemp, maxTemp, minInterval, maxInterval, slowMultiplier, dur);
+        double timeItTakesAverageCreatureToTraverseDistance = areaEffectDistanceMeters / (EnemyInformation.averageMovespeed() * slowMultiplier);
+        maxDuration = maxDur;
+        cumulativeDuration = Math.min(Math.ceil(timeItTakesAverageCreatureToTraverseDistance / dur) * dur, maxDur + dur);
+    }
+
+    public double getMaxDuration() {
+        return maxDuration;
+    }
+    public double getCumulativeDuration() {
+        return cumulativeDuration;
     }
 }

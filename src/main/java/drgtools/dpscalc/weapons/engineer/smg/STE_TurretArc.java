@@ -1,10 +1,10 @@
 package drgtools.dpscalc.weapons.engineer.smg;
 
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
-import drgtools.dpscalc.modelPieces.statusEffects.StatusEffect;
+import drgtools.dpscalc.modelPieces.statusEffects.AoEStatusEffect;
 
-public class STE_TurretArc extends StatusEffect {
+public class STE_TurretArc extends AoEStatusEffect {
     public STE_TurretArc() {
-        super(DamageElement.electric, 6, 6, 0.2, 0.2, 0.2, 1);
+        super(0.4, DamageElement.electric, 6, 6, 0.2, 0.2, 0.2, 1, 20);
     }
 }

@@ -325,7 +325,15 @@ public class EnemyInformation {
 			return 1.0;
 		}
 	}
-	
+
+	public static double averageMovespeed() {
+		double averageMovespeed = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			averageMovespeed += enemiesModeled[i].getSpawnProbability(true) * enemiesModeled[i].getMaxMovespeedWhenFeared();
+		}
+		return averageMovespeed * movespeedDifficultyScaling[hazardLevel - 1];
+	}
+
 	public static double averageCourage() {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
@@ -349,23 +357,18 @@ public class EnemyInformation {
 		return averageFearDuration(0.0, 0.0);
 	}
 	public static double averageFearDuration(double enemySlowMultiplier, double slowDuration) {
-		double averageFearMovespeed = 0.0;
-		for (int i = 0; i < enemiesModeled.length; i++) {
-			averageFearMovespeed += enemiesModeled[i].getSpawnProbability(true) * enemiesModeled[i].getMaxMovespeedWhenFeared();
-		}
-		
-		double difficultyScalingMovespeedModifier = movespeedDifficultyScaling[hazardLevel - 1];
+		double averageFearMovespeed = averageMovespeed();
 		
 		// This value gathered from internal property TSK_FleeFrom_C.distance
 		double fearDistanceGoal = 10.0;
 		// 1.5 multiplier comes from DeepPathfinderMovement.FleeSpeedBoostMultiplier
-		double compositeAverageEnemyMovespeed = 1.5 * averageFearMovespeed * difficultyScalingMovespeedModifier * (1.0 - enemySlowMultiplier);
+		double compositeAverageEnemyMovespeed = 1.5 * averageFearMovespeed * (1.0 - enemySlowMultiplier);
 		
 		double rawDuration = fearDistanceGoal / compositeAverageEnemyMovespeed;
 		if (enemySlowMultiplier > 0 && rawDuration > slowDuration) {
 			// If the slow runs out before the average enemy has finished moving the distance goal, then the rest of the distance will be at normal speed.
 			double remainingDistance = fearDistanceGoal - slowDuration * compositeAverageEnemyMovespeed;
-			return slowDuration + remainingDistance / (averageFearMovespeed * difficultyScalingMovespeedModifier);
+			return slowDuration + remainingDistance / (1.5 * averageFearMovespeed);
 		}
 		else {
 			return rawDuration;

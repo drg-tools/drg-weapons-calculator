@@ -155,7 +155,6 @@ public class SmartRifle_LockOn extends SmartRifle {
 		// T3.A "Electro-Chemical Rounds" damage increase
 		if (selectedTier3 == 0) {
 			// Currently, the +20% Fire-element + Heat and +20% Electric-element damage components are added separately, so this can add up to +40% damage per shot.
-			// TODO: need to ask Mike or somehow test if these multiply with each other too. Need UUU console to work for that, though...
 			if (statusEffects[0]) {
 				damageBoostMultiplier += 0.2;
 			}
