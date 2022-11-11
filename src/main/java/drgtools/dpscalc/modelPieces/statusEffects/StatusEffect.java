@@ -19,11 +19,21 @@ public class StatusEffect {
     protected double maxTemperaturePerTick = 0.0;
     protected EnvironmentalTemperature envTemp = null;
 
+    // TODO: find the default tickrate values
     protected double minIntervalBetweenTicks = 0.0;
     protected double maxIntervalBetweenTicks = 0.0;
+    /*
+        Guess: if duration isn't set, maybe it defaults to 1 sec?
+        STE_StickyFlame_Slowdown
+        STE_FatBoyRadiation
+        STE_TurretArc
+        STE_NeuroLasso
+    */
     protected double duration = 0.0;
-    protected boolean effectsStackWithMultipleApplications = false;
     protected double movespeedMultiplier = 1.0;
+
+    protected boolean effectsStackWithMultipleApplications = false;
+    protected boolean canHaveDurationRefreshedWhileStillActive = false;
 
     // Shortcut constructor for a DoT that doesn't have a movespeed slow and doesn't do Heat/Cold
     protected StatusEffect(damageElement dmgElement, double minDmg, double maxDmg, double minInterval, double maxInterval, double dur) {
@@ -83,6 +93,12 @@ public class StatusEffect {
     }
     public double getAverageDPS() {
         return (minDamagePerTick + maxDamagePerTick) * (minIntervalBetweenTicks + maxIntervalBetweenTicks);
+    }
+    public double getAverageTotalDamage() {
+        // Reminder to self: DoTs do their first tick of damage instantly. There's something weird about Inferno's DoT
+        // that makes it do an extra tick when it ends too or something, for 11 ticks instead of 10
+        // TODO
+        return getAverageDPS() * duration;
     }
 
     public double getArmorBreakUtilityPerEnemy() {

@@ -6,6 +6,6 @@ package drgtools.dpscalc.modelPieces.statusEffects;
 // Needs to know the average speed of enemies, scales with Hazard Level
 public class AoEStatusEffect extends StatusEffect {
     public AoEStatusEffect() {
-        super(0, 0, 0, 0);
+        super(0, 0);
     }
 }

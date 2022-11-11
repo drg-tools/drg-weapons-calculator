@@ -6,6 +6,8 @@ import drgtools.dpscalc.enemies.ElementalResistancesArray;
 import drgtools.dpscalc.modelPieces.statusEffects.PushSTEComponent;
 import drgtools.dpscalc.utilities.MathUtils;
 
+// TODO: move the "calculate num enemies hit" into this object
+// TODO: consider moving the "calculate total damage dealt per hit" into this object?
 // TODO: after finishing building this new feature, see how easy it would be to implement into Breakpoints' method.
 
 public class DamageComponent {
