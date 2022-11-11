@@ -11,7 +11,6 @@ import drgtools.dpscalc.modelPieces.Mod;
 import drgtools.dpscalc.modelPieces.Overclock;
 import drgtools.dpscalc.modelPieces.StatsRow;
 import drgtools.dpscalc.modelPieces.UtilityInformation;
-import drgtools.dpscalc.spreadCurves.RevolverCurve;
 import drgtools.dpscalc.utilities.MathUtils;
 import drgtools.dpscalc.weapons.Weapon;
 
@@ -64,7 +63,7 @@ public class Revolver extends Weapon {
 		
 		// Override default 10m distance
 		accEstimator.setDistance(9.0);
-		accEstimator.setSpreadCurve(new RevolverCurve());
+		accEstimator.setSpreadCurve(new Revolver_SpreadCurve());
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks

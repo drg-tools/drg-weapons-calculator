@@ -12,7 +12,6 @@ import drgtools.dpscalc.enemies.Enemy;
 import drgtools.dpscalc.guiPieces.AoEVisualizer;
 import drgtools.dpscalc.guiPieces.GuiConstants;
 import drgtools.dpscalc.guiPieces.customButtons.ButtonIcons.modIcons;
-import drgtools.dpscalc.modelPieces.AccuracyEstimator;
 import drgtools.dpscalc.modelPieces.EnemyInformation;
 import drgtools.dpscalc.modelPieces.Mod;
 import drgtools.dpscalc.modelPieces.Overclock;

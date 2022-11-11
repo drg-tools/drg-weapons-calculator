@@ -1,4 +1,4 @@
-package drgtools.dpscalc.spreadCurves;
+package drgtools.dpscalc.weapons;
 
 import java.util.ArrayList;
 

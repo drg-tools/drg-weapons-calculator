@@ -1,11 +1,12 @@
-package drgtools.dpscalc.spreadCurves;
+package drgtools.dpscalc.weapons.gunner.minigun;
 
 import drgtools.dpscalc.guiPieces.accuracyEstimator.LineGraph;
+import drgtools.dpscalc.weapons.SpreadCurve;
 
-public class MinigunCurve extends SpreadCurve {
+public class Minigun_SpreadCurve extends SpreadCurve {
 	@Override
 	public double convertSpreadValue(double inputSpread) {
-
+		// Goes from {X=0, Y=25} to {X=3, Y=0}
 		double toReturn = 0.0;
 		if (inputSpread < 3.0) {
 			// WolframAlpha says to use -2.73277*(x-3) + 8.70402*(x-3)^2 + 11.2665*(x-3)^3 + 5.7997*(x-3)^4 + 0.934667*(x-3)^5

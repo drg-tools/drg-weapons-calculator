@@ -10,7 +10,6 @@ import drgtools.dpscalc.modelPieces.DwarfInformation;
 import drgtools.dpscalc.modelPieces.EnemyInformation;
 import drgtools.dpscalc.modelPieces.Mod;
 import drgtools.dpscalc.modelPieces.Overclock;
-import drgtools.dpscalc.spreadCurves.ClassicCurve;
 import drgtools.dpscalc.utilities.MathUtils;
 import drgtools.dpscalc.weapons.Weapon;
 
@@ -48,7 +47,7 @@ public abstract class Classic extends Weapon {
 		movespeedWhileFocusing = 0.3;
 		armorBreaking = 0.3;
 		
-		accEstimator.setSpreadCurve(new ClassicCurve());
+		accEstimator.setSpreadCurve(new Classic_SpreadCurve());
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks

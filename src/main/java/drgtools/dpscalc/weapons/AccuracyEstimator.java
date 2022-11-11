@@ -1,4 +1,4 @@
-package drgtools.dpscalc.modelPieces;
+package drgtools.dpscalc.weapons;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -13,7 +13,8 @@ import drgtools.dpscalc.guiPieces.GuiConstants;
 import drgtools.dpscalc.guiPieces.accuracyEstimator.AccuracyAnimation;
 import drgtools.dpscalc.guiPieces.accuracyEstimator.LineGraph;
 import drgtools.dpscalc.guiPieces.accuracyEstimator.RectangularAccuracyVisualizer;
-import drgtools.dpscalc.spreadCurves.SpreadCurve;
+import drgtools.dpscalc.modelPieces.EnemyInformation;
+import drgtools.dpscalc.weapons.SpreadCurve;
 import drgtools.dpscalc.utilities.MathUtils;
 import drgtools.dpscalc.utilities.Point2D;
 

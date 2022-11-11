@@ -12,7 +12,6 @@ import drgtools.dpscalc.modelPieces.Mod;
 import drgtools.dpscalc.modelPieces.Overclock;
 import drgtools.dpscalc.modelPieces.StatsRow;
 import drgtools.dpscalc.modelPieces.UtilityInformation;
-import drgtools.dpscalc.spreadCurves.AssaultRifleCurve;
 import drgtools.dpscalc.utilities.MathUtils;
 import drgtools.dpscalc.weapons.Weapon;
 
@@ -60,7 +59,7 @@ public class AssaultRifle extends Weapon {
 		reloadTime = 1.8;
 		weakpointBonus = 0.1;
 		
-		accEstimator.setSpreadCurve(new AssaultRifleCurve());
+		accEstimator.setSpreadCurve(new AssaultRifle_SpreadCurve());
 		
 		initializeModsAndOverclocks();
 		// Grab initial values before customizing mods and overclocks
