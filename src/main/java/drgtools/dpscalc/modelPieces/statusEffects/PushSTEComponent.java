@@ -22,4 +22,8 @@ public class PushSTEComponent {
     public int avgNumHitsExpectedBeforeProc() {
         return (int) Math.ceil(MathUtils.meanRolls(chanceToInflict));
     }
+
+    public StatusEffect getSTE() {
+        return stePushed;
+    }
 }

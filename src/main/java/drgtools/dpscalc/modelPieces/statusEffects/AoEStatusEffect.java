@@ -8,14 +8,14 @@ import drgtools.dpscalc.modelPieces.damage.DamageElements.TemperatureElement;
 // gets re-applied frequently as long as enemies stay within the Area of Effect
 public class AoEStatusEffect extends StatusEffect {
     private double maxDuration;
-    private double cumulativeDuration;
+    private double effectiveDuration;
 
     public AoEStatusEffect(double areaEffectDistanceMeters, DamageElement dmgElement, double minDmg, double maxDmg,
                            double minInterval, double maxInterval, double slowMultiplier, double dur, double maxDur) {
         super(dmgElement, minDmg, maxDmg, minInterval, maxInterval, slowMultiplier, dur);
         double timeItTakesAverageCreatureToTraverseDistance = areaEffectDistanceMeters / (EnemyInformation.averageMovespeed() * slowMultiplier);
         maxDuration = maxDur;
-        cumulativeDuration = Math.min(Math.ceil(timeItTakesAverageCreatureToTraverseDistance / dur) * dur, maxDur + dur);
+        effectiveDuration = Math.min(Math.ceil(timeItTakesAverageCreatureToTraverseDistance / dur) * dur, maxDur + dur);
     }
 
     public AoEStatusEffect(double areaEffectDistanceMeters, DamageElement dmgElement, double minDmg, double maxDmg,
@@ -24,13 +24,13 @@ public class AoEStatusEffect extends StatusEffect {
         super(dmgElement, minDmg, maxDmg, tmpElement, minTemp, maxTemp, minInterval, maxInterval, slowMultiplier, dur);
         double timeItTakesAverageCreatureToTraverseDistance = areaEffectDistanceMeters / (EnemyInformation.averageMovespeed() * slowMultiplier);
         maxDuration = maxDur;
-        cumulativeDuration = Math.min(Math.ceil(timeItTakesAverageCreatureToTraverseDistance / dur) * dur, maxDur + dur);
+        effectiveDuration = Math.min(Math.ceil(timeItTakesAverageCreatureToTraverseDistance / dur) * dur, maxDur + dur);
     }
 
     public double getMaxDuration() {
         return maxDuration;
     }
-    public double getCumulativeDuration() {
-        return cumulativeDuration;
+    public double getEffectiveDuration() {
+        return effectiveDuration;
     }
 }

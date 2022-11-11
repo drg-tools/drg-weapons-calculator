@@ -3,6 +3,7 @@ package drgtools.dpscalc.modelPieces.damage;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.TemperatureElement;
 import drgtools.dpscalc.enemies.ElementalResistancesArray;
+import drgtools.dpscalc.modelPieces.statusEffects.MultipleSTEs;
 import drgtools.dpscalc.modelPieces.statusEffects.PushSTEComponent;
 import drgtools.dpscalc.utilities.MathUtils;
 
@@ -43,7 +44,7 @@ public class DamageComponent {
 	protected int startingDamageElementIndex = -1;
 	protected double[] radialDamageElements;
 	protected int startingRadialDamageElementIndex = -1;
-	protected PushSTEComponent[] statusEffectsApplied;
+	protected MultipleSTEs statusEffectsApplied;
 
 	// Shortcut constructor for what is referred to as "Direct Damage"
 	public DamageComponent(double dmg, DamageElement dmgElement, double ab, double ff, DamageConversion[] baselineConversions) {
@@ -179,7 +180,7 @@ public class DamageComponent {
 	}
 
 	public void setStatusEffectsApplied(PushSTEComponent[] stes) {
-		statusEffectsApplied = stes;
+		statusEffectsApplied = new MultipleSTEs(stes);
 	}
 
 	// TODO: add a toString method that nicely formats this stuff

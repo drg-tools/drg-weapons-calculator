@@ -19,7 +19,7 @@ public class StatusEffect {
     protected double maxTemperaturePerTick = 0.0;
     protected EnvironmentalTemperature envTemp = null;
 
-    // TODO: find the default tickrate values
+    // TODO: find the default tickrate values and default duration
     protected double minIntervalBetweenTicks = 0.0;
     protected double maxIntervalBetweenTicks = 0.0;
     /*
@@ -81,8 +81,14 @@ public class StatusEffect {
         minDamagePerTick = newMin;
         maxDamagePerTick = newMax;
     }
+    public double getMovespeedMultiplier() {
+        return movespeedMultiplier;
+    }
     public void setMovespeedMultiplier(double in) {
         movespeedMultiplier = in;
+    }
+    public double getDuration() {
+        return duration;
     }
     public void setDuration(double in) {
         duration = in;
@@ -116,4 +122,28 @@ public class StatusEffect {
     }
 
     // TODO: add a toString
+    public boolean inflictsTemperature(TemperatureElement desiredTemp) {
+        switch(desiredTemp) {
+            case heat: {
+                return temperaturePerTickElement == TemperatureElement.heat || envTemp.getTempElement() == TemperatureElement.heat;
+            }
+            case cold: {
+                return temperaturePerTickElement == TemperatureElement.cold || envTemp.getTempElement() == TemperatureElement.cold;
+            }
+            default: {
+                return false;
+            }
+        }
+    }
+
+    public double getAverageTemperaturePerSecond(TemperatureElement desiredTemp) {
+        double toReturn = 0;
+        if (temperaturePerTickElement == desiredTemp) {
+            toReturn += (minTemperaturePerTick + maxTemperaturePerTick) * (minIntervalBetweenTicks + maxIntervalBetweenTicks);
+        }
+        if (envTemp.getTempElement() == desiredTemp) {
+            toReturn += envTemp.getTemperatureChangePerSec();
+        }
+        return toReturn;
+    }
 }
