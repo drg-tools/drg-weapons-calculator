@@ -1,6 +1,6 @@
 package drgtools.dpscalc.enemies.other;
 
-import drgtools.dpscalc.modelPieces.damage.DamageElements.damageElement;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.enemies.Enemy;
 
 public class QronarShellback extends Enemy {
@@ -23,11 +23,11 @@ public class QronarShellback extends Enemy {
 		// Weighted Q'Ronar Shellback rolling state at 2/3 and non-rolling state at 1/3
 		double qronarShellbackRolling = 0.66;
 		double qronarShellbackUnrolled = 0.34;
-		resistances.setResistance(damageElement.fire, qronarShellbackRolling * 0.3 + qronarShellbackUnrolled * -0.5);
-		resistances.setResistance(damageElement.frost, qronarShellbackRolling * 0.3 + qronarShellbackUnrolled * -0.7);
-		resistances.setResistance(damageElement.explosive, qronarShellbackRolling * 0.8);
-		resistances.setResistance(damageElement.electric, qronarShellbackRolling * 1.0);
-		resistances.setResistance(damageElement.corrosive, qronarShellbackRolling * 0.3 + qronarShellbackUnrolled * -0.5);
+		resistances.setResistance(DamageElement.fire, qronarShellbackRolling * 0.3 + qronarShellbackUnrolled * -0.5);
+		resistances.setResistance(DamageElement.frost, qronarShellbackRolling * 0.3 + qronarShellbackUnrolled * -0.7);
+		resistances.setResistance(DamageElement.explosive, qronarShellbackRolling * 0.8);
+		resistances.setResistance(DamageElement.electric, qronarShellbackRolling * 1.0);
+		resistances.setResistance(DamageElement.corrosive, qronarShellbackRolling * 0.3 + qronarShellbackUnrolled * -0.5);
 		
 		igniteTemperature = 100; 
 		douseTemperature = 70;

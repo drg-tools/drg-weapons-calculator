@@ -1,6 +1,6 @@
 package drgtools.dpscalc.enemies.glyphid;
 
-import drgtools.dpscalc.modelPieces.damage.DamageElements.damageElement;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.enemies.Enemy;
 
 public class AcidSpitter extends Enemy {
@@ -18,7 +18,7 @@ public class AcidSpitter extends Enemy {
 		
 		// If this number is greater than 0, that means that it takes less damage from that particular element.
 		// Conversely, if it's less than 0 it takes extra damage from that particular element
-		resistances.setResistance(damageElement.electric, -0.1);
+		resistances.setResistance(DamageElement.electric, -0.1);
 		
 		igniteTemperature = 35; 
 		douseTemperature = 5;

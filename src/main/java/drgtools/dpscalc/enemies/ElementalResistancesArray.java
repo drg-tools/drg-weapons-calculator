@@ -1,7 +1,7 @@
 package drgtools.dpscalc.enemies;
 
 import drgtools.dpscalc.modelPieces.damage.DamageElements;
-import drgtools.dpscalc.modelPieces.damage.DamageElements.damageElement;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 
 public class ElementalResistancesArray {
 	private double[] resistances;
@@ -17,12 +17,12 @@ public class ElementalResistancesArray {
 		return resistances;
 	}
 	
-	public void setResistance(damageElement el, double resistance) {
+	public void setResistance(DamageElement el, double resistance) {
 		// -0.5 means they take 150% damage of that element.
 		// 0.25 means they take 75% damage of that element.
 		resistances[DamageElements.getElementIndex(el)] = 1.0 - resistance;
 	}
-	public double getResistance(damageElement el) {
+	public double getResistance(DamageElement el) {
 		return resistances[DamageElements.getElementIndex(el)];
 	}
 }

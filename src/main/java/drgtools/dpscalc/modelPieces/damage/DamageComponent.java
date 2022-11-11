@@ -1,7 +1,7 @@
 package drgtools.dpscalc.modelPieces.damage;
 
-import drgtools.dpscalc.modelPieces.damage.DamageElements.damageElement;
-import drgtools.dpscalc.modelPieces.damage.DamageElements.temperatureElement;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.TemperatureElement;
 import drgtools.dpscalc.enemies.ElementalResistancesArray;
 import drgtools.dpscalc.modelPieces.statusEffects.PushSTEComponent;
 import drgtools.dpscalc.utilities.MathUtils;
@@ -23,7 +23,7 @@ public class DamageComponent {
 	protected int numHitscanTracersPerShot = 1;  // Used for shotguns. Simpler than tracking NumPellets identical DamageComponents, just move the multiplier inside.
 
 	protected double bonusDamage = 0;
-	protected damageElement bonusDmgElement = null;
+	protected DamageElement bonusDmgElement = null;
 	
 	protected double radialDamage = 0;
 	protected double radialTemperature = 0;
@@ -38,7 +38,7 @@ public class DamageComponent {
 	protected double armorBreaking = 1.0;
 	protected double friendlyFire = 1.0;
 	
-	protected temperatureElement tempElement;  // applies to both Damage and RadialDamage; can be either Heat or Cold. This can be assumed because it's illogical to do both Heat & Cold simultaneously.
+	protected TemperatureElement tempElement;  // applies to both Damage and RadialDamage; can be either Heat or Cold. This can be assumed because it's illogical to do both Heat & Cold simultaneously.
 	protected double[] damageElements;
 	protected int startingDamageElementIndex = -1;
 	protected double[] radialDamageElements;
@@ -46,31 +46,31 @@ public class DamageComponent {
 	protected PushSTEComponent[] statusEffectsApplied;
 
 	// Shortcut constructor for what is referred to as "Direct Damage"
-	public DamageComponent(double dmg, damageElement dmgElement, double ab, double ff, DamageConversion[] baselineConversions) {
+	public DamageComponent(double dmg, DamageElement dmgElement, double ab, double ff, DamageConversion[] baselineConversions) {
 		this(dmg, dmgElement, 0, null, true, true, true, true,
 				0, null, 0, 0, 0, 0, false, 0, 0, 0, ab, ff, baselineConversions);
 	}
 
 	// Shortcut constructor for damage-only Direct+Radial, like Autocannon or PGL
-	public DamageComponent(double dmg, damageElement dmgElement, double rdlDmg, damageElement rdlDmgElement, double mdr,
-						   double dmgRd, double fal, double ab, double ff, DamageConversion[] baselineConversions) {
+	public DamageComponent(double dmg, DamageElement dmgElement, double rdlDmg, DamageElement rdlDmgElement, double mdr,
+                           double dmgRd, double fal, double ab, double ff, DamageConversion[] baselineConversions) {
 		this(dmg, dmgElement, 0, null, true, true, true, true, rdlDmg,
 				rdlDmgElement, 0, mdr, dmgRd, fal, false, 0, 0, 0, ab, ff, baselineConversions);
 	}
 
 	// Shortcut constructor for any DamageComponent that neither is "Direct Damage" nor uses RadialDamage
-	public DamageComponent(double dmg, damageElement dmgElement, double temp, temperatureElement tmpElement,
-						   boolean weakpoint, boolean frozen, boolean armor, boolean damagesArmor,
-						   double ab, double ff, DamageConversion[] baselineConversions) {
+	public DamageComponent(double dmg, DamageElement dmgElement, double temp, TemperatureElement tmpElement,
+                           boolean weakpoint, boolean frozen, boolean armor, boolean damagesArmor,
+                           double ab, double ff, DamageConversion[] baselineConversions) {
 		this(dmg, dmgElement, temp, tmpElement, weakpoint, frozen, armor, damagesArmor, 0,null,
 				0, 0, 0, 0, false, 0, 0, 0, ab, ff, baselineConversions);
 	}
 
-	public DamageComponent(double dmg, damageElement dmgElement, double temp, temperatureElement tmpElement,
-						   boolean weakpoint, boolean frozen, boolean armor, boolean damagesArmor,
-						   double rdlDmg, damageElement rdlDmgElement, double radTemp, double mdr, double dmgRd, double fal,
-						   boolean stunOnlyWeakpoint, double stunChnc, double stunDur, double fear, double ab, double ff,
-						   DamageConversion[] baselineConversions) {
+	public DamageComponent(double dmg, DamageElement dmgElement, double temp, TemperatureElement tmpElement,
+                           boolean weakpoint, boolean frozen, boolean armor, boolean damagesArmor,
+                           double rdlDmg, DamageElement rdlDmgElement, double radTemp, double mdr, double dmgRd, double fal,
+                           boolean stunOnlyWeakpoint, double stunChnc, double stunDur, double fear, double ab, double ff,
+                           DamageConversion[] baselineConversions) {
 		damage = dmg;
 		temperature = temp;
 		tempElement = tmpElement;
@@ -173,7 +173,7 @@ public class DamageComponent {
 	}
 
 	// Used by Subata T5.B and SMG OC "EMRB"
-	public void setBonusDamage(damageElement bnsDmgElement, double bonus) {
+	public void setBonusDamage(DamageElement bnsDmgElement, double bonus) {
 		bonusDmgElement = bnsDmgElement;
 		bonusDamage = bonus;
 	}

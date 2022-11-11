@@ -1,6 +1,6 @@
 package drgtools.dpscalc.enemies.mactera;
 
-import drgtools.dpscalc.modelPieces.damage.DamageElements.damageElement;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.enemies.Enemy;
 
 public class Brundle extends Enemy {
@@ -21,11 +21,11 @@ public class Brundle extends Enemy {
 		
 		// If this number is greater than 0, that means that it takes less damage from that particular element.
 		// Conversely, if it's less than 0 it takes extra damage from that particular element
-		resistances.setResistance(damageElement.melee, -1.0);
-		resistances.setResistance(damageElement.fire, -1.0);
-		resistances.setResistance(damageElement.explosive, -1.0);
-		resistances.setResistance(damageElement.electric, -0.5);
-		resistances.setResistance(damageElement.corrosive, -1.0);
+		resistances.setResistance(DamageElement.melee, -1.0);
+		resistances.setResistance(DamageElement.fire, -1.0);
+		resistances.setResistance(DamageElement.explosive, -1.0);
+		resistances.setResistance(DamageElement.electric, -0.5);
+		resistances.setResistance(DamageElement.corrosive, -1.0);
 
 		igniteTemperature = 35; 
 		douseTemperature = 5;

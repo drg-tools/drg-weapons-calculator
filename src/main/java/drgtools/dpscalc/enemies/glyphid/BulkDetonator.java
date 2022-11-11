@@ -1,6 +1,6 @@
 package drgtools.dpscalc.enemies.glyphid;
 
-import drgtools.dpscalc.modelPieces.damage.DamageElements.damageElement;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.enemies.Enemy;
 
 public class BulkDetonator extends Enemy {
@@ -22,7 +22,7 @@ public class BulkDetonator extends Enemy {
 		
 		// If this number is greater than 0, that means that it takes less damage from that particular element.
 		// Conversely, if it's less than 0 it takes extra damage from that particular element
-		resistances.setResistance(damageElement.explosive, 0.5);
+		resistances.setResistance(DamageElement.explosive, 0.5);
 		
 		temperatureUpdateTime = 0.25;
 		igniteTemperature = 60; 

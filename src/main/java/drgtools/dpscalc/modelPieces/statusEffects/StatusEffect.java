@@ -1,12 +1,12 @@
 package drgtools.dpscalc.modelPieces.statusEffects;
 
 import drgtools.dpscalc.modelPieces.EnemyInformation;
-import drgtools.dpscalc.modelPieces.damage.DamageElements.damageElement;
-import drgtools.dpscalc.modelPieces.damage.DamageElements.temperatureElement;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.TemperatureElement;
 import drgtools.dpscalc.modelPieces.temperature.EnvironmentalTemperature;
 
 public class StatusEffect {
-    protected damageElement damagePerTickElement = null;
+    protected DamageElement damagePerTickElement = null;
     protected double minDamagePerTick = 0.0;
     protected double maxDamagePerTick = 0.0;
 
@@ -14,7 +14,7 @@ public class StatusEffect {
     protected double minArmorDamagePerTick = 0.0;
     protected double maxArmorDamagePerTick = 0.0;
 
-    protected temperatureElement temperaturePerTickElement = null;
+    protected TemperatureElement temperaturePerTickElement = null;
     protected double minTemperaturePerTick = 0.0;
     protected double maxTemperaturePerTick = 0.0;
     protected EnvironmentalTemperature envTemp = null;
@@ -36,7 +36,7 @@ public class StatusEffect {
     protected boolean canHaveDurationRefreshedWhileStillActive = false;
 
     // Shortcut constructor for a DoT that doesn't have a movespeed slow and doesn't do Heat/Cold
-    protected StatusEffect(damageElement dmgElement, double minDmg, double maxDmg, double minInterval, double maxInterval, double dur) {
+    protected StatusEffect(DamageElement dmgElement, double minDmg, double maxDmg, double minInterval, double maxInterval, double dur) {
         damagePerTickElement = dmgElement;
         minDamagePerTick = minDmg;
         maxDamagePerTick = maxDmg;
@@ -46,7 +46,7 @@ public class StatusEffect {
     }
 
     // Shortcut constructor for a DoT that has a movespeed slow and doesn't do Heat/Cold
-    protected StatusEffect(damageElement dmgElement, double minDmg, double maxDmg, double minInterval, double maxInterval, double slowMultiplier, double dur) {
+    protected StatusEffect(DamageElement dmgElement, double minDmg, double maxDmg, double minInterval, double maxInterval, double slowMultiplier, double dur) {
         damagePerTickElement = dmgElement;
         minDamagePerTick = minDmg;
         maxDamagePerTick = maxDmg;
@@ -62,8 +62,8 @@ public class StatusEffect {
         duration = dur;
     }
 
-    protected StatusEffect(damageElement dmgElement, double minDmg, double maxDmg,
-                           temperatureElement tmpElement, double minTemp, double maxTemp,
+    protected StatusEffect(DamageElement dmgElement, double minDmg, double maxDmg,
+                           TemperatureElement tmpElement, double minTemp, double maxTemp,
                            double minInterval, double maxInterval, double slowMultiplier, double dur) {
         damagePerTickElement = dmgElement;
         minDamagePerTick = minDmg;
@@ -88,7 +88,7 @@ public class StatusEffect {
         duration = in;
     }
 
-    public damageElement getDamageElement() {
+    public DamageElement getDamageElement() {
         return damagePerTickElement;
     }
     public double getAverageDPS() {

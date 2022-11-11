@@ -1,6 +1,6 @@
 package drgtools.dpscalc.enemies.glyphid;
 
-import drgtools.dpscalc.modelPieces.damage.DamageElements.damageElement;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.enemies.Enemy;
 
 public class Guard extends Enemy {
@@ -18,10 +18,10 @@ public class Guard extends Enemy {
 		
 		// If this number is greater than 0, that means that it takes less damage from that particular element.
 		// Conversely, if it's less than 0 it takes extra damage from that particular element
-		resistances.setResistance(damageElement.fire, 0.25);
-		resistances.setResistance(damageElement.frost, 0.3);
-		resistances.setResistance(damageElement.explosive, 0.3);
-		resistances.setResistance(damageElement.corrosive, 0.2);
+		resistances.setResistance(DamageElement.fire, 0.25);
+		resistances.setResistance(DamageElement.frost, 0.3);
+		resistances.setResistance(DamageElement.explosive, 0.3);
+		resistances.setResistance(DamageElement.corrosive, 0.2);
 
 		igniteTemperature = 60; 
 		douseTemperature = 40;

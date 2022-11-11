@@ -480,10 +480,10 @@ public class EnemyInformation {
 			
 			// creatureResistances = alias.getElementalResistances();  // for when this method gets refactored to use DamageComponents
 			creatureResistances = new double[] {
-				alias.getElementalResistances().getResistance(DamageElements.damageElement.explosive),
-				alias.getElementalResistances().getResistance(DamageElements.damageElement.fire),
-				alias.getElementalResistances().getResistance(DamageElements.damageElement.frost),
-				alias.getElementalResistances().getResistance(DamageElements.damageElement.electric)
+				alias.getElementalResistances().getResistance(DamageElements.DamageElement.explosive),
+				alias.getElementalResistances().getResistance(DamageElements.DamageElement.fire),
+				alias.getElementalResistances().getResistance(DamageElements.DamageElement.frost),
+				alias.getElementalResistances().getResistance(DamageElements.DamageElement.electric)
 			};
 			
 			creatureWeakpointModifier = alias.getWeakpointMultiplier();

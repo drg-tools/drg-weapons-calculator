@@ -1,7 +1,7 @@
 package drgtools.dpscalc.weapons.gunner.minigun;
 
-import drgtools.dpscalc.modelPieces.damage.DamageElements.damageElement;
-import drgtools.dpscalc.modelPieces.damage.DamageElements.temperatureElement;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.TemperatureElement;
 import drgtools.dpscalc.modelPieces.statusEffects.StatusEffect;
 
 /*
@@ -11,6 +11,6 @@ import drgtools.dpscalc.modelPieces.statusEffects.StatusEffect;
 */
 public class STE_BurningHell extends StatusEffect {
     public STE_BurningHell() {
-        super(damageElement.fire, 5, 5, temperatureElement.heat, 20, 20, 0.25, 0.25, 1.0, 9.5);
+        super(DamageElement.fire, 5, 5, TemperatureElement.heat, 20, 20, 0.25, 0.25, 1.0, 9.5);
     }
 }
