@@ -130,11 +130,10 @@ public class DamageComponent {
 	public void setDamageRadius(double in) {
 		damageRadius = in;
 	}
-	public void setStunChance(double in) {
-		stunChance = in;
-	}
-	public void setStunDuration(double in) {
-		stunDuration = in;
+	public void setStun(boolean onWeakpointOnly, double chance, double duration) {
+		stunOnWeakpointOnly = onWeakpointOnly;
+		stunChance = chance;
+		stunDuration = duration;
 	}
 	public void setBaseFearChance(double in) {
 		baseFearChance = in;
