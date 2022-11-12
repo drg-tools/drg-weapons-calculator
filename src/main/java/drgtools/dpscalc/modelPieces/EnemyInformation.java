@@ -9,6 +9,7 @@ import drgtools.dpscalc.enemies.Enemy;
 import drgtools.dpscalc.enemies.glyphid.*;
 import drgtools.dpscalc.enemies.mactera.*;
 import drgtools.dpscalc.enemies.other.*;
+import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 import drgtools.dpscalc.utilities.MathUtils;
 
 public class EnemyInformation {
@@ -167,8 +168,8 @@ public class EnemyInformation {
 		double totalIgniteTime = 0.0;
 		double totalProbability = 0.0;
 		for (int i = 0; i < enemiesModeled.length; i++) {
-			igniteTemp = enemiesModeled[i].getIgniteTemp();
-			coolingRate = enemiesModeled[i].getCoolingRate();
+			igniteTemp = enemiesModeled[i].getTemperatureComponent().getEffectiveBurnTemperature();
+			coolingRate = enemiesModeled[i].getTemperatureComponent().getEffectiveCoolingRate();
 			spawnProbability = enemiesModeled[i].getSpawnProbability(true);
 			
 			// Early exit: if Heat/Shot >= igniteTemp, then this enemy gets ignited instantly.
@@ -193,13 +194,21 @@ public class EnemyInformation {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
 		}
-		
-		double toReturn = 0.0;
+
+		CreatureTemperatureComponent aliasTemp;
+		double spawnProbability;
+		double totalBurnDuration = 0.0;
+		double totalProbability = 0.0;
 		for (int i = 0; i < enemiesModeled.length; i++) {
-			toReturn += enemiesModeled[i].getSpawnProbability(true) * ((enemiesModeled[i].getIgniteTemp() - enemiesModeled[i].getDouseTemp()) / enemiesModeled[i].getCoolingRate());
+			aliasTemp = enemiesModeled[i].getTemperatureComponent();
+			if (!aliasTemp.diesIfOnFire()){
+				spawnProbability = enemiesModeled[i].getSpawnProbability(true);
+				totalBurnDuration += spawnProbability * ((aliasTemp.getEffectiveBurnTemperature() - aliasTemp.getEffectiveDouseTemperature()) / aliasTemp.getEffectiveCoolingRate());
+				totalProbability += spawnProbability;
+			}
 		}
 		
-		return toReturn;
+		return totalBurnDuration / totalProbability;
 	}
 	// This method is currently only used by Gunner/Minigun/Mod/5/Aggressive Venting in maxDamage() and Engineer/GrenadeLauncher/Mod/3/Incendiary Compound single-target DPS
 	public static double percentageEnemiesIgnitedBySingleBurstOfHeat(double heatPerBurst) {
@@ -209,7 +218,7 @@ public class EnemyInformation {
 		
 		double toReturn = 0.0;
 		for (int i = 0; i < enemiesModeled.length; i++) {
-			if (enemiesModeled[i].getIgniteTemp() <= heatPerBurst) {
+			if (enemiesModeled[i].getTemperatureComponent().getEffectiveBurnTemperature() <= heatPerBurst) {
 				toReturn += enemiesModeled[i].getSpawnProbability(true);
 			}
 		}
@@ -234,7 +243,7 @@ public class EnemyInformation {
 		
 		double toReturn = 0.0;
 		for (int i = 0; i < enemiesModeled.length; i++) {
-			freezeTemp = enemiesModeled[i].getFreezeTemp();
+			freezeTemp = enemiesModeled[i].getTemperatureComponent().getEffectiveFreezeTemperature();
 			
 			// Early exit: if Cold/Shot <= -490, then all enemies get frozen instantly since the largest Freeze Temp modeled in this program is -490 (Bulk Detonator).
 			if (burstOfCold <= freezeTemp || coldPerShot <= freezeTemp || burstOfCold + coldPerShot <= freezeTemp) {
@@ -247,31 +256,49 @@ public class EnemyInformation {
 		
 		return toReturn;
 	}
-	// Because the creatures have had a negative temperature for longer than 2 seconds (due to being Frozen already) I'm keeping warming rate in the refreeze method
+	// Because the creatures immediately start warming up after being Frozen (bypasses WarmingCooldown), I'm adding warming rate in the refreeze method
 	public static double averageTimeToRefreeze(double coldPerSecond) {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
 		}
-		
-		double toReturn = 0.0;
+
+		CreatureTemperatureComponent aliasTemp;
+		double spawnProbability;
+		double totalRefreezeTime = 0.0;
+		double totalProbability = 0.0;
 		for (int i = 0; i < enemiesModeled.length; i++) {
-			toReturn += enemiesModeled[i].getSpawnProbability(true) * ((enemiesModeled[i].getFreezeTemp() - enemiesModeled[i].getUnfreezeTemp()) / (coldPerSecond + enemiesModeled[i].getWarmingRate()));
+			aliasTemp = enemiesModeled[i].getTemperatureComponent();
+			if (!aliasTemp.diesIfFrozen()) {
+				spawnProbability = enemiesModeled[i].getSpawnProbability(true);
+				totalRefreezeTime += spawnProbability * ((aliasTemp.getEffectiveFreezeTemperature() - aliasTemp.getEffectiveUnfreezeTemperature()) / (coldPerSecond + aliasTemp.getEffectiveWarmingRate()));
+				totalProbability += spawnProbability;
+			}
 		}
 		
-		return toReturn;
+		return totalRefreezeTime / totalProbability;
 	}
 	public static double averageFreezeDuration() {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
 		}
-		
-		double toReturn = 0.0;
+
+		CreatureTemperatureComponent aliasTemp;
+		double spawnProbability;
+		double totalFreezeDuration = 0.0;
+		double totalProbability = 0.0;
 		for (int i = 0; i < enemiesModeled.length; i++) {
-			// Because every Freeze temp is negative and is strictly less than the corresponding Unfreeze temp, subtracting Freeze from Unfreeze guarantees a positive number.
-			toReturn += enemiesModeled[i].getSpawnProbability(true) * ((enemiesModeled[i].getUnfreezeTemp() - enemiesModeled[i].getFreezeTemp()) / enemiesModeled[i].getWarmingRate());
+			// When creatures get Frozen, they bypass WarmingCooldown and immediately start warming up. The player can extend the duration by applying more cold,
+			// but this models as if they just freeze it and then let it thaw. Don't need to worry about overshooting the estimate because MinTemp == FreezeTemp for all enemies.
+			aliasTemp = enemiesModeled[i].getTemperatureComponent();
+			if (!aliasTemp.diesIfFrozen()) {
+				// Because every Freeze temp is negative and is strictly less than the corresponding Unfreeze temp, subtracting Freeze from Unfreeze guarantees a positive number.
+				spawnProbability = enemiesModeled[i].getSpawnProbability(true);
+				totalFreezeDuration += spawnProbability * ((aliasTemp.getEffectiveUnfreezeTemperature() - aliasTemp.getEffectiveFreezeTemperature()) / aliasTemp.getEffectiveWarmingRate());
+				totalProbability += spawnProbability;
+			}
 		}
 		
-		return toReturn;
+		return totalFreezeDuration / totalProbability;
 	}
 	// This method is currently only used by Driller/CryoCannon/OC/Snowball in Utility
 	public static double percentageEnemiesFrozenBySingleBurstOfCold(double coldPerBurst) {
@@ -281,7 +308,7 @@ public class EnemyInformation {
 		
 		double toReturn = 0;
 		for (int i = 0; i < enemiesModeled.length; i++) {
-			if (enemiesModeled[i].getFreezeTemp() >= coldPerBurst) {
+			if (enemiesModeled[i].getTemperatureComponent().getEffectiveFreezeTemperature() >= coldPerBurst) {
 				toReturn += enemiesModeled[i].getSpawnProbability(true);
 			}
 		}
@@ -466,8 +493,10 @@ public class EnemyInformation {
 		double fourSecondsDoTDamage;
 		double lightArmorStrength, heavyArmorHP, numShotsToBreakArmor;
 		Enemy alias;
+		CreatureTemperatureComponent aliasTempComponent;
 		for (int i = 0; i < enemiesModeled.length; i++) {
 			alias = enemiesModeled[i];
+			aliasTempComponent = alias.getTemperatureComponent();
 			
 			// If this enemy shouldn't be modeled in breakpoints, skip it.
 			if (!alias.shouldHaveBreakpointsCalculated()) {
@@ -521,22 +550,22 @@ public class EnemyInformation {
 			numShotsToProcPersistentPlasma = 0;
 			numShotsToProcRadiation = 0;
 			if (!frozen && heatPerShot > 0.0) {
-				if (heatPerShot >= alias.getIgniteTemp()) {
+				if (heatPerShot >= aliasTempComponent.getEffectiveBurnTemperature()) {
 					numShotsToProcBurn = 1;
-					burnDuration = (heatPerShot - alias.getDouseTemp()) / alias.getCoolingRate();
+					burnDuration = (heatPerShot - aliasTempComponent.getEffectiveDouseTemperature()) / aliasTempComponent.getEffectiveCoolingRate();
 				}
 				else {
 					// First, check if the weapon can fully ignite the enemy in less than one second (the default interval for CoolingRate, only Bulk Detonators use 0.25)
-					if (heatPerShot * Math.floor(0.99 * RoF) >= alias.getIgniteTemp()) {
-						numShotsToProcBurn = Math.ceil(alias.getIgniteTemp() / heatPerShot);
+					if (heatPerShot * Math.floor(0.99 * RoF) >= aliasTempComponent.getEffectiveBurnTemperature()) {
+						numShotsToProcBurn = Math.ceil(aliasTempComponent.getEffectiveBurnTemperature() / heatPerShot);
 					}
 					// If not, then this has to account for the Cooling Rate increasing the number of shots required.
 					else {
 						// This is technically an approximation and not precisely how it works in-game, but it's close enough for what I need.
-						numShotsToProcBurn = Math.floor((alias.getIgniteTemp() * RoF) / (heatPerShot * RoF - alias.getCoolingRate()));
+						numShotsToProcBurn = Math.floor((aliasTempComponent.getEffectiveBurnTemperature() * RoF) / (heatPerShot * RoF - aliasTempComponent.getEffectiveCoolingRate()));
 					}
 					
-					burnDuration = (alias.getIgniteTemp() - alias.getDouseTemp()) / alias.getCoolingRate();
+					burnDuration = (aliasTempComponent.getEffectiveBurnTemperature() - aliasTempComponent.getEffectiveDouseTemperature()) / aliasTempComponent.getEffectiveCoolingRate();
 				}
 			}
 			if (DoT_probabilities[0] > 0.0) {

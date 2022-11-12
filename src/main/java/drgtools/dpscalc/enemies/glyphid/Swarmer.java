@@ -1,6 +1,7 @@
 package drgtools.dpscalc.enemies.glyphid;
 
 import drgtools.dpscalc.enemies.Enemy;
+import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 
 public class Swarmer extends Enemy {
 	public Swarmer() {
@@ -12,13 +13,10 @@ public class Swarmer extends Enemy {
 		normalScaling = true;
 		
 		hasExposedBodySomewhere = true;
-		
-		igniteTemperature = 5; 
-		douseTemperature = 0;
-		coolingRate = 1;
-		freezeTemperature = -20;
-		unfreezeTemperature = 0;
-		warmingRate = 2;
+
+		temperatureComponent = new CreatureTemperatureComponent(5, 0, 1, 1.5, -20, 0, 2, 2);
+		temperatureComponent.setDieOnFire(true);
+		temperatureComponent.setDieFrozen(true);
 		
 		// Enemies that fly, can't move on the ground, or can't be feared will have this value set to zero to maintain correct values.
 		maxMovespeedWhenFeared = 3.5;

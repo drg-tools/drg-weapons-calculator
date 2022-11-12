@@ -2,6 +2,7 @@ package drgtools.dpscalc.enemies.mactera;
 
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.enemies.Enemy;
+import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 
 public class Spawn extends Enemy {
 	public Spawn() {
@@ -27,12 +28,7 @@ public class Spawn extends Enemy {
 		resistances.setResistance(DamageElement.explosive, -1.0);
 		resistances.setResistance(DamageElement.electric, -0.5);
 		resistances.setResistance(DamageElement.corrosive, -1.0);
-		
-		igniteTemperature = 35; 
-		douseTemperature = 5;
-		coolingRate = 10;
-		freezeTemperature = -100;
-		unfreezeTemperature = 0;
-		warmingRate = 40;
+
+		temperatureComponent = new CreatureTemperatureComponent(35, 5, 10, 1.5, -100, 0, 40, 1);
 	}
 }

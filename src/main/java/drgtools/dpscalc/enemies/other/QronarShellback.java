@@ -2,6 +2,7 @@ package drgtools.dpscalc.enemies.other;
 
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.enemies.Enemy;
+import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 
 public class QronarShellback extends Enemy {
 	public QronarShellback() {
@@ -28,13 +29,8 @@ public class QronarShellback extends Enemy {
 		resistances.setResistance(DamageElement.explosive, qronarShellbackRolling * 0.8);
 		resistances.setResistance(DamageElement.electric, qronarShellbackRolling * 1.0);
 		resistances.setResistance(DamageElement.corrosive, qronarShellbackRolling * 0.3 + qronarShellbackUnrolled * -0.5);
-		
-		igniteTemperature = 100; 
-		douseTemperature = 70;
-		coolingRate = 10;
-		freezeTemperature = -120;
-		unfreezeTemperature = 0;
-		warmingRate = 10;
+
+		temperatureComponent = new CreatureTemperatureComponent(100, 70, 10, 1.5, -120, -90, 10, 2);
 		
 		hasHeavyArmorHealth = true;
 		armorBaseHealth = (6*70 + 14*30)/20.0;

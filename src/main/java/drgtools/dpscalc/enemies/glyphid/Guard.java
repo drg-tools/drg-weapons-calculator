@@ -2,6 +2,7 @@ package drgtools.dpscalc.enemies.glyphid;
 
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.enemies.Enemy;
+import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 
 public class Guard extends Enemy {
 	public Guard() {
@@ -23,12 +24,7 @@ public class Guard extends Enemy {
 		resistances.setResistance(DamageElement.explosive, 0.3);
 		resistances.setResistance(DamageElement.corrosive, 0.2);
 
-		igniteTemperature = 60; 
-		douseTemperature = 40;
-		coolingRate = 6;
-		freezeTemperature = -80;
-		unfreezeTemperature = -40;
-		warmingRate = 6;
+		temperatureComponent = new CreatureTemperatureComponent(60, 40, 6, 2, -80, -40, 6, 2);
 		
 		courage = 0.5;
 		// Enemies that fly, can't move on the ground, or can't be feared will have this value set to zero to maintain correct values.

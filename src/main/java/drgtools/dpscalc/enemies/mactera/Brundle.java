@@ -2,6 +2,7 @@ package drgtools.dpscalc.enemies.mactera;
 
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.enemies.Enemy;
+import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 
 public class Brundle extends Enemy {
 	public Brundle() {
@@ -27,12 +28,8 @@ public class Brundle extends Enemy {
 		resistances.setResistance(DamageElement.electric, -0.5);
 		resistances.setResistance(DamageElement.corrosive, -1.0);
 
-		igniteTemperature = 35; 
-		douseTemperature = 5;
-		coolingRate = 10;
-		freezeTemperature = -200;
-		unfreezeTemperature = 0;
-		warmingRate = 40;
+		temperatureComponent = new CreatureTemperatureComponent(35, 5, 10, 1.5, -200, 0, 40, 1);
+		temperatureComponent.setDieFrozen(true);
 		
 		hasHeavyArmorHealth = true;
 		heavyArmorCoversWeakpoint = true;

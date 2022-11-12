@@ -2,6 +2,7 @@ package drgtools.dpscalc.enemies.glyphid;
 
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.enemies.Enemy;
+import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 
 public class Oppressor extends Enemy {
 	public Oppressor() {
@@ -25,13 +26,8 @@ public class Oppressor extends Enemy {
 		resistances.setResistance(DamageElement.explosive, 0.66);
 		resistances.setResistance(DamageElement.electric, 0.25);
 		resistances.setResistance(DamageElement.corrosive, 0.66);
-		
-		igniteTemperature = 100; 
-		douseTemperature = 40;
-		coolingRate = 20;
-		freezeTemperature = -300;
-		unfreezeTemperature = -200;
-		warmingRate = 100;
+
+		temperatureComponent = new CreatureTemperatureComponent(100, 40, 20, 2.5, -300, -200, 100, 1);
 		
 		courage = 1.0;  // (technically 100.0 in-game, but I think that's an erroneous value.)
 		// Enemies that fly, can't move on the ground, or can't be feared will have this value set to zero to maintain correct values.

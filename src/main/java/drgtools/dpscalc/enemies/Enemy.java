@@ -1,5 +1,8 @@
 package drgtools.dpscalc.enemies;
 
+import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
+
+// TODO: Technically, this could model certain enemies' Stun Duration multiplier and Stun Immunity windows too. But for now, they're not implemented.
 public class Enemy {
 	
 	/****************************************************************************************
@@ -44,12 +47,7 @@ public class Enemy {
 	protected ElementalResistancesArray resistances = new ElementalResistancesArray();
 	
 	// This info comes from Elythnwaen's Temperatures spreadsheet, and many of those values were seeded from MikeGSG giving us the values for the 5 "base" creature types.
-	// TODO: delete these values after implementing TemperatureComponent
-	protected double temperatureUpdateTime = 1.0, temperatureChangeScale = 1.0;
-	protected double igniteTemperature, douseTemperature, coolingRate;
-	protected double freezeTemperature, unfreezeTemperature, warmingRate;
-	// These three variables are currently unused by my modeling
-	// protected double onFireHeatRange, warmingCooldown, maxColdSlowdown;
+	protected CreatureTemperatureComponent temperatureComponent;
 	
 	// This information extracted via UUU
 	protected double courage = 0.0;  // aka "Fear Resistance"
@@ -119,23 +117,8 @@ public class Enemy {
 	public ElementalResistancesArray getElementalResistances(){
 		return resistances;
 	}
-	public double getIgniteTemp() {
-		return igniteTemperature / temperatureChangeScale;
-	}
-	public double getDouseTemp() {
-		return douseTemperature / temperatureChangeScale;
-	}
-	public double getCoolingRate() {
-		return coolingRate;
-	}
-	public double getFreezeTemp() {
-		return freezeTemperature / temperatureChangeScale;
-	}
-	public double getUnfreezeTemp() {
-		return unfreezeTemperature / temperatureChangeScale;
-	}
-	public double getWarmingRate() {
-		return warmingRate;
+	public CreatureTemperatureComponent getTemperatureComponent() {
+		return temperatureComponent;
 	}
 	public double getCourage() {
 		return courage;

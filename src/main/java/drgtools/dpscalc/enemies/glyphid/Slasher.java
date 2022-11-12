@@ -2,6 +2,7 @@ package drgtools.dpscalc.enemies.glyphid;
 
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.enemies.Enemy;
+import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 
 public class Slasher extends Enemy {
 	public Slasher() {
@@ -19,13 +20,8 @@ public class Slasher extends Enemy {
 		// If this number is greater than 0, that means that it takes less damage from that particular element.
 		// Conversely, if it's less than 0 it takes extra damage from that particular element
 		resistances.setResistance(DamageElement.explosive, -0.3);
-		
-		igniteTemperature = 30; 
-		douseTemperature = 10;
-		coolingRate = 6;
-		freezeTemperature = -30;
-		unfreezeTemperature = 0;
-		warmingRate = 6;
+
+		temperatureComponent = new CreatureTemperatureComponent(30, 10, 6, 2, -30, 0, 6, 2);
 		
 		courage = 0.5;
 		// Enemies that fly, can't move on the ground, or can't be feared will have this value set to zero to maintain correct values.

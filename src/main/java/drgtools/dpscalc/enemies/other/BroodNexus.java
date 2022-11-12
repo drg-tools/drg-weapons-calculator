@@ -1,6 +1,7 @@
 package drgtools.dpscalc.enemies.other;
 
 import drgtools.dpscalc.enemies.Enemy;
+import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 
 public class BroodNexus extends Enemy {
 	public BroodNexus() {
@@ -18,13 +19,8 @@ public class BroodNexus extends Enemy {
 		hasWeakpoint = true;
 		weakpointMultiplier = 2;
 		estimatedProbabilityBulletHitsWeakpoint = 0.9;
-		
-		temperatureChangeScale = 4.0;
-		igniteTemperature = 30; 
-		douseTemperature = 0;
-		coolingRate = 4;
-		freezeTemperature = -50;
-		unfreezeTemperature = 0;
-		warmingRate = 4;
+
+		temperatureComponent = new CreatureTemperatureComponent(30, 0, 16, 1.5, -50, 0, 16, 2);
+		temperatureComponent.setTempChangeScale(4.0);
 	}
 }

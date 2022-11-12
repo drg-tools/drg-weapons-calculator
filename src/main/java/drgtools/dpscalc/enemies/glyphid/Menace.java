@@ -1,6 +1,7 @@
 package drgtools.dpscalc.enemies.glyphid;
 
 import drgtools.dpscalc.enemies.Enemy;
+import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 
 public class Menace extends Enemy {
 	public Menace() {
@@ -16,13 +17,8 @@ public class Menace extends Enemy {
 		hasWeakpoint = true;
 		weakpointMultiplier = 2;
 		estimatedProbabilityBulletHitsWeakpoint = 0.7;
-		
-		igniteTemperature = 30; 
-		douseTemperature = 0;
-		coolingRate = 6;
-		freezeTemperature = -50;
-		unfreezeTemperature = 0;
-		warmingRate = 6;
+
+		temperatureComponent = new CreatureTemperatureComponent(30, 0, 6, 2, -50, 0, 6, 2);
 		
 		courage = 0.7;
 		// Enemies that fly, can't move on the ground, or can't be feared will have this value set to zero to maintain correct values.
