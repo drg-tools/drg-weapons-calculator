@@ -444,7 +444,8 @@ public class AccuracyEstimator {
 		
 		return Math.min(rootA, rootB);
 	}
-	
+
+	// TODO: finish getting this to work
 	public double calculateProjectileAccuracy(boolean weakpoint, double projectileRadius, double projectileVelocity, double gravityMultiplier) {
 		double actualTravelTime = 0;
 		
