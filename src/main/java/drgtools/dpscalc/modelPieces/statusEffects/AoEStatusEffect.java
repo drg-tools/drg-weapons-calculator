@@ -17,7 +17,7 @@ public class AoEStatusEffect extends StatusEffect {
         distanceAffected = areaEffectDistanceMeters;
         maxDuration = maxDur;
         calculateEffectiveDuration(slowMultiplier);
-        comparedDuration = effectiveDuration;
+        // comparedDuration = effectiveDuration;
     }
 
     public AoEStatusEffect(double areaEffectDistanceMeters, DamageElement dmgElement, double minDmg, double maxDmg,
@@ -27,15 +27,16 @@ public class AoEStatusEffect extends StatusEffect {
         distanceAffected = areaEffectDistanceMeters;
         maxDuration = maxDur;
         calculateEffectiveDuration(slowMultiplier);
-        comparedDuration = effectiveDuration;
+        // comparedDuration = effectiveDuration;
     }
 
     public void calculateEffectiveDuration(double slowMultiplier) {
         double timeItTakesAverageCreatureToTraverseDistance = distanceAffected / (EnemyInformation.averageMovespeed() * slowMultiplier);
         effectiveDuration = Math.min(
-                Math.ceil(timeItTakesAverageCreatureToTraverseDistance / duration) * duration,
-                maxDuration + duration
+            Math.ceil(timeItTakesAverageCreatureToTraverseDistance / duration) * duration,
+            maxDuration + duration
         );
+        // comparedDuration = effectiveDuration;
     }
 
     public double getEffectiveDuration() {
@@ -46,9 +47,15 @@ public class AoEStatusEffect extends StatusEffect {
         return maxDuration;
     }
 
-    // Do i even need this?
-//    @Override
-//    public double getAverageTotalDamage() {
-//        return getAverageDPS() * effectiveDuration;
-//    }
+    // Do i even need these?
+    @Override
+    public double getAverageTotalDamage() {
+        return getAverageDPS() * effectiveDuration;
+    }
+
+    @Override
+    public double getSlowUtilityPerEnemy() {
+        // This should evaluate to 0 unless the movespeed multiplier has been set.
+        return (1.0 - movespeedMultiplier) * effectiveDuration;
+    }
 }

@@ -31,7 +31,7 @@ public class StatusEffect {
     */
     protected double duration = 0.0;
     protected double movespeedMultiplier = 1.0;
-    protected double comparedDuration;
+    // protected double comparedDuration;
 
     protected boolean effectsStackWithMultipleApplications = false;
     protected boolean canHaveDurationRefreshedWhileStillActive = false;
@@ -44,7 +44,7 @@ public class StatusEffect {
         minIntervalBetweenTicks = minInterval;
         maxIntervalBetweenTicks = maxInterval;
         duration = dur;
-        comparedDuration = duration;
+        // comparedDuration = duration;
     }
 
     // Shortcut constructor for a DoT that has a movespeed slow and doesn't do Heat/Cold
@@ -56,14 +56,14 @@ public class StatusEffect {
         maxIntervalBetweenTicks = maxInterval;
         movespeedMultiplier = slowMultiplier;
         duration = dur;
-        comparedDuration = duration;
+        // comparedDuration = duration;
     }
 
     // Shortcut constructor for a Slow that doesn't deal damage or Heat/Cold
     protected StatusEffect(double slowMultiplier, double dur) {
         movespeedMultiplier = slowMultiplier;
         duration = dur;
-        comparedDuration = duration;
+        // comparedDuration = duration;
     }
 
     protected StatusEffect(DamageElement dmgElement, double minDmg, double maxDmg,
@@ -79,7 +79,7 @@ public class StatusEffect {
         maxIntervalBetweenTicks = maxInterval;
         movespeedMultiplier = slowMultiplier;
         duration = dur;
-        comparedDuration = duration;
+        // comparedDuration = duration;
     }
 
     public void setDamagePerTick(double newMin, double newMax) {
@@ -155,10 +155,7 @@ public class StatusEffect {
         return toReturn;
     }
 
-    public void reduceComparedDuration(double reduction) {
-        comparedDuration = Math.max(comparedDuration - reduction, 0);
-    }
-    public double getComparedDuration() {
-        return comparedDuration;
+    public boolean inflictsSlow() {
+        return movespeedMultiplier < 1.0;
     }
 }
