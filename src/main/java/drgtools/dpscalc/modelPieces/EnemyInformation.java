@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import drgtools.dpscalc.modelPieces.damage.DamageElements;
+import drgtools.dpscalc.enemies.ElementalResistancesArray;
+import drgtools.dpscalc.modelPieces.damage.DamageComponent;
 import drgtools.dpscalc.enemies.Enemy;
 import drgtools.dpscalc.enemies.glyphid.*;
 import drgtools.dpscalc.enemies.mactera.*;
 import drgtools.dpscalc.enemies.other.*;
+import drgtools.dpscalc.modelPieces.damage.DamageFlags.MaterialFlag;
 import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 import drgtools.dpscalc.utilities.MathUtils;
 
@@ -169,7 +171,7 @@ public class EnemyInformation {
 		double totalProbability = 0.0;
 		for (int i = 0; i < enemiesModeled.length; i++) {
 			igniteTemp = enemiesModeled[i].getTemperatureComponent().getEffectiveBurnTemperature();
-			coolingRate = enemiesModeled[i].getTemperatureComponent().getEffectiveCoolingRate();
+			coolingRate = enemiesModeled[i].getTemperatureComponent().getCoolingRate();
 			spawnProbability = enemiesModeled[i].getSpawnProbability(true);
 			
 			// Early exit: if Heat/Shot >= igniteTemp, then this enemy gets ignited instantly.
@@ -203,7 +205,7 @@ public class EnemyInformation {
 			aliasTemp = enemiesModeled[i].getTemperatureComponent();
 			if (!aliasTemp.diesIfOnFire()){
 				spawnProbability = enemiesModeled[i].getSpawnProbability(true);
-				totalBurnDuration += spawnProbability * ((aliasTemp.getEffectiveBurnTemperature() - aliasTemp.getEffectiveDouseTemperature()) / aliasTemp.getEffectiveCoolingRate());
+				totalBurnDuration += spawnProbability * ((aliasTemp.getEffectiveBurnTemperature() - aliasTemp.getEffectiveDouseTemperature()) / aliasTemp.getCoolingRate());
 				totalProbability += spawnProbability;
 			}
 		}
@@ -270,7 +272,7 @@ public class EnemyInformation {
 			aliasTemp = enemiesModeled[i].getTemperatureComponent();
 			if (!aliasTemp.diesIfFrozen()) {
 				spawnProbability = enemiesModeled[i].getSpawnProbability(true);
-				totalRefreezeTime += spawnProbability * ((aliasTemp.getEffectiveFreezeTemperature() - aliasTemp.getEffectiveUnfreezeTemperature()) / (coldPerSecond + aliasTemp.getEffectiveWarmingRate()));
+				totalRefreezeTime += spawnProbability * ((aliasTemp.getEffectiveFreezeTemperature() - aliasTemp.getEffectiveUnfreezeTemperature()) / (coldPerSecond + aliasTemp.getWarmingRate()));
 				totalProbability += spawnProbability;
 			}
 		}
@@ -293,7 +295,7 @@ public class EnemyInformation {
 			if (!aliasTemp.diesIfFrozen()) {
 				// Because every Freeze temp is negative and is strictly less than the corresponding Unfreeze temp, subtracting Freeze from Unfreeze guarantees a positive number.
 				spawnProbability = enemiesModeled[i].getSpawnProbability(true);
-				totalFreezeDuration += spawnProbability * ((aliasTemp.getEffectiveUnfreezeTemperature() - aliasTemp.getEffectiveFreezeTemperature()) / aliasTemp.getEffectiveWarmingRate());
+				totalFreezeDuration += spawnProbability * ((aliasTemp.getEffectiveUnfreezeTemperature() - aliasTemp.getEffectiveFreezeTemperature()) / aliasTemp.getWarmingRate());
 				totalProbability += spawnProbability;
 			}
 		}
@@ -450,53 +452,29 @@ public class EnemyInformation {
 		
 		If the weapon can do at least one DoT, this will look ahead to see if up to 4 seconds of DoT damage can kill a creature. If it can, then it will finish on that Breakpoint early instead of wasting superfluous ammo.
 	*/
-	public static int[] calculateBreakpoints(double[] directDamageByType, double[] areaDamageByType, double[] DoT_DPS, double[] DoT_durations, double[] DoT_probabilities, 
-											 double weakpointModifier, double armorBreaking, double RoF, double heatPerShot, double macteraModifier, 
-											 boolean frozen, boolean IFG, boolean flyingNightmare, boolean embeddedDetonators) {
+	public static int[] calculateBreakpoints(DamageComponent[] damagePerHit, double RoF, boolean frozen, boolean IFG) {
 		ArrayList<Integer> toReturn = new ArrayList<>();
-		
+
+		// TODO: model it as if IFG doesn't affect the probability to break ArmorStrength plates.
+
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
-		// Frozen
-		double lightArmorReduction = UtilityInformation.LightArmor_DamageReduction;
-		if (frozen) {
-			// Removes Weakpoint Bonuses
-			weakpointModifier = -1.0;
-			
-			// Bypasses all Armor types
-			lightArmorReduction = 1.0;
-			
-			// Multiplies Direct Damage by x3 (including Flying Nightmare as of U34)
-			directDamageByType = MathUtils.vectorScalarMultiply(UtilityInformation.Frozen_Damage_Multiplier, directDamageByType);
-		}
-		
-		// Flying Nightmare is weird... it does the Direct Damage listed but it passes through enemies and ignores armor like the Breach Cutter, but doesn't benefit from Weakpoints.
-		if (flyingNightmare) {
-			weakpointModifier = -1.0;
-			lightArmorReduction = 1.0;
-		}
-		
-		// IFG
-		if (IFG) {
-			// Increases Direct and Area Damage taken by x1.3
-			directDamageByType = MathUtils.vectorScalarMultiply(UtilityInformation.IFG_Damage_Multiplier, directDamageByType);
-			areaDamageByType = MathUtils.vectorScalarMultiply(UtilityInformation.IFG_Damage_Multiplier, areaDamageByType);
-		}
-		
 		double creatureHP, creatureWeakpointModifier, aliasHP;
+		double totalDamagePerHit;
 		double rawDirectDamage, modifiedDirectDamage, rawAreaDamage, modifiedAreaDamage;
 		double numShotsToProcBurn, numShotsToProcElectrocute, numShotsToProcNeurotoxin, numShotsToProcPersistentPlasma, numShotsToProcRadiation;
 		double burnDPS, burnDuration, electrocuteDPS, plasmaDPS;
 		double[] creatureResistances;
-		int breakpointCounter;
+		int breakpointCounter, j;
 		double fourSecondsDoTDamage;
 		double lightArmorStrength, heavyArmorHP, numShotsToBreakArmor;
 		Enemy alias;
 		CreatureTemperatureComponent aliasTempComponent;
+		ElementalResistancesArray aliasResistances;
+		MaterialFlag breakpointFlag;
 		for (int i = 0; i < enemiesModeled.length; i++) {
 			alias = enemiesModeled[i];
-			aliasTempComponent = alias.getTemperatureComponent();
 			
 			// If this enemy shouldn't be modeled in breakpoints, skip it.
 			if (!alias.shouldHaveBreakpointsCalculated()) {
@@ -509,23 +487,11 @@ public class EnemyInformation {
 			else {
 				creatureHP = alias.getBaseHealth() * largeResistance;
 			}
-			
-			// creatureResistances = alias.getElementalResistances();  // for when this method gets refactored to use DamageComponents
-			creatureResistances = new double[] {
-				alias.getElementalResistances().getResistance(DamageElements.DamageElement.explosive),
-				alias.getElementalResistances().getResistance(DamageElements.DamageElement.fire),
-				alias.getElementalResistances().getResistance(DamageElements.DamageElement.frost),
-				alias.getElementalResistances().getResistance(DamageElements.DamageElement.electric)
-			};
-			
-			creatureWeakpointModifier = alias.getWeakpointMultiplier();
-			if (weakpointModifier < 0) {
-				creatureWeakpointModifier = 1.0;
-			}
-			else {
-				creatureWeakpointModifier *= (1.0 + weakpointModifier);
-			}
-			
+
+			aliasTempComponent = alias.getTemperatureComponent();
+			aliasResistances = alias.getElementalResistances();
+
+			/*
 			rawDirectDamage = MathUtils.sum(directDamageByType);
 			modifiedDirectDamage = directDamageByType[0] + directDamageByType[1] * creatureResistances[0] + directDamageByType[2] * creatureResistances[1] + directDamageByType[3] * creatureResistances[2] + directDamageByType[4] * creatureResistances[3];
 			
@@ -580,20 +546,30 @@ public class EnemyInformation {
 			if (DoT_probabilities[3] > 0.0) {
 				numShotsToProcRadiation = Math.round(MathUtils.meanRolls(DoT_probabilities[3]));
 			}
+			*/
 			
 			// Normal Damage
 			if (alias.hasExposedBodySomewhere()) {
 				breakpointCounter = 0;
 				aliasHP = creatureHP;
+
+				if (frozen) {
+					breakpointFlag = MaterialFlag.frozen;
+				}
+				else {
+					breakpointFlag = MaterialFlag.normalFlesh;
+				}
+
+				totalDamagePerHit = 0;
+				for(j = 0; j < damagePerHit.length; j++) {
+					totalDamagePerHit += damagePerHit[i].getTotalComplicatedDamageDealtPerHit(breakpointFlag, aliasResistances, IFG, 1, 1);
+				}
 				
 				while (aliasHP > 0) {
 					breakpointCounter++;
 					
-					// First, subtract Direct Damage
-					aliasHP -= modifiedDirectDamage;
-					
-					// Second, subtract Area Damage
-					aliasHP -= modifiedAreaDamage;
+					// First, subtract damage dealt immediately on hit.
+					aliasHP -= totalDamagePerHit;
 					
 					// Third, determine if 4 seconds of DoTs can do enough damage to kill the creature
 					fourSecondsDoTDamage = 0;
@@ -722,6 +698,7 @@ public class EnemyInformation {
 			if (alias.hasWeakpoint()) {
 				breakpointCounter = 0;
 				aliasHP = creatureHP;
+				creatureWeakpointModifier = alias.getWeakpointMultiplier();
 				
 				if (alias.weakpointIsCoveredByHeavyArmor()) {
 					heavyArmorHP = alias.getArmorBaseHealth() * normalResistance;
@@ -851,6 +828,7 @@ public class EnemyInformation {
 		
 		I'm choosing to let Overkill damage be counted as damage dealt. Too complicated to keep track of while simultaneously doing Armor stuff.
 	*/
+	// TODO: change this to use DamageComponent
 	public static double[][] percentageDamageWastedByArmor(double directDamage, int numPellets, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy) {
 		return percentageDamageWastedByArmor(directDamage, numPellets, areaDamage, armorBreaking, weakpointModifier, generalAccuracy, weakpointAccuracy, false);
 	}
@@ -1211,6 +1189,7 @@ public class EnemyInformation {
 	/*
 		This method intentionally ignores elemental resistances/weaknesses and weakpoint damage bonuses because I don't want to repeat the Breakpoints insanity.
 	*/
+	// TODO: change this to use DamageComponent
 	public static double[][] overkillPerCreature(double totalDamagePerShot){
 		int numEnemies = enemiesModeled.length;
 		double[][] toReturn = new double[2][numEnemies];

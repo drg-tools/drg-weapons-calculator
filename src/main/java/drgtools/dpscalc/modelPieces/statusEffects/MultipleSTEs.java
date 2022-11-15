@@ -2,6 +2,7 @@ package drgtools.dpscalc.modelPieces.statusEffects;
 
 import drgtools.dpscalc.enemies.ElementalResistancesArray;
 import drgtools.dpscalc.modelPieces.damage.DamageElements;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.TemperatureElement;
 import drgtools.dpscalc.utilities.MathUtils;
 
@@ -40,33 +41,36 @@ public class MultipleSTEs {
         double totalTimeElapsed = 0;
         double currentSlow, shortestDuration;
 
+        // Make a deep clone of the class variable that I can mutate in this method without affecting it.
+        ArrayList<PushSTEComponent> orderableCopyListOfStes = new ArrayList<>(statusEffects);
+
         // Ugh, so inefficient! iterating through the STE list at least 5 times per loop :'(
-        while (totalTimeElapsed < maxDuration && statusEffects.size() > 0) {
+        while (totalTimeElapsed < maxDuration && orderableCopyListOfStes.size() > 0) {
             // Calculate the total slow of all active Status Effects
             currentSlow = 1.0;
-            for (i = 0; i < statusEffects.size(); i++) {
-                alias = statusEffects.get(i).getSTE();
-                if (statusEffects.get(i).isActive() && alias.inflictsSlow()) {
+            for (i = 0; i < orderableCopyListOfStes.size(); i++) {
+                alias = orderableCopyListOfStes.get(i).getSTE();
+                if (orderableCopyListOfStes.get(i).isActive() && alias.inflictsSlow()) {
                     currentSlow *= alias.getMovespeedMultiplier();
                 }
             }
 
             // Iterate through all of the AoE Status Effects and update their durations based on the aggregate slow
-            for (i = 0; i < statusEffects.size(); i++) {
+            for (i = 0; i < orderableCopyListOfStes.size(); i++) {
                 // This internally handles the logic about whether or not it's an AoE Status Effect
-                statusEffects.get(i).updateEffectiveDuration(currentSlow);
+                orderableCopyListOfStes.get(i).updateEffectiveDuration(currentSlow);
             }
 
             // Sort the Status Effects to put the shortest duration first
-            Collections.sort(statusEffects);
+            Collections.sort(orderableCopyListOfStes);
 
             // Iterate through the next chunk of time
-            shortestDuration = Math.min(statusEffects.get(0).getSTEComparedDurationPlusDelay(), maxDuration - totalTimeElapsed);
-            for (i = 0; i < statusEffects.size(); i++) {
-                alias = statusEffects.get(i).getSTE();
+            shortestDuration = Math.min(orderableCopyListOfStes.get(0).getSTEComparedDurationPlusDelay(), maxDuration - totalTimeElapsed);
+            for (i = 0; i < orderableCopyListOfStes.size(); i++) {
+                alias = orderableCopyListOfStes.get(i).getSTE();
                 // Don't check if it's active here, because the predictDamage() method already has logic to account for those variations.
                 if (alias.inflictsDamage()) {
-                    totalDamageByElement[DamageElements.getElementIndex(alias.getDamageElement())] += statusEffects.get(i).predictDamageDealtInNextTimeInterval(shortestDuration);
+                    totalDamageByElement[DamageElements.getElementIndex(alias.getDamageElement())] += orderableCopyListOfStes.get(i).predictDamageDealtInNextTimeInterval(shortestDuration);
                 }
             }
             complicatedSlowUtilitySum += shortestDuration * (1.0 - currentSlow);
@@ -74,10 +78,10 @@ public class MultipleSTEs {
 
             // Shorten all STEs' duration by shortestDuration, and if the remaining duration is zero (guaranteed true on #0) then remove it from the list.
             i = 0;
-            while (i < statusEffects.size()) {
-                statusEffects.get(i).progressTime(shortestDuration);
-                if (statusEffects.get(i).getSTEComparedDurationPlusDelay() <= totalTimeElapsed) {
-                    statusEffects.remove(i);
+            while (i < orderableCopyListOfStes.size()) {
+                orderableCopyListOfStes.get(i).progressTime(shortestDuration);
+                if (orderableCopyListOfStes.get(i).getSTEComparedDurationPlusDelay() <= totalTimeElapsed) {
+                    orderableCopyListOfStes.remove(i);
                 }
                 else {
                     i++;
@@ -120,5 +124,43 @@ public class MultipleSTEs {
 
     public double getSlowUtility() {
         return complicatedSlowUtilitySum;
+    }
+
+    // Pass-through methods that facilitate communication between BreakpointCalculator and its internal PushSTEComponents
+    public void resetTimeElapsed() {
+        for (PushSTEComponent pstec: statusEffects) {
+            pstec.resetTimeElapsed();
+        }
+    }
+    public void progressTime(double secondsElapsed) {
+        for (PushSTEComponent pstec: statusEffects) {
+            pstec.progressTime(secondsElapsed);
+        }
+    }
+    public double predictResistedDamageDealtInNextTimeInterval(double secondsToPredict, ElementalResistancesArray creatureResistances) {
+        double[] damageByElement = new double[DamageElements.numElements];
+
+        // This is an imperfect approximation for the overlapping and interacting slows and AoEs. Works poorly on long
+        // predictions, but it's passable when doing a series of tiny predictions like 0.25 sec.
+        double totalSlow = 1.0;
+        for (PushSTEComponent pstec: statusEffects) {
+            if (pstec.getSTE().inflictsSlow() && pstec.isActive()) {
+                totalSlow *= pstec.getSTE().getMovespeedMultiplier();
+            }
+        }
+
+        DamageElement element;
+        int elementIndex;
+        for (PushSTEComponent pstec: statusEffects) {
+            pstec.updateEffectiveDuration(totalSlow);  // For any AoE Status Effects
+            if (pstec.getSTE().inflictsDamage()) {
+                element = pstec.getSTE().getDamageElement();
+                elementIndex = DamageElements.getElementIndex(element);
+                // Using the fact that double[] values initialize as 0 ;)
+                damageByElement[elementIndex] += pstec.predictDamageDealtInNextTimeInterval(secondsToPredict);
+            }
+        }
+
+        return MathUtils.vectorDotProduct(damageByElement, creatureResistances.getResistances());
     }
 }

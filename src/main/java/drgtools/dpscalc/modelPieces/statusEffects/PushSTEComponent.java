@@ -61,6 +61,9 @@ public class PushSTEComponent implements Comparable<PushSTEComponent> {
             ((AoEStatusEffect) stePushed).calculateEffectiveDuration(slowMultiplier);
         }
     }
+    public void resetTimeElapsed() {
+        timeElapsed = 0;
+    }
     public void progressTime(double secondsElapsed) {
         timeElapsed += secondsElapsed;
     }

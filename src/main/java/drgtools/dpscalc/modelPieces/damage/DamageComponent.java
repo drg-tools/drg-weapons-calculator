@@ -1,30 +1,42 @@
 package drgtools.dpscalc.modelPieces.damage;
 
+import drgtools.dpscalc.modelPieces.UtilityInformation;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.TemperatureElement;
+import drgtools.dpscalc.modelPieces.damage.DamageFlags.DamageFlag;
+import drgtools.dpscalc.modelPieces.damage.DamageFlags.MaterialFlag;
 import drgtools.dpscalc.enemies.ElementalResistancesArray;
-import drgtools.dpscalc.modelPieces.statusEffects.MultipleSTEs;
 import drgtools.dpscalc.modelPieces.statusEffects.PushSTEComponent;
 import drgtools.dpscalc.utilities.MathUtils;
 
-// TODO: move the "calculate num enemies hit" into this object
-// TODO: consider moving the "calculate total damage dealt per hit" into this object?
-// TODO: after finishing building this new feature, see how easy it would be to implement into Breakpoints' method.
+import java.util.ArrayList;
+
+/*
+	TODO List:
+		move the "calculate num enemies hit" into this object
+		consider moving the "calculate total damage dealt per hit" into this object?
+		add a toString method that nicely formats this stuff
+		this might need to have a "DamageInstance" class made which stores 2+ DamageComponents together, that get applied on each hit?
+		implement as many of the Utility calculations here as I can
+*/
 
 public class DamageComponent {
 	protected double damage = 0;
 	protected double temperature = 0;
+
+	// The four DamageFlags
 	protected boolean benefitsFromWeakpoint;
 	protected boolean benefitsFromFrozen;
 	protected boolean reducedByArmor;
 	protected boolean canDamageArmor;
 
 	protected double weakpointBonus = 0;
+	protected double flatDamage = 0;
+	protected DamageElement flatDamageElement = null;
+
 	protected int numBlowthroughs = 0;
 	protected int numHitscanTracersPerShot = 1;  // Used for shotguns. Simpler than tracking NumPellets identical DamageComponents, just move the multiplier inside.
-
-	protected double bonusDamage = 0;
-	protected DamageElement bonusDmgElement = null;
+	// TODO: add Ricochet stuff here, too
 	
 	protected double radialDamage = 0;
 	protected double radialTemperature = 0;
@@ -44,7 +56,7 @@ public class DamageComponent {
 	protected int startingDamageElementIndex = -1;
 	protected double[] radialDamageElements;
 	protected int startingRadialDamageElementIndex = -1;
-	protected MultipleSTEs statusEffectsApplied;
+	protected ArrayList<PushSTEComponent> statusEffectsApplied;
 
 	// Shortcut constructor for what is referred to as "Direct Damage"
 	public DamageComponent(double dmg, DamageElement dmgElement, double ab, double ff, DamageConversion[] baselineConversions) {
@@ -110,6 +122,8 @@ public class DamageComponent {
 				applyDamageConversion(baselineConversions[i]);
 			}
 		}
+
+		statusEffectsApplied = new ArrayList<>();
 	}
 	
 	public void setDamage(double in) {
@@ -142,10 +156,30 @@ public class DamageComponent {
 		armorBreaking = in;
 	}
 	// For Zhukovs OC "Gas Recycling" in particular. AFAIK that's the only upgrade in-game that changes one of the "damage flags" like this.
-	public void setBenefitsFromWeakpoint(boolean in) {
-		benefitsFromWeakpoint = in;
+	public void setDamageFlag(DamageFlag flag, boolean value) {
+		switch (flag) {
+			case benefitsFromWeakpoint: {
+				benefitsFromWeakpoint = value;
+				break;
+			}
+			case benefitsFromFrozen: {
+				benefitsFromFrozen = value;
+				break;
+			}
+			case reducedByArmor: {
+				reducedByArmor = value;
+				break;
+			}
+			case canDamageArmor: {
+				canDamageArmor = value;
+				break;
+			}
+			default:{
+				break;
+			}
+		}
 	}
-	
+
 	public void applyDamageConversion(DamageConversion dc) {
 		if (dc.convertsToDamage()) {
 			int elementIndex = DamageElements.getElementIndex(dc.getDamageElement());
@@ -164,30 +198,34 @@ public class DamageComponent {
 		if (dc.convertsInsteadOfAdds()) {
 			// This is an implicit check for "has the starting element for damage been defined?", because this value will be -1 if the initial value was set to Null.
 			if (startingDamageElementIndex > -1) {
+				// Key phrase: "modeling a bug" (for Ctrl + Shift + F finding later)
 				damageElements[startingDamageElementIndex] = Math.max(damageElements[startingDamageElementIndex] - dc.getPercentage(), 0);
 			}
 			if (startingRadialDamageElementIndex > -1) {
+				// Key phrase: "modeling a bug" (for Ctrl + Shift + F finding later)
 				radialDamageElements[startingRadialDamageElementIndex] = Math.max(radialDamageElements[startingRadialDamageElementIndex] - dc.getPercentage(), 0);
 			}
 		}
 	}
 
 	// Used by Subata T5.B and SMG OC "EMRB"
-	public void setBonusDamage(DamageElement bnsDmgElement, double bonus) {
-		bonusDmgElement = bnsDmgElement;
-		bonusDamage = bonus;
+	public void setFlatDamage(DamageElement flatDmgElement, double dmg) {
+		// From my testing, FlatDamageBonus isn't affected by DamageConversions, like SMG T4.B Conductive Bullets, nor does it do damage to ArmorHealth.
+		// Thus, it probably doesn't affect ArmorStrength either.
+		flatDamageElement = flatDmgElement;
+		flatDamage = dmg;
 	}
 
-	public void setStatusEffectsApplied(PushSTEComponent[] stes) {
-		statusEffectsApplied = new MultipleSTEs(stes);
+	public void addStatusEffectApplied(PushSTEComponent pste) {
+		statusEffectsApplied.add(pste);
 	}
-
-	// TODO: add a toString method that nicely formats this stuff
-	// TODO: this might need to have a "DamageInstance" class made which stores 2+ DamageComponents together, that get applied on each hit?
+	public ArrayList<PushSTEComponent> getStatusEffectsApplied() {
+		return statusEffectsApplied;
+	}
 
 	public double getRawDamage() {
 		if (damage > 0) {
-			return MathUtils.sum(damageElements) * damage + bonusDamage;
+			return MathUtils.sum(damageElements) * damage + flatDamage;
 		}
 		else {
 			return 0;
@@ -203,16 +241,138 @@ public class DamageComponent {
 	}
 	
 	public double getResistedDamage(ElementalResistancesArray creatureResistances) {
-		double bnsDamage = bonusDamage * creatureResistances.getResistance(bonusDmgElement);
-		return damage * MathUtils.vectorDotProduct(damageElements, creatureResistances.getResistances()) + bnsDamage;
+		double fltDamage = flatDamage * creatureResistances.getResistance(flatDamageElement);
+		return damage * MathUtils.vectorDotProduct(damageElements, creatureResistances.getResistances()) + fltDamage;
 	}
 	public double getResistedRadialDamage(ElementalResistancesArray creatureResistances) {
+		// TODO: the other half of where I could implement Radial-type Resistance if wanted. (Hiveguard, Caretaker)
 		return radialDamage * MathUtils.vectorDotProduct(radialDamageElements, creatureResistances.getResistances());
 	}
 
-	// TODO: implement as many of the Utility calculations here as I can
-	// TODO: this is probably where I can implement the buggy Radial Damage insanity?
-	public double probabilityToBreakArmorStrengthPlate(double armorStrength) {
-		return 0;
+	public double getTotalComplicatedDamageDealtPerHit(MaterialFlag targetMaterial, ElementalResistancesArray creatureResistances,
+													   boolean IFG, double weakpointMultiplier, double armorReduction) {
+		/*
+			To the best of my current understanding, this is the order of operations when evaluating how much health gets removed from an enemy when they get damaged by a player's weapon:
+			1. The base damage is fetched and has its element set.
+			2. Baseline elemental conversions get applied
+			3. All mods that add or multiply the base damage get applied
+			4. Any elemental conversions from mods get applied
+			5. Overclock that adds or multiplies the base damage get applied
+			6. Any elemental conversions from Overclock get applied
+			7. The damage gets affected by the target creature's elemental resistances (if any)
+			8. Weakpoint, Armor, or Frozen have their respective effects on the damage
+			9. IFG multiplies the base damage
+			10. Damage gets divided by the Difficulty Scaling Resistance
+			11. Damage gets multiplied by PST_DamageResistance (seen on Elite enemies, mostly, but also the new Rockpox)
+			12. that final number gets added to the creature's Damage tally. (equivalent to subtracting from their True HP value). once the Damage >= True HP, the creature dies.
+		*/
+		double dmg = getResistedDamage(creatureResistances);
+		double rdlDmg = getResistedRadialDamage(creatureResistances);
+
+		switch (targetMaterial) {
+			case weakpoint: {
+				if (benefitsFromWeakpoint) {
+					dmg *= (1.0 + weakpointBonus) * weakpointMultiplier;
+				}
+				break;
+			}
+			case frozen: {
+				if (benefitsFromFrozen) {
+					// TODO: if I ever wanted to model Dreadnoughts using a different Frozen multiplier, here's where I could do it
+					dmg *= UtilityInformation.Frozen_Damage_Multiplier;
+				}
+				break;
+			}
+			case armor: {
+				// This isn't the place to model it, but it's worth noting that Armor plates inherit the elemental resistances of their parent creature.
+				if (reducedByArmor) {
+					// This allows it to do zero damage because of Unbreakable or Heavy Armor
+					// FlatBonusDamage is reduced by LightArmor too.
+					dmg *= armorReduction;
+				}
+			}
+			default: {
+				// Includes normalFlesh; don't need to do anything special
+				break;
+			}
+		}
+
+		double totalDamage = dmg + rdlDmg;
+		if (IFG) {
+			totalDamage *= UtilityInformation.IFG_Damage_Multiplier;
+		}
+
+		// So, this number is the total amount of health that this DamageComponent will attempt to subtract from the Creature's health.
+		// Before that happens, it still needs to get reduced by the Difficulty Scaling Resistance, and potentially DamageResistance after that.
+		// The final product gets added to the Creature's Damage value, and when Damage >= Health it dies.
+		return totalDamage;
+	}
+
+	public boolean appliesTemperature(TemperatureElement desiredTemp) {
+		return tempElement == desiredTemp;
+	}
+	public double getTemperatureDealtPerHit(TemperatureElement desiredTemp) {
+		if (appliesTemperature(desiredTemp)) {
+			return temperature + radialTemperature;
+		}
+		else {
+			return 0;
+		}
+	}
+
+	public double getArmorDamagePerDirectHit(ElementalResistancesArray creatureResistances) {
+		// My tests using EPC 20 dmg vs rolling Q'ronar Youngling indicate that ArmorStrength plates inherit parent's elemental resistances, just like ArmorHealth do.
+		// Thus, I only need one method for this.
+		// Testing shows that FlatDamageBonus doesn't do damage to Armor, just like it doesn't benefit from DamageConversions.
+		if (canDamageArmor) {
+			if (damage > 0 && radialDamage == 0) {
+				return damage * MathUtils.vectorDotProduct(damageElements, creatureResistances.getResistances()) * armorBreaking;
+			}
+			else if (damage == 0 && radialDamage > 0) {
+				return radialDamage * MathUtils.vectorDotProduct(radialDamageElements, creatureResistances.getResistances()) * armorBreaking;
+			}
+			else {
+				// Key phrase: "modeling a bug" (for Ctrl + Shift + F finding later)
+				// Bug where Radial Damage only does 25% AB on direct hit when Damage > 0, 100% AB at 0.5m from direct hit, and then 25% everywhere else til it reaches Radius.
+				return (
+					damage * MathUtils.vectorDotProduct(damageElements, creatureResistances.getResistances())
+					+ 0.25 * radialDamage * MathUtils.vectorDotProduct(radialDamageElements, creatureResistances.getResistances())
+				) * armorBreaking;
+			}
+		}
+		else {
+			return 0;
+		}
+	}
+	public double getArmorDamageInRadius(ElementalResistancesArray creatureResistances, double distanceFromDirectHit) {
+		if (canDamageArmor && radialDamage > 0) {
+			// Key phrase: "modeling a bug" (for Ctrl + Shift + F finding later)
+			double baseRadialArmorDamage = radialDamage * MathUtils.vectorDotProduct(radialDamageElements, creatureResistances.getResistances()) * armorBreaking;
+			if (distanceFromDirectHit <= 0.5) {
+				return baseRadialArmorDamage;
+			}
+			else if (distanceFromDirectHit > damageRadius) {
+				return 0;
+			}
+			else {
+				return 0.25 * baseRadialArmorDamage;
+			}
+
+			/*
+			if (distanceFromDirectHit <= maxDmgRadius) {
+				return baseRadialArmorDamage;
+			}
+			else if (distanceFromDirectHit > damageRadius) {
+				return 0;
+			}
+			else {
+				double falloffMultiplier = (1.0 - falloff) * (damageRadius - distanceFromDirectHit) / (damageRadius - maxDmgRadius) + falloff;
+				return baseRadialArmorDamage * falloffMultiplier;
+			}
+			*/
+		}
+		else {
+			return 0;
+		}
 	}
 }

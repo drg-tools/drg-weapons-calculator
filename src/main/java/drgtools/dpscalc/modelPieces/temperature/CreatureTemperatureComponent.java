@@ -64,8 +64,8 @@ public class CreatureTemperatureComponent {
 	public double getEffectiveDouseTemperature() {
 		return douseTemperature / temperatureChangeScale;
 	}
-	public double getEffectiveCoolingRate() {
-		return coolingRate / temperatureChangeScale;
+	public double getCoolingRate() {
+		return coolingRate;
 	}
 	public boolean diesIfOnFire() {
 		return dieIfOnFire;
@@ -79,8 +79,8 @@ public class CreatureTemperatureComponent {
 	public double getEffectiveUnfreezeTemperature() {
 		return unfreezeTemperature / temperatureChangeScale;
 	}
-	public double getEffectiveWarmingRate() {
-		return warmingRate / temperatureChangeScale;
+	public double getWarmingRate() {
+		return warmingRate;
 	}
 	public double getWarmingCooldown() {
 		return warmingCooldown;
