@@ -299,51 +299,52 @@ public class SmartRifle_LockOn extends SmartRifle {
 	
 	@Override
 	public int breakpoints() {
-		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
-		double[] directDamage = new double[5];
-		directDamage[0] = getDirectDamage();  // Kinetic
-		
-		// T3.A "Electro-Chemical Rounds" is a x1.2 Damage multiplier vs enemies afflicted by Burning, Electrocute, or IFG
-		if (selectedTier3 == 0) {
-			// Burning adds Fire-element
-			if (statusEffects[0]) {
-				directDamage[2] = 0.2 * directDamage[0];
-			}
-			
-			// Electrocute/IFG adds Electric Element
-			if (statusEffects[2] || statusEffects[3] || selectedTier5 == 0) {
-				directDamage[4] = 0.2 * directDamage[0];
-			}
-		}
-		
-		if (selectedTier5 == 1) {
-			// This multiplies with T3.A's damage bonuses.
-			directDamage = MathUtils.vectorScalarMultiply(1.2, directDamage);
-		}
-		
-		double[] areaDamage = new double[5];
-		if (selectedOverclock == 3) {
-			// In contrast to the DPS calculations, I'm choosing to model this one as if the player is only using 3-round bursts to trigger
-			// as many explosions as possible. To emulate this, I'm assigning 1/3 of the explosion to each shot.
-			areaDamage[1] = getAreaDamage() / 3.0;
-		}
-		
-		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
-		double[] dot_dps = new double[4];
-		double[] dot_duration = new double[4];
-		double[] dot_probability = new double[4];
-		if (selectedTier5 == 0) {
-			// The Electrocute DoT is a 100% chance to proc on the third Locked bullet. To emulate that, I'm going to have Breakpoints
-			// pretend that it has a 1/3 chance to occur on every bullet.
-			dot_dps[0] = 12.0;
-			dot_duration[0] = 3.0;
-			dot_probability[0] = 0.3333;
-		}
-		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
-															getWeakpointBonus(), getArmorBreaking(), getRateOfFire(), 0.0, 0.0, 
-															statusEffects[1], statusEffects[3], false, false);
-		return MathUtils.sum(breakpoints);
+//		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+//		double[] directDamage = new double[5];
+//		directDamage[0] = getDirectDamage();  // Kinetic
+//
+//		// T3.A "Electro-Chemical Rounds" is a x1.2 Damage multiplier vs enemies afflicted by Burning, Electrocute, or IFG
+//		if (selectedTier3 == 0) {
+//			// Burning adds Fire-element
+//			if (statusEffects[0]) {
+//				directDamage[2] = 0.2 * directDamage[0];
+//			}
+//
+//			// Electrocute/IFG adds Electric Element
+//			if (statusEffects[2] || statusEffects[3] || selectedTier5 == 0) {
+//				directDamage[4] = 0.2 * directDamage[0];
+//			}
+//		}
+//
+//		if (selectedTier5 == 1) {
+//			// This multiplies with T3.A's damage bonuses.
+//			directDamage = MathUtils.vectorScalarMultiply(1.2, directDamage);
+//		}
+//
+//		double[] areaDamage = new double[5];
+//		if (selectedOverclock == 3) {
+//			// In contrast to the DPS calculations, I'm choosing to model this one as if the player is only using 3-round bursts to trigger
+//			// as many explosions as possible. To emulate this, I'm assigning 1/3 of the explosion to each shot.
+//			areaDamage[1] = getAreaDamage() / 3.0;
+//		}
+//
+//		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+//		double[] dot_dps = new double[4];
+//		double[] dot_duration = new double[4];
+//		double[] dot_probability = new double[4];
+//		if (selectedTier5 == 0) {
+//			// The Electrocute DoT is a 100% chance to proc on the third Locked bullet. To emulate that, I'm going to have Breakpoints
+//			// pretend that it has a 1/3 chance to occur on every bullet.
+//			dot_dps[0] = 12.0;
+//			dot_duration[0] = 3.0;
+//			dot_probability[0] = 0.3333;
+//		}
+//
+//		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability,
+//															getWeakpointBonus(), getArmorBreaking(), getRateOfFire(), 0.0, 0.0,
+//															statusEffects[1], statusEffects[3], false, false);
+//		return MathUtils.sum(breakpoints);
+		return 0;
 	}
 
 	@Override

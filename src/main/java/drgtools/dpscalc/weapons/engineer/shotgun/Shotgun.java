@@ -500,21 +500,22 @@ public class Shotgun extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
-		double[] directDamage = new double[5];
-		directDamage[0] = getDamagePerPellet() * getNumberOfPellets() * getGeneralAccuracy() / 100.0;  // Kinetic
-		
-		double[] areaDamage = new double[5];
-		
-		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
-		double[] dot_dps = new double[4];
-		double[] dot_duration = new double[4];
-		double[] dot_probability = new double[4];
-		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
-															getWeakpointBonus(), getArmorBreaking(), getRateOfFire(), 0.0, 0.0, 
-															statusEffects[1], statusEffects[3], false, false);
-		return MathUtils.sum(breakpoints);
+//		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+//		double[] directDamage = new double[5];
+//		directDamage[0] = getDamagePerPellet() * getNumberOfPellets() * getGeneralAccuracy() / 100.0;  // Kinetic
+//
+//		double[] areaDamage = new double[5];
+//
+//		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+//		double[] dot_dps = new double[4];
+//		double[] dot_duration = new double[4];
+//		double[] dot_probability = new double[4];
+//
+//		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability,
+//															getWeakpointBonus(), getArmorBreaking(), getRateOfFire(), 0.0, 0.0,
+//															statusEffects[1], statusEffects[3], false, false);
+//		return MathUtils.sum(breakpoints);
+		return 0;
 	}
 
 	@Override

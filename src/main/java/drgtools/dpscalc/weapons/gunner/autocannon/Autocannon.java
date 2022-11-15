@@ -562,28 +562,29 @@ public class Autocannon extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
-		double[] directDamage = new double[5];
-		directDamage[0] = getDirectDamage();  // Kinetic
-		
-		double[] areaDamage = new double[5];
-		areaDamage[1] = getAreaDamage();  // Explosive
-		
-		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
-		double[] dot_dps = new double[4];
-		double[] dot_duration = new double[4];
-		double[] dot_probability = new double[4];
-		
-		if (selectedOverclock == 5) {
-			dot_dps[1] = DoTInformation.Neuro_DPS;
-			dot_duration[1] = DoTInformation.Neuro_SecsDuration;
-			dot_probability[1] = 0.5;
-		}
-		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
-															0.0, getArmorBreaking(), getAverageRateOfFire(), 0.0, 0.0, 
-															statusEffects[1], statusEffects[3], false, false);
-		return MathUtils.sum(breakpoints);
+//		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+//		double[] directDamage = new double[5];
+//		directDamage[0] = getDirectDamage();  // Kinetic
+//
+//		double[] areaDamage = new double[5];
+//		areaDamage[1] = getAreaDamage();  // Explosive
+//
+//		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+//		double[] dot_dps = new double[4];
+//		double[] dot_duration = new double[4];
+//		double[] dot_probability = new double[4];
+//
+//		if (selectedOverclock == 5) {
+//			dot_dps[1] = DoTInformation.Neuro_DPS;
+//			dot_duration[1] = DoTInformation.Neuro_SecsDuration;
+//			dot_probability[1] = 0.5;
+//		}
+//
+//		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability,
+//															0.0, getArmorBreaking(), getAverageRateOfFire(), 0.0, 0.0,
+//															statusEffects[1], statusEffects[3], false, false);
+//		return MathUtils.sum(breakpoints);
+		return 0;
 	}
 
 	@Override

@@ -478,27 +478,28 @@ public class Zhukov extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
-		double[] directDamage = new double[5];
-		directDamage[0] = getDirectDamage();  // Kinetic
-		
-		// T5.A Conductive Bullets multiplies by an additional x1.3 when hitting enemies electrocuted or affected by IFG
-		if (selectedTier5 == 0 && (statusEffects[2] || statusEffects[3])) {
-			directDamage[0] *= 1.3;
-		}
-		
-		double[] areaDamage = new double[5];
-		areaDamage[0] = getAreaDamage();  // Kinetic
-		
-		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
-		double[] dot_dps = new double[4];
-		double[] dot_duration = new double[4];
-		double[] dot_probability = new double[4];
-		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
-															getWeakpointBonus(), 1.0, getRateOfFire()/2.0, 0.0, 0.0, 
-															statusEffects[1], statusEffects[3], false, selectedOverclock == 3);
-		return MathUtils.sum(breakpoints);
+//		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+//		double[] directDamage = new double[5];
+//		directDamage[0] = getDirectDamage();  // Kinetic
+//
+//		// T5.A Conductive Bullets multiplies by an additional x1.3 when hitting enemies electrocuted or affected by IFG
+//		if (selectedTier5 == 0 && (statusEffects[2] || statusEffects[3])) {
+//			directDamage[0] *= 1.3;
+//		}
+//
+//		double[] areaDamage = new double[5];
+//		areaDamage[0] = getAreaDamage();  // Kinetic
+//
+//		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+//		double[] dot_dps = new double[4];
+//		double[] dot_duration = new double[4];
+//		double[] dot_probability = new double[4];
+//
+//		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability,
+//															getWeakpointBonus(), 1.0, getRateOfFire()/2.0, 0.0, 0.0,
+//															statusEffects[1], statusEffects[3], false, selectedOverclock == 3);
+//		return MathUtils.sum(breakpoints);
+		return 0;
 	}
 
 	@Override

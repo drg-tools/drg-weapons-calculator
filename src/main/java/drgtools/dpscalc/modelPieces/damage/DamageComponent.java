@@ -320,32 +320,34 @@ public class DamageComponent {
 		}
 	}
 
+	public boolean armorBreakingIsGreaterThan100Percent() {
+		return armorBreaking > 1.0;
+	}
 	public double getArmorDamagePerDirectHit(ElementalResistancesArray creatureResistances) {
 		// My tests using EPC 20 dmg vs rolling Q'ronar Youngling indicate that ArmorStrength plates inherit parent's elemental resistances, just like ArmorHealth do.
 		// Thus, I only need one method for this.
 		// Testing shows that FlatDamageBonus doesn't do damage to Armor, just like it doesn't benefit from DamageConversions.
-		if (canDamageArmor) {
-			if (damage > 0 && radialDamage == 0) {
-				return damage * MathUtils.vectorDotProduct(damageElements, creatureResistances.getResistances()) * armorBreaking;
-			}
-			else if (damage == 0 && radialDamage > 0) {
-				return radialDamage * MathUtils.vectorDotProduct(radialDamageElements, creatureResistances.getResistances()) * armorBreaking;
-			}
-			else {
-				// Key phrase: "modeling a bug" (for Ctrl + Shift + F finding later)
-				// Bug where Radial Damage only does 25% AB on direct hit when Damage > 0, 100% AB at 0.5m from direct hit, and then 25% everywhere else til it reaches Radius.
-				return (
-					damage * MathUtils.vectorDotProduct(damageElements, creatureResistances.getResistances())
-					+ 0.25 * radialDamage * MathUtils.vectorDotProduct(radialDamageElements, creatureResistances.getResistances())
-				) * armorBreaking;
-			}
+		// Testing shows that IFG doesn't affect damage dealt to ArmorHealth plates.
+		if (damage > 0 && canDamageArmor && radialDamage == 0) {
+			return damage * MathUtils.vectorDotProduct(damageElements, creatureResistances.getResistances()) * armorBreaking;
+		}
+		else if (damage == 0 && radialDamage > 0) {
+			return radialDamage * MathUtils.vectorDotProduct(radialDamageElements, creatureResistances.getResistances()) * armorBreaking;
+		}
+		else if (damage > 0 && canDamageArmor && radialDamage > 0) {
+			// Key phrase: "modeling a bug" (for Ctrl + Shift + F finding later)
+			// Bug where Radial Damage only does 25% AB on direct hit when Damage > 0, 100% AB at 0.5m from direct hit, and then 25% everywhere else til it reaches Radius.
+			return (
+				damage * MathUtils.vectorDotProduct(damageElements, creatureResistances.getResistances())
+				+ 0.25 * radialDamage * MathUtils.vectorDotProduct(radialDamageElements, creatureResistances.getResistances())
+			) * armorBreaking;
 		}
 		else {
 			return 0;
 		}
 	}
 	public double getArmorDamageInRadius(ElementalResistancesArray creatureResistances, double distanceFromDirectHit) {
-		if (canDamageArmor && radialDamage > 0) {
+		if (radialDamage > 0) {
 			// Key phrase: "modeling a bug" (for Ctrl + Shift + F finding later)
 			double baseRadialArmorDamage = radialDamage * MathUtils.vectorDotProduct(radialDamageElements, creatureResistances.getResistances()) * armorBreaking;
 			if (distanceFromDirectHit <= 0.5) {

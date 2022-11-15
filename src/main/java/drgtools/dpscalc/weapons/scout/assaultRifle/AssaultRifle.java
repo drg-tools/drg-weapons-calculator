@@ -486,32 +486,33 @@ public class AssaultRifle extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
-		double[] directDamage = new double[5];
-		directDamage[0] = getDirectDamage();  // Kinetic
-		
-		// OC "Bullets of Mercy" is a x1.33 Damage multiplier vs enemies afflicted by Status Effects.
-		if (selectedOverclock == 4 && (statusEffects[0] || statusEffects[1] || statusEffects[2] || statusEffects[3])) {
-			directDamage[0] *= 1.33;
-		}
-		
-		double[] areaDamage = new double[5];
-		
-		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
-		double[] dot_dps = new double[4];
-		double[] dot_duration = new double[4];
-		double[] dot_probability = new double[4];
-		
-		if (selectedOverclock == 6) {
-			dot_dps[0] = DoTInformation.Electro_DPS;
-			dot_duration[0] = 6.0;
-			dot_probability[0] = 1.0;
-		}
-		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
-															getWeakpointBonus(), getArmorBreaking(), getRateOfFire(), 0.0, 0.0, 
-															statusEffects[1], statusEffects[3], false, false);
-		return MathUtils.sum(breakpoints);
+//		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+//		double[] directDamage = new double[5];
+//		directDamage[0] = getDirectDamage();  // Kinetic
+//
+//		// OC "Bullets of Mercy" is a x1.33 Damage multiplier vs enemies afflicted by Status Effects.
+//		if (selectedOverclock == 4 && (statusEffects[0] || statusEffects[1] || statusEffects[2] || statusEffects[3])) {
+//			directDamage[0] *= 1.33;
+//		}
+//
+//		double[] areaDamage = new double[5];
+//
+//		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+//		double[] dot_dps = new double[4];
+//		double[] dot_duration = new double[4];
+//		double[] dot_probability = new double[4];
+//
+//		if (selectedOverclock == 6) {
+//			dot_dps[0] = DoTInformation.Electro_DPS;
+//			dot_duration[0] = 6.0;
+//			dot_probability[0] = 1.0;
+//		}
+//
+//		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability,
+//															getWeakpointBonus(), getArmorBreaking(), getRateOfFire(), 0.0, 0.0,
+//															statusEffects[1], statusEffects[3], false, false);
+//		return MathUtils.sum(breakpoints);
+		return 0;
 	}
 
 	@Override

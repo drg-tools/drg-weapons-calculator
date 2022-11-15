@@ -20,7 +20,7 @@ public class BroodNexus extends Enemy {
 		weakpointMultiplier = 2;
 		estimatedProbabilityBulletHitsWeakpoint = 0.9;
 
-		temperatureComponent = new CreatureTemperatureComponent(30, 0, 16, 1.5, -50, 0, 16, 2);
+		temperatureComponent = new CreatureTemperatureComponent(30, 0, 4, 1.5, -50, 0, 4, 2);
 		temperatureComponent.setTempChangeScale(4.0);
 	}
 }

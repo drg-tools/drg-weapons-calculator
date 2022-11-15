@@ -565,48 +565,49 @@ public class Boomstick extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		double direct = getDamagePerPellet() * getNumberOfPellets() * getGeneralAccuracy() / 100.0;
-		
-		// Because Accuracy affects these Breakpoints, I'm choosing to implement Asher's suggestion to only add Blastwave damage when AccuracyEstimator.distance <= 4
-		double area;
-		if (accEstimator.getDistance() <= 4.0) {
-			area = getBlastwaveDamage();
-		}
-		else {
-			area = 0;
-		}
-		
-		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
-		double[] directDamage = new double[5];
-		double[] areaDamage = new double[5];
-		
-		// According to Elythnwaen, White Phosphorus Shells not only adds 50% of kinetic + explosive damage to Heat, it also converts 50% to Fire.
-		if (selectedTier5 == 2) {
-			directDamage[0] = 0.5 * direct;  // Kinetic
-			directDamage[2] = 0.5 * direct;  // Fire
-			
-			areaDamage[1] = 0.5 * area;  // Explosive
-			areaDamage[2] = 0.5 * area;  // Fire
-		}
-		else {
-			directDamage[0] = direct;  // Kinetic
-			areaDamage[1] = area;  // Explosive
-		}
-		
-		double heatPerShot = 0;
-		if (selectedTier5 == 2) {
-			heatPerShot = 0.5 * (direct + area);
-		}
-		
-		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
-		double[] dot_dps = new double[4];
-		double[] dot_duration = new double[4];
-		double[] dot_probability = new double[4];
-		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
-															0.0, getArmorBreaking(), getRateOfFire(), heatPerShot, 0.0, 
-															statusEffects[1], statusEffects[3], false, false);
-		return MathUtils.sum(breakpoints);
+//		double direct = getDamagePerPellet() * getNumberOfPellets() * getGeneralAccuracy() / 100.0;
+//
+//		// Because Accuracy affects these Breakpoints, I'm choosing to implement Asher's suggestion to only add Blastwave damage when AccuracyEstimator.distance <= 4
+//		double area;
+//		if (accEstimator.getDistance() <= 4.0) {
+//			area = getBlastwaveDamage();
+//		}
+//		else {
+//			area = 0;
+//		}
+//
+//		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+//		double[] directDamage = new double[5];
+//		double[] areaDamage = new double[5];
+//
+//		// According to Elythnwaen, White Phosphorus Shells not only adds 50% of kinetic + explosive damage to Heat, it also converts 50% to Fire.
+//		if (selectedTier5 == 2) {
+//			directDamage[0] = 0.5 * direct;  // Kinetic
+//			directDamage[2] = 0.5 * direct;  // Fire
+//
+//			areaDamage[1] = 0.5 * area;  // Explosive
+//			areaDamage[2] = 0.5 * area;  // Fire
+//		}
+//		else {
+//			directDamage[0] = direct;  // Kinetic
+//			areaDamage[1] = area;  // Explosive
+//		}
+//
+//		double heatPerShot = 0;
+//		if (selectedTier5 == 2) {
+//			heatPerShot = 0.5 * (direct + area);
+//		}
+//
+//		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+//		double[] dot_dps = new double[4];
+//		double[] dot_duration = new double[4];
+//		double[] dot_probability = new double[4];
+//
+//		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability,
+//															0.0, getArmorBreaking(), getRateOfFire(), heatPerShot, 0.0,
+//															statusEffects[1], statusEffects[3], false, false);
+//		return MathUtils.sum(breakpoints);
+		return 0;
 	}
 	@Override
 	public double utilityScore() {

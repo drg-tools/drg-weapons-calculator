@@ -770,39 +770,40 @@ public class PlasmaCarbine extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
-		
-		// I can reuse Heat per Shot for the Fire-element damage done by TEF. Subtracting from DirectDamage will either do nothing when TEF is equipped,
-		// or bring it back down to only the Kinetic/Disintegrate element component. Then the Fire-element damage added by TEF will either be 0 or the right number.
-		double heatPerShot = 0.0;
-		if (selectedOverclock == 6) {
-			heatPerShot = calculateTEFDamageBonus();
-		}
-		
-		double[] directDamage = new double[5];
-		directDamage[0] = getDirectDamage() - heatPerShot;  // Kinetic and Disintegrate
-		directDamage[2] = heatPerShot;  // Fire element, from TEF if it's equipped.
-		
-		// From testing, it seems like the Area Damage is half Kinetic/Disintegrate, half Fire-element.
-		double aDamage = 0.5 * getAreaDamage();
-		double[] areaDamage = new double[5];
-		areaDamage[0] = aDamage;  // Kinetic or Disintegrate, not sure which.
-		areaDamage[2] = aDamage;  // Fire element from T4.B Plasma Splash
-		
-		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
-		double[] dot_dps = new double[4];
-		double[] dot_duration = new double[4];
-		double[] dot_probability = new double[4];
-		if (selectedTier4 == 0) {
-			dot_dps[0] = 12.0;
-			dot_duration[0] = 4.0;
-			dot_probability[0] = 0.15;
-		}
-		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
-															0.0, getArmorBreaking(), calculateAverageRoF(), heatPerShot, 0.0, 
-															statusEffects[1], statusEffects[3], false, false);
-		return MathUtils.sum(breakpoints);
+//		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+//
+//		// I can reuse Heat per Shot for the Fire-element damage done by TEF. Subtracting from DirectDamage will either do nothing when TEF is equipped,
+//		// or bring it back down to only the Kinetic/Disintegrate element component. Then the Fire-element damage added by TEF will either be 0 or the right number.
+//		double heatPerShot = 0.0;
+//		if (selectedOverclock == 6) {
+//			heatPerShot = calculateTEFDamageBonus();
+//		}
+//
+//		double[] directDamage = new double[5];
+//		directDamage[0] = getDirectDamage() - heatPerShot;  // Kinetic and Disintegrate
+//		directDamage[2] = heatPerShot;  // Fire element, from TEF if it's equipped.
+//
+//		// From testing, it seems like the Area Damage is half Kinetic/Disintegrate, half Fire-element.
+//		double aDamage = 0.5 * getAreaDamage();
+//		double[] areaDamage = new double[5];
+//		areaDamage[0] = aDamage;  // Kinetic or Disintegrate, not sure which.
+//		areaDamage[2] = aDamage;  // Fire element from T4.B Plasma Splash
+//
+//		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+//		double[] dot_dps = new double[4];
+//		double[] dot_duration = new double[4];
+//		double[] dot_probability = new double[4];
+//		if (selectedTier4 == 0) {
+//			dot_dps[0] = 12.0;
+//			dot_duration[0] = 4.0;
+//			dot_probability[0] = 0.15;
+//		}
+//
+//		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability,
+//															0.0, getArmorBreaking(), calculateAverageRoF(), heatPerShot, 0.0,
+//															statusEffects[1], statusEffects[3], false, false);
+//		return MathUtils.sum(breakpoints);
+		return 0;
 	}
 
 	@Override

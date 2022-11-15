@@ -245,52 +245,53 @@ public class EPC_ChargeShot extends EPC {
 	
 	@Override
 	public int breakpoints() {
-		double chargedShotDirectDamage = getChargedDirectDamage();
-		double chargedShotAreaDamage = getChargedAreaDamage();
-		
-		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
-		double[] dDamage = new double[5];
-		double[] aDamage = new double[5];
-		if (selectedTier5 == 0) {
-			// Disintegrate is functionally identical to Kinetic; both are resistance-less
-			// 65% Electric / 25 % Fire / 10% Disintegrate for the single target part.
-			dDamage[0] = 0.10 * chargedShotDirectDamage;  // Kinetic
-			dDamage[2] = 0.25 * chargedShotDirectDamage;  // Fire
-			dDamage[4] = 0.65 * chargedShotDirectDamage;  // Electric
-		}
-		else if (selectedTier5 == 1) {
-			// Thin Containment Field converts all Area Damage to Fire Element and removes Direct Damage.
-			aDamage[2] = chargedShotAreaDamage;
-		}
-		else {
-			// Disintegrate is functionally identical to Kinetic; both are resistance-less
-			// 65% Electric / 25 % Fire / 10% Disintegrate for the single target part.
-			dDamage[0] = 0.10 * chargedShotDirectDamage;  // Kinetic
-			dDamage[2] = 0.25 * chargedShotDirectDamage;  // Fire
-			dDamage[4] = 0.65 * chargedShotDirectDamage;  // Electric
-			
-			// 65% Explosive / 25% Fire / 10% Disintegrate for the AoE part.
-			aDamage[0] = 0.10 * chargedShotAreaDamage;  // Kinetic
-			aDamage[1] = 0.65 * chargedShotAreaDamage;  // Explosive
-			aDamage[2] = 0.25 * chargedShotAreaDamage;  // Fire
-		}
-		
-		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
-		double[] dot_dps = new double[4];
-		double[] dot_duration = new double[4];
-		double[] dot_probability = new double[4];
-		
-		// Flying Nightmare only gets Persistent Plasma when it impacts terrain.
-		if (selectedOverclock == 5 && selectedTier5 != 0) {
-			dot_dps[2] = DoTInformation.Plasma_EPC_DPS;
-			dot_duration[2] = 7.6;
-			dot_probability[2] = 1.0;
-		}
-		
-		breakpoints = EnemyInformation.calculateBreakpoints(dDamage, aDamage, dot_dps, dot_duration, dot_probability, 
-															-1.0, 1.0, getRateOfFire(), 0.0, 0.0, 
-															statusEffects[1], statusEffects[3], selectedTier5 == 0, false);
-		return MathUtils.sum(breakpoints);
+//		double chargedShotDirectDamage = getChargedDirectDamage();
+//		double chargedShotAreaDamage = getChargedAreaDamage();
+//
+//		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+//		double[] dDamage = new double[5];
+//		double[] aDamage = new double[5];
+//		if (selectedTier5 == 0) {
+//			// Disintegrate is functionally identical to Kinetic; both are resistance-less
+//			// 65% Electric / 25 % Fire / 10% Disintegrate for the single target part.
+//			dDamage[0] = 0.10 * chargedShotDirectDamage;  // Kinetic
+//			dDamage[2] = 0.25 * chargedShotDirectDamage;  // Fire
+//			dDamage[4] = 0.65 * chargedShotDirectDamage;  // Electric
+//		}
+//		else if (selectedTier5 == 1) {
+//			// Thin Containment Field converts all Area Damage to Fire Element and removes Direct Damage.
+//			aDamage[2] = chargedShotAreaDamage;
+//		}
+//		else {
+//			// Disintegrate is functionally identical to Kinetic; both are resistance-less
+//			// 65% Electric / 25 % Fire / 10% Disintegrate for the single target part.
+//			dDamage[0] = 0.10 * chargedShotDirectDamage;  // Kinetic
+//			dDamage[2] = 0.25 * chargedShotDirectDamage;  // Fire
+//			dDamage[4] = 0.65 * chargedShotDirectDamage;  // Electric
+//
+//			// 65% Explosive / 25% Fire / 10% Disintegrate for the AoE part.
+//			aDamage[0] = 0.10 * chargedShotAreaDamage;  // Kinetic
+//			aDamage[1] = 0.65 * chargedShotAreaDamage;  // Explosive
+//			aDamage[2] = 0.25 * chargedShotAreaDamage;  // Fire
+//		}
+//
+//		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+//		double[] dot_dps = new double[4];
+//		double[] dot_duration = new double[4];
+//		double[] dot_probability = new double[4];
+//
+//		// Flying Nightmare only gets Persistent Plasma when it impacts terrain.
+//		if (selectedOverclock == 5 && selectedTier5 != 0) {
+//			dot_dps[2] = DoTInformation.Plasma_EPC_DPS;
+//			dot_duration[2] = 7.6;
+//			dot_probability[2] = 1.0;
+//		}
+//
+//		breakpoints = EnemyInformation.calculateBreakpoints(dDamage, aDamage, dot_dps, dot_duration, dot_probability,
+//															-1.0, 1.0, getRateOfFire(), 0.0, 0.0,
+//															statusEffects[1], statusEffects[3], selectedTier5 == 0, false);
+//		return MathUtils.sum(breakpoints);
+		return 0;
 	}
 
 	@Override

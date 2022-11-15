@@ -24,10 +24,10 @@ public class DamageElements {
 			Heat
 			Cold
 	*/
-	public enum DamageElement {melee, kinetic, piercing, fire, frost, explosive, electric, poison, radiation, corrosive, disintegrate, internal};
+	public enum DamageElement {melee, kinetic, piercing, fire, frost, explosive, electric, poison, radiation, corrosive, disintegrate, internal}
 	public static int numElements = DamageElement.values().length;
 	
-	public enum TemperatureElement {heat, cold};
+	public enum TemperatureElement {heat, cold}
 	
 	public static int getElementIndex(DamageElement in) {
 		switch(in) {

@@ -764,35 +764,36 @@ public class Minigun extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
-		double[] directDamage = new double[5];
-		directDamage[0] = getDamagePerPellet(false);  // Kinetic
-		
-		double[] areaDamage = new double[5];
-		
-		double effectiveRoF = getRateOfFire() / 2.0;
-		double heatPerShot = 0;
-		// Hot Bullets add 50% of Direct Damage/pellet as Heat/pellet. Although it doesn't activate for almost 4 seconds, for simplicity's sake I'm just going to model it as if it's active the whole time.
-		if (selectedTier5 == 2) {
-			heatPerShot += 0.5 * directDamage[0];
-		}
-		
-		// Burning Hell does 5 Fire-element Area-type Damage and 20 Heat at 4 ticks/sec, so I have to downscale its damage to match the RoF of the bullets
-		if (selectedOverclock == 2) {
-			areaDamage[2] = 5.0 * 4.0 / effectiveRoF;  // Fire
-			heatPerShot += 20.0 * 4.0 / effectiveRoF;
-		}
-		
-		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
-		double[] dot_dps = new double[4];
-		double[] dot_duration = new double[4];
-		double[] dot_probability = new double[4];
-		
-		// Setting embeddedDetonators to true when Burning Hell is equipped so that it doesn't affect Armor Breaking stats
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
-															0.0, getArmorBreaking(), effectiveRoF, heatPerShot, 0.0, 
-															statusEffects[1], statusEffects[3], false, selectedOverclock == 2);
-		return MathUtils.sum(breakpoints);
+//		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+//		double[] directDamage = new double[5];
+//		directDamage[0] = getDamagePerPellet(false);  // Kinetic
+//
+//		double[] areaDamage = new double[5];
+//
+//		double effectiveRoF = getRateOfFire() / 2.0;
+//		double heatPerShot = 0;
+//		// Hot Bullets add 50% of Direct Damage/pellet as Heat/pellet. Although it doesn't activate for almost 4 seconds, for simplicity's sake I'm just going to model it as if it's active the whole time.
+//		if (selectedTier5 == 2) {
+//			heatPerShot += 0.5 * directDamage[0];
+//		}
+//
+//		// Burning Hell does 5 Fire-element Area-type Damage and 20 Heat at 4 ticks/sec, so I have to downscale its damage to match the RoF of the bullets
+//		if (selectedOverclock == 2) {
+//			areaDamage[2] = 5.0 * 4.0 / effectiveRoF;  // Fire
+//			heatPerShot += 20.0 * 4.0 / effectiveRoF;
+//		}
+//
+//		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+//		double[] dot_dps = new double[4];
+//		double[] dot_duration = new double[4];
+//		double[] dot_probability = new double[4];
+//
+//		// Setting embeddedDetonators to true when Burning Hell is equipped so that it doesn't affect Armor Breaking stats
+//		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability,
+//															0.0, getArmorBreaking(), effectiveRoF, heatPerShot, 0.0,
+//															statusEffects[1], statusEffects[3], false, selectedOverclock == 2);
+//		return MathUtils.sum(breakpoints);
+		return 0;
 	}
 
 	@Override

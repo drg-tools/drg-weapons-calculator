@@ -622,36 +622,37 @@ public class GuidedRocketLauncher extends Weapon {
 	
 	@Override
 	public int breakpoints() {
-		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
-		double[] directDamage = new double[5];
-		directDamage[0] = getDirectDamage();  // Kinetic
-		
-		double aDamage = getAreaDamage();
-		double[] areaDamage = new double[5];
-		if (selectedOverclock == 3) {
-			// OC "Plasma Burster Missiles" changes the Radial Damage from Explosive to Fire/Electric 
-			areaDamage[2] = 0.5 * aDamage;  // Fire
-			areaDamage[4] = 0.5 * aDamage;  // Electric
-		}
-		else {
-			areaDamage[1] = aDamage;  // Explosive
-		}
-		
-		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
-		double[] dot_dps = new double[4];
-		double[] dot_duration = new double[4];
-		double[] dot_probability = new double[4];
-		
-		double heatPerShot = 0;
-		if (selectedTier5 == 0) {
-			// Because T5.A converts 33% of damage to Heat, I just need to take 1/2 of the total damage (67% / 33% = 2.03)
-			heatPerShot = (getDirectDamage() + getAreaDamage()) / 2.03;
-		}
-		
-		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability, 
-															getWeakpointBonus(), getArmorBreaking(), getRateOfFire(), heatPerShot, 0.0, 
-															statusEffects[1], statusEffects[3], false, false);
-		return MathUtils.sum(breakpoints);
+//		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
+//		double[] directDamage = new double[5];
+//		directDamage[0] = getDirectDamage();  // Kinetic
+//
+//		double aDamage = getAreaDamage();
+//		double[] areaDamage = new double[5];
+//		if (selectedOverclock == 3) {
+//			// OC "Plasma Burster Missiles" changes the Radial Damage from Explosive to Fire/Electric
+//			areaDamage[2] = 0.5 * aDamage;  // Fire
+//			areaDamage[4] = 0.5 * aDamage;  // Electric
+//		}
+//		else {
+//			areaDamage[1] = aDamage;  // Explosive
+//		}
+//
+//		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
+//		double[] dot_dps = new double[4];
+//		double[] dot_duration = new double[4];
+//		double[] dot_probability = new double[4];
+//
+//		double heatPerShot = 0;
+//		if (selectedTier5 == 0) {
+//			// Because T5.A converts 33% of damage to Heat, I just need to take 1/2 of the total damage (67% / 33% = 2.03)
+//			heatPerShot = (getDirectDamage() + getAreaDamage()) / 2.03;
+//		}
+//
+//		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability,
+//															getWeakpointBonus(), getArmorBreaking(), getRateOfFire(), heatPerShot, 0.0,
+//															statusEffects[1], statusEffects[3], false, false);
+//		return MathUtils.sum(breakpoints);
+		return 0;
 	}
 
 	@Override
