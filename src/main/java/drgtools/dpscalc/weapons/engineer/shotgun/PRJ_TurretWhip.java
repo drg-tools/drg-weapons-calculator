@@ -9,7 +9,7 @@ public class PRJ_TurretWhip extends Projectile {
         super(
                 75,
                 0,
-                0.2,  // TODO: again, this 0.2m is a guess. PRJ_SentryOvercharge_Projectile didn't list its SphereRadius
+                0.05,
                 new DamageComponent(
                         0, null, 0, null,
                         false, false, false, false,

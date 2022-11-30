@@ -1,6 +1,5 @@
 package drgtools.dpscalc.modelPieces.temperature;
 
-// TODO
 public class CreatureTemperatureComponent {
 	private double updateTime = 1.0;
 	private double temperatureChangeScale = 1.0;

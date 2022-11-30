@@ -164,12 +164,14 @@ public class BreakpointCalculator {
     private int calculateWeakpointBreakpoint() {
         int breakpointCounter = 0;
 
-        MaterialFlag breakpointMaterialFlag;
+        MaterialFlag breakpointMaterialFlag, coveringArmorMaterialFlag;
         if (targetIsFrozen) {
             breakpointMaterialFlag = MaterialFlag.frozen;
+            coveringArmorMaterialFlag = MaterialFlag.frozen;
         }
         else {
             breakpointMaterialFlag = MaterialFlag.weakpoint;
+            coveringArmorMaterialFlag = MaterialFlag.heavyArmor;
         }
 
         double effectiveHP;
@@ -184,7 +186,7 @@ public class BreakpointCalculator {
         ElementalResistancesArray resistances = target.getElementalResistances();
 
         double totalDamagePerHit = 0;
-        double totalDamagePerHitOnArmorHealth = 0;
+        double totalDamagePerHitOnHeavyArmor = 0;
         double totalArmorDamageDealtPerDirectHit = 0;
         boolean atLeastOneDamageComponentHasABGreaterThan100 = false;
         boolean atLeastOneDamageComponentDoesHeat = false;
@@ -198,12 +200,12 @@ public class BreakpointCalculator {
                 target.getWeakpointMultiplier(),
                 1
             );
-            totalDamagePerHitOnArmorHealth += damagePerHit[i].getTotalComplicatedDamageDealtPerHit(
-                MaterialFlag.armor,
+            totalDamagePerHitOnHeavyArmor += damagePerHit[i].getTotalComplicatedDamageDealtPerHit(
+                coveringArmorMaterialFlag,
                 resistances,
                 targetIsAffectedByIFG,
                 1,
-                0  // Setting ArmorReduction to x0 because this is modeling a Heavy Armor plate that uses ArmorHealth
+                1
             );
 
             totalArmorDamageDealtPerDirectHit += damagePerHit[i].getArmorDamagePerDirectHit(resistances);
@@ -286,7 +288,7 @@ public class BreakpointCalculator {
                     effectiveHP -= totalDamagePerHit;
                 }
                 else {
-                    effectiveHP -= totalDamagePerHitOnArmorHealth;
+                    effectiveHP -= totalDamagePerHitOnHeavyArmor;
                 }
             }
             // Either the target is Frozen, or it hit a Weakpoint not covered by an armor plate. Switching the MaterialFlag way at the top of this method accounts for either option.
@@ -314,12 +316,14 @@ public class BreakpointCalculator {
     private int calculateLightArmorBreakpoint() {
         int breakpointCounter = 0;
 
-        MaterialFlag breakpointMaterialFlag;
+        MaterialFlag preBreakMaterialFlag, postBreakMaterialFlag;
         if (targetIsFrozen) {
-            breakpointMaterialFlag = MaterialFlag.frozen;
+            preBreakMaterialFlag = MaterialFlag.frozen;
+            postBreakMaterialFlag = MaterialFlag.frozen;
         }
         else {
-            breakpointMaterialFlag = MaterialFlag.armor;
+            preBreakMaterialFlag = MaterialFlag.lightArmor;
+            postBreakMaterialFlag = MaterialFlag.normalFlesh;
         }
 
         double effectiveHP;
@@ -342,14 +346,14 @@ public class BreakpointCalculator {
         ArrayList<PushSTEComponent> allStes = new ArrayList<>();
         for (int i = 0; i < damagePerHit.length; i++) {
             totalDamagePerHitBeforeBreakingArmor += damagePerHit[i].getTotalComplicatedDamageDealtPerHit(
-                breakpointMaterialFlag,
+                preBreakMaterialFlag,
                 resistances,
                 targetIsAffectedByIFG,
                 1,
                 UtilityInformation.LightArmor_DamageReduction  // TODO: This is where I could implement per-enemy Light Armor multiplier (Q'ronar Youngling)
             );
             totalDamagePerHitAfterBreakingArmor += damagePerHit[i].getTotalComplicatedDamageDealtPerHit(
-                breakpointMaterialFlag,
+                postBreakMaterialFlag,
                 resistances,
                 targetIsAffectedByIFG,
                 1,
@@ -414,7 +418,7 @@ public class BreakpointCalculator {
         allStatusEffects.resetTimeElapsed();
 
         // Because this breakpoint will only be calculated when target.hasLightArmor() is true, it's safe to fetch the ArmorStrength value like this.
-        double probabilityToBreakArmorStrengthPlate = probabilityToBreakArmorStrengthPlate(totalArmorDamageDealtPerDirectHit, target.getArmorStrength());
+        double probabilityToBreakArmorStrengthPlate = probabilityToBreakArmorStrengthPlate(totalArmorDamageDealtPerDirectHit / normalScalingResistance, target.getArmorStrength());
         int numberOfShotsToBreakLightArmor = (int) Math.ceil(MathUtils.meanRolls(probabilityToBreakArmorStrengthPlate));
 
         double fourSecondsDoTDamage;
@@ -450,7 +454,7 @@ public class BreakpointCalculator {
     }
 
     // TODO: update EnemyInformation's version of this method, and then replace it later.
-    // This method assumes that Armor Breaking and Damage Flags have already been factored in for the first argument.
+    // This method assumes that Armor Breaking, Elemental Resistances, Damage Flags, and Normal Scaling Resistance have already been factored in for the first argument.
     private double probabilityToBreakArmorStrengthPlate(double totalArmorDamageOnDirectHit, double armorStrength) {
         double lookupValue = totalArmorDamageOnDirectHit / armorStrength;
 

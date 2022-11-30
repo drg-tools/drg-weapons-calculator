@@ -6,7 +6,6 @@ import drgtools.dpscalc.weapons.Projectile;
 public class PRJ_Grenade extends Projectile {
     public PRJ_Grenade(double velocity, DamageComponent dmg) {
         // default velocity is 30 m/sec.
-        // TODO: 0.2m is a guess for the sizeRadius; not visible in PRJ_GrenadeLauncher.
-        super(velocity, 1.25, 0.2, dmg);
+        super(velocity, 1.25, 0.05, dmg);
     }
 }

@@ -8,7 +8,7 @@ public class PRJ_MicroMissile extends Projectile {
         // starts at 10 m/sec, accelerates to 15 m/sec.
         // one curve takes 2.5 sec, the "improved one" only takes 1, but i can't figure out how to interpret the cubic splines yet.
         // TODO: develop a way to take in the Cubic Spline curves used everywhere and get polynomial equation equivalents
-        // TODO: another guess that default size is 0.2m, needs verification.
-        super(startVelocity, maxVelocity, 0, 0.2, dmg);
+        // Cubic spline? https://forums.unrealengine.com/t/calculate-spline-tangent/477708/3
+        super(startVelocity, maxVelocity, 0, 0.05, dmg);
     }
 }

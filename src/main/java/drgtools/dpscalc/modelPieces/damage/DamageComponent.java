@@ -5,6 +5,7 @@ import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.TemperatureElement;
 import drgtools.dpscalc.modelPieces.damage.DamageFlags.DamageFlag;
 import drgtools.dpscalc.modelPieces.damage.DamageFlags.MaterialFlag;
+import drgtools.dpscalc.modelPieces.damage.DamageFlags.RicochetFlag;
 import drgtools.dpscalc.enemies.ElementalResistancesArray;
 import drgtools.dpscalc.modelPieces.statusEffects.PushSTEComponent;
 import drgtools.dpscalc.utilities.MathUtils;
@@ -27,7 +28,8 @@ public class DamageComponent {
 	// The four DamageFlags
 	protected boolean benefitsFromWeakpoint;
 	protected boolean benefitsFromFrozen;
-	protected boolean reducedByArmor;
+	protected boolean reducedByLightArmor;
+	protected boolean stoppedByHeavyArmor;
 	protected boolean canDamageArmor;
 
 	protected double weakpointBonus = 0;
@@ -35,8 +37,9 @@ public class DamageComponent {
 	protected DamageElement flatDamageElement = null;
 
 	protected int numBlowthroughs = 0;
-	protected int numHitscanTracersPerShot = 1;  // Used for shotguns. Simpler than tracking NumPellets identical DamageComponents, just move the multiplier inside.
-	// TODO: add Ricochet stuff here, too
+	protected RicochetFlag ricochetMaterialFlag;
+	protected double ricochetChance = 0;  // [0, 1]
+	protected double richochetMaxRange = 0;
 	
 	protected double radialDamage = 0;
 	protected double radialTemperature = 0;
@@ -89,7 +92,8 @@ public class DamageComponent {
 		tempElement = tmpElement;
 		benefitsFromWeakpoint = weakpoint;
 		benefitsFromFrozen = frozen;
-		reducedByArmor = armor;
+		reducedByLightArmor = armor;
+		stoppedByHeavyArmor = armor;
 		canDamageArmor = damagesArmor;
 
 		radialDamage = rdlDmg;
@@ -135,9 +139,6 @@ public class DamageComponent {
 	public void setNumBlowthroughs(int in) {
 		numBlowthroughs = in;
 	}
-	public void setNumPelletsPerShot(int in) {
-		numHitscanTracersPerShot = in;
-	}
 	public void setRadialDamage(double in) {
 		radialDamage = in;
 	}
@@ -166,8 +167,12 @@ public class DamageComponent {
 				benefitsFromFrozen = value;
 				break;
 			}
-			case reducedByArmor: {
-				reducedByArmor = value;
+			case reducedByLightArmor: {
+				reducedByLightArmor = value;
+				break;
+			}
+			case stoppedByHeavyArmor: {
+				stoppedByHeavyArmor = value;
 				break;
 			}
 			case canDamageArmor: {
@@ -190,6 +195,7 @@ public class DamageComponent {
 		if (dc.convertsToTemperature()) {
 			tempElement = dc.getTemperatureElement();
 			// TODO: this feels risky. Should it be stored as a % until it gets evaluated, like the Damage does?
+			// Theoretically, the only upgrades that do conversion have 0 heat as base. that makes it safe to do it this way, i think?
 			temperature += dc.getPercentage() * damage;
 			radialTemperature += dc.getPercentage() * radialDamage;
 		}
@@ -250,7 +256,7 @@ public class DamageComponent {
 	}
 
 	public double getTotalComplicatedDamageDealtPerHit(MaterialFlag targetMaterial, ElementalResistancesArray creatureResistances,
-													   boolean IFG, double weakpointMultiplier, double armorReduction) {
+													   boolean IFG, double weakpointMultiplier, double lightArmorReduction) {
 		/*
 			To the best of my current understanding, this is the order of operations when evaluating how much health gets removed from an enemy when they get damaged by a player's weapon:
 			1. The base damage is fetched and has its element set.
@@ -283,12 +289,14 @@ public class DamageComponent {
 				}
 				break;
 			}
-			case armor: {
-				// This isn't the place to model it, but it's worth noting that Armor plates inherit the elemental resistances of their parent creature.
-				if (reducedByArmor) {
-					// This allows it to do zero damage because of Unbreakable or Heavy Armor
-					// FlatBonusDamage is reduced by LightArmor too.
-					dmg *= armorReduction;
+			case lightArmor: {
+				if (reducedByLightArmor) {
+					dmg *= lightArmorReduction;
+				}
+			}
+			case heavyArmor: {
+				if (stoppedByHeavyArmor) {
+					dmg *= 0;
 				}
 			}
 			default: {
