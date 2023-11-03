@@ -1,13 +1,13 @@
 package drgtools.dpscalc.modelPieces.statusEffects;
 
-import drgtools.dpscalc.enemies.ElementalResistancesArray;
+import drgtools.dpscalc.enemies.ElementalResistancesMap;
 import drgtools.dpscalc.modelPieces.damage.DamageElements;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
-import drgtools.dpscalc.modelPieces.damage.DamageElements.TemperatureElement;
 import drgtools.dpscalc.utilities.MathUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 
 // For the strange usecase where there are several StatusEffects being applied by one weapon to one enemy all at once
 // Needs to add up the DPS, split by DMG_Element, aggregate Heat/sec, multiply the slows, etc etc
@@ -15,25 +15,25 @@ import java.util.Collections;
 public class MultipleSTEs {
     // TODO: I think this is only used in Breakpoints?
     private ArrayList<PushSTEComponent> statusEffects;
-    private double[] totalDamageByElement;
+    private EnumMap<DamageElement, Double> totalDamageByElement;
     private double complicatedSlowUtilitySum;
 
     public MultipleSTEs(ArrayList<PushSTEComponent> stes) {
         statusEffects = stes;
-        totalDamageByElement = new double[DamageElements.numElements];
+        totalDamageByElement = new EnumMap<>(DamageElement.class);
         complicatedSlowUtilitySum = 0;
         doComplexCalculations();
     }
 
     public void doComplexCalculations() {
-        // 20 seconds sounds long enough to account for everything?
+        // 30 seconds sounds long enough to account for everything?
         doComplexCalculations(30);
     }
     public void doComplexCalculations(double maxDuration) {
         // Zero out the current values
         int i;
-        for(i = 0; i < totalDamageByElement.length; i++) {
-            totalDamageByElement[i] = 0.0;
+        for(i = 0; i < DamageElements.numElements; i++) {
+            totalDamageByElement.put(DamageElements.getElementAtIndex(i), 0.0);
         }
         complicatedSlowUtilitySum = 0.0;
 
@@ -70,7 +70,7 @@ public class MultipleSTEs {
                 alias = orderableCopyListOfStes.get(i).getSTE();
                 // Don't check if it's active here, because the predictDamage() method already has logic to account for those variations.
                 if (alias.inflictsDamage()) {
-                    totalDamageByElement[DamageElements.getElementIndex(alias.getDamageElement())] += orderableCopyListOfStes.get(i).predictDamageDealtInNextTimeInterval(shortestDuration);
+                    totalDamageByElement.put(alias.getDamageElement(), totalDamageByElement.get(alias.getDamageElement()) + orderableCopyListOfStes.get(i).predictDamageDealtInNextTimeInterval(shortestDuration));
                 }
             }
             complicatedSlowUtilitySum += shortestDuration * (1.0 - currentSlow);
@@ -97,10 +97,12 @@ public class MultipleSTEs {
         }
         return sumDPS;
     }
-    public double getResistedSumDPS(ElementalResistancesArray resistances) {
+    public double getResistedSumDPS(ElementalResistancesMap resistances) {
         double sumDPS = 0;
+        StatusEffect alias;
         for (int i = 0; i < statusEffects.size(); i++) {
-            sumDPS += statusEffects.get(i).getSTE().getAverageDPS() * resistances.getResistance(statusEffects.get(i).getSTE().getDamageElement());
+            alias = statusEffects.get(i).getSTE();
+            sumDPS += alias.getAverageDPS() * resistances.getResistance(alias.getDamageElement());
         }
         return sumDPS;
     }
@@ -108,11 +110,11 @@ public class MultipleSTEs {
     public double getRawTotalDamage() {
         return MathUtils.sum(totalDamageByElement);
     }
-    public double getResistedTotalDamage(ElementalResistancesArray resistances) {
-        return MathUtils.vectorDotProduct(totalDamageByElement, resistances.getResistances());
+    public double getResistedTotalDamage(ElementalResistancesMap resistances) {
+        return resistances.multiplyDamageByElements(totalDamageByElement);
     }
 
-    public double getAggregateTemperaturePerSecond(TemperatureElement desiredTemperature) {
+    public double getAggregateTemperaturePerSecond(DamageElement desiredTemperature) {
         double tempPerSecTotal = 0;
         for (int i = 0; i < statusEffects.size(); i++) {
             if (statusEffects.get(i).getSTE().inflictsTemperature(desiredTemperature)) {
@@ -137,8 +139,8 @@ public class MultipleSTEs {
             pstec.progressTime(secondsElapsed);
         }
     }
-    public double predictResistedDamageDealtInNextTimeInterval(double secondsToPredict, ElementalResistancesArray creatureResistances) {
-        double[] damageByElement = new double[DamageElements.numElements];
+    public double predictResistedDamageDealtInNextTimeInterval(double secondsToPredict, ElementalResistancesMap creatureResistances) {
+        EnumMap<DamageElement, Double> damageByElement = new EnumMap<>(DamageElement.class);
 
         // This is an imperfect approximation for the overlapping and interacting slows and AoEs. Works poorly on long
         // predictions, but it's passable when doing a series of tiny predictions like 0.25 sec.
@@ -150,17 +152,19 @@ public class MultipleSTEs {
         }
 
         DamageElement element;
-        int elementIndex;
         for (PushSTEComponent pstec: statusEffects) {
             pstec.updateEffectiveDuration(totalSlow);  // For any AoE Status Effects
             if (pstec.getSTE().inflictsDamage()) {
                 element = pstec.getSTE().getDamageElement();
-                elementIndex = DamageElements.getElementIndex(element);
-                // Using the fact that double[] values initialize as 0 ;)
-                damageByElement[elementIndex] += pstec.predictDamageDealtInNextTimeInterval(secondsToPredict);
+                if (damageByElement.containsKey(element)) {
+                    damageByElement.put(element, damageByElement.get(element) + pstec.predictDamageDealtInNextTimeInterval(secondsToPredict));
+                }
+                else {
+                    damageByElement.put(element, pstec.predictDamageDealtInNextTimeInterval(secondsToPredict));
+                }
             }
         }
 
-        return MathUtils.vectorDotProduct(damageByElement, creatureResistances.getResistances());
+        return creatureResistances.multiplyDamageByElements(damageByElement);
     }
 }

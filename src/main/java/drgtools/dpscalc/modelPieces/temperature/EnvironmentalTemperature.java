@@ -1,42 +1,42 @@
 package drgtools.dpscalc.modelPieces.temperature;
 
-import drgtools.dpscalc.modelPieces.damage.DamageElements.TemperatureElement;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 
 public class EnvironmentalTemperature {
     public enum TemperatureIntensity{Cold3, Cold2, Cold1, Heat1, Heat2, Heat3}
 
-    private TemperatureElement tempElement;
+    private DamageElement tempElement;
     private double temperatureChangePerSec;
 
     public EnvironmentalTemperature(TemperatureIntensity envTempIntensity) {
         switch (envTempIntensity) {
             case Cold3: {
-                tempElement = TemperatureElement.cold;
+                tempElement = DamageElement.cold;
                 temperatureChangePerSec = 20;
                 break;
             }
             case Cold2: {
-                tempElement = TemperatureElement.cold;
+                tempElement = DamageElement.cold;
                 temperatureChangePerSec = 12;
                 break;
             }
             case Cold1: {
-                tempElement = TemperatureElement.cold;
+                tempElement = DamageElement.cold;
                 temperatureChangePerSec = 2;
                 break;
             }
             case Heat1: {
-                tempElement = TemperatureElement.heat;
+                tempElement = DamageElement.heat;
                 temperatureChangePerSec = 2;
                 break;
             }
             case Heat2: {
-                tempElement = TemperatureElement.heat;
+                tempElement = DamageElement.heat;
                 temperatureChangePerSec = 12;
                 break;
             }
             case Heat3: {
-                tempElement = TemperatureElement.heat;
+                tempElement = DamageElement.heat;
                 temperatureChangePerSec = 20;
                 break;
             }
@@ -48,7 +48,7 @@ public class EnvironmentalTemperature {
         }
     }
 
-    public TemperatureElement getTempElement() {
+    public DamageElement getTempElement() {
         return tempElement;
     }
     public double getTemperatureChangePerSec() {

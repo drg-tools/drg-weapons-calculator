@@ -2,7 +2,6 @@ package drgtools.dpscalc.modelPieces.statusEffects;
 
 import drgtools.dpscalc.modelPieces.EnemyInformation;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
-import drgtools.dpscalc.modelPieces.damage.DamageElements.TemperatureElement;
 import drgtools.dpscalc.modelPieces.temperature.EnvironmentalTemperature;
 
 public class StatusEffect {
@@ -14,7 +13,7 @@ public class StatusEffect {
     protected double minArmorDamagePerTick = 0.0;
     protected double maxArmorDamagePerTick = 0.0;
 
-    protected TemperatureElement temperaturePerTickElement = null;
+    protected DamageElement temperaturePerTickElement = null;
     protected double minTemperaturePerTick = 0.0;
     protected double maxTemperaturePerTick = 0.0;
     protected EnvironmentalTemperature envTemp = null;
@@ -36,7 +35,7 @@ public class StatusEffect {
     protected boolean effectsStackWithMultipleApplications = false;
     protected boolean canHaveDurationRefreshedWhileStillActive = false;
 
-    // Shortcut constructor for a DoT that doesn't have a movespeed slow and doesn't do Heat/Cold
+    // Shortcut constructor for a DoT that only does damage; it doesn't have a movespeed slow and doesn't do Heat/Cold
     protected StatusEffect(DamageElement dmgElement, double minDmg, double maxDmg, double minInterval, double maxInterval, double dur) {
         damagePerTickElement = dmgElement;
         minDamagePerTick = minDmg;
@@ -47,7 +46,7 @@ public class StatusEffect {
         // comparedDuration = duration;
     }
 
-    // Shortcut constructor for a DoT that has a movespeed slow and doesn't do Heat/Cold
+    // Shortcut constructor for a DoT that does damage and has a movespeed slow, but doesn't do Heat/Cold
     protected StatusEffect(DamageElement dmgElement, double minDmg, double maxDmg, double minInterval, double maxInterval, double slowMultiplier, double dur) {
         damagePerTickElement = dmgElement;
         minDamagePerTick = minDmg;
@@ -67,7 +66,7 @@ public class StatusEffect {
     }
 
     protected StatusEffect(DamageElement dmgElement, double minDmg, double maxDmg,
-                           TemperatureElement tmpElement, double minTemp, double maxTemp,
+                           DamageElement tmpElement, double minTemp, double maxTemp,
                            double minInterval, double maxInterval, double slowMultiplier, double dur) {
         damagePerTickElement = dmgElement;
         minDamagePerTick = minDmg;
@@ -117,8 +116,7 @@ public class StatusEffect {
 
     public double getArmorBreakUtilityPerEnemy() {
         if (canDamageArmor) {
-            return EnemyInformation.armorStrengthBreakProbabilityLookup((minArmorDamagePerTick + maxArmorDamagePerTick) / 2.0,
-                    1.0, EnemyInformation.averageLightArmorStrength());
+            return EnemyInformation.armorStrengthBreakProbabilityLookup((minArmorDamagePerTick + maxArmorDamagePerTick) / 2.0, EnemyInformation.averageLightArmorStrength());
         }
         else {
             return 0;
@@ -130,13 +128,13 @@ public class StatusEffect {
     }
 
     // TODO: add a toString
-    public boolean inflictsTemperature(TemperatureElement desiredTemp) {
+    public boolean inflictsTemperature(DamageElement desiredTemp) {
         switch(desiredTemp) {
             case heat: {
-                return temperaturePerTickElement == TemperatureElement.heat || envTemp.getTempElement() == TemperatureElement.heat;
+                return temperaturePerTickElement == DamageElement.heat || envTemp.getTempElement() == DamageElement.heat;
             }
             case cold: {
-                return temperaturePerTickElement == TemperatureElement.cold || envTemp.getTempElement() == TemperatureElement.cold;
+                return temperaturePerTickElement == DamageElement.cold || envTemp.getTempElement() == DamageElement.cold;
             }
             default: {
                 return false;
@@ -144,7 +142,7 @@ public class StatusEffect {
         }
     }
 
-    public double getAverageTemperaturePerSecond(TemperatureElement desiredTemp) {
+    public double getAverageTemperaturePerSecond(DamageElement desiredTemp) {
         double toReturn = 0;
         if (temperaturePerTickElement == desiredTemp) {
             toReturn += (minTemperaturePerTick + maxTemperaturePerTick) * (minIntervalBetweenTicks + maxIntervalBetweenTicks);

@@ -2,30 +2,31 @@ package drgtools.dpscalc.modelPieces.damage;
 
 import drgtools.dpscalc.modelPieces.UtilityInformation;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
-import drgtools.dpscalc.modelPieces.damage.DamageElements.TemperatureElement;
 import drgtools.dpscalc.modelPieces.damage.DamageFlags.DamageFlag;
 import drgtools.dpscalc.modelPieces.damage.DamageFlags.MaterialFlag;
 import drgtools.dpscalc.modelPieces.damage.DamageFlags.RicochetFlag;
-import drgtools.dpscalc.enemies.ElementalResistancesArray;
+import drgtools.dpscalc.enemies.ElementalResistancesMap;
 import drgtools.dpscalc.modelPieces.statusEffects.PushSTEComponent;
 import drgtools.dpscalc.utilities.MathUtils;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 
 /*
 	TODO List:
 	move the "calculate num enemies hit" into this object
 	consider moving the "calculate total damage dealt per hit" into this object?
 	add a toString method that nicely formats this stuff
-	this might need to have a "DamageInstance" class made which stores 2+ DamageComponents together, that get applied on each hit?
 	implement as many of the Utility calculations here as I can
+	implement the "radial falloff doesn't apply to converted elements" logic
 */
 
 public class DamageComponent {
 	protected double damage = 0;
-	protected double temperature = 0;
+	protected DamageElement baseDamageElement;
+	protected EnumMap<DamageElement, Double> damageElements;
 
-	// The four DamageFlags
+	// The five DamageFlags
 	protected boolean benefitsFromWeakpoint;
 	protected boolean benefitsFromFrozen;
 	protected boolean reducedByArmor;
@@ -42,7 +43,8 @@ public class DamageComponent {
 	protected double richochetMaxRange = 0;
 	
 	protected double radialDamage = 0;
-	protected double radialTemperature = 0;
+	protected DamageElement baseRadialDamageElement;
+	protected EnumMap<DamageElement, Double> radialDamageElements;
 	protected double maxDmgRadius;
 	protected double damageRadius;
 	protected double falloff;
@@ -53,43 +55,43 @@ public class DamageComponent {
 	protected double baseFearChance = 0;
 	protected double armorBreaking = 1.0;
 	protected double friendlyFire = 1.0;
-	
-	protected TemperatureElement tempElement;  // applies to both Damage and RadialDamage; can be either Heat or Cold. This can be assumed because it's illogical to do both Heat & Cold simultaneously.
-	protected double[] damageElements;
-	protected int startingDamageElementIndex = -1;
-	protected double[] radialDamageElements;
-	protected int startingRadialDamageElementIndex = -1;
+
 	protected ArrayList<PushSTEComponent> statusEffectsApplied;
 
 	// Shortcut constructor for what is referred to as "Direct Damage"
 	public DamageComponent(double dmg, DamageElement dmgElement, double ab, double ff, DamageConversion[] baselineConversions) {
-		this(dmg, dmgElement, 0, null, true, true, true, true, false,
-				0, null, 0, 0, 0, 0, false, 0, 0, 0, ab, ff, baselineConversions);
+		this(dmg, dmgElement, true, true, true, true, false,
+				0, null, 0, 0, 0,
+				false, 0, 0, 0, ab, ff, baselineConversions);
 	}
 
 	// Shortcut constructor for damage-only Direct+Radial, like Autocannon or PGL
 	public DamageComponent(double dmg, DamageElement dmgElement, double rdlDmg, DamageElement rdlDmgElement, double mdr,
                            double dmgRd, double fal, double ab, double ff, DamageConversion[] baselineConversions) {
-		this(dmg, dmgElement, 0, null, true, true, true, true, false, rdlDmg,
-				rdlDmgElement, 0, mdr, dmgRd, fal, false, 0, 0, 0, ab, ff, baselineConversions);
+		this(dmg, dmgElement, true, true, true, true, false,
+				rdlDmg, rdlDmgElement, mdr, dmgRd, fal,
+				false, 0, 0, 0, ab, ff, baselineConversions);
 	}
 
 	// Shortcut constructor for any DamageComponent that neither is "Direct Damage" nor uses RadialDamage
-	public DamageComponent(double dmg, DamageElement dmgElement, double temp, TemperatureElement tmpElement,
-                           boolean weakpoint, boolean frozen, boolean armor, boolean damagesArmor, boolean embDet,
-                           double ab, double ff, DamageConversion[] baselineConversions) {
-		this(dmg, dmgElement, temp, tmpElement, weakpoint, frozen, armor, damagesArmor, embDet, 0, null,
-				0, 0, 0, 0, false, 0, 0, 0, ab, ff, baselineConversions);
+	public DamageComponent(double dmg, DamageElement dmgElement, boolean weakpoint, boolean frozen, boolean armor,
+						   boolean damagesArmor, boolean embDet, double ab, double ff, DamageConversion[] baselineConversions) {
+		this(dmg, dmgElement, weakpoint, frozen, armor, damagesArmor, embDet,
+				0, null, 0, 0, 0,
+				false, 0, 0, 0, ab, ff, baselineConversions);
 	}
 
-	public DamageComponent(double dmg, DamageElement dmgElement, double temp, TemperatureElement tmpElement,
-                           boolean weakpoint, boolean frozen, boolean armor, boolean damagesArmor, boolean embDet,
-                           double rdlDmg, DamageElement rdlDmgElement, double radTemp, double mdr, double dmgRd, double fal,
-                           boolean stunOnlyWeakpoint, double stunChnc, double stunDur, double fear, double ab, double ff,
-                           DamageConversion[] baselineConversions) {
+	public DamageComponent(double dmg, DamageElement dmgElement, boolean weakpoint, boolean frozen, boolean armor,
+						   boolean damagesArmor, boolean embDet, double rdlDmg, DamageElement rdlDmgElement, double mdr,
+						   double dmgRd, double fal, boolean stunOnlyWeakpoint, double stunChnc, double stunDur,
+						   double fear, double ab, double ff, DamageConversion[] baselineConversions) {
 		damage = dmg;
-		temperature = temp;
-		tempElement = tmpElement;
+		baseDamageElement = dmgElement;
+		damageElements = new EnumMap<>(DamageElement.class);
+		if (baseDamageElement != null) {
+			damageElements.put(baseDamageElement, 1.0);
+		}
+
 		benefitsFromWeakpoint = weakpoint;
 		benefitsFromFrozen = frozen;
 		reducedByArmor = armor;
@@ -97,7 +99,11 @@ public class DamageComponent {
 		embeddedDetonator = embDet;
 
 		radialDamage = rdlDmg;
-		radialTemperature = radTemp;
+		baseRadialDamageElement = rdlDmgElement;
+		radialDamageElements = new EnumMap<>(DamageElement.class);
+		if (baseRadialDamageElement != null) {
+			radialDamageElements.put(baseRadialDamageElement, 1.0);
+		}
 		maxDmgRadius = mdr;
 		damageRadius = dmgRd;
 		falloff = fal;
@@ -108,18 +114,6 @@ public class DamageComponent {
 		baseFearChance = fear;
 		armorBreaking = ab;
 		friendlyFire = ff;
-		
-		damageElements = new double[DamageElements.numElements];
-		if (dmgElement != null) {
-			startingDamageElementIndex = DamageElements.getElementIndex(dmgElement);
-			damageElements[startingDamageElementIndex] = 1.0;
-		}
-		
-		radialDamageElements = new double[DamageElements.numElements];
-		if (rdlDmgElement != null) {
-			startingRadialDamageElementIndex = DamageElements.getElementIndex(rdlDmgElement);
-			radialDamageElements[startingRadialDamageElementIndex] = 1.0;
-		}
 		
 		if (baselineConversions != null && baselineConversions.length > 0) {
 			for (int i = 0; i < baselineConversions.length; i++) {
@@ -207,36 +201,48 @@ public class DamageComponent {
 		}
 	}
 
+	/*
+		So, this is the source of the "Damage Conversion Bug". I'm betting that when a developer at GSG first implemented
+		elemental conversions, they just took a shortcut and assumed that all of the conversions would be 50% converted,
+		with no additions, and only one conversion would be applied ever. The logic currently implemented supports that
+		model. However, as the game has evolved, now there are Conversions that add instead of converting, AND there are
+		situations like the EPC's Charged Shots that can have 3 or more conversions applied.
+
+		Simply put, the (buggy) logic currently used in the game is "if this converts damage, subtract that percentage
+		from the base element but don't allow it to go below zero". as such, if there are multiple elements that convert
+		and altogether add up to greater than 100%, then there will be 0% left of the base element and the
+		DamageComponent can do >100% of the listed damage. PGL Hyper Propellent, BC Inferno, and EPC Burning Nightmare
+		are the top examples of this bug in action.
+
+		Key phrase: "modeling a bug" (for Ctrl + Shift + F finding later)
+	*/
 	public void applyDamageConversion(DamageConversion dc) {
-		if (dc.convertsToDamage()) {
-			int elementIndex = DamageElements.getElementIndex(dc.getDamageElement());
-			damageElements[elementIndex] += dc.getPercentage();
-			radialDamageElements[elementIndex] += dc.getPercentage();
+		DamageElement conv = dc.getConvertedElement();
+		if (damageElements.containsKey(conv)) {
+			damageElements.put(conv, damageElements.get(conv) + dc.getPercentage());
+		}
+		else {
+			damageElements.put(conv, dc.getPercentage());
 		}
 
-		if (dc.convertsToTemperature()) {
-			tempElement = dc.getTemperatureElement();
-			// TODO: this feels risky. Should it be stored as a % until it gets evaluated, like the Damage does?
-			// Theoretically, the only upgrades that do conversion have 0 heat as base. that makes it safe to do it this way, i think?
-			temperature += dc.getPercentage() * damage;
-			radialTemperature += dc.getPercentage() * radialDamage;
+		if (radialDamageElements.containsKey(conv)) {
+			radialDamageElements.put(conv, radialDamageElements.get(conv) + dc.getPercentage());
+		}
+		else {
+			radialDamageElements.put(conv, dc.getPercentage());
 		}
 
-		// Only subtract once, in case it converts to (Fire-element + Heat) or (Frost-element + Cold).
 		if (dc.convertsInsteadOfAdds()) {
-			// This is an implicit check for "has the starting element for damage been defined?", because this value will be -1 if the initial value was set to Null.
-			if (startingDamageElementIndex > -1) {
-				// Key phrase: "modeling a bug" (for Ctrl + Shift + F finding later)
-				damageElements[startingDamageElementIndex] = Math.max(damageElements[startingDamageElementIndex] - dc.getPercentage(), 0);
+			if (baseDamageElement != null) {
+				damageElements.put(baseDamageElement, Math.max(damageElements.get(baseDamageElement) - dc.getPercentage(), 0));
 			}
-			if (startingRadialDamageElementIndex > -1) {
-				// Key phrase: "modeling a bug" (for Ctrl + Shift + F finding later)
-				radialDamageElements[startingRadialDamageElementIndex] = Math.max(radialDamageElements[startingRadialDamageElementIndex] - dc.getPercentage(), 0);
+			if (baseRadialDamageElement != null) {
+				radialDamageElements.put(baseRadialDamageElement, Math.max(radialDamageElements.get(baseRadialDamageElement) - dc.getPercentage(), 0));
 			}
 		}
 	}
 
-	// Used by Subata T5.B and SMG OC "EMRB"
+	// Used by SMG OC "EMRB"
 	public void setFlatDamage(DamageElement flatDmgElement, double dmg) {
 		// From my testing, FlatDamageBonus isn't affected by DamageConversions, like SMG T4.B Conductive Bullets, nor does it do damage to ArmorHealth.
 		// Thus, it probably doesn't affect ArmorStrength either.
@@ -268,16 +274,16 @@ public class DamageComponent {
 		}
 	}
 	
-	public double getResistedDamage(ElementalResistancesArray creatureResistances) {
+	public double getResistedDamage(ElementalResistancesMap creatureResistances) {
 		double fltDamage = flatDamage * creatureResistances.getResistance(flatDamageElement);
-		return damage * MathUtils.vectorDotProduct(damageElements, creatureResistances.getResistances()) + fltDamage;
+		return damage * creatureResistances.multiplyDamageByElements(damageElements) + fltDamage;
 	}
-	public double getResistedRadialDamage(ElementalResistancesArray creatureResistances) {
+	public double getResistedRadialDamage(ElementalResistancesMap creatureResistances) {
 		// TODO: the other half of where I could implement Radial-type Resistance if wanted. (Hiveguard, Caretaker)
-		return radialDamage * MathUtils.vectorDotProduct(radialDamageElements, creatureResistances.getResistances());
+		return radialDamage * creatureResistances.multiplyDamageByElements(radialDamageElements);
 	}
 
-	public double getTotalComplicatedDamageDealtPerHit(MaterialFlag targetMaterial, ElementalResistancesArray creatureResistances,
+	public double getTotalComplicatedDamageDealtPerHit(MaterialFlag targetMaterial, ElementalResistancesMap creatureResistances,
 													   boolean IFG, double weakpointMultiplier, double lightArmorReduction) {
 		/*
 			To the best of my current understanding, this is the order of operations when evaluating how much health gets removed from an enemy when they get damaged by a player's weapon:
@@ -338,12 +344,42 @@ public class DamageComponent {
 		return totalDamage;
 	}
 
-	public boolean appliesTemperature(TemperatureElement desiredTemp) {
-		return tempElement == desiredTemp;
+	public boolean appliesTemperature(DamageElement desiredTemp) {
+		if (desiredTemp == DamageElement.heat) {
+			return (
+				damageElements.getOrDefault(DamageElement.fireAndHeat, 0.0) > 0 ||
+				damageElements.getOrDefault(DamageElement.heat, 0.0) > 0 ||
+				radialDamageElements.getOrDefault(DamageElement.fireAndHeat, 0.0) > 0 ||
+				radialDamageElements.getOrDefault(DamageElement.heat, 0.0) > 0
+			);
+		}
+		else if (desiredTemp == DamageElement.cold) {
+			return (
+				damageElements.getOrDefault(DamageElement.frostAndCold, 0.0) > 0 ||
+				damageElements.getOrDefault(DamageElement.cold, 0.0) > 0 ||
+				radialDamageElements.getOrDefault(DamageElement.frostAndCold, 0.0) > 0 ||
+				radialDamageElements.getOrDefault(DamageElement.cold, 0.0) > 0
+			);
+		}
+		else {
+			return false;
+		}
 	}
-	public double getTemperatureDealtPerHit(TemperatureElement desiredTemp) {
+	public double getTemperatureDealtPerDirectHit(DamageElement desiredTemp) {
 		if (appliesTemperature(desiredTemp)) {
-			return temperature + radialTemperature;
+			if (desiredTemp == DamageElement.heat) {
+				double heat = damage * (damageElements.getOrDefault(DamageElement.fireAndHeat, 0.0) + damageElements.getOrDefault(DamageElement.heat, 0.0));
+				double radialHeat = radialDamage * (radialDamageElements.getOrDefault(DamageElement.fireAndHeat, 0.0) + radialDamageElements.getOrDefault(DamageElement.heat, 0.0));
+				return heat + radialHeat;
+			}
+			else if (desiredTemp == DamageElement.cold) {
+				double cold = damage * (damageElements.getOrDefault(DamageElement.frostAndCold, 0.0) + damageElements.getOrDefault(DamageElement.cold, 0.0));
+				double radialCold = radialDamage * (radialDamageElements.getOrDefault(DamageElement.frostAndCold, 0.0) + radialDamageElements.getOrDefault(DamageElement.cold, 0.0));
+				return cold + radialCold;
+			}
+			else {
+				return 0;
+			}
 		}
 		else {
 			return 0;

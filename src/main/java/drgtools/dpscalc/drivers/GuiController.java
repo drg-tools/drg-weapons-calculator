@@ -63,14 +63,14 @@ import drgtools.dpscalc.weapons.scout.zhukov.Zhukov;
 
 /*
 	TODO List
-	1. Refactor ArmorWasting() and Overkill() to use DamageComponents and ElementalResistances (don't need STEs, thankfully)
-	3. PR & merge damage-refactor
-	4. Figure out how to do Subata first with the newly refactored mechanics, and then use that paradigm to update the other models.
-	5. Implement STEs that can stack with themself multiple times (Neuro-Lasso's slow, Cryo Bolt's cold/sec, etc)
-	6. Collect info about Status Effects' default tick interval and default duration (SplitSentro's spreadsheet)
-	7. Delete modelPieces/DoTInformation.java after StatusEffects are being used
-	8. Implement ConditionalDamageConversion for Breakpoints in particular
-	9. Add U36's new weapons {CWC, Diffractor, Coilgun, Crossbow}
+	1. PR & merge damage-refactor
+	2. Figure out how to do Subata first with the newly refactored mechanics, and then use that paradigm to update the other models.
+	3. Expand upon the CurveFloat object, now that I have the formula to extract the polynomial equations.
+	4. Implement STEs that can stack with themself multiple times (Neuro-Lasso's slow, Cryo Bolt's cold/sec, etc)
+	5. Collect info about Status Effects' default tick interval and default duration (SplitSentro's spreadsheet)
+	6. Delete modelPieces/DoTInformation.java after StatusEffects are being used
+	7. Implement ConditionalDamageConversion for Breakpoints in particular
+	8. Add U36's new weapons {CWC, Diffractor, Coilgun, Crossbow}
 */
 
 public class GuiController implements ActionListener {

@@ -1,8 +1,11 @@
 package drgtools.dpscalc.utilities;
 
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.EnumMap;
 
 public class MathUtils {
 	public static double round(double value, int places) {
@@ -80,6 +83,14 @@ public class MathUtils {
 		int sum = 0;
 		for (int i = 0; i < A.length; i++) {
 			sum += A[i];
+		}
+		return sum;
+	}
+
+	public static double sum(EnumMap<DamageElement, Double> dmgMap) {
+		double sum = 0.0;
+		for (DamageElement el: dmgMap.keySet()) {
+			sum += dmgMap.get(el);
 		}
 		return sum;
 	}

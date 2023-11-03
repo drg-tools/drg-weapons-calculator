@@ -45,7 +45,7 @@ public class Enemy {
 	// Resistance/weakness values taken from Elythnwaen's Spreadsheet
 	// If this number is greater than 0, that means that it takes less damage from that particular element.
 	// Conversely, if it's less than 0 it takes extra damage from that particular element
-	protected ElementalResistancesArray resistances = new ElementalResistancesArray();
+	protected ElementalResistancesMap resistances = new ElementalResistancesMap();
 	
 	// This info comes from Elythnwaen's Temperatures spreadsheet, and many of those values were seeded from MikeGSG giving us the values for the 5 "base" creature types.
 	protected CreatureTemperatureComponent temperatureComponent;
@@ -115,7 +115,7 @@ public class Enemy {
 			return 0.0;
 		}
 	}
-	public ElementalResistancesArray getElementalResistances(){
+	public ElementalResistancesMap getElementalResistances(){
 		return resistances;
 	}
 	public CreatureTemperatureComponent getTemperatureComponent() {

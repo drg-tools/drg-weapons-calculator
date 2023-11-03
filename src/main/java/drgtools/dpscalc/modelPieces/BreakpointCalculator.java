@@ -1,9 +1,9 @@
 package drgtools.dpscalc.modelPieces;
 
-import drgtools.dpscalc.enemies.ElementalResistancesArray;
+import drgtools.dpscalc.enemies.ElementalResistancesMap;
 import drgtools.dpscalc.enemies.Enemy;
 import drgtools.dpscalc.modelPieces.damage.DamageComponent;
-import drgtools.dpscalc.modelPieces.damage.DamageElements.TemperatureElement;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.modelPieces.damage.DamageFlags.MaterialFlag;
 import drgtools.dpscalc.modelPieces.statusEffects.MultipleSTEs;
 import drgtools.dpscalc.modelPieces.statusEffects.PushSTEComponent;
@@ -71,7 +71,7 @@ public class BreakpointCalculator {
         }
 
         CreatureTemperatureComponent temperatureComp = target.getTemperatureComponent();
-        ElementalResistancesArray resistances = target.getElementalResistances();
+        ElementalResistancesMap resistances = target.getElementalResistances();
 
         double totalDamagePerHit = 0;
         boolean atLeastOneDamageComponentDoesHeat = false;
@@ -86,9 +86,9 @@ public class BreakpointCalculator {
                 1
             );
             allStes.addAll(damagePerHit[i].getStatusEffectsApplied());
-            if (damagePerHit[i].appliesTemperature(TemperatureElement.heat)) {
+            if (damagePerHit[i].appliesTemperature(DamageElement.heat)) {
                 atLeastOneDamageComponentDoesHeat = true;
-                totalHeatPerHit += damagePerHit[i].getTemperatureDealtPerHit(TemperatureElement.heat);
+                totalHeatPerHit += damagePerHit[i].getTemperatureDealtPerDirectHit(DamageElement.heat);
             }
         }
 
@@ -100,9 +100,9 @@ public class BreakpointCalculator {
         boolean atLeastOneSteAppliesHeat = false;
         double stesHeatPerSec = 0;
         for (PushSTEComponent pstec: allStes) {
-            if (pstec.getSTE().inflictsTemperature(TemperatureElement.heat)) {
+            if (pstec.getSTE().inflictsTemperature(DamageElement.heat)) {
                 atLeastOneSteAppliesHeat = true;
-                stesHeatPerSec += pstec.getSTE().getAverageTemperaturePerSecond(TemperatureElement.heat);
+                stesHeatPerSec += pstec.getSTE().getAverageTemperaturePerSecond(DamageElement.heat);
             }
         }
 
@@ -183,7 +183,7 @@ public class BreakpointCalculator {
         }
 
         CreatureTemperatureComponent temperatureComp = target.getTemperatureComponent();
-        ElementalResistancesArray resistances = target.getElementalResistances();
+        ElementalResistancesMap resistances = target.getElementalResistances();
 
         double totalDamagePerHit = 0;
         double totalDamagePerHitOnHeavyArmor = 0;
@@ -214,9 +214,9 @@ public class BreakpointCalculator {
             }
 
             allStes.addAll(damagePerHit[i].getStatusEffectsApplied());
-            if (damagePerHit[i].appliesTemperature(TemperatureElement.heat)) {
+            if (damagePerHit[i].appliesTemperature(DamageElement.heat)) {
                 atLeastOneDamageComponentDoesHeat = true;
-                totalHeatPerHit += damagePerHit[i].getTemperatureDealtPerHit(TemperatureElement.heat);
+                totalHeatPerHit += damagePerHit[i].getTemperatureDealtPerDirectHit(DamageElement.heat);
             }
         }
 
@@ -228,9 +228,9 @@ public class BreakpointCalculator {
         boolean atLeastOneSteAppliesHeat = false;
         double stesHeatPerSec = 0;
         for (PushSTEComponent pstec: allStes) {
-            if (pstec.getSTE().inflictsTemperature(TemperatureElement.heat)) {
+            if (pstec.getSTE().inflictsTemperature(DamageElement.heat)) {
                 atLeastOneSteAppliesHeat = true;
-                stesHeatPerSec += pstec.getSTE().getAverageTemperaturePerSecond(TemperatureElement.heat);
+                stesHeatPerSec += pstec.getSTE().getAverageTemperaturePerSecond(DamageElement.heat);
             }
         }
 
@@ -335,7 +335,7 @@ public class BreakpointCalculator {
         }
 
         CreatureTemperatureComponent temperatureComp = target.getTemperatureComponent();
-        ElementalResistancesArray resistances = target.getElementalResistances();
+        ElementalResistancesMap resistances = target.getElementalResistances();
 
         double totalDamagePerHitBeforeBreakingArmor = 0;
         double totalDamagePerHitAfterBreakingArmor = 0;
@@ -350,7 +350,7 @@ public class BreakpointCalculator {
                 resistances,
                 targetIsAffectedByIFG,
                 1,
-                UtilityInformation.LightArmor_DamageReduction  // TODO: This is where I could implement per-enemy Light Armor multiplier (Q'ronar Youngling)
+                target.getArmorStrengthReduction()
             );
             totalDamagePerHitAfterBreakingArmor += damagePerHit[i].getTotalComplicatedDamageDealtPerHit(
                 postBreakMaterialFlag,
@@ -366,9 +366,9 @@ public class BreakpointCalculator {
             }
 
             allStes.addAll(damagePerHit[i].getStatusEffectsApplied());
-            if (damagePerHit[i].appliesTemperature(TemperatureElement.heat)) {
+            if (damagePerHit[i].appliesTemperature(DamageElement.heat)) {
                 atLeastOneDamageComponentDoesHeat = true;
-                totalHeatPerHit += damagePerHit[i].getTemperatureDealtPerHit(TemperatureElement.heat);
+                totalHeatPerHit += damagePerHit[i].getTemperatureDealtPerDirectHit(DamageElement.heat);
             }
         }
 
@@ -380,9 +380,9 @@ public class BreakpointCalculator {
         boolean atLeastOneSteAppliesHeat = false;
         double stesHeatPerSec = 0;
         for (PushSTEComponent pstec: allStes) {
-            if (pstec.getSTE().inflictsTemperature(TemperatureElement.heat)) {
+            if (pstec.getSTE().inflictsTemperature(DamageElement.heat)) {
                 atLeastOneSteAppliesHeat = true;
-                stesHeatPerSec += pstec.getSTE().getAverageTemperaturePerSecond(TemperatureElement.heat);
+                stesHeatPerSec += pstec.getSTE().getAverageTemperaturePerSecond(DamageElement.heat);
             }
         }
 
@@ -418,7 +418,8 @@ public class BreakpointCalculator {
         allStatusEffects.resetTimeElapsed();
 
         // Because this breakpoint will only be calculated when target.hasLightArmor() is true, it's safe to fetch the ArmorStrength value like this.
-        double probabilityToBreakArmorStrengthPlate = probabilityToBreakArmorStrengthPlate(totalArmorDamageDealtPerDirectHit / normalScalingResistance, target.getArmorStrength());
+        // TODO: should this damage be divided by Normal Scaling resistance?
+        double probabilityToBreakArmorStrengthPlate = EnemyInformation.armorStrengthBreakProbabilityLookup(totalArmorDamageDealtPerDirectHit / normalScalingResistance, target.getArmorStrength());
         int numberOfShotsToBreakLightArmor = (int) Math.ceil(MathUtils.meanRolls(probabilityToBreakArmorStrengthPlate));
 
         double fourSecondsDoTDamage;
@@ -451,24 +452,5 @@ public class BreakpointCalculator {
         }
 
         return breakpointCounter;
-    }
-
-    // TODO: update EnemyInformation's version of this method, and then replace it later.
-    // This method assumes that Armor Breaking, Elemental Resistances, Damage Flags, and Normal Scaling Resistance have already been factored in for the first argument.
-    private double probabilityToBreakArmorStrengthPlate(double totalArmorDamageOnDirectHit, double armorStrength) {
-        double lookupValue = totalArmorDamageOnDirectHit / armorStrength;
-
-        if (lookupValue < 1.0) {
-            return lookupValue / 2.0;
-        }
-        else if (lookupValue < 2.0) {
-            return 0.5 + (lookupValue - 1.0) / 4.0;
-        }
-        else if (lookupValue < 4.0) {
-            return 0.75 + (lookupValue - 2.0) / 8.0;
-        }
-        else {
-            return 1.0;
-        }
     }
 }
