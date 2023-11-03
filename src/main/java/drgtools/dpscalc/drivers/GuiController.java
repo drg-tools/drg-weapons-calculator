@@ -63,14 +63,19 @@ import drgtools.dpscalc.weapons.scout.zhukov.Zhukov;
 
 /*
 	TODO List
-	1. PR & merge damage-refactor
-	2. Figure out how to do Subata first with the newly refactored mechanics, and then use that paradigm to update the other models.
-	3. Expand upon the CurveFloat object, now that I have the formula to extract the polynomial equations.
-	4. Implement STEs that can stack with themself multiple times (Neuro-Lasso's slow, Cryo Bolt's cold/sec, etc)
-	5. Collect info about Status Effects' default tick interval and default duration (SplitSentro's spreadsheet)
-	6. Delete modelPieces/DoTInformation.java after StatusEffects are being used
-	7. Implement ConditionalDamageConversion for Breakpoints in particular
-	8. Add U36's new weapons {CWC, Diffractor, Coilgun, Crossbow}
+	1. Move Breakpoint, Overkill, and ArmorWasting methods into the Enemy class and its children (overrides) and re-architect EnemyInformation
+	2. Move calculateNumEnemies, calculateDamagePerHit, and some Utility stuff into DamageComponent
+	3. Implement "converted RadialDamage has no falloff" bug in DamageComponent
+	4. Add some prettyPrint/toString methods to the complex objects, to facilitate easier debugging in the future.
+	5. PR & merge damage-refactor
+	6. Figure out how to do Subata first with the newly refactored mechanics, and then use that paradigm to update the other models.
+	7. Expand upon the CurveFloat object, now that I have the formula to extract the polynomial equations.
+	8. Implement STEs that can stack with themself multiple times (Neuro-Lasso's slow, Cryo Bolt's cold/sec, etc)
+	9. Collect info about Status Effects' default tick interval and default duration (SplitSentro's spreadsheet)
+	10. Delete modelPieces/DoTInformation.java after StatusEffects are being used
+	11. Implement ConditionalDamageConversion for Breakpoints in particular
+	12. Add U36's new weapons {CWC, Diffractor, Coilgun, Crossbow}
+	13. Update the GUI to use nested tab panes? With 24 weapons, I'm expecting 31 models. I don't think I could fit 8 tabs on a single pane...
 */
 
 public class GuiController implements ActionListener {

@@ -1,10 +1,20 @@
 package drgtools.dpscalc.enemies;
 
+import drgtools.dpscalc.modelPieces.EnemyInformation;
 import drgtools.dpscalc.modelPieces.UtilityInformation;
+import drgtools.dpscalc.modelPieces.damage.DamageComponent;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
+import drgtools.dpscalc.modelPieces.damage.DamageFlags.MaterialFlag;
+import drgtools.dpscalc.modelPieces.statusEffects.MultipleSTEs;
+import drgtools.dpscalc.modelPieces.statusEffects.PushSTEComponent;
 import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
+import drgtools.dpscalc.utilities.MathUtils;
+import drgtools.dpscalc.weapons.STE_OnFire;
+
+import java.util.ArrayList;
 
 // TODO: Technically, this could model certain enemies' Stun Duration multiplier and Stun Immunity windows too. But for now, they're not implemented.
-public class Enemy {
+public abstract class Enemy {
 	
 	/****************************************************************************************
 	* Class Variables
@@ -155,7 +165,7 @@ public class Enemy {
 			return armorStrengthReduction;
 		}
 		else {
-			return 0.0;
+			return 1.0;
 		}
 	}
 	public double getNumArmorStrengthPlates() {
@@ -208,5 +218,463 @@ public class Enemy {
 		return "Weakpoint";
 	}
 
-	// TODO: move Breakpoint, Overkill, and ArmorWasting to here?
+	// TODO: move Breakpoint, Overkill, and ArmorWasting to here
+	public ArrayList<Integer> calculateBreakpoints(DamageComponent damagePerPellet, int numPellets, DamageComponent[] otherDamage,
+												   double RoF, boolean IFG, boolean frozen, double normalScaling, double largeScaling) {
+		ArrayList<Integer> toReturn = new ArrayList<>();
+		if (hasExposedBodySomewhere()) {
+			toReturn.add(calculateNormalFleshBreakpoint(damagePerPellet, numPellets, otherDamage, RoF, IFG, frozen, normalScaling, largeScaling));
+		}
+		if (hasLightArmor()) {
+			toReturn.add(calculateLightArmorBreakpoint(damagePerPellet, numPellets, otherDamage, RoF, IFG, frozen, normalScaling, largeScaling));
+		}
+		if (hasWeakpoint()) {
+			toReturn.add(calculateWeakpointBreakpoint(damagePerPellet, numPellets, otherDamage, RoF, IFG, frozen, normalScaling, largeScaling));
+		}
+		return toReturn;
+	}
+
+	// TODO: I really think that these three methods can be combined and simplified somehow.
+	// But for just getting it out the door, this will do.
+	private int calculateNormalFleshBreakpoint(DamageComponent damagePerPellet, int numPellets, DamageComponent[] otherDamage,
+											   double RoF, boolean IFG, boolean frozen, double normalScaling, double largeScaling) {
+		int breakpointCounter = 0;
+
+		MaterialFlag breakpointMaterialFlag;
+		if (frozen) {
+			breakpointMaterialFlag = MaterialFlag.frozen;
+		}
+		else {
+			breakpointMaterialFlag = MaterialFlag.normalFlesh;
+		}
+
+		double effectiveHP;
+		if (usesNormalScaling()) {
+			effectiveHP = getBaseHealth() * normalScaling;
+		}
+		else {
+			effectiveHP = getBaseHealth() * largeScaling;
+		}
+
+		CreatureTemperatureComponent temperatureComp = getTemperatureComponent();
+		ElementalResistancesMap resistances = getElementalResistances();
+
+		double totalDamagePerHit = 0;
+		boolean atLeastOneDamageComponentDoesHeat = false;
+		double totalHeatPerHit = 0;
+		ArrayList<PushSTEComponent> allStes = new ArrayList<>();
+		int numDamageComponentsToEvaluate = numPellets;
+		if (otherDamage != null && otherDamage.length > 0) {
+			numDamageComponentsToEvaluate += otherDamage.length;
+		}
+		DamageComponent dmgAlias;
+		for (int i = 0; i < numDamageComponentsToEvaluate; i++) {
+			if (i < numPellets) {
+				dmgAlias = damagePerPellet;
+			}
+			else {
+				dmgAlias = otherDamage[i - numPellets];
+			}
+
+			totalDamagePerHit += dmgAlias.getTotalComplicatedDamageDealtPerHit(
+					breakpointMaterialFlag,
+					resistances,
+					IFG,
+					1,
+					1
+			);
+			allStes.addAll(dmgAlias.getStatusEffectsApplied());
+			if (dmgAlias.appliesTemperature(DamageElement.heat)) {
+				atLeastOneDamageComponentDoesHeat = true;
+				totalHeatPerHit += dmgAlias.getTemperatureDealtPerDirectHit(DamageElement.heat);
+			}
+		}
+
+        /*
+            By sheer luck, all of the Status Effects that I can think of that apply Heat ALSO start right away
+            (either 100% chance to apply, or AoE). As a result of that good luck, I can just apply their Heat/sec
+            constantly and right away to calculate Time to Ignite.
+        */
+		boolean atLeastOneSteAppliesHeat = false;
+		double stesHeatPerSec = 0;
+		for (PushSTEComponent pstec: allStes) {
+			if (pstec.getSTE().inflictsTemperature(DamageElement.heat)) {
+				atLeastOneSteAppliesHeat = true;
+				stesHeatPerSec += pstec.getSTE().getAverageTemperaturePerSecond(DamageElement.heat);
+			}
+		}
+
+		// Check for Heat/shot or Heat/sec stuff to see if this needs to add STE_OnFire into the mix.
+		if (!frozen && (atLeastOneDamageComponentDoesHeat || atLeastOneSteAppliesHeat)) {
+			// TODO: should this be extended longer than the normal duration?
+			double burnDuration = (temperatureComp.getEffectiveBurnTemperature() - temperatureComp.getEffectiveDouseTemperature()) / temperatureComp.getCoolingRate();
+			double totalHeatPerSec = totalHeatPerHit * RoF + stesHeatPerSec;
+
+			// Instant ignition on the first hit
+			if (totalHeatPerHit > temperatureComp.getEffectiveBurnTemperature()) {
+				allStes.add(new PushSTEComponent(0, new STE_OnFire(burnDuration)));
+			}
+			// Ignition across time. Check to make sure that the total Heat/sec > Cooling Rate. If not, then it will never ignite. (PGL Incendiary vs Oppressor comes to mind)
+			else if (totalHeatPerSec > temperatureComp.getCoolingRate()){
+				double timeToIgnite;
+				// First, check if the weapon can fully ignite the enemy in less than 1 sec (the default interval for CoolingRate, only Bulk Detonators use 0.25)
+				if (totalHeatPerHit * Math.floor(0.99 * RoF) + stesHeatPerSec >= temperatureComp.getEffectiveBurnTemperature()) {
+					timeToIgnite = temperatureComp.getEffectiveBurnTemperature() / totalHeatPerSec;
+				}
+				// If not, then this has to account for the Cooling Rate increasing the number of shots required.
+				else {
+					timeToIgnite = temperatureComp.getEffectiveBurnTemperature() / (totalHeatPerSec - temperatureComp.getCoolingRate());
+				}
+				allStes.add(new PushSTEComponent(timeToIgnite, new STE_OnFire(burnDuration)));
+			}
+			// implicit "else { don't add STE_OnFire }"
+		}
+
+		MultipleSTEs allStatusEffects = new MultipleSTEs(allStes);
+		// It's necessary to call this method right after instantiation because during construction it fully evaluates
+		// to calculate max damage and cumulative slows.
+		allStatusEffects.resetTimeElapsed();
+
+		double fourSecondsDoTDamage;
+		while(effectiveHP > 0) {
+			breakpointCounter++;
+
+			// 1. Subtract the damage dealt on hit
+			effectiveHP -= totalDamagePerHit;
+
+			// 2. Check if the next 4 seconds of DoT damage will kill the creature.
+			fourSecondsDoTDamage = allStatusEffects.predictResistedDamageDealtInNextTimeInterval(4.0, resistances);
+			if (fourSecondsDoTDamage >= effectiveHP) {
+				break;
+			}
+
+			// 3. If not, subtract 1/RoF seconds' worth of DoT Damage and increment all STEs by 1/RoF seconds
+			effectiveHP -= allStatusEffects.predictResistedDamageDealtInNextTimeInterval(1.0 / RoF, resistances);
+			allStatusEffects.progressTime(1.0 / RoF);
+
+			// Do some rounding because double operations are tricky
+			effectiveHP = MathUtils.round(effectiveHP, 4);
+		}
+
+		return breakpointCounter;
+	}
+
+	private int calculateWeakpointBreakpoint(DamageComponent damagePerPellet, int numPellets, DamageComponent[] otherDamage,
+											 double RoF, boolean IFG, boolean frozen, double normalScaling, double largeScaling) {
+		int breakpointCounter = 0;
+
+		MaterialFlag breakpointMaterialFlag, coveringArmorMaterialFlag;
+		if (frozen) {
+			breakpointMaterialFlag = MaterialFlag.frozen;
+			coveringArmorMaterialFlag = MaterialFlag.frozen;
+		}
+		else {
+			breakpointMaterialFlag = MaterialFlag.weakpoint;
+			coveringArmorMaterialFlag = MaterialFlag.heavyArmor;
+		}
+
+		double effectiveHP;
+		if (usesNormalScaling()) {
+			effectiveHP = getBaseHealth() * normalScaling;
+		}
+		else {
+			effectiveHP = getBaseHealth() * largeScaling;
+		}
+
+		CreatureTemperatureComponent temperatureComp = getTemperatureComponent();
+		ElementalResistancesMap resistances = getElementalResistances();
+
+		double totalDamagePerHit = 0;
+		double totalDamagePerHitOnHeavyArmor = 0;
+		double totalArmorDamageDealtPerDirectHit = 0;
+		boolean atLeastOneDamageComponentHasABGreaterThan100 = false;
+		boolean atLeastOneDamageComponentDoesHeat = false;
+		double totalHeatPerHit = 0;
+		ArrayList<PushSTEComponent> allStes = new ArrayList<>();
+		int numDamageComponentsToEvaluate = numPellets;
+		if (otherDamage != null && otherDamage.length > 0) {
+			numDamageComponentsToEvaluate += otherDamage.length;
+		}
+		DamageComponent dmgAlias;
+		for (int i = 0; i < numDamageComponentsToEvaluate; i++) {
+			if (i < numPellets) {
+				dmgAlias = damagePerPellet;
+			}
+			else {
+				dmgAlias = otherDamage[i - numPellets];
+			}
+
+			totalDamagePerHit += dmgAlias.getTotalComplicatedDamageDealtPerHit(
+					breakpointMaterialFlag,
+					resistances,
+					IFG,
+					getWeakpointMultiplier(),
+					1
+			);
+			totalDamagePerHitOnHeavyArmor += dmgAlias.getTotalComplicatedDamageDealtPerHit(
+					coveringArmorMaterialFlag,
+					resistances,
+					IFG,
+					1,
+					1
+			);
+
+			totalArmorDamageDealtPerDirectHit += dmgAlias.getTotalArmorDamageOnDirectHit();
+			if (dmgAlias.armorBreakingIsGreaterThan100Percent()) {
+				atLeastOneDamageComponentHasABGreaterThan100 = true;
+			}
+
+			allStes.addAll(dmgAlias.getStatusEffectsApplied());
+			if (dmgAlias.appliesTemperature(DamageElement.heat)) {
+				atLeastOneDamageComponentDoesHeat = true;
+				totalHeatPerHit += dmgAlias.getTemperatureDealtPerDirectHit(DamageElement.heat);
+			}
+		}
+
+        /*
+            By sheer luck, all of the Status Effects that I can think of that apply Heat ALSO start right away
+            (either 100% chance to apply, or AoE). As a result of that good luck, I can just apply their Heat/sec
+            constantly and right away to calculate Time to Ignite.
+        */
+		boolean atLeastOneSteAppliesHeat = false;
+		double stesHeatPerSec = 0;
+		for (PushSTEComponent pstec: allStes) {
+			if (pstec.getSTE().inflictsTemperature(DamageElement.heat)) {
+				atLeastOneSteAppliesHeat = true;
+				stesHeatPerSec += pstec.getSTE().getAverageTemperaturePerSecond(DamageElement.heat);
+			}
+		}
+
+		// Check for Heat/shot or Heat/sec stuff to see if this needs to add STE_OnFire into the mix.
+		if (!frozen && (atLeastOneDamageComponentDoesHeat || atLeastOneSteAppliesHeat)) {
+			// TODO: should this be extended longer than the normal duration?
+			double burnDuration = (temperatureComp.getEffectiveBurnTemperature() - temperatureComp.getEffectiveDouseTemperature()) / temperatureComp.getCoolingRate();
+			double totalHeatPerSec = totalHeatPerHit * RoF + stesHeatPerSec;
+
+			// Instant ignition on the first hit
+			if (totalHeatPerHit > temperatureComp.getEffectiveBurnTemperature()) {
+				allStes.add(new PushSTEComponent(0, new STE_OnFire(burnDuration)));
+			}
+			// Ignition across time. Check to make sure that the total Heat/sec > Cooling Rate. If not, then it will never ignite. (PGL Incendiary vs Oppressor comes to mind)
+			else if (totalHeatPerSec > temperatureComp.getCoolingRate()){
+				double timeToIgnite;
+				// First, check if the weapon can fully ignite the enemy in less than 1 sec (the default interval for CoolingRate, only Bulk Detonators use 0.25)
+				if (totalHeatPerHit * Math.floor(0.99 * RoF) + stesHeatPerSec >= temperatureComp.getEffectiveBurnTemperature()) {
+					timeToIgnite = temperatureComp.getEffectiveBurnTemperature() / totalHeatPerSec;
+				}
+				// If not, then this has to account for the Cooling Rate increasing the number of shots required.
+				else {
+					timeToIgnite = temperatureComp.getEffectiveBurnTemperature() / (totalHeatPerSec - temperatureComp.getCoolingRate());
+				}
+				allStes.add(new PushSTEComponent(timeToIgnite, new STE_OnFire(burnDuration)));
+			}
+			// implicit "else { don't add STE_OnFire }"
+		}
+
+		MultipleSTEs allStatusEffects = new MultipleSTEs(allStes);
+		// It's necessary to call this method right after instantiation because during construction it fully evaluates
+		// to calculate max damage and cumulative slows.
+		allStatusEffects.resetTimeElapsed();
+
+		double heavyArmorHP;
+		int numShotsToBreakArmor;
+		if (weakpointIsCoveredByHeavyArmor()) {
+			heavyArmorHP = getArmorBaseHealth() * normalScaling;
+			numShotsToBreakArmor = (int) Math.ceil(heavyArmorHP / totalArmorDamageDealtPerDirectHit);
+		}
+		else {
+			heavyArmorHP = 0;
+			numShotsToBreakArmor = 0;
+		}
+
+		double fourSecondsDoTDamage;
+		while(effectiveHP > 0) {
+			breakpointCounter++;
+
+			// 1. Subtract the damage dealt on hit
+			if (!frozen && heavyArmorHP > 0){
+				// heavyArmorHP > 0 will only evaluate to True when this is modeling an ArmorHealth plate covering the Weakpoint
+				// If the ArmorHealth plate covering the Weakpoint has been broken, do full damage.
+				if ((atLeastOneDamageComponentHasABGreaterThan100 && breakpointCounter >= numShotsToBreakArmor) || (!atLeastOneDamageComponentHasABGreaterThan100 && breakpointCounter > numShotsToBreakArmor)) {
+					effectiveHP -= totalDamagePerHit;
+				}
+				else {
+					effectiveHP -= totalDamagePerHitOnHeavyArmor;
+				}
+			}
+			// Either the target is Frozen, or it hit a Weakpoint not covered by an armor plate. Switching the MaterialFlag way at the top of this method accounts for either option.
+			else {
+				effectiveHP -= totalDamagePerHit;
+			}
+
+			// 2. Check if the next 4 seconds of DoT damage will kill the creature.
+			fourSecondsDoTDamage = allStatusEffects.predictResistedDamageDealtInNextTimeInterval(4.0, resistances);
+			if (fourSecondsDoTDamage >= effectiveHP) {
+				break;
+			}
+
+			// 3. If not, subtract 1/RoF seconds' worth of DoT Damage and increment all STEs by 1/RoF seconds
+			effectiveHP -= allStatusEffects.predictResistedDamageDealtInNextTimeInterval(1.0 / RoF, resistances);
+			allStatusEffects.progressTime(1.0 / RoF);
+
+			// Do some rounding because double operations are tricky
+			effectiveHP = MathUtils.round(effectiveHP, 4);
+		}
+
+		return breakpointCounter;
+	}
+
+	private int calculateLightArmorBreakpoint(DamageComponent damagePerPellet, int numPellets, DamageComponent[] otherDamage,
+											  double RoF, boolean IFG, boolean frozen, double normalScaling, double largeScaling) {
+		int breakpointCounter = 0;
+
+		MaterialFlag preBreakMaterialFlag, postBreakMaterialFlag;
+		if (frozen) {
+			preBreakMaterialFlag = MaterialFlag.frozen;
+			postBreakMaterialFlag = MaterialFlag.frozen;
+		}
+		else {
+			preBreakMaterialFlag = MaterialFlag.lightArmor;
+			postBreakMaterialFlag = MaterialFlag.normalFlesh;
+		}
+
+		double effectiveHP;
+		if (usesNormalScaling()) {
+			effectiveHP = getBaseHealth() * normalScaling;
+		}
+		else {
+			effectiveHP = getBaseHealth() * largeScaling;
+		}
+
+		CreatureTemperatureComponent temperatureComp = getTemperatureComponent();
+		ElementalResistancesMap resistances = getElementalResistances();
+
+		double totalDamagePerHitBeforeBreakingArmor = 0;
+		double totalDamagePerHitAfterBreakingArmor = 0;
+		double totalArmorDamageDealtPerDirectHit = 0;
+		boolean atLeastOneDamageComponentHasABGreaterThan100 = false;
+		boolean atLeastOneDamageComponentDoesHeat = false;
+		double totalHeatPerHit = 0;
+		ArrayList<PushSTEComponent> allStes = new ArrayList<>();
+		int numDamageComponentsToEvaluate = numPellets;
+		if (otherDamage != null && otherDamage.length > 0) {
+			numDamageComponentsToEvaluate += otherDamage.length;
+		}
+		DamageComponent dmgAlias;
+		for (int i = 0; i < numDamageComponentsToEvaluate; i++) {
+			if (i < numPellets) {
+				dmgAlias = damagePerPellet;
+			}
+			else {
+				dmgAlias = otherDamage[i - numPellets];
+			}
+
+			totalDamagePerHitBeforeBreakingArmor += dmgAlias.getTotalComplicatedDamageDealtPerHit(
+					preBreakMaterialFlag,
+					resistances,
+					IFG,
+					1,
+					getArmorStrengthReduction()
+			);
+			totalDamagePerHitAfterBreakingArmor += dmgAlias.getTotalComplicatedDamageDealtPerHit(
+					postBreakMaterialFlag,
+					resistances,
+					IFG,
+					1,
+					1
+			);
+
+			totalArmorDamageDealtPerDirectHit += dmgAlias.getTotalArmorDamageOnDirectHit();
+			if (dmgAlias.armorBreakingIsGreaterThan100Percent()) {
+				atLeastOneDamageComponentHasABGreaterThan100 = true;
+			}
+
+			allStes.addAll(dmgAlias.getStatusEffectsApplied());
+			if (dmgAlias.appliesTemperature(DamageElement.heat)) {
+				atLeastOneDamageComponentDoesHeat = true;
+				totalHeatPerHit += dmgAlias.getTemperatureDealtPerDirectHit(DamageElement.heat);
+			}
+		}
+
+        /*
+            By sheer luck, all of the Status Effects that I can think of that apply Heat ALSO start right away
+            (either 100% chance to apply, or AoE). As a result of that good luck, I can just apply their Heat/sec
+            constantly and right away to calculate Time to Ignite.
+        */
+		boolean atLeastOneSteAppliesHeat = false;
+		double stesHeatPerSec = 0;
+		for (PushSTEComponent pstec: allStes) {
+			if (pstec.getSTE().inflictsTemperature(DamageElement.heat)) {
+				atLeastOneSteAppliesHeat = true;
+				stesHeatPerSec += pstec.getSTE().getAverageTemperaturePerSecond(DamageElement.heat);
+			}
+		}
+
+		// Check for Heat/shot or Heat/sec stuff to see if this needs to add STE_OnFire into the mix.
+		if (!frozen && (atLeastOneDamageComponentDoesHeat || atLeastOneSteAppliesHeat)) {
+			// TODO: should this be extended longer than the normal duration?
+			double burnDuration = (temperatureComp.getEffectiveBurnTemperature() - temperatureComp.getEffectiveDouseTemperature()) / temperatureComp.getCoolingRate();
+			double totalHeatPerSec = totalHeatPerHit * RoF + stesHeatPerSec;
+
+			// Instant ignition on the first hit
+			if (totalHeatPerHit > temperatureComp.getEffectiveBurnTemperature()) {
+				allStes.add(new PushSTEComponent(0, new STE_OnFire(burnDuration)));
+			}
+			// Ignition across time. Check to make sure that the total Heat/sec > Cooling Rate. If not, then it will never ignite. (PGL Incendiary vs Oppressor comes to mind)
+			else if (totalHeatPerSec > temperatureComp.getCoolingRate()){
+				double timeToIgnite;
+				// First, check if the weapon can fully ignite the enemy in less than 1 sec (the default interval for CoolingRate, only Bulk Detonators use 0.25)
+				if (totalHeatPerHit * Math.floor(0.99 * RoF) + stesHeatPerSec >= temperatureComp.getEffectiveBurnTemperature()) {
+					timeToIgnite = temperatureComp.getEffectiveBurnTemperature() / totalHeatPerSec;
+				}
+				// If not, then this has to account for the Cooling Rate increasing the number of shots required.
+				else {
+					timeToIgnite = temperatureComp.getEffectiveBurnTemperature() / (totalHeatPerSec - temperatureComp.getCoolingRate());
+				}
+				allStes.add(new PushSTEComponent(timeToIgnite, new STE_OnFire(burnDuration)));
+			}
+			// implicit "else { don't add STE_OnFire }"
+		}
+
+		MultipleSTEs allStatusEffects = new MultipleSTEs(allStes);
+		// It's necessary to call this method right after instantiation because during construction it fully evaluates
+		// to calculate max damage and cumulative slows.
+		allStatusEffects.resetTimeElapsed();
+
+		// Because this breakpoint will only be calculated when target.hasLightArmor() is true, it's safe to fetch the ArmorStrength value like this.
+		// TODO: should this damage be divided by Normal Scaling resistance?
+		double probabilityToBreakArmorStrengthPlate = EnemyInformation.armorStrengthBreakProbabilityLookup(totalArmorDamageDealtPerDirectHit / normalScaling, getArmorStrength());
+		int numberOfShotsToBreakLightArmor = (int) Math.ceil(MathUtils.meanRolls(probabilityToBreakArmorStrengthPlate));
+
+		double fourSecondsDoTDamage;
+		while(effectiveHP > 0) {
+			breakpointCounter++;
+
+			// 1. Subtract the damage dealt on hit
+			if (atLeastOneDamageComponentHasABGreaterThan100 && breakpointCounter >= numberOfShotsToBreakLightArmor) {
+				effectiveHP -= totalDamagePerHitAfterBreakingArmor;
+			}
+			else if (!atLeastOneDamageComponentHasABGreaterThan100 && breakpointCounter > numberOfShotsToBreakLightArmor) {
+				effectiveHP -= totalDamagePerHitAfterBreakingArmor;
+			}
+			else {
+				effectiveHP -= totalDamagePerHitBeforeBreakingArmor;
+			}
+
+			// 2. Check if the next 4 seconds of DoT damage will kill the creature.
+			fourSecondsDoTDamage = allStatusEffects.predictResistedDamageDealtInNextTimeInterval(4.0, resistances);
+			if (fourSecondsDoTDamage >= effectiveHP) {
+				break;
+			}
+
+			// 3. If not, subtract 1/RoF seconds' worth of DoT Damage and increment all STEs by 1/RoF seconds
+			effectiveHP -= allStatusEffects.predictResistedDamageDealtInNextTimeInterval(1.0 / RoF, resistances);
+			allStatusEffects.progressTime(1.0 / RoF);
+
+			// Do some rounding because double operations are tricky
+			effectiveHP = MathUtils.round(effectiveHP, 4);
+		}
+
+		return breakpointCounter;
+	}
 }

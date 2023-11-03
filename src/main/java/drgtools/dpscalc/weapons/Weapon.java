@@ -16,6 +16,7 @@ import drgtools.dpscalc.modelPieces.EnemyInformation;
 import drgtools.dpscalc.modelPieces.Mod;
 import drgtools.dpscalc.modelPieces.Overclock;
 import drgtools.dpscalc.modelPieces.StatsRow;
+import drgtools.dpscalc.modelPieces.damage.DamageComponent;
 import drgtools.dpscalc.utilities.ConditionalArrayList;
 import drgtools.dpscalc.utilities.MathUtils;
 import drgtools.dpscalc.utilities.Point2D;
@@ -1251,12 +1252,8 @@ public abstract class Weapon extends Observable {
 		return currentT;
 	}
 
-	// TODO: these should use DamageComponent and be combined
-	protected double calculateProbabilityToBreakLightArmor(double baseDamage) {
-		return calculateProbabilityToBreakLightArmor(baseDamage, 1.0);
-	}
-	protected double calculateProbabilityToBreakLightArmor(double baseDamage, double armorBreaking) {
-		return EnemyInformation.armorStrengthBreakProbabilityLookup(baseDamage, armorBreaking, EnemyInformation.averageLightArmorStrength());
+	protected double calculateProbabilityToBreakLightArmor(DamageComponent dmg) {
+		return EnemyInformation.armorStrengthBreakProbabilityLookup(dmg.getTotalArmorDamageOnDirectHit(), EnemyInformation.averageLightArmorStrength());
 	}
 	
 	protected double calculateFearProcProbability(double fearFactor) {

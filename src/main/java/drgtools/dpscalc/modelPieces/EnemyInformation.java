@@ -437,10 +437,10 @@ public class EnemyInformation {
 		If the weapon can do at least one DoT, this will look ahead to see if up to 4 seconds of DoT damage can kill a creature. If it can, then it will finish on that Breakpoint
 		early instead of wasting superfluous ammo.
 	*/
-	public static int[] calculateBreakpoints(DamageComponent[] damagePerHit, double RoF, boolean IFG, boolean frozen) {
+	public static int[] calculateBreakpoints(DamageComponent damagePerPellet, int numPellets, DamageComponent[] otherDamage,
+											 double RoF, boolean IFG, boolean frozen) {
 		ArrayList<Integer> toReturn = new ArrayList<>();
 		Enemy alias;
-		BreakpointCalculator bpCalc;
 		for (int i = 0; i < enemiesModeled.length; i++) {
 			alias = enemiesModeled[i];
 			
@@ -448,17 +448,16 @@ public class EnemyInformation {
 			if (!alias.shouldHaveBreakpointsCalculated()) {
 				continue;
 			}
-			
-			bpCalc = new BreakpointCalculator(damagePerHit, RoF, alias, IFG, frozen,
-					normalEnemyResistances[hazardLevel - 1], largeEnemyResistances[hazardLevel - 1][playerCount - 1]);
-			toReturn.addAll(bpCalc.getBreakpoints());
+
+			toReturn.addAll(alias.calculateBreakpoints(damagePerPellet, numPellets, otherDamage, RoF, IFG, frozen,
+				normalEnemyResistances[hazardLevel - 1], largeEnemyResistances[hazardLevel - 1][playerCount - 1]));
 		}
 				
-		return convertIntegers(toReturn);
+		return convertArrayListToArray(toReturn);
 	}
 	
 	// Sourced from https://stackoverflow.com/a/718558
-	private static int[] convertIntegers(List<Integer> integers) {
+	private static int[] convertArrayListToArray(List<Integer> integers) {
 	    int[] ret = new int[integers.size()];
 	    Iterator<Integer> iterator = integers.iterator();
 	    for (int i = 0; i < ret.length; i++) {

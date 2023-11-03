@@ -110,7 +110,7 @@ public class StatusEffect {
     public double getAverageTotalDamage() {
         // Reminder to self: DoTs do their first tick of damage instantly. There's something weird about Inferno's DoT
         // that makes it do an extra tick when it ends too or something, for 11 ticks instead of 10
-        // TODO
+        // TODO: write a more exact formula than this quick-and-dirty approximation
         return getAverageDPS() * duration;
     }
 

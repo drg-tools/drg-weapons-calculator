@@ -12,15 +12,6 @@ import drgtools.dpscalc.utilities.MathUtils;
 import java.util.ArrayList;
 import java.util.EnumMap;
 
-/*
-	TODO List:
-	move the "calculate num enemies hit" into this object
-	consider moving the "calculate total damage dealt per hit" into this object?
-	add a toString method that nicely formats this stuff
-	implement as many of the Utility calculations here as I can
-	implement the "radial falloff doesn't apply to converted elements" logic
-*/
-
 public class DamageComponent {
 	protected double damage = 0;
 	protected DamageElement baseDamageElement;
