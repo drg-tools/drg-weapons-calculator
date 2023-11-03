@@ -89,6 +89,7 @@ public class MathUtils {
 
 	public static double sum(EnumMap<DamageElement, Double> dmgMap) {
 		double sum = 0.0;
+		// TODO: investigate if I need to exclude Heat and Cold from this summation
 		for (DamageElement el: dmgMap.keySet()) {
 			sum += dmgMap.get(el);
 		}

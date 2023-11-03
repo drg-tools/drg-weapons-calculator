@@ -4,6 +4,7 @@ import drgtools.dpscalc.modelPieces.EnemyInformation;
 import drgtools.dpscalc.modelPieces.UtilityInformation;
 import drgtools.dpscalc.modelPieces.damage.DamageComponent;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
+import drgtools.dpscalc.modelPieces.damage.DamageFlags.DamageFlag;
 import drgtools.dpscalc.modelPieces.damage.DamageFlags.MaterialFlag;
 import drgtools.dpscalc.modelPieces.damage.DamageInstance;
 import drgtools.dpscalc.modelPieces.statusEffects.MultipleSTEs;
@@ -652,9 +653,190 @@ public abstract class Enemy {
 		return breakpointCounter;
 	}
 
-	/*
-		This method intentionally ignores weakpoint damage bonuses because and armor reduction because I don't want to repeat the Breakpoints insanity.
-	*/
+	public double calculatePercentageOfDamageWastedByArmor(DamageInstance dmgInstance, double generalAccuracy, double weakpointAccuracy,
+														   double normalScaling, double largeScaling) {
+
+		int totalNumDmgComponentsPerHit = dmgInstance.getTotalNumberOfDamageComponents();
+
+		double baseHealth, heavyArmorPlateHealth;
+		if (usesNormalScaling()) {
+			baseHealth = getBaseHealth() * normalScaling;
+		}
+		else {
+			baseHealth = getBaseHealth() * largeScaling;
+		}
+		if (hasHeavyArmorHealth()) {
+			// All ArmorHealth plates have their health scale with difficulty resistance. By default, it's Normal Scaling but Elites override it.
+			heavyArmorPlateHealth = getArmorBaseHealth() * normalScaling;
+		}
+		else {
+			heavyArmorPlateHealth = 0;
+		}
+
+		double proportionOfDamageThatHitsWeakpoint = weakpointAccuracy / 100.0;
+		double proportionOfDamageThatHitsArmor = 1.0 - proportionOfDamageThatHitsWeakpoint;
+
+		int i;
+		double armorDamagePerPellet, otherArmorDamage;
+		double potentialMaxDamage, potentialWeakpointDamage, damageThatBypassesArmor, damageDealtToArmor, damageAffectedByArmor;
+		int avgNumPelletsToBreakArmorStrengthPlate, numPelletsThatHaveHitArmorStrengthPlate = 0, numHitsEvaluated = 0;
+		boolean armorStrengthPlateHasBroken;
+		int[] avgNumHitsToBreakArmorStrengthPlate = new int[0];
+		double totalDamageSpent = 0, damageDealtToHealth, actualDamageDealt = 0;
+		DamageComponent dmgAlias;
+
+		// Start by pre-calculating the number of pellets or loops that each DamageComponent would need to do before "statistically" it would break an armor plate that uses ArmorStrength
+		armorDamagePerPellet = dmgInstance.getDamagePerPellet().getArmorDamageOnDirectHit() * proportionOfDamageThatHitsArmor + dmgInstance.getDamagePerPellet().getRadialArmorDamageOnDirectHit();
+		if (hasLightArmor() || hasHeavyArmorStrength()) {
+			if (armorDamagePerPellet > 0.0) {
+				avgNumPelletsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(EnemyInformation.armorStrengthBreakProbabilityLookup(armorDamagePerPellet, getArmorStrength())));
+			}
+			else {
+				avgNumPelletsToBreakArmorStrengthPlate = -1;
+			}
+
+			if (dmgInstance.otherDamageIsDefined()) {
+				avgNumHitsToBreakArmorStrengthPlate = new int[dmgInstance.getNumberOfOtherDamageComponents()];
+				for (i = 0; i < dmgInstance.getNumberOfOtherDamageComponents(); i++) {
+					otherArmorDamage = dmgInstance.getOtherDamageComponentAtIndex(i).getArmorDamageOnDirectHit() * proportionOfDamageThatHitsArmor + dmgInstance.getOtherDamageComponentAtIndex(i).getRadialArmorDamageOnDirectHit();
+					if (otherArmorDamage > 0.0) {
+						avgNumHitsToBreakArmorStrengthPlate[i] = (int) Math.ceil(
+							MathUtils.meanRolls(EnemyInformation.armorStrengthBreakProbabilityLookup(otherArmorDamage, getArmorStrength()))
+						);
+					}
+					else {
+						avgNumHitsToBreakArmorStrengthPlate[i] = -1;
+					}
+				}
+			}
+		}
+		else {
+			avgNumPelletsToBreakArmorStrengthPlate = -1;
+		}
+
+		while (baseHealth > 0) {
+			numHitsEvaluated++;
+			for (i = 0; i < totalNumDmgComponentsPerHit; i++) {
+				// 1. Select the right DamageComponent to evaluate for this loop
+				dmgAlias = dmgInstance.getDamageComponentAtIndex(i);
+
+				if (i < dmgInstance.getNumPellets()) {
+					numPelletsThatHaveHitArmorStrengthPlate++;
+				}
+
+				// Early exit condition: if the current DamageComponent bypasses armor and doesn't damage it (e.g. Boomstick or Coilgun's Blastwave), skip the crazy calculations
+				if (!dmgAlias.getDamageFlag(DamageFlag.canDamageArmor) && !dmgAlias.getDamageFlag(DamageFlag.reducedByArmor)) {
+					damageThatBypassesArmor = dmgAlias.getTotalComplicatedDamageDealtPerHit(
+						MaterialFlag.heavyArmor,
+						getElementalResistances(),
+						false,
+						0,
+						1
+					);
+
+					totalDamageSpent += damageThatBypassesArmor;
+					actualDamageDealt += damageThatBypassesArmor;
+					baseHealth -= damageThatBypassesArmor;
+					continue;
+				}
+
+				// 2. Calculate its damage variants
+				potentialMaxDamage = dmgAlias.getResistedDamage(getElementalResistances());  // this is equivalent to "complicated(normalFlesh) - Radial"
+				damageThatBypassesArmor = dmgAlias.getResistedRadialDamage(getElementalResistances());  // alias of Radial Damage, temporarily
+				potentialWeakpointDamage = dmgAlias.getTotalComplicatedDamageDealtPerHit(
+					MaterialFlag.weakpoint,
+					getElementalResistances(),
+					false,
+					getWeakpointMultiplier(),
+					1
+				) - damageThatBypassesArmor;  // By subtracting Radial Damage, this evaluates down to just the Weakpoint Damage (if applicable)
+				damageThatBypassesArmor = dmgAlias.getTotalComplicatedDamageDealtPerHit(
+					MaterialFlag.heavyArmor,
+					getElementalResistances(),
+					false,
+					0,
+					1
+				);  // theoretically this should be identical to Radial Damage, but being verbose just to be safe.
+				damageDealtToArmor = dmgAlias.getArmorDamageOnDirectHit() * proportionOfDamageThatHitsArmor + dmgAlias.getRadialArmorDamageOnDirectHit();
+				damageAffectedByArmor = potentialMaxDamage * proportionOfDamageThatHitsArmor;
+
+				// 3. Subtract from Armor and Health accordingly
+				totalDamageSpent += damageAffectedByArmor + potentialWeakpointDamage * proportionOfDamageThatHitsWeakpoint + damageThatBypassesArmor;
+				damageDealtToHealth = potentialWeakpointDamage * proportionOfDamageThatHitsWeakpoint + damageThatBypassesArmor;
+
+				// 3a. Light Armor plates (always Armor Strength, mixes with Heavy Armor plates on Guards)
+				armorStrengthPlateHasBroken = (
+					(avgNumPelletsToBreakArmorStrengthPlate > 0 && (
+						numPelletsThatHaveHitArmorStrengthPlate > avgNumPelletsToBreakArmorStrengthPlate ||
+						(dmgAlias.armorBreakingIsGreaterThan100Percent() && numPelletsThatHaveHitArmorStrengthPlate == avgNumPelletsToBreakArmorStrengthPlate)
+					)) ||
+					// Because this will only evaluate for otherDamage[] DamageComponents, it should be safe to call the accessors like this.
+					(i >= dmgInstance.getNumPellets() && avgNumHitsToBreakArmorStrengthPlate[i-dmgInstance.getNumPellets()] > 0 && (
+						numHitsEvaluated > avgNumHitsToBreakArmorStrengthPlate[i-dmgInstance.getNumPellets()] ||
+						(dmgAlias.armorBreakingIsGreaterThan100Percent() && numHitsEvaluated == avgNumHitsToBreakArmorStrengthPlate[i-dmgInstance.getNumPellets()])
+					))
+				);
+				if (hasLightArmor()) {
+					// Plate is already broken, or on the shot that breaks with AB > 100%
+					if (armorStrengthPlateHasBroken) {
+						damageDealtToHealth += damageAffectedByArmor * getNumArmorStrengthPlates() / (getNumArmorStrengthPlates() + getNumArmorHealthPlates());
+					}
+					// Plate is unbroken; account for damage reduction
+					else {
+						if (dmgAlias.getDamageFlag(DamageFlag.embeddedDetonator)){
+							damageDealtToHealth += damageAffectedByArmor * getNumArmorStrengthPlates() / (getNumArmorStrengthPlates() + getNumArmorHealthPlates());
+						}
+						else {
+							damageDealtToHealth += damageAffectedByArmor * getArmorStrengthReduction() * getNumArmorStrengthPlates() / (getNumArmorStrengthPlates() + getNumArmorHealthPlates());
+						}
+					}
+				}
+
+				// 3b. Heavy Armor Plates with health (mixes with Light Armor plates on Guards)
+				if (hasHeavyArmorHealth()) {
+					if (heavyArmorPlateHealth > 0) {
+						if (dmgAlias.armorBreakingIsGreaterThan100Percent()) {
+							if (damageDealtToArmor > heavyArmorPlateHealth) {
+								damageDealtToHealth += damageAffectedByArmor * getNumArmorHealthPlates() / (getNumArmorStrengthPlates() + getNumArmorHealthPlates());
+								heavyArmorPlateHealth = 0.0;
+							}
+							else {
+								heavyArmorPlateHealth -= damageDealtToArmor;
+							}
+						}
+						else {
+							heavyArmorPlateHealth -= damageDealtToArmor;
+						}
+					}
+					else {
+						damageDealtToHealth += damageAffectedByArmor * getNumArmorHealthPlates() / (getNumArmorStrengthPlates() + getNumArmorHealthPlates());
+					}
+				}
+
+				// 3c. Heavy Armor plates with Armor Strength (mutually exclusive with Light Armor plates)
+				if (hasHeavyArmorStrength()) {
+					// Plate is already broken, or on the shot that breaks with AB > 100%
+					if (armorStrengthPlateHasBroken) {
+						damageDealtToHealth += damageAffectedByArmor;
+					}
+					// Implicit "else add zero"
+				}
+
+				actualDamageDealt += damageDealtToHealth;
+				baseHealth -= damageDealtToHealth;
+			}
+		}
+
+		double damageWasted = 1.0 - actualDamageDealt / totalDamageSpent;
+		// Mathematica's Chop[] function rounds any number lower than 10^-10 to the integer zero. Imitation, flattery, etc...
+		if (damageWasted < Math.pow(10.0, -10.0)) {
+			return 0.0;
+		}
+		else {
+			return damageWasted;
+		}
+	}
+
 	public double calculateOverkill(DamageInstance dmgInstance, double normalScaling, double largeScaling) {
 		double creatureHP;
 		if (usesNormalScaling()) {
