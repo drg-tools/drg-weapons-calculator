@@ -651,4 +651,38 @@ public abstract class Enemy {
 
 		return breakpointCounter;
 	}
+
+	/*
+		This method intentionally ignores weakpoint damage bonuses because and armor reduction because I don't want to repeat the Breakpoints insanity.
+	*/
+	public double calculateOverkill(DamageInstance dmgInstance, double normalScaling, double largeScaling) {
+		double creatureHP;
+		if (usesNormalScaling()) {
+			creatureHP = getBaseHealth() * normalScaling;
+		}
+		else {
+			creatureHP = getBaseHealth() * largeScaling;
+		}
+
+		double totalDamagePerShot = dmgInstance.getNumPellets() * dmgInstance.getDamagePerPellet().getTotalComplicatedDamageDealtPerHit(
+			MaterialFlag.normalFlesh,
+			getElementalResistances(),
+			false,
+			0,
+			1
+		);
+
+		if (dmgInstance.otherDamageIsDefined()) {
+			for (int j = dmgInstance.getNumPellets(); j < dmgInstance.getTotalNumberOfDamageComponents(); j++) {
+				totalDamagePerShot += dmgInstance.getDamageComponentAtIndex(j).getTotalComplicatedDamageDealtPerHit(
+					MaterialFlag.normalFlesh,
+					getElementalResistances(),
+					false,
+					0,
+					1
+				);
+			}
+		}
+		return ((Math.ceil(creatureHP / totalDamagePerShot) * totalDamagePerShot) / creatureHP - 1.0) * 100.0;
+	}
 }

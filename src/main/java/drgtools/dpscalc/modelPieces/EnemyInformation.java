@@ -866,52 +866,15 @@ public class EnemyInformation {
 		return toReturn;
 	}
 	
-	/*
-		This method intentionally ignores weakpoint damage bonuses because and armor reduction because I don't want to repeat the Breakpoints insanity.
-	*/
 	public static double[][] overkillPerCreature(DamageInstance dmgInstance){
 		int numEnemies = enemiesModeled.length;
 		double[][] toReturn = new double[2][numEnemies];
 		toReturn[0] = new double[numEnemies];
 		toReturn[1] = new double[numEnemies];
-		
-		double normalResistance = normalEnemyResistances[hazardLevel - 1];
-		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
-		
-		double creatureHP, totalDamagePerShot;
-		int i, j;
-		for (i = 0; i < enemiesModeled.length; i++) {
-			if (enemiesModeled[i].usesNormalScaling()) {
-				creatureHP = enemiesModeled[i].getBaseHealth() * normalResistance;
-			}
-			else {
-				creatureHP = enemiesModeled[i].getBaseHealth() * largeResistance;
-			}
-
-			totalDamagePerShot = dmgInstance.getNumPellets() * dmgInstance.getDamagePerPellet().getTotalComplicatedDamageDealtPerHit(
-				MaterialFlag.normalFlesh,
-				enemiesModeled[i].getElementalResistances(),
-				false,
-				0,
-				1
-			);
-
-			if (dmgInstance.otherDamageIsDefined()) {
-				for (j = dmgInstance.getNumPellets(); j < dmgInstance.getTotalNumberOfDamageComponents(); j++) {
-					totalDamagePerShot += dmgInstance.getDamageComponentAtIndex(j).getTotalComplicatedDamageDealtPerHit(
-						MaterialFlag.normalFlesh,
-						enemiesModeled[i].getElementalResistances(),
-						false,
-						0,
-						1
-					);
-				}
-			}
-			
+		for (int i = 0; i < numEnemies; i++) {
 			toReturn[0][i] = 1.0 / ((double) numEnemies);
-			toReturn[1][i] = ((Math.ceil(creatureHP / totalDamagePerShot) * totalDamagePerShot) / creatureHP - 1.0) * 100.0;
+			toReturn[1][i] = enemiesModeled[i].calculateOverkill(dmgInstance, normalEnemyResistances[hazardLevel - 1], largeEnemyResistances[hazardLevel - 1][playerCount - 1]);
 		}
-		
 		return toReturn;
 	}
 }
