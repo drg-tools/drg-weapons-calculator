@@ -5,6 +5,7 @@ import drgtools.dpscalc.modelPieces.UtilityInformation;
 import drgtools.dpscalc.modelPieces.damage.DamageComponent;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.modelPieces.damage.DamageFlags.MaterialFlag;
+import drgtools.dpscalc.modelPieces.damage.DamageInstance;
 import drgtools.dpscalc.modelPieces.statusEffects.MultipleSTEs;
 import drgtools.dpscalc.modelPieces.statusEffects.PushSTEComponent;
 import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
@@ -219,25 +220,25 @@ public abstract class Enemy {
 	}
 
 	// TODO: move Breakpoint, Overkill, and ArmorWasting to here
-	public ArrayList<Integer> calculateBreakpoints(DamageComponent damagePerPellet, int numPellets, DamageComponent[] otherDamage,
-												   double RoF, boolean IFG, boolean frozen, double normalScaling, double largeScaling) {
+	public ArrayList<Integer> calculateBreakpoints(DamageInstance dmgInstance, double RoF, boolean IFG, boolean frozen,
+												   double normalScaling, double largeScaling) {
 		ArrayList<Integer> toReturn = new ArrayList<>();
 		if (hasExposedBodySomewhere()) {
-			toReturn.add(calculateNormalFleshBreakpoint(damagePerPellet, numPellets, otherDamage, RoF, IFG, frozen, normalScaling, largeScaling));
+			toReturn.add(calculateNormalFleshBreakpoint(dmgInstance, RoF, IFG, frozen, normalScaling, largeScaling));
 		}
 		if (hasLightArmor()) {
-			toReturn.add(calculateLightArmorBreakpoint(damagePerPellet, numPellets, otherDamage, RoF, IFG, frozen, normalScaling, largeScaling));
+			toReturn.add(calculateLightArmorBreakpoint(dmgInstance, RoF, IFG, frozen, normalScaling, largeScaling));
 		}
 		if (hasWeakpoint()) {
-			toReturn.add(calculateWeakpointBreakpoint(damagePerPellet, numPellets, otherDamage, RoF, IFG, frozen, normalScaling, largeScaling));
+			toReturn.add(calculateWeakpointBreakpoint(dmgInstance, RoF, IFG, frozen, normalScaling, largeScaling));
 		}
 		return toReturn;
 	}
 
 	// TODO: I really think that these three methods can be combined and simplified somehow.
 	// But for just getting it out the door, this will do.
-	private int calculateNormalFleshBreakpoint(DamageComponent damagePerPellet, int numPellets, DamageComponent[] otherDamage,
-											   double RoF, boolean IFG, boolean frozen, double normalScaling, double largeScaling) {
+	private int calculateNormalFleshBreakpoint(DamageInstance dmgInstance, double RoF, boolean IFG, boolean frozen,
+											   double normalScaling, double largeScaling) {
 		int breakpointCounter = 0;
 
 		MaterialFlag breakpointMaterialFlag;
@@ -263,18 +264,9 @@ public abstract class Enemy {
 		boolean atLeastOneDamageComponentDoesHeat = false;
 		double totalHeatPerHit = 0;
 		ArrayList<PushSTEComponent> allStes = new ArrayList<>();
-		int numDamageComponentsToEvaluate = numPellets;
-		if (otherDamage != null && otherDamage.length > 0) {
-			numDamageComponentsToEvaluate += otherDamage.length;
-		}
 		DamageComponent dmgAlias;
-		for (int i = 0; i < numDamageComponentsToEvaluate; i++) {
-			if (i < numPellets) {
-				dmgAlias = damagePerPellet;
-			}
-			else {
-				dmgAlias = otherDamage[i - numPellets];
-			}
+		for (int i = 0; i < dmgInstance.getTotalNumberOfDamageComponents(); i++) {
+			dmgAlias = dmgInstance.getDamageComponentAtIndex(i);
 
 			totalDamagePerHit += dmgAlias.getTotalComplicatedDamageDealtPerHit(
 					breakpointMaterialFlag,
@@ -359,8 +351,8 @@ public abstract class Enemy {
 		return breakpointCounter;
 	}
 
-	private int calculateWeakpointBreakpoint(DamageComponent damagePerPellet, int numPellets, DamageComponent[] otherDamage,
-											 double RoF, boolean IFG, boolean frozen, double normalScaling, double largeScaling) {
+	private int calculateWeakpointBreakpoint(DamageInstance dmgInstance, double RoF, boolean IFG, boolean frozen,
+											 double normalScaling, double largeScaling) {
 		int breakpointCounter = 0;
 
 		MaterialFlag breakpointMaterialFlag, coveringArmorMaterialFlag;
@@ -391,18 +383,9 @@ public abstract class Enemy {
 		boolean atLeastOneDamageComponentDoesHeat = false;
 		double totalHeatPerHit = 0;
 		ArrayList<PushSTEComponent> allStes = new ArrayList<>();
-		int numDamageComponentsToEvaluate = numPellets;
-		if (otherDamage != null && otherDamage.length > 0) {
-			numDamageComponentsToEvaluate += otherDamage.length;
-		}
 		DamageComponent dmgAlias;
-		for (int i = 0; i < numDamageComponentsToEvaluate; i++) {
-			if (i < numPellets) {
-				dmgAlias = damagePerPellet;
-			}
-			else {
-				dmgAlias = otherDamage[i - numPellets];
-			}
+		for (int i = 0; i < dmgInstance.getTotalNumberOfDamageComponents(); i++) {
+			dmgAlias = dmgInstance.getDamageComponentAtIndex(i);
 
 			totalDamagePerHit += dmgAlias.getTotalComplicatedDamageDealtPerHit(
 					breakpointMaterialFlag,
@@ -524,8 +507,8 @@ public abstract class Enemy {
 		return breakpointCounter;
 	}
 
-	private int calculateLightArmorBreakpoint(DamageComponent damagePerPellet, int numPellets, DamageComponent[] otherDamage,
-											  double RoF, boolean IFG, boolean frozen, double normalScaling, double largeScaling) {
+	private int calculateLightArmorBreakpoint(DamageInstance dmgInstance, double RoF, boolean IFG, boolean frozen,
+											  double normalScaling, double largeScaling) {
 		int breakpointCounter = 0;
 
 		MaterialFlag preBreakMaterialFlag, postBreakMaterialFlag;
@@ -556,18 +539,9 @@ public abstract class Enemy {
 		boolean atLeastOneDamageComponentDoesHeat = false;
 		double totalHeatPerHit = 0;
 		ArrayList<PushSTEComponent> allStes = new ArrayList<>();
-		int numDamageComponentsToEvaluate = numPellets;
-		if (otherDamage != null && otherDamage.length > 0) {
-			numDamageComponentsToEvaluate += otherDamage.length;
-		}
 		DamageComponent dmgAlias;
-		for (int i = 0; i < numDamageComponentsToEvaluate; i++) {
-			if (i < numPellets) {
-				dmgAlias = damagePerPellet;
-			}
-			else {
-				dmgAlias = otherDamage[i - numPellets];
-			}
+		for (int i = 0; i < dmgInstance.getTotalNumberOfDamageComponents(); i++) {
+			dmgAlias = dmgInstance.getDamageComponentAtIndex(i);
 
 			totalDamagePerHitBeforeBreakingArmor += dmgAlias.getTotalComplicatedDamageDealtPerHit(
 					preBreakMaterialFlag,

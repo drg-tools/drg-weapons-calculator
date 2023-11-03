@@ -1,18 +1,19 @@
 package drgtools.dpscalc.modelPieces;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-
-import drgtools.dpscalc.modelPieces.damage.DamageComponent;
 import drgtools.dpscalc.enemies.Enemy;
 import drgtools.dpscalc.enemies.glyphid.*;
 import drgtools.dpscalc.enemies.mactera.*;
 import drgtools.dpscalc.enemies.other.*;
+import drgtools.dpscalc.modelPieces.damage.DamageComponent;
 import drgtools.dpscalc.modelPieces.damage.DamageFlags.*;
+import drgtools.dpscalc.modelPieces.damage.DamageInstance;
 import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 import drgtools.dpscalc.utilities.MathUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 public class EnemyInformation {
 	
@@ -437,20 +438,16 @@ public class EnemyInformation {
 		If the weapon can do at least one DoT, this will look ahead to see if up to 4 seconds of DoT damage can kill a creature. If it can, then it will finish on that Breakpoint
 		early instead of wasting superfluous ammo.
 	*/
-	public static int[] calculateBreakpoints(DamageComponent damagePerPellet, int numPellets, DamageComponent[] otherDamage,
-											 double RoF, boolean IFG, boolean frozen) {
+	public static int[] calculateBreakpoints(DamageInstance dmgInstance, double RoF, boolean IFG, boolean frozen) {
 		ArrayList<Integer> toReturn = new ArrayList<>();
 		Enemy alias;
 		for (int i = 0; i < enemiesModeled.length; i++) {
 			alias = enemiesModeled[i];
-			
-			// If this enemy shouldn't be modeled in breakpoints, skip it.
-			if (!alias.shouldHaveBreakpointsCalculated()) {
-				continue;
-			}
 
-			toReturn.addAll(alias.calculateBreakpoints(damagePerPellet, numPellets, otherDamage, RoF, IFG, frozen,
-				normalEnemyResistances[hazardLevel - 1], largeEnemyResistances[hazardLevel - 1][playerCount - 1]));
+			if (alias.shouldHaveBreakpointsCalculated()) {
+				toReturn.addAll(alias.calculateBreakpoints(dmgInstance, RoF, IFG, frozen,
+					normalEnemyResistances[hazardLevel - 1], largeEnemyResistances[hazardLevel - 1][playerCount - 1]));
+			}
 		}
 				
 		return convertArrayListToArray(toReturn);
@@ -494,7 +491,7 @@ public class EnemyInformation {
 		
 		I'm choosing to let Overkill damage be counted as damage dealt. Too complicated to keep track of while simultaneously doing Armor stuff.
 	*/
-	public static double[][] percentageDamageWastedByArmor(DamageComponent damagePerPellet, int numPellets, DamageComponent[] otherDamage, double generalAccuracy, double weakpointAccuracy) {
+	public static double[][] percentageDamageWastedByArmor(DamageInstance dmgInstance, double generalAccuracy, double weakpointAccuracy) {
 		// Because Scala has made me lazy, lol
 		Enemy[] enemiesWithBreakableArmor = Arrays.stream(enemiesModeled).filter(Enemy::hasBreakableArmor).toArray(Enemy[]::new);
 		double[][] toReturn = new double[2][enemiesWithBreakableArmor.length];
@@ -502,14 +499,11 @@ public class EnemyInformation {
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 
-		int totalNumDmgComponentsPerHit = numPellets;
-		if (otherDamage != null && otherDamage.length > 0) {
-			totalNumDmgComponentsPerHit += otherDamage.length;
-		}
+		int totalNumDmgComponentsPerHit = dmgInstance.getTotalNumberOfDamageComponents();
 		
 		int i, j;
 		double baseHealth, heavyArmorPlateHealth;
-		double rawDamagePerPellet, armorDamagePerPellet, otherArmorDamage, damageDealtPerPellet, proportionOfDamageThatHitsArmor, proportionOfDamageThatHitsWeakpoint;
+		double armorDamagePerPellet, otherArmorDamage, proportionOfDamageThatHitsArmor, proportionOfDamageThatHitsWeakpoint;
 		double potentialMaxDamage, potentialWeakpointDamage, damageThatBypassesArmor, damageDealtToArmor, damageAffectedByArmor;
 		int avgNumPelletsToBreakArmorStrengthPlate, numPelletsThatHaveHitArmorStrengthPlate, numHitsEvaluated;
 		boolean armorStrengthPlateHasBroken;
@@ -541,13 +535,7 @@ public class EnemyInformation {
 					while (baseHealth > 0) {
 						for (j = 0; j < totalNumDmgComponentsPerHit; j++) {
 							// 1. Select the right DamageComponent to evaluate for this loop
-							if (j < numPellets) {
-								dmgAlias = damagePerPellet;
-							}
-							else {
-								// This should only ever evaluate when otherDamage[] has at least one element, making this accessor safe.
-								dmgAlias = otherDamage[j-numPellets];
-							}
+							dmgAlias = dmgInstance.getDamageComponentAtIndex(j);
 
 							// 2. Calculate its damage variants
 							potentialMaxDamage = dmgAlias.getTotalComplicatedDamageDealtPerHit(
@@ -603,13 +591,7 @@ public class EnemyInformation {
 					while (baseHealth > 0) {
 						for (j = 0; j < totalNumDmgComponentsPerHit; j++) {
 							// 1. Select the right DamageComponent to evaluate for this loop
-							if (j < numPellets) {
-								dmgAlias = damagePerPellet;
-							}
-							else {
-								// This should only ever evaluate when otherDamage[] has at least one element, making this accessor safe.
-								dmgAlias = otherDamage[j-numPellets];
-							}
+							dmgAlias = dmgInstance.getDamageComponentAtIndex(j);
 
 							// 2. Calculate its damage variants
 							potentialMaxDamage = dmgAlias.getTotalComplicatedDamageDealtPerHit(
@@ -665,13 +647,7 @@ public class EnemyInformation {
 					while (baseHealth > 0) {
 						for (j = 0; j < totalNumDmgComponentsPerHit; j++) {
 							// 1. Select the right DamageComponent to evaluate for this loop
-							if (j < numPellets) {
-								dmgAlias = damagePerPellet;
-							}
-							else {
-								// This should only ever evaluate when otherDamage[] has at least one element, making this accessor safe.
-								dmgAlias = otherDamage[j-numPellets];
-							}
+							dmgAlias = dmgInstance.getDamageComponentAtIndex(j);
 
 							// 2. Calculate its damage variants
 							potentialWeakpointDamage = dmgAlias.getTotalComplicatedDamageDealtPerHit(
@@ -730,7 +706,7 @@ public class EnemyInformation {
 					proportionOfDamageThatHitsArmor = 1.0 - proportionOfDamageThatHitsWeakpoint;
 
 					// Start by pre-calculating the number of pellets or loops that each DamageComponent would need to do before "statistically" it would break an armor plate that uses ArmorStrength
-					armorDamagePerPellet = damagePerPellet.getArmorDamageOnDirectHit() * proportionOfDamageThatHitsArmor + damagePerPellet.getRadialArmorDamageOnDirectHit();
+					armorDamagePerPellet = dmgInstance.getDamagePerPellet().getArmorDamageOnDirectHit() * proportionOfDamageThatHitsArmor + dmgInstance.getDamagePerPellet().getRadialArmorDamageOnDirectHit();
 					if (enemyAlias.hasLightArmor() || enemyAlias.hasHeavyArmorStrength()) {
 						if (armorDamagePerPellet > 0.0) {
 							avgNumPelletsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(armorStrengthBreakProbabilityLookup(armorDamagePerPellet, enemyAlias.getArmorStrength())));
@@ -739,11 +715,10 @@ public class EnemyInformation {
 							avgNumPelletsToBreakArmorStrengthPlate = -1;
 						}
 
-						// This only evaluates true when otherDamage is non-null and has at least one element
-						if (totalNumDmgComponentsPerHit > numPellets) {
-							avgNumHitsToBreakArmorStrengthPlate = new int[otherDamage.length];
-							for (j = 0; j < otherDamage.length; j++) {
-								otherArmorDamage = otherDamage[j].getArmorDamageOnDirectHit() * proportionOfDamageThatHitsArmor + otherDamage[j].getRadialArmorDamageOnDirectHit();
+						if (dmgInstance.otherDamageIsDefined()) {
+							avgNumHitsToBreakArmorStrengthPlate = new int[dmgInstance.getNumberOfOtherDamageComponents()];
+							for (j = 0; j < dmgInstance.getNumberOfOtherDamageComponents(); j++) {
+								otherArmorDamage = dmgInstance.getOtherDamageComponentAtIndex(j).getArmorDamageOnDirectHit() * proportionOfDamageThatHitsArmor + dmgInstance.getOtherDamageComponentAtIndex(j).getRadialArmorDamageOnDirectHit();
 								if (otherArmorDamage > 0.0) {
 									avgNumHitsToBreakArmorStrengthPlate[j] = (int) Math.ceil(
 											MathUtils.meanRolls(armorStrengthBreakProbabilityLookup(otherArmorDamage, enemyAlias.getArmorStrength()))
@@ -767,14 +742,7 @@ public class EnemyInformation {
 						numHitsEvaluated++;
 						for (j = 0; j < totalNumDmgComponentsPerHit; j++) {
 							// 1. Select the right DamageComponent to evaluate for this loop
-							if (j < numPellets) {
-								dmgAlias = damagePerPellet;
-								numPelletsThatHaveHitArmorStrengthPlate++;
-							}
-							else {
-								// This should only ever evaluate when otherDamage[] has at least one element, making this accessor safe.
-								dmgAlias = otherDamage[j-numPellets];
-							}
+							dmgAlias = dmgInstance.getDamageComponentAtIndex(j);
 
 							// Early exit condition: if the current DamageComponent bypasses armor and doesn't damage it (e.g. Boomstick or Coilgun's Blastwave), skip the crazy calculations
 							if (!dmgAlias.getDamageFlag(DamageFlag.canDamageArmor) && !dmgAlias.getDamageFlag(DamageFlag.reducedByArmor)) {
@@ -817,15 +785,16 @@ public class EnemyInformation {
 							damageDealtToHealth = potentialWeakpointDamage * proportionOfDamageThatHitsWeakpoint + damageThatBypassesArmor;
 
 							// 3a. Light Armor plates (always Armor Strength, mixes with Heavy Armor plates on Guards)
+							// TODO: IntelliJ is calling out the first half of this logic as "always False"?
 							armorStrengthPlateHasBroken = (
 								(avgNumPelletsToBreakArmorStrengthPlate > 0 && (
 									numPelletsThatHaveHitArmorStrengthPlate > avgNumPelletsToBreakArmorStrengthPlate ||
 									(dmgAlias.armorBreakingIsGreaterThan100Percent() && numPelletsThatHaveHitArmorStrengthPlate == avgNumPelletsToBreakArmorStrengthPlate)
 								)) ||
-								// Because this will only evaluate for otherDamage[] DamageElements, it should be safe to call the accessors like this.
-								(j >= numPellets && avgNumHitsToBreakArmorStrengthPlate[j-numPellets] > 0 && (
-									numHitsEvaluated > avgNumHitsToBreakArmorStrengthPlate[j-numPellets] ||
-									(dmgAlias.armorBreakingIsGreaterThan100Percent() && numHitsEvaluated == avgNumHitsToBreakArmorStrengthPlate[j-numPellets])
+								// Because this will only evaluate for otherDamage[] DamageComponents, it should be safe to call the accessors like this.
+								(j >= dmgInstance.getNumPellets() && avgNumHitsToBreakArmorStrengthPlate[j-dmgInstance.getNumPellets()] > 0 && (
+									numHitsEvaluated > avgNumHitsToBreakArmorStrengthPlate[j-dmgInstance.getNumPellets()] ||
+									(dmgAlias.armorBreakingIsGreaterThan100Percent() && numHitsEvaluated == avgNumHitsToBreakArmorStrengthPlate[j-dmgInstance.getNumPellets()])
 								))
 							);
 							if (enemyAlias.hasLightArmor()) {
@@ -900,7 +869,7 @@ public class EnemyInformation {
 	/*
 		This method intentionally ignores weakpoint damage bonuses because and armor reduction because I don't want to repeat the Breakpoints insanity.
 	*/
-	public static double[][] overkillPerCreature(DamageComponent damagePerPellet, int numPellets, DamageComponent[] otherDamage){
+	public static double[][] overkillPerCreature(DamageInstance dmgInstance){
 		int numEnemies = enemiesModeled.length;
 		double[][] toReturn = new double[2][numEnemies];
 		toReturn[0] = new double[numEnemies];
@@ -919,7 +888,7 @@ public class EnemyInformation {
 				creatureHP = enemiesModeled[i].getBaseHealth() * largeResistance;
 			}
 
-			totalDamagePerShot = numPellets * damagePerPellet.getTotalComplicatedDamageDealtPerHit(
+			totalDamagePerShot = dmgInstance.getNumPellets() * dmgInstance.getDamagePerPellet().getTotalComplicatedDamageDealtPerHit(
 				MaterialFlag.normalFlesh,
 				enemiesModeled[i].getElementalResistances(),
 				false,
@@ -927,9 +896,9 @@ public class EnemyInformation {
 				1
 			);
 
-			if (otherDamage != null && otherDamage.length > 0) {
-				for (j = 0; j < otherDamage.length; j++) {
-					totalDamagePerShot += otherDamage[j].getTotalComplicatedDamageDealtPerHit(
+			if (dmgInstance.otherDamageIsDefined()) {
+				for (j = dmgInstance.getNumPellets(); j < dmgInstance.getTotalNumberOfDamageComponents(); j++) {
+					totalDamagePerShot += dmgInstance.getDamageComponentAtIndex(j).getTotalComplicatedDamageDealtPerHit(
 						MaterialFlag.normalFlesh,
 						enemiesModeled[i].getElementalResistances(),
 						false,
