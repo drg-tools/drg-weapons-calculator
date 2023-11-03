@@ -1,6 +1,5 @@
 package drgtools.dpscalc.modelPieces.damage;
 
-// TODO: change Breakpoints, ArmorWasting, and Overkill to use this class for their inputs
 public class DamageInstance {
     private DamageComponent damagePerPellet;
     private int numPellets;

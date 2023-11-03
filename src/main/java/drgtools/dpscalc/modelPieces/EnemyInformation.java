@@ -4,8 +4,6 @@ import drgtools.dpscalc.enemies.Enemy;
 import drgtools.dpscalc.enemies.glyphid.*;
 import drgtools.dpscalc.enemies.mactera.*;
 import drgtools.dpscalc.enemies.other.*;
-import drgtools.dpscalc.modelPieces.damage.DamageComponent;
-import drgtools.dpscalc.modelPieces.damage.DamageFlags.*;
 import drgtools.dpscalc.modelPieces.damage.DamageInstance;
 import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 import drgtools.dpscalc.utilities.MathUtils;
@@ -332,29 +330,6 @@ public class EnemyInformation {
 		}
 		
 		return totalLightArmorStrength / totalSpawnPercentage;
-	}
-	// TODO: move this to Enemy
-	public static double armorStrengthBreakProbabilityLookup(double armorDamage, double armorStrength) {
-		// Input sanitization
-		if (armorDamage <= 0.0 || armorStrength <= 0.0) {
-			return 0.0;
-		}
-		
-		// This information comes straight from MikeGSG -- Thanks, Mike!
-		double lookupValue = armorDamage / armorStrength;
-		
-		if (lookupValue < 1.0) {
-			return lookupValue / 2.0;
-		}
-		else if (lookupValue < 2.0) {
-			return 0.5 + (lookupValue - 1.0) / 4.0;
-		}
-		else if (lookupValue < 4.0) {
-			return 0.75 + (lookupValue - 2.0) / 8.0;
-		}
-		else {
-			return 1.0;
-		}
 	}
 
 	public static double averageMovespeed() {

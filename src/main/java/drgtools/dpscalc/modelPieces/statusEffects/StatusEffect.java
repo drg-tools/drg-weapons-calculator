@@ -1,5 +1,6 @@
 package drgtools.dpscalc.modelPieces.statusEffects;
 
+import drgtools.dpscalc.enemies.Enemy;
 import drgtools.dpscalc.modelPieces.EnemyInformation;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.modelPieces.temperature.EnvironmentalTemperature;
@@ -116,7 +117,7 @@ public class StatusEffect {
 
     public double getArmorBreakUtilityPerEnemy() {
         if (canDamageArmor) {
-            return EnemyInformation.armorStrengthBreakProbabilityLookup((minArmorDamagePerTick + maxArmorDamagePerTick) / 2.0, EnemyInformation.averageLightArmorStrength());
+            return Enemy.armorStrengthBreakProbabilityLookup((minArmorDamagePerTick + maxArmorDamagePerTick) / 2.0, EnemyInformation.averageLightArmorStrength());
         }
         else {
             return 0;

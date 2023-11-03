@@ -1253,7 +1253,7 @@ public abstract class Weapon extends Observable {
 	}
 
 	protected double calculateProbabilityToBreakLightArmor(DamageComponent dmg) {
-		return EnemyInformation.armorStrengthBreakProbabilityLookup(dmg.getTotalArmorDamageOnDirectHit(), EnemyInformation.averageLightArmorStrength());
+		return Enemy.armorStrengthBreakProbabilityLookup(dmg.getTotalArmorDamageOnDirectHit(), EnemyInformation.averageLightArmorStrength());
 	}
 	
 	protected double calculateFearProcProbability(double fearFactor) {

@@ -220,7 +220,29 @@ public abstract class Enemy {
 		return "Weakpoint";
 	}
 
-	// TODO: move Breakpoint, Overkill, and ArmorWasting to here
+	public static double armorStrengthBreakProbabilityLookup(double armorDamage, double armorStrength) {
+		// Input sanitization
+		if (armorDamage <= 0.0 || armorStrength <= 0.0) {
+			return 0.0;
+		}
+
+		// This information comes straight from MikeGSG -- Thanks, Mike!
+		double lookupValue = armorDamage / armorStrength;
+
+		if (lookupValue < 1.0) {
+			return lookupValue / 2.0;
+		}
+		else if (lookupValue < 2.0) {
+			return 0.5 + (lookupValue - 1.0) / 4.0;
+		}
+		else if (lookupValue < 4.0) {
+			return 0.75 + (lookupValue - 2.0) / 8.0;
+		}
+		else {
+			return 1.0;
+		}
+	}
+
 	public ArrayList<Integer> calculateBreakpoints(DamageInstance dmgInstance, double RoF, boolean IFG, boolean frozen,
 												   double normalScaling, double largeScaling) {
 		ArrayList<Integer> toReturn = new ArrayList<>();
@@ -618,7 +640,7 @@ public abstract class Enemy {
 
 		// Because this breakpoint will only be calculated when target.hasLightArmor() is true, it's safe to fetch the ArmorStrength value like this.
 		// TODO: should this damage be divided by Normal Scaling resistance?
-		double probabilityToBreakArmorStrengthPlate = EnemyInformation.armorStrengthBreakProbabilityLookup(totalArmorDamageDealtPerDirectHit / normalScaling, getArmorStrength());
+		double probabilityToBreakArmorStrengthPlate = armorStrengthBreakProbabilityLookup(totalArmorDamageDealtPerDirectHit / normalScaling, getArmorStrength());
 		int numberOfShotsToBreakLightArmor = (int) Math.ceil(MathUtils.meanRolls(probabilityToBreakArmorStrengthPlate));
 
 		double fourSecondsDoTDamage;
@@ -689,7 +711,7 @@ public abstract class Enemy {
 		armorDamagePerPellet = dmgInstance.getDamagePerPellet().getArmorDamageOnDirectHit() * proportionOfDamageThatHitsArmor + dmgInstance.getDamagePerPellet().getRadialArmorDamageOnDirectHit();
 		if (hasLightArmor() || hasHeavyArmorStrength()) {
 			if (armorDamagePerPellet > 0.0) {
-				avgNumPelletsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(EnemyInformation.armorStrengthBreakProbabilityLookup(armorDamagePerPellet, getArmorStrength())));
+				avgNumPelletsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(armorStrengthBreakProbabilityLookup(armorDamagePerPellet, getArmorStrength())));
 			}
 			else {
 				avgNumPelletsToBreakArmorStrengthPlate = -1;
@@ -701,7 +723,7 @@ public abstract class Enemy {
 					otherArmorDamage = dmgInstance.getOtherDamageComponentAtIndex(i).getArmorDamageOnDirectHit() * proportionOfDamageThatHitsArmor + dmgInstance.getOtherDamageComponentAtIndex(i).getRadialArmorDamageOnDirectHit();
 					if (otherArmorDamage > 0.0) {
 						avgNumHitsToBreakArmorStrengthPlate[i] = (int) Math.ceil(
-							MathUtils.meanRolls(EnemyInformation.armorStrengthBreakProbabilityLookup(otherArmorDamage, getArmorStrength()))
+							MathUtils.meanRolls(armorStrengthBreakProbabilityLookup(otherArmorDamage, getArmorStrength()))
 						);
 					}
 					else {

@@ -63,13 +63,13 @@ import drgtools.dpscalc.weapons.scout.zhukov.Zhukov;
 
 /*
 	TODO List
-	1. Move Breakpoint, Overkill, and ArmorWasting methods into the Enemy class and its children (overrides) and re-architect EnemyInformation
-	2. Move calculateNumEnemies, calculateDamagePerHit, and some Utility stuff into DamageComponent
-	3. Implement "converted RadialDamage has no falloff" bug in DamageComponent
-	4. Add some prettyPrint/toString methods to the complex objects, to facilitate easier debugging in the future.
-	5. PR & merge damage-refactor
-	6. Figure out how to do Subata first with the newly refactored mechanics, and then use that paradigm to update the other models.
-	7. Expand upon the CurveFloat object, now that I have the formula to extract the polynomial equations.
+	1. Move calculateNumEnemies, calculateDamagePerHit, and some Utility stuff into DamageComponent
+	2. Implement "converted RadialDamage has no falloff" bug in DamageComponent
+	3. Add some prettyPrint/toString methods to the complex objects, to facilitate easier debugging in the future.
+	4. Split out AccuracyEstimator into its own folder in modelPieces
+	5. Expand upon the CurveFloat object, now that I have the formula to extract the polynomial equations.
+	6. PR & merge damage-refactor
+	7. Figure out how to do Subata first with the newly refactored mechanics, and then use that paradigm to update the other models.
 	8. Implement STEs that can stack with themself multiple times (Neuro-Lasso's slow, Cryo Bolt's cold/sec, etc)
 	9. Collect info about Status Effects' default tick interval and default duration (SplitSentro's spreadsheet)
 	10. Delete modelPieces/DoTInformation.java after StatusEffects are being used
