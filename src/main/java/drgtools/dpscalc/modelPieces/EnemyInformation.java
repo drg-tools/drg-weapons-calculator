@@ -495,7 +495,6 @@ public class EnemyInformation {
 		
 		I'm choosing to let Overkill damage be counted as damage dealt. Too complicated to keep track of while simultaneously doing Armor stuff.
 	*/
-	// TODO: change this to use DamageComponent
 	public static double[][] percentageDamageWastedByArmor(DamageComponent damagePerPellet, int numPellets, DamageComponent[] otherDamage, double generalAccuracy, double weakpointAccuracy) {
 		// Because Scala has made me lazy, lol
 		Enemy[] enemiesWithBreakableArmor = Arrays.stream(enemiesModeled).filter(Enemy::hasBreakableArmor).toArray(Enemy[]::new);
@@ -615,18 +614,18 @@ public class EnemyInformation {
 
 							// 2. Calculate its damage variants
 							potentialMaxDamage = dmgAlias.getTotalComplicatedDamageDealtPerHit(
-									MaterialFlag.normalFlesh,
-									enemyAlias.getElementalResistances(),
-									false,
-									0,
-									1
+								MaterialFlag.normalFlesh,
+								enemyAlias.getElementalResistances(),
+								false,
+								0,
+								1
 							);
 							damageThatBypassesArmor = dmgAlias.getTotalComplicatedDamageDealtPerHit(
-									MaterialFlag.heavyArmor,
-									enemyAlias.getElementalResistances(),
-									false,
-									0,
-									1
+								MaterialFlag.heavyArmor,
+								enemyAlias.getElementalResistances(),
+								false,
+								0,
+								1
 							);
 							damageDealtToArmor = dmgAlias.getTotalArmorDamageOnDirectHit();
 							damageAffectedByArmor = potentialMaxDamage - damageThatBypassesArmor;
@@ -677,18 +676,18 @@ public class EnemyInformation {
 
 							// 2. Calculate its damage variants
 							potentialWeakpointDamage = dmgAlias.getTotalComplicatedDamageDealtPerHit(
-									MaterialFlag.weakpoint,
-									enemyAlias.getElementalResistances(),
-									false,
-									enemyAlias.getWeakpointMultiplier(),  // 3.0 from Brundle
-									1
+								MaterialFlag.weakpoint,
+								enemyAlias.getElementalResistances(),
+								false,
+								enemyAlias.getWeakpointMultiplier(),  // 3.0 from Brundle
+								1
 							);
 							damageThatBypassesArmor = dmgAlias.getTotalComplicatedDamageDealtPerHit(
-									MaterialFlag.heavyArmor,
-									enemyAlias.getElementalResistances(),
-									false,
-									0,
-									1
+								MaterialFlag.heavyArmor,
+								enemyAlias.getElementalResistances(),
+								false,
+								0,
+								1
 							);
 							damageDealtToArmor = dmgAlias.getTotalArmorDamageOnDirectHit();
 							damageAffectedByArmor = potentialWeakpointDamage - damageThatBypassesArmor;
@@ -781,11 +780,11 @@ public class EnemyInformation {
 							// Early exit condition: if the current DamageComponent bypasses armor and doesn't damage it (e.g. Boomstick or Coilgun's Blastwave), skip the crazy calculations
 							if (!dmgAlias.getDamageFlag(DamageFlag.canDamageArmor) && !dmgAlias.getDamageFlag(DamageFlag.reducedByArmor)) {
 								damageThatBypassesArmor = dmgAlias.getTotalComplicatedDamageDealtPerHit(
-										MaterialFlag.heavyArmor,
-										enemyAlias.getElementalResistances(),
-										false,
-										0,
-										1
+									MaterialFlag.heavyArmor,
+									enemyAlias.getElementalResistances(),
+									false,
+									0,
+									1
 								);
 
 								totalDamageSpent += damageThatBypassesArmor;
@@ -798,18 +797,18 @@ public class EnemyInformation {
 							potentialMaxDamage = dmgAlias.getResistedDamage(enemyAlias.getElementalResistances());  // this is equivalent to "complicated(normalFlesh) - Radial"
 							damageThatBypassesArmor = dmgAlias.getResistedRadialDamage(enemyAlias.getElementalResistances());  // alias of Radial Damage, temporarily
 							potentialWeakpointDamage = dmgAlias.getTotalComplicatedDamageDealtPerHit(
-									MaterialFlag.weakpoint,
-									enemyAlias.getElementalResistances(),
-									false,
-									enemyAlias.getWeakpointMultiplier(),
-									1
+								MaterialFlag.weakpoint,
+								enemyAlias.getElementalResistances(),
+								false,
+								enemyAlias.getWeakpointMultiplier(),
+								1
 							) - damageThatBypassesArmor;  // By subtracting Radial Damage, this evaluates down to just the Weakpoint Damage (if applicable)
 							damageThatBypassesArmor = dmgAlias.getTotalComplicatedDamageDealtPerHit(
-									MaterialFlag.heavyArmor,
-									enemyAlias.getElementalResistances(),
-									false,
-									0,
-									1
+								MaterialFlag.heavyArmor,
+								enemyAlias.getElementalResistances(),
+								false,
+								0,
+								1
 							);  // theoretically this should be identical to Radial Damage, but being verbose just to be safe.
 							damageDealtToArmor = dmgAlias.getArmorDamageOnDirectHit() * proportionOfDamageThatHitsArmor + dmgAlias.getRadialArmorDamageOnDirectHit();
 							damageAffectedByArmor = potentialMaxDamage * proportionOfDamageThatHitsArmor;
@@ -900,10 +899,9 @@ public class EnemyInformation {
 	}
 	
 	/*
-		This method intentionally ignores elemental resistances/weaknesses and weakpoint damage bonuses because I don't want to repeat the Breakpoints insanity.
+		This method intentionally ignores weakpoint damage bonuses because and armor reduction because I don't want to repeat the Breakpoints insanity.
 	*/
-	// TODO: change this to use DamageComponent
-	public static double[][] overkillPerCreature(double totalDamagePerShot){
+	public static double[][] overkillPerCreature(DamageComponent damagePerPellet, int numPellets, DamageComponent[] otherDamage){
 		int numEnemies = enemiesModeled.length;
 		double[][] toReturn = new double[2][numEnemies];
 		toReturn[0] = new double[numEnemies];
@@ -912,13 +910,34 @@ public class EnemyInformation {
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
 		
-		double creatureHP;
-		for (int i = 0; i < enemiesModeled.length; i++) {
+		double creatureHP, totalDamagePerShot;
+		int i, j;
+		for (i = 0; i < enemiesModeled.length; i++) {
 			if (enemiesModeled[i].usesNormalScaling()) {
 				creatureHP = enemiesModeled[i].getBaseHealth() * normalResistance;
 			}
 			else {
 				creatureHP = enemiesModeled[i].getBaseHealth() * largeResistance;
+			}
+
+			totalDamagePerShot = numPellets * damagePerPellet.getTotalComplicatedDamageDealtPerHit(
+				MaterialFlag.normalFlesh,
+				enemiesModeled[i].getElementalResistances(),
+				false,
+				0,
+				1
+			);
+
+			if (otherDamage != null && otherDamage.length > 0) {
+				for (j = 0; j < otherDamage.length; j++) {
+					totalDamagePerShot += otherDamage[j].getTotalComplicatedDamageDealtPerHit(
+						MaterialFlag.normalFlesh,
+						enemiesModeled[i].getElementalResistances(),
+						false,
+						0,
+						1
+					);
+				}
 			}
 			
 			toReturn[0][i] = 1.0 / ((double) numEnemies);
