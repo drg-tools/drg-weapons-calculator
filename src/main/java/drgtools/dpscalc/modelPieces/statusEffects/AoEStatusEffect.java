@@ -5,7 +5,7 @@ import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 
 // For things like Persistent Plasma, Fat Boy, Sticky Flames, Coilgun trail, etc. Any STE that has a short duration but
 // gets re-applied frequently as long as enemies stay within the Area of Effect
-public class AoEStatusEffect extends StatusEffect {
+public abstract class AoEStatusEffect extends StatusEffect {
     private double distanceAffected;
     private double effectiveDuration;
     private double maxDuration;

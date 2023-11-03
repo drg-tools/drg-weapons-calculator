@@ -5,7 +5,7 @@ import drgtools.dpscalc.modelPieces.EnemyInformation;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.modelPieces.temperature.EnvironmentalTemperature;
 
-public class StatusEffect {
+public abstract class StatusEffect {
     protected DamageElement damagePerTickElement = null;
     protected double minDamagePerTick = 0.0;
     protected double maxDamagePerTick = 0.0;

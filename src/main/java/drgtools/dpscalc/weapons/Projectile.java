@@ -1,36 +1,36 @@
 package drgtools.dpscalc.weapons;
 
-import drgtools.dpscalc.modelPieces.damage.DamageComponent;
+import drgtools.dpscalc.modelPieces.damage.DamageInstance;
 
-public class Projectile {
+public abstract class Projectile {
     protected double initialSpeed;
     protected double maxSpeed;
     protected double gravityScale;  // 0 means that this projectile is not affected by gravity in-game.
     protected double collisionRadius;
-    protected DamageComponent dmgComponent;
+    protected DamageInstance dmgInstance;
 
-    protected Projectile(double speed, double sizeRadius, DamageComponent dmg) {
+    protected Projectile(double speed, double sizeRadius, DamageInstance dmg) {
         initialSpeed = speed;
         maxSpeed = speed;
         gravityScale = 1.0;
         collisionRadius = sizeRadius;
-        dmgComponent = dmg;
+        dmgInstance = dmg;
     }
 
-    protected Projectile(double speed, double gravity, double sizeRadius, DamageComponent dmg) {
+    protected Projectile(double speed, double gravity, double sizeRadius, DamageInstance dmg) {
         initialSpeed = speed;
         maxSpeed = speed;
         gravityScale = gravity;
         collisionRadius = sizeRadius;
-        dmgComponent = dmg;
+        dmgInstance = dmg;
     }
 
-    protected Projectile(double initSpeed, double mxSpeed, double gravity, double sizeRadius, DamageComponent dmg) {
+    protected Projectile(double initSpeed, double mxSpeed, double gravity, double sizeRadius, DamageInstance dmg) {
         initialSpeed = initSpeed;
         maxSpeed = mxSpeed;
         gravityScale = gravity;
         collisionRadius = sizeRadius;
-        dmgComponent = dmg;
+        dmgInstance = dmg;
     }
 
     public void setSpeed(double initial, double max) {
@@ -55,10 +55,10 @@ public class Projectile {
     public double getCollisionRadius() {
         return collisionRadius;
     }
-    public void setDamageComponent(DamageComponent newDmg) {
-        dmgComponent = newDmg;
+    public void setDamageInstance(DamageInstance newDmg) {
+        dmgInstance = newDmg;
     }
-    public DamageComponent getDamageComponent() {
-        return dmgComponent;
+    public DamageInstance getDamageInstance() {
+        return dmgInstance;
     }
 }

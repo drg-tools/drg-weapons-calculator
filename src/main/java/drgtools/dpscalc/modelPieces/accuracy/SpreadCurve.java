@@ -1,4 +1,4 @@
-package drgtools.dpscalc.weapons;
+package drgtools.dpscalc.modelPieces.accuracy;
 
 import java.util.ArrayList;
 

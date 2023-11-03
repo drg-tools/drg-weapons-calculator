@@ -1,7 +1,7 @@
 package drgtools.dpscalc.weapons.gunner.revolver;
 
 import drgtools.dpscalc.guiPieces.accuracyEstimator.LineGraph;
-import drgtools.dpscalc.weapons.SpreadCurve;
+import drgtools.dpscalc.modelPieces.accuracy.SpreadCurve;
 
 public class Revolver_SpreadCurve extends SpreadCurve {
 	@Override

@@ -16,6 +16,7 @@ import drgtools.dpscalc.modelPieces.EnemyInformation;
 import drgtools.dpscalc.modelPieces.Mod;
 import drgtools.dpscalc.modelPieces.Overclock;
 import drgtools.dpscalc.modelPieces.StatsRow;
+import drgtools.dpscalc.modelPieces.accuracy.AccuracyEstimator;
 import drgtools.dpscalc.modelPieces.damage.DamageComponent;
 import drgtools.dpscalc.utilities.ConditionalArrayList;
 import drgtools.dpscalc.utilities.MathUtils;
