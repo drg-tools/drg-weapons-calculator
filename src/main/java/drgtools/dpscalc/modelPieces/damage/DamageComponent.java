@@ -14,11 +14,11 @@ import java.util.ArrayList;
 
 /*
 	TODO List:
-		move the "calculate num enemies hit" into this object
-		consider moving the "calculate total damage dealt per hit" into this object?
-		add a toString method that nicely formats this stuff
-		this might need to have a "DamageInstance" class made which stores 2+ DamageComponents together, that get applied on each hit?
-		implement as many of the Utility calculations here as I can
+	move the "calculate num enemies hit" into this object
+	consider moving the "calculate total damage dealt per hit" into this object?
+	add a toString method that nicely formats this stuff
+	this might need to have a "DamageInstance" class made which stores 2+ DamageComponents together, that get applied on each hit?
+	implement as many of the Utility calculations here as I can
 */
 
 public class DamageComponent {
@@ -28,9 +28,9 @@ public class DamageComponent {
 	// The four DamageFlags
 	protected boolean benefitsFromWeakpoint;
 	protected boolean benefitsFromFrozen;
-	protected boolean reducedByLightArmor;
-	protected boolean stoppedByHeavyArmor;
+	protected boolean reducedByArmor;
 	protected boolean canDamageArmor;
+	protected boolean embeddedDetonator;
 
 	protected double weakpointBonus = 0;
 	protected double flatDamage = 0;
@@ -63,27 +63,27 @@ public class DamageComponent {
 
 	// Shortcut constructor for what is referred to as "Direct Damage"
 	public DamageComponent(double dmg, DamageElement dmgElement, double ab, double ff, DamageConversion[] baselineConversions) {
-		this(dmg, dmgElement, 0, null, true, true, true, true,
+		this(dmg, dmgElement, 0, null, true, true, true, true, false,
 				0, null, 0, 0, 0, 0, false, 0, 0, 0, ab, ff, baselineConversions);
 	}
 
 	// Shortcut constructor for damage-only Direct+Radial, like Autocannon or PGL
 	public DamageComponent(double dmg, DamageElement dmgElement, double rdlDmg, DamageElement rdlDmgElement, double mdr,
                            double dmgRd, double fal, double ab, double ff, DamageConversion[] baselineConversions) {
-		this(dmg, dmgElement, 0, null, true, true, true, true, rdlDmg,
+		this(dmg, dmgElement, 0, null, true, true, true, true, false, rdlDmg,
 				rdlDmgElement, 0, mdr, dmgRd, fal, false, 0, 0, 0, ab, ff, baselineConversions);
 	}
 
 	// Shortcut constructor for any DamageComponent that neither is "Direct Damage" nor uses RadialDamage
 	public DamageComponent(double dmg, DamageElement dmgElement, double temp, TemperatureElement tmpElement,
-                           boolean weakpoint, boolean frozen, boolean armor, boolean damagesArmor,
+                           boolean weakpoint, boolean frozen, boolean armor, boolean damagesArmor, boolean embDet,
                            double ab, double ff, DamageConversion[] baselineConversions) {
-		this(dmg, dmgElement, temp, tmpElement, weakpoint, frozen, armor, damagesArmor, 0,null,
+		this(dmg, dmgElement, temp, tmpElement, weakpoint, frozen, armor, damagesArmor, embDet, 0, null,
 				0, 0, 0, 0, false, 0, 0, 0, ab, ff, baselineConversions);
 	}
 
 	public DamageComponent(double dmg, DamageElement dmgElement, double temp, TemperatureElement tmpElement,
-                           boolean weakpoint, boolean frozen, boolean armor, boolean damagesArmor,
+                           boolean weakpoint, boolean frozen, boolean armor, boolean damagesArmor, boolean embDet,
                            double rdlDmg, DamageElement rdlDmgElement, double radTemp, double mdr, double dmgRd, double fal,
                            boolean stunOnlyWeakpoint, double stunChnc, double stunDur, double fear, double ab, double ff,
                            DamageConversion[] baselineConversions) {
@@ -92,9 +92,9 @@ public class DamageComponent {
 		tempElement = tmpElement;
 		benefitsFromWeakpoint = weakpoint;
 		benefitsFromFrozen = frozen;
-		reducedByLightArmor = armor;
-		stoppedByHeavyArmor = armor;
+		reducedByArmor = armor;
 		canDamageArmor = damagesArmor;
+		embeddedDetonator = embDet;
 
 		radialDamage = rdlDmg;
 		radialTemperature = radTemp;
@@ -167,20 +167,42 @@ public class DamageComponent {
 				benefitsFromFrozen = value;
 				break;
 			}
-			case reducedByLightArmor: {
-				reducedByLightArmor = value;
-				break;
-			}
-			case stoppedByHeavyArmor: {
-				stoppedByHeavyArmor = value;
+			case reducedByArmor: {
+				reducedByArmor = value;
 				break;
 			}
 			case canDamageArmor: {
 				canDamageArmor = value;
 				break;
 			}
-			default:{
+			case embeddedDetonator: {
+				embeddedDetonator = value;
 				break;
+			}
+			default: {
+				break;
+			}
+		}
+	}
+	public boolean getDamageFlag(DamageFlag flag) {
+		switch (flag) {
+			case benefitsFromWeakpoint: {
+				return benefitsFromWeakpoint;
+			}
+			case benefitsFromFrozen: {
+				return benefitsFromFrozen;
+			}
+			case reducedByArmor: {
+				return reducedByArmor;
+			}
+			case canDamageArmor: {
+				return canDamageArmor;
+			}
+			case embeddedDetonator: {
+				return embeddedDetonator;
+			}
+			default: {
+				return false;
 			}
 		}
 	}
@@ -290,12 +312,12 @@ public class DamageComponent {
 				break;
 			}
 			case lightArmor: {
-				if (reducedByLightArmor) {
+				if (reducedByArmor) {
 					dmg *= lightArmorReduction;
 				}
 			}
 			case heavyArmor: {
-				if (stoppedByHeavyArmor) {
+				if (reducedByArmor || embeddedDetonator) {
 					dmg *= 0;
 				}
 			}
@@ -331,33 +353,37 @@ public class DamageComponent {
 	public boolean armorBreakingIsGreaterThan100Percent() {
 		return armorBreaking > 1.0;
 	}
-	public double getArmorDamagePerDirectHit(ElementalResistancesArray creatureResistances) {
-		// My tests using EPC 20 dmg vs rolling Q'ronar Youngling indicate that ArmorStrength plates inherit parent's elemental resistances, just like ArmorHealth do.
-		// Thus, I only need one method for this.
-		// Testing shows that FlatDamageBonus doesn't do damage to Armor, just like it doesn't benefit from DamageConversions.
-		// Testing shows that IFG doesn't affect damage dealt to ArmorHealth plates.
-		if (damage > 0 && canDamageArmor && radialDamage == 0) {
-			return damage * MathUtils.vectorDotProduct(damageElements, creatureResistances.getResistances()) * armorBreaking;
-		}
-		else if (damage == 0 && radialDamage > 0) {
-			return radialDamage * MathUtils.vectorDotProduct(radialDamageElements, creatureResistances.getResistances()) * armorBreaking;
-		}
-		else if (damage > 0 && canDamageArmor && radialDamage > 0) {
-			// Key phrase: "modeling a bug" (for Ctrl + Shift + F finding later)
-			// Bug where Radial Damage only does 25% AB on direct hit when Damage > 0, 100% AB at 0.5m from direct hit, and then 25% everywhere else til it reaches Radius.
-			return (
-				damage * MathUtils.vectorDotProduct(damageElements, creatureResistances.getResistances())
-				+ 0.25 * radialDamage * MathUtils.vectorDotProduct(radialDamageElements, creatureResistances.getResistances())
-			) * armorBreaking;
+	public double getArmorDamageOnDirectHit() {
+		if (damage > 0 && canDamageArmor && !embeddedDetonator) {
+			return damage * MathUtils.sum(damageElements) * armorBreaking;
 		}
 		else {
 			return 0;
 		}
 	}
-	public double getArmorDamageInRadius(ElementalResistancesArray creatureResistances, double distanceFromDirectHit) {
+	public double getRadialArmorDamageOnDirectHit() {
+		if (damage == 0 && radialDamage > 0 ) {
+			return radialDamage * MathUtils.sum(radialDamageElements) * armorBreaking;
+		}
+		else if (damage > 0 && canDamageArmor && !embeddedDetonator && radialDamage > 0) {
+			// Key phrase: "modeling a bug" (for Ctrl + Shift + F finding later)
+			// Bug where Radial Damage only does 25% AB on direct hit when Damage > 0, 100% AB at 0.5m from direct hit, and then 25% everywhere else til it reaches Radius.
+			return 0.25 * radialDamage * MathUtils.sum(radialDamageElements) * armorBreaking;
+		}
+		else {
+			return 0;
+		}
+	}
+	public double getTotalArmorDamageOnDirectHit() {
+		// After discussions with Dagadegatto in Nov 2022, this is being modeled as if Elemental Resistances are not inherited by Armor Plates anymore.
+		// Testing shows that FlatDamageBonus doesn't do damage to Armor, just like it doesn't benefit from DamageConversions.
+		// Testing shows that IFG doesn't affect damage dealt to ArmorHealth plates.
+		return getArmorDamageOnDirectHit() + getRadialArmorDamageOnDirectHit();
+	}
+	public double getRadialArmorDamageAtRadius(double distanceFromDirectHit) {
 		if (radialDamage > 0) {
 			// Key phrase: "modeling a bug" (for Ctrl + Shift + F finding later)
-			double baseRadialArmorDamage = radialDamage * MathUtils.vectorDotProduct(radialDamageElements, creatureResistances.getResistances()) * armorBreaking;
+			double baseRadialArmorDamage = radialDamage * MathUtils.sum(radialDamageElements) * armorBreaking;
 			if (distanceFromDirectHit <= 0.5) {
 				return baseRadialArmorDamage;
 			}
@@ -365,6 +391,7 @@ public class DamageComponent {
 				return 0;
 			}
 			else {
+				// TODO: add radial falloff
 				return 0.25 * baseRadialArmorDamage;
 			}
 

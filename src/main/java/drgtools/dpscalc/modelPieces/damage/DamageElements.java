@@ -1,5 +1,7 @@
 package drgtools.dpscalc.modelPieces.damage;
 
+// import java.util.EnumMap;
+
 public class DamageElements {
 	/*
 		Group 1: "impact style"
@@ -26,7 +28,10 @@ public class DamageElements {
 	*/
 	public enum DamageElement {melee, kinetic, piercing, fire, frost, explosive, electric, poison, radiation, corrosive, disintegrate, internal}
 	public static int numElements = DamageElement.values().length;
-	
+
+	// public EnumMap<DamageElement, Double> foo;
+
+	// TODO: fold this into DamageElement. it's too complex to keep them separate for Conversions.
 	public enum TemperatureElement {heat, cold}
 	
 	public static int getElementIndex(DamageElement in) {

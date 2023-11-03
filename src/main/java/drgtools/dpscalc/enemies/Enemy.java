@@ -1,5 +1,6 @@
 package drgtools.dpscalc.enemies;
 
+import drgtools.dpscalc.modelPieces.UtilityInformation;
 import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 
 // TODO: Technically, this could model certain enemies' Stun Duration multiplier and Stun Immunity windows too. But for now, they're not implemented.
@@ -57,7 +58,7 @@ public class Enemy {
 	protected double maxMovespeedWhenFeared = 0.0;
 	
 	protected boolean hasLightArmor = false, hasHeavyArmorRNG = false, hasHeavyArmorHealth = false, heavyArmorCoversWeakpoint = false, hasUnbreakableArmor = false;
-	protected double armorStrength = 0.0, armorBaseHealth = 0.0;
+	protected double armorStrength = 0.0, armorBaseHealth = 0.0, armorStrengthReduction = UtilityInformation.LightArmor_DamageReduction, armorHealthReduction = 1.0;
 	protected double numArmorStrengthPlates = 0, numArmorHealthPlates = 0;  // These variables are NOT how many armor plates the enemy has total, but rather how many armor plates will be modeled by ArmorWasting()
 	
 	/****************************************************************************************
@@ -149,6 +150,14 @@ public class Enemy {
 			return 0.0;
 		}
 	}
+	public double getArmorStrengthReduction() {
+		if (hasLightArmor || hasHeavyArmorRNG) {
+			return armorStrengthReduction;
+		}
+		else {
+			return 0.0;
+		}
+	}
 	public double getNumArmorStrengthPlates() {
 		if (hasLightArmor || hasHeavyArmorRNG) {
 			return numArmorStrengthPlates;
@@ -160,6 +169,14 @@ public class Enemy {
 	public double getArmorBaseHealth() {
 		if (hasHeavyArmorHealth) {
 			return armorBaseHealth;
+		}
+		else {
+			return 0.0;
+		}
+	}
+	public double getArmorHealthReduction() {
+		if (hasHeavyArmorHealth) {
+			return armorHealthReduction;
 		}
 		else {
 			return 0.0;
@@ -190,4 +207,6 @@ public class Enemy {
 	public String getWeakpointName() {
 		return "Weakpoint";
 	}
+
+	// TODO: move Breakpoint, Overkill, and ArmorWasting to here?
 }

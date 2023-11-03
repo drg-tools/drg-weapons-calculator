@@ -1250,12 +1250,13 @@ public abstract class Weapon extends Observable {
 		
 		return currentT;
 	}
-	
+
+	// TODO: these should use DamageComponent and be combined
 	protected double calculateProbabilityToBreakLightArmor(double baseDamage) {
 		return calculateProbabilityToBreakLightArmor(baseDamage, 1.0);
 	}
 	protected double calculateProbabilityToBreakLightArmor(double baseDamage, double armorBreaking) {
-		return EnemyInformation.lightArmorBreakProbabilityLookup(baseDamage, armorBreaking, EnemyInformation.averageLightArmorStrength());
+		return EnemyInformation.armorStrengthBreakProbabilityLookup(baseDamage, armorBreaking, EnemyInformation.averageLightArmorStrength());
 	}
 	
 	protected double calculateFearProcProbability(double fearFactor) {

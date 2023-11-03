@@ -1,16 +1,16 @@
 package drgtools.dpscalc.modelPieces;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import drgtools.dpscalc.enemies.ElementalResistancesArray;
 import drgtools.dpscalc.modelPieces.damage.DamageComponent;
 import drgtools.dpscalc.enemies.Enemy;
 import drgtools.dpscalc.enemies.glyphid.*;
 import drgtools.dpscalc.enemies.mactera.*;
 import drgtools.dpscalc.enemies.other.*;
-import drgtools.dpscalc.modelPieces.damage.DamageFlags.MaterialFlag;
+import drgtools.dpscalc.modelPieces.damage.DamageFlags.*;
 import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 import drgtools.dpscalc.utilities.MathUtils;
 
@@ -332,14 +332,14 @@ public class EnemyInformation {
 		
 		return totalLightArmorStrength / totalSpawnPercentage;
 	}
-	public static double lightArmorBreakProbabilityLookup(double damage, double armorBreakingModifier, double armorStrength) {
+	public static double armorStrengthBreakProbabilityLookup(double armorDamage, double armorStrength) {
 		// Input sanitization
-		if (damage <= 0.0 || armorBreakingModifier <= 0.0 || armorStrength <= 0.0) {
+		if (armorDamage <= 0.0 || armorStrength <= 0.0) {
 			return 0.0;
 		}
 		
 		// This information comes straight from MikeGSG -- Thanks, Mike!
-		double lookupValue = damage * armorBreakingModifier / armorStrength;
+		double lookupValue = armorDamage / armorStrength;
 		
 		if (lookupValue < 1.0) {
 			return lookupValue / 2.0;
@@ -496,358 +496,404 @@ public class EnemyInformation {
 		I'm choosing to let Overkill damage be counted as damage dealt. Too complicated to keep track of while simultaneously doing Armor stuff.
 	*/
 	// TODO: change this to use DamageComponent
-	public static double[][] percentageDamageWastedByArmor(double directDamage, int numPellets, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy) {
-		return percentageDamageWastedByArmor(directDamage, numPellets, areaDamage, armorBreaking, weakpointModifier, generalAccuracy, weakpointAccuracy, false);
-	}
-	public static double[][] percentageDamageWastedByArmor(double directDamage, int numPellets, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy, boolean embeddedDetonators) {
-		// I have not thought of an elegant way to look ahead and count how many enemies have Light or Heavy Armor. For now I'm going to "cheat" because I know in advance that the answer is 10.
-		double[][] toReturn = new double[2][10];
+	public static double[][] percentageDamageWastedByArmor(DamageComponent damagePerPellet, int numPellets, DamageComponent[] otherDamage, double generalAccuracy, double weakpointAccuracy) {
+		// Because Scala has made me lazy, lol
+		Enemy[] enemiesWithBreakableArmor = Arrays.stream(enemiesModeled).filter(Enemy::hasBreakableArmor).toArray(Enemy[]::new);
+		double[][] toReturn = new double[2][enemiesWithBreakableArmor.length];
 		
 		double normalResistance = normalEnemyResistances[hazardLevel - 1];
 		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
+
+		int totalNumDmgComponentsPerHit = numPellets;
+		if (otherDamage != null && otherDamage.length > 0) {
+			totalNumDmgComponentsPerHit += otherDamage.length;
+		}
 		
-		int creatureIndex = 0, i, j;
+		int i, j;
 		double baseHealth, heavyArmorPlateHealth;
-		double damageDealtPerPellet, proportionOfDamageThatHitsArmor, proportionOfDamageThatHitsWeakpoint;
-		int avgNumHitsToBreakArmorStrengthPlate, numHitsOnArmorStrengthPlate;
-		double totalDamageSpent, actualDamageDealt, damageWasted;
-		Enemy alias;
-		for (i = 0; i < enemiesModeled.length; i++) {
-			alias = enemiesModeled[i];
+		double rawDamagePerPellet, armorDamagePerPellet, otherArmorDamage, damageDealtPerPellet, proportionOfDamageThatHitsArmor, proportionOfDamageThatHitsWeakpoint;
+		double potentialMaxDamage, potentialWeakpointDamage, damageThatBypassesArmor, damageDealtToArmor, damageAffectedByArmor;
+		int avgNumPelletsToBreakArmorStrengthPlate, numPelletsThatHaveHitArmorStrengthPlate, numHitsEvaluated;
+		boolean armorStrengthPlateHasBroken;
+		int[] avgNumHitsToBreakArmorStrengthPlate = new int[0];
+		double totalDamageSpent, damageDealtToHealth, actualDamageDealt, damageWasted;
+		DamageComponent dmgAlias;
+		Enemy enemyAlias;
+		for (i = 0; i < enemiesWithBreakableArmor.length; i++) {
+			enemyAlias = enemiesModeled[i];
+			baseHealth = enemyAlias.getBaseHealth();
 			
-			// Skip any enemy that either has no Armor or Unbreakable Armor
-			if (!alias.hasBreakableArmor()) {
-				continue;
-			}
-			
-			baseHealth = alias.getBaseHealth();
-			
-			if (alias.hasHeavyArmorHealth()) {
-				// All Heavy Armor plates with healthbars have their health scale with normal resistance.
-				heavyArmorPlateHealth = alias.getArmorBaseHealth() * normalResistance;
+			if (enemyAlias.hasHeavyArmorHealth()) {
+				// All ArmorHealth plates have their health scale with difficulty resistance. By default, it's Normal Scaling but Elites override it.
+				heavyArmorPlateHealth = enemyAlias.getArmorBaseHealth() * normalResistance;
 			}
 			else {
 				heavyArmorPlateHealth = 0;
 			}
-			
-			if (alias.getName().equals("Glyphid Praetorian")) {
-				baseHealth *= largeResistance;
-				
-				proportionOfDamageThatHitsArmor = (100.0 - generalAccuracy) / 100.0;
-				double proportionOfDamageThatHitsMouth = generalAccuracy / 100.0;
-				
-				totalDamageSpent = 0;
-				actualDamageDealt = 0;
-				while (baseHealth > 0) {
-					// First, Direct Damage
-					for (j = 0; j < numPellets; j++) {
-						totalDamageSpent += directDamage;
-						damageDealtPerPellet = proportionOfDamageThatHitsMouth * directDamage;
-						if (heavyArmorPlateHealth > 0) {
-							if (armorBreaking > 1.0) {
-								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
-									damageDealtPerPellet += proportionOfDamageThatHitsArmor * directDamage;
-									heavyArmorPlateHealth = 0;
-								}
-								else {
-									// Direct Damage insufficient to break the Heavy Armor Plate
-									heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
-								}
-							}
-							else {
-								if (directDamage * proportionOfDamageThatHitsArmor * armorBreaking > heavyArmorPlateHealth) {
-									heavyArmorPlateHealth = 0;
-								}
-								else {
-									// Direct Damage insufficient to break the Heavy Armor Plate
-									heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
-								}
-							}
-						}
-						else {
-							damageDealtPerPellet += proportionOfDamageThatHitsArmor * directDamage;
-						}
-						
-						actualDamageDealt += damageDealtPerPellet;
-						baseHealth -= damageDealtPerPellet;
-					}
-					
-					// Second, Area Damage
-					totalDamageSpent += areaDamage;
-					if (embeddedDetonators) {
-						if (heavyArmorPlateHealth == 0) {
-							actualDamageDealt += areaDamage;
-							baseHealth -= areaDamage;
-						}
-					}
-					else {
-						if (heavyArmorPlateHealth > 0) {
-							heavyArmorPlateHealth = Math.max(heavyArmorPlateHealth - areaDamage * armorBreaking, 0);
-						}
-						
-						actualDamageDealt += areaDamage;
-						baseHealth -= areaDamage;
-					}
-				}
-			}
-			else if (alias.getName().equals("Q'ronar Shellback")) {
-				baseHealth *= largeResistance;
-				
-				totalDamageSpent = 0;
-				actualDamageDealt = 0;
-				while (baseHealth > 0) {
-					// First, Direct Damage
-					for (j = 0; j < numPellets; j++) {
-						totalDamageSpent += directDamage;
-						damageDealtPerPellet = 0;
-						if (heavyArmorPlateHealth > 0) {
-							if (armorBreaking > 1.0) {
-								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
-									damageDealtPerPellet += directDamage;
-									heavyArmorPlateHealth = 0;
-								}
-								else {
-									// Direct Damage insufficient to break the Heavy Armor Plate
-									heavyArmorPlateHealth -= directDamage * armorBreaking;
-								}
-							}
-							else {
-								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
-									heavyArmorPlateHealth = 0;
-								}
-								else {
-									// Direct Damage insufficient to break the Heavy Armor Plate
-									heavyArmorPlateHealth -= directDamage * armorBreaking;
-								}
-							}
-						}
-						else {
-							damageDealtPerPellet += directDamage;
-						}
-						
-						actualDamageDealt += damageDealtPerPellet;
-						baseHealth -= damageDealtPerPellet;
-					}
-					
-					// Second, Area Damage
-					totalDamageSpent += areaDamage;
-					if (embeddedDetonators) {
-						if (heavyArmorPlateHealth == 0) {
-							actualDamageDealt += areaDamage;
-							baseHealth -= areaDamage;
-						}
-					}
-					else {
-						if (heavyArmorPlateHealth > 0) {
-							heavyArmorPlateHealth = Math.max(heavyArmorPlateHealth - areaDamage * armorBreaking, 0);
-						}
-						
-						actualDamageDealt += areaDamage;
-						baseHealth -= areaDamage;
-					}
-				}
-			}
-			else if (alias.getName().equals("Mactera Brundle")) {
-				baseHealth *= normalResistance;
-				
-				double theoreticalDamagePerPellet;
-				if (weakpointModifier < 0.0) {
-					theoreticalDamagePerPellet = directDamage;
-				}
-				else {
-					theoreticalDamagePerPellet = directDamage * (1.0 + weakpointModifier) * alias.getWeakpointMultiplier();
-				}
-				
-				totalDamageSpent = 0;
-				actualDamageDealt = 0;
-				while (baseHealth > 0) {
-					// First, Direct Damage
-					for (j = 0; j < numPellets; j++) {
-						totalDamageSpent += theoreticalDamagePerPellet;
-						damageDealtPerPellet = 0;
-						if (heavyArmorPlateHealth > 0) {
-							if (armorBreaking > 1.0) {
-								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
-									damageDealtPerPellet += theoreticalDamagePerPellet;
-									heavyArmorPlateHealth = 0;
-								}
-								else {
-									// Direct Damage insufficient to break the Heavy Armor Plate
-									heavyArmorPlateHealth -= directDamage * armorBreaking;
-								}
-							}
-							else {
-								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
-									heavyArmorPlateHealth = 0;
-								}
-								else {
-									// Direct Damage insufficient to break the Heavy Armor Plate
-									heavyArmorPlateHealth -= directDamage * armorBreaking;
-								}
-							}
-						}
-						else {
-							damageDealtPerPellet += theoreticalDamagePerPellet;
-						}
-						
-						actualDamageDealt += damageDealtPerPellet;
-						baseHealth -= damageDealtPerPellet;
-					}
-					
-					// Second, Area Damage
-					totalDamageSpent += areaDamage;
-					if (embeddedDetonators) {
-						if (heavyArmorPlateHealth == 0) {
-							actualDamageDealt += areaDamage;
-							baseHealth -= areaDamage;
-						}
-					}
-					else {
-						if (heavyArmorPlateHealth > 0) {
-							heavyArmorPlateHealth = Math.max(heavyArmorPlateHealth - areaDamage * armorBreaking, 0);
-						}
-						
-						actualDamageDealt += areaDamage;
-						baseHealth -= areaDamage;
-					}
-				}
-			}
-			else {
-				if (alias.usesNormalScaling()) {
-					baseHealth *= normalResistance;
-				}
-				else {
+
+			switch (enemyAlias.getName()) {
+				case "Glyphid Praetorian": {
 					baseHealth *= largeResistance;
-				}
-				
-				proportionOfDamageThatHitsArmor = (100.0 - weakpointAccuracy) / 100.0;
-				proportionOfDamageThatHitsWeakpoint = weakpointAccuracy / 100.0;
-				
-				if (alias.hasLightArmor() || alias.hasHeavyArmorStrength()) {
-					if (embeddedDetonators || (areaDamage > 0 && numPellets > 1)) {
-						// Boomstick special case -- I'm choosing to model it as if the Blastwave doesn't break Light Armor Plates for simplicity later in the method
-						avgNumHitsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(directDamage, armorBreaking, alias.getArmorStrength())));
-					}
-					else {
-						avgNumHitsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(directDamage + areaDamage, armorBreaking, alias.getArmorStrength())));
-					}
-				}
-				else {
-					avgNumHitsToBreakArmorStrengthPlate = 0;
-				}
-				numHitsOnArmorStrengthPlate = 0;
-				
-				totalDamageSpent = 0;
-				actualDamageDealt = 0;
-				while (baseHealth > 0) {
-					// First, Direct Damage
-					for (j = 0; j < numPellets; j++) {
-						if (weakpointModifier < 0) {
-							totalDamageSpent += directDamage;
-							damageDealtPerPellet = directDamage * proportionOfDamageThatHitsWeakpoint;
-						}
-						else {
-							totalDamageSpent += directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * alias.getWeakpointMultiplier() + directDamage * proportionOfDamageThatHitsArmor;
-							damageDealtPerPellet = directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * alias.getWeakpointMultiplier();
-						}
-						
-						// 1. Light Armor plates (always Armor Strength, mixes with Heavy Armor plates on Guards)
-						if (alias.hasLightArmor()) {
-							numHitsOnArmorStrengthPlate++;
-							if (numHitsOnArmorStrengthPlate > avgNumHitsToBreakArmorStrengthPlate || (armorBreaking > 1.0 && numHitsOnArmorStrengthPlate == avgNumHitsToBreakArmorStrengthPlate)) {
-								damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * alias.getNumArmorStrengthPlates() / (alias.getNumArmorStrengthPlates() + alias.getNumArmorHealthPlates());
+
+					double proportionOfDamageThatHitsMouth = generalAccuracy / 100.0;
+					proportionOfDamageThatHitsArmor = 1.0 - proportionOfDamageThatHitsMouth;
+
+					totalDamageSpent = 0;
+					actualDamageDealt = 0;
+					while (baseHealth > 0) {
+						for (j = 0; j < totalNumDmgComponentsPerHit; j++) {
+							// 1. Select the right DamageComponent to evaluate for this loop
+							if (j < numPellets) {
+								dmgAlias = damagePerPellet;
 							}
 							else {
-								damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * UtilityInformation.LightArmor_DamageReduction * alias.getNumArmorStrengthPlates() / (alias.getNumArmorStrengthPlates() + alias.getNumArmorHealthPlates());
+								// This should only ever evaluate when otherDamage[] has at least one element, making this accessor safe.
+								dmgAlias = otherDamage[j-numPellets];
 							}
-						}
-						
-						// 2. Heavy Armor Plates with health (mixes with Light Armor plates on Guards)
-						if (alias.hasHeavyArmorHealth()) { 
+
+							// 2. Calculate its damage variants
+							potentialMaxDamage = dmgAlias.getTotalComplicatedDamageDealtPerHit(
+								MaterialFlag.normalFlesh,
+								enemyAlias.getElementalResistances(),
+								false,
+								0,
+								1
+							);
+							damageThatBypassesArmor = dmgAlias.getTotalComplicatedDamageDealtPerHit(
+								MaterialFlag.heavyArmor,
+								enemyAlias.getElementalResistances(),
+								false,
+								0,
+								1
+							);
+							damageDealtToArmor = dmgAlias.getArmorDamageOnDirectHit() * proportionOfDamageThatHitsArmor + dmgAlias.getRadialArmorDamageOnDirectHit();
+							damageAffectedByArmor = potentialMaxDamage - damageThatBypassesArmor;
+
+							// 3. Subtract from Armor and Health accordingly
+							totalDamageSpent += potentialMaxDamage;
+							damageDealtToHealth = damageThatBypassesArmor + damageAffectedByArmor * proportionOfDamageThatHitsMouth;
+
 							if (heavyArmorPlateHealth > 0) {
-								if (armorBreaking > 1.0) {
-									if (directDamage * armorBreaking > heavyArmorPlateHealth) {
-										damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * alias.getNumArmorHealthPlates() / (alias.getNumArmorStrengthPlates() + alias.getNumArmorHealthPlates());
-										heavyArmorPlateHealth = 0;
+								if (dmgAlias.armorBreakingIsGreaterThan100Percent()) {
+									if (damageDealtToArmor > heavyArmorPlateHealth) {
+										damageDealtToHealth += damageAffectedByArmor * proportionOfDamageThatHitsArmor;
+										heavyArmorPlateHealth = 0.0;
 									}
 									else {
-										// Direct Damage insufficient to break the Heavy Armor Plate
-										heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
+										heavyArmorPlateHealth -= damageDealtToArmor;
 									}
 								}
 								else {
-									if (directDamage * proportionOfDamageThatHitsArmor * armorBreaking > heavyArmorPlateHealth) {
-										heavyArmorPlateHealth = 0;
-									}
-									else {
-										// Direct Damage insufficient to break the Heavy Armor Plate
-										heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
-									}
+									heavyArmorPlateHealth -= damageDealtToArmor;
 								}
 							}
 							else {
-								damageDealtPerPellet += proportionOfDamageThatHitsArmor * directDamage * alias.getNumArmorHealthPlates() / (alias.getNumArmorStrengthPlates() + alias.getNumArmorHealthPlates());
+								damageDealtToHealth += damageAffectedByArmor * proportionOfDamageThatHitsArmor;
 							}
+
+							actualDamageDealt += damageDealtToHealth;
+							baseHealth -= damageDealtToHealth;
 						}
-						
-						// 3. Heavy Armor plates with Armor Strength (mutually exclusive with Light Armor plates)
-						if (alias.hasHeavyArmorStrength()) {
-							numHitsOnArmorStrengthPlate++;
-							if (numHitsOnArmorStrengthPlate > avgNumHitsToBreakArmorStrengthPlate || (armorBreaking > 1.0 && numHitsOnArmorStrengthPlate == avgNumHitsToBreakArmorStrengthPlate)) {
-								damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor;
-							}
-						}
-						
-						actualDamageDealt += damageDealtPerPellet;
-						baseHealth -= damageDealtPerPellet;
 					}
-					
-					// Second, Area Damage
-					totalDamageSpent += areaDamage;
-					if (embeddedDetonators) {
-						// Case 1: Guards' front leg plates have HP and block Embedded Detonators' damage until they're broken
-						if (alias.hasHeavyArmorHealth()) {
-							if (heavyArmorPlateHealth == 0) {
-								actualDamageDealt += areaDamage;
-								baseHealth -= areaDamage;
+					break;
+				}
+				case "Q'ronar Shellback": {
+					baseHealth *= largeResistance;
+
+					totalDamageSpent = 0;
+					actualDamageDealt = 0;
+					while (baseHealth > 0) {
+						for (j = 0; j < totalNumDmgComponentsPerHit; j++) {
+							// 1. Select the right DamageComponent to evaluate for this loop
+							if (j < numPellets) {
+								dmgAlias = damagePerPellet;
 							}
-						}
-						// Case 2: Wardens and Menaces have Heavy Armor that uses Armor Strength
-						else if (alias.hasHeavyArmorStrength()) {
-							// Detonators aren't placed until after the Heavy Armor plate is broken
-							if (numHitsOnArmorStrengthPlate > avgNumHitsToBreakArmorStrengthPlate) {
-								actualDamageDealt += areaDamage;
-								baseHealth -= areaDamage;
+							else {
+								// This should only ever evaluate when otherDamage[] has at least one element, making this accessor safe.
+								dmgAlias = otherDamage[j-numPellets];
 							}
+
+							// 2. Calculate its damage variants
+							potentialMaxDamage = dmgAlias.getTotalComplicatedDamageDealtPerHit(
+									MaterialFlag.normalFlesh,
+									enemyAlias.getElementalResistances(),
+									false,
+									0,
+									1
+							);
+							damageThatBypassesArmor = dmgAlias.getTotalComplicatedDamageDealtPerHit(
+									MaterialFlag.heavyArmor,
+									enemyAlias.getElementalResistances(),
+									false,
+									0,
+									1
+							);
+							damageDealtToArmor = dmgAlias.getTotalArmorDamageOnDirectHit();
+							damageAffectedByArmor = potentialMaxDamage - damageThatBypassesArmor;
+
+							// 3. Subtract from Armor and Health accordingly
+							totalDamageSpent += potentialMaxDamage;
+							damageDealtToHealth = damageThatBypassesArmor;
+
+							if (heavyArmorPlateHealth > 0) {
+								if (dmgAlias.armorBreakingIsGreaterThan100Percent()) {
+									if (damageDealtToArmor > heavyArmorPlateHealth) {
+										damageDealtToHealth += damageAffectedByArmor;
+										heavyArmorPlateHealth = 0.0;
+									}
+									else {
+										heavyArmorPlateHealth -= damageDealtToArmor;
+									}
+								}
+								else {
+									heavyArmorPlateHealth -= damageDealtToArmor;
+								}
+							}
+							else {
+								damageDealtToHealth += damageAffectedByArmor;
+							}
+
+							actualDamageDealt += damageDealtToHealth;
+							baseHealth -= damageDealtToHealth;
 						}
-						// Case 3: Light Armor plates don't stop the embedded detonators from dealing damage
-						else if (alias.hasLightArmor()) {
-							actualDamageDealt += areaDamage;
-							baseHealth -= areaDamage;
+					}
+					break;
+				}
+				case "Mactera Brundle": {
+					baseHealth *= normalResistance;
+
+					totalDamageSpent = 0;
+					actualDamageDealt = 0;
+					while (baseHealth > 0) {
+						for (j = 0; j < totalNumDmgComponentsPerHit; j++) {
+							// 1. Select the right DamageComponent to evaluate for this loop
+							if (j < numPellets) {
+								dmgAlias = damagePerPellet;
+							}
+							else {
+								// This should only ever evaluate when otherDamage[] has at least one element, making this accessor safe.
+								dmgAlias = otherDamage[j-numPellets];
+							}
+
+							// 2. Calculate its damage variants
+							potentialWeakpointDamage = dmgAlias.getTotalComplicatedDamageDealtPerHit(
+									MaterialFlag.weakpoint,
+									enemyAlias.getElementalResistances(),
+									false,
+									enemyAlias.getWeakpointMultiplier(),  // 3.0 from Brundle
+									1
+							);
+							damageThatBypassesArmor = dmgAlias.getTotalComplicatedDamageDealtPerHit(
+									MaterialFlag.heavyArmor,
+									enemyAlias.getElementalResistances(),
+									false,
+									0,
+									1
+							);
+							damageDealtToArmor = dmgAlias.getTotalArmorDamageOnDirectHit();
+							damageAffectedByArmor = potentialWeakpointDamage - damageThatBypassesArmor;
+
+							// 3. Subtract from Armor and Health accordingly
+							totalDamageSpent += potentialWeakpointDamage;
+							damageDealtToHealth = damageThatBypassesArmor;
+
+							if (heavyArmorPlateHealth > 0) {
+								if (dmgAlias.armorBreakingIsGreaterThan100Percent()) {
+									if (damageDealtToArmor > heavyArmorPlateHealth) {
+										damageDealtToHealth += damageAffectedByArmor;
+										heavyArmorPlateHealth = 0.0;
+									}
+									else {
+										heavyArmorPlateHealth -= damageDealtToArmor;
+									}
+								}
+								else {
+									heavyArmorPlateHealth -= damageDealtToArmor;
+								}
+							}
+							else {
+								damageDealtToHealth += damageAffectedByArmor;
+							}
+
+							actualDamageDealt += damageDealtToHealth;
+							baseHealth -= damageDealtToHealth;
+						}
+					}
+					break;
+				}
+				default: {
+					if (enemyAlias.usesNormalScaling()) {
+						baseHealth *= normalResistance;
+					} else {
+						baseHealth *= largeResistance;
+					}
+
+					proportionOfDamageThatHitsWeakpoint = weakpointAccuracy / 100.0;
+					proportionOfDamageThatHitsArmor = 1.0 - proportionOfDamageThatHitsWeakpoint;
+
+					// Start by pre-calculating the number of pellets or loops that each DamageComponent would need to do before "statistically" it would break an armor plate that uses ArmorStrength
+					armorDamagePerPellet = damagePerPellet.getArmorDamageOnDirectHit() * proportionOfDamageThatHitsArmor + damagePerPellet.getRadialArmorDamageOnDirectHit();
+					if (enemyAlias.hasLightArmor() || enemyAlias.hasHeavyArmorStrength()) {
+						if (armorDamagePerPellet > 0.0) {
+							avgNumPelletsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(armorStrengthBreakProbabilityLookup(armorDamagePerPellet, enemyAlias.getArmorStrength())));
+						}
+						else {
+							avgNumPelletsToBreakArmorStrengthPlate = -1;
+						}
+
+						// This only evaluates true when otherDamage is non-null and has at least one element
+						if (totalNumDmgComponentsPerHit > numPellets) {
+							avgNumHitsToBreakArmorStrengthPlate = new int[otherDamage.length];
+							for (j = 0; j < otherDamage.length; j++) {
+								otherArmorDamage = otherDamage[j].getArmorDamageOnDirectHit() * proportionOfDamageThatHitsArmor + otherDamage[j].getRadialArmorDamageOnDirectHit();
+								if (otherArmorDamage > 0.0) {
+									avgNumHitsToBreakArmorStrengthPlate[j] = (int) Math.ceil(
+											MathUtils.meanRolls(armorStrengthBreakProbabilityLookup(otherArmorDamage, enemyAlias.getArmorStrength()))
+									);
+								}
+								else {
+									avgNumHitsToBreakArmorStrengthPlate[j] = -1;
+								}
+							}
 						}
 					}
 					else {
-						if (heavyArmorPlateHealth > 0) {
-							heavyArmorPlateHealth = Math.max(heavyArmorPlateHealth - areaDamage * armorBreaking, 0);
-						}
-						
-						actualDamageDealt += areaDamage;
-						baseHealth -= areaDamage;
+						avgNumPelletsToBreakArmorStrengthPlate = -1;
 					}
+					numPelletsThatHaveHitArmorStrengthPlate = 0;
+					numHitsEvaluated = 0;
+
+					totalDamageSpent = 0;
+					actualDamageDealt = 0;
+					while (baseHealth > 0) {
+						numHitsEvaluated++;
+						for (j = 0; j < totalNumDmgComponentsPerHit; j++) {
+							// 1. Select the right DamageComponent to evaluate for this loop
+							if (j < numPellets) {
+								dmgAlias = damagePerPellet;
+								numPelletsThatHaveHitArmorStrengthPlate++;
+							}
+							else {
+								// This should only ever evaluate when otherDamage[] has at least one element, making this accessor safe.
+								dmgAlias = otherDamage[j-numPellets];
+							}
+
+							// Early exit condition: if the current DamageComponent bypasses armor and doesn't damage it (e.g. Boomstick or Coilgun's Blastwave), skip the crazy calculations
+							if (!dmgAlias.getDamageFlag(DamageFlag.canDamageArmor) && !dmgAlias.getDamageFlag(DamageFlag.reducedByArmor)) {
+								damageThatBypassesArmor = dmgAlias.getTotalComplicatedDamageDealtPerHit(
+										MaterialFlag.heavyArmor,
+										enemyAlias.getElementalResistances(),
+										false,
+										0,
+										1
+								);
+
+								totalDamageSpent += damageThatBypassesArmor;
+								actualDamageDealt += damageThatBypassesArmor;
+								baseHealth -= damageThatBypassesArmor;
+								continue;
+							}
+
+							// 2. Calculate its damage variants
+							potentialMaxDamage = dmgAlias.getResistedDamage(enemyAlias.getElementalResistances());  // this is equivalent to "complicated(normalFlesh) - Radial"
+							damageThatBypassesArmor = dmgAlias.getResistedRadialDamage(enemyAlias.getElementalResistances());  // alias of Radial Damage, temporarily
+							potentialWeakpointDamage = dmgAlias.getTotalComplicatedDamageDealtPerHit(
+									MaterialFlag.weakpoint,
+									enemyAlias.getElementalResistances(),
+									false,
+									enemyAlias.getWeakpointMultiplier(),
+									1
+							) - damageThatBypassesArmor;  // By subtracting Radial Damage, this evaluates down to just the Weakpoint Damage (if applicable)
+							damageThatBypassesArmor = dmgAlias.getTotalComplicatedDamageDealtPerHit(
+									MaterialFlag.heavyArmor,
+									enemyAlias.getElementalResistances(),
+									false,
+									0,
+									1
+							);  // theoretically this should be identical to Radial Damage, but being verbose just to be safe.
+							damageDealtToArmor = dmgAlias.getArmorDamageOnDirectHit() * proportionOfDamageThatHitsArmor + dmgAlias.getRadialArmorDamageOnDirectHit();
+							damageAffectedByArmor = potentialMaxDamage * proportionOfDamageThatHitsArmor;
+
+							// 3. Subtract from Armor and Health accordingly
+							totalDamageSpent += damageAffectedByArmor + potentialWeakpointDamage * proportionOfDamageThatHitsWeakpoint + damageThatBypassesArmor;
+							damageDealtToHealth = potentialWeakpointDamage * proportionOfDamageThatHitsWeakpoint + damageThatBypassesArmor;
+
+							// 3a. Light Armor plates (always Armor Strength, mixes with Heavy Armor plates on Guards)
+							armorStrengthPlateHasBroken = (
+								(avgNumPelletsToBreakArmorStrengthPlate > 0 && (
+									numPelletsThatHaveHitArmorStrengthPlate > avgNumPelletsToBreakArmorStrengthPlate ||
+									(dmgAlias.armorBreakingIsGreaterThan100Percent() && numPelletsThatHaveHitArmorStrengthPlate == avgNumPelletsToBreakArmorStrengthPlate)
+								)) ||
+								// Because this will only evaluate for otherDamage[] DamageElements, it should be safe to call the accessors like this.
+								(j >= numPellets && avgNumHitsToBreakArmorStrengthPlate[j-numPellets] > 0 && (
+									numHitsEvaluated > avgNumHitsToBreakArmorStrengthPlate[j-numPellets] ||
+									(dmgAlias.armorBreakingIsGreaterThan100Percent() && numHitsEvaluated == avgNumHitsToBreakArmorStrengthPlate[j-numPellets])
+								))
+							);
+							if (enemyAlias.hasLightArmor()) {
+								// Plate is already broken, or on the shot that breaks with AB > 100%
+								if (armorStrengthPlateHasBroken) {
+									damageDealtToHealth += damageAffectedByArmor * enemyAlias.getNumArmorStrengthPlates() / (enemyAlias.getNumArmorStrengthPlates() + enemyAlias.getNumArmorHealthPlates());
+								}
+								// Plate is unbroken; account for damage reduction
+								else {
+									if (dmgAlias.getDamageFlag(DamageFlag.embeddedDetonator)){
+										damageDealtToHealth += damageAffectedByArmor * enemyAlias.getNumArmorStrengthPlates() / (enemyAlias.getNumArmorStrengthPlates() + enemyAlias.getNumArmorHealthPlates());
+									}
+									else {
+										damageDealtToHealth += damageAffectedByArmor * enemyAlias.getArmorStrengthReduction() * enemyAlias.getNumArmorStrengthPlates() / (enemyAlias.getNumArmorStrengthPlates() + enemyAlias.getNumArmorHealthPlates());
+									}
+								}
+							}
+
+							// 3b. Heavy Armor Plates with health (mixes with Light Armor plates on Guards)
+							if (enemyAlias.hasHeavyArmorHealth()) {
+								if (heavyArmorPlateHealth > 0) {
+									if (dmgAlias.armorBreakingIsGreaterThan100Percent()) {
+										if (damageDealtToArmor > heavyArmorPlateHealth) {
+											damageDealtToHealth += damageAffectedByArmor * enemyAlias.getNumArmorHealthPlates() / (enemyAlias.getNumArmorStrengthPlates() + enemyAlias.getNumArmorHealthPlates());
+											heavyArmorPlateHealth = 0.0;
+										}
+										else {
+											heavyArmorPlateHealth -= damageDealtToArmor;
+										}
+									}
+									else {
+										heavyArmorPlateHealth -= damageDealtToArmor;
+									}
+								}
+								else {
+									damageDealtToHealth += damageAffectedByArmor * enemyAlias.getNumArmorHealthPlates() / (enemyAlias.getNumArmorStrengthPlates() + enemyAlias.getNumArmorHealthPlates());
+								}
+							}
+
+							// 3c. Heavy Armor plates with Armor Strength (mutually exclusive with Light Armor plates)
+							if (enemyAlias.hasHeavyArmorStrength()) {
+								// Plate is already broken, or on the shot that breaks with AB > 100%
+								if (armorStrengthPlateHasBroken) {
+									damageDealtToHealth += damageAffectedByArmor;
+								}
+								// Implicit "else add zero"
+							}
+
+							actualDamageDealt += damageDealtToHealth;
+							baseHealth -= damageDealtToHealth;
+						}
+					}
+					break;
 				}
 			}
-			
-			
+
+			// The total "wastage" for this creature has been calculated; store it and move onto the next one.
 			damageWasted = 1.0 - actualDamageDealt / totalDamageSpent;
-			toReturn[0][creatureIndex] = alias.getSpawnProbability(true);
+			toReturn[0][i] = enemyAlias.getSpawnProbability(true);
 			// Mathematica's Chop[] function rounds any number lower than 10^-10 to the integer zero. Imitation, flattery, etc...
 			if (damageWasted < Math.pow(10.0, -10.0)) {
-				toReturn[1][creatureIndex] = 0.0;
+				toReturn[1][i] = 0.0;
 			}
 			else {
-				toReturn[1][creatureIndex] = damageWasted;
+				toReturn[1][i] = damageWasted;
 			}
-			creatureIndex++;
 		}
 		
 		return toReturn;

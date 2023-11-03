@@ -9,7 +9,7 @@ public class PRJ_TurretWhip extends Projectile {
         super(
                 75,
                 0,
-                0.32,
+                0.05,
                 new DamageComponent(
                         0, null, 0, null,
                         false, false, false, false,

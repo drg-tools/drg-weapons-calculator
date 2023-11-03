@@ -208,7 +208,7 @@ public class BreakpointCalculator {
                 1
             );
 
-            totalArmorDamageDealtPerDirectHit += damagePerHit[i].getArmorDamagePerDirectHit(resistances);
+            totalArmorDamageDealtPerDirectHit += damagePerHit[i].getTotalArmorDamageOnDirectHit();
             if (damagePerHit[i].armorBreakingIsGreaterThan100Percent()) {
                 atLeastOneDamageComponentHasABGreaterThan100 = true;
             }
@@ -360,7 +360,7 @@ public class BreakpointCalculator {
                 1
             );
 
-            totalArmorDamageDealtPerDirectHit += damagePerHit[i].getArmorDamagePerDirectHit(resistances);
+            totalArmorDamageDealtPerDirectHit += damagePerHit[i].getTotalArmorDamageOnDirectHit();
             if (damagePerHit[i].armorBreakingIsGreaterThan100Percent()) {
                 atLeastOneDamageComponentHasABGreaterThan100 = true;
             }

@@ -20,10 +20,20 @@ public class MathUtils {
 		If Probability < 50%, then Median <= Mean
 	*/
 	public static double meanRolls(double probability) {
-		return 1.0 / probability;
+		if (0 < probability && probability <= 1.0) {
+			return 1.0 / probability;
+		}
+		else {
+			return -1.0;
+		}
 	}
 	public static double medianRolls(double probability) {
-		return 1.0 - (1.0 / log2(1.0 - probability));
+		if (0 < probability && probability <= 1.0) {
+			return 1.0 - (1.0 / log2(1.0 - probability));
+		}
+		else {
+			return -1.0;
+		}
 	}
 	
 	public static double log2(double a) {

@@ -117,7 +117,7 @@ public class StatusEffect {
 
     public double getArmorBreakUtilityPerEnemy() {
         if (canDamageArmor) {
-            return EnemyInformation.lightArmorBreakProbabilityLookup((minArmorDamagePerTick + maxArmorDamagePerTick) / 2.0,
+            return EnemyInformation.armorStrengthBreakProbabilityLookup((minArmorDamagePerTick + maxArmorDamagePerTick) / 2.0,
                     1.0, EnemyInformation.averageLightArmorStrength());
         }
         else {

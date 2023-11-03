@@ -6,6 +6,7 @@ import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 // TODO: at some point in the future, this might need to track Radial-type Resistance too?
 // Currently only seen on Hiveguard and Caretaker, but the precedent has been set...
 public class ElementalResistancesArray {
+	// TODO: EnumMap
 	private double[] resistances;
 	
 	public ElementalResistancesArray() {
