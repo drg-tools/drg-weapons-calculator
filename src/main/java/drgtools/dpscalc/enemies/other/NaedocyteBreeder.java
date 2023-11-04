@@ -1,6 +1,7 @@
 package drgtools.dpscalc.enemies.other;
 
 import drgtools.dpscalc.enemies.Enemy;
+import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 
 public class NaedocyteBreeder extends Enemy {
 	public NaedocyteBreeder() {
@@ -18,12 +19,8 @@ public class NaedocyteBreeder extends Enemy {
 		hasWeakpoint = true;
 		weakpointMultiplier = 3;
 		estimatedProbabilityBulletHitsWeakpoint = 0.1;
-		
-		igniteTemperature = 60; 
-		douseTemperature = 30;
-		coolingRate = 10;
-		freezeTemperature = -150;
-		unfreezeTemperature = 0;
-		warmingRate = 40;
+
+		temperatureComponent = new CreatureTemperatureComponent(60, 30, 10, 2.5, -150, 0, 0, 1);
+		temperatureComponent.setDieFrozen(true);
 	}
 }

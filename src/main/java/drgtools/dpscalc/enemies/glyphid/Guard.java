@@ -1,6 +1,8 @@
 package drgtools.dpscalc.enemies.glyphid;
 
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.enemies.Enemy;
+import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 
 public class Guard extends Enemy {
 	public Guard() {
@@ -17,16 +19,12 @@ public class Guard extends Enemy {
 		
 		// If this number is greater than 0, that means that it takes less damage from that particular element.
 		// Conversely, if it's less than 0 it takes extra damage from that particular element
-		explosiveResistance = 0.3;
-		fireResistance = 0.25;
-		frostResistance = 0.3;
-		
-		igniteTemperature = 60; 
-		douseTemperature = 40;
-		coolingRate = 6;
-		freezeTemperature = -80;
-		unfreezeTemperature = -40;
-		warmingRate = 6;
+		resistances.setResistance(DamageElement.fire, 0.25);
+		resistances.setResistance(DamageElement.frost, 0.3);
+		resistances.setResistance(DamageElement.explosive, 0.3);
+		resistances.setResistance(DamageElement.corrosive, 0.2);
+
+		temperatureComponent = new CreatureTemperatureComponent(60, 40, 6, 2, -80, -40, 6, 2);
 		
 		courage = 0.5;
 		// Enemies that fly, can't move on the ground, or can't be feared will have this value set to zero to maintain correct values.

@@ -1,14 +1,17 @@
 package drgtools.dpscalc.modelPieces;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import drgtools.dpscalc.enemies.Enemy;
 import drgtools.dpscalc.enemies.glyphid.*;
 import drgtools.dpscalc.enemies.mactera.*;
 import drgtools.dpscalc.enemies.other.*;
+import drgtools.dpscalc.modelPieces.damage.DamageInstance;
+import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 import drgtools.dpscalc.utilities.MathUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 public class EnemyInformation {
 	
@@ -166,8 +169,8 @@ public class EnemyInformation {
 		double totalIgniteTime = 0.0;
 		double totalProbability = 0.0;
 		for (int i = 0; i < enemiesModeled.length; i++) {
-			igniteTemp = enemiesModeled[i].getIgniteTemp();
-			coolingRate = enemiesModeled[i].getCoolingRate();
+			igniteTemp = enemiesModeled[i].getTemperatureComponent().getEffectiveBurnTemperature();
+			coolingRate = enemiesModeled[i].getTemperatureComponent().getCoolingRate();
 			spawnProbability = enemiesModeled[i].getSpawnProbability(true);
 			
 			// Early exit: if Heat/Shot >= igniteTemp, then this enemy gets ignited instantly.
@@ -192,13 +195,21 @@ public class EnemyInformation {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
 		}
-		
-		double toReturn = 0.0;
+
+		CreatureTemperatureComponent aliasTemp;
+		double spawnProbability;
+		double totalBurnDuration = 0.0;
+		double totalProbability = 0.0;
 		for (int i = 0; i < enemiesModeled.length; i++) {
-			toReturn += enemiesModeled[i].getSpawnProbability(true) * ((enemiesModeled[i].getIgniteTemp() - enemiesModeled[i].getDouseTemp()) / enemiesModeled[i].getCoolingRate());
+			aliasTemp = enemiesModeled[i].getTemperatureComponent();
+			if (!aliasTemp.diesIfOnFire()){
+				spawnProbability = enemiesModeled[i].getSpawnProbability(true);
+				totalBurnDuration += spawnProbability * ((aliasTemp.getEffectiveBurnTemperature() - aliasTemp.getEffectiveDouseTemperature()) / aliasTemp.getCoolingRate());
+				totalProbability += spawnProbability;
+			}
 		}
 		
-		return toReturn;
+		return totalBurnDuration / totalProbability;
 	}
 	// This method is currently only used by Gunner/Minigun/Mod/5/Aggressive Venting in maxDamage() and Engineer/GrenadeLauncher/Mod/3/Incendiary Compound single-target DPS
 	public static double percentageEnemiesIgnitedBySingleBurstOfHeat(double heatPerBurst) {
@@ -208,7 +219,7 @@ public class EnemyInformation {
 		
 		double toReturn = 0.0;
 		for (int i = 0; i < enemiesModeled.length; i++) {
-			if (enemiesModeled[i].getIgniteTemp() <= heatPerBurst) {
+			if (enemiesModeled[i].getTemperatureComponent().getEffectiveBurnTemperature() <= heatPerBurst) {
 				toReturn += enemiesModeled[i].getSpawnProbability(true);
 			}
 		}
@@ -233,7 +244,7 @@ public class EnemyInformation {
 		
 		double toReturn = 0.0;
 		for (int i = 0; i < enemiesModeled.length; i++) {
-			freezeTemp = enemiesModeled[i].getFreezeTemp();
+			freezeTemp = enemiesModeled[i].getTemperatureComponent().getEffectiveFreezeTemperature();
 			
 			// Early exit: if Cold/Shot <= -490, then all enemies get frozen instantly since the largest Freeze Temp modeled in this program is -490 (Bulk Detonator).
 			if (burstOfCold <= freezeTemp || coldPerShot <= freezeTemp || burstOfCold + coldPerShot <= freezeTemp) {
@@ -246,31 +257,49 @@ public class EnemyInformation {
 		
 		return toReturn;
 	}
-	// Because the creatures have had a negative temperature for longer than 2 seconds (due to being Frozen already) I'm keeping warming rate in the refreeze method
+	// Because the creatures immediately start warming up after being Frozen (bypasses WarmingCooldown), I'm adding warming rate in the refreeze method
 	public static double averageTimeToRefreeze(double coldPerSecond) {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
 		}
-		
-		double toReturn = 0.0;
+
+		CreatureTemperatureComponent aliasTemp;
+		double spawnProbability;
+		double totalRefreezeTime = 0.0;
+		double totalProbability = 0.0;
 		for (int i = 0; i < enemiesModeled.length; i++) {
-			toReturn += enemiesModeled[i].getSpawnProbability(true) * ((enemiesModeled[i].getFreezeTemp() - enemiesModeled[i].getUnfreezeTemp()) / (coldPerSecond + enemiesModeled[i].getWarmingRate()));
+			aliasTemp = enemiesModeled[i].getTemperatureComponent();
+			if (!aliasTemp.diesIfFrozen()) {
+				spawnProbability = enemiesModeled[i].getSpawnProbability(true);
+				totalRefreezeTime += spawnProbability * ((aliasTemp.getEffectiveFreezeTemperature() - aliasTemp.getEffectiveUnfreezeTemperature()) / (coldPerSecond + aliasTemp.getWarmingRate()));
+				totalProbability += spawnProbability;
+			}
 		}
 		
-		return toReturn;
+		return totalRefreezeTime / totalProbability;
 	}
 	public static double averageFreezeDuration() {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
 		}
-		
-		double toReturn = 0.0;
+
+		CreatureTemperatureComponent aliasTemp;
+		double spawnProbability;
+		double totalFreezeDuration = 0.0;
+		double totalProbability = 0.0;
 		for (int i = 0; i < enemiesModeled.length; i++) {
-			// Because every Freeze temp is negative and is strictly less than the corresponding Unfreeze temp, subtracting Freeze from Unfreeze guarantees a positive number.
-			toReturn += enemiesModeled[i].getSpawnProbability(true) * ((enemiesModeled[i].getUnfreezeTemp() - enemiesModeled[i].getFreezeTemp()) / enemiesModeled[i].getWarmingRate());
+			// When creatures get Frozen, they bypass WarmingCooldown and immediately start warming up. The player can extend the duration by applying more cold,
+			// but this models as if they just freeze it and then let it thaw. Don't need to worry about overshooting the estimate because MinTemp == FreezeTemp for all enemies.
+			aliasTemp = enemiesModeled[i].getTemperatureComponent();
+			if (!aliasTemp.diesIfFrozen()) {
+				// Because every Freeze temp is negative and is strictly less than the corresponding Unfreeze temp, subtracting Freeze from Unfreeze guarantees a positive number.
+				spawnProbability = enemiesModeled[i].getSpawnProbability(true);
+				totalFreezeDuration += spawnProbability * ((aliasTemp.getEffectiveUnfreezeTemperature() - aliasTemp.getEffectiveFreezeTemperature()) / aliasTemp.getWarmingRate());
+				totalProbability += spawnProbability;
+			}
 		}
 		
-		return toReturn;
+		return totalFreezeDuration / totalProbability;
 	}
 	// This method is currently only used by Driller/CryoCannon/OC/Snowball in Utility
 	public static double percentageEnemiesFrozenBySingleBurstOfCold(double coldPerBurst) {
@@ -280,7 +309,7 @@ public class EnemyInformation {
 		
 		double toReturn = 0;
 		for (int i = 0; i < enemiesModeled.length; i++) {
-			if (enemiesModeled[i].getFreezeTemp() >= coldPerBurst) {
+			if (enemiesModeled[i].getTemperatureComponent().getEffectiveFreezeTemperature() >= coldPerBurst) {
 				toReturn += enemiesModeled[i].getSpawnProbability(true);
 			}
 		}
@@ -302,29 +331,15 @@ public class EnemyInformation {
 		
 		return totalLightArmorStrength / totalSpawnPercentage;
 	}
-	public static double lightArmorBreakProbabilityLookup(double damage, double armorBreakingModifier, double armorStrength) {
-		// Input sanitization
-		if (damage <= 0.0 || armorBreakingModifier <= 0.0 || armorStrength <= 0.0) {
-			return 0.0;
+
+	public static double averageMovespeed() {
+		double averageMovespeed = 0.0;
+		for (int i = 0; i < enemiesModeled.length; i++) {
+			averageMovespeed += enemiesModeled[i].getSpawnProbability(true) * enemiesModeled[i].getMaxMovespeedWhenFeared();
 		}
-		
-		// This information comes straight from MikeGSG -- Thanks, Mike!
-		double lookupValue = damage * armorBreakingModifier / armorStrength;
-		
-		if (lookupValue < 1.0) {
-			return lookupValue / 2.0;
-		}
-		else if (lookupValue < 2.0) {
-			return 0.5 + (lookupValue - 1.0) / 4.0;
-		}
-		else if (lookupValue < 4.0) {
-			return 0.75 + (lookupValue - 2.0) / 8.0;
-		}
-		else {
-			return 1.0;
-		}
+		return averageMovespeed * movespeedDifficultyScaling[hazardLevel - 1];
 	}
-	
+
 	public static double averageCourage() {
 		if (!verifySpawnRatesTotalIsOne()) {
 			return -1.0;
@@ -348,23 +363,18 @@ public class EnemyInformation {
 		return averageFearDuration(0.0, 0.0);
 	}
 	public static double averageFearDuration(double enemySlowMultiplier, double slowDuration) {
-		double averageFearMovespeed = 0.0;
-		for (int i = 0; i < enemiesModeled.length; i++) {
-			averageFearMovespeed += enemiesModeled[i].getSpawnProbability(true) * enemiesModeled[i].getMaxMovespeedWhenFeared();
-		}
-		
-		double difficultyScalingMovespeedModifier = movespeedDifficultyScaling[hazardLevel - 1];
+		double averageFearMovespeed = averageMovespeed();
 		
 		// This value gathered from internal property TSK_FleeFrom_C.distance
 		double fearDistanceGoal = 10.0;
 		// 1.5 multiplier comes from DeepPathfinderMovement.FleeSpeedBoostMultiplier
-		double compositeAverageEnemyMovespeed = 1.5 * averageFearMovespeed * difficultyScalingMovespeedModifier * (1.0 - enemySlowMultiplier);
+		double compositeAverageEnemyMovespeed = 1.5 * averageFearMovespeed * (1.0 - enemySlowMultiplier);
 		
 		double rawDuration = fearDistanceGoal / compositeAverageEnemyMovespeed;
 		if (enemySlowMultiplier > 0 && rawDuration > slowDuration) {
 			// If the slow runs out before the average enemy has finished moving the distance goal, then the rest of the distance will be at normal speed.
 			double remainingDistance = fearDistanceGoal - slowDuration * compositeAverageEnemyMovespeed;
-			return slowDuration + remainingDistance / (averageFearMovespeed * difficultyScalingMovespeedModifier);
+			return slowDuration + remainingDistance / (1.5 * averageFearMovespeed);
 		}
 		else {
 			return rawDuration;
@@ -395,396 +405,35 @@ public class EnemyInformation {
 	}
 	
 	/*
-		This method is used to quickly show how many shots it would take for projectile-based weapons to kill the 22 modeled creatures under various conditions. It models 
-		Elemental resistances, DoTs, Light Armor resistance, Weakpoint bonus damage, Subata's T5.B +20% vs Mactera, IFGs, and Frozen.
-		
-		The first two arguments are arrays of how much damage is being done of the three types (direct, area, and DoT) split between the elements in this order:
-			1. Kinetic
-			2. Explosive
-			3. Fire
-			4. Frost
-			5. Electric
-			6. Poison
-			7. Radiation
-			
-		Next are 3 arrays that denote the DPS, average duration, and probability to proc of each of these DoTs:
-			1. Electrocute
-			2. Neurotoxin
-			3. Persistent Plasma
-			4. Radiation
-			
-		It should be noted that Direct Damage is never Poison or Radiation and DoTs are never Kinetic, Explosive, or Frost.
-		
+		This method is used to quickly show how many shots it would take for hitscan or projectile weapons to kill the 22 modeled creatures under various conditions.
+		It models DamageComponents, Damage Flags, Material Flags, Elemental resistances, Status Effects, Light Armor, Weakpoints (including Brundle's covered by ArmorHealth),
+		IFG, and Frozen.
+
 		This method does NOT model Heavy Armor plates except for Mactera Brundle because those Heavy Armor plates cover its weakpoint.
 		
-		If the weapon can do at least one DoT, this will look ahead to see if up to 4 seconds of DoT damage can kill a creature. If it can, then it will finish on that Breakpoint early instead of wasting superfluous ammo.
+		If the weapon can do at least one DoT, this will look ahead to see if up to 4 seconds of DoT damage can kill a creature. If it can, then it will finish on that Breakpoint
+		early instead of wasting superfluous ammo.
 	*/
-	public static int[] calculateBreakpoints(double[] directDamageByType, double[] areaDamageByType, double[] DoT_DPS, double[] DoT_durations, double[] DoT_probabilities, 
-											 double weakpointModifier, double armorBreaking, double RoF, double heatPerShot, double macteraModifier, 
-											 boolean frozen, boolean IFG, boolean flyingNightmare, boolean embeddedDetonators) {
-		ArrayList<Integer> toReturn = new ArrayList<Integer>();
-		
-		double normalResistance = normalEnemyResistances[hazardLevel - 1];
-		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
-		
-		// Frozen
-		double lightArmorReduction = UtilityInformation.LightArmor_DamageReduction;
-		if (frozen) {
-			// Removes Weakpoint Bonuses
-			weakpointModifier = -1.0;
-			
-			// Bypasses all Armor types
-			lightArmorReduction = 1.0;
-			
-			// Multiplies Direct Damage by x3 (including Flying Nightmare as of U34)
-			directDamageByType = MathUtils.vectorScalarMultiply(UtilityInformation.Frozen_Damage_Multiplier, directDamageByType);
-		}
-		
-		// Flying Nightmare is weird... it does the Direct Damage listed but it passes through enemies and ignores armor like the Breach Cutter, but doesn't benefit from Weakpoints.
-		if (flyingNightmare) {
-			weakpointModifier = -1.0;
-			lightArmorReduction = 1.0;
-		}
-		
-		// IFG
-		if (IFG) {
-			// Increases Direct and Area Damage taken by x1.3
-			directDamageByType = MathUtils.vectorScalarMultiply(UtilityInformation.IFG_Damage_Multiplier, directDamageByType);
-			areaDamageByType = MathUtils.vectorScalarMultiply(UtilityInformation.IFG_Damage_Multiplier, areaDamageByType);
-		}
-		
-		double creatureHP, creatureWeakpointModifier, aliasHP;
-		double rawDirectDamage, modifiedDirectDamage, rawAreaDamage, modifiedAreaDamage;
-		double numShotsToProcBurn, numShotsToProcElectrocute, numShotsToProcNeurotoxin, numShotsToProcPersistentPlasma, numShotsToProcRadiation;
-		double burnDPS, burnDuration, electrocuteDPS, plasmaDPS;
-		double[] creatureResistances;
-		int breakpointCounter;
-		double fourSecondsDoTDamage;
-		double lightArmorStrength, heavyArmorHP, numShotsToBreakArmor;
+	public static int[] calculateBreakpoints(DamageInstance dmgInstance, double RoF, boolean IFG, boolean frozen) {
+		ArrayList<Integer> toReturn = new ArrayList<>();
 		Enemy alias;
 		for (int i = 0; i < enemiesModeled.length; i++) {
 			alias = enemiesModeled[i];
-			
-			// If this enemy shouldn't be modeled in breakpoints, skip it.
-			if (!alias.shouldHaveBreakpointsCalculated()) {
-				continue;
-			}
-			
-			if (alias.usesNormalScaling()) {
-				creatureHP = alias.getBaseHealth() * normalResistance;
-			}
-			else {
-				creatureHP = alias.getBaseHealth() * largeResistance;
-			}
-			
-			creatureResistances = new double[] {
-				1.0 - alias.getExplosiveResistance(),
-				1.0 - alias.getFireResistance(),
-				1.0 - alias.getFrostResistance(),
-				1.0 - alias.getElectricResistance()
-			};
-			
-			creatureWeakpointModifier = alias.getWeakpointMultiplier();
-			if (weakpointModifier < 0) {
-				creatureWeakpointModifier = 1.0;
-			}
-			else {
-				creatureWeakpointModifier *= (1.0 + weakpointModifier);
-			}
-			
-			rawDirectDamage = MathUtils.sum(directDamageByType);
-			modifiedDirectDamage = directDamageByType[0] + directDamageByType[1] * creatureResistances[0] + directDamageByType[2] * creatureResistances[1] + directDamageByType[3] * creatureResistances[2] + directDamageByType[4] * creatureResistances[3];
-			
-			rawAreaDamage = MathUtils.sum(areaDamageByType);
-			modifiedAreaDamage = areaDamageByType[0] + areaDamageByType[1] * creatureResistances[0] + areaDamageByType[2] * creatureResistances[1] + areaDamageByType[3] * creatureResistances[2] + areaDamageByType[4] * creatureResistances[3];
-			
-			// Driller/Subata/Mod/5/B "Mactera Neurotoxin Coating" makes the Subata's damage do x1.2 more to Mactera-type enemies
-			if (alias.isMacteraType()) {
-				modifiedDirectDamage *= (1.0 + macteraModifier);
-				modifiedAreaDamage *= (1.0 + macteraModifier);
-			}
-			
-			// Neurotoxin does Poison damage -- which no enemy resists -- and Radiation is not resisted by any creatures modeled by the program (but it is technically resisted by enemies in REZ biome)
-			burnDPS = DoTInformation.Burn_DPS * creatureResistances[1];
-			electrocuteDPS = DoT_DPS[0] * creatureResistances[3];
-			plasmaDPS = DoT_DPS[2] * creatureResistances[1];
-			
-			numShotsToProcBurn = 0;
-			burnDuration = 0;
-			numShotsToProcElectrocute = 0;
-			numShotsToProcNeurotoxin = 0;
-			numShotsToProcPersistentPlasma = 0;
-			numShotsToProcRadiation = 0;
-			if (!frozen && heatPerShot > 0.0) {
-				if (heatPerShot >= alias.getIgniteTemp()) {
-					numShotsToProcBurn = 1;
-					burnDuration = (heatPerShot - alias.getDouseTemp()) / alias.getCoolingRate();
-				}
-				else {
-					// First, check if the weapon can fully ignite the enemy in less than one second (the default interval for CoolingRate, only Bulk Detonators use 0.25)
-					if (heatPerShot * Math.floor(0.99 * RoF) >= alias.getIgniteTemp()) {
-						numShotsToProcBurn = Math.ceil(alias.getIgniteTemp() / heatPerShot);
-					}
-					// If not, then this has to account for the Cooling Rate increasing the number of shots required.
-					else {
-						// This is technically an approximation and not precisely how it works in-game, but it's close enough for what I need.
-						numShotsToProcBurn = Math.floor((alias.getIgniteTemp() * RoF) / (heatPerShot * RoF - alias.getCoolingRate()));
-					}
-					
-					burnDuration = (alias.getIgniteTemp() - alias.getDouseTemp()) / alias.getCoolingRate();
-				}
-			}
-			if (DoT_probabilities[0] > 0.0) {
-				numShotsToProcElectrocute = Math.round(MathUtils.meanRolls(DoT_probabilities[0]));
-			}
-			if (DoT_probabilities[1] > 0.0) {
-				numShotsToProcNeurotoxin = Math.round(MathUtils.meanRolls(DoT_probabilities[1]));
-			}
-			if (DoT_probabilities[2] > 0.0) {
-				numShotsToProcPersistentPlasma = Math.round(MathUtils.meanRolls(DoT_probabilities[2]));
-			}
-			if (DoT_probabilities[3] > 0.0) {
-				numShotsToProcRadiation = Math.round(MathUtils.meanRolls(DoT_probabilities[3]));
-			}
-			
-			// Normal Damage
-			if (alias.hasExposedBodySomewhere()) {
-				breakpointCounter = 0;
-				aliasHP = creatureHP;
-				
-				while (aliasHP > 0) {
-					breakpointCounter++;
-					
-					// First, subtract Direct Damage
-					aliasHP -= modifiedDirectDamage;
-					
-					// Second, subtract Area Damage
-					aliasHP -= modifiedAreaDamage;
-					
-					// Third, determine if 4 seconds of DoTs can do enough damage to kill the creature
-					fourSecondsDoTDamage = 0;
-					if (numShotsToProcBurn > 0 && breakpointCounter >= numShotsToProcBurn) {
-						fourSecondsDoTDamage += Math.min(burnDuration, 4.0) * burnDPS;
-					}
-					if (numShotsToProcElectrocute > 0 && breakpointCounter >= numShotsToProcElectrocute) {
-						fourSecondsDoTDamage += Math.min(DoT_durations[0], 4.0) * electrocuteDPS;
-					}
-					if (numShotsToProcNeurotoxin > 0 && breakpointCounter >= numShotsToProcNeurotoxin) {
-						fourSecondsDoTDamage += Math.min(DoT_durations[1], 4.0) * DoT_DPS[1];
-					}
-					if (numShotsToProcPersistentPlasma > 0 && breakpointCounter >= numShotsToProcPersistentPlasma) {
-						fourSecondsDoTDamage += Math.min(DoT_durations[2], 4.0) * plasmaDPS;
-					}
-					if (numShotsToProcRadiation > 0 && breakpointCounter >= numShotsToProcRadiation) {
-						fourSecondsDoTDamage += Math.min(DoT_durations[3], 4.0) * DoT_DPS[3];
-					}
-					
-					if (fourSecondsDoTDamage >= aliasHP) {
-						break;
-					}
-					
-					// If not, subtract the damage dealt by DoTs until the next shot at max RoF
-					if (numShotsToProcBurn > 0 && breakpointCounter >= numShotsToProcBurn) {
-						aliasHP -= burnDPS / RoF;
-					}
-					if (numShotsToProcElectrocute > 0 && breakpointCounter >= numShotsToProcElectrocute) {
-						aliasHP -= electrocuteDPS / RoF;
-					}
-					if (numShotsToProcNeurotoxin > 0 && breakpointCounter >= numShotsToProcNeurotoxin) {
-						aliasHP -=  DoT_DPS[1] / RoF;
-					}
-					if (numShotsToProcPersistentPlasma > 0 && breakpointCounter >= numShotsToProcPersistentPlasma) {
-						aliasHP -= plasmaDPS / RoF;
-					}
-					if (numShotsToProcRadiation > 0 && breakpointCounter >= numShotsToProcRadiation) {
-						aliasHP -= DoT_DPS[3] / RoF;
-					}
-					
-					// This is just a catch-all statement for the rounding errors inherent to double division.
-					aliasHP = MathUtils.round(aliasHP, 4);
-				}
-				
-				toReturn.add(breakpointCounter);
-			}
-			
-			// Light Armor
-			if (alias.hasLightArmor()) {
-				breakpointCounter = 0;
-				aliasHP = creatureHP;
-				
-				lightArmorStrength = alias.getArmorStrength();
-				
-				if (embeddedDetonators) {
-					numShotsToBreakArmor = Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(rawDirectDamage, armorBreaking, lightArmorStrength)));
-				}
-				else {
-					numShotsToBreakArmor = Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(rawDirectDamage + rawAreaDamage, armorBreaking, lightArmorStrength)));
-				}
-				
-				while (aliasHP > 0) {
-					breakpointCounter++;
-					
-					// First, subtract Direct Damage
-					if (armorBreaking > 1.0 && breakpointCounter >= numShotsToBreakArmor) {
-						aliasHP -= modifiedDirectDamage;
-					}
-					else if (armorBreaking <= 1.0 && breakpointCounter > numShotsToBreakArmor) {
-						aliasHP -= modifiedDirectDamage;
-					}
-					else {
-						aliasHP -= modifiedDirectDamage * lightArmorReduction;
-					}
-					
-					// Second, subtract Area Damage
-					aliasHP -= modifiedAreaDamage;
-					
-					// Third, determine if 4 seconds of DoTs can do enough damage to kill the creature
-					fourSecondsDoTDamage = 0;
-					if (numShotsToProcBurn > 0 && breakpointCounter >= numShotsToProcBurn) {
-						fourSecondsDoTDamage += Math.min(burnDuration, 4.0) * burnDPS;
-					}
-					if (numShotsToProcElectrocute > 0 && breakpointCounter >= numShotsToProcElectrocute) {
-						fourSecondsDoTDamage += Math.min(DoT_durations[0], 4.0) * electrocuteDPS;
-					}
-					if (numShotsToProcNeurotoxin > 0 && breakpointCounter >= numShotsToProcNeurotoxin) {
-						fourSecondsDoTDamage += Math.min(DoT_durations[1], 4.0) * DoT_DPS[1];
-					}
-					if (numShotsToProcPersistentPlasma > 0 && breakpointCounter >= numShotsToProcPersistentPlasma) {
-						fourSecondsDoTDamage += Math.min(DoT_durations[2], 4.0) * plasmaDPS;
-					}
-					if (numShotsToProcRadiation > 0 && breakpointCounter >= numShotsToProcRadiation) {
-						fourSecondsDoTDamage += Math.min(DoT_durations[3], 4.0) * DoT_DPS[3];
-					}
-					
-					if (fourSecondsDoTDamage >= aliasHP) {
-						break;
-					}
-					
-					// If not, subtract the damage dealt by DoTs until the next shot at max RoF
-					if (numShotsToProcBurn > 0 && breakpointCounter >= numShotsToProcBurn) {
-						aliasHP -= burnDPS / RoF;
-					}
-					if (numShotsToProcElectrocute > 0 && breakpointCounter >= numShotsToProcElectrocute) {
-						aliasHP -= electrocuteDPS / RoF;
-					}
-					if (numShotsToProcNeurotoxin > 0 && breakpointCounter >= numShotsToProcNeurotoxin) {
-						aliasHP -=  DoT_DPS[1] / RoF;
-					}
-					if (numShotsToProcPersistentPlasma > 0 && breakpointCounter >= numShotsToProcPersistentPlasma) {
-						aliasHP -= plasmaDPS / RoF;
-					}
-					if (numShotsToProcRadiation > 0 && breakpointCounter >= numShotsToProcRadiation) {
-						aliasHP -= DoT_DPS[3] / RoF;
-					}
-					
-					// This is just a catch-all statement for the rounding errors inherent to double division.
-					aliasHP = MathUtils.round(aliasHP, 4);
-				}
-				
-				toReturn.add(breakpointCounter);
-			}
-			
-			// Weakpoint
-			if (alias.hasWeakpoint()) {
-				breakpointCounter = 0;
-				aliasHP = creatureHP;
-				
-				if (alias.weakpointIsCoveredByHeavyArmor()) {
-					heavyArmorHP = alias.getArmorBaseHealth() * normalResistance;
-					
-					if (embeddedDetonators) {
-						numShotsToBreakArmor = Math.ceil(heavyArmorHP / (rawDirectDamage * armorBreaking));
-					}
-					else {
-						numShotsToBreakArmor = Math.ceil(heavyArmorHP / ((rawDirectDamage + rawAreaDamage) * armorBreaking));
-					}
-				}
-				else {
-					heavyArmorHP = 0;
-					numShotsToBreakArmor = 0;
-				}
-				
-				while (aliasHP > 0) {
-					breakpointCounter++;
-					
-					if (!frozen && heavyArmorHP > 0) {
-						// First, subtract Direct Damage (and Explosive Reload/Embedded Detonators)
-						if ((armorBreaking > 1.0 && breakpointCounter >= numShotsToBreakArmor) || (armorBreaking <= 1.0 && breakpointCounter > numShotsToBreakArmor)) {
-							aliasHP -= modifiedDirectDamage * creatureWeakpointModifier;
-							if (embeddedDetonators) {
-								aliasHP -= modifiedAreaDamage;
-							}
-						}
-						else {
-							continue;
-						}
-						
-						// Second, subtract Area Damage
-						if (!embeddedDetonators) {
-							aliasHP -= modifiedAreaDamage;
-						}
-					}
-					else {
-						aliasHP -= modifiedDirectDamage * creatureWeakpointModifier;
-						aliasHP -= modifiedAreaDamage;
-					}
-					
-					// Third, determine if 4 seconds of DoTs can do enough damage to kill the creature
-					fourSecondsDoTDamage = 0;
-					if (numShotsToProcBurn > 0 && breakpointCounter >= numShotsToProcBurn) {
-						fourSecondsDoTDamage += Math.min(burnDuration, 4.0) * burnDPS;
-					}
-					if (numShotsToProcElectrocute > 0 && breakpointCounter >= numShotsToProcElectrocute) {
-						fourSecondsDoTDamage += Math.min(DoT_durations[0], 4.0) * electrocuteDPS;
-					}
-					if (numShotsToProcNeurotoxin > 0 && breakpointCounter >= numShotsToProcNeurotoxin) {
-						fourSecondsDoTDamage += Math.min(DoT_durations[1], 4.0) * DoT_DPS[1];
-					}
-					if (numShotsToProcPersistentPlasma > 0 && breakpointCounter >= numShotsToProcPersistentPlasma) {
-						fourSecondsDoTDamage += Math.min(DoT_durations[2], 4.0) * plasmaDPS;
-					}
-					if (numShotsToProcRadiation > 0 && breakpointCounter >= numShotsToProcRadiation) {
-						fourSecondsDoTDamage += Math.min(DoT_durations[3], 4.0) * DoT_DPS[3];
-					}
-					
-					if (fourSecondsDoTDamage >= aliasHP) {
-						break;
-					}
-					
-					// If not, subtract the damage dealt by DoTs until the next shot at max RoF
-					if (numShotsToProcBurn > 0 && breakpointCounter >= numShotsToProcBurn) {
-						aliasHP -= burnDPS / RoF;
-					}
-					if (numShotsToProcElectrocute > 0 && breakpointCounter >= numShotsToProcElectrocute) {
-						aliasHP -= electrocuteDPS / RoF;
-					}
-					if (numShotsToProcNeurotoxin > 0 && breakpointCounter >= numShotsToProcNeurotoxin) {
-						aliasHP -=  DoT_DPS[1] / RoF;
-					}
-					if (numShotsToProcPersistentPlasma > 0 && breakpointCounter >= numShotsToProcPersistentPlasma) {
-						aliasHP -= plasmaDPS / RoF;
-					}
-					if (numShotsToProcRadiation > 0 && breakpointCounter >= numShotsToProcRadiation) {
-						aliasHP -= DoT_DPS[3] / RoF;
-					}
-					
-					// This is just a catch-all statement for the rounding errors inherent to double division.
-					aliasHP = MathUtils.round(aliasHP, 4);
-				}
-				
-				toReturn.add(breakpointCounter);
+			if (alias.shouldHaveBreakpointsCalculated()) {
+				toReturn.addAll(alias.calculateBreakpoints(dmgInstance, RoF, IFG, frozen,
+					normalEnemyResistances[hazardLevel - 1], largeEnemyResistances[hazardLevel - 1][playerCount - 1]));
 			}
 		}
 				
-		return convertIntegers(toReturn);
+		return convertArrayListToArray(toReturn);
 	}
 	
 	// Sourced from https://stackoverflow.com/a/718558
-	private static int[] convertIntegers(List<Integer> integers) {
+	private static int[] convertArrayListToArray(List<Integer> integers) {
 	    int[] ret = new int[integers.size()];
 	    Iterator<Integer> iterator = integers.iterator();
 	    for (int i = 0; i < ret.length; i++) {
-	        ret[i] = iterator.next().intValue();
+	        ret[i] = iterator.next();
 	    }
 	    return ret;
 	}
@@ -817,388 +466,35 @@ public class EnemyInformation {
 		
 		I'm choosing to let Overkill damage be counted as damage dealt. Too complicated to keep track of while simultaneously doing Armor stuff.
 	*/
-	public static double[][] percentageDamageWastedByArmor(double directDamage, int numPellets, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy) {
-		return percentageDamageWastedByArmor(directDamage, numPellets, areaDamage, armorBreaking, weakpointModifier, generalAccuracy, weakpointAccuracy, false);
-	}
-	public static double[][] percentageDamageWastedByArmor(double directDamage, int numPellets, double areaDamage, double armorBreaking, double weakpointModifier, double generalAccuracy, double weakpointAccuracy, boolean embeddedDetonators) {
-		// I have not thought of an elegant way to look ahead and count how many enemies have Light or Heavy Armor. For now I'm going to "cheat" because I know in advance that the answer is 10.
-		double[][] toReturn = new double[2][10];
-		
-		double normalResistance = normalEnemyResistances[hazardLevel - 1];
-		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
-		
-		int creatureIndex = 0, i, j;
-		double baseHealth, heavyArmorPlateHealth;
-		double damageDealtPerPellet, proportionOfDamageThatHitsArmor, proportionOfDamageThatHitsWeakpoint;
-		int avgNumHitsToBreakArmorStrengthPlate, numHitsOnArmorStrengthPlate;
-		double totalDamageSpent, actualDamageDealt, damageWasted;
-		Enemy alias;
-		for (i = 0; i < enemiesModeled.length; i++) {
-			alias = enemiesModeled[i];
-			
-			// Skip any enemy that either has no Armor or Unbreakable Armor
-			if (!alias.hasBreakableArmor()) {
-				continue;
-			}
-			
-			baseHealth = alias.getBaseHealth();
-			
-			if (alias.hasHeavyArmorHealth()) {
-				// All Heavy Armor plates with healthbars have their health scale with normal resistance.
-				heavyArmorPlateHealth = alias.getArmorBaseHealth() * normalResistance;
-			}
-			else {
-				heavyArmorPlateHealth = 0;
-			}
-			
-			if (alias.getName().equals("Glyphid Praetorian")) {
-				baseHealth *= largeResistance;
-				
-				proportionOfDamageThatHitsArmor = (100.0 - generalAccuracy) / 100.0;
-				double proportionOfDamageThatHitsMouth = generalAccuracy / 100.0;
-				
-				totalDamageSpent = 0;
-				actualDamageDealt = 0;
-				while (baseHealth > 0) {
-					// First, Direct Damage
-					for (j = 0; j < numPellets; j++) {
-						totalDamageSpent += directDamage;
-						damageDealtPerPellet = proportionOfDamageThatHitsMouth * directDamage;
-						if (heavyArmorPlateHealth > 0) {
-							if (armorBreaking > 1.0) {
-								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
-									damageDealtPerPellet += proportionOfDamageThatHitsArmor * directDamage;
-									heavyArmorPlateHealth = 0;
-								}
-								else {
-									// Direct Damage insufficient to break the Heavy Armor Plate
-									heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
-								}
-							}
-							else {
-								if (directDamage * proportionOfDamageThatHitsArmor * armorBreaking > heavyArmorPlateHealth) {
-									heavyArmorPlateHealth = 0;
-								}
-								else {
-									// Direct Damage insufficient to break the Heavy Armor Plate
-									heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
-								}
-							}
-						}
-						else {
-							damageDealtPerPellet += proportionOfDamageThatHitsArmor * directDamage;
-						}
-						
-						actualDamageDealt += damageDealtPerPellet;
-						baseHealth -= damageDealtPerPellet;
-					}
-					
-					// Second, Area Damage
-					totalDamageSpent += areaDamage;
-					if (embeddedDetonators) {
-						if (heavyArmorPlateHealth == 0) {
-							actualDamageDealt += areaDamage;
-							baseHealth -= areaDamage;
-						}
-					}
-					else {
-						if (heavyArmorPlateHealth > 0) {
-							heavyArmorPlateHealth = Math.max(heavyArmorPlateHealth - areaDamage * armorBreaking, 0);
-						}
-						
-						actualDamageDealt += areaDamage;
-						baseHealth -= areaDamage;
-					}
-				}
-			}
-			else if (alias.getName().equals("Q'ronar Shellback")) {
-				baseHealth *= largeResistance;
-				
-				totalDamageSpent = 0;
-				actualDamageDealt = 0;
-				while (baseHealth > 0) {
-					// First, Direct Damage
-					for (j = 0; j < numPellets; j++) {
-						totalDamageSpent += directDamage;
-						damageDealtPerPellet = 0;
-						if (heavyArmorPlateHealth > 0) {
-							if (armorBreaking > 1.0) {
-								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
-									damageDealtPerPellet += directDamage;
-									heavyArmorPlateHealth = 0;
-								}
-								else {
-									// Direct Damage insufficient to break the Heavy Armor Plate
-									heavyArmorPlateHealth -= directDamage * armorBreaking;
-								}
-							}
-							else {
-								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
-									heavyArmorPlateHealth = 0;
-								}
-								else {
-									// Direct Damage insufficient to break the Heavy Armor Plate
-									heavyArmorPlateHealth -= directDamage * armorBreaking;
-								}
-							}
-						}
-						else {
-							damageDealtPerPellet += directDamage;
-						}
-						
-						actualDamageDealt += damageDealtPerPellet;
-						baseHealth -= damageDealtPerPellet;
-					}
-					
-					// Second, Area Damage
-					totalDamageSpent += areaDamage;
-					if (embeddedDetonators) {
-						if (heavyArmorPlateHealth == 0) {
-							actualDamageDealt += areaDamage;
-							baseHealth -= areaDamage;
-						}
-					}
-					else {
-						if (heavyArmorPlateHealth > 0) {
-							heavyArmorPlateHealth = Math.max(heavyArmorPlateHealth - areaDamage * armorBreaking, 0);
-						}
-						
-						actualDamageDealt += areaDamage;
-						baseHealth -= areaDamage;
-					}
-				}
-			}
-			else if (alias.getName().equals("Mactera Brundle")) {
-				baseHealth *= normalResistance;
-				
-				double theoreticalDamagePerPellet;
-				if (weakpointModifier < 0.0) {
-					theoreticalDamagePerPellet = directDamage;
-				}
-				else {
-					theoreticalDamagePerPellet = directDamage * (1.0 + weakpointModifier) * alias.getWeakpointMultiplier();
-				}
-				
-				totalDamageSpent = 0;
-				actualDamageDealt = 0;
-				while (baseHealth > 0) {
-					// First, Direct Damage
-					for (j = 0; j < numPellets; j++) {
-						totalDamageSpent += theoreticalDamagePerPellet;
-						damageDealtPerPellet = 0;
-						if (heavyArmorPlateHealth > 0) {
-							if (armorBreaking > 1.0) {
-								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
-									damageDealtPerPellet += theoreticalDamagePerPellet;
-									heavyArmorPlateHealth = 0;
-								}
-								else {
-									// Direct Damage insufficient to break the Heavy Armor Plate
-									heavyArmorPlateHealth -= directDamage * armorBreaking;
-								}
-							}
-							else {
-								if (directDamage * armorBreaking > heavyArmorPlateHealth) {
-									heavyArmorPlateHealth = 0;
-								}
-								else {
-									// Direct Damage insufficient to break the Heavy Armor Plate
-									heavyArmorPlateHealth -= directDamage * armorBreaking;
-								}
-							}
-						}
-						else {
-							damageDealtPerPellet += theoreticalDamagePerPellet;
-						}
-						
-						actualDamageDealt += damageDealtPerPellet;
-						baseHealth -= damageDealtPerPellet;
-					}
-					
-					// Second, Area Damage
-					totalDamageSpent += areaDamage;
-					if (embeddedDetonators) {
-						if (heavyArmorPlateHealth == 0) {
-							actualDamageDealt += areaDamage;
-							baseHealth -= areaDamage;
-						}
-					}
-					else {
-						if (heavyArmorPlateHealth > 0) {
-							heavyArmorPlateHealth = Math.max(heavyArmorPlateHealth - areaDamage * armorBreaking, 0);
-						}
-						
-						actualDamageDealt += areaDamage;
-						baseHealth -= areaDamage;
-					}
-				}
-			}
-			else {
-				if (alias.usesNormalScaling()) {
-					baseHealth *= normalResistance;
-				}
-				else {
-					baseHealth *= largeResistance;
-				}
-				
-				proportionOfDamageThatHitsArmor = (100.0 - weakpointAccuracy) / 100.0;
-				proportionOfDamageThatHitsWeakpoint = weakpointAccuracy / 100.0;
-				
-				if (alias.hasLightArmor() || alias.hasHeavyArmorStrength()) {
-					if (embeddedDetonators || (areaDamage > 0 && numPellets > 1)) {
-						// Boomstick special case -- I'm choosing to model it as if the Blastwave doesn't break Light Armor Plates for simplicity later in the method
-						avgNumHitsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(directDamage, armorBreaking, alias.getArmorStrength())));
-					}
-					else {
-						avgNumHitsToBreakArmorStrengthPlate = (int) Math.ceil(MathUtils.meanRolls(lightArmorBreakProbabilityLookup(directDamage + areaDamage, armorBreaking, alias.getArmorStrength())));
-					}
-				}
-				else {
-					avgNumHitsToBreakArmorStrengthPlate = 0;
-				}
-				numHitsOnArmorStrengthPlate = 0;
-				
-				totalDamageSpent = 0;
-				actualDamageDealt = 0;
-				while (baseHealth > 0) {
-					// First, Direct Damage
-					for (j = 0; j < numPellets; j++) {
-						if (weakpointModifier < 0) {
-							totalDamageSpent += directDamage;
-							damageDealtPerPellet = directDamage * proportionOfDamageThatHitsWeakpoint;
-						}
-						else {
-							totalDamageSpent += directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * alias.getWeakpointMultiplier() + directDamage * proportionOfDamageThatHitsArmor;
-							damageDealtPerPellet = directDamage * proportionOfDamageThatHitsWeakpoint * (1.0 + weakpointModifier) * alias.getWeakpointMultiplier();
-						}
-						
-						// 1. Light Armor plates (always Armor Strength, mixes with Heavy Armor plates on Guards)
-						if (alias.hasLightArmor()) {
-							numHitsOnArmorStrengthPlate++;
-							if (numHitsOnArmorStrengthPlate > avgNumHitsToBreakArmorStrengthPlate || (armorBreaking > 1.0 && numHitsOnArmorStrengthPlate == avgNumHitsToBreakArmorStrengthPlate)) {
-								damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * alias.getNumArmorStrengthPlates() / (alias.getNumArmorStrengthPlates() + alias.getNumArmorHealthPlates());
-							}
-							else {
-								damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * UtilityInformation.LightArmor_DamageReduction * alias.getNumArmorStrengthPlates() / (alias.getNumArmorStrengthPlates() + alias.getNumArmorHealthPlates());
-							}
-						}
-						
-						// 2. Heavy Armor Plates with health (mixes with Light Armor plates on Guards)
-						if (alias.hasHeavyArmorHealth()) { 
-							if (heavyArmorPlateHealth > 0) {
-								if (armorBreaking > 1.0) {
-									if (directDamage * armorBreaking > heavyArmorPlateHealth) {
-										damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor * alias.getNumArmorHealthPlates() / (alias.getNumArmorStrengthPlates() + alias.getNumArmorHealthPlates());
-										heavyArmorPlateHealth = 0;
-									}
-									else {
-										// Direct Damage insufficient to break the Heavy Armor Plate
-										heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
-									}
-								}
-								else {
-									if (directDamage * proportionOfDamageThatHitsArmor * armorBreaking > heavyArmorPlateHealth) {
-										heavyArmorPlateHealth = 0;
-									}
-									else {
-										// Direct Damage insufficient to break the Heavy Armor Plate
-										heavyArmorPlateHealth -= directDamage * proportionOfDamageThatHitsArmor * armorBreaking;
-									}
-								}
-							}
-							else {
-								damageDealtPerPellet += proportionOfDamageThatHitsArmor * directDamage * alias.getNumArmorHealthPlates() / (alias.getNumArmorStrengthPlates() + alias.getNumArmorHealthPlates());
-							}
-						}
-						
-						// 3. Heavy Armor plates with Armor Strength (mutually exclusive with Light Armor plates)
-						if (alias.hasHeavyArmorStrength()) {
-							numHitsOnArmorStrengthPlate++;
-							if (numHitsOnArmorStrengthPlate > avgNumHitsToBreakArmorStrengthPlate || (armorBreaking > 1.0 && numHitsOnArmorStrengthPlate == avgNumHitsToBreakArmorStrengthPlate)) {
-								damageDealtPerPellet += directDamage * proportionOfDamageThatHitsArmor;
-							}
-						}
-						
-						actualDamageDealt += damageDealtPerPellet;
-						baseHealth -= damageDealtPerPellet;
-					}
-					
-					// Second, Area Damage
-					totalDamageSpent += areaDamage;
-					if (embeddedDetonators) {
-						// Case 1: Guards' front leg plates have HP and block Embedded Detonators' damage until they're broken
-						if (alias.hasHeavyArmorHealth()) {
-							if (heavyArmorPlateHealth == 0) {
-								actualDamageDealt += areaDamage;
-								baseHealth -= areaDamage;
-							}
-						}
-						// Case 2: Wardens and Menaces have Heavy Armor that uses Armor Strength
-						else if (alias.hasHeavyArmorStrength()) {
-							// Detonators aren't placed until after the Heavy Armor plate is broken
-							if (numHitsOnArmorStrengthPlate > avgNumHitsToBreakArmorStrengthPlate) {
-								actualDamageDealt += areaDamage;
-								baseHealth -= areaDamage;
-							}
-						}
-						// Case 3: Light Armor plates don't stop the embedded detonators from dealing damage
-						else if (alias.hasLightArmor()) {
-							actualDamageDealt += areaDamage;
-							baseHealth -= areaDamage;
-						}
-					}
-					else {
-						if (heavyArmorPlateHealth > 0) {
-							heavyArmorPlateHealth = Math.max(heavyArmorPlateHealth - areaDamage * armorBreaking, 0);
-						}
-						
-						actualDamageDealt += areaDamage;
-						baseHealth -= areaDamage;
-					}
-				}
-			}
-			
-			
-			damageWasted = 1.0 - actualDamageDealt / totalDamageSpent;
-			toReturn[0][creatureIndex] = alias.getSpawnProbability(true);
-			// Mathematica's Chop[] function rounds any number lower than 10^-10 to the integer zero. Imitation, flattery, etc...
-			if (damageWasted < Math.pow(10.0, -10.0)) {
-				toReturn[1][creatureIndex] = 0.0;
-			}
-			else {
-				toReturn[1][creatureIndex] = damageWasted;
-			}
-			creatureIndex++;
+	public static double[][] percentageDamageWastedByArmor(DamageInstance dmgInstance, double generalAccuracy, double weakpointAccuracy) {
+		// Because Scala has made me lazy, lol
+		Enemy[] enemiesWithBreakableArmor = Arrays.stream(enemiesModeled).filter(Enemy::hasBreakableArmor).toArray(Enemy[]::new);
+		double[][] toReturn = new double[2][enemiesWithBreakableArmor.length];
+
+		Enemy enemyAlias;
+		for (int i = 0; i < enemiesWithBreakableArmor.length; i++) {
+			enemyAlias = enemiesModeled[i];
+			toReturn[0][i] = enemyAlias.getSpawnProbability(true);
+			toReturn[1][i] = enemyAlias.calculatePercentageOfDamageWastedByArmor(dmgInstance, generalAccuracy, weakpointAccuracy,
+				normalEnemyResistances[hazardLevel - 1], largeEnemyResistances[hazardLevel - 1][playerCount - 1]);
 		}
 		
 		return toReturn;
 	}
-	
+
 	/*
-		This method intentionally ignores elemental resistances/weaknesses and weakpoint damage bonuses because I don't want to repeat the Breakpoints insanity.
+		This method intentionally ignores weakpoint damage bonuses because and armor reduction because I don't want to repeat the Breakpoints insanity.
 	*/
-	public static double[][] overkillPerCreature(double totalDamagePerShot){
+	public static double[][] overkillPerCreature(DamageInstance dmgInstance){
 		int numEnemies = enemiesModeled.length;
 		double[][] toReturn = new double[2][numEnemies];
 		toReturn[0] = new double[numEnemies];
 		toReturn[1] = new double[numEnemies];
-		
-		double normalResistance = normalEnemyResistances[hazardLevel - 1];
-		double largeResistance = largeEnemyResistances[hazardLevel - 1][playerCount - 1];
-		
-		double creatureHP;
-		for (int i = 0; i < enemiesModeled.length; i++) {
-			if (enemiesModeled[i].usesNormalScaling()) {
-				creatureHP = enemiesModeled[i].getBaseHealth() * normalResistance;
-			}
-			else {
-				creatureHP = enemiesModeled[i].getBaseHealth() * largeResistance;
-			}
-			
+		for (int i = 0; i < numEnemies; i++) {
 			toReturn[0][i] = 1.0 / ((double) numEnemies);
-			toReturn[1][i] = ((Math.ceil(creatureHP / totalDamagePerShot) * totalDamagePerShot) / creatureHP - 1.0) * 100.0;
+			toReturn[1][i] = enemiesModeled[i].calculateOverkill(dmgInstance,
+				normalEnemyResistances[hazardLevel - 1], largeEnemyResistances[hazardLevel - 1][playerCount - 1]);
 		}
-		
 		return toReturn;
 	}
 }

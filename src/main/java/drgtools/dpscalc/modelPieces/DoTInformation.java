@@ -9,6 +9,7 @@ package drgtools.dpscalc.modelPieces;
 	
 	Wiki page being referenced: https://deeprockgalactic.gamepedia.com/Status_Effects
 */
+// TODO: this file can be deleted after StatusEffects get fully implemented.
 public class DoTInformation {
 	/*
 		Neurotoxin

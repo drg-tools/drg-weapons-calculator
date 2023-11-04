@@ -1,6 +1,7 @@
 package drgtools.dpscalc.enemies.other;
 
 import drgtools.dpscalc.enemies.Enemy;
+import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 
 public class CaveLeech extends Enemy {
 	public CaveLeech() {
@@ -12,12 +13,7 @@ public class CaveLeech extends Enemy {
 		normalScaling = true;
 		
 		hasExposedBodySomewhere = true;
-		
-		igniteTemperature = 30; 
-		douseTemperature = 0;
-		coolingRate = 10;
-		freezeTemperature = -50;
-		unfreezeTemperature = 0;
-		warmingRate = 10;
+
+		temperatureComponent = new CreatureTemperatureComponent(30, 0, 10, 1.5, -50, 0, 10, 2);
 	}
 }

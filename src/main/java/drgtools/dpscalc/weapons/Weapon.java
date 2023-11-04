@@ -12,11 +12,12 @@ import drgtools.dpscalc.enemies.Enemy;
 import drgtools.dpscalc.guiPieces.AoEVisualizer;
 import drgtools.dpscalc.guiPieces.GuiConstants;
 import drgtools.dpscalc.guiPieces.customButtons.ButtonIcons.modIcons;
-import drgtools.dpscalc.modelPieces.AccuracyEstimator;
 import drgtools.dpscalc.modelPieces.EnemyInformation;
 import drgtools.dpscalc.modelPieces.Mod;
 import drgtools.dpscalc.modelPieces.Overclock;
 import drgtools.dpscalc.modelPieces.StatsRow;
+import drgtools.dpscalc.modelPieces.accuracy.AccuracyEstimator;
+import drgtools.dpscalc.modelPieces.damage.DamageComponent;
 import drgtools.dpscalc.utilities.ConditionalArrayList;
 import drgtools.dpscalc.utilities.MathUtils;
 import drgtools.dpscalc.utilities.Point2D;
@@ -96,7 +97,7 @@ public abstract class Weapon extends Observable {
 	protected double[] baselineCalculatedStats;
 	private AoEVisualizer illustration = null;
 	
-	protected AccuracyEstimator accEstimator = new AccuracyEstimator();
+	protected AccuracyEstimator accEstimator;
 	
 	/****************************************************************************************
 	* Build from combination
@@ -1011,7 +1012,7 @@ public abstract class Weapon extends Observable {
 			notifyObservers();
 		}
 	}
-	
+
 	protected void setAoEEfficiency() {
 		/* 
 			This is a placeholder method that only gets overwritten by weapons that deal splash damage (EPC_ChargedShot, GrenadeLauncher, and Autocannon)
@@ -1251,12 +1252,9 @@ public abstract class Weapon extends Observable {
 		
 		return currentT;
 	}
-	
-	protected double calculateProbabilityToBreakLightArmor(double baseDamage) {
-		return calculateProbabilityToBreakLightArmor(baseDamage, 1.0);
-	}
-	protected double calculateProbabilityToBreakLightArmor(double baseDamage, double armorBreaking) {
-		return EnemyInformation.lightArmorBreakProbabilityLookup(baseDamage, armorBreaking, EnemyInformation.averageLightArmorStrength());
+
+	protected double calculateProbabilityToBreakLightArmor(DamageComponent dmg) {
+		return Enemy.armorStrengthBreakProbabilityLookup(dmg.getTotalArmorDamageOnDirectHit(), EnemyInformation.averageLightArmorStrength());
 	}
 	
 	protected double calculateFearProcProbability(double fearFactor) {
@@ -1299,6 +1297,7 @@ public abstract class Weapon extends Observable {
 		
 		return timeWhileAfflictedByDoT * DoTDPS;
 	}
+
 	protected double[] calculateAverageAreaDamage(double radius, double fullDamageRadius, double falloffPercentageAtOuterEdge) {
 		return calculateAverageAreaDamage(radius, fullDamageRadius, falloffPercentageAtOuterEdge, true);
 	}
@@ -1455,11 +1454,10 @@ public abstract class Weapon extends Observable {
 	protected double averageBonusPerMagazineForLongEffects(double conditionalMultiplier, double bulletsBeforeConditionStarts, double magazineSize) {
 		return (bulletsBeforeConditionStarts * 1.0 + (magazineSize - bulletsBeforeConditionStarts) * conditionalMultiplier) / magazineSize;
 	}
-	
+
 	protected int calculateNumGlyphidsInRadius(double radius) {
 		return calculateNumGlyphidsInRadius(radius, true);
 	}
-	
 	protected int calculateNumGlyphidsInRadius(double radius, boolean updateIllustration) {
 		/*
 			This method should be used any time a projectile fired from this weapon has area-of-effect (AoE) damage in a radius.
@@ -1524,7 +1522,8 @@ public abstract class Weapon extends Observable {
 				numGlyphidsHitBySplash++;
 			}
 		}
-		
+
+		// TODO: this intrinsic functionality prevented me from extracting this method into DamageComponent during the Great Damage Refactor >:|
 		if (updateIllustration) {
 			illustration = new AoEVisualizer(glyphidBodyRadius, glyphidBodyAndLegsRadius, radius, glyphidCenters);
 		}

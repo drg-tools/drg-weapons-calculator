@@ -1,6 +1,7 @@
 package drgtools.dpscalc.enemies.glyphid;
 
 import drgtools.dpscalc.enemies.Enemy;
+import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 
 public class WebSpitter extends Enemy {
 	public WebSpitter() {
@@ -14,13 +15,8 @@ public class WebSpitter extends Enemy {
 		hasWeakpoint = true;
 		weakpointMultiplier = 2;
 		estimatedProbabilityBulletHitsWeakpoint = 0.1;
-		
-		igniteTemperature = 30; 
-		douseTemperature = 0;
-		coolingRate = 6;
-		freezeTemperature = -75;
-		unfreezeTemperature = 0;
-		warmingRate = 10;
+
+		temperatureComponent = new CreatureTemperatureComponent(30, 0, 6, 2, -75, 0, 10, 2);
 		
 		courage = 0.3;
 		// Enemies that fly, can't move on the ground, or can't be feared will have this value set to zero to maintain correct values.

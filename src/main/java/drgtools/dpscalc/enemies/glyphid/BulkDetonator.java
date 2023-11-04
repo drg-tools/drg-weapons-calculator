@@ -1,6 +1,8 @@
 package drgtools.dpscalc.enemies.glyphid;
 
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.enemies.Enemy;
+import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 
 public class BulkDetonator extends Enemy {
 	public BulkDetonator() {
@@ -21,15 +23,10 @@ public class BulkDetonator extends Enemy {
 		
 		// If this number is greater than 0, that means that it takes less damage from that particular element.
 		// Conversely, if it's less than 0 it takes extra damage from that particular element
-		explosiveResistance = 0.5;
-		
-		temperatureUpdateTime = 0.25;
-		igniteTemperature = 60; 
-		douseTemperature = 30;
-		coolingRate = 10;
-		freezeTemperature = -490;
-		unfreezeTemperature = -200;
-		warmingRate = 300;
+		resistances.setResistance(DamageElement.explosive, 0.5);
+
+		temperatureComponent = new CreatureTemperatureComponent(60, 30, 10, 2.5, -490, -200, 300, 1);
+		temperatureComponent.setUpdateTime(0.25);
 		
 		courage = 1.0;
 		// Enemies that fly, can't move on the ground, or can't be feared will have this value set to zero to maintain correct values.

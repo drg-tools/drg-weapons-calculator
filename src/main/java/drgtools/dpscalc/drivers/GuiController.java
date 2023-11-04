@@ -27,31 +27,31 @@ import drgtools.dpscalc.guiPieces.HoverText;
 import drgtools.dpscalc.guiPieces.View;
 import drgtools.dpscalc.modelPieces.EnemyInformation;
 import drgtools.dpscalc.weapons.Weapon;
-import drgtools.dpscalc.weapons.driller.CryoCannon;
-import drgtools.dpscalc.weapons.driller.EPC_ChargeShot;
-import drgtools.dpscalc.weapons.driller.EPC_RegularShot;
-import drgtools.dpscalc.weapons.driller.Flamethrower;
-import drgtools.dpscalc.weapons.driller.SludgePump;
-import drgtools.dpscalc.weapons.driller.SludgePump_Charged;
-import drgtools.dpscalc.weapons.driller.Subata;
-import drgtools.dpscalc.weapons.engineer.BreachCutter;
-import drgtools.dpscalc.weapons.engineer.BreachCutter_Projectile;
-import drgtools.dpscalc.weapons.engineer.GrenadeLauncher;
-import drgtools.dpscalc.weapons.engineer.SMG;
-import drgtools.dpscalc.weapons.engineer.Shotgun;
-import drgtools.dpscalc.weapons.engineer.SmartRifle;
-import drgtools.dpscalc.weapons.engineer.SmartRifle_LockOn;
-import drgtools.dpscalc.weapons.gunner.Autocannon;
-import drgtools.dpscalc.weapons.gunner.BurstPistol;
-import drgtools.dpscalc.weapons.gunner.GuidedRocketLauncher;
-import drgtools.dpscalc.weapons.gunner.Minigun;
-import drgtools.dpscalc.weapons.gunner.Revolver;
-import drgtools.dpscalc.weapons.scout.AssaultRifle;
-import drgtools.dpscalc.weapons.scout.Boomstick;
-import drgtools.dpscalc.weapons.scout.Classic_FocusShot;
-import drgtools.dpscalc.weapons.scout.Classic_Hipfire;
-import drgtools.dpscalc.weapons.scout.PlasmaCarbine;
-import drgtools.dpscalc.weapons.scout.Zhukov;
+import drgtools.dpscalc.weapons.driller.cryoCannon.CryoCannon;
+import drgtools.dpscalc.weapons.driller.epc.EPC_ChargeShot;
+import drgtools.dpscalc.weapons.driller.epc.EPC_RegularShot;
+import drgtools.dpscalc.weapons.driller.flamethrower.Flamethrower;
+import drgtools.dpscalc.weapons.driller.sludgePump.SludgePump;
+import drgtools.dpscalc.weapons.driller.sludgePump.SludgePump_Charged;
+import drgtools.dpscalc.weapons.driller.subata.Subata;
+import drgtools.dpscalc.weapons.engineer.breachCutter.BreachCutter;
+import drgtools.dpscalc.weapons.engineer.breachCutter.BreachCutter_Projectile;
+import drgtools.dpscalc.weapons.engineer.grenadeLauncher.GrenadeLauncher;
+import drgtools.dpscalc.weapons.engineer.smg.SMG;
+import drgtools.dpscalc.weapons.engineer.shotgun.Shotgun;
+import drgtools.dpscalc.weapons.engineer.smartRifle.SmartRifle;
+import drgtools.dpscalc.weapons.engineer.smartRifle.SmartRifle_LockOn;
+import drgtools.dpscalc.weapons.gunner.autocannon.Autocannon;
+import drgtools.dpscalc.weapons.gunner.burstPistol.BurstPistol;
+import drgtools.dpscalc.weapons.gunner.guidedRocketLauncher.GuidedRocketLauncher;
+import drgtools.dpscalc.weapons.gunner.minigun.Minigun;
+import drgtools.dpscalc.weapons.gunner.revolver.Revolver;
+import drgtools.dpscalc.weapons.scout.assaultRifle.AssaultRifle;
+import drgtools.dpscalc.weapons.scout.boomstick.Boomstick;
+import drgtools.dpscalc.weapons.scout.classic.Classic_FocusShot;
+import drgtools.dpscalc.weapons.scout.classic.Classic_Hipfire;
+import drgtools.dpscalc.weapons.scout.plasmaCarbine.PlasmaCarbine;
+import drgtools.dpscalc.weapons.scout.zhukov.Zhukov;
 
 /*
 	Benchmarks: 
@@ -59,6 +59,17 @@ import drgtools.dpscalc.weapons.scout.Zhukov;
 		100 Ideal Sustained DPS
 		125 Sustained + Weakpoint
 		8000 Total Damage
+*/
+
+/*
+	TODO List
+	1. Figure out how to do Subata first with the newly refactored mechanics, and then use that paradigm to update the other models.
+	2. Implement STEs that can stack with themself multiple times (Neuro-Lasso's slow, Cryo Bolt's cold/sec, etc)
+	3. Collect info about Status Effects' default tick interval and default duration (SplitSentro's spreadsheet)
+	4. Delete modelPieces/DoTInformation.java after StatusEffects are being used
+	5. Implement ConditionalDamageConversion for Breakpoints in particular
+	6. Add U36's new weapons {CWC, Diffractor, Coilgun, Crossbow}
+	7. Update the GUI to use nested tab panes? With 24 weapons, I'm expecting 31 models. I don't think I could fit 8 tabs on a single pane...
 */
 
 public class GuiController implements ActionListener {

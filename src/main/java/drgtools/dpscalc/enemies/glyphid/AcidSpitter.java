@@ -1,6 +1,8 @@
 package drgtools.dpscalc.enemies.glyphid;
 
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.enemies.Enemy;
+import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 
 public class AcidSpitter extends Enemy {
 	public AcidSpitter() {
@@ -17,14 +19,9 @@ public class AcidSpitter extends Enemy {
 		
 		// If this number is greater than 0, that means that it takes less damage from that particular element.
 		// Conversely, if it's less than 0 it takes extra damage from that particular element
-		electricResistance = -0.1;
-		
-		igniteTemperature = 35; 
-		douseTemperature = 5;
-		coolingRate = 6;
-		freezeTemperature = -50;
-		unfreezeTemperature = 0;
-		warmingRate = 6;
+		resistances.setResistance(DamageElement.electric, -0.1);
+
+		temperatureComponent = new CreatureTemperatureComponent(35, 5, 6, 2, -50, 0, 6, 2);
 		
 		courage = 0.3;
 		// Enemies that fly, can't move on the ground, or can't be feared will have this value set to zero to maintain correct values.

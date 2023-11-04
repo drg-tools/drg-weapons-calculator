@@ -1,6 +1,8 @@
 package drgtools.dpscalc.enemies.other;
 
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.enemies.Enemy;
+import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 
 public class SpitballInfector extends Enemy {
 	public SpitballInfector() {
@@ -21,13 +23,8 @@ public class SpitballInfector extends Enemy {
 		
 		// If this number is greater than 0, that means that it takes less damage from that particular element.
 		// Conversely, if it's less than 0 it takes extra damage from that particular element
-		fireResistance = -1.0;
-		
-		igniteTemperature = 30; 
-		douseTemperature = 0;
-		coolingRate = 10;
-		freezeTemperature = -50;
-		unfreezeTemperature = 0;
-		warmingRate = 10;
+		resistances.setResistance(DamageElement.fire, -1.0);
+
+		temperatureComponent = new CreatureTemperatureComponent(30, 0, 10, 1.5, -50, 0, 10, 2);
 	}
 }

@@ -1,8 +1,12 @@
 package drgtools.dpscalc.utilities;
 
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.Set;
 
 public class MathUtils {
 	public static double round(double value, int places) {
@@ -20,10 +24,20 @@ public class MathUtils {
 		If Probability < 50%, then Median <= Mean
 	*/
 	public static double meanRolls(double probability) {
-		return 1.0 / probability;
+		if (0 < probability && probability <= 1.0) {
+			return 1.0 / probability;
+		}
+		else {
+			return -1.0;
+		}
 	}
 	public static double medianRolls(double probability) {
-		return 1.0 - (1.0 / log2(1.0 - probability));
+		if (0 < probability && probability <= 1.0) {
+			return 1.0 - (1.0 / log2(1.0 - probability));
+		}
+		else {
+			return -1.0;
+		}
 	}
 	
 	public static double log2(double a) {
@@ -70,6 +84,30 @@ public class MathUtils {
 		int sum = 0;
 		for (int i = 0; i < A.length; i++) {
 			sum += A[i];
+		}
+		return sum;
+	}
+
+	public static double sumDamage(EnumMap<DamageElement, Double> dmgMap) {
+		double sum = 0.0;
+		Set<DamageElement> temperatureOnlyElements = Set.of(DamageElement.heat, DamageElement.cold);
+		Set<DamageElement> elementsToCheck = dmgMap.keySet();
+		elementsToCheck.removeAll(temperatureOnlyElements);
+		for (DamageElement el: elementsToCheck) {
+			sum += dmgMap.get(el);
+		}
+		return sum;
+	}
+	public static double sumTemperature(EnumMap<DamageElement, Double> dmgMap) {
+		double sum = 0.0;
+		DamageElement[] elementsThatHaveTemperature = new DamageElement[]{
+			DamageElement.fireAndHeat,
+			DamageElement.heat,
+			DamageElement.frostAndCold,
+			DamageElement.cold
+		};
+		for (DamageElement el: elementsThatHaveTemperature) {
+			sum += dmgMap.getOrDefault(el, 0.0);
 		}
 		return sum;
 	}
