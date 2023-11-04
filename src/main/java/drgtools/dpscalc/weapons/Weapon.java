@@ -823,6 +823,13 @@ public abstract class Weapon extends Observable {
 		// Another useless getter unless the Weapon works with the user-set RoF trick.
 		return -1;
 	}
+	protected double calculateAverageBurstRoF(double baseRoF, int burstSize, double burstInterval) {
+		// From testing with BRT, it appears that the 1/RoF delay is added after the last burst, before reloading.
+		// As such, it becomes trivial to average the RoF, regardless of Mag Size.
+		double totalTimeToFireBurst = burstSize * burstInterval + 1.0/baseRoF;
+		// Cast the divisor to double to sidestep int division truncation issues
+		return totalTimeToFireBurst / (double) burstSize;
+	}
 	
 	protected abstract void initializeModsAndOverclocks();
 
@@ -832,8 +839,9 @@ public abstract class Weapon extends Observable {
 		metric_weakpointAccuracy = -100;
 		customRoF = 0;
 
-		rebuildDamageComponents();
+		// For Subata's 2RB Armor Breaking to be estimated, I have to calculate the General Accuracy before setting the DamageComponents
 		rebuildAccuracyEstimator();
+		rebuildDamageComponents();
 
 		if (currentlyDealsSplashDamage()) {
 			recalculateAoEEfficiency();
@@ -841,8 +849,8 @@ public abstract class Weapon extends Observable {
 
 		damageWastedByArmor();
 	}
-	protected abstract void rebuildDamageComponents();
 	protected abstract void rebuildAccuracyEstimator();
+	protected abstract void rebuildDamageComponents();
 	public abstract boolean currentlyDealsSplashDamage();
 	protected void recalculateAoEEfficiency() {
 		/*
@@ -1089,20 +1097,14 @@ public abstract class Weapon extends Observable {
 	public double getGeneralAccuracy() {
 		if (metric_generalAccuracy == -100) {
 			metric_generalAccuracy = estimatedAccuracy(false);
-			return metric_generalAccuracy;
 		}
-		else {
-			return metric_generalAccuracy;
-		}
+		return metric_generalAccuracy;
 	}
 	public double getWeakpointAccuracy() {
 		if (metric_weakpointAccuracy == -100) {
 			metric_weakpointAccuracy = estimatedAccuracy(true);
-			return metric_weakpointAccuracy;
 		}
-		else {
-			return metric_weakpointAccuracy;
-		}
+		return metric_weakpointAccuracy;
 	}
 	
 	/****************************************************************************************
@@ -1593,7 +1595,7 @@ public abstract class Weapon extends Observable {
 			return (carriedAmmo / magazineSize) - 1;
 		}
 		else {
-			return (int) Math.floorDiv(carriedAmmo, magazineSize);
+			return Math.floorDiv(carriedAmmo, magazineSize);
 		}
 	}
 	

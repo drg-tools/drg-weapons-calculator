@@ -159,8 +159,8 @@ public class WPN_Subata extends Weapon {
 	
 	@Override
 	public boolean isRofCustomizable() {
-		// I'm choosing to disable RoF customization when the user equips OC "Automatic Fire", for obvious reasons.
-		if (selectedOverclock == 3) {
+		// I'm choosing to disable RoF customization when the user equips T3.B "2 Round Burst" or OC "Automatic Fire", for obvious reasons.
+		if (selectedTier3 == 1 || selectedOverclock == 3) {
 			return false;
 		}
 		else {
@@ -172,23 +172,16 @@ public class WPN_Subata extends Weapon {
 		double toReturn = directDamage;
 		
 		if (selectedTier2 == 1) {
-			toReturn += 1;
-		}
-		if (selectedTier3 == 0) {
-			toReturn += 1;
+			toReturn += 3;
 		}
 		if (selectedTier4 == 1) {
 			toReturn += 3;
 		}
 		
-		if (selectedOverclock == 1) {
-			toReturn *= homebrewPowderCoefficient;
-		}
-		
 		return toReturn;
 	}
 	private int getExplosiveReloadDamage() {
-		// Equipping the Overclock "Explosive Reload" leaves a detonator inside enemies that does 42 Area Damage per Bullet that deals damage to an enemy upon reloading the Subata
+		// Equipping the Overclock "Explosive Reload" leaves a detonator inside enemies that does 42 Internal Damage per Bullet that deals damage to an enemy upon reloading the Subata
 		if (selectedOverclock == 4) {
 			return 42;
 		}
@@ -200,10 +193,10 @@ public class WPN_Subata extends Weapon {
 		int toReturn = carriedAmmo;
 		
 		if (selectedTier2 == 0) {
-			toReturn += 40;
+			toReturn += 48;
 		}
-		if (selectedTier3 == 2) {
-			toReturn += 40;
+		if (selectedTier4 == 2) {
+			toReturn += 48;
 		}
 		
 		if (selectedOverclock == 4) {
@@ -216,14 +209,13 @@ public class WPN_Subata extends Weapon {
 		int toReturn = magazineSize;
 		
 		if (selectedTier1 == 1) {
-			toReturn += 5;
+			toReturn += 4;
 		}
 		
 		if (selectedOverclock == 2) {
 			toReturn += 10;
 		}
 		else if (selectedOverclock == 4) {
-			// Because this is integer division, it will truncate 8.5 down to 8, just like in-game does.
 			toReturn /= 2;
 		}
 		else if (selectedOverclock == 5) {
@@ -235,20 +227,44 @@ public class WPN_Subata extends Weapon {
 	@Override
 	public double getRateOfFire() {
 		double toReturn = rateOfFire;
-		
+
+		if (selectedTier3 == 1) {
+			toReturn -= 4.0;
+		}
+
 		if (selectedOverclock == 3) {
 			toReturn += 2.0;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn -= 2.0;
+			toReturn *= 0.75;
 		}
 		
 		return toReturn;
 	}
+	private boolean hasBurstFire() {
+		return selectedTier3 == 1;
+	}
+	private int getBurstSize() {
+		if (hasBurstFire()) {
+			return 2;
+		}
+		else {
+			return 0;
+		}
+	}
+	private double getBurstInterval() {
+		if (hasBurstFire()) {
+			// 2-Round Burst is 20 RoF
+			return 0.05;
+		}
+		else {
+			return 0;
+		}
+	}
 	private double getReloadTime() {
 		double toReturn = reloadTime;
 		
-		if (selectedTier1 == 2) {
+		if (selectedTier3 == 2) {
 			toReturn -= 0.6;
 		}
 		
@@ -262,7 +278,7 @@ public class WPN_Subata extends Weapon {
 		double toReturn = weakpointBonus;
 		
 		if (selectedTier4 == 0) {
-			toReturn += 0.6;
+			toReturn += 0.75;
 		}
 		
 		return toReturn;
@@ -275,6 +291,7 @@ public class WPN_Subata extends Weapon {
 			return 0;
 		}
 	}
+	// TODO: this method might not be needed anymore?
 	private int getMaxRicochets() {
 		// According to GreyHound, this ricochet searches for enemies within 10m
 		if (selectedOverclock == 0) {
@@ -302,16 +319,24 @@ public class WPN_Subata extends Weapon {
 	private double getSpreadPerShot() {
 		double toReturn = 1.0;
 		
-		if (selectedTier3 == 1) {
+		if (selectedTier3 == 0) {
 			toReturn -= 0.33;
 		}
 		
 		return toReturn;
 	}
+	private double getSpreadPerShotValue() {
+		if (selectedTier3 == 0) {
+			return 1.0;
+		}
+		else {
+			return 1.5;
+		}
+	}
 	private double getRecoil() {
 		double toReturn = 1.0;
 		
-		if (selectedTier3 == 1) {
+		if (selectedTier3 == 0) {
 			toReturn *= 0.5;
 		}
 		
@@ -319,6 +344,15 @@ public class WPN_Subata extends Weapon {
 			toReturn *= 2.5;
 		}
 		
+		return toReturn;
+	}
+	private double getRecoilMass() {
+		double toReturn = 1.0;
+
+		if (selectedTier3 == 1) {
+			toReturn -= 0.25;
+		}
+
 		return toReturn;
 	}
 	private double getStunChance() {
@@ -394,7 +428,37 @@ public class WPN_Subata extends Weapon {
  	****************************************************************************************/
 
 	@Override
+	protected void rebuildAccuracyEstimator() {
+		// In the parsed game files, I can see that Subata does technically have a Spread Curve.
+		// However, it appears to just be a 1:1 match of having no curve at all, so I'm choosing not to implement it.
+		SpreadSettings spread = new SpreadSettings(
+			1.5 * getBaseSpread(),
+			1.5 * getBaseSpread(),
+			getSpreadPerShotValue(),
+			7.5,
+			3.0,
+			0.5
+		);
+
+		RecoilSettings recoil = new RecoilSettings(
+			30.0 * getRecoil(),
+			10.0 * getRecoil(),
+			getRecoilMass(),
+			60.0
+		);
+
+		if (hasBurstFire()) {
+			accEstimator = new CircularHitscanAccuracyEstimator(getRateOfFire(), getMagazineSize(), getBurstSize(), getBurstInterval(), spread, recoil);
+		}
+		else {
+			accEstimator = new CircularHitscanAccuracyEstimator(getRateOfFire(), getMagazineSize(), 1, 0, spread, recoil);
+		}
+	}
+
+	@Override
 	protected void rebuildDamageComponents() {
+		double avgRoF = getRateOfFire();
+
 		damagePerHitscan = new DamageComponent(
 			getDirectDamage(),
 			DamageElement.kinetic,
@@ -404,6 +468,17 @@ public class WPN_Subata extends Weapon {
 		);
 		damagePerHitscan.setWeakpointBonus(getWeakpointBonus());
 
+		// T3.B "2-Round Burst"
+		if (selectedTier3 == 1) {
+			// If both bullets hit, the 2nd one does +350% AB. To model that, I'm going to multiply the +3.5 bonus by General Accuracy^2
+			// The logic is that the probability to hit both shots is equal to the probability to hit each shot, twice.
+			// This requires that the AccuracyEstimator needs to be rebuilt BEFORE DamageComponents!
+			double enhancedAB = (2*armorBreaking + 3.5 * Math.pow(estimatedAccuracy(false),2)) / 2.0;
+			damagePerHitscan.setArmorBreaking(enhancedAB);
+
+			avgRoF = calculateAverageBurstRoF(avgRoF, getBurstSize(), getBurstInterval());
+		}
+
 		// Homebrew Powder must be applied before other DamageConversions in order to model the game engine's shenanigans
 		if (selectedOverclock == 1) {
 			damagePerHitscan.applyHomebrewDamage(0.8, 1.4);
@@ -411,6 +486,7 @@ public class WPN_Subata extends Weapon {
 
 		// Volatile Bullets
 		if (selectedTier5 == 0) {
+			// TODO: this is wrong. it works for DPS but not for Breakpoints. Come back and implement ConditionalDamageConversion correctly.
 			// Burning
 			if (statusEffects[0]) {
 				DamageConversion volatileBullets = new DamageConversion(0.5, true, DamageElement.fireAndHeat);
@@ -434,9 +510,8 @@ public class WPN_Subata extends Weapon {
 		// Tranquilizer Rounds
 		else if (selectedOverclock == 5) {
 			damagePerHitscan.setStun(false, getStunChance(), getStunDuration());
-
-			// TODO: get the average RoF when 2RB is active
-			PushSTEComponent tranqSlow = new PushSTEComponent(getRateOfFire(), 0.5, new STE_TranqSlowdown());
+			
+			PushSTEComponent tranqSlow = new PushSTEComponent(avgRoF, 0.5, new STE_TranqSlowdown());
 			damagePerHitscan.addStatusEffectApplied(tranqSlow);
 		}
 
@@ -462,31 +537,6 @@ public class WPN_Subata extends Weapon {
 		}
 
 		damageComponentsInitialized = true;
-	}
-
-	@Override
-	protected void rebuildAccuracyEstimator() {
-		// In the parsed game files, I can see that Subata does technically have a Spread Curve.
-		// However, it appears to just be a 1:1 match of having no curve at all, so I'm choosing not to implement it.
-		SpreadSettings spread = new SpreadSettings(
-			1.5 * getBaseSpread(),
-			1.5 * getBaseSpread(),
-			1.5 * getSpreadPerShot(),
-			7.5,
-			3.0,
-			0.5
-		);
-
-		// TODO: 2RB affects mass
-		RecoilSettings recoil = new RecoilSettings(
-			30.0 * getRecoil(),
-			10.0 * getRecoil(),
-			1.0,
-			60.0
-		);
-
-		// TODO: 2RB burst
-		accEstimator = new CircularHitscanAccuracyEstimator(getRateOfFire(), getMagazineSize(), 1, 0, spread, recoil);
 	}
 
 	@Override

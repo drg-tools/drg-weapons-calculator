@@ -70,6 +70,8 @@ import drgtools.dpscalc.weapons.scout.zhukov.Zhukov;
 	5. Implement ConditionalDamageConversion for Breakpoints in particular
 	6. Add U36's new weapons {CWC, Diffractor, Coilgun, Crossbow}
 	7. Update the GUI to use nested tab panes? With 24 weapons, I'm expecting 31 models. I don't think I could fit 8 tabs on a single pane...
+
+	I may need to refactor how Custom RoF works; figure out how it will update the DamageComponent's PushSTEComponents.
 */
 
 public class GuiController implements ActionListener {
