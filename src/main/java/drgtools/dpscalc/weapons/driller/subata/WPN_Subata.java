@@ -9,10 +9,19 @@ import drgtools.dpscalc.modelPieces.EnemyInformation;
 import drgtools.dpscalc.modelPieces.Mod;
 import drgtools.dpscalc.modelPieces.Overclock;
 import drgtools.dpscalc.modelPieces.StatsRow;
+import drgtools.dpscalc.modelPieces.accuracy.CircularHitscanAccuracyEstimator;
+import drgtools.dpscalc.modelPieces.accuracy.RecoilSettings;
+import drgtools.dpscalc.modelPieces.accuracy.SpreadSettings;
+import drgtools.dpscalc.modelPieces.damage.DamageComponent;
+import drgtools.dpscalc.modelPieces.damage.DamageConversion;
+import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
+import drgtools.dpscalc.modelPieces.damage.DamageFlags.RicochetFlag;
+import drgtools.dpscalc.modelPieces.damage.DamageInstance;
+import drgtools.dpscalc.modelPieces.statusEffects.PushSTEComponent;
 import drgtools.dpscalc.utilities.MathUtils;
 import drgtools.dpscalc.weapons.Weapon;
 
-public class Subata extends Weapon {
+public class WPN_Subata extends Weapon {
 	
 	/****************************************************************************************
 	* Class Variables
@@ -25,34 +34,39 @@ public class Subata extends Weapon {
 	private double reloadTime;
 	private double weakpointBonus;
 	private double armorBreaking;
+
+	// Damage Components
+	private DamageComponent damagePerHitscan;
+	private DamageComponent NCTC;
+	private DamageComponent explosiveReload;
 	
 	/****************************************************************************************
 	* Constructors
 	****************************************************************************************/
 	
 	// Shortcut constructor to get baseline data
-	public Subata() {
+	public WPN_Subata() {
 		this(-1, -1, -1, -1, -1, -1);
 	}
 	
 	// Shortcut constructor to quickly get statistics about a specific build
-	public Subata(String combination) {
+	public WPN_Subata(String combination) {
 		this(-1, -1, -1, -1, -1, -1);
 		buildFromCombination(combination);
 	}
 	
-	public Subata(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
+	public WPN_Subata(int mod1, int mod2, int mod3, int mod4, int mod5, int overclock) {
 		fullName = "Subata 120";
 		weaponPic = WeaponPictures.subata;
 		customizableRoF = true;
 		
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 12;
-		carriedAmmo = 160;
+		carriedAmmo = 144;
 		magazineSize = 12;
 		rateOfFire = 8.0;
 		reloadTime = 1.9;
-		weakpointBonus = 0.2;
+		weakpointBonus = 0.25;
 		// Subata has a hidden 50% Armor Breaking penalty (credit to Elythnwaen for pointing this out to me)
 		armorBreaking = 0.5;
 		
@@ -73,44 +87,57 @@ public class Subata extends Weapon {
 	
 	@Override
 	protected void initializeModsAndOverclocks() {
-		tier1 = new Mod[3];
+		tier1 = new Mod[2];
 		tier1[0] = new Mod("Improved Alignment", "x0 Base Spread", modIcons.baseSpread, 1, 0);
-		tier1[1] = new Mod("High Capacity Magazine", "+5 Magazine Size", modIcons.magSize, 1, 1);
-		tier1[2] = new Mod("Quickfire Ejector", "-0.6 Reload Time", modIcons.reloadSpeed, 1, 2);
-		
+		tier1[1] = new Mod("High Capacity Magazine", "+4 Magazine Size", modIcons.magSize, 1, 1);
+
 		tier2 = new Mod[2];
-		tier2[0] = new Mod("Expanded Ammo Bags", "+40 Max Ammo", modIcons.carriedAmmo, 2, 0);
-		tier2[1] = new Mod("Increased Caliber Rounds", "+1 Direct Damage", modIcons.directDamage, 2, 1);
+		tier2[0] = new Mod("Expanded Ammo Bags", "+48 Max Ammo", modIcons.carriedAmmo, 2, 0);
+		tier2[1] = new Mod("Improved Propellant", "+3 Direct Damage", modIcons.directDamage, 2, 1);
 		
 		tier3 = new Mod[3];
-		tier3[0] = new Mod("Improved Propellant", "+1 Direct Damage", modIcons.directDamage, 3, 0);
-		tier3[1] = new Mod("Recoil Compensator", "-33% Spread per Shot, x0.5 Recoil", modIcons.recoil, 3, 1);
-		tier3[2] = new Mod("Expanded Ammo Bags", "+40 Max Ammo", modIcons.carriedAmmo, 3, 2);
+		tier3[0] = new Mod("Recoil Compensator", "-33% Spread per Shot, x0.5 Recoil", modIcons.baseSpread, 3, 0);
+		tier3[1] = new Mod("2-Round Burst", "Changes the Subata to fire in bursts of 2 bullets at 20 RoF during the burst. " +
+				"If both bullets hit an enemy, the second bullet gets +350% Armor Breaking. Additionally, -0.25 Mass and -4 Rate of Fire. ", modIcons.rateOfFire, 3, 1);
+		tier3[2] = new Mod("Quickfire Ejector", "-0.6 Reload Time", modIcons.reloadSpeed, 3, 2);
 		
-		tier4 = new Mod[2];
-		tier4[0] = new Mod("Hollow-Point Bullets", "+60% Weakpoint Bonus", modIcons.weakpointBonus, 4, 0);
+		tier4 = new Mod[3];
+		tier4[0] = new Mod("Hollow-Point Bullets", "+75% Weakpoint Bonus", modIcons.weakpointBonus, 4, 0);
 		tier4[1] = new Mod("High Velocity Rounds", "+3 Direct Damage", modIcons.directDamage, 4, 1);
+		tier4[2] = new Mod("Expanded Ammo Bags", "+48 Max Ammo", modIcons.carriedAmmo, 4, 2);
 		
-		tier5 = new Mod[2];
-		tier5[0] = new Mod("Volatile Bullets", "+50% Direct Damage dealt to Burning enemies. Bonus damage is Fire element and adds the same amount of Heat, extending the Burn duration.", modIcons.heatDamage, 5, 0);
-		tier5[1] = new Mod("Mactera Toxin-Coating", "+20% Damage dealt to Mactera-type enemies", modIcons.special, 5, 1);
+		tier5 = new Mod[3];
+		tier5[0] = new Mod("Volatile Bullets", "When shooting Burning enemies, 50% of the Direct Damage gets added as Fire-element & Heat " +
+				"(extends the Burn duration).", modIcons.heatDamage, 5, 0);
+		tier5[1] = new Mod("Blowthrough Rounds", "+1 Blowthrough", modIcons.blowthrough, 5, 1);
+		tier5[2] = new Mod("Neuro-Corrosive Toxic Catalyst ", "Shooting an enemy that is afflicted with Corrosion, Sludge Puddle, " +
+				"or Neurotoxin will apply 2 Status Effects. The first one lasts 5 seconds, and each bullet that hits will increase the DPS by +3.2, " +
+				"up to a maximum of 30 stacks (96 DPS). After its duration expires, you must apply a new instance and start stacking it again. The " +
+				"second Status Effect lasts 4.5 seconds, and its duration can be refreshed. If an enemy dies while the second one is active, then " +
+				"they will explode and damage nearby enemies proportional to the number of active stacks of the first effect. The explosion does " +
+				"(60 + 20*stacks) Typeless Damage, and the radius is (0.5 + SqRt[stacks]) meters. ", modIcons.special, 5, 2, false);
 		
 		overclocks = new Overclock[6];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakspot has a 75% chance to ricochet into a nearby enemy within 10m.", overclockIcons.ricochet, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, averaged to x" + homebrewPowderCoefficient, overclockIcons.homebrewPowder, 1);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Chain Hit", "Any shot that hits a weakpoint has a 75% chance " +
+				"to ricochet into a nearby enemy within 10m.", overclockIcons.ricochet, 0);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Homebrew Powder", "Anywhere from x0.8 - x1.4 damage per shot, " +
+				"averaged to x" + homebrewPowderCoefficient, overclockIcons.homebrewPowder, 1);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Oversized Magazine", "+10 Magazine Size, +0.5 Reload Time", overclockIcons.magSize, 2);
-		overclocks[3] = new Overclock(Overclock.classification.unstable, "Automatic Fire", "Changes the Subata from semi-automatic to fully automatic, +2 Rate of Fire, +100% Base Spread, x2.5 Recoil", overclockIcons.rateOfFire, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Explosive Reload", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 42 Internal Damage to the enemy upon reloading. "
-				+ "If reloading can kill an enemy, an icon will appear next to their healthbar. In exchange: x0.5 Magazine Size and x0.5 Max Ammo ", overclockIcons.specialReload, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Tranquilizer Rounds", "Every bullet has a 50% chance to stun an enemy for 6 seconds. -4 Magazine Size, -2 Rate of Fire.", overclockIcons.stun, 5);
+		overclocks[3] = new Overclock(Overclock.classification.unstable, "Automatic Fire", "Changes the Subata from semi-automatic to " +
+				"fully automatic, +2 Rate of Fire, +100% Base Spread, x2.5 Recoil", overclockIcons.rateOfFire, 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Explosive Reload", "Bullets that deal damage to an enemy's " +
+				"healthbar leave behind a detonator that deals 42 Internal Damage to the enemy upon reloading. If reloading can kill an enemy, an " +
+				"icon will appear next to their healthbar and they'll be slowed by 90% for 2 seconds. In exchange: x0.5 Magazine Size and x0.5 Max Ammo", overclockIcons.specialReload, 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Tranquilizer Rounds", "Every bullet has a 50% chance to stun an " +
+				"enemy for 6 seconds, and a separate 50% chance to slow the enemy by 50% for 4 seconds. In exchange, -4 Magazine Size and x0.75 Rate of Fire.", overclockIcons.stun, 5);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
 		modsAndOCsInitialized = true;
 	}
 	
 	@Override
-	public Subata clone() {
-		return new Subata(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
+	public WPN_Subata clone() {
+		return new WPN_Subata(selectedTier1, selectedTier2, selectedTier3, selectedTier4, selectedTier5, selectedOverclock);
 	}
 	
 	public String getDwarfClass() {
@@ -160,7 +187,7 @@ public class Subata extends Weapon {
 		
 		return toReturn;
 	}
-	private int getAreaDamage() {
+	private int getExplosiveReloadDamage() {
 		// Equipping the Overclock "Explosive Reload" leaves a detonator inside enemies that does 42 Area Damage per Bullet that deals damage to an enemy upon reloading the Subata
 		if (selectedOverclock == 4) {
 			return 42;
@@ -240,6 +267,14 @@ public class Subata extends Weapon {
 		
 		return toReturn;
 	}
+	private int getNumBlowthroughs() {
+		if (selectedTier5 == 1) {
+			return 1;
+		}
+		else {
+			return 0;
+		}
+	}
 	private int getMaxRicochets() {
 		// According to GreyHound, this ricochet searches for enemies within 10m
 		if (selectedOverclock == 0) {
@@ -316,7 +351,7 @@ public class Subata extends Weapon {
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
 		
 		// This stat only applies to OC "Explosive Reload"
-		toReturn[1] = new StatsRow("Explosive Reload Damage:", getAreaDamage(), modIcons.areaDamage, selectedOverclock == 4, selectedOverclock == 4);
+		toReturn[1] = new StatsRow("Explosive Reload Damage:", getExplosiveReloadDamage(), modIcons.areaDamage, selectedOverclock == 4, selectedOverclock == 4);
 		
 		boolean magSizeModified = selectedTier1 == 1 || selectedOverclock == 2 || selectedOverclock == 4 || selectedOverclock == 5;
 		toReturn[2] = new StatsRow("Magazine Size:", getMagazineSize(), modIcons.magSize, magSizeModified);
@@ -353,16 +388,116 @@ public class Subata extends Weapon {
 		
 		return toReturn;
 	}
-	
+
 	/****************************************************************************************
-	* Other Methods
-	****************************************************************************************/
-	
+ 	* Rebuild Methods
+ 	****************************************************************************************/
+
+	@Override
+	protected void rebuildDamageComponents() {
+		damagePerHitscan = new DamageComponent(
+			getDirectDamage(),
+			DamageElement.kinetic,
+			armorBreaking,
+			1.0,
+			null
+		);
+		damagePerHitscan.setWeakpointBonus(getWeakpointBonus());
+
+		// Homebrew Powder must be applied before other DamageConversions in order to model the game engine's shenanigans
+		if (selectedOverclock == 1) {
+			damagePerHitscan.applyHomebrewDamage(0.8, 1.4);
+		}
+
+		// Volatile Bullets
+		if (selectedTier5 == 0) {
+			// Burning
+			if (statusEffects[0]) {
+				DamageConversion volatileBullets = new DamageConversion(0.5, true, DamageElement.fireAndHeat);
+				damagePerHitscan.applyDamageConversion(volatileBullets);
+			}
+		}
+		// Blowthrough Rounds
+		else if (selectedTier5 == 1) {
+			damagePerHitscan.setNumBlowthroughs(getNumBlowthroughs());
+		}
+		// Neuro-Corrosive Toxic Catalyst
+		else if (selectedTier5 == 2) {
+			// TODO: implement NCTC
+			// NCTC = new DamageComponent();
+		}
+
+		// Chain Hit
+		if (selectedOverclock == 0) {
+			damagePerHitscan.setRicochet(0.75, RicochetFlag.onlyCreatureWeakpoints, 10);
+		}
+		// Tranquilizer Rounds
+		else if (selectedOverclock == 5) {
+			damagePerHitscan.setStun(false, getStunChance(), getStunDuration());
+
+			// TODO: get the average RoF when 2RB is active
+			PushSTEComponent tranqSlow = new PushSTEComponent(getRateOfFire(), 0.5, new STE_TranqSlowdown());
+			damagePerHitscan.addStatusEffectApplied(tranqSlow);
+		}
+
+		// Explosive Reload
+		if (selectedOverclock == 4) {
+			explosiveReload = new DamageComponent(
+				getExplosiveReloadDamage(),
+				DamageElement.internal,
+				false,
+				false,
+				false,
+				false,
+				true,
+				0.0,
+				1.0,
+				null
+			);
+
+			dmgInstance = new DamageInstance(damagePerHitscan, new DamageComponent[]{explosiveReload});
+		}
+		else {
+			dmgInstance = new DamageInstance(damagePerHitscan);
+		}
+
+		damageComponentsInitialized = true;
+	}
+
+	@Override
+	protected void rebuildAccuracyEstimator() {
+		// In the parsed game files, I can see that Subata does technically have a Spread Curve.
+		// However, it appears to just be a 1:1 match of having no curve at all, so I'm choosing not to implement it.
+		SpreadSettings spread = new SpreadSettings(
+			1.5 * getBaseSpread(),
+			1.5 * getBaseSpread(),
+			1.5 * getSpreadPerShot(),
+			7.5,
+			3.0,
+			0.5
+		);
+
+		// TODO: 2RB affects mass
+		RecoilSettings recoil = new RecoilSettings(
+			30.0 * getRecoil(),
+			10.0 * getRecoil(),
+			1.0,
+			60.0
+		);
+
+		// TODO: 2RB burst
+		accEstimator = new CircularHitscanAccuracyEstimator(getRateOfFire(), getMagazineSize(), 1, 0, spread, recoil);
+	}
+
 	@Override
 	public boolean currentlyDealsSplashDamage() {
 		return false;
 	}
 	
+	/****************************************************************************************
+	* Other Methods
+	****************************************************************************************/
+
 	// Single-target calculations
 	@Override
 	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
@@ -383,7 +518,7 @@ public class Subata extends Weapon {
 		}
 		
 		double directDamage = getDirectDamage();
-		double areaDamage = getAreaDamage();
+		double areaDamage = getExplosiveReloadDamage();
 		
 		// Damage wasted by Armor
 		if (armorWasting && !statusEffects[1]) {
@@ -453,7 +588,7 @@ public class Subata extends Weapon {
 		}
 		else {
 			// Because the OCs Chain Hit and Explosive Reload are mutually exclusive, the Area Damage only needs to be called here.
-			return (getMagazineSize() + getCarriedAmmo()) * (getDirectDamage() + getAreaDamage());
+			return (getMagazineSize() + getCarriedAmmo()) * (getDirectDamage() + getExplosiveReloadDamage());
 		}
 	}
 
@@ -478,69 +613,34 @@ public class Subata extends Weapon {
 	
 	@Override
 	protected double averageDamageToKillEnemy() {
-		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) + getAreaDamage();
+		double dmgPerShot = increaseBulletDamageForWeakpoints(getDirectDamage(), getWeakpointBonus()) + getExplosiveReloadDamage();
 		return Math.ceil(EnemyInformation.averageHealthPool() / dmgPerShot) * dmgPerShot;
 	}
 	
 	@Override
 	public double averageOverkill() {
-		overkillPercentages = EnemyInformation.overkillPerCreature(getDirectDamage() + getAreaDamage());
+		overkillPercentages = EnemyInformation.overkillPerCreature(dmgInstance);
 		return MathUtils.vectorDotProduct(overkillPercentages[0], overkillPercentages[1]);
 	}
 
 	@Override
 	public double estimatedAccuracy(boolean weakpointAccuracy) {
-		double baseSpread = 1.5 * getBaseSpread();
-		double spreadPerShot = 1.5 * getSpreadPerShot();
-		double spreadRecoverySpeed = 7.5;
-		double maxBloom = 3.0;
-		double minSpreadWhileMoving = 0.5;
-		
-		double recoilPitch = 30.0 * getRecoil();
-		double recoilYaw = 10.0 * getRecoil();
-		double mass = 1.0;
-		double springStiffness = 60.0;
-		
-		return accEstimator.calculateCircularAccuracy(weakpointAccuracy, getCustomRoF(), getMagazineSize(), 1, 
-				baseSpread, baseSpread, spreadPerShot, spreadRecoverySpeed, maxBloom, minSpreadWhileMoving,
-				recoilPitch, recoilYaw, mass, springStiffness);
+		return accEstimator.estimateAccuracy(weakpointAccuracy);
 	}
 	
 	@Override
 	public int breakpoints() {
-//		// Both Direct and Area Damage can have 5 damage elements in this order: Kinetic, Explosive, Fire, Frost, Electric
-//		double[] directDamage = new double[5];
-//		directDamage[0] = getDirectDamage();  // Kinetic
-//		if (selectedTier5 == 0 && statusEffects[0]) {
-//			directDamage[2] = 0.5 * getDirectDamage();  // Fire
-//		}
-//
-//		double[] areaDamage = new double[5];
-//		areaDamage[0] = getAreaDamage();  // Kinetic
-//
-//		double macteraBonus = 0;
-//		if (selectedTier5 == 1) {
-//			macteraBonus = 0.2;
-//		}
-//
-//		// DoTs are in this order: Electrocute, Neurotoxin, Persistent Plasma, and Radiation
-//		double[] dot_dps = new double[4];
-//		double[] dot_duration = new double[4];
-//		double[] dot_probability = new double[4];
-//
-//		breakpoints = EnemyInformation.calculateBreakpoints(directDamage, areaDamage, dot_dps, dot_duration, dot_probability,
-//															getWeakpointBonus(), armorBreaking, getRateOfFire(), 0.0, macteraBonus,
-//															statusEffects[1], statusEffects[3], false, selectedOverclock == 4);
-//		return MathUtils.sum(breakpoints);
-		return 0;
+		breakpoints = EnemyInformation.calculateBreakpoints(dmgInstance, getRateOfFire(), statusEffects[3], statusEffects[1]);
+		return MathUtils.sum(breakpoints);
 	}
 
 	@Override
 	public double utilityScore() {
 		// Light Armor Breaking probability
 		// The Area damage from Explosive Reload doesn't affect the chance to break the Light Armor plates since it's not part of the initial projectile
-		utilityScores[2] = calculateProbabilityToBreakLightArmor(getDirectDamage(), armorBreaking) * UtilityInformation.ArmorBreak_Utility;
-		
+		utilityScores[2] = calculateProbabilityToBreakLightArmor(damagePerHitscan) * UtilityInformation.ArmorBreak_Utility;
+
+		// TODO: Tranq Rounds' slow
 		// Tranq rounds = 50% chance to stun, 6 second stun
 		if (selectedOverclock == 5) {
 			utilityScores[5] = getStunChance() * getStunDuration() * UtilityInformation.Stun_Utility;
@@ -559,7 +659,7 @@ public class Subata extends Weapon {
 	
 	@Override
 	public double damagePerMagazine() {
-		return getMagazineSize() * (getDirectDamage() + getAreaDamage());
+		return getMagazineSize() * (getDirectDamage() + getExplosiveReloadDamage());
 	}
 	
 	@Override
@@ -569,7 +669,7 @@ public class Subata extends Weapon {
 	
 	@Override
 	public double damageWastedByArmor() {
-		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(getDirectDamage(), 1, getAreaDamage(), armorBreaking, getWeakpointBonus(), getGeneralAccuracy(), getWeakpointAccuracy(), selectedOverclock == 4);
+		damageWastedByArmorPerCreature = EnemyInformation.percentageDamageWastedByArmor(dmgInstance, getGeneralAccuracy(), getWeakpointAccuracy());
 		return 100 * MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]) / MathUtils.sum(damageWastedByArmorPerCreature[0]);
 	}
 }

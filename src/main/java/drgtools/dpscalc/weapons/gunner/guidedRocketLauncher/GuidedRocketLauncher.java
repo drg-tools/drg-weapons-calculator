@@ -425,7 +425,7 @@ public class GuidedRocketLauncher extends Weapon {
 	}
 	
 	@Override
-	protected void setAoEEfficiency() {
+	protected void recalculateAoEEfficiency() {
 		aoeEfficiency = calculateAverageAreaDamage(getAoERadius(), getMaxDmgRadius(), 0.5);
 	}
 	

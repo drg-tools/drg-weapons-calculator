@@ -18,6 +18,7 @@ import drgtools.dpscalc.modelPieces.Overclock;
 import drgtools.dpscalc.modelPieces.StatsRow;
 import drgtools.dpscalc.modelPieces.accuracy.AccuracyEstimator;
 import drgtools.dpscalc.modelPieces.damage.DamageComponent;
+import drgtools.dpscalc.modelPieces.damage.DamageInstance;
 import drgtools.dpscalc.utilities.ConditionalArrayList;
 import drgtools.dpscalc.utilities.MathUtils;
 import drgtools.dpscalc.utilities.Point2D;
@@ -39,6 +40,8 @@ public abstract class Weapon extends Observable {
 	protected double homebrewPowderCoefficient = 1.1;
 	
 	protected boolean modsAndOCsInitialized = false;
+	protected DamageInstance dmgInstance;  // Used to communicate between Weapons and the Breakpoints, ArmorWasting, and Overkill methods
+	protected boolean damageComponentsInitialized = false;
 	protected String invalidCombinationMessage = "";
 	// If any of these shorts is set to -1, that means there should be no mods equipped at that tier.
 	protected Mod[] tier1;
@@ -334,11 +337,8 @@ public abstract class Weapon extends Observable {
 					break;
 				}
 			}
-			
-			// Re-set AoE Efficiency
-			if (currentlyDealsSplashDamage()) {
-				setAoEEfficiency();
-			}
+
+			rebuildWeapon();
 			
 			if (updateGUI && countObservers() > 0) {
 				setChanged();
@@ -501,17 +501,8 @@ public abstract class Weapon extends Observable {
 					break;
 				}
 			}
-			
-			// Un-set these values for the new build
-			metric_generalAccuracy = -100;
-			metric_weakpointAccuracy = -100;
-			customRoF = 0;
-			
-			if (currentlyDealsSplashDamage()) {
-				setAoEEfficiency();
-			}
-			
-			damageWastedByArmor();
+
+			rebuildWeapon();
 			
 			if (updateGUI && countObservers() > 0) {
 				setChanged();
@@ -582,17 +573,8 @@ public abstract class Weapon extends Observable {
 					break;
 				}
 			}
-			
-			// Un-set these values for the new build
-			metric_generalAccuracy = -100;
-			metric_weakpointAccuracy = -100;
-			customRoF = 0;
-			
-			if (currentlyDealsSplashDamage()) {
-				setAoEEfficiency();
-			}
-			
-			damageWastedByArmor();
+
+			rebuildWeapon();
 			
 			if (countObservers() > 0) {
 				setChanged();
@@ -624,17 +606,8 @@ public abstract class Weapon extends Observable {
 					overclocks[selectedOverclock].toggleSelected();
 				}
 			}
-			
-			// Un-set these values for the new build
-			metric_generalAccuracy = -100;
-			metric_weakpointAccuracy = -100;
-			customRoF = 0;
-			
-			if (currentlyDealsSplashDamage()) {
-				setAoEEfficiency();
-			}
-			
-			damageWastedByArmor();
+
+			rebuildWeapon();
 			
 			if (updateGUI && countObservers() > 0) {
 				setChanged();
@@ -654,17 +627,8 @@ public abstract class Weapon extends Observable {
 			}
 			
 			overclocks[indexToIgnore].toggleIgnored();
-			
-			// Un-set these values for the new build
-			metric_generalAccuracy = -100;
-			metric_weakpointAccuracy = -100;
-			customRoF = 0;
-			
-			if (currentlyDealsSplashDamage()) {
-				setAoEEfficiency();
-			}
-			
-			damageWastedByArmor();
+
+			rebuildWeapon();
 			
 			if (countObservers() > 0) {
 				setChanged();
@@ -688,6 +652,9 @@ public abstract class Weapon extends Observable {
 			}
 			
 			statusEffects[effectIndex] = newValue;
+
+			// Need to rebuild the DamageComponents, for things like Volatile Bullets or Bullets of Mercy
+			rebuildWeapon();
 			
 			if (countObservers() > 0) {
 				setChanged();
@@ -858,13 +825,46 @@ public abstract class Weapon extends Observable {
 	}
 	
 	protected abstract void initializeModsAndOverclocks();
+
+	protected void rebuildWeapon() {
+		// Un-set these values for the new build
+		metric_generalAccuracy = -100;
+		metric_weakpointAccuracy = -100;
+		customRoF = 0;
+
+		rebuildDamageComponents();
+		rebuildAccuracyEstimator();
+
+		if (currentlyDealsSplashDamage()) {
+			recalculateAoEEfficiency();
+		}
+
+		damageWastedByArmor();
+	}
+	protected abstract void rebuildDamageComponents();
+	protected abstract void rebuildAccuracyEstimator();
+	public abstract boolean currentlyDealsSplashDamage();
+	protected void recalculateAoEEfficiency() {
+		/*
+			This is a placeholder method that only gets overwritten by weapons that deal splash damage (EPC_ChargedShot, GrenadeLauncher, and Autocannon)
+			It just exists here so that Weapon can reference the method when it changes mods or OCs
+			{
+				AoE Radius
+				AoE Efficiency Coefficient
+				Total num Grunts hit in AoE radius
+			}
+		*/
+		aoeEfficiency = new double[3];
+	}
 	
 	protected void setBaselineStats() {
 		int oldT1 = selectedTier1, oldT2 = selectedTier2, oldT3 = selectedTier3, oldT4 = selectedTier4, oldT5 = selectedTier5, oldOC = selectedOverclock;
 		selectedTier1 = selectedTier2 = selectedTier3 = selectedTier4 = selectedTier5 = selectedOverclock = -1;
+
+		rebuildDamageComponents();
 		
 		if (currentlyDealsSplashDamage()) {
-			setAoEEfficiency();
+			recalculateAoEEfficiency();
 		}
 		
 		damageWastedByArmor();
@@ -1011,19 +1011,6 @@ public abstract class Weapon extends Observable {
 			setChanged();
 			notifyObservers();
 		}
-	}
-
-	protected void setAoEEfficiency() {
-		/* 
-			This is a placeholder method that only gets overwritten by weapons that deal splash damage (EPC_ChargedShot, GrenadeLauncher, and Autocannon)
-			It just exists here so that Weapon can reference the method when it changes mods or OCs
-			{
-				AoE Radius
-				AoE Efficiency Coefficient
-				Total num Grunts hit in AoE radius
-			}
-		*/
-		aoeEfficiency = new double[3];
 	}
 	
 	// These methods are mostly pass-through to the internal AccuracyEstimator object
@@ -1530,8 +1517,7 @@ public abstract class Weapon extends Observable {
 		
 		return numGlyphidsHitBySplash;
 	}
-	
-	public abstract boolean currentlyDealsSplashDamage();
+
 	public JPanel visualizeAoERadius() {
 		if (currentlyDealsSplashDamage() && illustration != null) {
 			return illustration;

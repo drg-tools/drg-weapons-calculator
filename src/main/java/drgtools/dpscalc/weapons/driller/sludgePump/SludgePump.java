@@ -468,7 +468,7 @@ public class SludgePump extends Weapon {
 	}
 	
 	@Override
-	protected void setAoEEfficiency() {
+	protected void recalculateAoEEfficiency() {
 		aoeEfficiency = calculateAverageAreaDamage(1.0, 0.5, 0.25);
 	}
 

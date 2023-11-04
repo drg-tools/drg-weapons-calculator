@@ -124,6 +124,11 @@ public class DamageComponent {
 	public void setNumBlowthroughs(int in) {
 		numBlowthroughs = in;
 	}
+	public void setRicochet(double chance, RicochetFlag condition, double distance) {
+		ricochetChance = chance;
+		ricochetMaterialFlag = condition;
+		ricochetMaxRange = distance;
+	}
 	public void setRadialDamage(double in) {
 		radialDamage = in;
 	}
@@ -230,6 +235,29 @@ public class DamageComponent {
 			if (baseRadialDamageElement != null) {
 				radialDamageElements.put(baseRadialDamageElement, Math.max(radialDamageElements.get(baseRadialDamageElement) - dc.getPercentage(), 0));
 			}
+		}
+	}
+
+	/*
+		SplitSentro documented this bug: https://drg.pleasefix.gg/projects/DEEP-ROCK-GALACTIC/issues/DRG-747
+
+		As I was reading through it, I took away this understanding:
+		1. Homebrew Powder functions LIKE a DamageConversion
+		2. HBP gets applied before any other Mod/OC DamageConversions
+		3. HBP makes its random roll, then multiplies both the BaseDamageElement and BaseRadialDamageElement by that value.
+		4. After HBP is applied, then the other DamageConversions get applied later which subtract from the Base Elements
+
+		In order to model that understanding, I'm making this method to be called before the Weapons use the applyDamageConversion() above.
+		I don't know how this would interact with BaselineConversions, but AFAIK there aren't any. The onus is on the Weapon files to
+		call this method first, before doing the other conversions. (Theoretically, this only matters to PGL)
+	*/
+	public void applyHomebrewDamage(double minRoll, double maxRoll) {
+		double averageDamage = (minRoll + maxRoll) / 2.0;
+		if (damage > 0) {
+			damageElements.put(baseDamageElement, damageElements.get(baseDamageElement) * averageDamage);
+		}
+		if (radialDamage > 0) {
+			radialDamageElements.put(baseRadialDamageElement, radialDamageElements.get(baseRadialDamageElement) * averageDamage);
 		}
 	}
 

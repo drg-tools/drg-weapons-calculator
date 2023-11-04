@@ -105,7 +105,7 @@ public class SmartRifle_LockOn extends SmartRifle {
 	}
 	
 	@Override
-	protected void setAoEEfficiency() {
+	protected void recalculateAoEEfficiency() {
 		if (selectedOverclock == 3) {
 			aoeEfficiency = calculateAverageAreaDamage(4.0, 2.0, 0.5);
 		}

@@ -33,7 +33,7 @@ import drgtools.dpscalc.weapons.driller.epc.EPC_RegularShot;
 import drgtools.dpscalc.weapons.driller.flamethrower.Flamethrower;
 import drgtools.dpscalc.weapons.driller.sludgePump.SludgePump;
 import drgtools.dpscalc.weapons.driller.sludgePump.SludgePump_Charged;
-import drgtools.dpscalc.weapons.driller.subata.Subata;
+import drgtools.dpscalc.weapons.driller.subata.WPN_Subata;
 import drgtools.dpscalc.weapons.engineer.breachCutter.BreachCutter;
 import drgtools.dpscalc.weapons.engineer.breachCutter.BreachCutter_Projectile;
 import drgtools.dpscalc.weapons.engineer.grenadeLauncher.GrenadeLauncher;
@@ -85,7 +85,7 @@ public class GuiController implements ActionListener {
 	private JFileChooser folderChooser;
 	
 	public static void main(String[] args) {
-		Weapon[] drillerWeapons = new Weapon[] {new Flamethrower(), new CryoCannon(), new SludgePump(), new SludgePump_Charged(), new Subata(), new EPC_RegularShot(), new EPC_ChargeShot()};
+		Weapon[] drillerWeapons = new Weapon[] {new Flamethrower(), new CryoCannon(), new SludgePump(), new SludgePump_Charged(), new WPN_Subata(), new EPC_RegularShot(), new EPC_ChargeShot()};
 		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new SmartRifle(), new SmartRifle_LockOn(), new GrenadeLauncher(), new BreachCutter(), new BreachCutter_Projectile()};
 		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new GuidedRocketLauncher(), new Revolver(), new BurstPistol()};
 		Weapon[] scoutWeapons = new Weapon[] {new AssaultRifle(), new Classic_Hipfire(), new Classic_FocusShot(), new PlasmaCarbine(), new Boomstick(), new Zhukov()};

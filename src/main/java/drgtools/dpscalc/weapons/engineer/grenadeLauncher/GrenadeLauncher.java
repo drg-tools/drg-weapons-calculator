@@ -14,6 +14,7 @@ import drgtools.dpscalc.modelPieces.UtilityInformation;
 import drgtools.dpscalc.utilities.MathUtils;
 import drgtools.dpscalc.weapons.Weapon;
 
+// TODO: https://drg.pleasefix.gg/projects/DEEP-ROCK-GALACTIC/issues/DRG-747
 public class GrenadeLauncher extends Weapon {
 	
 	/****************************************************************************************
@@ -358,7 +359,7 @@ public class GrenadeLauncher extends Weapon {
 	}
 	
 	@Override
-	protected void setAoEEfficiency() {
+	protected void recalculateAoEEfficiency() {
 		// PGL has a full damage radius of 2m, and 50% damage at full radius
 		aoeEfficiency = calculateAverageAreaDamage(getAoERadius(), 2.0, 0.5);
 	}

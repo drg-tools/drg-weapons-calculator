@@ -408,7 +408,7 @@ public class Revolver extends Weapon {
 	}
 	
 	@Override
-	protected void setAoEEfficiency() {
+	protected void recalculateAoEEfficiency() {
 		if (selectedTier3 == 1) {
 			aoeEfficiency = calculateAverageAreaDamage(getAoERadius(), 0.75, 0.5);
 		}

@@ -416,7 +416,7 @@ public class Autocannon extends Weapon {
 	}
 	
 	@Override
-	protected void setAoEEfficiency() {
+	protected void recalculateAoEEfficiency() {
 		aoeEfficiency = calculateAverageAreaDamage(getAoERadius(), 0.75, 0.5);
 	}
 	

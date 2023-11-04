@@ -104,7 +104,7 @@ public class EPC_ChargeShot extends EPC {
 	}
 	
 	@Override
-	protected void setAoEEfficiency() {
+	protected void recalculateAoEEfficiency() {
 		// Special case: Thin Containment Field
 		if (selectedTier5 == 1) {
 			aoeEfficiency = calculateAverageAreaDamage(3.0, 3.0, 1.0);

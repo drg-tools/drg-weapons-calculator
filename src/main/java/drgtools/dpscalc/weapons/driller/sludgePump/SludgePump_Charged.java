@@ -100,7 +100,7 @@ public class SludgePump_Charged extends SludgePump {
 	}
 	
 	@Override
-	protected void setAoEEfficiency() {
+	protected void recalculateAoEEfficiency() {
 		// OC "Goo Bomber Special" changes the weapon to drop the PRJ_Fragment_GooBobomerSpecial projectiles which reduces AoE back down to the normal shot.
 		// OC "Sludge Blast" changes the projectiles to PRJ_BigGoo_Buckshot which reduces AoE back down to the normal shot.
 		if (selectedOverclock > 3) {

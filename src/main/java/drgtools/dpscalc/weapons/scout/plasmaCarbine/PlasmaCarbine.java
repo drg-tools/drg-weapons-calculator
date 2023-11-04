@@ -520,7 +520,7 @@ public class PlasmaCarbine extends Weapon {
 	}
 	
 	@Override
-	protected void setAoEEfficiency() {
+	protected void recalculateAoEEfficiency() {
 		if (selectedTier4 == 1) {
 			aoeEfficiency = calculateAverageAreaDamage(1.0, 0.5, 0.5);
 		}
