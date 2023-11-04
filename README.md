@@ -93,3 +93,8 @@ According to CLOC, 1.1.1's metrics:
 * 3581 blank lines
 * 2367 comment lines
 * 17276 code lines
+
+### License
+- DPS Calculator is under the [GPL-3.0 license](https://choosealicense.com/licenses/gpl-3.0/).
+- Roboto font is under the [Apache-2.0 license](https://choosealicense.com/licenses/apache-2.0/).
+- Deep Rock Galactic is a property of [COPYRIGHT © 2020 GHOST SHIP GAMES](https://ghostship.dk/).
