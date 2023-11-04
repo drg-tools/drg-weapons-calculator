@@ -31,7 +31,7 @@ public class DamageComponent {
 	protected int numBlowthroughs = 0;
 	protected RicochetFlag ricochetMaterialFlag;
 	protected double ricochetChance = 0;  // [0, 1]
-	protected double richochetMaxRange = 0;
+	protected double ricochetMaxRange = 0;
 	
 	protected double radialDamage = 0;
 	protected DamageElement baseRadialDamageElement;
@@ -267,7 +267,7 @@ public class DamageComponent {
 
 	public double getRawDamage() {
 		if (damage > 0) {
-			return MathUtils.sumDamage(damageElements) * damage + flatDamage;
+			return damage * MathUtils.sumDamage(damageElements) + flatDamage;
 		}
 		else {
 			return 0;
@@ -275,7 +275,7 @@ public class DamageComponent {
 	}
 	public double getRawRadialDamage() {
 		if (radialDamage > 0) {
-			return MathUtils.sumDamage(radialDamageElements) * radialDamage;
+			return radialDamage * MathUtils.sumDamage(radialDamageElements);
 		}
 		else {
 			return 0;
@@ -493,5 +493,68 @@ public class DamageComponent {
 		else {
 			return 0;
 		}
+	}
+
+	public String prettyPrint(){
+		return prettyPrint(0);
+	}
+	public String prettyPrint(int indentLevel) {
+		String indent = "    ";
+		String toReturn = "";
+
+		if (damage > 0) {
+			toReturn += indent.repeat(indentLevel) + "Does " + damage + " Damage (originally " + DamageElements.prettyPrint(baseDamageElement) + ")\n";
+			toReturn += indent.repeat(indentLevel) + "Damage Flags:\n";
+			toReturn += indent.repeat(indentLevel+1) + "Benefits from Weakpoint: " + benefitsFromWeakpoint + "\n";
+			toReturn += indent.repeat(indentLevel+1) + "Benefits from Frozen: " + benefitsFromFrozen + "\n";
+			toReturn += indent.repeat(indentLevel+1) + "Gets reduced by Armor: " + reducedByArmor + "\n";
+			toReturn += indent.repeat(indentLevel+1) + "Can damage Armor: " + canDamageArmor + "\n";
+			toReturn += indent.repeat(indentLevel+1) + "Embedded Detonator: " + embeddedDetonator + "\n";
+
+			// If any DamageConversions have been applied, this will evaluate as true.
+			if (damageElements.keySet().size() > 1) {
+				toReturn += indent.repeat(indentLevel) + "After applying all DamageConversions:\n";
+				for (DamageElement el: damageElements.keySet()) {
+					toReturn += indent.repeat(indentLevel+1) + damage * damageElements.get(el) + " " + DamageElements.prettyPrint(el) + " Damage\n";
+				}
+			}
+		}
+
+		if (radialDamage > 0) {
+			toReturn += indent.repeat(indentLevel) + "Does " + radialDamage + " RadialDamage (originally " + DamageElements.prettyPrint(baseRadialDamageElement) + ")\n";
+			toReturn += indent.repeat(indentLevel+1) + "Max Damage Radius: " + maxDmgRadius + "m\n";
+			toReturn += indent.repeat(indentLevel+1) + "Damage Radius: " + damageRadius + "m\n";
+			toReturn += indent.repeat(indentLevel+1) + "Falloff at Outer Edge: " + falloff * 100.0 + "%\n";
+
+			// If any DamageConversions have been applied, this will evaluate as true.
+			if (radialDamageElements.keySet().size() > 1) {
+				toReturn += indent.repeat(indentLevel) + "After applying all DamageConversions:\n";
+				for (DamageElement el: radialDamageElements.keySet()) {
+					toReturn += indent.repeat(indentLevel+1) + radialDamage * radialDamageElements.get(el) + " " + DamageElements.prettyPrint(el) + " RadialDamage\n";
+				}
+			}
+		}
+
+		if (stunChance > 0) {
+			if (stunOnWeakpointOnly) {
+				toReturn += indent.repeat(indentLevel) + "Has a " + stunChance * 100.0 + "% chance to Stun enemies when hitting Weakpoints for " + stunDuration + " seconds\n";
+			}
+			else {
+				toReturn += indent.repeat(indentLevel) + "Has a " + stunChance * 100.0 + "% chance to Stun enemies for " + stunDuration + " seconds\n";
+			}
+		}
+
+		if (baseFearChance > 0) {
+			toReturn += indent.repeat(indentLevel) + "Has a " + baseFearChance * 100.0 + "% Base Fear Chance\n";
+		}
+
+		if (statusEffectsApplied.size() > 0) {
+			toReturn += indent.repeat(indentLevel) + "Can apply the following Status Effects:\n";
+			for (PushSTEComponent pstec: statusEffectsApplied) {
+				pstec.prettyPrint(indentLevel + 1);
+			}
+		}
+
+		return toReturn;
 	}
 }

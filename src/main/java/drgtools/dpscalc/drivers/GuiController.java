@@ -63,16 +63,13 @@ import drgtools.dpscalc.weapons.scout.zhukov.Zhukov;
 
 /*
 	TODO List
-	1. Move calculateNumEnemies, calculateDamagePerHit, and some Utility stuff into DamageComponent
-	3. Add some prettyPrint/toString methods to the complex objects, to facilitate easier debugging in the future.
-	6. PR & merge damage-refactor
-	7. Figure out how to do Subata first with the newly refactored mechanics, and then use that paradigm to update the other models.
-	8. Implement STEs that can stack with themself multiple times (Neuro-Lasso's slow, Cryo Bolt's cold/sec, etc)
-	9. Collect info about Status Effects' default tick interval and default duration (SplitSentro's spreadsheet)
-	10. Delete modelPieces/DoTInformation.java after StatusEffects are being used
-	11. Implement ConditionalDamageConversion for Breakpoints in particular
-	12. Add U36's new weapons {CWC, Diffractor, Coilgun, Crossbow}
-	13. Update the GUI to use nested tab panes? With 24 weapons, I'm expecting 31 models. I don't think I could fit 8 tabs on a single pane...
+	1. Figure out how to do Subata first with the newly refactored mechanics, and then use that paradigm to update the other models.
+	2. Implement STEs that can stack with themself multiple times (Neuro-Lasso's slow, Cryo Bolt's cold/sec, etc)
+	3. Collect info about Status Effects' default tick interval and default duration (SplitSentro's spreadsheet)
+	4. Delete modelPieces/DoTInformation.java after StatusEffects are being used
+	5. Implement ConditionalDamageConversion for Breakpoints in particular
+	6. Add U36's new weapons {CWC, Diffractor, Coilgun, Crossbow}
+	7. Update the GUI to use nested tab panes? With 24 weapons, I'm expecting 31 models. I don't think I could fit 8 tabs on a single pane...
 */
 
 public class GuiController implements ActionListener {

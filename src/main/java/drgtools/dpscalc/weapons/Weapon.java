@@ -1013,7 +1013,6 @@ public abstract class Weapon extends Observable {
 		}
 	}
 
-	// TODO: this might be able to move to DamageComponent?
 	protected void setAoEEfficiency() {
 		/* 
 			This is a placeholder method that only gets overwritten by weapons that deal splash damage (EPC_ChargedShot, GrenadeLauncher, and Autocannon)
@@ -1299,7 +1298,6 @@ public abstract class Weapon extends Observable {
 		return timeWhileAfflictedByDoT * DoTDPS;
 	}
 
-	// TODO: these can move to DamageComponent
 	protected double[] calculateAverageAreaDamage(double radius, double fullDamageRadius, double falloffPercentageAtOuterEdge) {
 		return calculateAverageAreaDamage(radius, fullDamageRadius, falloffPercentageAtOuterEdge, true);
 	}
@@ -1457,11 +1455,9 @@ public abstract class Weapon extends Observable {
 		return (bulletsBeforeConditionStarts * 1.0 + (magazineSize - bulletsBeforeConditionStarts) * conditionalMultiplier) / magazineSize;
 	}
 
-	// TODO: these can move to DamageComponent
 	protected int calculateNumGlyphidsInRadius(double radius) {
 		return calculateNumGlyphidsInRadius(radius, true);
 	}
-	
 	protected int calculateNumGlyphidsInRadius(double radius, boolean updateIllustration) {
 		/*
 			This method should be used any time a projectile fired from this weapon has area-of-effect (AoE) damage in a radius.
@@ -1526,7 +1522,8 @@ public abstract class Weapon extends Observable {
 				numGlyphidsHitBySplash++;
 			}
 		}
-		
+
+		// TODO: this intrinsic functionality prevented me from extracting this method into DamageComponent during the Great Damage Refactor >:|
 		if (updateIllustration) {
 			illustration = new AoEVisualizer(glyphidBodyRadius, glyphidBodyAndLegsRadius, radius, glyphidCenters);
 		}

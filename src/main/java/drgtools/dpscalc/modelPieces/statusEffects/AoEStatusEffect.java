@@ -1,6 +1,7 @@
 package drgtools.dpscalc.modelPieces.statusEffects;
 
 import drgtools.dpscalc.modelPieces.EnemyInformation;
+import drgtools.dpscalc.modelPieces.damage.DamageElements;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 
 // For things like Persistent Plasma, Fat Boy, Sticky Flames, Coilgun trail, etc. Any STE that has a short duration but
@@ -56,5 +57,33 @@ public abstract class AoEStatusEffect extends StatusEffect {
     public double getSlowUtilityPerEnemy() {
         // This should evaluate to 0 unless the movespeed multiplier has been set.
         return (1.0 - movespeedMultiplier) * effectiveDuration;
+    }
+
+    public String prettyPrint(){
+        return prettyPrint(0);
+    }
+    public String prettyPrint(int indentLevel) {
+        String indent = "    ";
+        String toReturn = "";
+        if (inflictsDamage()) {
+            toReturn += indent.repeat(indentLevel) + "Deals " + getAverageDPS() + " " + DamageElements.prettyPrint(getDamageElement()) + " DPS\n";
+        }
+
+        if (inflictsTemperature(DamageElement.heat)) {
+            toReturn += indent.repeat(indentLevel) + "Deals " + getAverageTemperaturePerSecond(DamageElement.heat) + " Heat/sec\n";
+        }
+
+        if (inflictsTemperature(DamageElement.cold)) {
+            toReturn += indent.repeat(indentLevel) + "Deals " + getAverageTemperaturePerSecond(DamageElement.cold) + " Cold/sec\n";
+        }
+
+        if (inflictsSlow()) {
+            toReturn += indent.repeat(indentLevel) + "Slows by " + 100.0*(1.0 - movespeedMultiplier) + "%\n";
+        }
+
+        toReturn += indent.repeat(indentLevel) + "For " + getEffectiveDuration() + " seconds\n";
+        toReturn += indent.repeat(indentLevel) + "In a distance of " + distanceAffected + " meters\n";
+
+        return toReturn;
     }
 }

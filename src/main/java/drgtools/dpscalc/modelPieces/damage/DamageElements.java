@@ -103,4 +103,42 @@ public class DamageElements {
 				return null;
 		}
 	}
+	public static String prettyPrint(DamageElement in) {
+		switch(in) {
+			case melee:
+				return "Melee-element";
+			case kinetic:
+				return "Kinetic-element";
+			case piercing:
+				return "Piercing-element";
+			case fireAndHeat:
+				return "Fire-element & Heat";
+			case fire:
+				return "Fire-element";
+			case heat:
+				return "Heat";
+			case frostAndCold:
+				return "Frost-element & Cold";
+			case frost:
+				return "Frost-element";
+			case cold:
+				return "Cold";
+			case explosive:
+				return "Explosive-element";
+			case electric:
+				return "Electric-element";
+			case poison:
+				return "Poison-element";
+			case radiation:
+				return "Radiation-element";
+			case corrosive:
+				return "Corrosive-element";
+			case disintegrate:
+				return "Disintegrate-element";
+			case internal:
+				return "Internal-element";
+			default:
+				return "";
+		}
+	}
 }

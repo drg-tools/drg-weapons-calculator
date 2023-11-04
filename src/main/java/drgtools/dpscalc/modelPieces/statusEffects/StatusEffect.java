@@ -2,6 +2,7 @@ package drgtools.dpscalc.modelPieces.statusEffects;
 
 import drgtools.dpscalc.enemies.Enemy;
 import drgtools.dpscalc.modelPieces.EnemyInformation;
+import drgtools.dpscalc.modelPieces.damage.DamageElements;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.modelPieces.temperature.EnvironmentalTemperature;
 
@@ -128,7 +129,6 @@ public abstract class StatusEffect {
         return (1.0 - movespeedMultiplier) * duration;
     }
 
-    // TODO: add a toString
     public boolean inflictsTemperature(DamageElement desiredTemp) {
         switch(desiredTemp) {
             case heat: {
@@ -156,5 +156,32 @@ public abstract class StatusEffect {
 
     public boolean inflictsSlow() {
         return movespeedMultiplier < 1.0;
+    }
+
+    public String prettyPrint(){
+        return prettyPrint(0);
+    }
+    public String prettyPrint(int indentLevel) {
+        String indent = "    ";
+        String toReturn = "";
+        if (inflictsDamage()) {
+            toReturn += indent.repeat(indentLevel) + "Deals " + getAverageDPS() + " " + DamageElements.prettyPrint(getDamageElement()) + " DPS\n";
+        }
+
+        if (inflictsTemperature(DamageElement.heat)) {
+            toReturn += indent.repeat(indentLevel) + "Deals " + getAverageTemperaturePerSecond(DamageElement.heat) + " Heat/sec\n";
+        }
+
+        if (inflictsTemperature(DamageElement.cold)) {
+            toReturn += indent.repeat(indentLevel) + "Deals " + getAverageTemperaturePerSecond(DamageElement.cold) + " Cold/sec\n";
+        }
+
+        if (inflictsSlow()) {
+            toReturn += indent.repeat(indentLevel) + "Slows by " + 100.0*(1.0 - movespeedMultiplier) + "%\n";
+        }
+
+        toReturn += indent.repeat(indentLevel) + "For " + getDuration() + " seconds\n";
+
+        return toReturn;
     }
 }

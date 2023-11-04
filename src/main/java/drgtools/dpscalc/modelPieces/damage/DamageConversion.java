@@ -26,4 +26,21 @@ public class DamageConversion {
 		return elementConvertedTo;
 	}
 
+	// TODO: these prettyPrints might not be necessary?
+	public String prettyPrint(){
+		return prettyPrint(0);
+	}
+	public String prettyPrint(int indentLevel) {
+		String indent = "    ";
+		String toReturn = "";
+
+		if (addInsteadOfConvert) {
+			toReturn += indent.repeat(indentLevel) + "Adds " + percentageToConvert * 100.0 + "% of the Base Element as " + DamageElements.prettyPrint(elementConvertedTo) + " (both Damage and RadialDamage)\n";
+		}
+		else {
+			toReturn += indent.repeat(indentLevel) + "Converts " + percentageToConvert * 100.0 + "% of the Base Element to " + DamageElements.prettyPrint(elementConvertedTo) + " (both Damage and RadialDamage)\n";
+		}
+
+		return toReturn;
+	}
 }

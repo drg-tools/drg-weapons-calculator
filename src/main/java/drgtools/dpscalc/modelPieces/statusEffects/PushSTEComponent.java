@@ -111,4 +111,22 @@ public class PushSTEComponent implements Comparable<PushSTEComponent> {
     public int compareTo(PushSTEComponent other) {
         return Double.compare(this.getSTEComparedDurationPlusDelay(), other.getSTEComparedDurationPlusDelay());
     }
+
+    public String prettyPrint(){
+        return prettyPrint(0);
+    }
+    public String prettyPrint(int indentLevel) {
+        String indent = "    ";
+        String toReturn = "";
+
+        if (rngChance) {
+            toReturn += indent.repeat(indentLevel) + "Has a " + chanceToInflict * 100.0 + "% chance to apply a Status Effect that\n";
+        }
+        else {
+            toReturn += indent.repeat(indentLevel) + "After " + timeBeforeInflicted + " seconds, applies a Status Effect that\n";
+        }
+        toReturn += stePushed.prettyPrint(indentLevel+1);
+
+        return toReturn;
+    }
 }

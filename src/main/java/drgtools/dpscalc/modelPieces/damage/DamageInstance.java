@@ -71,4 +71,29 @@ public class DamageInstance {
             return otherDamage[index - numPellets];
         }
     }
+
+    public String prettyPrint(){
+        return prettyPrint(0);
+    }
+    public String prettyPrint(int indentLevel) {
+        String indent = "    ";
+        String toReturn = "";
+
+        if (numPellets > 1) {
+            toReturn += indent.repeat(indentLevel) + "Applies this DamageComponent " + numPellets + " times:\n";
+        }
+        else {
+            toReturn += indent.repeat(indentLevel) + "Applies this DamageComponent once:\n";
+        }
+        damagePerPellet.prettyPrint(indentLevel+1);
+
+        if (otherDamageIsDefined()) {
+            toReturn += indent.repeat(indentLevel) + "Then applies these DamageComponents once each:\n";
+            for (DamageComponent dmgComp: otherDamage) {
+                dmgComp.prettyPrint(indentLevel+1);
+            }
+        }
+
+        return toReturn;
+    }
 }
