@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.Set;
 
 public class MathUtils {
 	public static double round(double value, int places) {
@@ -87,11 +88,26 @@ public class MathUtils {
 		return sum;
 	}
 
-	public static double sum(EnumMap<DamageElement, Double> dmgMap) {
+	public static double sumDamage(EnumMap<DamageElement, Double> dmgMap) {
 		double sum = 0.0;
-		// TODO: investigate if I need to exclude Heat and Cold from this summation
-		for (DamageElement el: dmgMap.keySet()) {
+		Set<DamageElement> temperatureOnlyElements = Set.of(DamageElement.heat, DamageElement.cold);
+		Set<DamageElement> elementsToCheck = dmgMap.keySet();
+		elementsToCheck.removeAll(temperatureOnlyElements);
+		for (DamageElement el: elementsToCheck) {
 			sum += dmgMap.get(el);
+		}
+		return sum;
+	}
+	public static double sumTemperature(EnumMap<DamageElement, Double> dmgMap) {
+		double sum = 0.0;
+		DamageElement[] elementsThatHaveTemperature = new DamageElement[]{
+			DamageElement.fireAndHeat,
+			DamageElement.heat,
+			DamageElement.frostAndCold,
+			DamageElement.cold
+		};
+		for (DamageElement el: elementsThatHaveTemperature) {
+			sum += dmgMap.getOrDefault(el, 0.0);
 		}
 		return sum;
 	}

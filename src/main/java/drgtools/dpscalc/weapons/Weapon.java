@@ -97,7 +97,7 @@ public abstract class Weapon extends Observable {
 	protected double[] baselineCalculatedStats;
 	private AoEVisualizer illustration = null;
 	
-	protected AccuracyEstimator accEstimator = new AccuracyEstimator();
+	protected AccuracyEstimator accEstimator;
 	
 	/****************************************************************************************
 	* Build from combination
@@ -1012,7 +1012,8 @@ public abstract class Weapon extends Observable {
 			notifyObservers();
 		}
 	}
-	
+
+	// TODO: this might be able to move to DamageComponent?
 	protected void setAoEEfficiency() {
 		/* 
 			This is a placeholder method that only gets overwritten by weapons that deal splash damage (EPC_ChargedShot, GrenadeLauncher, and Autocannon)
@@ -1297,6 +1298,8 @@ public abstract class Weapon extends Observable {
 		
 		return timeWhileAfflictedByDoT * DoTDPS;
 	}
+
+	// TODO: these can move to DamageComponent
 	protected double[] calculateAverageAreaDamage(double radius, double fullDamageRadius, double falloffPercentageAtOuterEdge) {
 		return calculateAverageAreaDamage(radius, fullDamageRadius, falloffPercentageAtOuterEdge, true);
 	}
@@ -1453,7 +1456,8 @@ public abstract class Weapon extends Observable {
 	protected double averageBonusPerMagazineForLongEffects(double conditionalMultiplier, double bulletsBeforeConditionStarts, double magazineSize) {
 		return (bulletsBeforeConditionStarts * 1.0 + (magazineSize - bulletsBeforeConditionStarts) * conditionalMultiplier) / magazineSize;
 	}
-	
+
+	// TODO: these can move to DamageComponent
 	protected int calculateNumGlyphidsInRadius(double radius) {
 		return calculateNumGlyphidsInRadius(radius, true);
 	}

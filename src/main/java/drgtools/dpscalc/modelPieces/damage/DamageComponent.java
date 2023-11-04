@@ -248,9 +248,26 @@ public class DamageComponent {
 		return statusEffectsApplied;
 	}
 
+	private double calculateFalloffAtDistance(double r) {
+		if (radialDamage > 0) {
+			// Early exit conditions
+			if (r <= maxDmgRadius) {
+				return 1.0;
+			}
+			else if (r > damageRadius) {
+				return -1;
+			}
+
+			return ((1.0 - falloff) * (damageRadius - r)) / (damageRadius - maxDmgRadius) + falloff;
+		}
+		else {
+			return -1;
+		}
+	}
+
 	public double getRawDamage() {
 		if (damage > 0) {
-			return MathUtils.sum(damageElements) * damage + flatDamage;
+			return MathUtils.sumDamage(damageElements) * damage + flatDamage;
 		}
 		else {
 			return 0;
@@ -258,10 +275,36 @@ public class DamageComponent {
 	}
 	public double getRawRadialDamage() {
 		if (radialDamage > 0) {
-			return MathUtils.sum(radialDamageElements) * radialDamage;
+			return MathUtils.sumDamage(radialDamageElements) * radialDamage;
 		}
 		else {
 			return 0;
+		}
+	}
+	public double getRawRadialDamageAtRadius(double distanceFromCenter) {
+		if (radialDamage > 0) {
+			// Early exit conditions
+			if (distanceFromCenter <= maxDmgRadius) {
+				return radialDamage * MathUtils.sumDamage(radialDamageElements);
+			}
+			else if (distanceFromCenter > damageRadius) {
+				return 0;
+			}
+
+			// In order to preserve the radialDamageElements' proportions, make a deep copy that can be edited
+			EnumMap<DamageElement, Double> rdlDmgElementsCopy = new EnumMap<>(DamageElement.class);
+			for (DamageElement el: radialDamageElements.keySet()) {
+				rdlDmgElementsCopy.put(el, radialDamageElements.get(el));
+			}
+			// Key phrase: "modeling a bug" (for Ctrl + Shift + F finding later)
+			// Radial Damage Falloff only applies to the BASE element, and not to any converted elements
+			double falloffAtR = calculateFalloffAtDistance(distanceFromCenter);
+			rdlDmgElementsCopy.put(baseRadialDamageElement, falloffAtR * rdlDmgElementsCopy.get(baseRadialDamageElement));
+
+			return radialDamage * MathUtils.sumDamage(rdlDmgElementsCopy);
+		}
+		else {
+			return -1;
 		}
 	}
 	
@@ -272,6 +315,32 @@ public class DamageComponent {
 	public double getResistedRadialDamage(ElementalResistancesMap creatureResistances) {
 		// TODO: the other half of where I could implement Radial-type Resistance if wanted. (Hiveguard, Caretaker)
 		return radialDamage * creatureResistances.multiplyDamageByElements(radialDamageElements);
+	}
+	public double getResistedRadialDamageAtRadius(ElementalResistancesMap creatureResistances, double distanceFromCenter) {
+		if (radialDamage > 0) {
+			// Early exit conditions
+			if (distanceFromCenter <= maxDmgRadius) {
+				return radialDamage * creatureResistances.multiplyDamageByElements(radialDamageElements);
+			}
+			else if (distanceFromCenter > damageRadius) {
+				return 0;
+			}
+
+			// In order to preserve the radialDamageElements' proportions, make a deep copy that can be edited
+			EnumMap<DamageElement, Double> rdlDmgElementsCopy = new EnumMap<>(DamageElement.class);
+			for (DamageElement el: radialDamageElements.keySet()) {
+				rdlDmgElementsCopy.put(el, radialDamageElements.get(el));
+			}
+			// Key phrase: "modeling a bug" (for Ctrl + Shift + F finding later)
+			// Radial Damage Falloff only applies to the BASE element, and not to any converted elements
+			double falloffAtR = calculateFalloffAtDistance(distanceFromCenter);
+			rdlDmgElementsCopy.put(baseRadialDamageElement, falloffAtR * rdlDmgElementsCopy.get(baseRadialDamageElement));
+
+			return radialDamage * creatureResistances.multiplyDamageByElements(rdlDmgElementsCopy);
+		}
+		else {
+			return -1;
+		}
 	}
 
 	public double getTotalComplicatedDamageDealtPerHit(MaterialFlag targetMaterial, ElementalResistancesMap creatureResistances,
@@ -376,13 +445,14 @@ public class DamageComponent {
 			return 0;
 		}
 	}
+	// TODO: do I also need a RadialTemperatureAtRadius method?
 
 	public boolean armorBreakingIsGreaterThan100Percent() {
 		return armorBreaking > 1.0;
 	}
 	public double getArmorDamageOnDirectHit() {
 		if (damage > 0 && canDamageArmor && !embeddedDetonator) {
-			return damage * MathUtils.sum(damageElements) * armorBreaking;
+			return damage * MathUtils.sumDamage(damageElements) * armorBreaking;
 		}
 		else {
 			return 0;
@@ -390,12 +460,12 @@ public class DamageComponent {
 	}
 	public double getRadialArmorDamageOnDirectHit() {
 		if (damage == 0 && radialDamage > 0 ) {
-			return radialDamage * MathUtils.sum(radialDamageElements) * armorBreaking;
+			return radialDamage * MathUtils.sumDamage(radialDamageElements) * armorBreaking;
 		}
 		else if (damage > 0 && canDamageArmor && !embeddedDetonator && radialDamage > 0) {
 			// Key phrase: "modeling a bug" (for Ctrl + Shift + F finding later)
 			// Bug where Radial Damage only does 25% AB on direct hit when Damage > 0, 100% AB at 0.5m from direct hit, and then 25% everywhere else til it reaches Radius.
-			return 0.25 * radialDamage * MathUtils.sum(radialDamageElements) * armorBreaking;
+			return 0.25 * radialDamage * MathUtils.sumDamage(radialDamageElements) * armorBreaking;
 		}
 		else {
 			return 0;
@@ -407,33 +477,18 @@ public class DamageComponent {
 		// Testing shows that IFG doesn't affect damage dealt to ArmorHealth plates.
 		return getArmorDamageOnDirectHit() + getRadialArmorDamageOnDirectHit();
 	}
-	public double getRadialArmorDamageAtRadius(double distanceFromDirectHit) {
+	public double getRadialArmorDamageAtRadius(double distanceFromCenter) {
 		if (radialDamage > 0) {
-			// Key phrase: "modeling a bug" (for Ctrl + Shift + F finding later)
-			double baseRadialArmorDamage = radialDamage * MathUtils.sum(radialDamageElements) * armorBreaking;
-			if (distanceFromDirectHit <= 0.5) {
-				return baseRadialArmorDamage;
+			// According to GSG, Radial Armor Damage getting a 25% penalty is "not a bug". Sadness.
+			if (distanceFromCenter <= maxDmgRadius) {
+				return 0.25 * radialDamage * MathUtils.sumDamage(radialDamageElements) * armorBreaking;
 			}
-			else if (distanceFromDirectHit > damageRadius) {
+			else if (distanceFromCenter > damageRadius) {
 				return 0;
 			}
 			else {
-				// TODO: add radial falloff
-				return 0.25 * baseRadialArmorDamage;
+				return 0.25 * getRawRadialDamageAtRadius(distanceFromCenter) * armorBreaking;
 			}
-
-			/*
-			if (distanceFromDirectHit <= maxDmgRadius) {
-				return baseRadialArmorDamage;
-			}
-			else if (distanceFromDirectHit > damageRadius) {
-				return 0;
-			}
-			else {
-				double falloffMultiplier = (1.0 - falloff) * (damageRadius - distanceFromDirectHit) / (damageRadius - maxDmgRadius) + falloff;
-				return baseRadialArmorDamage * falloffMultiplier;
-			}
-			*/
 		}
 		else {
 			return 0;

@@ -107,7 +107,7 @@ public class MultipleSTEs {
     }
 
     public double getRawTotalDamage() {
-        return MathUtils.sum(totalDamageByElement);
+        return MathUtils.sumDamage(totalDamageByElement);
     }
     public double getResistedTotalDamage(ElementalResistancesMap resistances) {
         return resistances.multiplyDamageByElements(totalDamageByElement);
