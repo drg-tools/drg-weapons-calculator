@@ -2,7 +2,7 @@ package drgtools.dpscalc.weapons.engineer.shotgun;
 
 import drgtools.dpscalc.modelPieces.damage.DamageComponent;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
-import drgtools.dpscalc.weapons.Projectile;
+import drgtools.dpscalc.modelPieces.Projectile;
 
 public class PRJ_TurretWhip extends Projectile {
     public PRJ_TurretWhip() {

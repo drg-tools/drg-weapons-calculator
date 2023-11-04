@@ -1,4 +1,4 @@
-package drgtools.dpscalc.weapons;
+package drgtools.dpscalc.modelPieces;
 
 import drgtools.dpscalc.modelPieces.damage.DamageInstance;
 

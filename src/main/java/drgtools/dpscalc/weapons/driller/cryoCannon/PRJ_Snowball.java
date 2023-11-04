@@ -2,7 +2,7 @@ package drgtools.dpscalc.weapons.driller.cryoCannon;
 
 import drgtools.dpscalc.modelPieces.damage.DamageComponent;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.TemperatureElement;
-import drgtools.dpscalc.weapons.Projectile;
+import drgtools.dpscalc.modelPieces.Projectile;
 
 public class PRJ_Snowball extends Projectile {
     public PRJ_Snowball() {

@@ -3,7 +3,7 @@ package drgtools.dpscalc.modelPieces.accuracy;
 import drgtools.dpscalc.enemies.glyphid.Grunt;
 import drgtools.dpscalc.modelPieces.EnemyInformation;
 import drgtools.dpscalc.utilities.MathUtils;
-import drgtools.dpscalc.weapons.Projectile;
+import drgtools.dpscalc.modelPieces.Projectile;
 
 import javax.swing.*;
 

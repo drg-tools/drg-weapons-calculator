@@ -2,7 +2,7 @@ package drgtools.dpscalc.weapons.driller.cryoCannon;
 
 import drgtools.dpscalc.modelPieces.damage.DamageComponent;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
-import drgtools.dpscalc.weapons.Projectile;
+import drgtools.dpscalc.modelPieces.Projectile;
 
 public class PRJ_IceSpear extends Projectile {
     public PRJ_IceSpear() {

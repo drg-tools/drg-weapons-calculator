@@ -1,7 +1,7 @@
 package drgtools.dpscalc.weapons.gunner.guidedRocketLauncher;
 
 import drgtools.dpscalc.modelPieces.damage.DamageComponent;
-import drgtools.dpscalc.weapons.Projectile;
+import drgtools.dpscalc.modelPieces.Projectile;
 
 public class PRJ_MicroMissile extends Projectile {
     public PRJ_MicroMissile(double startVelocity, double maxVelocity, DamageComponent dmg) {

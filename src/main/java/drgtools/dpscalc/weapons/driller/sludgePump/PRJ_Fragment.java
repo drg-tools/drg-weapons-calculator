@@ -1,7 +1,7 @@
 package drgtools.dpscalc.weapons.driller.sludgePump;
 
 import drgtools.dpscalc.modelPieces.damage.DamageComponent;
-import drgtools.dpscalc.weapons.Projectile;
+import drgtools.dpscalc.modelPieces.Projectile;
 
 public class PRJ_Fragment extends Projectile {
     public PRJ_Fragment(DamageComponent dmg) {

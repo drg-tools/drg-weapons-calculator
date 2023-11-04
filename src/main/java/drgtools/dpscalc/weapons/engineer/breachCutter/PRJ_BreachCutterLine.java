@@ -1,7 +1,7 @@
 package drgtools.dpscalc.weapons.engineer.breachCutter;
 
 import drgtools.dpscalc.modelPieces.damage.DamageComponent;
-import drgtools.dpscalc.weapons.Projectile;
+import drgtools.dpscalc.modelPieces.Projectile;
 
 public class PRJ_BreachCutterLine extends Projectile {
     public PRJ_BreachCutterLine(double velocity, DamageComponent dmgPerTick) {

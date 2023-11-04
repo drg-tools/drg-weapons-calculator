@@ -1,7 +1,7 @@
 package drgtools.dpscalc.weapons.engineer.grenadeLauncher;
 
 import drgtools.dpscalc.modelPieces.damage.DamageComponent;
-import drgtools.dpscalc.weapons.Projectile;
+import drgtools.dpscalc.modelPieces.Projectile;
 
 public class PRJ_Grenade extends Projectile {
     public PRJ_Grenade(double velocity, DamageComponent dmg) {

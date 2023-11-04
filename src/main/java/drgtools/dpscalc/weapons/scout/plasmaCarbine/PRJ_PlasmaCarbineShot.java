@@ -1,7 +1,7 @@
 package drgtools.dpscalc.weapons.scout.plasmaCarbine;
 
 import drgtools.dpscalc.modelPieces.damage.DamageComponent;
-import drgtools.dpscalc.weapons.Projectile;
+import drgtools.dpscalc.modelPieces.Projectile;
 
 public class PRJ_PlasmaCarbineShot extends Projectile {
     public PRJ_PlasmaCarbineShot(double velocity, DamageComponent dmg) {
