@@ -9,6 +9,7 @@ import java.util.Observable;
 import javax.swing.JPanel;
 
 import drgtools.dpscalc.enemies.Enemy;
+import drgtools.dpscalc.enemies.TargetDummy;
 import drgtools.dpscalc.guiPieces.AoEVisualizer;
 import drgtools.dpscalc.guiPieces.GuiConstants;
 import drgtools.dpscalc.guiPieces.customButtons.ButtonIcons.modIcons;
@@ -19,9 +20,14 @@ import drgtools.dpscalc.modelPieces.StatsRow;
 import drgtools.dpscalc.modelPieces.accuracy.AccuracyEstimator;
 import drgtools.dpscalc.modelPieces.damage.DamageComponent;
 import drgtools.dpscalc.modelPieces.damage.DamageInstance;
+import drgtools.dpscalc.modelPieces.statusEffects.StatusEffect;
+import drgtools.dpscalc.modelPieces.statusEffects.commonSTEs.STE_Frozen;
+import drgtools.dpscalc.modelPieces.statusEffects.commonSTEs.STE_IFG;
+import drgtools.dpscalc.modelPieces.statusEffects.commonSTEs.STE_OnFire;
 import drgtools.dpscalc.utilities.ConditionalArrayList;
 import drgtools.dpscalc.utilities.MathUtils;
 import drgtools.dpscalc.utilities.Point2D;
+import drgtools.dpscalc.weapons.engineer.smg.STE_Electrocute_SMG;
 
 public abstract class Weapon extends Observable {
 	
@@ -83,9 +89,17 @@ public abstract class Weapon extends Observable {
 		// Overkill Percentages
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}	
 	};
-	
+
+	// TODO: replace this with TargetDummy and the new STEs
+	protected Enemy targetDummy = new TargetDummy();
 	// Burning, Frozen, Electrocuted, IFG Grenade
 	protected boolean[] statusEffects = {false, false, false, false};
+	protected StatusEffect[] stes = {
+		new STE_OnFire(),
+		new STE_Frozen(),
+		new STE_Electrocute_SMG(),
+		new STE_IFG()
+	};
 	
 	protected boolean enableWeakpointsDPS = false;
 	protected boolean enableGeneralAccuracyDPS = false;
@@ -643,12 +657,23 @@ public abstract class Weapon extends Observable {
 	// Because this is only used by the GUI, I'm choosing not to add the "updateGUI" flag.
 	public void setStatusEffect(int effectIndex, boolean newValue) {
 		if (effectIndex > -1 && effectIndex < statusEffects.length) {
-			// Special case: Burning and Frozen are mutually exclusive statuses, so make sure that if one gets set to true, the other is automatically set to false
-			if (effectIndex == 0 && newValue) {
-				statusEffects[1] = false;
+			// Enable one of the status effects
+			if (newValue) {
+				// Special case: Burning and Frozen are mutually exclusive statuses, so make sure that if one gets set to true, the other is automatically set to false
+				if (effectIndex == 0) {
+					statusEffects[1] = false;
+					targetDummy.expireCurrentStatusEffect(stes[1]);
+				}
+				else if (effectIndex == 1) {
+					statusEffects[0] = false;
+					targetDummy.expireCurrentStatusEffect(stes[0]);
+				}
+
+				targetDummy.applyNewStatusEffect(stes[effectIndex]);
 			}
-			else if (effectIndex == 1 && newValue) {
-				statusEffects[0] = false;
+			// Disable one of them
+			else {
+				targetDummy.expireCurrentStatusEffect(stes[effectIndex]);
 			}
 			
 			statusEffects[effectIndex] = newValue;

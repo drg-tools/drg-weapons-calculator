@@ -74,7 +74,7 @@ public abstract class Enemy {
 	protected double armorStrength = 0.0, armorBaseHealth = 0.0, armorStrengthReduction = UtilityInformation.LightArmor_DamageReduction, armorHealthReduction = 1.0;
 	protected double numArmorStrengthPlates = 0, numArmorHealthPlates = 0;  // These variables are NOT how many armor plates the enemy has total, but rather how many armor plates will be modeled by ArmorWasting()
 
-	protected ArrayList<String> namesOfStatusEffectsCurrentlyAfflicting;
+	protected ArrayList<String> namesOfStatusEffectsCurrentlyAfflicting = new ArrayList<>();
 	
 	/****************************************************************************************
 	* Constructors
@@ -249,9 +249,11 @@ public abstract class Enemy {
 	public void emptyCurrentStatusEffects() {
 		namesOfStatusEffectsCurrentlyAfflicting = new ArrayList<>();
 	}
-	// TODO: do I need a way to make the STEs permanent, for the toggle buttons in the GUI?
 	public void applyNewStatusEffect(StatusEffect ste) {
-		namesOfStatusEffectsCurrentlyAfflicting.add(ste.getName());
+		// TODO: this could cause an issue when i try to add self-stacking STEs later...
+		if (!namesOfStatusEffectsCurrentlyAfflicting.contains(ste.getName())) {
+			namesOfStatusEffectsCurrentlyAfflicting.add(ste.getName());
+		}
 	}
 	public void expireCurrentStatusEffect(StatusEffect ste) {
 		namesOfStatusEffectsCurrentlyAfflicting.remove(ste.getName());

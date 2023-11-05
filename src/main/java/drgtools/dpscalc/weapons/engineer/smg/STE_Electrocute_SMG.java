@@ -7,4 +7,9 @@ public class STE_Electrocute_SMG extends StatusEffect {
     public STE_Electrocute_SMG() {
         super(DamageElement.electric, 3, 3, 0.25, 0.25, 0.2, 3);
     }
+
+    @Override
+    public String getName() {
+        return "STE_Electrocute_SMG";
+    }
 }

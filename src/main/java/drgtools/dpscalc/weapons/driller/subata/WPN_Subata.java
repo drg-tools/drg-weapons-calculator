@@ -12,12 +12,10 @@ import drgtools.dpscalc.modelPieces.StatsRow;
 import drgtools.dpscalc.modelPieces.accuracy.CircularHitscanAccuracyEstimator;
 import drgtools.dpscalc.modelPieces.accuracy.RecoilSettings;
 import drgtools.dpscalc.modelPieces.accuracy.SpreadSettings;
-import drgtools.dpscalc.modelPieces.damage.ConditionalDamageConversion;
-import drgtools.dpscalc.modelPieces.damage.DamageComponent;
-import drgtools.dpscalc.modelPieces.damage.DamageConversion;
+import drgtools.dpscalc.modelPieces.damage.*;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
+import drgtools.dpscalc.modelPieces.damage.DamageFlags.MaterialFlag;
 import drgtools.dpscalc.modelPieces.damage.DamageFlags.RicochetFlag;
-import drgtools.dpscalc.modelPieces.damage.DamageInstance;
 import drgtools.dpscalc.modelPieces.statusEffects.PushSTEComponent;
 import drgtools.dpscalc.modelPieces.statusEffects.StatusEffect;
 import drgtools.dpscalc.utilities.MathUtils;
@@ -489,7 +487,7 @@ public class WPN_Subata extends Weapon {
 
 		// Volatile Bullets
 		if (selectedTier5 == 0) {
-			StatusEffect[] triggers = new StatusEffect[]{new STE_OnFire()};
+			StatusEffect[] triggers = {new STE_OnFire()};
 			DamageConversion volatileBulletsDC = new DamageConversion(0.5, true, DamageElement.fireAndHeat);
 			damagePerHitscan.addConditionalDamageConversion(new ConditionalDamageConversion(triggers, volatileBulletsDC));
 		}
@@ -565,35 +563,25 @@ public class WPN_Subata extends Weapon {
 			duration = (((double) getMagazineSize()) / getCustomRoF()) + getReloadTime();
 		}
 		
-		double directDamage = getDirectDamage();
-		double areaDamage = getExplosiveReloadDamage();
+		double directDamage = damagePerHitscan.getTotalComplicatedDamageDealtPerHit(targetDummy, MaterialFlag.normalFlesh);
+		double explosiveReloadDamage;
+		if (selectedOverclock == 4) {
+			explosiveReloadDamage = explosiveReload.getTotalComplicatedDamageDealtPerHit(targetDummy, MaterialFlag.normalFlesh);
+		}
+		else {
+			explosiveReloadDamage = 0;
+		}
 		
 		// Damage wasted by Armor
-		if (armorWasting && !statusEffects[1]) {
+		if (armorWasting && !targetDummy.currentlyFrozen()) {
 			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
 			directDamage *= armorWaste;
 		}
 		
-		// Frozen
-		if (statusEffects[1]) {
-			directDamage *= UtilityInformation.Frozen_Damage_Multiplier;
-		}
-		// IFG Grenade
-		if (statusEffects[3]) {
-			directDamage *= UtilityInformation.IFG_Damage_Multiplier;
-			areaDamage *= UtilityInformation.IFG_Damage_Multiplier;
-		}
-		
-		// T5.A Volatile Bullets adds 50% of the total damage per bullet as Fire damage (not Heat Damage) if the bullet hits a Burning target
-		if (selectedTier5 == 0 && statusEffects[0]) {
-			directDamage *= 1.5;
-			// U32's version of Explosive Reload no longer benefits from Volatile Bullets
-		}
-		
 		double weakpointAccuracy;
-		if (weakpoint && !statusEffects[1]) {
+		if (weakpoint && !targetDummy.currentlyFrozen()) {
 			weakpointAccuracy = getWeakpointAccuracy() / 100.0;
-			directWeakpointDamage = increaseBulletDamageForWeakpoints(directDamage, getWeakpointBonus(), 1.0);
+			directWeakpointDamage = damagePerHitscan.getTotalComplicatedDamageDealtPerHit(targetDummy, MaterialFlag.weakpoint);
 		}
 		else {
 			weakpointAccuracy = 0.0;
@@ -604,7 +592,7 @@ public class WPN_Subata extends Weapon {
 		int bulletsThatHitWeakpoint = (int) Math.round(magSize * weakpointAccuracy);
 		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
 		
-		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * directDamage + (bulletsThatHitWeakpoint + bulletsThatHitTarget) * areaDamage) / duration;
+		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * directDamage + (bulletsThatHitWeakpoint + bulletsThatHitTarget) * explosiveReloadDamage) / duration;
 	}
 
 	// Multi-target calculations

@@ -1,5 +1,6 @@
 package drgtools.dpscalc.enemies;
 
+import drgtools.dpscalc.modelPieces.EnemyInformation;
 import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 
 public class TargetDummy extends Enemy {
@@ -13,7 +14,7 @@ public class TargetDummy extends Enemy {
         hasExposedBodySomewhere = true;
 
         hasWeakpoint = true;
-        weakpointMultiplier = 2;
+        weakpointMultiplier = EnemyInformation.averageWeakpointDamageIncrease();
         estimatedProbabilityBulletHitsWeakpoint = 1.0;
 
         // Copy of Glyphid Grunt's temperatures
