@@ -51,7 +51,7 @@ public class Classic_Hipfire extends Classic {
 		double toReturn = rateOfFire;
 		
 		if (selectedOverclock == 3) {
-			toReturn += 3;
+			toReturn += 2;
 		}
 		
 		return toReturn;
