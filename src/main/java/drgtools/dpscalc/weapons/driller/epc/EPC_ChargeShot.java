@@ -98,13 +98,13 @@ public class EPC_ChargeShot extends EPC {
 	****************************************************************************************/
 
 	@Override
-	public boolean currentlyDealsSplashDamage() {
+	public boolean currentlyDealsRadialDamage() {
 		// Because this only models the charged shots of the EPC, it will always do splash damage.
 		return true;
 	}
 	
 	@Override
-	protected void recalculateAoEEfficiency() {
+	protected void recalculateRadialEfficiency() {
 		// Special case: Thin Containment Field
 		if (selectedTier5 == 1) {
 			aoeEfficiency = calculateAverageAreaDamage(3.0, 3.0, 1.0);

@@ -11,4 +11,9 @@ public class STE_Stun extends StatusEffect {
     public STE_Stun(double duration) {
         super(0.0, duration);
     }
+
+    @Override
+    public String getName() {
+        return "STE_Stun";
+    }
 }

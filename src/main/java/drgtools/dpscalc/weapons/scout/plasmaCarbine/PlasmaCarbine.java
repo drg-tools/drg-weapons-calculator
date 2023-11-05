@@ -515,12 +515,12 @@ public class PlasmaCarbine extends Weapon {
 	}
 
 	@Override
-	public boolean currentlyDealsSplashDamage() {
+	public boolean currentlyDealsRadialDamage() {
 		return selectedTier4 == 1;
 	}
 	
 	@Override
-	protected void recalculateAoEEfficiency() {
+	protected void recalculateRadialEfficiency() {
 		if (selectedTier4 == 1) {
 			aoeEfficiency = calculateAverageAreaDamage(1.0, 0.5, 0.5);
 		}

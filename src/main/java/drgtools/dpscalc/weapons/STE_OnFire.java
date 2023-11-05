@@ -11,4 +11,9 @@ public class STE_OnFire extends StatusEffect {
     public STE_OnFire(double duration) {
         super(DamageElement.fire, 6, 6, 0.3, 0.5, duration);
     }
+
+    @Override
+    public String getName() {
+        return "STE_OnFire";
+    }
 }

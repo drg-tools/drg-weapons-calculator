@@ -368,7 +368,7 @@ public class BurstPistol extends Weapon {
 	****************************************************************************************/
 
 	@Override
-	public boolean currentlyDealsSplashDamage() {
+	public boolean currentlyDealsRadialDamage() {
 		// This weapon can't deal splash damage
 		return false;
 	}

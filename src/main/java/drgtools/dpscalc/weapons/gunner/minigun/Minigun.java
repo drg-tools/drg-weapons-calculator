@@ -454,7 +454,7 @@ public class Minigun extends Weapon {
 	****************************************************************************************/
 	
 	@Override
-	public boolean currentlyDealsSplashDamage() {
+	public boolean currentlyDealsRadialDamage() {
 		return false;
 	}
 	

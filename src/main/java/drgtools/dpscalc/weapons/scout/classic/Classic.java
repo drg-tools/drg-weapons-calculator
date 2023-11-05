@@ -307,7 +307,7 @@ public abstract class Classic extends Weapon {
 	****************************************************************************************/
 
 	@Override
-	public boolean currentlyDealsSplashDamage() {
+	public boolean currentlyDealsRadialDamage() {
 		return false;
 	}
 	

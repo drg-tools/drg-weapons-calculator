@@ -346,7 +346,7 @@ public class Shotgun extends Weapon {
 	****************************************************************************************/
 	
 	@Override
-	public boolean currentlyDealsSplashDamage() {
+	public boolean currentlyDealsRadialDamage() {
 		return false;
 	}
 	

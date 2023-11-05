@@ -344,7 +344,7 @@ public class AssaultRifle extends Weapon {
 	****************************************************************************************/
 
 	@Override
-	public boolean currentlyDealsSplashDamage() {
+	public boolean currentlyDealsRadialDamage() {
 		return false;
 	}
 	

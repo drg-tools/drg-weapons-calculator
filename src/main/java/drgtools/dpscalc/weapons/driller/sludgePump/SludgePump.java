@@ -463,12 +463,12 @@ public class SludgePump extends Weapon {
 	****************************************************************************************/
 	
 	@Override
-	public boolean currentlyDealsSplashDamage() {
+	public boolean currentlyDealsRadialDamage() {
 		return true;
 	}
 	
 	@Override
-	protected void recalculateAoEEfficiency() {
+	protected void recalculateRadialEfficiency() {
 		aoeEfficiency = calculateAverageAreaDamage(1.0, 0.5, 0.25);
 	}
 

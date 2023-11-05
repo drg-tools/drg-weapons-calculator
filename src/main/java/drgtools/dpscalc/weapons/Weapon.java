@@ -204,7 +204,7 @@ public abstract class Weapon extends Observable {
 	
 	/*
 		This method used to be a void return, but in order to use it with user-comparing-builds features 
-		it has to have a boolean return value to indicate whether or not their manual entry will work or not.
+		it has to have a boolean return value to indicate whether their manual entry will work or not.
 		
 		In theory, this should ALWAYS be preceded by the code doing the isCombinationValid() check first, 
 		but I'm adding it here to make absolutely sure. It doesn't take too long to run twice.
@@ -843,16 +843,16 @@ public abstract class Weapon extends Observable {
 		rebuildAccuracyEstimator();
 		rebuildDamageComponents();
 
-		if (currentlyDealsSplashDamage()) {
-			recalculateAoEEfficiency();
+		if (currentlyDealsRadialDamage()) {
+			recalculateRadialEfficiency();
 		}
 
 		damageWastedByArmor();
 	}
 	protected abstract void rebuildAccuracyEstimator();
 	protected abstract void rebuildDamageComponents();
-	public abstract boolean currentlyDealsSplashDamage();
-	protected void recalculateAoEEfficiency() {
+	public abstract boolean currentlyDealsRadialDamage();  // TODO: this could probably be changed to "DamageComponent.getRadialDamage() > 0" for most weapons...
+	protected void recalculateRadialEfficiency() {
 		/*
 			This is a placeholder method that only gets overwritten by weapons that deal splash damage (EPC_ChargedShot, GrenadeLauncher, and Autocannon)
 			It just exists here so that Weapon can reference the method when it changes mods or OCs
@@ -869,13 +869,7 @@ public abstract class Weapon extends Observable {
 		int oldT1 = selectedTier1, oldT2 = selectedTier2, oldT3 = selectedTier3, oldT4 = selectedTier4, oldT5 = selectedTier5, oldOC = selectedOverclock;
 		selectedTier1 = selectedTier2 = selectedTier3 = selectedTier4 = selectedTier5 = selectedOverclock = -1;
 
-		rebuildDamageComponents();
-		
-		if (currentlyDealsSplashDamage()) {
-			recalculateAoEEfficiency();
-		}
-		
-		damageWastedByArmor();
+		rebuildWeapon();
 		
 		baselineBurstDPS = new double[]{
 			calculateSingleTargetDPS(true, false, false, false),  // Ideal
@@ -1521,7 +1515,7 @@ public abstract class Weapon extends Observable {
 	}
 
 	public JPanel visualizeAoERadius() {
-		if (currentlyDealsSplashDamage() && illustration != null) {
+		if (currentlyDealsRadialDamage() && illustration != null) {
 			return illustration;
 		}
 		else {

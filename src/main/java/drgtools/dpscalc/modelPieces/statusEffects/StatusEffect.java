@@ -83,6 +83,8 @@ public abstract class StatusEffect {
         // comparedDuration = duration;
     }
 
+    public abstract String getName();
+
     public void setDamagePerTick(double newMin, double newMax) {
         minDamagePerTick = newMin;
         maxDamagePerTick = newMax;

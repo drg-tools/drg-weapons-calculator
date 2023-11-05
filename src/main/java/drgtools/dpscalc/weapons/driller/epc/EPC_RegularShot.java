@@ -109,7 +109,7 @@ public class EPC_RegularShot extends EPC {
 	****************************************************************************************/
 
 	@Override
-	public boolean currentlyDealsSplashDamage() {
+	public boolean currentlyDealsRadialDamage() {
 		// Because this only models the regular shots of the EPC, it will never do splash damage.
 		return false;
 	}

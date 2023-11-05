@@ -317,7 +317,7 @@ public class Zhukov extends Weapon {
 	****************************************************************************************/
 
 	@Override
-	public boolean currentlyDealsSplashDamage() {
+	public boolean currentlyDealsRadialDamage() {
 		// This weapon can never deal splash damage
 		return false;
 	}

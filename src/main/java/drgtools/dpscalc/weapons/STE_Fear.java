@@ -12,4 +12,9 @@ public class STE_Fear extends AoEStatusEffect {
     public STE_Fear() {
         super(10, null, 0, 0, 0.5, 0.5, 1.5, 0.5, 15);
     }
+
+    @Override
+    public String getName() {
+        return "STE_Fear";
+    }
 }

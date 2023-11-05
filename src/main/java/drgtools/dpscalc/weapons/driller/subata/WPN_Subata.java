@@ -12,13 +12,16 @@ import drgtools.dpscalc.modelPieces.StatsRow;
 import drgtools.dpscalc.modelPieces.accuracy.CircularHitscanAccuracyEstimator;
 import drgtools.dpscalc.modelPieces.accuracy.RecoilSettings;
 import drgtools.dpscalc.modelPieces.accuracy.SpreadSettings;
+import drgtools.dpscalc.modelPieces.damage.ConditionalDamageConversion;
 import drgtools.dpscalc.modelPieces.damage.DamageComponent;
 import drgtools.dpscalc.modelPieces.damage.DamageConversion;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.modelPieces.damage.DamageFlags.RicochetFlag;
 import drgtools.dpscalc.modelPieces.damage.DamageInstance;
 import drgtools.dpscalc.modelPieces.statusEffects.PushSTEComponent;
+import drgtools.dpscalc.modelPieces.statusEffects.StatusEffect;
 import drgtools.dpscalc.utilities.MathUtils;
+import drgtools.dpscalc.weapons.STE_OnFire;
 import drgtools.dpscalc.weapons.Weapon;
 
 public class WPN_Subata extends Weapon {
@@ -486,12 +489,9 @@ public class WPN_Subata extends Weapon {
 
 		// Volatile Bullets
 		if (selectedTier5 == 0) {
-			// TODO: this is wrong. it works for DPS but not for Breakpoints. Come back and implement ConditionalDamageConversion correctly.
-			// Burning
-			if (statusEffects[0]) {
-				DamageConversion volatileBullets = new DamageConversion(0.5, true, DamageElement.fireAndHeat);
-				damagePerHitscan.applyDamageConversion(volatileBullets);
-			}
+			StatusEffect[] triggers = new StatusEffect[]{new STE_OnFire()};
+			DamageConversion volatileBulletsDC = new DamageConversion(0.5, true, DamageElement.fireAndHeat);
+			damagePerHitscan.addConditionalDamageConversion(new ConditionalDamageConversion(triggers, volatileBulletsDC));
 		}
 		// Blowthrough Rounds
 		else if (selectedTier5 == 1) {
@@ -510,9 +510,7 @@ public class WPN_Subata extends Weapon {
 		// Tranquilizer Rounds
 		else if (selectedOverclock == 5) {
 			damagePerHitscan.setStun(false, getStunChance(), getStunDuration());
-			
-			PushSTEComponent tranqSlow = new PushSTEComponent(avgRoF, 0.5, new STE_TranqSlowdown());
-			damagePerHitscan.addStatusEffectApplied(tranqSlow);
+			damagePerHitscan.addStatusEffectApplied(new PushSTEComponent(avgRoF, 0.5, new STE_TranqSlowdown()));
 		}
 
 		// Explosive Reload
@@ -540,7 +538,7 @@ public class WPN_Subata extends Weapon {
 	}
 
 	@Override
-	public boolean currentlyDealsSplashDamage() {
+	public boolean currentlyDealsRadialDamage() {
 		return false;
 	}
 	

@@ -411,12 +411,12 @@ public class Autocannon extends Weapon {
 	****************************************************************************************/
 	
 	@Override
-	public boolean currentlyDealsSplashDamage() {
+	public boolean currentlyDealsRadialDamage() {
 		return true;
 	}
 	
 	@Override
-	protected void recalculateAoEEfficiency() {
+	protected void recalculateRadialEfficiency() {
 		aoeEfficiency = calculateAverageAreaDamage(getAoERadius(), 0.75, 0.5);
 	}
 	

@@ -354,7 +354,7 @@ public class SmartRifle extends Weapon {
 	****************************************************************************************/
 
 	@Override
-	public boolean currentlyDealsSplashDamage() {
+	public boolean currentlyDealsRadialDamage() {
 		// Without the Lock-On mode and OC "Explosive Chemical Rounds" the SmartRifle can't do AoE damage.
 		return false;
 	}

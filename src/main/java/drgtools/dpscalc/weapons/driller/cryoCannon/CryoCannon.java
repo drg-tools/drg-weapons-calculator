@@ -334,7 +334,7 @@ public class CryoCannon extends Weapon {
 	****************************************************************************************/
 	
 	@Override
-	public boolean currentlyDealsSplashDamage() {
+	public boolean currentlyDealsRadialDamage() {
 		return false;
 	}
 	

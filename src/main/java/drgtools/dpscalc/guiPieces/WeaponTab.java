@@ -380,7 +380,7 @@ public class WeaponTab extends JPanel {
 		
 		int maxNumTargets = myWeapon.calculateMaxNumTargets();
 		int originalNumTargets = (int) originalStats[1];
-		if (myWeapon.currentlyDealsSplashDamage()) {
+		if (myWeapon.currentlyDealsRadialDamage()) {
 			AoEVisualizerButton valButton = new AoEVisualizerButton(this, leftPadSpaces + maxNumTargets, myWeapon);
 			if (maxNumTargets < originalNumTargets) {
 				valButton.setForeground(GuiConstants.drgNegativeChangeRed);

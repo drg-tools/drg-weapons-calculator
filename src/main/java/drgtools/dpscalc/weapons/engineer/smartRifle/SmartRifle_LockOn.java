@@ -100,12 +100,12 @@ public class SmartRifle_LockOn extends SmartRifle {
 	}
 
 	@Override
-	public boolean currentlyDealsSplashDamage() {
+	public boolean currentlyDealsRadialDamage() {
 		return selectedOverclock == 3;
 	}
 	
 	@Override
-	protected void recalculateAoEEfficiency() {
+	protected void recalculateRadialEfficiency() {
 		if (selectedOverclock == 3) {
 			aoeEfficiency = calculateAverageAreaDamage(4.0, 2.0, 0.5);
 		}

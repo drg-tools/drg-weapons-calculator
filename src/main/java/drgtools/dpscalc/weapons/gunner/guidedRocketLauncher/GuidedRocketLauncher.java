@@ -420,12 +420,12 @@ public class GuidedRocketLauncher extends Weapon {
 	****************************************************************************************/
 	
 	@Override
-	public boolean currentlyDealsSplashDamage() {
+	public boolean currentlyDealsRadialDamage() {
 		return true;
 	}
 	
 	@Override
-	protected void recalculateAoEEfficiency() {
+	protected void recalculateRadialEfficiency() {
 		aoeEfficiency = calculateAverageAreaDamage(getAoERadius(), getMaxDmgRadius(), 0.5);
 	}
 	

@@ -1,6 +1,5 @@
 package drgtools.dpscalc.enemies;
 
-import drgtools.dpscalc.modelPieces.EnemyInformation;
 import drgtools.dpscalc.modelPieces.UtilityInformation;
 import drgtools.dpscalc.modelPieces.damage.DamageComponent;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
@@ -9,11 +8,13 @@ import drgtools.dpscalc.modelPieces.damage.DamageFlags.MaterialFlag;
 import drgtools.dpscalc.modelPieces.damage.DamageInstance;
 import drgtools.dpscalc.modelPieces.statusEffects.MultipleSTEs;
 import drgtools.dpscalc.modelPieces.statusEffects.PushSTEComponent;
+import drgtools.dpscalc.modelPieces.statusEffects.StatusEffect;
 import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 import drgtools.dpscalc.utilities.MathUtils;
 import drgtools.dpscalc.weapons.STE_OnFire;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 // TODO: Technically, this could model certain enemies' Stun Duration multiplier and Stun Immunity windows too. But for now, they're not implemented.
 public abstract class Enemy {
@@ -72,6 +73,8 @@ public abstract class Enemy {
 	protected boolean hasLightArmor = false, hasHeavyArmorRNG = false, hasHeavyArmorHealth = false, heavyArmorCoversWeakpoint = false, hasUnbreakableArmor = false;
 	protected double armorStrength = 0.0, armorBaseHealth = 0.0, armorStrengthReduction = UtilityInformation.LightArmor_DamageReduction, armorHealthReduction = 1.0;
 	protected double numArmorStrengthPlates = 0, numArmorHealthPlates = 0;  // These variables are NOT how many armor plates the enemy has total, but rather how many armor plates will be modeled by ArmorWasting()
+
+	protected ArrayList<String> namesOfStatusEffectsCurrentlyAfflicting;
 	
 	/****************************************************************************************
 	* Constructors
@@ -243,29 +246,55 @@ public abstract class Enemy {
 		}
 	}
 
+	public void emptyCurrentStatusEffects() {
+		namesOfStatusEffectsCurrentlyAfflicting = new ArrayList<>();
+	}
+	// TODO: do I need a way to make the STEs permanent, for the toggle buttons in the GUI?
+	public void applyNewStatusEffect(StatusEffect ste) {
+		namesOfStatusEffectsCurrentlyAfflicting.add(ste.getName());
+	}
+	public void expireCurrentStatusEffect(StatusEffect ste) {
+		namesOfStatusEffectsCurrentlyAfflicting.remove(ste.getName());
+	}
+	public HashSet<String> getCurrentStatusEffectNames() {
+		return new HashSet<>(namesOfStatusEffectsCurrentlyAfflicting);
+	}
+	// TODO: are these methods unnecessary? or maybe they can be combined?
+	public boolean currentlyAffectedByIFG() {
+		return namesOfStatusEffectsCurrentlyAfflicting.contains("STE_IFG");
+	}
+	public boolean currentlyOnFire() {
+		return namesOfStatusEffectsCurrentlyAfflicting.contains("STE_OnFire");
+	}
+	public boolean currentlyFrozen() {
+		return namesOfStatusEffectsCurrentlyAfflicting.contains("STE_Frozen");
+	}
+	public boolean currentlyStunned() {
+		return namesOfStatusEffectsCurrentlyAfflicting.contains("STE_Stun");
+	}
+
 	public ArrayList<Integer> calculateBreakpoints(DamageInstance dmgInstance, double RoF, boolean IFG, boolean frozen,
 												   double normalScaling, double largeScaling) {
 		ArrayList<Integer> toReturn = new ArrayList<>();
 		if (hasExposedBodySomewhere()) {
-			toReturn.add(calculateNormalFleshBreakpoint(dmgInstance, RoF, IFG, frozen, normalScaling, largeScaling));
+			toReturn.add(calculateNormalFleshBreakpoint(dmgInstance, RoF, normalScaling, largeScaling));
 		}
 		if (hasLightArmor()) {
-			toReturn.add(calculateLightArmorBreakpoint(dmgInstance, RoF, IFG, frozen, normalScaling, largeScaling));
+			toReturn.add(calculateLightArmorBreakpoint(dmgInstance, RoF, normalScaling, largeScaling));
 		}
 		if (hasWeakpoint()) {
-			toReturn.add(calculateWeakpointBreakpoint(dmgInstance, RoF, IFG, frozen, normalScaling, largeScaling));
+			toReturn.add(calculateWeakpointBreakpoint(dmgInstance, RoF, normalScaling, largeScaling));
 		}
 		return toReturn;
 	}
 
 	// TODO: I really think that these three methods can be combined and simplified somehow.
 	// But for just getting it out the door, this will do.
-	private int calculateNormalFleshBreakpoint(DamageInstance dmgInstance, double RoF, boolean IFG, boolean frozen,
-											   double normalScaling, double largeScaling) {
+	private int calculateNormalFleshBreakpoint(DamageInstance dmgInstance, double RoF, double normalScaling, double largeScaling) {
 		int breakpointCounter = 0;
 
 		MaterialFlag breakpointMaterialFlag;
-		if (frozen) {
+		if (currentlyFrozen()) {
 			breakpointMaterialFlag = MaterialFlag.frozen;
 		}
 		else {
@@ -292,11 +321,8 @@ public abstract class Enemy {
 			dmgAlias = dmgInstance.getDamageComponentAtIndex(i);
 
 			totalDamagePerHit += dmgAlias.getTotalComplicatedDamageDealtPerHit(
-					breakpointMaterialFlag,
-					resistances,
-					IFG,
-					1,
-					1
+				this,
+				breakpointMaterialFlag
 			);
 			allStes.addAll(dmgAlias.getStatusEffectsApplied());
 			if (dmgAlias.appliesTemperature(DamageElement.heat)) {
@@ -320,7 +346,7 @@ public abstract class Enemy {
 		}
 
 		// Check for Heat/shot or Heat/sec stuff to see if this needs to add STE_OnFire into the mix.
-		if (!frozen && (atLeastOneDamageComponentDoesHeat || atLeastOneSteAppliesHeat)) {
+		if (!currentlyFrozen() && (atLeastOneDamageComponentDoesHeat || atLeastOneSteAppliesHeat)) {
 			// TODO: should this be extended longer than the normal duration?
 			double burnDuration = (temperatureComp.getEffectiveBurnTemperature() - temperatureComp.getEffectiveDouseTemperature()) / temperatureComp.getCoolingRate();
 			double totalHeatPerSec = totalHeatPerHit * RoF + stesHeatPerSec;
@@ -374,12 +400,11 @@ public abstract class Enemy {
 		return breakpointCounter;
 	}
 
-	private int calculateWeakpointBreakpoint(DamageInstance dmgInstance, double RoF, boolean IFG, boolean frozen,
-											 double normalScaling, double largeScaling) {
+	private int calculateWeakpointBreakpoint(DamageInstance dmgInstance, double RoF, double normalScaling, double largeScaling) {
 		int breakpointCounter = 0;
 
 		MaterialFlag breakpointMaterialFlag, coveringArmorMaterialFlag;
-		if (frozen) {
+		if (currentlyFrozen()) {
 			breakpointMaterialFlag = MaterialFlag.frozen;
 			coveringArmorMaterialFlag = MaterialFlag.frozen;
 		}
@@ -411,18 +436,12 @@ public abstract class Enemy {
 			dmgAlias = dmgInstance.getDamageComponentAtIndex(i);
 
 			totalDamagePerHit += dmgAlias.getTotalComplicatedDamageDealtPerHit(
-					breakpointMaterialFlag,
-					resistances,
-					IFG,
-					getWeakpointMultiplier(),
-					1
+				this,
+				breakpointMaterialFlag
 			);
 			totalDamagePerHitOnHeavyArmor += dmgAlias.getTotalComplicatedDamageDealtPerHit(
-					coveringArmorMaterialFlag,
-					resistances,
-					IFG,
-					1,
-					1
+				this,
+				coveringArmorMaterialFlag
 			);
 
 			totalArmorDamageDealtPerDirectHit += dmgAlias.getTotalArmorDamageOnDirectHit();
@@ -452,7 +471,7 @@ public abstract class Enemy {
 		}
 
 		// Check for Heat/shot or Heat/sec stuff to see if this needs to add STE_OnFire into the mix.
-		if (!frozen && (atLeastOneDamageComponentDoesHeat || atLeastOneSteAppliesHeat)) {
+		if (!currentlyFrozen() && (atLeastOneDamageComponentDoesHeat || atLeastOneSteAppliesHeat)) {
 			// TODO: should this be extended longer than the normal duration?
 			double burnDuration = (temperatureComp.getEffectiveBurnTemperature() - temperatureComp.getEffectiveDouseTemperature()) / temperatureComp.getCoolingRate();
 			double totalHeatPerSec = totalHeatPerHit * RoF + stesHeatPerSec;
@@ -498,7 +517,7 @@ public abstract class Enemy {
 			breakpointCounter++;
 
 			// 1. Subtract the damage dealt on hit
-			if (!frozen && heavyArmorHP > 0){
+			if (!currentlyFrozen() && heavyArmorHP > 0){
 				// heavyArmorHP > 0 will only evaluate to True when this is modeling an ArmorHealth plate covering the Weakpoint
 				// If the ArmorHealth plate covering the Weakpoint has been broken, do full damage.
 				if ((atLeastOneDamageComponentHasABGreaterThan100 && breakpointCounter >= numShotsToBreakArmor) || (!atLeastOneDamageComponentHasABGreaterThan100 && breakpointCounter > numShotsToBreakArmor)) {
@@ -530,12 +549,11 @@ public abstract class Enemy {
 		return breakpointCounter;
 	}
 
-	private int calculateLightArmorBreakpoint(DamageInstance dmgInstance, double RoF, boolean IFG, boolean frozen,
-											  double normalScaling, double largeScaling) {
+	private int calculateLightArmorBreakpoint(DamageInstance dmgInstance, double RoF, double normalScaling, double largeScaling) {
 		int breakpointCounter = 0;
 
 		MaterialFlag preBreakMaterialFlag, postBreakMaterialFlag;
-		if (frozen) {
+		if (currentlyFrozen()) {
 			preBreakMaterialFlag = MaterialFlag.frozen;
 			postBreakMaterialFlag = MaterialFlag.frozen;
 		}
@@ -567,18 +585,12 @@ public abstract class Enemy {
 			dmgAlias = dmgInstance.getDamageComponentAtIndex(i);
 
 			totalDamagePerHitBeforeBreakingArmor += dmgAlias.getTotalComplicatedDamageDealtPerHit(
-					preBreakMaterialFlag,
-					resistances,
-					IFG,
-					1,
-					getArmorStrengthReduction()
+				this,
+				preBreakMaterialFlag
 			);
 			totalDamagePerHitAfterBreakingArmor += dmgAlias.getTotalComplicatedDamageDealtPerHit(
-					postBreakMaterialFlag,
-					resistances,
-					IFG,
-					1,
-					1
+				this,
+				postBreakMaterialFlag
 			);
 
 			totalArmorDamageDealtPerDirectHit += dmgAlias.getTotalArmorDamageOnDirectHit();
@@ -608,7 +620,7 @@ public abstract class Enemy {
 		}
 
 		// Check for Heat/shot or Heat/sec stuff to see if this needs to add STE_OnFire into the mix.
-		if (!frozen && (atLeastOneDamageComponentDoesHeat || atLeastOneSteAppliesHeat)) {
+		if (!currentlyFrozen() && (atLeastOneDamageComponentDoesHeat || atLeastOneSteAppliesHeat)) {
 			// TODO: should this be extended longer than the normal duration?
 			double burnDuration = (temperatureComp.getEffectiveBurnTemperature() - temperatureComp.getEffectiveDouseTemperature()) / temperatureComp.getCoolingRate();
 			double totalHeatPerSec = totalHeatPerHit * RoF + stesHeatPerSec;
@@ -749,11 +761,8 @@ public abstract class Enemy {
 				// Early exit condition: if the current DamageComponent bypasses armor and doesn't damage it (e.g. Boomstick or Coilgun's Blastwave), skip the crazy calculations
 				if (!dmgAlias.getDamageFlag(DamageFlag.canDamageArmor) && !dmgAlias.getDamageFlag(DamageFlag.reducedByArmor)) {
 					damageThatBypassesArmor = dmgAlias.getTotalComplicatedDamageDealtPerHit(
-						MaterialFlag.heavyArmor,
-						getElementalResistances(),
-						false,
-						0,
-						1
+						this,
+						MaterialFlag.heavyArmor
 					);
 
 					totalDamageSpent += damageThatBypassesArmor;
@@ -766,18 +775,12 @@ public abstract class Enemy {
 				potentialMaxDamage = dmgAlias.getResistedDamage(getElementalResistances());  // this is equivalent to "complicated(normalFlesh) - Radial"
 				damageThatBypassesArmor = dmgAlias.getResistedRadialDamage(getElementalResistances());  // alias of Radial Damage, temporarily
 				potentialWeakpointDamage = dmgAlias.getTotalComplicatedDamageDealtPerHit(
-					MaterialFlag.weakpoint,
-					getElementalResistances(),
-					false,
-					getWeakpointMultiplier(),
-					1
+					this,
+					MaterialFlag.weakpoint
 				) - damageThatBypassesArmor;  // By subtracting Radial Damage, this evaluates down to just the Weakpoint Damage (if applicable)
 				damageThatBypassesArmor = dmgAlias.getTotalComplicatedDamageDealtPerHit(
-					MaterialFlag.heavyArmor,
-					getElementalResistances(),
-					false,
-					0,
-					1
+					this,
+					MaterialFlag.heavyArmor
 				);  // theoretically this should be identical to Radial Damage, but being verbose just to be safe.
 				damageDealtToArmor = dmgAlias.getArmorDamageOnDirectHit() * proportionOfDamageThatHitsArmor + dmgAlias.getRadialArmorDamageOnDirectHit();
 				damageAffectedByArmor = potentialMaxDamage * proportionOfDamageThatHitsArmor;
@@ -869,21 +872,15 @@ public abstract class Enemy {
 		}
 
 		double totalDamagePerShot = dmgInstance.getNumPellets() * dmgInstance.getDamagePerPellet().getTotalComplicatedDamageDealtPerHit(
-			MaterialFlag.normalFlesh,
-			getElementalResistances(),
-			false,
-			0,
-			1
+			this,
+			MaterialFlag.normalFlesh
 		);
 
 		if (dmgInstance.otherDamageIsDefined()) {
 			for (int j = dmgInstance.getNumPellets(); j < dmgInstance.getTotalNumberOfDamageComponents(); j++) {
 				totalDamagePerShot += dmgInstance.getDamageComponentAtIndex(j).getTotalComplicatedDamageDealtPerHit(
-					MaterialFlag.normalFlesh,
-					getElementalResistances(),
-					false,
-					0,
-					1
+					this,
+					MaterialFlag.normalFlesh
 				);
 			}
 		}

@@ -354,12 +354,12 @@ public class GrenadeLauncher extends Weapon {
 	****************************************************************************************/
 
 	@Override
-	public boolean currentlyDealsSplashDamage() {
+	public boolean currentlyDealsRadialDamage() {
 		return true;
 	}
 	
 	@Override
-	protected void recalculateAoEEfficiency() {
+	protected void recalculateRadialEfficiency() {
 		// PGL has a full damage radius of 2m, and 50% damage at full radius
 		aoeEfficiency = calculateAverageAreaDamage(getAoERadius(), 2.0, 0.5);
 	}

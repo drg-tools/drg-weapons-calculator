@@ -339,7 +339,7 @@ public class SMG extends Weapon {
 	}
 
 	@Override
-	public boolean currentlyDealsSplashDamage() {
+	public boolean currentlyDealsRadialDamage() {
 		// T5.B Electric Arc has a 2.75m radius AoE that can electrocute nearby enemies
 		return selectedTier5 == 1;
 	}

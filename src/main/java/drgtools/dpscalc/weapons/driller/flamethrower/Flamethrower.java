@@ -344,12 +344,12 @@ public class Flamethrower extends Weapon {
 	****************************************************************************************/
 	
 	@Override
-	public boolean currentlyDealsSplashDamage() {
+	public boolean currentlyDealsRadialDamage() {
 		return selectedTier5 == 1;
 	}
 	
 	@Override
-	protected void recalculateAoEEfficiency() {
+	protected void recalculateRadialEfficiency() {
 		// T5.B "Targets Explode" does 55 Fire Damage and Heat in a 3m radius, max damage radius 0.5m, and falls off to 25% minimum damage at 3m.
 		if (selectedTier5 == 1) {
 			aoeEfficiency = calculateAverageAreaDamage(3.0, 0.5, 0.25);

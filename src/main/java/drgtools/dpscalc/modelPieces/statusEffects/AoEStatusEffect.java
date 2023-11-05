@@ -11,7 +11,7 @@ public abstract class AoEStatusEffect extends StatusEffect {
     private double effectiveDuration;
     private double maxDuration;
 
-    public AoEStatusEffect(double areaEffectDistanceMeters, DamageElement dmgElement, double minDmg, double maxDmg,
+    protected AoEStatusEffect(double areaEffectDistanceMeters, DamageElement dmgElement, double minDmg, double maxDmg,
                            double minInterval, double maxInterval, double slowMultiplier, double dur, double maxDur) {
         super(dmgElement, minDmg, maxDmg, minInterval, maxInterval, slowMultiplier, dur);
         distanceAffected = areaEffectDistanceMeters;
@@ -20,7 +20,15 @@ public abstract class AoEStatusEffect extends StatusEffect {
         // comparedDuration = effectiveDuration;
     }
 
-    public AoEStatusEffect(double areaEffectDistanceMeters, DamageElement dmgElement, double minDmg, double maxDmg,
+    protected AoEStatusEffect(double areaEffectDistanceMeters, double slowMultiplier, double dur, double maxDur) {
+        super(slowMultiplier, dur);
+        distanceAffected = areaEffectDistanceMeters;
+        maxDuration = maxDur;
+        calculateEffectiveDuration(slowMultiplier);
+        // comparedDuration = effectiveDuration;
+    }
+
+    protected AoEStatusEffect(double areaEffectDistanceMeters, DamageElement dmgElement, double minDmg, double maxDmg,
                            DamageElement tmpElement, double minTemp, double maxTemp,
                            double minInterval, double maxInterval, double slowMultiplier, double dur, double maxDur) {
         super(dmgElement, minDmg, maxDmg, tmpElement, minTemp, maxTemp, minInterval, maxInterval, slowMultiplier, dur);

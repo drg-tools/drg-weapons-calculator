@@ -24,6 +24,7 @@ public class DamageElements {
 			Disintegrate
 			Internal
 	*/
+	// TODO: do I need to add Typeless, for Subata T5.C NCTC explosion?
 	public enum DamageElement {melee, kinetic, piercing, fireAndHeat, fire, heat, frostAndCold, frost, cold, explosive, electric, poison, radiation, corrosive, disintegrate, internal}
 	public static int numElements = DamageElement.values().length;
 	

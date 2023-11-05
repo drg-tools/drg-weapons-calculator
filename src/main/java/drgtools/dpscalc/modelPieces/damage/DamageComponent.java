@@ -1,5 +1,6 @@
 package drgtools.dpscalc.modelPieces.damage;
 
+import drgtools.dpscalc.enemies.Enemy;
 import drgtools.dpscalc.modelPieces.UtilityInformation;
 import drgtools.dpscalc.modelPieces.damage.DamageElements.DamageElement;
 import drgtools.dpscalc.modelPieces.damage.DamageFlags.DamageFlag;
@@ -48,6 +49,7 @@ public class DamageComponent {
 	protected double friendlyFire = 1.0;
 
 	protected ArrayList<PushSTEComponent> statusEffectsApplied;
+	protected ArrayList<ConditionalDamageConversion> conditionalDamageConversions;
 
 	// Shortcut constructor for what is referred to as "Direct Damage"
 	public DamageComponent(double dmg, DamageElement dmgElement, double ab, double ff, DamageConversion[] baselineConversions) {
@@ -113,6 +115,7 @@ public class DamageComponent {
 		}
 
 		statusEffectsApplied = new ArrayList<>();
+		conditionalDamageConversions = new ArrayList<>();
 	}
 	
 	public void setDamage(double in) {
@@ -276,6 +279,10 @@ public class DamageComponent {
 		return statusEffectsApplied;
 	}
 
+	public void addConditionalDamageConversion(ConditionalDamageConversion cdc) {
+		conditionalDamageConversions.add(cdc);
+	}
+
 	private double calculateFalloffAtDistance(double r) {
 		if (radialDamage > 0) {
 			// Early exit conditions
@@ -371,8 +378,7 @@ public class DamageComponent {
 		}
 	}
 
-	public double getTotalComplicatedDamageDealtPerHit(MaterialFlag targetMaterial, ElementalResistancesMap creatureResistances,
-													   boolean IFG, double weakpointMultiplier, double lightArmorReduction) {
+	public double getTotalComplicatedDamageDealtPerHit(Enemy target, MaterialFlag targetMaterial) {
 		/*
 			To the best of my current understanding, this is the order of operations when evaluating how much health gets removed from an enemy when they get damaged by a player's weapon:
 			1. The base damage is fetched and has its element set.
@@ -388,13 +394,35 @@ public class DamageComponent {
 			11. Damage gets multiplied by PST_DamageResistance (seen on Elite enemies, mostly, but also the new Rockpox)
 			12. that final number gets added to the creature's Damage tally. (equivalent to subtracting from their True HP value). once the Damage >= True HP, the creature dies.
 		*/
-		double dmg = getResistedDamage(creatureResistances);
-		double rdlDmg = getResistedRadialDamage(creatureResistances);
+
+		EnumMap<DamageElement, Double> damageElementsCopy = null, radialDamageElementsCopy = null;
+		if (conditionalDamageConversions.size() > 0) {
+			// Make a deep copy of the current damageElements maps, in case they get changed by the ConditionalDamageConversions
+			damageElementsCopy = new EnumMap<>(DamageElement.class);
+			for (DamageElement el: damageElements.keySet()) {
+				damageElementsCopy.put(el, damageElements.get(el));
+			}
+
+			radialDamageElementsCopy = new EnumMap<>(DamageElement.class);
+			for (DamageElement el: radialDamageElements.keySet()) {
+				radialDamageElementsCopy.put(el, radialDamageElements.get(el));
+			}
+
+			// Check if the ConditionalDamageConversions can be applied
+			for (ConditionalDamageConversion cdc: conditionalDamageConversions) {
+				if (cdc.shouldApplyConversion(target)) {
+					applyDamageConversion(cdc.getDamageConversion());
+				}
+			}
+		}
+
+		double dmg = getResistedDamage(target.getElementalResistances());
+		double rdlDmg = getResistedRadialDamage(target.getElementalResistances());
 
 		switch (targetMaterial) {
 			case weakpoint: {
 				if (benefitsFromWeakpoint) {
-					dmg *= (1.0 + weakpointBonus) * weakpointMultiplier;
+					dmg *= (1.0 + weakpointBonus) * target.getWeakpointMultiplier();
 				}
 				break;
 			}
@@ -407,7 +435,7 @@ public class DamageComponent {
 			}
 			case lightArmor: {
 				if (reducedByArmor) {
-					dmg *= lightArmorReduction;
+					dmg *= target.getArmorStrengthReduction();
 				}
 			}
 			case heavyArmor: {
@@ -422,8 +450,19 @@ public class DamageComponent {
 		}
 
 		double totalDamage = dmg + rdlDmg;
-		if (IFG) {
+		if (target.currentlyAffectedByIFG()) {
 			totalDamage *= UtilityInformation.IFG_Damage_Multiplier;
+		}
+
+		/*
+			If any ConditionalDamageConversions were evaluated, it would break the baseline damageElement maps.
+			Revert the changes by updating the class variable to point to the deep copies made at the start of this method.
+			This is done to make calling this method safe to do over and over, without having to rebuild the whole DamageComponent
+			from scratch each time.
+		*/
+		if (conditionalDamageConversions.size() > 0) {
+			damageElements = damageElementsCopy;
+			radialDamageElements = radialDamageElementsCopy;
 		}
 
 		// So, this number is the total amount of health that this DamageComponent will attempt to subtract from the Creature's health.
