@@ -11,7 +11,7 @@ import drgtools.dpscalc.modelPieces.statusEffects.PushSTEComponent;
 import drgtools.dpscalc.modelPieces.statusEffects.StatusEffect;
 import drgtools.dpscalc.modelPieces.temperature.CreatureTemperatureComponent;
 import drgtools.dpscalc.utilities.MathUtils;
-import drgtools.dpscalc.weapons.STE_OnFire;
+import drgtools.dpscalc.modelPieces.statusEffects.commonSTEs.STE_OnFire;
 
 import java.util.ArrayList;
 import java.util.HashSet;

@@ -1,4 +1,4 @@
-package drgtools.dpscalc.weapons;
+package drgtools.dpscalc.modelPieces.statusEffects.commonSTEs;
 
 import drgtools.dpscalc.modelPieces.statusEffects.AoEStatusEffect;
 

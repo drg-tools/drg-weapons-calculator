@@ -21,7 +21,7 @@ import drgtools.dpscalc.modelPieces.damage.DamageInstance;
 import drgtools.dpscalc.modelPieces.statusEffects.PushSTEComponent;
 import drgtools.dpscalc.modelPieces.statusEffects.StatusEffect;
 import drgtools.dpscalc.utilities.MathUtils;
-import drgtools.dpscalc.weapons.STE_OnFire;
+import drgtools.dpscalc.modelPieces.statusEffects.commonSTEs.STE_OnFire;
 import drgtools.dpscalc.weapons.Weapon;
 
 public class WPN_Subata extends Weapon {
