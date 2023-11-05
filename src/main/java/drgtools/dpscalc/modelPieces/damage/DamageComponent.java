@@ -132,6 +132,7 @@ public class DamageComponent {
 		ricochetMaterialFlag = condition;
 		ricochetMaxRange = distance;
 	}
+	// TODO: these two methods might be able to be deleted?
 	public void setRadialDamage(double in) {
 		radialDamage = in;
 	}
@@ -578,6 +579,10 @@ public class DamageComponent {
 			toReturn += indent.repeat(indentLevel+1) + "Can damage Armor: " + canDamageArmor + "\n";
 			toReturn += indent.repeat(indentLevel+1) + "Embedded Detonator: " + embeddedDetonator + "\n";
 
+			if (weakpointBonus > 0) {
+				toReturn += indent.repeat(indentLevel) + "With a +" + weakpointBonus * 100.0 + "% Weakpoint Bonus\n";
+			}
+
 			// If any DamageConversions have been applied, this will evaluate as true.
 			if (damageElements.keySet().size() > 1) {
 				toReturn += indent.repeat(indentLevel) + "After applying all DamageConversions:\n";
@@ -585,6 +590,10 @@ public class DamageComponent {
 					toReturn += indent.repeat(indentLevel+1) + damage * damageElements.get(el) + " " + DamageElements.prettyPrint(el) + " Damage\n";
 				}
 			}
+		}
+
+		if (flatDamage > 0 && flatDamageElement != null) {
+			toReturn += indent.repeat(indentLevel) + "Does " + flatDamage + " " + DamageElements.prettyPrint(flatDamageElement) + " FlatBonusDamage";
 		}
 
 		if (radialDamage > 0) {
@@ -601,6 +610,9 @@ public class DamageComponent {
 				}
 			}
 		}
+
+		toReturn += indent.repeat(indentLevel) + "Has " + friendlyFire * 100.0 + "% Friendly Fire modifier\n";
+		toReturn += indent.repeat(indentLevel) + "Has " + armorBreaking * 100.0 + "% Armor Breaking\n";
 
 		if (stunChance > 0) {
 			if (stunOnWeakpointOnly) {
@@ -620,6 +632,22 @@ public class DamageComponent {
 			for (PushSTEComponent pstec: statusEffectsApplied) {
 				pstec.prettyPrint(indentLevel + 1);
 			}
+		}
+
+		if (conditionalDamageConversions.size() > 0) {
+			toReturn += indent.repeat(indentLevel) + "Has these ConditionalDamageConversions:\n";
+			for (ConditionalDamageConversion cdc: conditionalDamageConversions) {
+				cdc.prettyPrint(indentLevel + 1);
+			}
+		}
+
+		if (numBlowthroughs > 0) {
+			toReturn += indent.repeat(indentLevel) + "Can blowthrough this many enemies: " + numBlowthroughs + "\n";
+		}
+
+		if (ricochetChance > 0 && ricochetMaterialFlag != null) {
+			toReturn += indent.repeat(indentLevel) + "Has a " + ricochetChance * 100.0 + "% chance to Ricochet off of " +
+					DamageFlags.prettyPrint(ricochetMaterialFlag) + " into an enemy less than " + ricochetMaxRange + "m away\n";
 		}
 
 		return toReturn;

@@ -7,4 +7,24 @@ public class DamageFlags {
     public enum DamageFlag{benefitsFromWeakpoint, benefitsFromFrozen, reducedByArmor, canDamageArmor, embeddedDetonator}
     public enum MaterialFlag{normalFlesh, weakpoint, lightArmor, heavyArmor, frozen}
     public enum RicochetFlag{everything, notCreatures, onlyCreatures, onlyCreatureWeakpoints}
+
+    public static String prettyPrint(RicochetFlag in) {
+        switch (in) {
+            case everything: {
+                return "All Materials";
+            }
+            case notCreatures: {
+                return "Non-Creature Materials";
+            }
+            case onlyCreatures: {
+                return "Only Creature Materials";
+            }
+            case onlyCreatureWeakpoints: {
+                return "Only Creature Weakpoint Materials";
+            }
+            default: {
+                return "ERROR";
+            }
+        }
+    }
 }

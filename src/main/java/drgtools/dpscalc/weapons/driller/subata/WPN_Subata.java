@@ -547,7 +547,7 @@ public class WPN_Subata extends Weapon {
 	// Single-target calculations
 	@Override
 	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
-		double generalAccuracy, duration, directWeakpointDamage;
+		double generalAccuracy, weakpointAccuracy, duration, explosiveReloadDamage, directWeakpointDamage;
 		
 		if (accuracy) {
 			generalAccuracy = getGeneralAccuracy() / 100.0;
@@ -564,7 +564,6 @@ public class WPN_Subata extends Weapon {
 		}
 		
 		double directDamage = damagePerHitscan.getTotalComplicatedDamageDealtPerHit(targetDummy, MaterialFlag.normalFlesh);
-		double explosiveReloadDamage;
 		if (selectedOverclock == 4) {
 			explosiveReloadDamage = explosiveReload.getTotalComplicatedDamageDealtPerHit(targetDummy, MaterialFlag.normalFlesh);
 		}
@@ -577,8 +576,7 @@ public class WPN_Subata extends Weapon {
 			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
 			directDamage *= armorWaste;
 		}
-		
-		double weakpointAccuracy;
+
 		if (weakpoint && !targetDummy.currentlyFrozen()) {
 			weakpointAccuracy = getWeakpointAccuracy() / 100.0;
 			directWeakpointDamage = damagePerHitscan.getTotalComplicatedDamageDealtPerHit(targetDummy, MaterialFlag.weakpoint);

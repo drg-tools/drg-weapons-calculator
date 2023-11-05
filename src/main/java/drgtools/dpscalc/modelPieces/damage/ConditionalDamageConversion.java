@@ -29,4 +29,22 @@ public class ConditionalDamageConversion {
     public DamageConversion getDamageConversion() {
         return dcToApply;
     }
+
+    public String prettyPrint() {
+        return prettyPrint(0);
+    }
+    public String prettyPrint(int indentLevel) {
+        String indent = "    ";
+        String toReturn = "";
+
+        toReturn += indent.repeat(indentLevel) + "If any of these Status Effects are present on the Enemy:\n";
+        for (String steName : statusEffectNamesThatTrigger) {
+            toReturn += indent.repeat(indentLevel + 1) + steName + "\n";
+        }
+
+        toReturn += indent.repeat(indentLevel) + "Then this DamageConversion will be temporarily applied:\n";
+        toReturn += dcToApply.prettyPrint(indentLevel + 1);
+
+        return toReturn;
+    }
 }
