@@ -90,7 +90,6 @@ public abstract class Weapon extends Observable {
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}	
 	};
 
-	// TODO: replace this with TargetDummy and the new STEs
 	protected Enemy targetDummy = new TargetDummy();
 	// Burning, Frozen, Electrocuted, IFG Grenade
 	protected boolean[] statusEffects = {false, false, false, false};
@@ -865,6 +864,7 @@ public abstract class Weapon extends Observable {
 		customRoF = 0;
 
 		// For Subata's 2RB Armor Breaking to be estimated, I have to calculate the General Accuracy before setting the DamageComponents
+		// Accuracy needs to be before damage for the Ricochet hitscans, too.
 		rebuildAccuracyEstimator();
 		rebuildDamageComponents();
 
@@ -1630,6 +1630,7 @@ public abstract class Weapon extends Observable {
 	public double ammoEfficiency() {
 		return calculateMaxMultiTargetDamage() / averageDamageToKillEnemy();
 	}
+	// TODO: I'm starting to get annoyed by putting "/ 100.0" everywhere that Accuracy gets used. Maybe refactor it to do [0,1] and only multiply by 100 for the GUI?
 	public abstract double estimatedAccuracy(boolean weakpointAccuracy); // -1 means manual or N/A; [0.0, 100.0] otherwise
 	public abstract int breakpoints();
 	

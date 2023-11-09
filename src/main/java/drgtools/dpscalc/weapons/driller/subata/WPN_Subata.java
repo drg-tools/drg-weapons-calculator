@@ -474,7 +474,7 @@ public class WPN_Subata extends Weapon {
 			// If both bullets hit, the 2nd one does +350% AB. To model that, I'm going to multiply the +3.5 bonus by General Accuracy^2
 			// The logic is that the probability to hit both shots is equal to the probability to hit each shot, twice.
 			// This requires that the AccuracyEstimator needs to be rebuilt BEFORE DamageComponents!
-			double enhancedAB = (2*armorBreaking + 3.5 * Math.pow(estimatedAccuracy(false),2)) / 2.0;
+			double enhancedAB = (2*armorBreaking + 3.5 * Math.pow(getGeneralAccuracy()/100.0,2)) / 2.0;
 			damagePerHitscan.setArmorBreaking(enhancedAB);
 
 			avgRoF = calculateAverageBurstRoF(avgRoF, getBurstSize(), getBurstInterval());
@@ -503,7 +503,7 @@ public class WPN_Subata extends Weapon {
 
 		// Chain Hit
 		if (selectedOverclock == 0) {
-			damagePerHitscan.setRicochet(0.75, RicochetFlag.onlyCreatureWeakpoints, 10);
+			damagePerHitscan.setRicochet(getWeakpointAccuracy() / 100.0, 0.75, RicochetFlag.onlyCreatureWeakpoints, 10);
 		}
 		// Tranquilizer Rounds
 		else if (selectedOverclock == 5) {
@@ -547,28 +547,29 @@ public class WPN_Subata extends Weapon {
 	// Single-target calculations
 	@Override
 	public double calculateSingleTargetDPS(boolean burst, boolean weakpoint, boolean accuracy, boolean armorWasting) {
-		double generalAccuracy, weakpointAccuracy, duration, explosiveReloadDamage, directWeakpointDamage;
-		
+		double generalAccuracy = 1.0;
+		double weakpointAccuracy = 0.0;
+
+		double directDamage = damagePerHitscan.calculateComplicatedDamageDealtPerHit(targetDummy, MaterialFlag.normalFlesh);
+		double directWeakpointDamage = directDamage;
+		double explosiveReloadDamage = 0;
+
+		double duration;
+		double magSize = getMagazineSize();
+
 		if (accuracy) {
 			generalAccuracy = getGeneralAccuracy() / 100.0;
 		}
-		else {
-			generalAccuracy = 1.0;
-		}
-		
+
 		if (burst) {
-			duration = ((double) getMagazineSize()) / getCustomRoF();
+			duration = magSize / getCustomRoF();
 		}
 		else {
-			duration = (((double) getMagazineSize()) / getCustomRoF()) + getReloadTime();
+			duration = (magSize / getCustomRoF()) + getReloadTime();
 		}
-		
-		double directDamage = damagePerHitscan.getTotalComplicatedDamageDealtPerHit(targetDummy, MaterialFlag.normalFlesh);
+
 		if (selectedOverclock == 4) {
-			explosiveReloadDamage = explosiveReload.getTotalComplicatedDamageDealtPerHit(targetDummy, MaterialFlag.normalFlesh);
-		}
-		else {
-			explosiveReloadDamage = 0;
+			explosiveReloadDamage = explosiveReload.calculateComplicatedDamageDealtPerHit(targetDummy, MaterialFlag.normalFlesh);
 		}
 		
 		// Damage wasted by Armor
@@ -579,36 +580,31 @@ public class WPN_Subata extends Weapon {
 
 		if (weakpoint && !targetDummy.currentlyFrozen()) {
 			weakpointAccuracy = getWeakpointAccuracy() / 100.0;
-			directWeakpointDamage = damagePerHitscan.getTotalComplicatedDamageDealtPerHit(targetDummy, MaterialFlag.weakpoint);
+			directWeakpointDamage = damagePerHitscan.calculateComplicatedDamageDealtPerHit(targetDummy, MaterialFlag.weakpoint);
 		}
-		else {
-			weakpointAccuracy = 0.0;
-			directWeakpointDamage = directDamage;
-		}
-		
-		int magSize = getMagazineSize();
-		int bulletsThatHitWeakpoint = (int) Math.round(magSize * weakpointAccuracy);
-		int bulletsThatHitTarget = (int) Math.round(magSize * generalAccuracy) - bulletsThatHitWeakpoint;
-		
-		return (bulletsThatHitWeakpoint * directWeakpointDamage + bulletsThatHitTarget * directDamage + (bulletsThatHitWeakpoint + bulletsThatHitTarget) * explosiveReloadDamage) / duration;
+
+		return (
+			weakpointAccuracy * directWeakpointDamage +
+			(generalAccuracy - weakpointAccuracy) * directDamage +
+			generalAccuracy * explosiveReloadDamage
+		) * magSize / duration;
 	}
 
 	// Multi-target calculations
 	@Override
 	public double calculateAdditionalTargetDPS() {
-		// If "Chain Hit" is equipped, 75% of bullets that hit a weakpoint will ricochet to nearby enemies.
-		if (selectedOverclock == 0) {
-			// Making the assumption that the ricochet won't hit another weakpoint, and will just do normal damage.
-			double ricochetProbability = 0.75 * getWeakpointAccuracy() / 100.0;
-			double numBulletsRicochetPerMagazine = Math.round(ricochetProbability * getMagazineSize());
-			
-			double timeToFireMagazineAndReload = (((double) getMagazineSize()) / getCustomRoF()) + getReloadTime();
-			
-			return numBulletsRicochetPerMagazine * getDirectDamage() / timeToFireMagazineAndReload;
+		double directDamage = damagePerHitscan.calculateComplicatedDamageDealtPerHit(targetDummy, MaterialFlag.normalFlesh);
+		double secondaryTargetMultiplier = damagePerHitscan.calculateAverageSecondaryTargetDamageMultiplier();
+
+		// Special case: T5.B Blowthrough Rounds + Explosive Reload
+		double explosiveReloadDamage = 0;
+		if (selectedTier5 == 1 && selectedOverclock == 4) {
+			explosiveReloadDamage = explosiveReload.calculateComplicatedDamageDealtPerHit(targetDummy, MaterialFlag.normalFlesh);
 		}
-		else {
-			return 0.0;
-		}
+
+		double magSize = getMagazineSize();
+		double timeToFireMagazineAndReload = (magSize / getCustomRoF()) + getReloadTime();
+		return secondaryTargetMultiplier * (directDamage + explosiveReloadDamage) * magSize / timeToFireMagazineAndReload;
 	}
 
 	@Override
@@ -628,13 +624,8 @@ public class WPN_Subata extends Weapon {
 
 	@Override
 	public int calculateMaxNumTargets() {
-		if (selectedOverclock == 0) {
-			// OC "Chain Hit"
-			return 2;
-		}
-		else {
-			return 1;
-		}
+		// Explosive Reload cannot hit any targets not already hit by damagePerHitscan, because damagePerHitscan is what applies ER.
+		return damagePerHitscan.calculateTheoreticalMaxNumberOfEnemiesHitSimultaneously();
 	}
 
 	@Override

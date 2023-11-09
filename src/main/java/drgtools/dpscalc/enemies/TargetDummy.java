@@ -15,7 +15,7 @@ public class TargetDummy extends Enemy {
 
         hasWeakpoint = true;
         weakpointMultiplier = EnemyInformation.averageWeakpointDamageIncrease();
-        estimatedProbabilityBulletHitsWeakpoint = 1.0;
+        estimatedProbabilityBulletHitsWeakpoint = EnemyInformation.probabilityBulletWillHitWeakpoint();
 
         // Copy of Glyphid Grunt's temperatures
         // TODO: change this to use EnemyInformation and get the average values of all modeled enemies

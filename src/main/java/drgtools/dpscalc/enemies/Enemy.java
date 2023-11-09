@@ -322,7 +322,7 @@ public abstract class Enemy {
 		for (int i = 0; i < dmgInstance.getTotalNumberOfDamageComponents(); i++) {
 			dmgAlias = dmgInstance.getDamageComponentAtIndex(i);
 
-			totalDamagePerHit += dmgAlias.getTotalComplicatedDamageDealtPerHit(
+			totalDamagePerHit += dmgAlias.calculateComplicatedDamageDealtPerHit(
 				this,
 				breakpointMaterialFlag
 			);
@@ -437,11 +437,11 @@ public abstract class Enemy {
 		for (int i = 0; i < dmgInstance.getTotalNumberOfDamageComponents(); i++) {
 			dmgAlias = dmgInstance.getDamageComponentAtIndex(i);
 
-			totalDamagePerHit += dmgAlias.getTotalComplicatedDamageDealtPerHit(
+			totalDamagePerHit += dmgAlias.calculateComplicatedDamageDealtPerHit(
 				this,
 				breakpointMaterialFlag
 			);
-			totalDamagePerHitOnHeavyArmor += dmgAlias.getTotalComplicatedDamageDealtPerHit(
+			totalDamagePerHitOnHeavyArmor += dmgAlias.calculateComplicatedDamageDealtPerHit(
 				this,
 				coveringArmorMaterialFlag
 			);
@@ -586,11 +586,11 @@ public abstract class Enemy {
 		for (int i = 0; i < dmgInstance.getTotalNumberOfDamageComponents(); i++) {
 			dmgAlias = dmgInstance.getDamageComponentAtIndex(i);
 
-			totalDamagePerHitBeforeBreakingArmor += dmgAlias.getTotalComplicatedDamageDealtPerHit(
+			totalDamagePerHitBeforeBreakingArmor += dmgAlias.calculateComplicatedDamageDealtPerHit(
 				this,
 				preBreakMaterialFlag
 			);
-			totalDamagePerHitAfterBreakingArmor += dmgAlias.getTotalComplicatedDamageDealtPerHit(
+			totalDamagePerHitAfterBreakingArmor += dmgAlias.calculateComplicatedDamageDealtPerHit(
 				this,
 				postBreakMaterialFlag
 			);
@@ -762,7 +762,7 @@ public abstract class Enemy {
 
 				// Early exit condition: if the current DamageComponent bypasses armor and doesn't damage it (e.g. Boomstick or Coilgun's Blastwave), skip the crazy calculations
 				if (!dmgAlias.getDamageFlag(DamageFlag.canDamageArmor) && !dmgAlias.getDamageFlag(DamageFlag.reducedByArmor)) {
-					damageThatBypassesArmor = dmgAlias.getTotalComplicatedDamageDealtPerHit(
+					damageThatBypassesArmor = dmgAlias.calculateComplicatedDamageDealtPerHit(
 						this,
 						MaterialFlag.heavyArmor
 					);
@@ -776,11 +776,11 @@ public abstract class Enemy {
 				// 2. Calculate its damage variants
 				potentialMaxDamage = dmgAlias.getResistedDamage(getElementalResistances());  // this is equivalent to "complicated(normalFlesh) - Radial"
 				damageThatBypassesArmor = dmgAlias.getResistedRadialDamage(getElementalResistances());  // alias of Radial Damage, temporarily
-				potentialWeakpointDamage = dmgAlias.getTotalComplicatedDamageDealtPerHit(
+				potentialWeakpointDamage = dmgAlias.calculateComplicatedDamageDealtPerHit(
 					this,
 					MaterialFlag.weakpoint
 				) - damageThatBypassesArmor;  // By subtracting Radial Damage, this evaluates down to just the Weakpoint Damage (if applicable)
-				damageThatBypassesArmor = dmgAlias.getTotalComplicatedDamageDealtPerHit(
+				damageThatBypassesArmor = dmgAlias.calculateComplicatedDamageDealtPerHit(
 					this,
 					MaterialFlag.heavyArmor
 				);  // theoretically this should be identical to Radial Damage, but being verbose just to be safe.
@@ -873,14 +873,14 @@ public abstract class Enemy {
 			creatureHP = getBaseHealth() * largeScaling;
 		}
 
-		double totalDamagePerShot = dmgInstance.getNumPellets() * dmgInstance.getDamagePerPellet().getTotalComplicatedDamageDealtPerHit(
+		double totalDamagePerShot = dmgInstance.getNumPellets() * dmgInstance.getDamagePerPellet().calculateComplicatedDamageDealtPerHit(
 			this,
 			MaterialFlag.normalFlesh
 		);
 
 		if (dmgInstance.otherDamageIsDefined()) {
 			for (int j = dmgInstance.getNumPellets(); j < dmgInstance.getTotalNumberOfDamageComponents(); j++) {
-				totalDamagePerShot += dmgInstance.getDamageComponentAtIndex(j).getTotalComplicatedDamageDealtPerHit(
+				totalDamagePerShot += dmgInstance.getDamageComponentAtIndex(j).calculateComplicatedDamageDealtPerHit(
 					this,
 					MaterialFlag.normalFlesh
 				);

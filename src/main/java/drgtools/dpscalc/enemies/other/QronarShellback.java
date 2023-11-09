@@ -60,14 +60,14 @@ public class QronarShellback extends Enemy {
 				dmgAlias = dmgInstance.getDamageComponentAtIndex(i);
 
 				// 2. Calculate its damage variants
-				potentialMaxDamage = dmgAlias.getTotalComplicatedDamageDealtPerHit(
+				potentialMaxDamage = dmgAlias.calculateComplicatedDamageDealtPerHit(
 					MaterialFlag.normalFlesh,
 					getElementalResistances(),
 					false,
 					0,
 					1
 				);
-				damageThatBypassesArmor = dmgAlias.getTotalComplicatedDamageDealtPerHit(
+				damageThatBypassesArmor = dmgAlias.calculateComplicatedDamageDealtPerHit(
 					MaterialFlag.heavyArmor,
 					getElementalResistances(),
 					false,

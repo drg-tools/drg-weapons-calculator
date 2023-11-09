@@ -31,6 +31,7 @@ public class DamageComponent {
 
 	protected int numBlowthroughs = 0;
 	protected RicochetFlag ricochetMaterialFlag;
+	protected double probabilityToHitRicochetMaterial = 0;
 	protected double ricochetChance = 0;  // [0, 1]
 	protected double ricochetMaxRange = 0;
 	
@@ -127,8 +128,9 @@ public class DamageComponent {
 	public void setNumBlowthroughs(int in) {
 		numBlowthroughs = in;
 	}
-	public void setRicochet(double chance, RicochetFlag condition, double distance) {
+	public void setRicochet(double probability, double chance, RicochetFlag condition, double distance) {
 		ricochetChance = chance;
+		probabilityToHitRicochetMaterial = probability;
 		ricochetMaterialFlag = condition;
 		ricochetMaxRange = distance;
 	}
@@ -379,7 +381,7 @@ public class DamageComponent {
 		}
 	}
 
-	public double getTotalComplicatedDamageDealtPerHit(Enemy target, MaterialFlag targetMaterial) {
+	public double calculateComplicatedDamageDealtPerHit(Enemy target, MaterialFlag targetMaterial) {
 		/*
 			To the best of my current understanding, this is the order of operations when evaluating how much health gets removed from an enemy when they get damaged by a player's weapon:
 			1. The base damage is fetched and has its element set.
@@ -563,6 +565,107 @@ public class DamageComponent {
 		}
 	}
 
+	public int calculateTheoreticalMaxNumberOfEnemiesHitSimultaneously() {
+		boolean hasRadialDamage = radialDamage > 0 && baseRadialDamageElement != null;
+		boolean hasBlowthrough = numBlowthroughs > 0;
+		boolean hasRicochet = ricochetChance > 0 && ricochetMaterialFlag != null;
+
+		// At the time of writing, Drak 25 T4.B + Impact Deflection is the only combination of RadialDamage && (Blowthrough || Ricochet)
+		// Conveniently, GSG nerfed the number of bounces from 2 to 1, so now I can model it as if it were the Hitscan Ricochet instead of Projectile Bounce.
+		if (hasRadialDamage && hasRicochet) {
+			// TODO: figure out how to implement this
+			return -1;
+		}
+		// Any direct impact enemy will also be hit by the RadialDamage, so don't double-count it
+		else if (hasRadialDamage) {
+			// TODO: adapt Weapon.calculateNumGlyphidsInRadius() here
+			// Honestly, this could be a great opportunity to change how I calculate the number of enemies that RadialDamage hits; to stop using the tessellated hexagons farmer's stacking/honeycomb method.
+			// TODO: move RadialEfficiency into DamageComponent, too.
+			return -1;
+		}
+		// This case should cover all Hitscan weapons that have no RadialDamage
+		else {
+			int toReturn = 1;
+			if (hasBlowthrough) {
+				toReturn += numBlowthroughs;
+			}
+			if (hasRicochet) {
+				toReturn += 1;
+			}
+			return toReturn;
+		}
+	}
+
+	// Returns [0, 1]. 0 means it cannot hit a Secondary Target simultaneously as the Primary Target, 1 means that it does the same damage to Secondary as to Primary.
+	// For Radial Damage, this is the "average damage dealt" to all of the enemies within the radius.
+	public double calculateAverageSecondaryTargetDamageMultiplier() {
+		boolean hasRadialDamage = radialDamage > 0 && baseRadialDamageElement != null;
+		boolean hasBlowthrough = numBlowthroughs > 0;
+		boolean hasRicochet = ricochetChance > 0 && ricochetMaterialFlag != null;
+
+		// At the time of writing, Drak 25 T4.B + Impact Deflection is the only combination of RadialDamage && (Blowthrough || Ricochet)
+		// Conveniently, GSG nerfed the number of bounces from 2 to 1, so now I can model it as if it were the Hitscan Ricochet instead of Projectile Bounce.
+		if (hasRadialDamage && hasRicochet) {
+			// TODO: figure out how to implement this
+			return -1;
+		}
+		// Any direct impact enemy will also be hit by the RadialDamage, so don't double-count it
+		else if (hasRadialDamage) {
+			// TODO: after implementing RadialEfficiency, return it here
+			return -1;
+		}
+		// This case should cover all Hitscan weapons that have no RadialDamage
+		else {
+			// Blowthroughs are modeled as if they do 100% damage to the enemy behind the Primary Target
+			// I'm choosing to model the Secondary Damage for Blowthrough + Ricochet as 1.0, so it will be covered here.
+			if (hasBlowthrough) {
+				return 1.0;
+			}
+			// Ricochets are modeled as if they do the Probability * Chance damage to Secondary
+			else if (hasRicochet) {
+				return probabilityToHitRicochetMaterial * ricochetChance;
+			}
+			// A hitscan DamageComponent with neither Blowthrough nor Ricochet does no additional damage
+			else {
+				return 0.0;
+			}
+		}
+	}
+
+	public double calculateMaxComplicatedDamageDealtPerHit(Enemy target, MaterialFlag targetMaterial) {
+		boolean hasRadialDamage = radialDamage > 0 && baseRadialDamageElement != null;
+		boolean hasBlowthrough = numBlowthroughs > 0;
+		boolean hasRicochet = ricochetChance > 0 && ricochetMaterialFlag != null;
+
+		// At the time of writing, Drak 25 T4.B + Impact Deflection is the only combination of RadialDamage && (Blowthrough || Ricochet)
+		// Conveniently, GSG nerfed the number of bounces from 2 to 1, so now I can model it as if it were the Hitscan Ricochet instead of Projectile Bounce.
+		if (hasRadialDamage && hasRicochet) {
+			// TODO: figure out how to implement this
+			return -1;
+		}
+		// Any direct impact enemy will also be hit by the RadialDamage, so don't double-count it
+		else if (hasRadialDamage) {
+			// TODO: after implementing RadialEfficiency, return it here
+			return -1;
+		}
+		// This case should cover all Hitscan weapons that have no RadialDamage
+		else {
+			// Blowthroughs are modeled as if they do 100% damage to the enemy behind the Primary Target
+			// I'm choosing to model the Secondary Damage for Blowthrough + Ricochet as 1.0, so it will be covered here.
+			if (hasBlowthrough) {
+				return 1.0;
+			}
+			// Ricochets are modeled as if they do the Probability * Chance damage to Secondary
+			else if (hasRicochet) {
+				return probabilityToHitRicochetMaterial * ricochetChance;
+			}
+			// A hitscan DamageComponent with neither Blowthrough nor Ricochet does no additional damage
+			else {
+				return 0.0;
+			}
+		}
+	}
+
 	public String prettyPrint(){
 		return prettyPrint(0);
 	}
@@ -647,7 +750,8 @@ public class DamageComponent {
 
 		if (ricochetChance > 0 && ricochetMaterialFlag != null) {
 			toReturn += indent.repeat(indentLevel) + "Has a " + ricochetChance * 100.0 + "% chance to Ricochet off of " +
-					DamageFlags.prettyPrint(ricochetMaterialFlag) + " into an enemy less than " + ricochetMaxRange + "m away\n";
+					DamageFlags.prettyPrint(ricochetMaterialFlag) + " into an enemy less than " + ricochetMaxRange + "m away, " +
+					"with a " + probabilityToHitRicochetMaterial + " probability to hit that material.\n";
 		}
 
 		return toReturn;

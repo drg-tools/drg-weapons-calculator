@@ -60,14 +60,14 @@ public class Brundle extends Enemy {
 				dmgAlias = dmgInstance.getDamageComponentAtIndex(i);
 
 				// 2. Calculate its damage variants
-				potentialWeakpointDamage = dmgAlias.getTotalComplicatedDamageDealtPerHit(
+				potentialWeakpointDamage = dmgAlias.calculateComplicatedDamageDealtPerHit(
 					MaterialFlag.weakpoint,
 					getElementalResistances(),
 					false,
 					getWeakpointMultiplier(),  // 3.0 from Brundle
 					1
 				);
-				damageThatBypassesArmor = dmgAlias.getTotalComplicatedDamageDealtPerHit(
+				damageThatBypassesArmor = dmgAlias.calculateComplicatedDamageDealtPerHit(
 					MaterialFlag.heavyArmor,
 					getElementalResistances(),
 					false,
