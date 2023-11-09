@@ -431,8 +431,7 @@ public class DamageComponent {
 			}
 			case frozen: {
 				if (benefitsFromFrozen) {
-					// TODO: if I ever wanted to model Dreadnoughts using a different Frozen multiplier, here's where I could do it
-					dmg *= UtilityInformation.Frozen_Damage_Multiplier;
+					dmg *= target.getTemperatureComponent().getFrozenDamageBonus();
 				}
 				break;
 			}

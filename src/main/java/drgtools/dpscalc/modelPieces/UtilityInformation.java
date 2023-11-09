@@ -65,6 +65,7 @@ public class UtilityInformation {
 	*/
 	public static double Cold_Utility = 0.4;  // It appears that the slow from Cold increases as their Cold Meter fills up, from 0% slow at no Cold to 75-85% slowed right before frozen. The average is 40%.
 	public static double Frozen_Utility = 2.5;  // Not only are Frozen enemies "stunned" but they also take x3 Direct Damage (without getting Weakpoint Bonuses)
+	// TODO: this value might not be needed after the refactor is done?
 	public static double Frozen_Damage_Multiplier = 3;  // Only applies to Direct Damage; not Area Damage or DoTs
 	
 	/*
@@ -196,6 +197,7 @@ public class UtilityInformation {
 		Neurotoxin = 30% slow
 		Electrocute = 80% slow
 	*/
+	// TODO: these values won't be necessary after the refactor is done
 	public static double Neuro_Slow_Utility = 0.3;
 	public static double Electrocute_Slow_Utility = 0.8;
 	

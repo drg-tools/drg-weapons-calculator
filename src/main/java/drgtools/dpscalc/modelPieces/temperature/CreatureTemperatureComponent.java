@@ -3,6 +3,7 @@ package drgtools.dpscalc.modelPieces.temperature;
 public class CreatureTemperatureComponent {
 	private double updateTime = 1.0;
 	private double temperatureChangeScale = 1.0;
+	private double tempShockActivationWindow = 10.0;
 
 	// For when Temperature > 0 (warmed/heated)
 	private double maxTemperature = 100.0;
@@ -41,6 +42,9 @@ public class CreatureTemperatureComponent {
 	public void setTempChangeScale(double in) {
 		temperatureChangeScale = in;
 	}
+	public void setTempShockActivationWindow(double in) {
+		tempShockActivationWindow = in;
+	}
 	public void setDieOnFire(boolean in) {
 		dieIfOnFire = in;
 	}
@@ -52,6 +56,11 @@ public class CreatureTemperatureComponent {
 	}
 	public void setFrozenBonus(double in) {
 		frozenDamageBonus = in;
+	}
+
+	public double getEffectiveTempShockActivationWindow() {
+		// TODO: is this affected? test on Elites maybe...
+		return tempShockActivationWindow / temperatureChangeScale;
 	}
 
 	public double getEffectiveMaxTemperature() {
@@ -71,6 +80,10 @@ public class CreatureTemperatureComponent {
 	}
 	public double getOnFireHeatRange() {
 		return onFireHeatRange;
+	}
+
+	public double getEffectiveMinTemperature() {
+		return minTemperature / temperatureChangeScale;
 	}
 	public double getEffectiveFreezeTemperature() {
 		return freezeTemperature / temperatureChangeScale;
