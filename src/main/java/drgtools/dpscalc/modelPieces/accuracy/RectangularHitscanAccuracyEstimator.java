@@ -68,7 +68,7 @@ public class RectangularHitscanAccuracyEstimator extends AccuracyEstimator {
             }
         }
 
-        return (sumOfProbabilitiesInsideTarget / sumOfAllProbabilities) * 100.0;
+        return (sumOfProbabilitiesInsideTarget / sumOfAllProbabilities);
     }
 
     @Override

@@ -468,7 +468,7 @@ public class WeaponTab extends JPanel {
 		/******************************************
 			Row 3
 		******************************************/
-		double generalAccuracy = myWeapon.getGeneralAccuracy();
+		double generalAccuracy = myWeapon.getGeneralAccuracy() * 100.0;
 		for (i = 2*headers.length/4; i < 3*headers.length/4; i++) {
 			// Special case: add the current AccEstimator distance on the Gen/WP Acc labels
 			if (generalAccuracy >= 0.0 && (i == 2*headers.length/4 + 1 || i == 2*headers.length/4 + 2)) {
@@ -515,7 +515,7 @@ public class WeaponTab extends JPanel {
 			toReturn.add(accSlideButton);
 		}
 		
-		double weakpointAccuracy = myWeapon.getWeakpointAccuracy();
+		double weakpointAccuracy = myWeapon.getWeakpointAccuracy() * 100.0;
 		if (weakpointAccuracy < 0) {
 			value = new JLabel(leftPadSpaces + "Manually Aimed");
 			value.setFont(GuiConstants.customFontBold);

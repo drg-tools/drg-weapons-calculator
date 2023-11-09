@@ -270,10 +270,10 @@ public class CompareAccuracyGraphs extends Comparator {
 					baseModel.setAccuracyDistance(minDistance + j * xInterval, false);
 					
 					if (enableMetricsToGraph[0].isSelected()) {
-						generalAccuracy[i][j] = baseModel.getGeneralAccuracy();
+						generalAccuracy[i][j] = baseModel.getGeneralAccuracy() * 100.0;
 					}
 					if (enableMetricsToGraph[1].isSelected()) {
-						weakpointAccuracy[i][j] = baseModel.getWeakpointAccuracy();
+						weakpointAccuracy[i][j] = baseModel.getWeakpointAccuracy() * 100.0;
 					}
 					
 					if (enableMetricsToGraph[2].isSelected()) {

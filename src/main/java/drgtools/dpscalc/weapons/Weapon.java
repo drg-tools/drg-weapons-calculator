@@ -104,9 +104,9 @@ public abstract class Weapon extends Observable {
 	protected boolean enableGeneralAccuracyDPS = false;
 	protected boolean enableArmorWastingDPS = false;
 	
-	// The only legitimate values for these two variables are -1 and [0, 100], so setting them to -100 lets me know later if these values have been set or not.
-	private double metric_generalAccuracy = -100;
-	private double metric_weakpointAccuracy = -100;
+	// The only legitimate values for these two variables are -1 and [0, 100], so setting them to -1 lets me know later if these values have been set or not.
+	private double metric_generalAccuracy = -1;
+	private double metric_weakpointAccuracy = -1;
 	
 	protected double[] baselineBurstDPS;
 	protected double[] baselineSustainedDPS;
@@ -822,8 +822,8 @@ public abstract class Weapon extends Observable {
 			
 			// This method is only called from the GUI, so I have to refresh said GUI for users to see the change.
 			// Un-set these values for the new build
-			metric_generalAccuracy = -100;
-			metric_weakpointAccuracy = -100;
+			metric_generalAccuracy = -1;
+			metric_weakpointAccuracy = -1;
 						
 			if (countObservers() > 0) {
 				setChanged();
@@ -859,8 +859,8 @@ public abstract class Weapon extends Observable {
 
 	protected void rebuildWeapon() {
 		// Un-set these values for the new build
-		metric_generalAccuracy = -100;
-		metric_weakpointAccuracy = -100;
+		metric_generalAccuracy = -1;
+		metric_weakpointAccuracy = -1;
 		customRoF = 0;
 
 		// For Subata's 2RB Armor Breaking to be estimated, I have to calculate the General Accuracy before setting the DamageComponents
@@ -920,7 +920,7 @@ public abstract class Weapon extends Observable {
 		
 		baselineCalculatedStats = new double[] {
 			calculateAdditionalTargetDPS(), calculateMaxNumTargets(), calculateMaxMultiTargetDamage(), ammoEfficiency(), damageWastedByArmor(), 
-			getGeneralAccuracy(), getWeakpointAccuracy(), calculateFiringDuration(), averageTimeToKill(), averageOverkill(), breakpoints(), 
+			getGeneralAccuracy() * 100.0, getWeakpointAccuracy() * 100.0, calculateFiringDuration(), averageTimeToKill(), averageOverkill(), breakpoints(),
 			utilityScore(), averageTimeToCauterize()
 		};
 		selectedTier1 = oldT1;
@@ -1048,8 +1048,8 @@ public abstract class Weapon extends Observable {
 		// Input sanitization
 		if (newDistance > 0 && newDistance < 20) {
 			// Un-set these values for the new estimates
-			metric_generalAccuracy = -100;
-			metric_weakpointAccuracy = -100;
+			metric_generalAccuracy = -1;
+			metric_weakpointAccuracy = -1;
 			
 			accEstimator.setDistance(newDistance);
 			if (updateGUI && countObservers() > 0) {
@@ -1067,8 +1067,8 @@ public abstract class Weapon extends Observable {
 	}
 	public void setModelRecoilInAccuracy(boolean newValue) {
 		// Un-set these values for the new estimates
-		metric_generalAccuracy = -100;
-		metric_weakpointAccuracy = -100;
+		metric_generalAccuracy = -1;
+		metric_weakpointAccuracy = -1;
 					
 		accEstimator.setModelRecoil(newValue);
 		// Because this method will only be called from the GUI, it doesn't need the updateGUI flag
@@ -1083,8 +1083,8 @@ public abstract class Weapon extends Observable {
 	}
 	public void setDwarfMoving(boolean newValue) {
 		// Un-set these values for the new estimates
-		metric_generalAccuracy = -100;
-		metric_weakpointAccuracy = -100;
+		metric_generalAccuracy = -1;
+		metric_weakpointAccuracy = -1;
 					
 		accEstimator.setDwarfIsMoving(newValue);
 		// Because this method will only be called from the GUI, it doesn't need the updateGUI flag
@@ -1114,13 +1114,13 @@ public abstract class Weapon extends Observable {
 	
 	// Rather than build out an entire cache for two variables per Weapon, I'll just fake it with these two methods.
 	public double getGeneralAccuracy() {
-		if (metric_generalAccuracy == -100) {
+		if (metric_generalAccuracy == -1) {
 			metric_generalAccuracy = estimatedAccuracy(false);
 		}
 		return metric_generalAccuracy;
 	}
 	public double getWeakpointAccuracy() {
-		if (metric_weakpointAccuracy == -100) {
+		if (metric_weakpointAccuracy == -1) {
 			metric_weakpointAccuracy = estimatedAccuracy(true);
 		}
 		return metric_weakpointAccuracy;
@@ -1630,8 +1630,7 @@ public abstract class Weapon extends Observable {
 	public double ammoEfficiency() {
 		return calculateMaxMultiTargetDamage() / averageDamageToKillEnemy();
 	}
-	// TODO: I'm starting to get annoyed by putting "/ 100.0" everywhere that Accuracy gets used. Maybe refactor it to do [0,1] and only multiply by 100 for the GUI?
-	public abstract double estimatedAccuracy(boolean weakpointAccuracy); // -1 means manual or N/A; [0.0, 100.0] otherwise
+	public abstract double estimatedAccuracy(boolean weakpointAccuracy);  // -1 means manual or N/A; [0.0, 1.0] otherwise
 	public abstract int breakpoints();
 	
 	// This method is used to explain what the individual numbers of the Breakpoints

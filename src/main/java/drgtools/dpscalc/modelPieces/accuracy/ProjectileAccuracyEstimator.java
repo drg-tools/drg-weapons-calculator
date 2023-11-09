@@ -142,7 +142,7 @@ public class ProjectileAccuracyEstimator extends AccuracyEstimator {
             }
         }
 
-        return P * 100.0;
+        return P;
     }
 
     @Override

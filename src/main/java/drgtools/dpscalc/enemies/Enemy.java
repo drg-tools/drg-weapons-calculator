@@ -709,8 +709,7 @@ public abstract class Enemy {
 			heavyArmorPlateHealth = 0;
 		}
 
-		double proportionOfDamageThatHitsWeakpoint = weakpointAccuracy / 100.0;
-		double proportionOfDamageThatHitsArmor = 1.0 - proportionOfDamageThatHitsWeakpoint;
+		double proportionOfDamageThatHitsArmor = 1.0 - weakpointAccuracy;
 
 		int i;
 		double armorDamagePerPellet, otherArmorDamage;
@@ -788,8 +787,8 @@ public abstract class Enemy {
 				damageAffectedByArmor = potentialMaxDamage * proportionOfDamageThatHitsArmor;
 
 				// 3. Subtract from Armor and Health accordingly
-				totalDamageSpent += damageAffectedByArmor + potentialWeakpointDamage * proportionOfDamageThatHitsWeakpoint + damageThatBypassesArmor;
-				damageDealtToHealth = potentialWeakpointDamage * proportionOfDamageThatHitsWeakpoint + damageThatBypassesArmor;
+				totalDamageSpent += damageAffectedByArmor + potentialWeakpointDamage * weakpointAccuracy + damageThatBypassesArmor;
+				damageDealtToHealth = potentialWeakpointDamage * weakpointAccuracy + damageThatBypassesArmor;
 
 				// 3a. Light Armor plates (always Armor Strength, mixes with Heavy Armor plates on Guards)
 				armorStrengthPlateHasBroken = (

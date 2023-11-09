@@ -474,7 +474,7 @@ public class WPN_Subata extends Weapon {
 			// If both bullets hit, the 2nd one does +350% AB. To model that, I'm going to multiply the +3.5 bonus by General Accuracy^2
 			// The logic is that the probability to hit both shots is equal to the probability to hit each shot, twice.
 			// This requires that the AccuracyEstimator needs to be rebuilt BEFORE DamageComponents!
-			double enhancedAB = (2*armorBreaking + 3.5 * Math.pow(getGeneralAccuracy()/100.0,2)) / 2.0;
+			double enhancedAB = (2*armorBreaking + 3.5 * Math.pow(getGeneralAccuracy(),2)) / 2.0;
 			damagePerHitscan.setArmorBreaking(enhancedAB);
 
 			avgRoF = calculateAverageBurstRoF(avgRoF, getBurstSize(), getBurstInterval());
@@ -503,7 +503,7 @@ public class WPN_Subata extends Weapon {
 
 		// Chain Hit
 		if (selectedOverclock == 0) {
-			damagePerHitscan.setRicochet(getWeakpointAccuracy() / 100.0, 0.75, RicochetFlag.onlyCreatureWeakpoints, 10);
+			damagePerHitscan.setRicochet(getWeakpointAccuracy(), 0.75, RicochetFlag.onlyCreatureWeakpoints, 10);
 		}
 		// Tranquilizer Rounds
 		else if (selectedOverclock == 5) {
@@ -558,7 +558,7 @@ public class WPN_Subata extends Weapon {
 		double magSize = getMagazineSize();
 
 		if (accuracy) {
-			generalAccuracy = getGeneralAccuracy() / 100.0;
+			generalAccuracy = getGeneralAccuracy();
 		}
 
 		if (burst) {
@@ -579,7 +579,7 @@ public class WPN_Subata extends Weapon {
 		}
 
 		if (weakpoint && !targetDummy.currentlyFrozen()) {
-			weakpointAccuracy = getWeakpointAccuracy() / 100.0;
+			weakpointAccuracy = getWeakpointAccuracy();
 			directWeakpointDamage = damagePerHitscan.calculateComplicatedDamageDealtPerHit(targetDummy, MaterialFlag.weakpoint);
 		}
 

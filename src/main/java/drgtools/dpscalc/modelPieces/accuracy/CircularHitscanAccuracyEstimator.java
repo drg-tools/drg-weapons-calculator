@@ -144,7 +144,7 @@ public class CircularHitscanAccuracyEstimator extends AccuracyEstimator {
             sumOfAllProbabilities += P;
         }
 
-        return sumOfAllProbabilities / magSize * 100.0;
+        return sumOfAllProbabilities / magSize;
     }
 
     @Override

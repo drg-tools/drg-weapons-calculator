@@ -65,7 +65,7 @@ import drgtools.dpscalc.weapons.scout.zhukov.Zhukov;
 	TODO List
 	1. Figure out how to do Subata first with the newly refactored mechanics, and then use that paradigm to update the other models.
 	2. Move RadialEfficiency out of Weapon into DamageComponent
-	3. Remove the *100 /100 craziness from Accuracy from everywhere except GUI
+	3. Implement CreatureTemperature controlling Burning/Frozen and TemperatureShock
 	4. Add an ElementalDamageMap?
 	2. Implement STEs that can stack with themself multiple times (Neuro-Lasso's slow, Cryo Bolt's cold/sec, etc)
 	3. Collect info about Status Effects' default tick interval and default duration (SplitSentro's spreadsheet)

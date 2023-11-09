@@ -53,8 +53,7 @@ public class Praetorian extends Enemy {
 		double baseHealth = getBaseHealth() * largeScaling;
 		double heavyArmorPlateHealth = getArmorBaseHealth() * normalScaling;
 
-		double proportionOfDamageThatHitsMouth = generalAccuracy / 100.0;
-		double proportionOfDamageThatHitsArmor = 1.0 - proportionOfDamageThatHitsMouth;
+		double proportionOfDamageThatHitsArmor = 1.0 - generalAccuracy;
 
 		int i;
 		double potentialMaxDamage, damageThatBypassesArmor, damageDealtToArmor, damageAffectedByArmor;
@@ -85,7 +84,7 @@ public class Praetorian extends Enemy {
 
 				// 3. Subtract from Armor and Health accordingly
 				totalDamageSpent += potentialMaxDamage;
-				damageDealtToHealth = damageThatBypassesArmor + damageAffectedByArmor * proportionOfDamageThatHitsMouth;
+				damageDealtToHealth = damageThatBypassesArmor + damageAffectedByArmor * generalAccuracy;
 
 				if (heavyArmorPlateHealth > 0) {
 					if (dmgAlias.armorBreakingIsGreaterThan100Percent()) {
