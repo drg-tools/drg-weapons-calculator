@@ -62,8 +62,14 @@ public abstract class Enemy {
 	
 	// This info comes from Elythnwaen's Temperatures spreadsheet, and many of those values were seeded from MikeGSG giving us the values for the 5 "base" creature types.
 	protected CreatureTemperatureComponent temperatureComponent;
+
+	protected boolean isImmuneToStun = false;
+	protected boolean isCurrentlyStunned = false;
+	protected double stunDurationMultiplier = 1.0;
+	protected double stunImmunityWindow = 0.0;
 	
 	// This information extracted via UUU
+	protected boolean isCurrentlyAfraid = false;
 	protected double courage = 0.0;  // aka "Fear Resistance"
 	// Used to determine average regular Fear duration. Enemies that fly, can't move on the ground, or can't be feared will have this value set to zero to maintain correct values.
 	// Additionally, all creatures that get Feared have a x1.5 speedboost, except for Oppressor (x2) and Bulk/Crassus/Dread (x1) which can only be feared by Field Medic/SYiH/Bosco Revive
@@ -247,6 +253,8 @@ public abstract class Enemy {
 	}
 
 	public void emptyCurrentStatusEffects() {
+		isCurrentlyStunned = false;
+		isCurrentlyAfraid = false;
 		namesOfStatusEffectsCurrentlyAfflicting = new ArrayList<>();
 	}
 	public void applyNewStatusEffect(StatusEffect ste) {
@@ -262,17 +270,23 @@ public abstract class Enemy {
 		return new HashSet<>(namesOfStatusEffectsCurrentlyAfflicting);
 	}
 	// TODO: are these methods unnecessary? or maybe they can be combined?
-	public boolean currentlyAffectedByIFG() {
+	public boolean isCurrentlyAffectedByIFG() {
 		return namesOfStatusEffectsCurrentlyAfflicting.contains("STE_IFG");
 	}
-	public boolean currentlyOnFire() {
+	public boolean isCurrentlyOnFire() {
 		return namesOfStatusEffectsCurrentlyAfflicting.contains("STE_OnFire");
 	}
-	public boolean currentlyFrozen() {
+	public boolean isCurrentlyFrozen() {
 		return namesOfStatusEffectsCurrentlyAfflicting.contains("STE_Frozen");
 	}
-	public boolean currentlyStunned() {
-		return namesOfStatusEffectsCurrentlyAfflicting.contains("STE_Stun");
+	public boolean isCurrentlyStunned() {
+		// return namesOfStatusEffectsCurrentlyAfflicting.contains("STE_Stun");
+		if (isImmuneToStun) {
+			return false;
+		}
+		else {
+			return isCurrentlyStunned;
+		}
 	}
 
 	public ArrayList<Integer> calculateBreakpoints(DamageInstance dmgInstance, double RoF, boolean IFG, boolean frozen,
@@ -296,7 +310,7 @@ public abstract class Enemy {
 		int breakpointCounter = 0;
 
 		MaterialFlag breakpointMaterialFlag;
-		if (currentlyFrozen()) {
+		if (isCurrentlyFrozen()) {
 			breakpointMaterialFlag = MaterialFlag.frozen;
 		}
 		else {
@@ -348,7 +362,7 @@ public abstract class Enemy {
 		}
 
 		// Check for Heat/shot or Heat/sec stuff to see if this needs to add STE_OnFire into the mix.
-		if (!currentlyFrozen() && (atLeastOneDamageComponentDoesHeat || atLeastOneSteAppliesHeat)) {
+		if (!isCurrentlyFrozen() && (atLeastOneDamageComponentDoesHeat || atLeastOneSteAppliesHeat)) {
 			// TODO: should this be extended longer than the normal duration?
 			double burnDuration = (temperatureComp.getEffectiveBurnTemperature() - temperatureComp.getEffectiveDouseTemperature()) / temperatureComp.getCoolingRate();
 			double totalHeatPerSec = totalHeatPerHit * RoF + stesHeatPerSec;
@@ -406,7 +420,7 @@ public abstract class Enemy {
 		int breakpointCounter = 0;
 
 		MaterialFlag breakpointMaterialFlag, coveringArmorMaterialFlag;
-		if (currentlyFrozen()) {
+		if (isCurrentlyFrozen()) {
 			breakpointMaterialFlag = MaterialFlag.frozen;
 			coveringArmorMaterialFlag = MaterialFlag.frozen;
 		}
@@ -473,7 +487,7 @@ public abstract class Enemy {
 		}
 
 		// Check for Heat/shot or Heat/sec stuff to see if this needs to add STE_OnFire into the mix.
-		if (!currentlyFrozen() && (atLeastOneDamageComponentDoesHeat || atLeastOneSteAppliesHeat)) {
+		if (!isCurrentlyFrozen() && (atLeastOneDamageComponentDoesHeat || atLeastOneSteAppliesHeat)) {
 			// TODO: should this be extended longer than the normal duration?
 			double burnDuration = (temperatureComp.getEffectiveBurnTemperature() - temperatureComp.getEffectiveDouseTemperature()) / temperatureComp.getCoolingRate();
 			double totalHeatPerSec = totalHeatPerHit * RoF + stesHeatPerSec;
@@ -519,7 +533,7 @@ public abstract class Enemy {
 			breakpointCounter++;
 
 			// 1. Subtract the damage dealt on hit
-			if (!currentlyFrozen() && heavyArmorHP > 0){
+			if (!isCurrentlyFrozen() && heavyArmorHP > 0){
 				// heavyArmorHP > 0 will only evaluate to True when this is modeling an ArmorHealth plate covering the Weakpoint
 				// If the ArmorHealth plate covering the Weakpoint has been broken, do full damage.
 				if ((atLeastOneDamageComponentHasABGreaterThan100 && breakpointCounter >= numShotsToBreakArmor) || (!atLeastOneDamageComponentHasABGreaterThan100 && breakpointCounter > numShotsToBreakArmor)) {
@@ -555,7 +569,7 @@ public abstract class Enemy {
 		int breakpointCounter = 0;
 
 		MaterialFlag preBreakMaterialFlag, postBreakMaterialFlag;
-		if (currentlyFrozen()) {
+		if (isCurrentlyFrozen()) {
 			preBreakMaterialFlag = MaterialFlag.frozen;
 			postBreakMaterialFlag = MaterialFlag.frozen;
 		}
@@ -622,7 +636,7 @@ public abstract class Enemy {
 		}
 
 		// Check for Heat/shot or Heat/sec stuff to see if this needs to add STE_OnFire into the mix.
-		if (!currentlyFrozen() && (atLeastOneDamageComponentDoesHeat || atLeastOneSteAppliesHeat)) {
+		if (!isCurrentlyFrozen() && (atLeastOneDamageComponentDoesHeat || atLeastOneSteAppliesHeat)) {
 			// TODO: should this be extended longer than the normal duration?
 			double burnDuration = (temperatureComp.getEffectiveBurnTemperature() - temperatureComp.getEffectiveDouseTemperature()) / temperatureComp.getCoolingRate();
 			double totalHeatPerSec = totalHeatPerHit * RoF + stesHeatPerSec;

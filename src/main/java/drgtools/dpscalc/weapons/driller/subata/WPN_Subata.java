@@ -573,12 +573,12 @@ public class WPN_Subata extends Weapon {
 		}
 		
 		// Damage wasted by Armor
-		if (armorWasting && !targetDummy.currentlyFrozen()) {
+		if (armorWasting && !targetDummy.isCurrentlyFrozen()) {
 			double armorWaste = 1.0 - MathUtils.vectorDotProduct(damageWastedByArmorPerCreature[0], damageWastedByArmorPerCreature[1]);
 			directDamage *= armorWaste;
 		}
 
-		if (weakpoint && !targetDummy.currentlyFrozen()) {
+		if (weakpoint && !targetDummy.isCurrentlyFrozen()) {
 			weakpointAccuracy = getWeakpointAccuracy();
 			directWeakpointDamage = damagePerHitscan.calculateComplicatedDamageDealtPerHit(targetDummy, MaterialFlag.weakpoint);
 		}

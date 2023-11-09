@@ -452,7 +452,7 @@ public class DamageComponent {
 		}
 
 		double totalDamage = dmg + rdlDmg;
-		if (target.currentlyAffectedByIFG()) {
+		if (target.isCurrentlyAffectedByIFG()) {
 			totalDamage *= UtilityInformation.IFG_Damage_Multiplier;
 		}
 

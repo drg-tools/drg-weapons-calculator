@@ -4,6 +4,7 @@ public class CreatureTemperatureComponent {
 	private double updateTime = 1.0;
 	private double temperatureChangeScale = 1.0;
 	private double tempShockActivationWindow = 10.0;
+	private double currentTemperature = 0.0;
 
 	// For when Temperature > 0 (warmed/heated)
 	private double maxTemperature = 100.0;
@@ -45,6 +46,9 @@ public class CreatureTemperatureComponent {
 	public void setTempShockActivationWindow(double in) {
 		tempShockActivationWindow = in;
 	}
+	public void setCurrentTemperature(double in) {
+		currentTemperature = in;
+	}
 	public void setDieOnFire(boolean in) {
 		dieIfOnFire = in;
 	}
@@ -61,6 +65,9 @@ public class CreatureTemperatureComponent {
 	public double getEffectiveTempShockActivationWindow() {
 		// TODO: is this affected? test on Elites maybe...
 		return tempShockActivationWindow / temperatureChangeScale;
+	}
+	public double getCurrentTemperature() {
+		return currentTemperature;
 	}
 
 	public double getEffectiveMaxTemperature() {
