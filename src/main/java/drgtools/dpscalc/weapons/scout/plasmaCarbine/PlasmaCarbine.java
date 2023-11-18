@@ -54,8 +54,8 @@ public class PlasmaCarbine extends Weapon {
 		
 		// Base stats, before mods or overclocks alter them:
 		directDamage = 9.0;
-		rateOfFire = 13.0;
-		batteryCapacity = 800;
+		rateOfFire = 12.0;
+		batteryCapacity = 750;
 		heatPerShot = 0.045;
 		maxHeat = 2.0;
 		coolingRate = 1.1;
@@ -80,12 +80,12 @@ public class PlasmaCarbine extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
-		tier1[0] = new Mod("High-Volume Plasma Feed", "+3 Rate of Fire", modIcons.rateOfFire, 1, 0);
+		tier1[0] = new Mod("High-Volume Plasma Feed", "+4 Rate of Fire", modIcons.rateOfFire, 1, 0);
 		tier1[1] = new Mod("Improved Thermals", "x0.75 Heat per Shot", modIcons.coolingRate, 1, 1);
-		tier1[2] = new Mod("Stronger Particle Accelerator", "x1.5 Projectile Velocity", modIcons.projectileVelocity, 1, 2, false);
+		tier1[2] = new Mod("Stronger Particle Accelerator", "x2 Projectile Velocity", modIcons.projectileVelocity, 1, 2, false);
 		
 		tier2 = new Mod[2];
-		tier2[0] = new Mod("Larger Battery", "+250 Battery Capacity", modIcons.carriedAmmo, 2, 0);
+		tier2[0] = new Mod("Larger Battery", "+200 Battery Capacity", modIcons.carriedAmmo, 2, 0);
 		tier2[1] = new Mod("Increased Particle Density", "+2 Direct Damage", modIcons.directDamage, 2, 1);
 		
 		tier3 = new Mod[3];
@@ -95,7 +95,7 @@ public class PlasmaCarbine extends Weapon {
 		
 		tier4 = new Mod[3];
 		tier4[0] = new Mod("Overcharged PCF", "15% Chance per bullet to inflict an Electrocute DoT which does " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric "
-				+ "Damage per Second and slows enemies by 80% for 4 seconds.", modIcons.electricity, 4, 0);
+				+ "Damage per Second and slows enemies by 80% for 6 seconds.", modIcons.electricity, 4, 0);
 		tier4[1] = new Mod("Plasma Splash", "-5 Direct Damage, +5 Area Damage in a 1m radius", modIcons.addedExplosion, 4, 1);
 		tier4[2] = new Mod("Destructive Resonance Amp", "+200% Armor Breaking", modIcons.armorBreaking, 4, 2);
 		
@@ -105,17 +105,17 @@ public class PlasmaCarbine extends Weapon {
 		tier5[1] = new Mod("Thermal Feedback Loop", "When the Heat Meter is greater than 50%, the Rate of Fire is increased by +5 (up to a maximum of 20 RoF).", modIcons.special, 5, 1);
 		
 		overclocks = new Overclock[7];
-		overclocks[0] = new Overclock(Overclock.classification.clean, "Impact Deflection", "Projectiles will bounce 1 time, either off of terrain or enemies.", overclockIcons.ricochet, 0);
-		overclocks[1] = new Overclock(Overclock.classification.clean, "Thermal Liquid Coolant", "x1.25 Cooling Rate, x0.85 Heat per Shot", overclockIcons.coolingRate, 1);
+		overclocks[0] = new Overclock(Overclock.classification.clean, "Thermal Liquid Coolant", "x1.25 Cooling Rate, x0.85 Heat per Shot", overclockIcons.coolingRate, 1);
+		overclocks[1] = new Overclock(Overclock.classification.clean, "Aggressive Venting", "Upon Overheating, deal 6 Damage, 60 Heat, and 5.0 Fear Factor to enemies within 5m of you. This effect scales with the "
+				+ "current Heat level, so manually Overheating early deals less Damage and Heat. Additionally, reduces Overheat duration by x0.8.", overclockIcons.special, 3);
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Rewiring Mod", "Regenerate Ammo while Overheated. At full Overheat, up to 31.5 ammo gets regenerated on average. This effect scales with the "
-				+ "current Heat level, so manually Overheating early returns less ammo. In exchange, +0.8 sec Overheat Duration and x0.6 Battery Capacity", overclockIcons.carriedAmmo, 2);
-		overclocks[3] = new Overclock(Overclock.classification.balanced, "Aggressive Venting", "Upon Overheating, deal 6 Damage, 60 Heat, and 5.0 Fear Factor to enemies within 5m of you. This effect scales with the "
-				+ "current Heat level, so manually Overheating early deals less Damage and Heat. Additionally, reduces Overheat duration by x0.7. In exchange, x0.8 Battery Capacity and x0.7 Cooling Rate", overclockIcons.special, 3);
+				+ "current Heat level, so manually Overheating early returns less ammo. In exchange, +0.8 sec Overheat Duration and x0.7 Battery Capacity", overclockIcons.carriedAmmo, 2);
+		overclocks[3] = new Overclock(Overclock.classification.balanced, "Impact Deflection", "Projectiles will bounce 1 time, either off of terrain or enemies. In exchange, -2 Rate of Fire.", overclockIcons.ricochet, 0);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Overtuned Particle Accelerator", "+8 Direct Damage, x0.8 Battery Capacity, x1.5 Heat per Shot, +400% Horizontal Base Spread, +133% Vertical Base Spread", overclockIcons.directDamage, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Shield Battery Booster", "+1 Rate of Fire, +50 Battery Capacity, x0.5 Cooling Rate, x1.5 Heat per Shot, x2 Overheat Duration. While Shield is full, +5.5 Direct Damage and "
-				+ "2x Projectile Velocity. Upon Overheating, your shield gets disabled until the Overheat finishes.", overclockIcons.damageResistance, 5);
-		overclocks[6] = new Overclock(Overclock.classification.unstable, "Thermal Exhaust Feedback", "Starting when the Heat Meter reaches 50%, the next four intervals of 10% on the Heat Meter each add 1.5 Fire Damage and 1.5 Heat to every projectile, "
-				+ "up to +6 Damage/Heat at 90%. In exchange, x1.5 Overheat Duration and x1.2 Heat per Shot.", overclockIcons.heatDamage, 6);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Shield Battery Booster", "+1 Rate of Fire, +100 Battery Capacity, x0.5 Cooling Rate, x1.5 Heat per Shot. While Shield is full, +5.5 Direct Damage and "
+				+ "2x Projectile Velocity. Upon Overheating, your shield gets disabled until the Overheat finishes. Additionally, it passively reduces your Shield's Regen Delay by 3.5 seconds. ", overclockIcons.damageResistance, 5);
+		overclocks[6] = new Overclock(Overclock.classification.unstable, "Thermal Exhaust Feedback", "Starting when the Heat Meter reaches 50%, the next four intervals of 10% on the Heat Meter each add 3 Fire Damage and 3 Heat to every projectile, "
+				+ "up to +12 Damage/Heat at 90%. In exchange, x1.3 Overheat Duration and x1.2 Heat per Shot.", overclockIcons.heatDamage, 6);
 		
 		// TODO: Aggressive Venting converts 10% of the 60 Heat to Fire-element + Heat, and its 60 damage scales with the Heat Level (manual Overheat at 50% = 30 damage)
 		
@@ -183,10 +183,13 @@ public class PlasmaCarbine extends Weapon {
 		double toReturn = rateOfFire;
 		
 		if (selectedTier1 == 0) {
-			toReturn += 3.0;
+			toReturn += 4.0;
 		}
-		
-		if (selectedOverclock == 5) {
+
+		if (selectedOverclock == 3) {
+			toReturn -= 2;
+		}
+		else if (selectedOverclock == 5) {
 			toReturn += 1.0;
 		}
 		
@@ -196,11 +199,11 @@ public class PlasmaCarbine extends Weapon {
 		double toReturn = batteryCapacity;
 		
 		if (selectedTier2 == 0) {
-			toReturn += 250;
+			toReturn += 200;
 		}
 		
 		if (selectedOverclock == 2) {
-			toReturn *= 0.6;
+			toReturn *= 0.7;
 			
 			// This is going to be the crazy part of Rewiring Mod. I'm choosing to model it as if the player is firing until Overheat to maximize the ammo regen.
 			double magSizeToOverheat = calculateNumShotsFiredBeforeOverheating() + 1;
@@ -211,11 +214,11 @@ public class PlasmaCarbine extends Weapon {
 			
 			toReturn = Math.round(toReturn + numOverheats * ammoRegendDuringOverheat);
 		}
-		else if (selectedOverclock == 3 || selectedOverclock == 4) {
+		else if (selectedOverclock == 4) {
 			toReturn *= 0.8;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn += 50;
+			toReturn += 100;
 		}
 		
 		return (int) toReturn;
@@ -246,11 +249,8 @@ public class PlasmaCarbine extends Weapon {
 			modifier *= 1.5;
 		}
 		
-		if (selectedOverclock == 1) {
+		if (selectedOverclock == 0) {
 			modifier *= 1.25;
-		}
-		else if (selectedOverclock == 3) {
-			modifier *= 0.7;
 		}
 		else if (selectedOverclock == 5) {
 			modifier *= 0.5;
@@ -270,17 +270,14 @@ public class PlasmaCarbine extends Weapon {
 	private double getOverheatDuration() {
 		double toReturn = overheatDuration;
 		
-		if (selectedOverclock == 2) {
+		if (selectedOverclock == 1) {
+			toReturn *= 0.8;
+		}
+		else if (selectedOverclock == 2) {
 			toReturn += 0.8;
 		}
-		else if (selectedOverclock == 3) {
-			toReturn *= 0.7;
-		}
-		else if (selectedOverclock == 5) {
-			toReturn *= 2.0;
-		}
 		else if (selectedOverclock == 6) {
-			toReturn *= 1.5;
+			toReturn *= 1.3;
 		}
 		
 		return toReturn;
@@ -290,7 +287,7 @@ public class PlasmaCarbine extends Weapon {
 		double toReturn = 1.0;
 		
 		if (selectedTier1 == 2) {
-			toReturn *= 1.5;
+			toReturn *= 2.0;
 		}
 		
 		if (selectedOverclock == 5) {
@@ -335,7 +332,7 @@ public class PlasmaCarbine extends Weapon {
 		return toReturn;
 	}
 	private int getNumBounces() {
-		if (selectedOverclock == 0) {
+		if (selectedOverclock == 3) {
 			return 1;
 		}
 		else {
