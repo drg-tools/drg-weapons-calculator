@@ -48,7 +48,7 @@ public class SMG extends Weapon {
 		weaponPic = WeaponPictures.SMG;
 		
 		// Base stats, before mods or overclocks alter them:
-		electrocutionDoTChance = 0.2;
+		electrocutionDoTChance = 0.25;
 		// Electrocution DoTs do not stack; it only refreshes the duration.
 		directDamage = 9;
 		electricDamage = 0; 
@@ -79,27 +79,29 @@ public class SMG extends Weapon {
 	@Override
 	protected void initializeModsAndOverclocks() {
 		tier1 = new Mod[3];
-		tier1[0] = new Mod("Increased Caliber Rounds", "+2 Direct Damage", modIcons.directDamage, 1, 0);
-		tier1[1] = new Mod("Upgraded Capacitors", "+30% Chance to Electrocute an enemy", modIcons.electricity, 1, 1);
+		tier1[0] = new Mod("Increased Caliber Rounds", "+3 Direct Damage", modIcons.directDamage, 1, 0);
+		tier1[1] = new Mod("Upgraded Capacitors", "+25% Chance to Electrocute an enemy", modIcons.electricity, 1, 1);
 		tier1[2] = new Mod("Expanded Ammo Bags", "+120 Max Ammo", modIcons.carriedAmmo, 1, 2);
 		
 		tier2 = new Mod[3];
 		tier2[0] = new Mod("High Capacity Magazine", "+10 Magazine Size", modIcons.magSize, 2, 0);
-		tier2[1] = new Mod("Recoil Dampener", "x0.5 Recoil", modIcons.recoil, 2, 1);
+		tier2[1] = new Mod("Recoil Dampener", "x0.7 Recoil", modIcons.recoil, 2, 1);
 		tier2[2] = new Mod("Improved Gas System", "+3 Rate of Fire", modIcons.rateOfFire, 2, 2);
 		
 		tier3 = new Mod[2];
-		tier3[0] = new Mod("High Velocity Rounds", "+2 Direct Damage", modIcons.directDamage, 3, 0);
+		tier3[0] = new Mod("High Velocity Rounds", "+3 Direct Damage", modIcons.directDamage, 3, 0);
 		tier3[1] = new Mod("Expanded Ammo Bags", "+120 Max Ammo", modIcons.carriedAmmo, 3, 1);
 		
-		tier4 = new Mod[2];
-		tier4[0] = new Mod("Hollow-Point Bullets", "+30% Weakpoint Bonus", modIcons.weakpointBonus, 4, 0);
-		tier4[1] = new Mod("Conductive Bullets", "+30% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 4, 1);
+		tier4 = new Mod[3];
+		tier4[0] = new Mod("Hollow-Point Bullets", "+25% Weakpoint Bonus", modIcons.weakpointBonus, 4, 0);
+		tier4[1] = new Mod("Conductive Bullets", "+25% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 4, 1);
+		tier4[2] = new Mod("Hardened Rounds", "+250% Armor Breaking", modIcons.armorBreaking, 4, 2);
 		
-		tier5 = new Mod[2];
+		tier5 = new Mod[3];
 		tier5[0] = new Mod("Magazine Capacity Tweak", "+20 Magazine Size", modIcons.magSize, 5, 0);
 		tier5[1] = new Mod("Electric Arc", "Every time the SMG either applies or refreshes an Electrocute DoT, there's a 25% chance that all enemies within a 2.75m radius of the primary target will be electrocuted as well.", modIcons.electricity, 5, 1);
-		
+		tier5[2] = new Mod("Improved Accuracy", "x0.6 Base Spread", modIcons.baseSpread, 5, 2);
+
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Super-Slim Rounds", "+5 Magazine Size, x0.8 Base Spread", overclockIcons.magSize, 0);
 		overclocks[1] = new Overclock(Overclock.classification.clean, "Well Oiled Machine", "+2 Rate of Fire, -0.2 Reload Time", overclockIcons.rateOfFire, 1);
@@ -141,7 +143,7 @@ public class SMG extends Weapon {
 		double toReturn = electrocutionDoTChance;
 		
 		if (selectedTier1 == 1) {
-			toReturn += 0.3;
+			toReturn += 0.25;
 		}
 		
 		return toReturn;
@@ -151,10 +153,10 @@ public class SMG extends Weapon {
 		
 		// Additive bonuses first
 		if (selectedTier1 == 0) {
-			toReturn += 2;
+			toReturn += 3;
 		}
 		if (selectedTier3 == 0) {
-			toReturn += 2;
+			toReturn += 3;
 		}
 		if (selectedOverclock == 3) {
 			toReturn -= 1;
@@ -257,6 +259,10 @@ public class SMG extends Weapon {
 	private double getBaseSpread() {
 		double toReturn = 1.0;
 
+		if (selectedTier5 == 2) {
+			toReturn *= 0.6;
+		}
+
 		if (selectedOverclock == 0) {
 			toReturn *= 0.8;
 		}
@@ -270,7 +276,7 @@ public class SMG extends Weapon {
 		double toReturn = 1.0;
 		
 		if (selectedTier2 == 1) {
-			toReturn *= 0.5;
+			toReturn *= 0.7;
 		}
 		
 		return toReturn;
@@ -279,14 +285,23 @@ public class SMG extends Weapon {
 		double toReturn = 0.0;
 		
 		if (selectedTier4 == 0) {
-			toReturn += 0.3;
+			toReturn += 0.25;
 		}
 		
 		return toReturn;
 	}
+
+	private double getArmorBreaking() {
+		if (selectedTier4 == 2) {
+			return 3.0;
+		}
+		else {
+			return 0.5;
+		}
+	}
 	
 	private double conductiveBulletsMultiplier() {
-		double conductiveBulletsDamageMultiplier = 1.3;
+		double conductiveBulletsDamageMultiplier = 1.25;
 		if (statusEffects[2] || statusEffects[3]) {
 			return conductiveBulletsDamageMultiplier;
 		}
@@ -299,7 +314,7 @@ public class SMG extends Weapon {
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[11];
+		StatsRow[] toReturn = new StatsRow[12];
 		
 		toReturn[0] = new StatsRow("Electrocute DoT Chance:", convertDoubleToPercentage(getElectrocutionDoTChance()), modIcons.homebrewPowder, selectedTier1 == 1);
 		toReturn[1] = new StatsRow("Electrocute DoT DPS:", DoTInformation.Electro_DPS, modIcons.electricity, false);
@@ -322,10 +337,12 @@ public class SMG extends Weapon {
 		
 		toReturn[8] = new StatsRow("Weakpoint Bonus:", "+" + convertDoubleToPercentage(getWeakpointBonus()), modIcons.weakpointBonus, selectedTier4 == 0, selectedTier4 == 0);
 		
-		boolean baseSpreadModified = selectedOverclock == 0 || selectedOverclock == 2;
+		boolean baseSpreadModified = selectedTier5 == 2 || selectedOverclock == 0 || selectedOverclock == 2;
 		toReturn[9] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, baseSpreadModified, baseSpreadModified);
 		
 		toReturn[10] = new StatsRow("Recoil:", convertDoubleToPercentage(getRecoil()), modIcons.recoil, selectedTier2 == 1, selectedTier2 == 1);
+
+		toReturn[11] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedTier4 == 2, selectedTier4 == 2);
 		
 		return toReturn;
 	}

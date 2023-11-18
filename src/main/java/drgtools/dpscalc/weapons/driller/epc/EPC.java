@@ -115,13 +115,15 @@ public abstract class EPC extends Weapon {
 		tier4[0] = new Mod("Expanded Plasma Splash", "+1m Charged Shot AoE Radius", modIcons.aoeRadius, 4, 0);
 		tier4[1] = new Mod("High Density Battery", "+24 Battery Size", modIcons.carriedAmmo, 4, 1);
 		tier4[2] = new Mod("Reactive Shockwave", "+15 Charged Shot Direct Damage, +15 Charged Shot Area Damage", modIcons.areaDamage, 4, 2);
-		
+
+		// TODO: Model FN charged shot fire damage, and Plasma Splash AoE damage.
 		tier5 = new Mod[3];
-		tier5[0] = new Mod("Flying Nightmare", "Charged Shots now deal their Direct Damage to enemies hit by the projectile while in-flight, but it no longer explodes upon impact (functionally removing Area Damage). Deals x3 damage vs Frozen targets. "
-				+ "Additionally: x1.2 Charged Shot Direct Damage, x0.4 AoE Radius.", modIcons.aoeRadius, 5, 0);
+		tier5[0] = new Mod("Burning Nightmare", "Charged Shots now deal their Direct Damage to enemies hit by the projectile while in-flight, but it no longer explodes upon impact " +
+				"(functionally removing Area Damage). Deals x3 damage vs Frozen targets. Additionally: x0.3 AoE Radius. Regular Shots do [5 plus 25% of their Direct Damage] Heat per shot which can ignite enemies, " +
+				"dealing" + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) +  "Fire Damage per Second, and 70% of the Charged Shot's damage is converted to Fire-element + Heat.", modIcons.heatDamage, 5, 0);
 		tier5[1] = new Mod("Thin Containment Field", "Shoot the Charged Shot with a Regular Shot before it impacts anything to make it detonate for 240 Damage and carve terrain within a 3m radius. "
 				+ "Additionally, x0.8 Heat per Regular Shot and x0.8 Heat per Charged Shot", modIcons.special, 5, 1);
-		tier5[2] = new Mod("Plasma Burn", "Regular Shots also do [5 plus 25% of their Direct Damage] Heat per shot which can ignite enemies, dealing " + MathUtils.round(DoTInformation.Burn_DPS, GuiConstants.numDecimalPlaces) + " Fire Damage per Second.", modIcons.heatDamage, 5, 2);
+		tier5[2] = new Mod("Plasma Splash", "Regular Shots now do 10 Fire-element Area Damage in a 1.5m Radius in exchange for -10 Direct Damage.", modIcons.addedExplosion, 5, 2);
 		
 		overclocks = new Overclock[6];
 		overclocks[0] = new Overclock(Overclock.classification.clean, "Energy Rerouting", "+16 Battery Size, x1.5 Charge Speed.", overclockIcons.chargeSpeed, 0);
@@ -155,6 +157,9 @@ public abstract class EPC extends Weapon {
 		
 		if (selectedTier1 == 0) {
 			toReturn += 5;
+		}
+		if (selectedTier5 == 2) {
+			toReturn -= 10;
 		}
 		
 		if (selectedOverclock == 3) {
