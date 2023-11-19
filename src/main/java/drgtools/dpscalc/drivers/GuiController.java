@@ -34,19 +34,23 @@ import drgtools.dpscalc.weapons.driller.flamethrower.Flamethrower;
 import drgtools.dpscalc.weapons.driller.sludgePump.SludgePump;
 import drgtools.dpscalc.weapons.driller.sludgePump.SludgePump_Charged;
 import drgtools.dpscalc.weapons.driller.subata.Subata;
+import drgtools.dpscalc.weapons.driller.waveCooker.WaveCooker;
 import drgtools.dpscalc.weapons.engineer.breachCutter.BreachCutter;
 import drgtools.dpscalc.weapons.engineer.breachCutter.BreachCutter_Projectile;
 import drgtools.dpscalc.weapons.engineer.grenadeLauncher.GrenadeLauncher;
+import drgtools.dpscalc.weapons.engineer.shardDiffractor.ShardDiffractor;
 import drgtools.dpscalc.weapons.engineer.smg.SMG;
 import drgtools.dpscalc.weapons.engineer.shotgun.Shotgun;
 import drgtools.dpscalc.weapons.engineer.smartRifle.SmartRifle;
 import drgtools.dpscalc.weapons.engineer.smartRifle.SmartRifle_LockOn;
 import drgtools.dpscalc.weapons.gunner.autocannon.Autocannon;
 import drgtools.dpscalc.weapons.gunner.burstPistol.BurstPistol;
+import drgtools.dpscalc.weapons.gunner.coilGun.CoilGun;
 import drgtools.dpscalc.weapons.gunner.guidedRocketLauncher.GuidedRocketLauncher;
 import drgtools.dpscalc.weapons.gunner.minigun.Minigun;
 import drgtools.dpscalc.weapons.gunner.revolver.Revolver;
 import drgtools.dpscalc.weapons.scout.assaultRifle.AssaultRifle;
+import drgtools.dpscalc.weapons.scout.boltshark.Boltshark;
 import drgtools.dpscalc.weapons.scout.boomstick.Boomstick;
 import drgtools.dpscalc.weapons.scout.classic.Classic_FocusShot;
 import drgtools.dpscalc.weapons.scout.classic.Classic_Hipfire;
@@ -85,10 +89,10 @@ public class GuiController implements ActionListener {
 	private JFileChooser folderChooser;
 	
 	public static void main(String[] args) {
-		Weapon[] drillerWeapons = new Weapon[] {new Flamethrower(), new CryoCannon(), new SludgePump(), new SludgePump_Charged(), new Subata(), new EPC_RegularShot(), new EPC_ChargeShot()};
-		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new SmartRifle(), new SmartRifle_LockOn(), new GrenadeLauncher(), new BreachCutter(), new BreachCutter_Projectile()};
-		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new GuidedRocketLauncher(), new Revolver(), new BurstPistol()};
-		Weapon[] scoutWeapons = new Weapon[] {new AssaultRifle(), new Classic_Hipfire(), new Classic_FocusShot(), new PlasmaCarbine(), new Boomstick(), new Zhukov()};
+		Weapon[] drillerWeapons = new Weapon[] {new Flamethrower(), new CryoCannon(), new SludgePump(), new SludgePump_Charged(), new Subata(), new EPC_RegularShot(), new EPC_ChargeShot(),  new WaveCooker()};
+		Weapon[] engineerWeapons = new Weapon[] {new Shotgun(), new SMG(), new SmartRifle(), new SmartRifle_LockOn(), new GrenadeLauncher(), new BreachCutter(), new BreachCutter_Projectile(), new ShardDiffractor()};
+		Weapon[] gunnerWeapons = new Weapon[] {new Minigun(), new Autocannon(), new GuidedRocketLauncher(), new Revolver(), new BurstPistol(), new CoilGun()};
+		Weapon[] scoutWeapons = new Weapon[] {new AssaultRifle(), new Classic_Hipfire(), new Classic_FocusShot(), new PlasmaCarbine(), new Boomstick(), new Zhukov(), new Boltshark()};
 		View gui = new View(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons);
 		new GuiController(drillerWeapons, engineerWeapons, gunnerWeapons, scoutWeapons, gui);
 	}

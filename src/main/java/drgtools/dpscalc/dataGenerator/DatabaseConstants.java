@@ -20,22 +20,26 @@ public class DatabaseConstants {
 	public static int sludgePumpGunsID = 19;
 	public static int subataGunsID = 11;
 	public static int EPCGunsID = 12;
+	public static int waveCookerID = 21;
 	
 	public static int shotgunGunsID = 1;
 	public static int SMGGunsID = 2;
 	public static int smartRifleGunsID = 17;
 	public static int grenadeLauncherGunsID = 3;
 	public static int breachCutterGunsID = 4;
+	public static int shardDiffractorID = 22;
 	
 	public static int minigunGunsID = 13;
 	public static int autocannonGunsID = 14;
 	public static int guidedRocketLauncherGunsID = 20;
 	public static int revolverGunsID = 15;
 	public static int burstPistolGunsID = 16;
+	public static int coilGunID = 23;
 	
 	public static int assaultRifleGunsID = 5;
 	public static int classicGunsID = 6;
 	public static int plasmaCarbineGunsID = 18;
 	public static int boomstickGunsID = 7;
 	public static int zhukovsGunsID = 8;
+  public static int boltsharkID = 24;
 }
