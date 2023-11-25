@@ -92,7 +92,7 @@ public class Zhukov extends Weapon {
 		tier4[2] = new Mod("Expanded Ammo Bags", "+100 Max Ammo", modIcons.carriedAmmo, 4, 2);
 		
 		tier5 = new Mod[2];
-		tier5[0] = new Mod("Conductive Bullets", "+30% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 5, 0);
+		tier5[0] = new Mod("Conductive Bullets", "+33% Direct Damage dealt to enemies either being Electrocuted or affected by Scout's IFG grenade", modIcons.electricity, 5, 0);
 		tier5[1] = new Mod("Get In, Get Out", "+50% Movement Speed for 2.5 seconds after reloading an empty magazine", modIcons.movespeed, 5, 1);
 		
 		overclocks = new Overclock[5];
@@ -101,10 +101,11 @@ public class Zhukov extends Weapon {
 		overclocks[2] = new Overclock(Overclock.classification.unstable, "Cryo Minelets", "Any bullets that impact terrain get converted to Cryo Minelets. It takes 0.1 seconds to form the minelets, "
 				+ "0.8 seconds to arm them, and they only last for 3 seconds after being armed. If an enemy passes within 1.5m of a minelet, it will detonate and deal 10 Cold to all enemies "
 				+ "within range. In exchange, -1 Direct Damage and -10 Magazine Size.", overclockIcons.coldDamage, 2);
-		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 38 Internal Damage to the enemy "
-				+ "upon reloading. If reloading can kill an enemy, an icon will appear next to their healthbar. In exchange: -6 Direct Damage, -20 Magazine Size, -400 Max Ammo.", overclockIcons.specialReload, 3);
-		overclocks[4] = new Overclock(Overclock.classification.unstable, "Gas Recycling", "+5 Direct Damage, but it can no longer gain bonus damage from hitting a Weakpoint. Additionally, x1.5 Base Spread "
-				+ "and -50% Movement Speed while firing.", overclockIcons.directDamage, 4);
+		overclocks[3] = new Overclock(Overclock.classification.unstable, "Embedded Detonators", "Bullets that deal damage to an enemy's healthbar leave behind a detonator that deals 38 Internal Damage to the enemy upon reloading. " +
+				"If reloading can kill an enemy, an icon will appear next to their healthbar and they'll be slowed by 90% for 2 seconds. " +
+				"In exchange: -6 Direct Damage, -20 Magazine Size, -400 Max Ammo.", overclockIcons.specialReload, 3);
+		overclocks[4] = new Overclock(Overclock.classification.unstable, "Gas Recycling", "++6 Direct Damage, but it can no longer gain bonus damage from hitting a Weakpoint. " +
+				"Additionally, +250% Armor Breaking, x1.5 Base Spread, and -50% Movement Speed while firing.", overclockIcons.directDamage, 4);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
 		modsAndOCsInitialized = true;
@@ -149,7 +150,7 @@ public class Zhukov extends Weapon {
 			toReturn -= 6;
 		}
 		else if (selectedOverclock == 4) {
-			toReturn += 5;
+			toReturn += 6;
 		}
 		
 		return toReturn;
@@ -273,10 +274,18 @@ public class Zhukov extends Weapon {
 		
 		return MathUtils.round(modifier * DwarfInformation.walkSpeed, 2);
 	}
+
+	private double getArmorBreaking() {
+		if (selectedOverclock == 4) {
+			return 3.5;
+		} else {
+			return 1.0;
+		}
+	}
 	
 	@Override
 	public StatsRow[] getStats() {
-		StatsRow[] toReturn = new StatsRow[10];
+		StatsRow[] toReturn = new StatsRow[11];
 		
 		boolean directDamageModified = selectedTier1 == 1 || selectedTier3 == 0 || (selectedOverclock > 1 && selectedOverclock < 5);
 		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, directDamageModified);
@@ -308,7 +317,9 @@ public class Zhukov extends Weapon {
 		toReturn[8] = new StatsRow("Base Spread:", convertDoubleToPercentage(getBaseSpread()), modIcons.baseSpread, baseSpreadModified, baseSpreadModified);
 		
 		toReturn[9] = new StatsRow("Movespeed While Firing: (m/sec)", getMovespeedWhileFiring(), modIcons.movespeed, selectedOverclock == 4, selectedOverclock == 4);
-		
+
+		toReturn[10] = new StatsRow("Armor Breaking:", convertDoubleToPercentage(getArmorBreaking()), modIcons.armorBreaking, selectedOverclock == 4, selectedOverclock == 4);
+
 		return toReturn;
 	}
 	
@@ -372,7 +383,7 @@ public class Zhukov extends Weapon {
 		
 		// Conductive Bullets is x1.3 multiplier on Electrocuted targets or targets inside IFG field
 		if (selectedTier5 == 0 && (statusEffects[2] || statusEffects[3])) {
-			directDamage *= 1.3;
+			directDamage *= 1.33;
 		}
 		
 		double damagePerMagazine;

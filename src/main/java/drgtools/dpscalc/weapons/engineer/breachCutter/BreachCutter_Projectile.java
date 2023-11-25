@@ -59,7 +59,7 @@ public class BreachCutter_Projectile extends BreachCutter {
 		
 		toReturn[5] = new StatsRow("Delay Before Opening:", getDelayBeforeOpening(), modIcons.duration, selectedTier3 == 0);
 		
-		boolean lifetimeModified = selectedTier1 == 0 || selectedOverclock == 2 || selectedOverclock == 5;
+		boolean lifetimeModified = selectedTier1 == 0 || selectedOverclock == 1 || selectedOverclock == 2 || selectedOverclock == 5;
 		toReturn[6] = new StatsRow("Projectile Lifetime (sec):", getProjectileLifetime(), modIcons.hourglass, lifetimeModified);
 		
 		toReturn[7] = new StatsRow("In-Game Listed DPS:", getDamagePerTick() * damageTickRate, modIcons.special, dmgPerTickModified);

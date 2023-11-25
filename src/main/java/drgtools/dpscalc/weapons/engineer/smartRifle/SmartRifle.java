@@ -55,7 +55,7 @@ public class SmartRifle extends Weapon {
 		directDamage = 21;
 		carriedAmmo = 180;
 		magazineSize = 36;
-		rateOfFire = 6.0;
+		rateOfFire = 5.0;
 		reloadTime = 3.0;
 		timeBetweenBulletsDuringBurst = 0.06;
 		lockonRange = 25.0; // meters

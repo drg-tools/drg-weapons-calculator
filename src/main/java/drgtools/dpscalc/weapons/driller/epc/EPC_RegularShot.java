@@ -83,7 +83,7 @@ public class EPC_RegularShot extends EPC {
 		
 		StatsRow[] toReturn = new StatsRow[8];
 		
-		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, selectedTier1 == 0 || selectedOverclock == 3);
+		toReturn[0] = new StatsRow("Direct Damage:", getDirectDamage(), modIcons.directDamage, selectedTier1 == 0 || selectedTier5 == 2 || selectedOverclock == 3);
 		
 		toReturn[1] = new StatsRow("Projectile Velocity:", convertDoubleToPercentage(getRegularShotVelocity()), modIcons.projectileVelocity, selectedTier2 == 1, selectedTier2 == 1);
 		
@@ -152,7 +152,7 @@ public class EPC_RegularShot extends EPC {
 		}
 		
 		double burnDPS = 0;
-		if (selectedTier5 == 2 && !statusEffects[1]) {
+		if (selectedTier5 == 0 && !statusEffects[1]) {
 			if (burst) {
 				double fireDoTUptimeCoefficient = (duration - averageTimeToCauterize()) / duration;
 				
@@ -178,7 +178,7 @@ public class EPC_RegularShot extends EPC {
 		double baseDamage = getDirectDamage() * getBatterySize();
 		
 		double fireDoTTotalDamage = 0;
-		if (selectedTier5 == 2) {
+		if (selectedTier5 == 0) {
 			
 			double estimatedNumEnemiesKilled = calculateFiringDuration() / averageTimeToKill();
 			double fireDoTDamagePerEnemy = calculateAverageDoTDamagePerEnemy(averageTimeToCauterize(), DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
@@ -234,7 +234,7 @@ public class EPC_RegularShot extends EPC {
 //		double[] areaDamage = new double[5];
 //
 //		double heatPerShot = 0;
-//		if (selectedTier5 == 2) {
+//		if (selectedTier5 == 0) {
 //			heatPerShot = 0.5 * getDirectDamage();
 //		}
 //
@@ -259,7 +259,7 @@ public class EPC_RegularShot extends EPC {
 	
 	@Override
 	public double averageTimeToCauterize() {
-		if (selectedTier5 == 2) {
+		if (selectedTier5 == 0) {
 			// 5 + 25% of Direct Damage from the Regular Shots gets added on as Heat Damage.
 			double heatDamagePerShot = 5.0 + 0.25 * getDirectDamage();
 			return EnemyInformation.averageTimeToIgnite(0, heatDamagePerShot, getCustomRoF(), 0);
@@ -273,7 +273,7 @@ public class EPC_RegularShot extends EPC {
 	public double damagePerMagazine() {
 		double baseDamage = getNumRegularShotsBeforeOverheat() * getDirectDamage();
 		double fireDoTDamage = 0;
-		if (selectedTier5 == 2) {
+		if (selectedTier5 == 0) {
 			fireDoTDamage = calculateAverageDoTDamagePerEnemy(averageTimeToCauterize(), DoTInformation.Burn_SecsDuration, DoTInformation.Burn_DPS);
 		}
 		return baseDamage + fireDoTDamage;

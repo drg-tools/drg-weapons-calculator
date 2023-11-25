@@ -94,8 +94,8 @@ public abstract class Classic extends Weapon {
 		overclocks[2] = new Overclock(Overclock.classification.balanced, "Active Stability System", "No movement penalty while Focusing, +19% Focus Speed, +0.5 Reload Time", overclockIcons.movespeed, 2);
 		overclocks[3] = new Overclock(Overclock.classification.balanced, "Hipster", "+2 Rate of Fire, x1.913 Max Ammo, -10% Spread per Shot, x0.85 Max Bloom, x0.5 Recoil, -17 Direct Damage", overclockIcons.baseSpread, 3);
 		overclocks[4] = new Overclock(Overclock.classification.unstable, "Electrocuting Focus Shots", "Focused Shots apply an Electrocute DoT which does "
-				+ "an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per Second for 4 seconds, -25% Focused Shot Multiplier", overclockIcons.electricity, 4);
-		overclocks[5] = new Overclock(Overclock.classification.unstable, "Supercooling Chamber", "+125% Focused Shot Multiplier, x0.665 Max Ammo, x0.6 Focus Speed, no movement while focusing", overclockIcons.directDamage, 5);
+				+ "an average of " + MathUtils.round(DoTInformation.Electro_DPS, GuiConstants.numDecimalPlaces) + " Electric Damage per Second and slows enemies by 80% for 6 seconds, -25% Focused Shot Multiplier ", overclockIcons.electricity, 4);
+		overclocks[5] = new Overclock(Overclock.classification.unstable, "Supercooling Chamber", "+150% Focused Shot Multiplier, x3 Weakpoint Bonus, x0.73 Clip Size, x0.685 Max Ammo, x0.6 Focus Speed, and no movement while focusing", overclockIcons.directDamage, 5);
 		
 		// This boolean flag has to be set to True in order for Weapon.isCombinationValid() and Weapon.buildFromCombination() to work.
 		modsAndOCsInitialized = true;
@@ -140,7 +140,7 @@ public abstract class Classic extends Weapon {
 			toReturn -= 0.25;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn += 1.25;
+			toReturn += 1.5;
 		}
 		
 		return toReturn;
@@ -156,7 +156,7 @@ public abstract class Classic extends Weapon {
 			toReturn *= 1.913;
 		}
 		else if (selectedOverclock == 5) {
-			toReturn *= 0.665;
+			toReturn *= 0.685;
 		}
 		
 		return (int) Math.round(toReturn);
@@ -170,6 +170,9 @@ public abstract class Classic extends Weapon {
 		
 		if (selectedOverclock == 1) {
 			toReturn = (int) Math.ceil(toReturn * 1.25);
+		}
+		else if (selectedOverclock == 5) {
+			toReturn = (int) Math.ceil(toReturn * 0.73);
 		}
 		
 		return toReturn;
@@ -241,6 +244,10 @@ public abstract class Classic extends Weapon {
 		
 		if (selectedTier4 == 1) {
 			toReturn += 0.2;
+		}
+
+		if (selectedOverclock == 5) {
+			toReturn *= 3.0;
 		}
 		
 		return toReturn;
