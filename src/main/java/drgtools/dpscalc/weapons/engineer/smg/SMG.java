@@ -99,7 +99,7 @@ public class SMG extends Weapon {
 		
 		tier5 = new Mod[3];
 		tier5[0] = new Mod("Magazine Capacity Tweak", "+20 Magazine Size", modIcons.magSize, 5, 0);
-		tier5[1] = new Mod("Electric Arc", "Every time the SMG either applies or refreshes an Electrocute DoT, there's a 25% chance that all enemies within a 2.75m radius of the primary target will be electrocuted as well.", modIcons.electricity, 5, 1);
+		tier5[1] = new Mod("Electric Arc", "Every time the SMG applies its Electrocute DoT, there's a 25% chance that all enemies within a 2.75m radius of the primary target will be electrocuted as well.", modIcons.electricity, 5, 1);
 		tier5[2] = new Mod("Improved Accuracy", "x0.6 Base Spread", modIcons.baseSpread, 5, 2);
 
 		overclocks = new Overclock[6];
