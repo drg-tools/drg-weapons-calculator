@@ -10,8 +10,7 @@ public class TriJaw extends Enemy {
 		exactSpawnProbability = 0.0128254724;
 		
 		enemyName = "Mactera Tri-Jaw";
-		macteraType = true;
-		baseHealth = 350;
+    baseHealth = 350;
 		normalScaling = true;
 		
 		hasExposedBodySomewhere = true;

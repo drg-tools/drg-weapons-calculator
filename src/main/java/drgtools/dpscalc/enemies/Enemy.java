@@ -39,7 +39,6 @@ public abstract class Enemy {
 	protected boolean calculateBreakpoints = true;
 	
 	protected String enemyName;
-	protected boolean macteraType = false;  // Used for Subata T5.B
 	// These base values are just taken from the Wiki's default values; Hazard level and player count not factored in. (effectively Haz2, 4 players)
 	protected double baseHealth;
 	protected boolean normalScaling;
@@ -95,9 +94,7 @@ public abstract class Enemy {
 	public String getName() {
 		return enemyName;
 	}
-	public boolean isMacteraType() {
-		return macteraType;
-	}
+
 	public double getBaseHealth() {
 		return baseHealth;
 	}

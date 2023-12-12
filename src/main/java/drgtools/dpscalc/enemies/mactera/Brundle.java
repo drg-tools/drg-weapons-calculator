@@ -13,7 +13,6 @@ public class Brundle extends Enemy {
 		exactSpawnProbability = 0.003124535039;
 		
 		enemyName = "Mactera Brundle";
-		macteraType = true;
 		baseHealth = 600;
 		normalScaling = true;
 		

@@ -10,8 +10,7 @@ public class GooBomber extends Enemy {
 		exactSpawnProbability = 0.005088528493;
 		
 		enemyName = "Mactera Goo Bomber";
-		macteraType = true;
-		baseHealth = 800;
+    baseHealth = 800;
 		normalScaling = false;
 		
 		hasExposedBodySomewhere = true;
