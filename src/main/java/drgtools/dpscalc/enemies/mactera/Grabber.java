@@ -10,8 +10,7 @@ public class Grabber extends Enemy {
 		exactSpawnProbability = 0.001934235977;
 		
 		enemyName = "Mactera Grabber";
-		macteraType = true;
-		baseHealth = 500;
+    baseHealth = 500;
 		normalScaling = false;
 		
 		hasExposedBodySomewhere = true;

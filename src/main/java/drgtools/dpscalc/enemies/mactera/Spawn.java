@@ -10,8 +10,7 @@ public class Spawn extends Enemy {
 		exactSpawnProbability = 0.02550215742;
 		
 		enemyName = "Mactera Spawn";
-		macteraType = true;
-		baseHealth = 223;
+    baseHealth = 223;
 		normalScaling = true;
 		
 		hasExposedBodySomewhere = true;
