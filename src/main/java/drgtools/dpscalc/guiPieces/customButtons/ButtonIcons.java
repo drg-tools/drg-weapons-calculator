@@ -21,7 +21,7 @@ public class ButtonIcons {
 	private static BufferedImage fuelWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Fuel.png");
 	private static BufferedImage chargeSpeedWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_ChargeUp.png");
 	private static BufferedImage coolingRateWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_TemperatureCoolDown.png");
-	private static BufferedImage ricochetWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Ricoshet.png");
+	private static BufferedImage ricochetWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Ricochet.png");
 	private static BufferedImage rateOfFireWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_FireRate.png");
 	private static BufferedImage pelletsPerShotWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Shotgun_Pellet.png");
 	private static BufferedImage armorBreakingWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_ArmorBreaking.png");
@@ -43,9 +43,11 @@ public class ButtonIcons {
 	private static BufferedImage angleWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Angle.png");
 	private static BufferedImage lightWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Light.png");
 	private static BufferedImage acidWhite = ResourceLoader.loadImage("images/mod/white/Icon_Acid.png");
-	private static BufferedImage numTargetsWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Arperture_Extension.png");
+	private static BufferedImage numTargetsWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Aperture_Extension.png");
 	private static BufferedImage lastShotDamageWhite = ResourceLoader.loadImage("images/mod/white/Icon_Overclock_LastShellHigherDamage.png");
-	
+	private static BufferedImage pheromonesWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_Pheromones_White.png");
+	private static BufferedImage remoteMechanismWhite = ResourceLoader.loadImage("images/mod/white/Icon_Upgrade_RemoteMechanism_White.png");
+
 	private static BufferedImage baseSpreadBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Aim_Black.png");
 	private static BufferedImage magSizeBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_ClipSize_Black.png");
 	private static BufferedImage reloadSpeedBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Speed_Black.png");
@@ -61,7 +63,7 @@ public class ButtonIcons {
 	private static BufferedImage fuelBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Fuel_Black.png");
 	private static BufferedImage chargeSpeedBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_ChargeUp_Black.png");
 	private static BufferedImage coolingRateBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_TemperatureCoolDown_Black.png");
-	private static BufferedImage ricochetBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Ricoshet_Black.png");
+	private static BufferedImage ricochetBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Ricochet_Black.png");
 	private static BufferedImage rateOfFireBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_FireRate_Black.png");
 	private static BufferedImage pelletsPerShotBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Shotgun_Pellet_Black.png");
 	private static BufferedImage armorBreakingBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_ArmorBreaking_Black.png");
@@ -83,12 +85,14 @@ public class ButtonIcons {
 	private static BufferedImage angleBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Angle_Black.png");
 	private static BufferedImage lightBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Light_Black.png");
 	private static BufferedImage acidBlack = ResourceLoader.loadImage("images/mod/black/Icon_Acid_Black.png");
-	private static BufferedImage numTargetsBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Arperture_Extension_Black.png");
+	private static BufferedImage numTargetsBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Aperture_Extension_Black.png");
 	private static BufferedImage lastShotDamageBlack = ResourceLoader.loadImage("images/mod/black/Icon_Overclock_LastShellHigherDamage_Black.png");
-	
+	private static BufferedImage pheromonesBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_Pheromones_Black.png");
+	private static BufferedImage remoteMechanismBlack = ResourceLoader.loadImage("images/mod/black/Icon_Upgrade_RemoteMechanism_Black.png");
+
 	// This gets used by StatsRow when there's no associated picture.
 	private static BufferedImage blank = ResourceLoader.loadImage("images/mod/blank.png");
-	
+
 	public static BufferedImage cleanFrame = ResourceLoader.loadImage("images/overclock/Frame_Overclock_Clean.png");
 	public static BufferedImage balancedFrame = ResourceLoader.loadImage("images/overclock/Frame_Overclock_Balanced.png");
 	public static BufferedImage unstableFrame = ResourceLoader.loadImage("images/overclock/Frame_Overclock_Unstable.png");
@@ -99,11 +103,13 @@ public class ButtonIcons {
 	private static BufferedImage breachCutterRoll = ResourceLoader.loadImage("images/overclock/Icon_Overclock_Spinning_Linecutter.png");
 	private static BufferedImage breachCutterReturn = ResourceLoader.loadImage("images/overclock/Icon_Overclock_ForthAndBack_Linecutter.png");
 	private static BufferedImage numPellets2 = ResourceLoader.loadImage("images/overclock/Icon_Upgrade_Shotgun_Pellet2.png");
-	
+	private static BufferedImage radioactive = ResourceLoader.loadImage("images/overclock/Icon_Overclock_Radioactive.png");
+
 	private static BufferedImage statusFire = ResourceLoader.loadImage("images/statusEffect/Status_fire.png");
 	private static BufferedImage statusFrozen = ResourceLoader.loadImage("images/statusEffect/Status_frozen.png");
 	private static BufferedImage statusElectricity = ResourceLoader.loadImage("images/statusEffect/Status_electricity.png");
-	
+	private static BufferedImage statusCorrosion = ResourceLoader.loadImage("images/statusEffect/Status_corrosion.png");
+
 	// Use a large enum variable to keep track of which icon each Mod or OC needs
 	public enum modIcons {
 		baseSpread,
@@ -145,9 +151,11 @@ public class ButtonIcons {
 		light,
 		acid,
 		numTargets,
-		lastShotDamage
+		lastShotDamage,
+		pheromones,
+		remoteMechanism
 	};
-	
+
 	public static BufferedImage getModIcon(modIcons iconSelection, boolean getBlackVersion) {
 		switch (iconSelection) {
 			case baseSpread: {
@@ -465,12 +473,28 @@ public class ButtonIcons {
 					return lastShotDamageWhite;
 				}
 			}
+			case pheromones: {
+				if (getBlackVersion) {
+					return pheromonesBlack;
+				}
+				else {
+					return pheromonesWhite;
+				}
+			}
+			case remoteMechanism: {
+				if (getBlackVersion) {
+					return remoteMechanismBlack;
+				}
+				else {
+					return remoteMechanismWhite;
+				}
+			}
 			default: {
 				return null;
 			}
 		}
 	}
-	
+
 	public enum overclockIcons {
 		baseSpread,
 		magSize,
@@ -511,9 +535,11 @@ public class ButtonIcons {
 		weakpointBonus,
 		slowdown,
 		acid,
-		numPellets2
+		numPellets2,
+		radioactive,
+		lastShotDamage
 	}
-	
+
 	public static BufferedImage getOverclockIcon(overclockIcons iconSelection) {
 		switch (iconSelection) {
 			case baseSpread: {
@@ -636,18 +662,25 @@ public class ButtonIcons {
 			case numPellets2: {
 				return numPellets2;
 			}
+			case radioactive: {
+				return radioactive;
+			}
+			case lastShotDamage: {
+				return lastShotDamageWhite;
+			}
 			default: {
 				return null;
 			}
 		}
 	}
-	
+
 	public enum statusEffectIcons {
 		fire,
 		frozen,
-		electricity
+		electricity,
+		corrosion
 	}
-	
+
 	public static BufferedImage getStatusEffectIcon(statusEffectIcons iconSelection) {
 		switch (iconSelection) {
 			case fire: {
@@ -658,6 +691,9 @@ public class ButtonIcons {
 			}
 			case electricity: {
 				return statusElectricity;
+			}
+			case corrosion: {
+				return statusCorrosion;
 			}
 			default: {
 				return null;
